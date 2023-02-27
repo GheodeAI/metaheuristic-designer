@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from .ParamScheduler import *
+from ..ParamScheduler import *
 
 
 class Operator(ABC):

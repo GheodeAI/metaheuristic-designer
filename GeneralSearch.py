@@ -3,18 +3,20 @@ from matplotlib import pyplot as plt
 import time
 
 
-class Metaheuristic:
+class GeneralSearch:
     """
     General framework for metaheuristic algorithms
     """
     
-    def __init__(self, name, objfunc, params):
+    def __init__(self, name, objfunc, search_strategy, params):
         """
         Constructor of the Metaheuristic class
         """
 
         self.name = name
         self.params = params
+        self.objfunc = objfunc
+        self.search_strategy = search_strategy
 
         # Verbose parameters
         self.verbose = params["verbose"] if "verbose" in params else True
@@ -28,7 +30,8 @@ class Metaheuristic:
         self.fit_target = params["fit_target"] if "fit_target" in params else 0
         
         # Metrics
-        self.history = []
+        self.fit_history = []
+        self.best_history = []
         self.best_fitness = 0
         self.time_spent = 0
         self.real_time_spent = 0
@@ -39,7 +42,8 @@ class Metaheuristic:
         Resets the internal values of the algorithm and the number of evaluations of the fitness function.
         """
 
-        self.history = []
+        self.fit_history = []
+        self.best_history = []
         self.best_fitness = 0
         self.time_spent = 0
         self.real_time_spent = 0
@@ -51,7 +55,7 @@ class Metaheuristic:
         Save the result of an execution to a csv file in disk.
         """
 
-        ind, fit = self.population.best_solution()
+        ind, fit = self.search_strategy.best_solution()
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=',')
         with open(file_name, "a") as file:
             file.write(str(fit))
@@ -62,7 +66,7 @@ class Metaheuristic:
         Returns the best solution so far in the population.
         """
 
-        return self.population.best_solution()
+        return self.search_strategy.best_solution()
 
     
     def step(self, progress):
@@ -70,8 +74,9 @@ class Metaheuristic:
         Does one step of the algorithm
         """
         
-        _, best_fitness = self.population.best_solution()
-        self.history.append(best_fitness)
+        best_individual, best_fitness = self.search_strategy.step(progress, self.best_history)
+
+        return (best_individual, best_fitness)
     
     
     def stopping_condition(self, gen, time_start):
@@ -88,9 +93,9 @@ class Metaheuristic:
             stop = time.time()-time_start >= self.time_limit
         elif self.stop_cond == "fit_target":
             if self.objfunc.opt == "max":
-                stop = self.population.best_solution()[1] >= self.fit_target
+                stop = self.search_strategy.best_solution()[1] >= self.fit_target
             else:
-                stop = self.population.best_solution()[1] <= self.fit_target
+                stop = self.search_strategy.best_solution()[1] <= self.fit_target
 
         return stop
 
@@ -110,9 +115,9 @@ class Metaheuristic:
             prog = (time.time()-time_start)/self.time_limit
         elif self.stop_cond == "fit_target":
             if self.objfunc.opt == "max":
-                prog = self.population.best_solution()[1]/self.fit_target
+                prog = self.search_strategy.best_solution()[1]/self.fit_target
             else:
-                prog = self.fit_target/self.population.best_solution()[1]
+                prog = self.fit_target/self.search_strategy.best_solution()[1]
 
         return prog
 
@@ -123,22 +128,32 @@ class Metaheuristic:
         """
 
         gen = 0
+
         time_start = time.process_time()
         real_time_start = time.time()
         display_timer = time.time()
 
-        self.population.generate_random()
+        self.search_strategy.initialize()
+
         while not self.stopping_condition(gen, real_time_start):
+            
             prog = self.progress(gen, real_time_start)
-            self.step(prog)
+
+            best_individual, best_fitness = self.step(prog)
+            
+            self.best_history.append(best_individual)
+            self.fit_history.append(best_fitness)
+
             gen += 1
+
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(gen, real_time_start)
                 display_timer = time.time()
-                
+        
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
-        return self.population.best_solution()
+        
+        return self.best_solution()
     
     
     def step_info(self, gen, start_time):
@@ -149,7 +164,7 @@ class Metaheuristic:
         print(f"Optimizing {self.objfunc.name}:")
         print(f"\tTime Spent {round(time.time() - start_time,2)} s")
         print(f"\tGeneration: {gen}")
-        best_fitness = self.population.best_solution()[1]
+        best_fitness = self.best_solution()[1]
         print(f"\tBest fitness: {best_fitness}")
         print(f"\tEvaluations of fitness: {self.objfunc.counter}")
         print()
@@ -161,19 +176,19 @@ class Metaheuristic:
         """
         
         # Print Info
-        print("Number of generations:", len(self.history))
+        print("Number of generations:", len(self.fit_history))
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
         print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
         print("Number of fitness evaluations:", self.objfunc.counter)
         
-        best_fitness = self.population.best_solution()[1]
+        best_fitness = self.best_solution()[1]
         print("Best fitness:", best_fitness)
 
         if show_plots:
             # Plot fitness history
             plt.axhline(y=0, color="black", alpha=0.9)
             plt.axvline(x=0, color="black", alpha=0.9)            
-            plt.plot(self.history, "blue")
+            plt.plot(self.fit_history, "blue")
             plt.xlabel("generations")
             plt.ylabel("fitness")
             plt.title(f"{self.name} fitness")
