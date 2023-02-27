@@ -1,7 +1,12 @@
-# PyEvolAlg
-Python implementation of several metaheuristics/optimization algorithms
+# PyMetaheuristics
+Python implementation of a general framework for the design and execution of metaheuristic algorithms.
 
-Each algorithm is located in its package directory.
+Created with the purpose of creating the necesary tools for the analysis and design of metaheuristics
+in a more granular way, choosing algorithm components and adding them to a general search framework.
+
+[Still in progress]
+
+https://arxiv.org/pdf/2011.09821.pdf
 
 To configure the hyperparameters a dictionary will have to be given to the class of each algorithm.
 
@@ -19,15 +24,6 @@ To configure the hyperparameters a dictionary will have to be given to the class
 - Display options:
     - verbose: shows a report of the state of the algorithm periodicaly
     - v_timer: amount of time between each report
-
-## Algorithms available
-- Coral Reef optimization with subtrate layers (CRO_SL)
-- Genetic algorithm (GA)
-- Evolution Strategy (ES)
-- Harmony search (HS)
-- LSHADE
-- Particle Swarm Optimization (PSO)
-- Simulated annealing (SimAnn)
 
 ## Operators available
 - 1 point cross (1point)
