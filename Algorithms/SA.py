@@ -1,11 +1,11 @@
 import random
 import numpy as np
-
-from ..Individual import *
+from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
+from .BaseAlgorithm import BaseAlgorithm
 
 
-class SA:
+class SA(BaseAlgorithm):
     """
     Class implementing the Simulated annealing algorithm
     """
@@ -15,20 +15,17 @@ class SA:
         Constructor of the SimAnnEvolve class
         """
 
-        self.name = name
-        self.params = params
+        super().__init__(objfunc, name)
 
         # Parameters of the algorithm
+        self.params = params
         self.iter = params["iter"] if "iter" in params else 100
         self.temp_init = params["temp_init"] if "temp_init" in params else 100
         self.temp = self.temp_init 
         self.alpha = params["alpha"] if "alpha" in params else 0.99
 
-        self.best_fit = 0       
-
         self.current_indiv = None
         self.best_indiv = None
-        self.objfunc = objfunc
         self.perturb_op = perturb_op
     
     def best_solution(self):
@@ -49,6 +46,7 @@ class SA:
 
         self.current_indiv = Indiv(self.objfunc, self.objfunc.random_solution())
         self.best_indiv = self.current_indiv
+
 
     def step(self, progress=None, history=None):
         """
@@ -84,6 +82,7 @@ class SA:
         
         self.temp = self.temp*self.alpha
     
+
     def extra_step_info(self):
         """
         Specific information to display relevant to this algorithm

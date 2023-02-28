@@ -1,12 +1,12 @@
 import random
 import numpy as np
-from numba import jit
-from copy import deepcopy
-from ..Individual import *
+from copy import copy
+from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
+from .BaseAlgorithm import BaseAlgorithm
 
 
-class GA:
+class GA(BaseAlgorithm):
     """
     Population of the Genetic algorithm
     """
@@ -16,10 +16,10 @@ class GA:
         Constructor of the GeneticPopulation class
         """
 
-        self.name = name
-        self.params = params
+        super().__init__(objfunc, name)
 
         # Hyperparameters of the algorithm
+        self.params = params
         self.size = params["popSize"] if "popSize" in params else 100
         self.pmut = params["pmut"] if "pmut" in params else 0.1
         self.pcross = params["pcross"] if "pcross" in params else 0.9
@@ -27,9 +27,6 @@ class GA:
         self.cross_op = cross_op
         self.parent_sel_op = parent_sel_op
         self.selection_op = selection_op
-
-        # Data structures of the algorithm
-        self.objfunc = objfunc
 
         # Population initialization
         if population is None:
@@ -79,7 +76,7 @@ class GA:
                 new_solution = self.objfunc.check_bounds(new_solution)
                 new_ind = Indiv(self.objfunc, new_solution)
             else:
-                new_ind = deepcopy(parent1)
+                new_ind = copy(parent1)
             
             # Mutate
             if random.random() < self.pmut:
@@ -107,12 +104,7 @@ class GA:
             self.params.step(progress)
             self.size = self.params["popSize"]
             self.pmut = self.params["pmut"]
-            self.pcross = self.params["pcross"]    
-    
-    def extra_step_info(self):
-        """
-        Specific information to display relevant to this algorithm
-        """
+            self.pcross = self.params["pcross"]
 
 
 

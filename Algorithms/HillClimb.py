@@ -1,13 +1,10 @@
 import random
 import numpy as np
-from numba import jit
-from copy import deepcopy
-
-from ..Individual import *
+from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
+from .BaseAlgorithm import BaseAlgorithm
 
-
-class HillClimb:    
+class HillClimb(BaseAlgorithm):
     """
     Search strtategy example, HillClimbing
     """
@@ -17,13 +14,10 @@ class HillClimb:
         Constructor of the Example search strategy class
         """
 
-        self.name = name
-
-        self.best_fit = 0        
+        super().__init__(objfunc, name)
 
         self.current_indiv = None
         self.best_indiv = None
-        self.objfunc = objfunc
         self.perturb_op = perturb_op
 
     def best_solution(self):
@@ -71,11 +65,6 @@ class HillClimb:
         """
 
         self.perturb_op.step(progress)
-    
-    def extra_step_info(self):
-        """
-        Specific information to display relevant to this algorithm
-        """
 
     
     

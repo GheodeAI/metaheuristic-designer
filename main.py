@@ -3,7 +3,8 @@ sys.path.append("..")
 
 from PyMetaheuristics import GeneralSearch, ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
 from PyMetaheuristics.Operators import OperatorReal, OperatorInt, OperatorBinary
-from PyMetaheuristics.Algorithms import ES, GA, SA, HillClimb 
+from PyMetaheuristics.Algorithms import ES, GA, SA, HillClimb
+
 from PyMetaheuristics.benchmarks.benchmarkFuncs import *
 
 import argparse
@@ -14,7 +15,7 @@ def run_algorithm(alg_name):
         "stop_cond": "neval",
         "time_limit": 20.0,
         "ngen": 1000,
-        "neval": 1e6,
+        "neval": 1e5,
         "fit_target": 0,
 
         "verbose": True,
@@ -36,7 +37,7 @@ def run_algorithm(alg_name):
     elif alg_name == "GA":
         search_strat = GA(objfunc, mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.2})
     elif alg_name == "SA":
-        search_strat = SA(objfunc, mutation_op, {"iter":100, "temp_init":30, "alpha":0.999})
+        search_strat = SA(objfunc, mutation_op, {"iter":100, "temp_init":30, "alpha":0.99})
     else:
         search_strat = HillClimb(objfunc, mutation_op)
 

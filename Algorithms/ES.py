@@ -1,12 +1,11 @@
 import random
 import numpy as np
-from numba import jit
-from copy import deepcopy
-from ..Individual import *
+from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
+from .BaseAlgorithm import BaseAlgorithm
 
 
-class ES:
+class ES(BaseAlgorithm):
     """
     Population of the Genetic algorithm
     """
@@ -16,19 +15,16 @@ class ES:
         Constructor of the GeneticPopulation class
         """
 
-        self.name = name
-        self.params = params
+        super().__init__(objfunc, name)
 
         # Hyperparameters of the algorithm
+        self.params = params
         self.size = params["popSize"] if "popSize" in params else 100
         self.n_offspring = params["offspringSize"] if "offspringSize" in params else self.size
         self.mutation_op = mutation_op
         self.cross_op = cross_op
         self.parent_sel_op = parent_sel_op
         self.selection_op = selection_op
-
-        # Data structures of the algorithm
-        self.objfunc = objfunc
 
         # Population initialization
         if population is None:
@@ -103,11 +99,6 @@ class ES:
             self.size = self.params["popSize"]
             self.pmut = self.params["pmut"]
             self.pcross = self.params["pcross"]
-
-    def extra_step_info(self):
-        """
-        Specific information to display relevant to this algorithm
-        """
 
 
 
