@@ -171,7 +171,6 @@ def run_algorithm(alg_name, img_file_name):
 
     alg.population.generate_random()
 
-    
     while not alg.stopping_condition(gen, real_time_start):
         # process GUI events and reset screen
         if display:

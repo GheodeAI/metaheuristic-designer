@@ -12,12 +12,12 @@ class HillClimb:
     Search strtategy example, HillClimbing
     """
     
-    def __init__(self, objfunc, perturb_op, params):
+    def __init__(self, objfunc, perturb_op, name="HillClimb"):
         """
         Constructor of the Example search strategy class
         """
 
-        self.params = params
+        self.name = name
 
         self.best_fit = 0        
 
@@ -46,7 +46,7 @@ class HillClimb:
         self.best_fit = self.current_indiv.fitness
 
     
-    def step(self, progress, history):
+    def step(self, progress=0, history=None):
         """
         Performs a step of the algorithm
         """
@@ -60,22 +60,22 @@ class HillClimb:
         if new_indiv.fitness > self.current_indiv.fitness:
             self.current_indiv = new_indiv        
         
-        self._update_params(progress)
+        self.update_params(progress)
         
         return self.best_solution()
 
     
-    def _update_params(self, progress):
+    def update_params(self, progress):
         """
         Updates the parameters of each component of the algorithm
         """
 
         self.perturb_op.step(progress)
-
-        if isinstance(self.params, ParamScheduler):
-            self.params.step(progress)
-            self.size = self.params["popSize"]
-            self.n_offspring = self.params["offspringSize"]
+    
+    def extra_step_info(self):
+        """
+        Specific information to display relevant to this algorithm
+        """
 
     
     

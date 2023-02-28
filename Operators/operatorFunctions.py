@@ -94,6 +94,7 @@ def randSample(vector, population, params):
     """
     Picks a vector with components sampled from a probability distribution.
     """
+
     method = params["method"]
     
     low = params["Low"] if "Low" in params else -1
@@ -113,6 +114,7 @@ def randNoise(vector, params):
     """
     Adds random noise with a given probability distribution to all components of the input vector.
     """
+
     method = params["method"]
 
     low = params["Low"] if "Low" in params else -1
@@ -148,7 +150,7 @@ def sampleDistribution(method, n, mean=0, strength=0.01, low=0, up=1):
     elif method == "Poisson":
         sample = sp.stats.poisson.rvs(strength, size=n)
     elif method == "Bernouli":
-        sample = sp.stats.bernouli.rvs(strength, size=n)
+        sample = sp.stats.bernoulli.rvs(strength, size=n)
     else:
         print(f"Error: distribution \"{method}\" not defined")
         exit(1)

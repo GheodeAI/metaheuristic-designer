@@ -28,6 +28,7 @@ class ObjectiveFunc(ABC):
         """
         Shorthand for executing the objective function on a vector.
         """
+        
         result = None
         if adjusted:
             result = self.fitness(solution)
@@ -42,6 +43,7 @@ class ObjectiveFunc(ABC):
         Returns the value of the objective function given a vector changing the sign so that
         the optimization problem is solved by maximizing the fitness function.
         """
+
         self.counter += 1
         return self.factor * self.objective(solution)
     
@@ -49,7 +51,7 @@ class ObjectiveFunc(ABC):
     @abstractmethod
     def objective(self, vector):
         """
-        Implementation of the objective function without adjusting the sign.
+        Implementation of the objective function.
         """
     
 

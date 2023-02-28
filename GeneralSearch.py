@@ -8,14 +8,14 @@ class GeneralSearch:
     General framework for metaheuristic algorithms
     """
     
-    def __init__(self, name, objfunc, search_strategy, params):
+    def __init__(self, search_strategy, params):
         """
         Constructor of the Metaheuristic class
         """
 
-        self.name = name
+        #self.name = name
         self.params = params
-        self.objfunc = objfunc
+        # self.objfunc = objfunc
         self.search_strategy = search_strategy
 
         # Verbose parameters
@@ -28,10 +28,13 @@ class GeneralSearch:
         self.Neval = params["neval"] if "neval" in params else 1e5
         self.time_limit = params["time_limit"] if "time_limit" in params else 10.0
         self.fit_target = params["fit_target"] if "fit_target" in params else 0
-        
+
         # Metrics
         self.fit_history = []
         self.best_history = []
+        self.progress = 0
+        self.ended = False
+        self.steps = 0
         self.best_fitness = 0
         self.time_spent = 0
         self.real_time_spent = 0
@@ -44,6 +47,8 @@ class GeneralSearch:
 
         self.fit_history = []
         self.best_history = []
+        self.progress = 0
+        self.ended = False
         self.best_fitness = 0
         self.time_spent = 0
         self.real_time_spent = 0
@@ -67,17 +72,6 @@ class GeneralSearch:
         """
 
         return self.search_strategy.best_solution()
-
-    
-    def step(self, progress):
-        """
-        Does one step of the algorithm
-        """
-        
-        best_individual, best_fitness = self.search_strategy.step(progress, self.best_history)
-
-        return (best_individual, best_fitness)
-    
     
     def stopping_condition(self, gen, time_start):
         """
@@ -86,21 +80,20 @@ class GeneralSearch:
 
         stop = True
         if self.stop_cond == "neval":
-            stop = self.objfunc.counter >= self.Neval
+            stop = self.search_strategy.objfunc.counter >= self.Neval
         elif self.stop_cond == "ngen":
             stop = gen >= self.Ngen
         elif self.stop_cond == "time_limit":
             stop = time.time()-time_start >= self.time_limit
         elif self.stop_cond == "fit_target":
-            if self.objfunc.opt == "max":
-                stop = self.search_strategy.best_solution()[1] >= self.fit_target
+            if self.search_strategy.objfunc.opt == "max":
+                stop = self.best_solution()[1] >= self.fit_target
             else:
-                stop = self.search_strategy.best_solution()[1] <= self.fit_target
+                stop = self.best_solution()[1] <= self.fit_target
 
         return stop
-
     
-    def progress(self, gen, time_start):
+    def get_progress(self, gen, time_start):
         """
         Given the state of the algorithm, returns a number between 0 and 1 indicating 
         how close to the end of the algorithm we are, 0 when starting and 1 when finished.
@@ -108,18 +101,54 @@ class GeneralSearch:
 
         prog = 0
         if self.stop_cond == "neval":
-            prog = self.objfunc.counter/self.Neval
+            prog = self.search_strategy.objfunc.counter/self.Neval
         elif self.stop_cond == "ngen":
             prog = gen/self.Ngen 
         elif self.stop_cond == "time_limit":
             prog = (time.time()-time_start)/self.time_limit
         elif self.stop_cond == "fit_target":
-            if self.objfunc.opt == "max":
-                prog = self.search_strategy.best_solution()[1]/self.fit_target
+            best_fitness = self.best_solution()[1]
+            if self.search_strategy.objfunc.opt == "max":
+                prog = best_fitness/self.fit_target
             else:
-                prog = self.fit_target/self.search_strategy.best_solution()[1]
+                if best_fitness == 0:
+                    best_fitness = 1e-40
+                prog = self.fit_target/best_fitness
 
         return prog
+
+
+    def update(self, gen, time_start):
+        """
+        Given the state of the algorithm, returns a number between 0 and 1 indicating 
+        how close to the end of the algorithm we are, 0 when starting and 1 when finished.
+        """
+
+        self.progress = self.get_progress(gen, time_start)
+        
+        self.ended = self.stopping_condition(gen, time_start)
+
+    def step(self, time=0, verbose=False):
+        """
+        Performs a step in the algorithm
+        """
+
+        # Do a search step
+        best_individual, best_fitness = self.search_strategy.step(self.progress, self.best_history)
+        self.steps += 1
+            
+        # Store information
+        self.best_history.append(best_individual)
+        self.fit_history.append(best_fitness)
+
+        # Display information
+        if self.verbose:
+            self.step_info(gen, real_time_start)
+        
+        # Update internal state
+        self.update(gen, time)
+        
+        return (best_individual, best_fitness)
 
     
     def optimize(self):
@@ -127,46 +156,56 @@ class GeneralSearch:
         Execute the algorithm to get the best solution possible along with it's evaluation
         """
 
-        gen = 0
+        self.steps = 0
 
+        # initialize clocks
         time_start = time.process_time()
         real_time_start = time.time()
         display_timer = time.time()
 
+        # Initizalize search strategy 
         self.search_strategy.initialize()
 
-        while not self.stopping_condition(gen, real_time_start):
-            
-            prog = self.progress(gen, real_time_start)
+        # Search untill the stopping condition is met
+        self.update(self.steps, real_time_start )
+        while not self.ended:
 
-            best_individual, best_fitness = self.step(prog)
-            
+            # Do a search step
+            best_individual, best_fitness = self.search_strategy.step(self.progress, self.best_history)
+            self.search_strategy.update_params(self.progress)
+            self.steps += 1
+                
+            # Store information
             self.best_history.append(best_individual)
             self.fit_history.append(best_fitness)
 
-            gen += 1
-
+            # Display information
             if self.verbose and time.time() - display_timer > self.v_timer:
-                self.step_info(gen, real_time_start)
+                self.step_info(real_time_start)
                 display_timer = time.time()
+            
+            # Update internal state
+            self.update(self.steps, real_time_start)
         
+        # Store the time spent optimizing
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
         
         return self.best_solution()
     
     
-    def step_info(self, gen, start_time):
+    def step_info(self, start_time):
         """
         Displays information about the current state of the algotithm
         """
 
-        print(f"Optimizing {self.objfunc.name}:")
+        print(f"Optimizing {self.search_strategy.objfunc.name}:")
         print(f"\tTime Spent {round(time.time() - start_time,2)} s")
-        print(f"\tGeneration: {gen}")
+        print(f"\tGeneration: {self.steps}")
         best_fitness = self.best_solution()[1]
         print(f"\tBest fitness: {best_fitness}")
-        print(f"\tEvaluations of fitness: {self.objfunc.counter}")
+        print(f"\tEvaluations of fitness: {self.search_strategy.objfunc.counter}")
+        self.search_strategy.extra_step_info()
         print()
     
     
@@ -179,7 +218,7 @@ class GeneralSearch:
         print("Number of generations:", len(self.fit_history))
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
         print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
-        print("Number of fitness evaluations:", self.objfunc.counter)
+        print("Number of fitness evaluations:", self.search_strategy.objfunc.counter)
         
         best_fitness = self.best_solution()[1]
         print("Best fitness:", best_fitness)
@@ -191,5 +230,5 @@ class GeneralSearch:
             plt.plot(self.fit_history, "blue")
             plt.xlabel("generations")
             plt.ylabel("fitness")
-            plt.title(f"{self.name} fitness")
+            plt.title(f"{self.search_strategy.name} fitness")
             plt.show()
