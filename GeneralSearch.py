@@ -52,7 +52,7 @@ class GeneralSearch:
         self.best_fitness = 0
         self.time_spent = 0
         self.real_time_spent = 0
-        self.objfunc.counter = 0
+        self.search_strategy.objfunc.counter = 0
     
     
     def save_solution(self, file_name="solution.csv"):
@@ -127,14 +127,23 @@ class GeneralSearch:
         self.progress = self.get_progress(gen, time_start)
         
         self.ended = self.stopping_condition(gen, time_start)
+    
+    def initialize(self):
+        """
+        Generates a random population of individuals
+        """
 
-    def step(self, time=0, verbose=False):
+        self.restart()
+        self.search_strategy.initialize()
+
+    def step(self, time_start=0, verbose=False):
         """
         Performs a step in the algorithm
         """
 
         # Do a search step
         best_individual, best_fitness = self.search_strategy.step(self.progress, self.best_history)
+        self.search_strategy.update_params(self.progress)
         self.steps += 1
             
         # Store information
@@ -142,11 +151,11 @@ class GeneralSearch:
         self.fit_history.append(best_fitness)
 
         # Display information
-        if self.verbose:
-            self.step_info(gen, real_time_start)
+        if verbose:
+            self.step_info(time_start)
         
         # Update internal state
-        self.update(gen, time)
+        self.update(self.steps, time)
         
         return (best_individual, best_fitness)
 
@@ -170,22 +179,12 @@ class GeneralSearch:
         self.update(self.steps, real_time_start )
         while not self.ended:
 
-            # Do a search step
-            best_individual, best_fitness = self.search_strategy.step(self.progress, self.best_history)
-            self.search_strategy.update_params(self.progress)
-            self.steps += 1
-                
-            # Store information
-            self.best_history.append(best_individual)
-            self.fit_history.append(best_fitness)
+            self.step(real_time_start)
 
             # Display information
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(real_time_start)
                 display_timer = time.time()
-            
-            # Update internal state
-            self.update(self.steps, real_time_start)
         
         # Store the time spent optimizing
         self.real_time_spent = time.time() - real_time_start
@@ -199,7 +198,7 @@ class GeneralSearch:
         Displays information about the current state of the algotithm
         """
 
-        print(f"Optimizing {self.search_strategy.objfunc.name}:")
+        print(f"Optimizing {self.search_strategy.objfunc.name} using {self.search_strategy.name}:")
         print(f"\tTime Spent {round(time.time() - start_time,2)} s")
         print(f"\tGeneration: {self.steps}")
         best_fitness = self.best_solution()[1]
@@ -232,3 +231,5 @@ class GeneralSearch:
             plt.ylabel("fitness")
             plt.title(f"{self.search_strategy.name} fitness")
             plt.show()
+        
+        self.search_strategy.extra_report(show_plots)

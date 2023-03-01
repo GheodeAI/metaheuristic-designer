@@ -2,15 +2,16 @@ import random
 import numpy as np
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
+from ..SurvivorSelection import SurvivorSelection
 from .BaseAlgorithm import BaseAlgorithm
 
 
-class ES(BaseAlgorithm):
+class DE(BaseAlgorithm):
     """
     Population of the Genetic algorithm
     """
 
-    def __init__(self, objfunc, mutation_op, cross_op, parent_sel_op, selection_op, params={}, name="ES", population=None):
+    def __init__(self, objfunc, de_op, params={}, selection_op=None, name="DE", population=None):
         """
         Constructor of the GeneticPopulation class
         """
@@ -20,11 +21,12 @@ class ES(BaseAlgorithm):
         # Hyperparameters of the algorithm
         self.params = params
         self.size = params["popSize"] if "popSize" in params else 100
-        self.n_offspring = params["offspringSize"] if "offspringSize" in params else self.size
-        self.mutation_op = mutation_op
-        self.cross_op = cross_op
-        self.parent_sel_op = parent_sel_op
+        self.de_op = de_op
+
+        if selection_op is None:
+            selection_op = SurvivorSelection("One-to-one")
         self.selection_op = selection_op
+        
 
         # Population initialization
         if population is None:
@@ -60,25 +62,13 @@ class ES(BaseAlgorithm):
         Performs a step of the algorithm
         """
 
-        # Parent selection
-        parent_list = self.parent_sel_op(self.population)
-
-        # Generation of offspring by crossing and mutation
+        # Apply the DE operator to the population
         self.offspring = []
-        while len(self.offspring) < self.n_offspring:
-
-            # Cross
-            parent1 = random.choice(parent_list)
-            new_solution = self.cross_op.evolve(parent1, parent_list, self.objfunc)
+        for ind in self.population:
+            new_solution = self.de_op(ind, self.population, self.objfunc)
             new_solution = self.objfunc.check_bounds(new_solution)
             new_ind = Indiv(self.objfunc, new_solution)
             
-            # Mutate
-            new_solution = self.mutation_op(new_ind, self.population, self.objfunc)
-            new_solution = self.objfunc.check_bounds(new_solution)
-            new_ind = Indiv(self.objfunc, new_solution)
-            
-            # Add to offspring list
             self.offspring.append(new_ind)
 
         self.population = self.selection_op(self.population, self.offspring)
@@ -89,15 +79,13 @@ class ES(BaseAlgorithm):
         Updates the parameters and the operators
         """
 
-        self.mutation_op.step(progress)
-        self.cross_op.step(progress)
-        self.parent_sel_op.step(progress)
+        self.de_op.step(progress)
         self.selection_op.step(progress)
 
         if isinstance(self.params, ParamScheduler):
             self.params.step(progress)
             self.size = self.params["popSize"]
-            self.n_offspring = params["offspringSize"]
+
 
 
 

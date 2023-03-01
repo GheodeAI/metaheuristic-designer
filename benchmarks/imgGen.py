@@ -1,7 +1,9 @@
 import sys
 sys.path.append("../..")
 
-from PyEvolAlg import *
+from PyMetaheuristics import GeneralSearch, ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from PyMetaheuristics.Operators import OperatorReal, OperatorInt, OperatorBinary
+from PyMetaheuristics.Algorithms import *
 from imgProblem import * 
 
 import pygame
@@ -30,73 +32,17 @@ def save_to_image(image, img_name="result.png"):
     Image.fromarray(image.astype(np.uint8)).save(filename)
 
 def run_algorithm(alg_name, img_file_name):
-    params_base = {
-        # Population-based
-        "popSize": 100,
-
-        # Coral reef optimization
-        "rho": 0.6,
-        "Fb": 0.98,
-        "Fd": 0.2,
-        "Pd": 0.9,
-        "k": 3,
-        "K": 20,
-
-        ## Dynamic CRO-SL
-        "group_subs": False,
-
-        "dynamic": True,
-        "dyn_method": "fitness",
-        "dyn_metric": "best",
-        "dyn_steps": 100,
-        "prob_amp": 0.1,
-
-        # Genetic algorithm
-        "pmut": 0.2,
-        "pcross":0.9,
-
-        # Evolution strategy
-        "offspringSize":500,
-
-        # Particle swarm optimization
-        "w": 0.729,
-        "c1": 1.49445,
-        "c2": 1.49445,
-
-        # Reinforcement learning based search
-        "discount": 0.6,
-        "alpha": 0.7,
-        "eps": 0.1,
-        "nstates": 5,
-
-        "sel_exp": 2,
-
-        # Harmony search
-        "HMCR": 0.9,
-        "PAR" : 0.3,
-        "BN" : 1,
-
-        # Hill Climb
-        #"p": [0.1, -0.2],
-        "p": 0.01,
-
-        # Simulated annealing
-        "iter": 100,
-        "temp_init": 5,
-        "alpha" : 0.995,
-
+    params = {
         # General
         "stop_cond": "neval",
         "time_limit": 20.0,
         "ngen": 1000,
-        "neval": 6e5,
-        "fit_target": 1000,
+        "neval": 3e5,
+        "fit_target": 0,
 
         "verbose": True,
-        "v_timer": -1
+        "v_timer": 0.5
     }
-    
-    params = ParamScheduler("Linear", params_base)
 
     display = True
     display_dim = [600, 600]
@@ -111,67 +57,40 @@ def run_algorithm(alg_name, img_file_name):
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
     objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
-    # objfunc = ImgStd(image_shape, "min")
-    # objfunc = ImgEntropy(image_shape, 256, "min")
-    # objfunc = ImgExperimental(image_shape, reference_img)
 
-    operators = [
-        OperatorInt("MutSample", {"method": "Uniform", "Low":0, "Up":256, "N":10}),
-        OperatorInt("MutRand", {"method": "Uniform", "Low":-10, "Up":10, "N":10}),
-        OperatorInt("Multipoint")
-    ]
-    
-    # mutation_op = OperatorInt("Xor", {"N":20})
-    # mutation_op = OperatorInt("Gauss", {"F": 1})
-    #mutation_op = OperatorInt("MutRand", {"method": "Uniform", "Low":-10, "Up":10, "N":100})
-    #mutation_op = OperatorInt("MutSample", ParamScheduler("Linear", {"method": "Uniform", "Low":0, "Up":256, "N":[1000,50]}))
-    mutation_op = OperatorInt("MutSample", {"method": "Uniform", "Low":0, "Up":256, "N":1000})
-    cross_op = OperatorInt("2point")
-    #parent_select_op = ParentSelection("Tournament", {"amount": 20, "p":0.1})
-    parent_select_op = ParentSelection("Nothing")
-    replace_op = SurvivorSelection("CondElitism", {"amount": 10})
+    mutation_op = OperatorInt("MutRand", {"method": "Uniform", "Low":-10, "Up":10, "N":500})
+    cross_op = OperatorInt("Multicross", {"N": 3})
+    parent_sel_op = ParentSelection("Best", {"amount": 20})
+    selection_op = SurvivorSelection("(m+n)")
 
-    if alg_name == "CRO_SL":
-        alg = CRO_SL(objfunc, operators, params)
-    elif alg_name == "GA":
-        alg = Genetic(objfunc, mutation_op, cross_op, parent_select_op, replace_op, params)
+    if alg_name == "HillClimb":
+        search_strat = HillClimb(objfunc, mutation_op)
+    elif alg_name == "LocalSearch":
+        search_strat = LocalSearch(objfunc, mutation_op, {"iters":20})
     elif alg_name == "ES":
-        alg = ES(objfunc, mutation_op, cross_op, parent_select_op, replace_op, params)
-    elif alg_name == "DE":
-        de_op = OperatorReal("DE/current-to-best/1", {"F":0.9, "Cr":0.8})
-        alg = DE(objfunc, de_op, SurvivorSelection("One-to-one"), params)
-    elif alg_name == "PSO":
-        alg = PSO(objfunc, params)
-    elif alg_name == "RLevol":
-        alg = RLEvolution(objfunc, operators, params)
-    elif alg_name == "HS":
-        alg = HS(objfunc, OperatorReal("Gauss", {"F":params["BN"]}), OperatorReal("RandSample", {"method":"Gauss", "F":params["BN"]}), params)
-    elif alg_name == "In-HS":
-        operators_mut_InHS = [
-            OperatorReal("Gauss", {"F":params["BN"]}),
-            OperatorReal("Cauchy", {"F":params["BN"]/2}),
-            OperatorReal("Laplace", {"F":params["BN"]}),
-        ]
-        alg = InHS(objfunc, operators_mut_InHS, OperatorReal("RandSample", {"method":"Gauss", "F":params["BN"]}), params)
-    elif alg_name == "HillClimb":
-        alg = HillClimb(objfunc, mutation_op, params)
+        search_strat = ES(objfunc, mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
+    elif alg_name == "GA":
+        search_strat = GA(objfunc, mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.2})
     elif alg_name == "SA":
-        alg = SimAnn(objfunc, mutation_op, params)
+        search_strat = SA(objfunc, mutation_op, {"iter":100, "temp_init":30, "alpha":0.99})
+    elif alg_name == "DE":
+        search_strat = DE(objfunc, OperatorReal("DE/best/1", {"F":0.2, "Cr":0.5, "P":0.11}), {"popSize":100})
     else:
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()
+    
 
+    alg = GeneralSearch(search_strat, params)
 
 
     # Optimize with display of image
-    gen = 0
     time_start = time.process_time()
     real_time_start = time.time()
     display_timer = time.time()
 
-    alg.population.generate_random()
+    alg.initialize()
 
-    while not alg.stopping_condition(gen, real_time_start):
+    while not alg.ended:
         # process GUI events and reset screen
         if display:
             for event in pygame.event.get():
@@ -179,21 +98,20 @@ def run_algorithm(alg_name, img_file_name):
                     exit(0)
             src.fill('#000000')
         
-        prog = alg.progress(gen, real_time_start)
-        alg.step(prog)
-        gen += 1
+        alg.step(time_start=real_time_start)
+
         if alg.verbose and time.time() - display_timer > alg.v_timer:
-            alg.step_info(gen, real_time_start)
+            alg.step_info(real_time_start)
             display_timer = time.time()
         
         if display:
-            img_flat = alg.population.best_solution()[0]
+            img_flat = alg.best_solution()[0]
             render(img_flat.reshape(image_shape + [3]).astype(np.int32), display_dim, src)
             pygame.display.update()
     
     alg.real_time_spent = time.time() - real_time_start
     alg.time_spent = time.process_time() - time_start
-    img_flat = alg.population.best_solution()[0]
+    img_flat = alg.best_solution()[0]
     image = img_flat.reshape(image_shape + [3])
     render(image, display_dim, src)
     alg.display_report()

@@ -11,7 +11,7 @@ class GA(BaseAlgorithm):
     Population of the Genetic algorithm
     """
 
-    def __init__(self, objfunc, mutation_op, cross_op, parent_sel_op, selection_op, params, name="GA", population=None):
+    def __init__(self, objfunc, mutation_op, cross_op, parent_sel_op, selection_op, params={}, name="GA", population=None):
         """
         Constructor of the GeneticPopulation class
         """
@@ -105,6 +105,13 @@ class GA(BaseAlgorithm):
             self.size = self.params["popSize"]
             self.pmut = self.params["pmut"]
             self.pcross = self.params["pcross"]
-
+    
+    def extra_step_info(self):
+        """
+        Specific information to display relevant to this algorithm
+        """
+        popul_matrix = np.array(list(map(lambda x: x.vector, self.population)))
+        divesity = popul_matrix.std(axis=1).mean()
+        print(f"\tdiversity: {divesity:0.3}")
 
 

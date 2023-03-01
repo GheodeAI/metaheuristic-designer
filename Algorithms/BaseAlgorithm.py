@@ -46,3 +46,8 @@ class BaseAlgorithm(ABC):
         """
         Specific information to display relevant to this algorithm
         """
+    
+    def extra_report(self, show_plots):
+        """
+        Specific information to display relevant to this algorithm
+        """

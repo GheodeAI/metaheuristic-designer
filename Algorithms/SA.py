@@ -10,7 +10,7 @@ class SA(BaseAlgorithm):
     Class implementing the Simulated annealing algorithm
     """
 
-    def __init__(self, objfunc, perturb_op, params, name="SA"):
+    def __init__(self, objfunc, perturb_op, params={}, name="SA"):
         """
         Constructor of the SimAnnEvolve class
         """
@@ -88,6 +88,6 @@ class SA(BaseAlgorithm):
         Specific information to display relevant to this algorithm
         """
 
-        print(f"\ttemperature: {self.temp:0.3}")
+        print(f"\ttemperature: {float(self.temp):0.3}")
         print(f"\taccept prob: {np.exp(-1/self.temp):0.3}")
     

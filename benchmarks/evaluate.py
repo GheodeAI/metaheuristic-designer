@@ -1,7 +1,7 @@
 import sys
 sys.path.append("../..")
 
-from PyEvolAlg import *
+from PyMetaheuristics import *
 from .benchmarkFuncs import *
 
 import os
