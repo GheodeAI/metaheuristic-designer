@@ -488,14 +488,14 @@ def pso_operator(solution, population, objfunc, w, c1, c2):
     Performs a step of the Particle Swarm algorithm
     """
    
-    fitness_list = [i.fitness for i in self.population]
+    fitness_list = [i.fitness for i in population]
     best_idx = fitness_list.index(max(fitness_list))
-    best_particle = self.population[best_idx]
+    best_particle = population[best_idx]
 
-    c1 = c1 * np.random.random(val.vector.shape) 
-    c2 = c2 * np.random.random(val.vector.shape) 
+    c1 = c1 * np.random.random(best_particle.vector.shape) 
+    c2 = c2 * np.random.random(best_particle.vector.shape) 
 
-    solution.speed = w * solution.speed + c1 * (solution.best - solution.vector) + c2 * (best_particle - solution.vector)
+    solution.speed = w * solution.speed + c1 * (solution.best - solution.vector) + c2 * (best_particle.vector - solution.vector)
     new_solution = solution.apply_speed()
     return new_solution.vector
 

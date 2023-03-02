@@ -1,6 +1,7 @@
 import random
 import numpy as np
 from copy import copy
+import time
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
 from .BaseAlgorithm import BaseAlgorithm
@@ -29,11 +30,8 @@ class GA(BaseAlgorithm):
         self.selection_op = selection_op
 
         # Population initialization
-        if population is None:
-            self.population = []
-        else:
+        if population is not None:
             self.population = population
-        self.offspring = []       
 
     def best_solution(self):
         """
@@ -57,17 +55,13 @@ class GA(BaseAlgorithm):
             self.population.append(new_ind)
     
 
-    def step(self, progress, history=None):
-        """
-        Performs a step of the algorithm
-        """
-
-        # Parent selection
-        parent_list = self.parent_sel_op(self.population)
-
+    def select_parents(self, population, progress=0, history=None):
+        return self.parent_sel_op(population)
+    
+    def perturb(self, parent_list, progress=0, history=None):
         # Generation of offspring by crossing and mutation
-        self.offspring = []
-        while len(self.offspring) < self.size:
+        offspring = []
+        while len(offspring) < self.size:
 
             # Cross
             parent1 = random.choice(parent_list)
@@ -85,10 +79,12 @@ class GA(BaseAlgorithm):
                 new_ind = Indiv(self.objfunc, new_solution)
             
             # Add to offspring list
-            self.offspring.append(new_ind)
-
-        self.population = self.selection_op(self.population, self.offspring)
-        return self.best_solution()
+            offspring.append(new_ind)
+        
+        return offspring
+    
+    def select_individuals(self, population, offspring, progress=0, history=None):
+        return self.selection_op(population, offspring)
 
     def update_params(self, progress):
         """

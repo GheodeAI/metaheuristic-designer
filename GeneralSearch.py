@@ -142,7 +142,17 @@ class GeneralSearch:
         """
 
         # Do a search step
-        best_individual, best_fitness = self.search_strategy.step(self.progress, self.best_history)
+        population = self.search_strategy.population
+        
+        parents = self.search_strategy.select_parents(population, self.progress, self.best_history)
+
+        offspring = self.search_strategy.perturb(parents, self.progress, self.best_history)
+
+        population = self.search_strategy.select_individuals(population, offspring, self.progress, self.best_history)
+
+        self.search_strategy.population = population
+        
+        best_individual, best_fitness = self.search_strategy.best_solution()
         self.search_strategy.update_params(self.progress)
         self.steps += 1
             

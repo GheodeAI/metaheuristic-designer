@@ -94,6 +94,8 @@ class OperatorReal(Operator):
             result = simAnnealing(solution, self.params["F"], objfunc, self.params["temp_ch"], self.params["iter"])
         elif self.name == "HS":
             result = harmonySearch(solution.vector.copy(), population, self.params["F"], self.params["Cr"], self.params["Par"])
+        elif self.name == "PSO":
+            result = pso_operator(solution, population, objfunc, self.params["w"], self.params["c1"], self.params["c2"])
         elif self.name == "Firefly":
             result = firefly(solution, population, objfunc, self.params["a"], self.params["b"], self.params["d"], self.params["g"])
         elif self.name == "Dummy":

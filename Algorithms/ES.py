@@ -27,11 +27,8 @@ class ES(BaseAlgorithm):
         self.selection_op = selection_op
 
         # Population initialization
-        if population is None:
-            self.population = []
-        else:
+        if population is not None:
             self.population = population
-        self.offspring = []       
 
     def best_solution(self):
         """
@@ -83,6 +80,33 @@ class ES(BaseAlgorithm):
 
         self.population = self.selection_op(self.population, self.offspring)
         return self.best_solution()
+    
+    def select_parents(self, population, progress=0, history=None):
+        return self.parent_sel_op(population)
+    
+    def perturb(self, parent_list, progress=0, history=None):
+        # Generation of offspring by crossing and mutation
+        offspring = []
+        while len(offspring) < self.size:
+
+            # Cross
+            parent1 = random.choice(parent_list)
+            new_solution = self.cross_op.evolve(parent1, parent_list, self.objfunc)
+            new_solution = self.objfunc.check_bounds(new_solution)
+            new_ind = Indiv(self.objfunc, new_solution)
+            
+            # Mutate
+            new_solution = self.mutation_op(new_ind, self.population, self.objfunc)
+            new_solution = self.objfunc.check_bounds(new_solution)
+            new_ind = Indiv(self.objfunc, new_solution)
+            
+            # Add to offspring list
+            offspring.append(new_ind)
+        
+        return offspring
+    
+    def select_individuals(self, population, offspring, progress=0, history=None):
+        return self.selection_op(population, offspring)
 
     def update_params(self, progress):
         """

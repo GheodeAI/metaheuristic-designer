@@ -19,16 +19,16 @@ def run_algorithm(alg_name):
         "fit_target": 0,
 
         "verbose": True,
-        "v_timer": 0.5
+        "v_timer": 1
     }
 
-    objfunc = Sphere(30, "min")
+    objfunc = Sphere(100, "min")
 
     mutation_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.001})
     cross_op = OperatorReal("Multipoint")
-    #cross_op = OperatorReal("DE/rand/1", {"F":0.8, "Cr":0.8})
+    #cross_op = OperatorReal("PSO", {"w":1.5, "c1":0.8, "c2":0.8})
     parent_sel_op = ParentSelection("Best", {"amount": 20})
-    selection_op = SurvivorSelection("(m+n)")
+    selection_op = SurvivorSelection("(m,n)")
 
     if alg_name == "HillClimb":
         search_strat = HillClimb(objfunc, mutation_op)

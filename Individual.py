@@ -7,7 +7,7 @@ class Indiv:
     its fitness.
     """
 
-    def __init__(self, objfunc, vector, speed=None, operator=None):
+    def __init__(self, objfunc, vector, speed=0, operator=None):
         """
         Constructor of the Individual class.
         """

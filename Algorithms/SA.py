@@ -24,8 +24,7 @@ class SA(BaseAlgorithm):
         self.temp = self.temp_init 
         self.alpha = params["alpha"] if "alpha" in params else 0.99
 
-        self.current_indiv = None
-        self.best_indiv = None
+        self.population = [None]
         self.perturb_op = perturb_op
     
     def best_solution(self):
@@ -44,28 +43,29 @@ class SA(BaseAlgorithm):
         Generates a random vector as a starting point for the algorithm
         """
 
-        self.current_indiv = Indiv(self.objfunc, self.objfunc.random_solution())
-        self.best_indiv = self.current_indiv
+        self.population[0] = Indiv(self.objfunc, self.objfunc.random_solution())
+        self.best_indiv = self.population[0]
 
 
-    def step(self, progress=None, history=None):
+    def perturb(self, indiv_list, progress=None, history=None):
         """
         Applies a mutation operator to the current individual
         """
 
+        indiv = indiv_list[0]
         for j in range(self.iter):
-            new_solution = self.perturb_op(self.current_indiv, [self.current_indiv], self.objfunc)
+            new_solution = self.perturb_op(indiv, indiv_list, self.objfunc)
             new_solution = self.objfunc.check_bounds(new_solution)
             new_indiv = Indiv(self.objfunc, new_solution)
 
             p = np.exp(-1/self.temp)
-            if new_indiv.fitness > self.current_indiv.fitness or random.random() < p:
-                self.current_indiv = new_indiv
+            if new_indiv.fitness > indiv.fitness or random.random() < p:
+                indiv = new_indiv
             
             if new_indiv.fitness > self.best_indiv.fitness:
                 self.best_indiv = new_indiv
             
-        return self.best_solution()
+        return [indiv]
         
     
     def update_params(self, progress):

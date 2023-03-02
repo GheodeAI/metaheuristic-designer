@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 class BaseAlgorithm(ABC):
     """
     Population of the Genetic algorithm
+    Note: for methods that use only one solution at a time, use a population of length 1 to store it.
     """
 
     def __init__(self, objfunc, name="some algorithm"):
@@ -12,14 +13,13 @@ class BaseAlgorithm(ABC):
 
         self.name = name
         self.objfunc = objfunc
-    
+        self.population = []
 
     @abstractmethod
     def best_solution(self):
         """
         Gives the best solution found by the algorithm and its fitness
         """
-
 
     @abstractmethod
     def initialize(self):
@@ -28,11 +28,29 @@ class BaseAlgorithm(ABC):
         """
     
 
+    def select_parents(self, population, progress=0, history=None):
+        """
+        Selects the individuals that will be perturbed in this generation
+        Returns the whole population if not implemented.
+        """
+
+        return population
+    
     @abstractmethod
-    def step(self, progress, history=None):
+    def perturb(self, parent_list, progress, history):
         """
-        Performs a step of the algorithm
+        Applies operators to the population in some way
+        Returns the offspring generated.
         """
+    
+
+    def select_individuals(self, population, offspring, progress=0, history=None):
+        """
+        Selects the individuals that will pass to the next generation.
+        Returns the offspring if not implemented.
+        """
+
+        return offspring
 
 
     @abstractmethod

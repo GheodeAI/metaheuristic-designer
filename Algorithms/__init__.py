@@ -1,3 +1,4 @@
+from .BaseAlgorithm import BaseAlgorithm
 from .HillClimb import HillClimb
 from .LocalSearch import LocalSearch
 from .GA import GA
