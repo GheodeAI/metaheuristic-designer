@@ -34,7 +34,7 @@ class BaseAlgorithm(ABC):
         Returns the whole population if not implemented.
         """
 
-        return population
+        return population, list(range(len(population)))
     
     @abstractmethod
     def perturb(self, parent_list, progress, history):

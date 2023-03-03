@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 
-from PyMetaheuristics import GeneralSearch, ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from PyMetaheuristics import GeneralSearch, MemeticSearch, ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
 from PyMetaheuristics.Operators import OperatorReal, OperatorInt, OperatorBinary
 from PyMetaheuristics.Algorithms import *
 
@@ -12,23 +12,24 @@ import argparse
 def run_algorithm(alg_name):
     params = {
         # General
-        "stop_cond": "neval",
+        "stop_cond": "fit_target",
         "time_limit": 20.0,
         "ngen": 1000,
         "neval": 5e5,
         "fit_target": 0,
 
         "verbose": True,
-        "v_timer": 1
+        "v_timer": 0.5
     }
 
-    objfunc = Sphere(100, "min")
+    objfunc = MaxOnes(1000, "min")
 
-    mutation_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.001})
+    #mutation_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.001})
+    mutation_op = OperatorBinary("MutSample", {"method":"Bernloulli", "p": 0.5, "N":4})
     cross_op = OperatorReal("Multipoint")
     #cross_op = OperatorReal("PSO", {"w":1.5, "c1":0.8, "c2":0.8})
     parent_sel_op = ParentSelection("Best", {"amount": 20})
-    selection_op = SurvivorSelection("(m,n)")
+    selection_op = SurvivorSelection("(m+n)")
 
     if alg_name == "HillClimb":
         search_strat = HillClimb(objfunc, mutation_op)
@@ -45,8 +46,11 @@ def run_algorithm(alg_name):
     else:
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()
+    
+    local_search =  LocalSearch(objfunc, OperatorBinary("MutSample", {"method":"Bernloulli", "p": 0.5, "N":3}), {"iters":10})
 
-    alg = GeneralSearch(search_strat, params)
+    # alg = GeneralSearch(search_strat, params)
+    alg = MemeticSearch(search_strat, local_search, ParentSelection("Best", {"amount": 5}), params)
     
     ind, fit = alg.optimize()
     print(ind)

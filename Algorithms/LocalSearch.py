@@ -16,7 +16,6 @@ class LocalSearch(BaseAlgorithm):
 
         super().__init__(objfunc, name)
 
-        self.population = [None]
         self.perturb_op = perturb_op
         self.iterations = params["iters"] if "iters" in params else 100
 
@@ -42,19 +41,24 @@ class LocalSearch(BaseAlgorithm):
 
 
     def perturb(self, indiv_list, progress=0, history=None):
-        indiv = indiv_list[0]
-        best_indiv = indiv
-        for i in range(self.iterations):
-            # Perturb individual
-            new_solution = self.perturb_op(indiv, self.population, self.objfunc)
-            new_solution = self.objfunc.check_bounds(new_solution)
-            new_indiv = Indiv(self.objfunc, new_solution)
+        result = []
 
-            # If it improves the previous solution keep it
-            if new_indiv.fitness > best_indiv.fitness:
-                best_indiv = new_indiv
+        for indiv in indiv_list:
+            best_indiv = indiv
+            
+            for i in range(self.iterations):
+                # Perturb individual
+                new_solution = self.perturb_op(indiv, indiv_list, self.objfunc)
+                new_solution = self.objfunc.check_bounds(new_solution)
+                new_indiv = Indiv(self.objfunc, new_solution)
+
+                # If it improves the previous solution keep it
+                if new_indiv.fitness > best_indiv.fitness:
+                    best_indiv = new_indiv
+            
+            result.append(best_indiv)
         
-        return [best_indiv]
+        return result
 
     
     def update_params(self, progress):

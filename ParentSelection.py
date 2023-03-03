@@ -45,40 +45,67 @@ class ParentSelection:
 
     def select(self, population): 
         """
-        Evolves a solution with a different strategy depending on the type of operator
+        Selects a subsection of the population along with the indices of each individual in the original population
         """
         
-        result = []
+        parents = []
+        order = []
         if self.name == "Tournament":
-            result = tournament(population, self.params["amount"], self.params["p"])
+            parents, order = tournament(population, self.params["amount"], self.params["p"])
         elif self.name == "Best":
-            result = select_best(population, self.params["amount"])
+            parents, order = select_best(population, self.params["amount"])
         elif self.name == "Nothing":
-            result = population
+            parents, order = population
         else:
             print(f"Error: parent selection method \"{self.name}\" not defined")
             exit(1)
         
-        return result
+        return parents, order
 
 
 def select_best(population, amount):
+    """
+    Selects the best parent of the population as parents
+    """
+
     amount = round(amount)
-    return sorted(population, reverse=True, key = lambda x: x.fitness)[:amount]
+
+    # Get the fitness of all the individuals
+    fitness_list = np.fromiter(map(lambda x: x.fitness, population), dtype=float)
+
+    # Get the index of the individuals sorted by fitness 
+    order = np.argsort(fitness_list)[:amount]
+    
+    # Select the 'amount' best individuals
+    parents = [population[i] for i in order]
+
+    return parents, order
 
 
-def tournament(population, tourn_size, prob):
+def prob_tournament(population, tourn_size, prob):
+    """
+    Selects the parents for the next generation by tournament
+    """
+
     parent_pool = []
-    for _ in range(len(population)):
-        parents = random.sample(population, tourn_size)
+    order = []
+
+    for _ in population:
+
+        # Choose 'tourn_size' individuals for the torunament
+        parent_idxs = random.sample(range(len(population)), tourn_size)
+        parents = [population[i] for i in parent_idxs]
         fits = [i.fitness for i in parents]
 
-        parent = None
+        # Choose one of the individuals
         if random.random() < prob:
-            parent = random.choice(parents)
+            idx = random.randint(0,tourn_size)
         else:
-            parent = parents[fits.index(max(fits))]
-        
+            idx = fits.index(max(fits))
+
+        # Add the individuals to the list
+        order.append(idx)
+        parent = parents[idx]
         parent_pool.append(parent)
     
-    return parent_pool
+    return parent_pool, order
