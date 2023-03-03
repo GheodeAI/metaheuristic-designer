@@ -55,7 +55,7 @@ class ParentSelection:
         elif self.name == "Best":
             parents, order = select_best(population, self.params["amount"])
         elif self.name == "Nothing":
-            parents, order = population
+            parents, order = population, range(len(population))
         else:
             print(f"Error: parent selection method \"{self.name}\" not defined")
             exit(1)
