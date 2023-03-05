@@ -40,8 +40,6 @@ class MemeticSearch(GeneralSearch):
         
         parents, parent_idxs = self.search_strategy.select_parents(population, self.progress, self.best_history)
 
-        parents = self._do_local_search(parents)
-
         offspring = self.search_strategy.perturb(parents, self.progress, self.best_history)        
 
         offspring = self._do_local_search(offspring)

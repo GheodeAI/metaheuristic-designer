@@ -51,35 +51,6 @@ class ES(BaseAlgorithm):
             new_ind = Indiv(self.objfunc, self.objfunc.random_solution())
             self.population.append(new_ind)
     
-
-    def step(self, progress, history=None):
-        """
-        Performs a step of the algorithm
-        """
-
-        # Parent selection
-        parent_list = self.parent_sel_op(self.population)
-
-        # Generation of offspring by crossing and mutation
-        self.offspring = []
-        while len(self.offspring) < self.n_offspring:
-
-            # Cross
-            parent1 = random.choice(parent_list)
-            new_solution = self.cross_op.evolve(parent1, parent_list, self.objfunc)
-            new_solution = self.objfunc.check_bounds(new_solution)
-            new_ind = Indiv(self.objfunc, new_solution)
-            
-            # Mutate
-            new_solution = self.mutation_op(new_ind, self.population, self.objfunc)
-            new_solution = self.objfunc.check_bounds(new_solution)
-            new_ind = Indiv(self.objfunc, new_solution)
-            
-            # Add to offspring list
-            self.offspring.append(new_ind)
-
-        self.population = self.selection_op(self.population, self.offspring)
-        return self.best_solution()
     
     def select_parents(self, population, progress=0, history=None):
         return self.parent_sel_op(population)

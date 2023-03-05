@@ -31,7 +31,7 @@ def save_to_image(image, img_name="result.png"):
     filename = './results/' + img_name
     Image.fromarray(image.astype(np.uint8)).save(filename)
 
-def run_algorithm(alg_name, img_file_name):
+def run_algorithm(alg_name, img_file_name, memetic):
     params = {
         # General
         "stop_cond": "neval",
@@ -58,8 +58,8 @@ def run_algorithm(alg_name, img_file_name):
     img_name = img_name.split(".")[0]
     objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
 
-    mutation_op = OperatorInt("MutRand", {"method": "Uniform", "Low":-10, "Up":10, "N":500})
-    cross_op = OperatorInt("Multicross", {"N": 3})
+    mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":20, "N":500})
+    cross_op = OperatorInt("Multipoint")
     parent_sel_op = ParentSelection("Best", {"amount": 20})
     selection_op = SurvivorSelection("(m+n)")
 
@@ -79,9 +79,11 @@ def run_algorithm(alg_name, img_file_name):
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()
     
-
-    alg = GeneralSearch(search_strat, params)
-
+    if memetic:
+        local_search =  LocalSearch(objfunc, OperatorInt("MutSample", {"method": "Uniform", "Low":0, "Up":255, "N":10}), {"iters":10})
+        alg = MemeticSearch(search_strat, local_search, ParentSelection("Best", {"amount": 5}), params)
+    else:
+        alg = GeneralSearch(search_strat, params)
 
     # Optimize with display of image
     time_start = time.process_time()
@@ -121,18 +123,23 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", dest='alg', help='Specify an algorithm')
     parser.add_argument("-i", "--image", dest='img', help='Specify an image as reference')
+    parser.add_argument("-m", "--memetic", dest='mem', action="store_true", help='Specify an algorithm')
     args = parser.parse_args()
 
     algorithm_name = "SA"
     img_file_name = "images/cat.png"
+    mem = False
 
     if args.alg:
         algorithm_name = args.alg
     
     if args.img:
         img_file_name = args.img
+    
+    if args.mem:
+        mem = True
    
-    run_algorithm(alg_name = algorithm_name, img_file_name = img_file_name)
+    run_algorithm(alg_name = algorithm_name, img_file_name = img_file_name, memetic=mem)
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ class HillClimb(BaseAlgorithm):
     Search strtategy example, HillClimbing
     """
     
-    def __init__(self, objfunc, perturb_op, name="HillClimb"):
+    def __init__(self, objfunc, perturb_op, params={}, name="HillClimb"):
         """
         Constructor of the Example search strategy class
         """
@@ -19,6 +19,7 @@ class HillClimb(BaseAlgorithm):
 
         self.population = [None]
         self.perturb_op = perturb_op
+        self.iterations = params["iters"] if "iters" in params else 100
 
     def best_solution(self):
         """
@@ -44,20 +45,24 @@ class HillClimb(BaseAlgorithm):
         """
         Performs a step of the algorithm
         """
+        
+        result = []
 
-        indiv = indiv_list[0]
+        for indiv in indiv_list:            
+            for i in range(self.iterations):                
+                # Perturb individual
+                new_solution = self.perturb_op(indiv, indiv_list, self.objfunc)
+                new_solution = self.objfunc.check_bounds(new_solution)
+                new_indiv = Indiv(self.objfunc, new_solution)
 
-        # Perturb individual
-        new_solution = self.perturb_op(indiv, indiv_list, self.objfunc)
-        new_solution = self.objfunc.check_bounds(new_solution)
-        new_indiv = Indiv(self.objfunc, new_solution)
-
-        # If it improves the previous solution keep it
-        if new_indiv.fitness > indiv.fitness:
-            indiv = new_indiv        
-                
-        return [indiv]
-
+                # If it improves the previous solution keep it
+                if new_indiv.fitness > indiv.fitness:
+                    indiv = new_indiv        
+            
+            result.append(indiv)
+        
+        return result
+    
     
     def update_params(self, progress):
         """

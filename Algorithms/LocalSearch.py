@@ -16,6 +16,7 @@ class LocalSearch(BaseAlgorithm):
 
         super().__init__(objfunc, name)
 
+        self.population = [None]
         self.perturb_op = perturb_op
         self.iterations = params["iters"] if "iters" in params else 100
 
@@ -52,7 +53,7 @@ class LocalSearch(BaseAlgorithm):
                 new_solution = self.objfunc.check_bounds(new_solution)
                 new_indiv = Indiv(self.objfunc, new_solution)
 
-                # If it improves the previous solution keep it
+                # If it improves the best solution keep it
                 if new_indiv.fitness > best_indiv.fitness:
                     best_indiv = new_indiv
             

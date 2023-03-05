@@ -51,7 +51,7 @@ class ParentSelection:
         parents = []
         order = []
         if self.name == "Tournament":
-            parents, order = tournament(population, self.params["amount"], self.params["p"])
+            parents, order = prob_tournament(population, self.params["amount"], self.params["p"])
         elif self.name == "Best":
             parents, order = select_best(population, self.params["amount"])
         elif self.name == "Nothing":
@@ -89,6 +89,7 @@ def prob_tournament(population, tourn_size, prob):
 
     parent_pool = []
     order = []
+    
 
     for _ in population:
 
@@ -99,7 +100,7 @@ def prob_tournament(population, tourn_size, prob):
 
         # Choose one of the individuals
         if random.random() < prob:
-            idx = random.randint(0,tourn_size)
+            idx = random.randint(0,tourn_size-1)
         else:
             idx = fits.index(max(fits))
 
@@ -107,5 +108,5 @@ def prob_tournament(population, tourn_size, prob):
         order.append(idx)
         parent = parents[idx]
         parent_pool.append(parent)
-    
+
     return parent_pool, order
