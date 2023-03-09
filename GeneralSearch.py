@@ -13,9 +13,7 @@ class GeneralSearch:
         Constructor of the Metaheuristic class
         """
 
-        #self.name = name
         self.params = params
-        # self.objfunc = objfunc
         self.search_strategy = search_strategy
 
         # Verbose parameters
@@ -73,27 +71,29 @@ class GeneralSearch:
 
         return self.search_strategy.best_solution()
     
-    def stopping_condition(self, gen, time_start):
+    
+    def stopping_condition(self, gen, time_start, objfunc):
         """
         Given the state of the algorithm, returns wether we have finished or not.
         """
 
         stop = True
         if self.stop_cond == "neval":
-            stop = self.search_strategy.objfunc.counter >= self.Neval
+            stop = objfunc.counter >= self.Neval
         elif self.stop_cond == "ngen":
             stop = gen >= self.Ngen
         elif self.stop_cond == "time_limit":
             stop = time.time()-time_start >= self.time_limit
         elif self.stop_cond == "fit_target":
-            if self.search_strategy.objfunc.opt == "max":
+            if objfunc.opt == "max":
                 stop = self.best_solution()[1] >= self.fit_target
             else:
                 stop = self.best_solution()[1] <= self.fit_target
 
         return stop
     
-    def get_progress(self, gen, time_start):
+    
+    def get_progress(self, gen, time_start, objfunc):
         """
         Given the state of the algorithm, returns a number between 0 and 1 indicating 
         how close to the end of the algorithm we are, 0 when starting and 1 when finished.
@@ -101,14 +101,14 @@ class GeneralSearch:
 
         prog = 0
         if self.stop_cond == "neval":
-            prog = self.search_strategy.objfunc.counter/self.Neval
+            prog = objfunc.counter/self.Neval
         elif self.stop_cond == "ngen":
             prog = gen/self.Ngen 
         elif self.stop_cond == "time_limit":
             prog = (time.time()-time_start)/self.time_limit
         elif self.stop_cond == "fit_target":
             best_fitness = self.best_solution()[1]
-            if self.search_strategy.objfunc.opt == "max":
+            if objfunc.opt == "max":
                 prog = best_fitness/self.fit_target
             else:
                 if best_fitness == 0:
@@ -118,25 +118,28 @@ class GeneralSearch:
         return prog
 
 
-    def update(self, gen, time_start):
+    def update(self, gen, time_start, objfunc):
         """
         Given the state of the algorithm, returns a number between 0 and 1 indicating 
         how close to the end of the algorithm we are, 0 when starting and 1 when finished.
         """
 
-        self.progress = self.get_progress(gen, time_start)
+        self.progress = self.get_progress(gen, time_start, objfunc)
         
-        self.ended = self.stopping_condition(gen, time_start)
+        self.ended = self.stopping_condition(gen, time_start, objfunc)
     
-    def initialize(self):
+    
+    def initialize(self, objfunc):
         """
         Generates a random population of individuals
         """
 
         self.restart()
-        self.search_strategy.initialize()
+        self.search_strategy.initialize(objfunc)
+        self.search_strategy.compute_fitness(objfunc)
+    
 
-    def step(self, time_start=0, verbose=False):
+    def step(self, objfunc, time_start=0, verbose=False):
         """
         Performs a step in the algorithm
         """
@@ -146,13 +149,15 @@ class GeneralSearch:
         
         parents = self.search_strategy.select_parents(population, self.progress, self.best_history)
 
-        offspring = self.search_strategy.perturb(parents, self.progress, self.best_history)
+        offspring = self.search_strategy.perturb(parents, objfunc, self.progress, self.best_history)
+
+        self.search_strategy.compute_fitness(offspring, objfunc)
 
         population = self.search_strategy.select_individuals(population, offspring, self.progress, self.best_history)
 
         self.search_strategy.population = population
         
-        best_individual, best_fitness = self.search_strategy.best_solution()
+        best_individual, best_fitness = self.search_strategy.best_solution(objfunc)
         self.search_strategy.update_params(self.progress)
         self.steps += 1
             
@@ -165,12 +170,12 @@ class GeneralSearch:
             self.step_info(time_start)
         
         # Update internal state
-        self.update(self.steps, time)
+        self.update(self.steps, time_start, objfunc)
         
         return (best_individual, best_fitness)
 
     
-    def optimize(self):
+    def optimize(self, objfunc):
         """
         Execute the algorithm to get the best solution possible along with it's evaluation
         """
@@ -183,13 +188,13 @@ class GeneralSearch:
         display_timer = time.time()
 
         # Initizalize search strategy 
-        self.search_strategy.initialize()
+        self.search_strategy.initialize(objfunc)
 
         # Search untill the stopping condition is met
-        self.update(self.steps, real_time_start )
+        self.update(self.steps, real_time_start, objfunc)
         while not self.ended:
 
-            self.step(real_time_start)
+            self.step(objfunc, real_time_start)
 
             # Display information
             if self.verbose and time.time() - display_timer > self.v_timer:

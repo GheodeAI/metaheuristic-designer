@@ -24,28 +24,53 @@ class ObjectiveFunc(ABC):
             self.factor = -1
     
 
-    def __call__(self, solution, adjusted=True):
+    def __call__(self, indiv, adjusted=True):
         """
         Shorthand for executing the objective function on a vector.
         """
         
         result = None
-        if adjusted:
-            result = self.fitness(solution)
-        else:
-            result = self.objective(solution)
+        
+        result = self.fitness(indiv, adjusted)
         
         return result
 
 
-    def fitness(self, solution):
+    def decode(self, indiv):
+        """
+        Transforms the vector contained inside an individual in our algorithm to an
+        usable format for our objective function.
+        """
+
+        return indiv.vector
+    
+
+    def fitness(self, indiv, adjusted=True):
         """
         Returns the value of the objective function given a vector changing the sign so that
         the optimization problem is solved by maximizing the fitness function.
         """
 
         self.counter += 1
-        return self.factor * self.objective(solution)
+        value = self.objective(self.decode(indiv))
+
+        if adjusted:
+            value = self.factor * value
+        
+        return value
+    
+    
+    def apply_fitness(self, indiv, adjusted=True):
+        """
+        Calculates the fitness for a given individual updating its properties in the process.
+        """
+
+        if not indiv.fitness_calculated:
+            fit_value = self.fitness(indiv) - self.penalize(indiv)
+            indiv.fitnes = fit_value
+            indiv.fitness_calculated = True
+        
+        return indiv
     
 
     @abstractmethod
@@ -63,7 +88,18 @@ class ObjectiveFunc(ABC):
     
 
     @abstractmethod
-    def check_bounds(self, vector):
+    def repair_solution(self, vector):
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
         """
+    
+
+    def penalize(self, indiv):
+        """
+        Gives a penalization to the fitness value of an individual if it violates any constraints propotional
+        to how far it is to a viable solution.
+
+        If not implemented always returns 0.
+        """
+
+        return 0
