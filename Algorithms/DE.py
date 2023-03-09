@@ -11,12 +11,12 @@ class DE(BaseAlgorithm):
     Population of the Genetic algorithm
     """
 
-    def __init__(self, objfunc, de_op, params={}, selection_op=None, name="DE", population=None):
+    def __init__(self, de_op, params={}, selection_op=None, name="DE", population=None):
         """
         Constructor of the GeneticPopulation class
         """
 
-        super().__init__(objfunc, name)
+        super().__init__(name)
 
         # Hyperparameters of the algorithm
         self.params = params
@@ -32,36 +32,38 @@ class DE(BaseAlgorithm):
         if population is not None:
             self.population = population
 
-    def best_solution(self):
+    def best_solution(self, objfunc):
         """
         Gives the best solution found by the algorithm and its fitness
         """
 
         best_solution = sorted(self.population, reverse=True, key = lambda c: c.fitness)[0]
         best_fitness = best_solution.fitness
-        if self.objfunc.opt == "min":
+        if objfunc.opt == "min":
             best_fitness *= -1
         return (best_solution.vector, best_fitness)
 
-    def initialize(self):
+    def initialize(self, objfunc):
         """
         Generates a random population of individuals
         """
 
         self.population = []
         for i in range(self.size):
-            new_ind = Indiv(self.objfunc, self.objfunc.random_solution())
-            self.population.append(new_ind)
+            new_indiv = Indiv(objfunc.random_solution())
+            new_indiv = objfunc.apply_fitness(new_indiv)
+            self.population.append(new_indiv)
     
-    def perturb(self, parent_list, progress=0, history=None):
+    def perturb(self, parent_list, objfunc, progress=0, history=None):
         offspring = []
 
         for indiv in parent_list:
-            new_solution = self.de_op(indiv, self.population, self.objfunc)
-            new_solution = self.objfunc.check_bounds(new_solution)
-            new_ind = Indiv(self.objfunc, new_solution)
+            new_solution = self.de_op(indiv, parent_list, objfunc)
+            new_solution = objfunc.repair_solution(new_solution)
+            new_indiv = Indiv(new_solution)
+            new_indiv = objfunc.apply_fitness(new_indiv)
             
-            offspring.append(new_ind)
+            offspring.append(new_indiv)
         
         return offspring
     

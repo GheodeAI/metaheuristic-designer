@@ -67,7 +67,7 @@ class ObjectiveFunc(ABC):
 
         if not indiv.fitness_calculated:
             fit_value = self.fitness(indiv) - self.penalize(indiv)
-            indiv.fitnes = fit_value
+            indiv.fitness = fit_value
             indiv.fitness_calculated = True
         
         return indiv

@@ -51,8 +51,8 @@ class GA(BaseAlgorithm):
 
         self.population = []
         for i in range(self.size):
-            new_ind = Indiv(objfunc.random_solution())
-            self.population.append(new_ind)
+            new_indiv = Indiv(objfunc.random_solution())
+            self.population.append(new_indiv)
     
 
     def select_parents(self, population, progress=0, history=None):
@@ -68,18 +68,20 @@ class GA(BaseAlgorithm):
             if random.random() < self.pcross:
                 new_solution = self.cross_op.evolve(parent1, parent_list, objfunc)
                 new_solution = objfunc.repair_solution(new_solution)
-                new_ind = Indiv(new_solution)
+                new_indiv = Indiv(new_solution)
             else:
-                new_ind = copy(parent1)
+                new_indiv = copy(parent1)
             
             # Mutate
             if random.random() < self.pmut:
-                new_solution = self.mutation_op(new_ind, self.population, objfunc)
+                new_solution = self.mutation_op(new_indiv, self.population, objfunc)
                 new_solution = objfunc.repair_solution(new_solution)
-                new_ind = Indiv(new_solution)
+                new_indiv = Indiv(new_solution)
+            
+            new_indiv = objfunc.apply_fitness(new_indiv)
             
             # Add to offspring list
-            offspring.append(new_ind)
+            offspring.append(new_indiv)
         
         return offspring
     

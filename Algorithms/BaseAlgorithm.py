@@ -15,7 +15,7 @@ class BaseAlgorithm(ABC):
         self.population = []
 
     @abstractmethod
-    def best_solution(self):
+    def best_solution(self, objfunc):
         """
         Gives the best solution found by the algorithm and its fitness
         """

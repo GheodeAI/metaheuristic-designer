@@ -10,12 +10,12 @@ class ES(BaseAlgorithm):
     Population of the Genetic algorithm
     """
 
-    def __init__(self, objfunc, mutation_op, cross_op, parent_sel_op, selection_op, params={}, name="ES", population=None):
+    def __init__(self, mutation_op, cross_op, parent_sel_op, selection_op, params={}, name="ES", population=None):
         """
         Constructor of the GeneticPopulation class
         """
 
-        super().__init__(objfunc, name)
+        super().__init__(name)
 
         # Hyperparameters of the algorithm
         self.params = params
@@ -30,78 +30,53 @@ class ES(BaseAlgorithm):
         if population is not None:
             self.population = population
 
-    def best_solution(self):
+    def best_solution(self, objfunc):
         """
         Gives the best solution found by the algorithm and its fitness
         """
 
         best_solution = sorted(self.population, reverse=True, key = lambda c: c.fitness)[0]
         best_fitness = best_solution.fitness
-        if self.objfunc.opt == "min":
+        if objfunc.opt == "min":
             best_fitness *= -1
         return (best_solution.vector, best_fitness)
 
-    def initialize(self):
+    def initialize(self, objfunc):
         """
         Generates a random population of individuals
         """
 
         self.population = []
         for i in range(self.size):
-            new_ind = Indiv(self.objfunc, self.objfunc.random_solution())
-            self.population.append(new_ind)
-    
+            new_indiv = Indiv(objfunc.random_solution())
+            new_indiv = objfunc.apply_fitness(new_indiv)
+            self.population.append(new_indiv)
 
-    def step(self, progress, history=None):
-        """
-        Performs a step of the algorithm
-        """
-
-        # Parent selection
-        parent_list = self.parent_sel_op(self.population)
-
-        # Generation of offspring by crossing and mutation
-        self.offspring = []
-        while len(self.offspring) < self.n_offspring:
-
-            # Cross
-            parent1 = random.choice(parent_list)
-            new_solution = self.cross_op.evolve(parent1, parent_list, self.objfunc)
-            new_solution = self.objfunc.check_bounds(new_solution)
-            new_ind = Indiv(self.objfunc, new_solution)
-            
-            # Mutate
-            new_solution = self.mutation_op(new_ind, self.population, self.objfunc)
-            new_solution = self.objfunc.check_bounds(new_solution)
-            new_ind = Indiv(self.objfunc, new_solution)
-            
-            # Add to offspring list
-            self.offspring.append(new_ind)
-
-        self.population = self.selection_op(self.population, self.offspring)
-        return self.best_solution()
     
     def select_parents(self, population, progress=0, history=None):
         return self.parent_sel_op(population)
-    
-    def perturb(self, parent_list, progress=0, history=None):
+
+
+    def perturb(self, parent_list, objfunc, progress=0, history=None):
         # Generation of offspring by crossing and mutation
         offspring = []
         while len(offspring) < self.size:
 
             # Cross
             parent1 = random.choice(parent_list)
-            new_solution = self.cross_op.evolve(parent1, parent_list, self.objfunc)
-            new_solution = self.objfunc.check_bounds(new_solution)
-            new_ind = Indiv(self.objfunc, new_solution)
+            new_solution = self.cross_op.evolve(parent1, parent_list, objfunc)
+            new_solution = objfunc.repair_solution(new_solution)
+            new_indiv = Indiv(new_solution)
             
             # Mutate
-            new_solution = self.mutation_op(new_ind, self.population, self.objfunc)
-            new_solution = self.objfunc.check_bounds(new_solution)
-            new_ind = Indiv(self.objfunc, new_solution)
+            new_solution = self.mutation_op(new_indiv, self.population, objfunc)
+            new_solution = objfunc.repair_solution(new_solution)
+            new_indiv = Indiv(new_solution)
+
+            new_indiv = objfunc.apply_fitness(new_indiv)
             
             # Add to offspring list
-            offspring.append(new_ind)
+            offspring.append(new_indiv)
         
         return offspring
     

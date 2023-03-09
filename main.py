@@ -50,7 +50,7 @@ def run_algorithm(alg_name):
     
     ind, fit = alg.optimize(objfunc)
     print(ind)
-    alg.display_report()
+    alg.display_report(objfunc)
 
 
 def main():
