@@ -28,7 +28,7 @@ def run_algorithm(alg_name):
     cross_op = OperatorReal("Multipoint")
     #cross_op = OperatorReal("PSO", {"w":1.5, "c1":0.8, "c2":0.8})
     parent_sel_op = ParentSelection("Best", {"amount": 20})
-    selection_op = SurvivorSelection("(m,n)")
+    selection_op = SurvivorSelection("(m+n)")
 
     if alg_name == "HillClimb":
         search_strat = HillClimb(mutation_op)

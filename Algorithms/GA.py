@@ -52,6 +52,7 @@ class GA(BaseAlgorithm):
         self.population = []
         for i in range(self.size):
             new_indiv = Indiv(objfunc.random_solution())
+            new_indiv = objfunc.apply_fitness(new_indiv)
             self.population.append(new_indiv)
     
 
