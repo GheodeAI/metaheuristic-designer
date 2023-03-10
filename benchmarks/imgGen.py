@@ -64,17 +64,17 @@ def run_algorithm(alg_name, img_file_name):
     selection_op = SurvivorSelection("(m+n)")
 
     if alg_name == "HillClimb":
-        search_strat = HillClimb(objfunc, mutation_op)
+        search_strat = HillClimb(mutation_op)
     elif alg_name == "LocalSearch":
-        search_strat = LocalSearch(objfunc, mutation_op, {"iters":20})
+        search_strat = LocalSearch(mutation_op, {"iters":20})
     elif alg_name == "ES":
-        search_strat = ES(objfunc, mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
+        search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
     elif alg_name == "GA":
-        search_strat = GA(objfunc, mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.2})
+        search_strat = GA(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.2})
     elif alg_name == "SA":
-        search_strat = SA(objfunc, mutation_op, {"iter":100, "temp_init":30, "alpha":0.99})
+        search_strat = SA(mutation_op, {"iter":100, "temp_init":30, "alpha":0.99})
     elif alg_name == "DE":
-        search_strat = DE(objfunc, OperatorReal("DE/best/1", {"F":0.2, "Cr":0.5, "P":0.11}), {"popSize":100})
+        search_strat = DE(OperatorReal("DE/best/1", {"F":0.2, "Cr":0.5, "P":0.11}), {"popSize":100})
     else:
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()
@@ -88,7 +88,7 @@ def run_algorithm(alg_name, img_file_name):
     real_time_start = time.time()
     display_timer = time.time()
 
-    alg.initialize()
+    alg.initialize(objfunc)
 
     while not alg.ended:
         # process GUI events and reset screen
@@ -98,14 +98,14 @@ def run_algorithm(alg_name, img_file_name):
                     exit(0)
             src.fill('#000000')
         
-        alg.step(time_start=real_time_start)
+        alg.step(objfunc, time_start=real_time_start)
 
         if alg.verbose and time.time() - display_timer > alg.v_timer:
-            alg.step_info(real_time_start)
+            alg.step_info(objfunc, real_time_start)
             display_timer = time.time()
         
         if display:
-            img_flat = alg.best_solution()[0]
+            img_flat = alg.best_solution(objfunc)[0]
             render(img_flat.reshape(image_shape + [3]).astype(np.int32), display_dim, src)
             pygame.display.update()
     

@@ -50,7 +50,6 @@ class GeneralSearch:
         self.best_fitness = 0
         self.time_spent = 0
         self.real_time_spent = 0
-        self.search_strategy.objfunc.counter = 0
     
     
     def save_solution(self, file_name="solution.csv"):
