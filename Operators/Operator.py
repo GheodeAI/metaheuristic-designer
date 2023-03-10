@@ -13,7 +13,7 @@ class Operator(ABC):
         Constructor for the Operator class
         """
 
-        self.name = name
+        self.name = name.lower()
         self.param_scheduler = None
 
         if params is None:
@@ -24,17 +24,22 @@ class Operator(ABC):
                 "Cr": 0.8,
                 "Par":0.1,
                 "N":5,
-                "method": "Gauss",
+                "method": "gauss",
                 "temp_ch":10,
                 "iter":20,
                 "Low":-10,
                 "Up":10
             }
-        elif isinstance(params, ParamScheduler):
-            self.param_scheduler = params
-            self.params = self.param_scheduler.get_params()
         else:
-            self.params = params
+            if "method" in params:
+                params["method"] = params["method"].lower()
+
+            if isinstance(params, ParamScheduler):
+                self.param_scheduler = params
+                self.params = self.param_scheduler.get_params()
+            else:
+                self.params = params
+        
     
 
     def __call__(self, solution, population, objfunc):

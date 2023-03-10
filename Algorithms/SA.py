@@ -43,8 +43,7 @@ class SA(BaseAlgorithm):
         Generates a random vector as a starting point for the algorithm
         """
 
-        self.population[0] = Indiv(objfunc.random_solution())
-        self.population[0] = objfunc.apply_fitness(self.population[0])
+        self.population[0] = Indiv(objfunc, objfunc.random_solution())
         self.best_indiv = self.population[0]
 
     def perturb(self, indiv_list, objfunc, progress=None, history=None):
@@ -56,8 +55,7 @@ class SA(BaseAlgorithm):
         for j in range(self.iter):
             new_solution = self.perturb_op(indiv, indiv_list, objfunc)
             new_solution = objfunc.repair_solution(new_solution)
-            new_indiv = Indiv(new_solution)
-            new_indiv = objfunc.apply_fitness(new_indiv)
+            new_indiv = Indiv(objfunc, new_solution)
 
             p = np.exp(-1/self.temp)
             if new_indiv.fitness > indiv.fitness or random.random() < p:

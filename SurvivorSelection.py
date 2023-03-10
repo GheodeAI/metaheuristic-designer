@@ -14,7 +14,7 @@ class SurvivorSelection:
         Constructor for the SurvivorSelection class
         """
 
-        self.name = name
+        self.name = name.lower()
 
         self.param_scheduler = None
         if params is None:
@@ -51,9 +51,9 @@ class SurvivorSelection:
         """   
 
         result = []
-        if self.name == "Elitism":
+        if self.name == "elitism":
             result = elitism(popul, offspring, self.params["amount"])
-        elif self.name == "CondElitism":
+        elif self.name == "condElitism":
             result = cond_elitism(popul, offspring, self.params["amount"])
         elif self.name == "Generational":
             result = offspring

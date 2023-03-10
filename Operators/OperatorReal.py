@@ -12,8 +12,7 @@ class OperatorReal(Operator):
         Constructor for the OperatorReal class
         """
 
-        self.name = name
-        super().__init__(self.name, params)
+        super().__init__(name, params)
     
     
     def evolve(self, solution, population, objfunc):
@@ -32,57 +31,57 @@ class OperatorReal(Operator):
             result = cross1p(solution.vector.copy(), solution2.vector.copy())
         elif self.name == "2point":
             result = cross2p(solution.vector.copy(), solution2.vector.copy())
-        elif self.name == "Multipoint":
+        elif self.name == "multipoint":
             result = crossMp(solution.vector.copy(), solution2.vector.copy())
-        elif self.name == "WeightedAvg":
+        elif self.name == "weightedAvg":
             result = weightedAverage(solution.vector.copy(), solution2.vector.copy(), self.params["F"])
-        elif self.name == "BLXalpha":
+        elif self.name == "blxalpha":
             result = blxalpha(solution.vector.copy(), solution2.vector.copy(), self.params["Cr"])
-        elif self.name == "SBX":
+        elif self.name == "sbx":
             result = sbx(solution.vector.copy(), solution2.vector.copy(), self.params["Cr"])
-        elif self.name == "Multicross":
+        elif self.name == "multicross":
             result = multiCross(solution.vector.copy(), others, self.params["N"])
-        elif self.name == "CrossInterAvg":
+        elif self.name == "crossinteravg":
             result = crossInterAvg(solution.vector.copy(), others, self.params["N"])
-        elif self.name == "Mutate1Sigma":
+        elif self.name == "mutate1sigma":
             result = mutate_1_sigma(solution.vector.copy()[0], self.params["epsilon"], self.params["tau"])
-        elif self.name == "MutateNSigmas":
+        elif self.name == "mutatensigmas":
             result = mutate_n_sigmas(solution.vector.copy(), self.params["epsilon"], self.params["tau"], self.params["tau_multiple"])
-        elif self.name == "SampleSigma":
+        elif self.name == "samplesigma":
             result = sample_1_sigma(solution.vector.copy(), self.params["N"], self.params["epsilon"], self.params["tau"])
-        elif self.name == "Perm":
+        elif self.name == "perm":
             result = permutation(solution.vector.copy(), self.params["N"])
-        elif self.name == "Gauss":
+        elif self.name == "gauss":
             result = gaussian(solution.vector.copy(), self.params["F"])
-        elif self.name == "Laplace":
+        elif self.name == "laplace":
             result = laplace(solution.vector.copy(), self.params["F"])
-        elif self.name == "Cauchy":
+        elif self.name == "cauchy":
             result = cauchy(solution.vector.copy(), self.params["F"])
-        elif self.name == "Uniform":
+        elif self.name == "uniform":
             result = uniform(solution.vector.copy(), self.params["Low"], self.params["Up"])
-        elif self.name == "MutRand":
+        elif self.name == "mutrand":
             result = mutateRand(solution.vector.copy(), population, self.params)
-        elif self.name == "RandNoise":
+        elif self.name == "randnoise":
             result = randNoise(solution.vector.copy(), self.params)
-        elif self.name == "RandSample":
+        elif self.name == "randsample":
             result = randSample(solution.vector.copy(), population, self.params)
-        elif self.name == "MutSample":
+        elif self.name == "mutsample":
             result = mutateSample(solution.vector.copy(), population, self.params)
-        elif self.name == "DE/rand/1":
+        elif self.name == "de/rand/1":
             result = DERand1(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
-        elif self.name == "DE/best/1":
+        elif self.name == "de/best/1":
             result = DEBest1(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
-        elif self.name == "DE/rand/2":
+        elif self.name == "de/rand/2":
             result = DERand2(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
-        elif self.name == "DE/best/2":
+        elif self.name == "de/best/2":
             result = DEBest2(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
-        elif self.name == "DE/current-to-rand/1":
+        elif self.name == "de/current-to-rand/1":
             result = DECurrentToRand1(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
-        elif self.name == "DE/current-to-best/1":
+        elif self.name == "de/current-to-best/1":
             result = DECurrentToBest1(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
-        elif self.name == "DE/current-to-pbest/1":
+        elif self.name == "de/current-to-pbest/1":
             result = DECurrentToPBest1(solution.vector.copy(), others, self.params["F"], self.params["Cr"], self.params["P"])
-        elif self.name == "LSHADE":
+        elif self.name == "lshade":
             self.params["Cr"] = np.random.normal(self.params["Cr"], 0.1)
             self.params["F"] = np.random.normal(self.params["F"], 0.1)
 
@@ -90,19 +89,19 @@ class OperatorReal(Operator):
             self.params["F"] = np.clip(self.params["F"], 0, 1)
 
             result = DECurrentToPBest1(solution.vector.copy(), others, self.params["F"], self.params["Cr"])            
-        elif self.name == "SA":
+        elif self.name == "sa":
             result = simAnnealing(solution, self.params["F"], objfunc, self.params["temp_ch"], self.params["iter"])
-        elif self.name == "HS":
+        elif self.name == "hs":
             result = harmonySearch(solution.vector.copy(), population, self.params["F"], self.params["Cr"], self.params["Par"])
-        elif self.name == "PSO":
+        elif self.name == "pso":
             result = pso_operator(solution, population, objfunc, self.params["w"], self.params["c1"], self.params["c2"])
-        elif self.name == "Firefly":
+        elif self.name == "firefly":
             result = firefly(solution, population, objfunc, self.params["a"], self.params["b"], self.params["d"], self.params["g"])
-        elif self.name == "Dummy":
+        elif self.name == "dummy":
             result = dummyOp(solution.vector.copy(), self.params["F"])
-        elif self.name == "Nothing":
+        elif self.name == "nothing":
             result = solution.vector.copy()
-        elif self.name == "Custom":
+        elif self.name == "custom":
             fn = self.params["function"]
             result = fn(solution, population, objfunc, self.params)
         else:

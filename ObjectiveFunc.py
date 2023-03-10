@@ -29,11 +29,7 @@ class ObjectiveFunc(ABC):
         Shorthand for executing the objective function on a vector.
         """
         
-        result = None
-        
-        result = self.fitness(indiv, adjusted)
-        
-        return result
+        return self.fitness(indiv, adjusted)
 
 
     def decode(self, indiv):
@@ -60,17 +56,17 @@ class ObjectiveFunc(ABC):
         return value
     
     
-    def apply_fitness(self, indiv, adjusted=True):
-        """
-        Calculates the fitness for a given individual updating its properties in the process.
-        """
+    # def apply_fitness(self, indiv, adjusted=True):
+    #     """
+    #     Calculates the fitness for a given individual updating its properties in the process.
+    #     """
 
-        if not indiv.fitness_calculated:
-            fit_value = self.fitness(indiv) - self.penalize(indiv)
-            indiv.fitness = fit_value
-            indiv.fitness_calculated = True
+    #     if not indiv.fitness_calculated:
+    #         fit_value = self.fitness(indiv) - self.penalize(indiv)
+    #         indiv.fitness = fit_value
+    #         indiv.fitness_calculated = True
         
-        return indiv
+    #     return indiv
     
 
     @abstractmethod

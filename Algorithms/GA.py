@@ -24,8 +24,10 @@ class GA(BaseAlgorithm):
         self.size = params["popSize"] if "popSize" in params else 100
         self.pmut = params["pmut"] if "pmut" in params else 0.1
         self.pcross = params["pcross"] if "pcross" in params else 0.9
+
         self.mutation_op = mutation_op
         self.cross_op = cross_op
+
         self.parent_sel_op = parent_sel_op
         self.selection_op = selection_op
 
@@ -51,8 +53,7 @@ class GA(BaseAlgorithm):
 
         self.population = []
         for i in range(self.size):
-            new_indiv = Indiv(objfunc.random_solution())
-            new_indiv = objfunc.apply_fitness(new_indiv)
+            new_indiv = Indiv(objfunc, objfunc.random_solution())
             self.population.append(new_indiv)
     
 
@@ -69,7 +70,7 @@ class GA(BaseAlgorithm):
             if random.random() < self.pcross:
                 new_solution = self.cross_op.evolve(parent1, parent_list, objfunc)
                 new_solution = objfunc.repair_solution(new_solution)
-                new_indiv = Indiv(new_solution)
+                new_indiv = Indiv(objfunc, new_solution)
             else:
                 new_indiv = copy(parent1)
             
@@ -77,9 +78,8 @@ class GA(BaseAlgorithm):
             if random.random() < self.pmut:
                 new_solution = self.mutation_op(new_indiv, self.population, objfunc)
                 new_solution = objfunc.repair_solution(new_solution)
-                new_indiv = Indiv(new_solution)
+                new_indiv = Indiv(objfunc, new_solution)
             
-            new_indiv = objfunc.apply_fitness(new_indiv)
             
             # Add to offspring list
             offspring.append(new_indiv)

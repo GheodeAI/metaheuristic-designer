@@ -36,8 +36,7 @@ class HillClimb(BaseAlgorithm):
         Generates a random population of individuals
         """
 
-        self.population[0] = Indiv(objfunc.random_solution())
-        self.population[0] = objfunc.apply_fitness(self.population[0])
+        self.population[0] = Indiv(objfunc, objfunc.random_solution())
 
     
     def perturb(self, indiv_list, objfunc, progress=0, history=None):
@@ -50,8 +49,7 @@ class HillClimb(BaseAlgorithm):
         # Perturb individual
         new_solution = self.perturb_op(indiv, indiv_list, objfunc)
         new_solution = objfunc.repair_solution(new_solution)
-        new_indiv = Indiv(new_solution)
-        new_indiv = objfunc.apply_fitness(new_indiv)
+        new_indiv = Indiv(objfunc, new_solution)
 
         # If it improves the previous solution keep it
         if new_indiv.fitness > indiv.fitness:

@@ -50,8 +50,7 @@ class DE(BaseAlgorithm):
 
         self.population = []
         for i in range(self.size):
-            new_indiv = Indiv(objfunc.random_solution())
-            new_indiv = objfunc.apply_fitness(new_indiv)
+            new_indiv = Indiv(objfunc, objfunc.random_solution())
             self.population.append(new_indiv)
     
     def perturb(self, parent_list, objfunc, progress=0, history=None):
@@ -60,8 +59,7 @@ class DE(BaseAlgorithm):
         for indiv in parent_list:
             new_solution = self.de_op(indiv, parent_list, objfunc)
             new_solution = objfunc.repair_solution(new_solution)
-            new_indiv = Indiv(new_solution)
-            new_indiv = objfunc.apply_fitness(new_indiv)
+            new_indiv = Indiv(objfunc, new_solution)
             
             offspring.append(new_indiv)
         

@@ -12,8 +12,7 @@ class OperatorBinary(Operator):
         Constructor for the Operator class
         """
 
-        self.name = name
-        super().__init__(self.name, params)
+        super().__init__(name, params)
     
     
     def evolve(self, solution, population, objfunc):
@@ -32,27 +31,27 @@ class OperatorBinary(Operator):
             result = cross1p(solution.vector.copy(), solution2.vector.copy())
         elif self.name == "2point":
             result = cross2p(solution.vector.copy(), solution2.vector.copy())
-        elif self.name == "Multipoint":
+        elif self.name == "multipoint":
             result = crossMp(solution.vector.copy(), solution2.vector.copy())
-        elif self.name == "Multicross":
+        elif self.name == "multicross":
             result = multiCross(solution.vector.copy(), others, self.params["N"])
-        elif self.name == "Perm":
+        elif self.name == "perm":
             result = permutation(solution.vector.copy(), self.params["N"])
-        elif self.name == "Xor" or self.name == "FlipRandom":
+        elif self.name == "xor" or self.name == "fliprandom":
             result = xorMask(solution.vector.copy(), self.params["N"], mode="bin")
-        elif self.name == "XorCross" or self.name == "FlipCross":
+        elif self.name == "xorcross" or self.name == "flipcross":
             result = xorCross(solution.vector.copy(), solution2.vector.copy())
-        elif self.name == "RandSample":
+        elif self.name == "randsample":
             self.params["method"] = "Bernouli"
             result = randSample(solution.vector.copy(), population, self.params)
-        elif self.name == "MutSample":
+        elif self.name == "mutsample":
             self.params["method"] = "Bernouli"
             result = mutateSample(solution.vector.copy(), population, self.params)
-        elif self.name == "Dummy":
+        elif self.name == "dummy":
             result = dummyOp(solution.vector.copy(), self.params["F"])
-        elif self.name == "Nothing":
+        elif self.name == "nothing":
             result = solution.vector.copy()
-        elif self.name == "Custom":
+        elif self.name == "custom":
             fn = self.params["function"]
             result = fn(solution, population, objfunc, self.params)
         else:

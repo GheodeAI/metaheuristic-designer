@@ -41,17 +41,7 @@ class BaseAlgorithm(ABC):
         Applies operators to the population in some way
         Returns the offspring generated.
         """
-    
-
-    def compute_fitness(self, population, objfunc):
-        """
-        Computes the fitness value of each of the individuals of the population,
-        the existing implementation most likely will work good enough.
-        """
-
-        return list(map(objfunc.apply_fitness, population))
             
-    
 
     def select_individuals(self, population, offspring, progress=0, history=None):
         """

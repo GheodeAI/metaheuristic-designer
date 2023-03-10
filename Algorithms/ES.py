@@ -48,8 +48,7 @@ class ES(BaseAlgorithm):
 
         self.population = []
         for i in range(self.size):
-            new_indiv = Indiv(objfunc.random_solution())
-            new_indiv = objfunc.apply_fitness(new_indiv)
+            new_indiv = Indiv(objfunc, objfunc.random_solution())
             self.population.append(new_indiv)
 
     
@@ -66,12 +65,12 @@ class ES(BaseAlgorithm):
             parent1 = random.choice(parent_list)
             new_solution = self.cross_op.evolve(parent1, parent_list, objfunc)
             new_solution = objfunc.repair_solution(new_solution)
-            new_indiv = Indiv(new_solution)
+            new_indiv = Indiv(objfunc, new_solution)
             
             # Mutate
             new_solution = self.mutation_op(new_indiv, self.population, objfunc)
             new_solution = objfunc.repair_solution(new_solution)
-            new_indiv = Indiv(new_solution)
+            new_indiv = Indiv(objfunc, new_solution)
 
             new_indiv = objfunc.apply_fitness(new_indiv)
             

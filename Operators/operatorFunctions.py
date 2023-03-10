@@ -139,17 +139,17 @@ def sampleDistribution(method, n, mean=0, strength=0.01, low=0, up=1):
     """
 
     sample = 0 
-    if method == "Gauss":
+    if method == "gauss":
         sample = np.random.normal(mean, strength, size=n)
-    elif method == "Uniform":
+    elif method == "uniform":
         sample = np.random.uniform(low, up, size=n)
-    elif method == "Cauchy":
+    elif method == "cauchy":
         sample = sp.stats.cauchy.rvs(mean, strength, size=n)
-    elif method == "Laplace":
+    elif method == "laplace":
         sample = sp.stats.laplace.rvs(mean, strength, size=n)
-    elif method == "Poisson":
+    elif method == "poisson":
         sample = sp.stats.poisson.rvs(strength, size=n)
-    elif method == "Bernouli":
+    elif method == "bernouli":
         sample = sp.stats.bernoulli.rvs(strength, size=n)
     else:
         print(f"Error: distribution \"{method}\" not defined")
@@ -162,7 +162,7 @@ def laplace(vector, strength):
     Adds random noise following a Laplace distribution to the vector.
     """
 
-    return randNoise(vector, {"method":"Laplace", "F":strength})
+    return randNoise(vector, {"method":"laplace", "F":strength})
 
 
 def cauchy(vector, strength):
@@ -170,7 +170,7 @@ def cauchy(vector, strength):
     Adds random noise following a Cauchy distribution to the vector.
     """
     
-    return randNoise(vector, {"method":"Cauchy", "F":strength})
+    return randNoise(vector, {"method":"cauchy", "F":strength})
 
 
 def gaussian(vector, strength):
@@ -178,7 +178,7 @@ def gaussian(vector, strength):
     Adds random noise following a Gaussian distribution to the vector.
     """
     
-    return randNoise(vector, {"method":"Gauss", "F":strength})
+    return randNoise(vector, {"method":"gauss", "F":strength})
 
 
 def uniform(vector, low, up):
@@ -186,7 +186,7 @@ def uniform(vector, low, up):
     Adds random noise following an Uniform distribution to the vector.
     """
     
-    return randNoise(vector, {"method":"Uniform", "Low":low, "Up":up})
+    return randNoise(vector, {"method":"uniform", "Low":low, "Up":up})
 
 
 def poisson(vector, mu):
@@ -194,7 +194,7 @@ def poisson(vector, mu):
     Adds random noise following a Poisson distribution to the vector.
     """
     
-    return randNoise(vector, {"method":"Poisson", "F":mu})
+    return randNoise(vector, {"method":"poisson", "F":mu})
 
 # def bernoulli(vector, p):
 #     """
