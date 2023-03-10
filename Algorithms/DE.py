@@ -32,14 +32,14 @@ class DE(BaseAlgorithm):
         if population is not None:
             self.population = population
 
-    def best_solution(self, objfunc):
+    def best_solution(self):
         """
         Gives the best solution found by the algorithm and its fitness
         """
 
         best_solution = sorted(self.population, reverse=True, key = lambda c: c.fitness)[0]
         best_fitness = best_solution.fitness
-        if objfunc.opt == "min":
+        if best_solution.objfunc.opt == "min":
             best_fitness *= -1
         return (best_solution.vector, best_fitness)
 

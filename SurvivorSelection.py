@@ -53,11 +53,11 @@ class SurvivorSelection:
         result = []
         if self.name == "elitism":
             result = elitism(popul, offspring, self.params["amount"])
-        elif self.name == "condElitism":
+        elif self.name == "condelitism":
             result = cond_elitism(popul, offspring, self.params["amount"])
-        elif self.name == "Generational":
+        elif self.name == "generational":
             result = offspring
-        elif self.name == "One-to-one":
+        elif self.name == "one-to-one":
             result = one_to_one(popul, offspring)
         elif self.name == "(m+n)":
             result = lamb_plus_mu(popul, offspring)

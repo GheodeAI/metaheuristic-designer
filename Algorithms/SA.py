@@ -27,13 +27,13 @@ class SA(BaseAlgorithm):
         self.population = [None]
         self.perturb_op = perturb_op
     
-    def best_solution(self, objfunc):
+    def best_solution(self):
         """
         Gives the best solution found by the algorithm and its fitness
         """
 
         best_fitness = self.best_indiv.fitness
-        if objfunc.opt == "min":
+        if self.best_indiv.objfunc.opt == "min":
             best_fitness *= -1
         return (self.best_indiv.vector, best_fitness)
 

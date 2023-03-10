@@ -63,12 +63,12 @@ class GeneralSearch:
             file.write(str(fit))
     
     
-    def best_solution(self, objfunc):
+    def best_solution(self):
         """
         Returns the best solution so far in the population.
         """
 
-        return self.search_strategy.best_solution(objfunc)
+        return self.search_strategy.best_solution()
     
     
     def stopping_condition(self, gen, time_start, objfunc):
@@ -153,7 +153,7 @@ class GeneralSearch:
 
         self.search_strategy.population = population
         
-        best_individual, best_fitness = self.search_strategy.best_solution(objfunc)
+        best_individual, best_fitness = self.search_strategy.best_solution()
         self.search_strategy.update_params(self.progress)
         self.steps += 1
             
@@ -201,7 +201,7 @@ class GeneralSearch:
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
         
-        return self.best_solution(objfunc)
+        return self.best_solution()
     
     
     def step_info(self, objfunc, start_time):
@@ -212,7 +212,7 @@ class GeneralSearch:
         print(f"Optimizing {objfunc.name} using {self.search_strategy.name}:")
         print(f"\tTime Spent {round(time.time() - start_time,2)} s")
         print(f"\tGeneration: {self.steps}")
-        best_fitness = self.best_solution(objfunc)[1]
+        best_fitness = self.best_solution()[1]
         print(f"\tBest fitness: {best_fitness}")
         print(f"\tEvaluations of fitness: {objfunc.counter}")
         self.search_strategy.extra_step_info()
@@ -230,7 +230,7 @@ class GeneralSearch:
         print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
         print("Number of fitness evaluations:", objfunc.counter)
         
-        best_fitness = self.best_solution(objfunc)[1]
+        best_fitness = self.best_solution()[1]
         print("Best fitness:", best_fitness)
 
         if show_plots:

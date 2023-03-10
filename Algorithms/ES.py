@@ -30,14 +30,14 @@ class ES(BaseAlgorithm):
         if population is not None:
             self.population = population
 
-    def best_solution(self, objfunc):
+    def best_solution(self):
         """
         Gives the best solution found by the algorithm and its fitness
         """
 
         best_solution = sorted(self.population, reverse=True, key = lambda c: c.fitness)[0]
         best_fitness = best_solution.fitness
-        if objfunc.opt == "min":
+        if best_solution.objfunc.opt == "min":
             best_fitness *= -1
         return (best_solution.vector, best_fitness)
 
@@ -71,8 +71,6 @@ class ES(BaseAlgorithm):
             new_solution = self.mutation_op(new_indiv, self.population, objfunc)
             new_solution = objfunc.repair_solution(new_solution)
             new_indiv = Indiv(objfunc, new_solution)
-
-            new_indiv = objfunc.apply_fitness(new_indiv)
             
             # Add to offspring list
             offspring.append(new_indiv)

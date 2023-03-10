@@ -15,7 +15,7 @@ def run_algorithm(alg_name):
         "stop_cond": "neval",
         "time_limit": 20.0,
         "ngen": 1000,
-        "neval": 5e5,
+        "neval": 5e4,
         "fit_target": 0,
 
         "verbose": True,

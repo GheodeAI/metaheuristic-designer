@@ -20,13 +20,13 @@ class LocalSearch(BaseAlgorithm):
         self.perturb_op = perturb_op
         self.iterations = params["iters"] if "iters" in params else 100
 
-    def best_solution(self, objfunc):
+    def best_solution(self):
         """
         Gives the best solution found by the algorithm and its fitness
         """
 
         curr_fitness = self.population[0].fitness
-        if objfunc.opt == "min":
+        if self.population[0].objfunc.opt == "min":
             curr_fitness *= -1
         return (self.population[0].vector, curr_fitness)
 
