@@ -51,7 +51,7 @@ class ObjectiveFunc(ABC):
         value = self.objective(self.decode(indiv))
 
         if adjusted:
-            value = self.factor * value
+            value = self.factor * value - self.penalize(indiv)
         
         return value
     
