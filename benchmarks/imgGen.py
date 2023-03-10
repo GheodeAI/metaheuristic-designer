@@ -105,7 +105,7 @@ def run_algorithm(alg_name, img_file_name):
             display_timer = time.time()
         
         if display:
-            img_flat = alg.best_solution(objfunc)[0]
+            img_flat = alg.best_solution()[0]
             render(img_flat.reshape(image_shape + [3]).astype(np.int32), display_dim, src)
             pygame.display.update()
     
@@ -114,7 +114,7 @@ def run_algorithm(alg_name, img_file_name):
     img_flat = alg.best_solution()[0]
     image = img_flat.reshape(image_shape + [3])
     render(image, display_dim, src)
-    alg.display_report()
+    alg.display_report(objfunc)
     save_to_image(image, f"{img_name}_{image_shape[0]}x{image_shape[1]}_{alg_name}.png")
     
 def main():
