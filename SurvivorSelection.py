@@ -53,17 +53,22 @@ class SurvivorSelection:
         result = []
         if self.name == "elitism":
             result = elitism(popul, offspring, self.params["amount"])
+
         elif self.name == "condelitism":
             result = cond_elitism(popul, offspring, self.params["amount"])
+
         elif self.name == "generational":
             result = offspring
+
         elif self.name == "one-to-one":
             result = one_to_one(popul, offspring)
+
         elif self.name == "(m+n)":
             result = lamb_plus_mu(popul, offspring)
+
         elif self.name == "(m,n)":
             result = lamb_comma_mu(popul, offspring)
-            # divide in parts
+
         else:
             print(f"Error: parent selection method \"{self.name}\" not defined")
             exit(1)
@@ -78,6 +83,11 @@ def one_to_one(popul, offspring):
             new_population.append(child)
         else:
             new_population.append(parent)
+    
+    if len(offspring) < len(popul):
+        n_leftover = len(offspring) - len(popul)
+        new_population += popul[n_leftover:]
+
     return new_population
 
 

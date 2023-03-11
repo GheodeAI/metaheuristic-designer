@@ -55,19 +55,6 @@ class ObjectiveFunc(ABC):
         
         return value
     
-    
-    # def apply_fitness(self, indiv, adjusted=True):
-    #     """
-    #     Calculates the fitness for a given individual updating its properties in the process.
-    #     """
-
-    #     if not indiv.fitness_calculated:
-    #         fit_value = self.fitness(indiv) - self.penalize(indiv)
-    #         indiv.fitness = fit_value
-    #         indiv.fitness_calculated = True
-        
-    #     return indiv
-    
 
     @abstractmethod
     def objective(self, vector):

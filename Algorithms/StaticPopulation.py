@@ -68,6 +68,9 @@ class StaticPopulation(BaseAlgorithm):
             new_indiv = self.operator(indiv, parent_list, objfunc, self.best)
             new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
             new_indiv.speed = objfunc.repair_solution(new_indiv.speed)
+
+            # Store best vector for individual
+            new_indiv.store_best(indiv)
             
             # Add to offspring list
             offspring.append(new_indiv)

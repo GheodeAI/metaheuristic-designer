@@ -1,4 +1,6 @@
+import time
 from abc import ABC, abstractmethod
+
 
 class BaseAlgorithm(ABC):
     """
@@ -32,7 +34,6 @@ class BaseAlgorithm(ABC):
         Selects the individuals that will be perturbed in this generation
         Returns the whole population if not implemented.
         """
-
         return population
     
     @abstractmethod

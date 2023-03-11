@@ -17,13 +17,13 @@ class HS(ES):
         selection = SurvivorSelection("(m+n)")
 
         cross = OperatorReal("Multicross", {"N":params["HMS"]})
+
         
-        op1 = OperatorReal("MutSample", {"method":"Gauss", "F":params["BW"], "N":30 * params["HMCR"] * params["PAR"]})
-        op2 = OperatorReal("RandomMask", {"N":30*(1-params["HMCR"])})
+        mutate1 = OperatorReal("MutNoise", {"method":"Gauss", "F":params["BW"], "Cr":params["HMCR"] * params["PAR"]})
+        rand1 = OperatorReal("RandomMask", {"Cr":1-params["HMCR"]})
 
-        mutate = OperatorMeta("Sequence", [op1, op2])
-
-
+        mutate = OperatorMeta("Sequence", [mutate1, rand1])
+        
 
         super().__init__(mutate, cross, parent_select, selection, params, name, population)
 

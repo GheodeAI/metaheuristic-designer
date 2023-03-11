@@ -31,36 +31,66 @@ class OperatorBinary(Operator):
         
         if global_best is None:
             global_best = indiv
+
+        params = copy(self.params)
+        
+        if "N" in params:
+            params["N"] = round(params["N"])
+        
+        if "Cr" in params and "N" not in params:
+            params["N"] = np.count_nonzero(np.random.random(indiv.vector.size) < params["Cr"])
+
+        params["N"] = round(params["N"])
+        
         
         if self.name == "1point":
             new_indiv.vector = cross1p(new_indiv.vector, solution2.vector.copy())
+
         elif self.name == "2point":
             new_indiv.vector = cross2p(new_indiv.vector, solution2.vector.copy())
+
         elif self.name == "multipoint":
             new_indiv.vector = crossMp(new_indiv.vector, solution2.vector.copy())
+
         elif self.name == "multicross":
-            new_indiv.vector = multiCross(new_indiv.vector, others, self.params["N"])
+            new_indiv.vector = multiCross(new_indiv.vector, others, params["N"])
+
         elif self.name == "perm":
-            new_indiv.vector = permutation(new_indiv.vector, self.params["N"])
+            new_indiv.vector = permutation(new_indiv.vector, params["N"])
+
         elif self.name == "xor" or self.name == "fliprandom":
-            new_indiv.vector = xorMask(new_indiv.vector, self.params["N"], mode="bin")
+            new_indiv.vector = xorMask(new_indiv.vector, params["N"], mode="bin")
+
         elif self.name == "xorcross" or self.name == "flipcross":
             new_indiv.vector = xorCross(new_indiv.vector, solution2.vector.copy())
+
         elif self.name == "randsample":
-            self.params["method"] = "Bernouli"
-            new_indiv.vector = randSample(new_indiv.vector, population, self.params)
+            params["method"] = "Bernouli"
+            new_indiv.vector = randSample(new_indiv.vector, population, params)
+
         elif self.name == "mutsample":
-            self.params["method"] = "Bernouli"
-            new_indiv.vector = mutateSample(new_indiv.vector, population, self.params)
+            params["method"] = "Bernouli"
+            new_indiv.vector = mutateSample(new_indiv.vector, population, params)
+        
         elif self.name == "random":
             new_indiv.vector = objfunc.random_solution()
+        
+        elif self.name == "randommask":
+            mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.vector.size - params["N"])]).astype(bool)
+            np.random.shuffle(mask_pos)
+
+            new_indiv.vector[mask_pos] = objfunc.random_solution()[mask_pos]
+
         elif self.name == "dummy":
-            new_indiv.vector = dummyOp(new_indiv.vector, self.params["F"])
+            new_indiv.vector = dummyOp(new_indiv.vector, params["F"])
+
         elif self.name == "nothing":
-            new_indiv.vector = new_indiv.vector
+            pass
+
         elif self.name == "custom":
-            fn = self.params["function"]
-            new_indiv.vector = fn(indiv, population, objfunc, self.params)
+            fn = params["function"]
+            new_indiv.vector = fn(indiv, population, objfunc, params)
+
         else:
             print(f"Error: evolution method \"{self.name}\" not defined")
             exit(1)

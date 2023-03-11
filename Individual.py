@@ -3,6 +3,7 @@ from copy import copy
 from .ObjectiveFunc import ObjectiveFunc
 from .Operators import Operator
 
+
 class Indiv:
     """
     Individual that holds a tentative solution with 
@@ -51,16 +52,17 @@ class Indiv:
         Sets the value of the vector.
         """
 
-        old_vector = self.vector
-        old_fitness = self.fitness
-
-        self._vector = vector
         self.fitness_calculated = False
-        
-        if self.fitness > old_fitness:
-            self.best = old_vector
-        
-        return self._vector
+        self._vector = vector
+    
+
+    def store_best(self, past_indiv):
+        """
+        Stores the vector that yeided the best fitness between the one the indiviudal has and another input vector
+        """
+
+        if self.fitness < past_indiv.fitness:
+            self.best = past_indiv.vector
 
 
     def reproduce(self, population):
@@ -78,11 +80,7 @@ class Indiv:
         Apply the speed to obtain an individual with a new position.
         """
 
-        new_vector = self._vector + self.speed
-        new_indiv = Indiv(self.objfunc, new_vector, self.speed, self.operator)
-        if self.fitness > new_indiv.fitness:
-            new_indiv.best = self._vector
-        return new_indiv
+        return Indiv(self.objfunc, self._vector + self.speed, self.speed, self.operator)
 
 
     @property
@@ -93,8 +91,7 @@ class Indiv:
         """
 
         if not self.fitness_calculated:
-            self._fitness = self.objfunc(self)
-            self.fitness_calculated = True
+            self.fitness = self.objfunc(self)
         return self._fitness
     
     @fitness.setter
@@ -105,3 +102,4 @@ class Indiv:
         """
         
         self._fitness = fit
+        self.fitness_calculated = True

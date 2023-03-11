@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import time
 from typing import Union, List
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
@@ -72,7 +73,7 @@ class ES(BaseAlgorithm):
         # Generation of offspring by crossing and mutation
         offspring = []
 
-        while len(offspring) < self.size:
+        while len(offspring) < self.n_offspring:
 
             # Cross
             parent1 = random.choice(parent_list)
@@ -83,9 +84,13 @@ class ES(BaseAlgorithm):
             new_indiv = self.mutation_op(parent1, parent_list, objfunc, self.best)
             new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
 
+            # Store best vector for individual (useful for some operators, not extrictly needed)
+            new_indiv.store_best(parent1)
+
             # Add to offspring list
             offspring.append(new_indiv)
         
+
         # Update best solution
         current_best = max(offspring, key = lambda x: x.fitness)
         if self.best.fitness < current_best.fitness:

@@ -88,6 +88,9 @@ class GA(BaseAlgorithm):
             if random.random() < self.pmut:
                 new_indiv = self.mutation_op(parent1, parent_list, objfunc, self.best)
                 new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
+            
+            # Store best vector for individual
+            new_indiv.store_best(parent1)
 
             # Add to offspring list
             offspring.append(new_indiv)

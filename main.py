@@ -12,21 +12,21 @@ import argparse
 def run_algorithm(alg_name):
     params = {
         # General
-        "stop_cond": "neval",
-        "time_limit": 20.0,
+        "stop_cond": "time_limit",
+        "time_limit": 80.0,
         "ngen": 1000,
         "neval": 6e5,
-        "fit_target": 0,
+        "fit_target": 1e-8,
 
         "verbose": True,
         "v_timer": 1
     }
 
-    objfunc = Sphere(30, "min")
+    objfunc = Rosenbrock(2, "min")
 
     mutation_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.001})
     cross_op = OperatorReal("Multipoint")
-    parent_sel_op = ParentSelection("Best", {"amount": 20})
+    parent_sel_op = ParentSelection("Best", {"amount": 40})
     selection_op = SurvivorSelection("(m+n)")
 
     if alg_name == "HillClimb":
@@ -36,11 +36,11 @@ def run_algorithm(alg_name):
     elif alg_name == "ES":
         search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
     elif alg_name == "HS":
-        search_strat = HS({"HMS":100, "HMCR":0.1, "BW":0.1, "PAR":0.05})
+        search_strat = HS({"HMS":100, "HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "GA":
         search_strat = GA(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.2})
     elif alg_name == "SA":
-        search_strat = SA(mutation_op, {"iter":100, "temp_init":30, "alpha":0.99})
+        search_strat = SA(mutation_op, {"iter":100, "temp_init":30, "alpha":0.999})
     elif alg_name == "DE":
         search_strat = DE(OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}), {"popSize":100})
     elif alg_name == "PSO":

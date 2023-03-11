@@ -59,6 +59,10 @@ class SA(BaseAlgorithm):
             new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best_indiv)
             new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
 
+            # Store best vector for individual
+            new_indiv.store_best(indiv)
+            
+            # Accept the new solution even if it is worse with a probability
             p = np.exp(-1/self.temp)
             if new_indiv.fitness > indiv.fitness or random.random() < p:
                 indiv = new_indiv

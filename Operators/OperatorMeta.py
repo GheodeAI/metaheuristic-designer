@@ -34,20 +34,19 @@ class OperatorMeta(Operator):
         Evolves a solution with a different strategy depending on the type of operator
         """
 
-        result = copy(indiv)
-
         if self.name == "branch2":
-            if random.random() > self.params["p"]:
+            if random.random() > self.params["P"]:
                 op = self.op_list[0]
             else:
                 op = self.op_list[1]
             result = op(indiv, population, objfunc, global_best)
         
-        if self.name == "branch":
+        elif self.name == "branch":
             op = random.choices(op_list, weights=self.params["weights"])
             result = op(indiv, population, objfunc, global_best)
         
         elif self.name == "sequence":
+            result = indiv
             for op in self.op_list:
                 result = op(result, population, objfunc, global_best)
         

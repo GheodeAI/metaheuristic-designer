@@ -50,6 +50,9 @@ class LocalSearch(BaseAlgorithm):
             new_indiv = self.perturb_op(indiv, self.population, objfunc, best_indiv)
             new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
 
+            # Store best vector for individual
+            new_indiv.store_best(indiv)
+
             # If it improves the previous solution keep it
             if new_indiv.fitness > best_indiv.fitness:
                 best_indiv = new_indiv

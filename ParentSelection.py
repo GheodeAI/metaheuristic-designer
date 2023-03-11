@@ -52,10 +52,13 @@ class ParentSelection:
         result = []
         if self.name == "tournament":
             result = tournament(population, self.params["amount"], self.params["p"])
+
         elif self.name == "best":
             result = select_best(population, self.params["amount"])
+
         elif self.name == "nothing":
             result = population
+            
         else:
             print(f"Error: parent selection method \"{self.name}\" not defined")
             exit(1)
