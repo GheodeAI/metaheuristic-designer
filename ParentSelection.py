@@ -1,6 +1,6 @@
 import random
 import numpy as np
-
+from typing import Union
 from .ParamScheduler import *
 
 
@@ -8,7 +8,8 @@ class ParentSelection:
     """
     Operator class that has continuous mutation and cross methods
     """
-    def __init__(self, name, params = None):
+
+    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None):
         """
         Constructor for the ParentSelection class
         """

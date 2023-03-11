@@ -1,5 +1,7 @@
 from .Operator import Operator
-from .operatorFunctions import *
+from ..ParamScheduler import ParamScheduler
+from typing import Union
+from .operator_functions import *
 
 
 class OperatorInt(Operator):
@@ -7,7 +9,7 @@ class OperatorInt(Operator):
     Operator class that has discrete mutation and cross methods
     """
 
-    def __init__(self, name, params = None):
+    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None):
         """
         Constructor for the Operator class
         """
@@ -15,70 +17,73 @@ class OperatorInt(Operator):
         super().__init__(name, params)
     
     
-    def evolve(self, solution, population, objfunc):
+    def evolve(self, indiv, population, objfunc, global_best):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """
 
-        result = None
-        others = [i for i in population if i != solution]
+        new_indiv = copy(indiv)
+        others = [i for i in population if i != indiv]
         if len(others) > 1:
-            solution2 = random.choice(others)
+            indiv2 = random.choice(others)
         else:
-            solution2 = solution
+            indiv2 = indiv
+        
+        if global_best is None:
+            global_best = indiv
         
         if self.name == "1point":
-            result = cross1p(solution.vector.copy(), solution2.vector.copy())
+            new_indiv.vector = cross1p(new_indiv.vector, solution2.vector.copy())
         elif self.name == "2point":
-            result = cross2p(solution.vector.copy(), solution2.vector.copy())
+            new_indiv.vector = cross2p(new_indiv.vector, solution2.vector.copy())
         elif self.name == "multipoint":
-            result = crossMp(solution.vector.copy(), solution2.vector.copy())
+            new_indiv.vector = crossMp(new_indiv.vector, solution2.vector.copy())
         elif self.name == "weightedAvg":
-            result = weightedAverage(solution.vector.copy(), solution2.vector.copy(), self.params["F"])
+            new_indiv.vector = weightedAverage(new_indiv.vector, solution2.vector.copy(), self.params["F"])
         elif self.name == "blxalpha":
-            result = blxalpha(solution.vector.copy(), solution2.vector.copy(), self.params["Cr"])
+            new_indiv.vector = blxalpha(new_indiv.vector, solution2.vector.copy(), self.params["Cr"])
         elif self.name == "multicross":
-            result = multiCross(solution.vector.copy(), others, self.params["N"])
+            new_indiv.vector = multiCross(new_indiv.vector, others, self.params["N"])
         elif self.name == "crossinteravg":
-            result = crossInterAvg(solution.vector.copy(), others, self.params["N"])
+            new_indiv.vector = crossInterAvg(new_indiv.vector, others, self.params["N"])
         elif self.name == "perm":
-            result = permutation(solution.vector.copy(), self.params["N"])
+            new_indiv.vector = permutation(new_indiv.vector, self.params["N"])
         elif self.name == "xor":
-            result = xorMask(solution.vector.copy(), self.params["N"])
+            new_indiv.vector = xorMask(new_indiv.vector, self.params["N"])
         elif self.name == "xorcross":
-            result = xorCross(solution.vector.copy(), solution2.vector.copy())
+            new_indiv.vector = xorCross(new_indiv.vector, solution2.vector.copy())
         elif self.name == "mutrand":
-            result = mutateRand(solution.vector.copy(), population, self.params)
+            new_indiv.vector = mutateRand(new_indiv.vector, population, self.params)
         elif self.name == "randnoise":
-            result = randNoise(solution.vector.copy(), self.params)
+            new_indiv.vector = randNoise(new_indiv.vector, self.params)
         elif self.name == "randsample":
-            result = randSample(solution.vector.copy(), population, self.params)
+            new_indiv.vector = randSample(new_indiv.vector, population, self.params)
         elif self.name == "mutsample":
-            result = mutateSample(solution.vector.copy(), population, self.params)
+            new_indiv.vector = mutateSample(new_indiv.vector, population, self.params)
         elif self.name == "gauss":
-            result = gaussian(solution.vector.copy(), self.params["F"])
+            new_indiv.vector = gaussian(new_indiv.vector, self.params["F"])
         elif self.name == "laplace":
-            result = laplace(solution.vector.copy(), self.params["F"])
+            new_indiv.vector = laplace(new_indiv.vector, self.params["F"])
         elif self.name == "cauchy":
-            result = cauchy(solution.vector.copy(), self.params["F"])
+            new_indiv.vector = cauchy(new_indiv.vector, self.params["F"])
         elif self.name == "uniform":
-            result = uniform(solution.vector.copy(), self.params["Low"], self.params["Up"])
+            new_indiv.vector = uniform(new_indiv.vector, self.params["Low"], self.params["Up"])
         elif self.name == "poisson":
-            result = poisson(solution.vector.copy(), self.params["F"])
+            new_indiv.vector = poisson(new_indiv.vector, self.params["F"])
         elif self.name == "de/rand/1":
-            result = DERand1(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
+            new_indiv.vector = DERand1(new_indiv.vector, others, self.params["F"], self.params["Cr"])
         elif self.name == "de/best/1":
-            result = DEBest1(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
+            new_indiv.vector = DEBest1(new_indiv.vector, others, self.params["F"], self.params["Cr"])
         elif self.name == "de/rand/2":
-            result = DERand2(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
+            new_indiv.vector = DERand2(new_indiv.vector, others, self.params["F"], self.params["Cr"])
         elif self.name == "de/best/2":
-            result = DEBest2(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
+            new_indiv.vector = DEBest2(new_indiv.vector, others, self.params["F"], self.params["Cr"])
         elif self.name == "de/current-to-rand/1":
-            result = DECurrentToRand1(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
+            new_indiv.vector = DECurrentToRand1(new_indiv.vector, others, self.params["F"], self.params["Cr"])
         elif self.name == "de/current-to-best/1":
-            result = DECurrentToBest1(solution.vector.copy(), others, self.params["F"], self.params["Cr"])
+            new_indiv.vector = DECurrentToBest1(new_indiv.vector, others, self.params["F"], self.params["Cr"])
         elif self.name == "de/current-to-pbest/1":
-            result = DECurrentToPBest1(solution.vector.copy(), others, self.params["F"], self.params["Cr"], self.params["P"])
+            new_indiv.vector = DECurrentToPBest1(new_indiv.vector, others, self.params["F"], self.params["Cr"], self.params["P"])
         elif self.name == "lshade":
             self.params["Cr"] = np.random.normal(self.params["Cr"], 0.1)
             self.params["F"] = np.random.normal(self.params["F"], 0.1)
@@ -86,20 +91,22 @@ class OperatorInt(Operator):
             self.params["Cr"] = np.clip(self.params["Cr"], 0, 1)
             self.params["F"] = np.clip(self.params["F"], 0, 1)
 
-            result = DECurrentToPBest1(solution.vector.copy(), others, self.params["F"], self.params["Cr"]) 
+            new_indiv.vector = DECurrentToPBest1(new_indiv.vector, others, self.params["F"], self.params["Cr"]) 
         elif self.name == "sa":
-            result = simAnnealing(solution, self.params["F"], objfunc, self.params["temp_ch"], self.params["iter"])
+            new_indiv.vector = simAnnealing(indiv, self.params["F"], objfunc, self.params["temp_ch"], self.params["iter"])
         elif self.name == "hs":
-            result = harmonySearch(solution.vector.copy(), population, self.params["F"], self.params["Cr"], self.params["Par"])
+            new_indiv.vector = harmonySearch(new_indiv.vector, population, self.params["F"], self.params["Cr"], self.params["Par"])
+        elif self.name == "random":
+            new_indiv.vector = objfunc.random_solution()
         elif self.name == "dummy":
-            result = dummyOp(solution.vector.copy(), self.params["F"])
+            new_indiv.vector = dummyOp(new_indiv.vector, self.params["F"])
         elif self.name == "nothing":
-            result = solution.vector.copy()
+            new_indiv.vector = new_indiv.vector
         elif self.name == "custom":
             fn = self.params["function"]
-            result = fn(solution, population, objfunc, self.params)
+            new_indiv.vector = fn(indiv, population, objfunc, self.params)
         else:
             print(f"Error: evolution method \"{self.name}\" not defined")
             exit(1)
 
-        return np.round(result)
+        return np.round(new_indiv.vector)

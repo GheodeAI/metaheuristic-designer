@@ -1,5 +1,7 @@
 from .Operator import Operator
-from .operatorFunctions import *
+from ..ParamScheduler import ParamScheduler
+from typing import Union
+from .operator_functions import *
 
 
 class OperatorBinary(Operator):
@@ -7,7 +9,7 @@ class OperatorBinary(Operator):
     Operator class that has discrete mutation and cross methods
     """
 
-    def __init__(self, name, params = None):
+    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None):
         """
         Constructor for the Operator class
         """
@@ -15,47 +17,52 @@ class OperatorBinary(Operator):
         super().__init__(name, params)
     
     
-    def evolve(self, solution, population, objfunc):
+    def evolve(self, indiv, population, objfunc, global_best=None):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """
 
-        result = None
-        others = [i for i in population if i != solution]
+        new_indiv = copy(indiv)
+        others = [i for i in population if i != indiv]
         if len(others) > 1:
-            solution2 = random.choice(others)
+            indiv2 = random.choice(others)
         else:
-            solution2 = solution
+            indiv2 = indiv
+        
+        if global_best is None:
+            global_best = indiv
         
         if self.name == "1point":
-            result = cross1p(solution.vector.copy(), solution2.vector.copy())
+            new_indiv.vector = cross1p(new_indiv.vector, solution2.vector.copy())
         elif self.name == "2point":
-            result = cross2p(solution.vector.copy(), solution2.vector.copy())
+            new_indiv.vector = cross2p(new_indiv.vector, solution2.vector.copy())
         elif self.name == "multipoint":
-            result = crossMp(solution.vector.copy(), solution2.vector.copy())
+            new_indiv.vector = crossMp(new_indiv.vector, solution2.vector.copy())
         elif self.name == "multicross":
-            result = multiCross(solution.vector.copy(), others, self.params["N"])
+            new_indiv.vector = multiCross(new_indiv.vector, others, self.params["N"])
         elif self.name == "perm":
-            result = permutation(solution.vector.copy(), self.params["N"])
+            new_indiv.vector = permutation(new_indiv.vector, self.params["N"])
         elif self.name == "xor" or self.name == "fliprandom":
-            result = xorMask(solution.vector.copy(), self.params["N"], mode="bin")
+            new_indiv.vector = xorMask(new_indiv.vector, self.params["N"], mode="bin")
         elif self.name == "xorcross" or self.name == "flipcross":
-            result = xorCross(solution.vector.copy(), solution2.vector.copy())
+            new_indiv.vector = xorCross(new_indiv.vector, solution2.vector.copy())
         elif self.name == "randsample":
             self.params["method"] = "Bernouli"
-            result = randSample(solution.vector.copy(), population, self.params)
+            new_indiv.vector = randSample(new_indiv.vector, population, self.params)
         elif self.name == "mutsample":
             self.params["method"] = "Bernouli"
-            result = mutateSample(solution.vector.copy(), population, self.params)
+            new_indiv.vector = mutateSample(new_indiv.vector, population, self.params)
+        elif self.name == "random":
+            new_indiv.vector = objfunc.random_solution()
         elif self.name == "dummy":
-            result = dummyOp(solution.vector.copy(), self.params["F"])
+            new_indiv.vector = dummyOp(new_indiv.vector, self.params["F"])
         elif self.name == "nothing":
-            result = solution.vector.copy()
+            new_indiv.vector = new_indiv.vector
         elif self.name == "custom":
             fn = self.params["function"]
-            result = fn(solution, population, objfunc, self.params)
+            new_indiv.vector = fn(indiv, population, objfunc, self.params)
         else:
             print(f"Error: evolution method \"{self.name}\" not defined")
             exit(1)
 
-        return (result != 0).astype(np.int32)
+        return (new_indiv.vector != 0).astype(np.int32)

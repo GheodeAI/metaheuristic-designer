@@ -1,8 +1,11 @@
 import random
 import numpy as np
+from typing import Union
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
+from ..Operators import Operator
 from .BaseAlgorithm import BaseAlgorithm
+
 
 
 class SA(BaseAlgorithm):
@@ -10,7 +13,7 @@ class SA(BaseAlgorithm):
     Class implementing the Simulated annealing algorithm
     """
 
-    def __init__(self, perturb_op, params={}, name="SA"):
+    def __init__(self, perturb_op: Operator, params: Union[ParamScheduler, dict]={}, name: str="SA"):
         """
         Constructor of the SimAnnEvolve class
         """
@@ -53,9 +56,8 @@ class SA(BaseAlgorithm):
 
         indiv = indiv_list[0]
         for j in range(self.iter):
-            new_solution = self.perturb_op(indiv, indiv_list, objfunc)
-            new_solution = objfunc.repair_solution(new_solution)
-            new_indiv = Indiv(objfunc, new_solution)
+            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best_indiv)
+            new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
 
             p = np.exp(-1/self.temp)
             if new_indiv.fitness > indiv.fitness or random.random() < p:

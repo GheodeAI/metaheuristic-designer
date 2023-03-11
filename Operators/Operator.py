@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-
-from ..ParamScheduler import *
+from typing import Union
+from ..ParamScheduler import ParamScheduler
 
 
 class Operator(ABC):
@@ -8,7 +8,7 @@ class Operator(ABC):
     Abstract Operator class
     """
 
-    def __init__(self, name, params):
+    def __init__(self, name: str, params: Union[ParamScheduler, dict]):
         """
         Constructor for the Operator class
         """
@@ -42,12 +42,12 @@ class Operator(ABC):
         
     
 
-    def __call__(self, solution, population, objfunc):
+    def __call__(self, solution, population, objfunc, global_best):
         """
         A shorthand for calling the 'evolve' method
         """
 
-        return self.evolve(solution, population, objfunc)
+        return self.evolve(solution, population, objfunc, global_best)
     
     
     def step(self, progress):

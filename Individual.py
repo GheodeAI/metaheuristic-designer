@@ -1,5 +1,7 @@
+import numpy as np
 from copy import copy
-
+from .ObjectiveFunc import ObjectiveFunc
+from .Operators import Operator
 
 class Indiv:
     """
@@ -7,7 +9,7 @@ class Indiv:
     its fitness.
     """
 
-    def __init__(self, objfunc, vector, speed=0, operator=None):
+    def __init__(self, objfunc: ObjectiveFunc, vector: np.ndarray, speed: np.ndarray=0, operator: Operator=None):
         """
         Constructor of the Individual class.
         """
@@ -55,7 +57,7 @@ class Indiv:
         self._vector = vector
         self.fitness_calculated = False
         
-        if old_fitness < self.fitness:
+        if self.fitness > old_fitness:
             self.best = old_vector
         
         return self._vector
@@ -76,7 +78,7 @@ class Indiv:
         Apply the speed to obtain an individual with a new position.
         """
 
-        new_vector = self.objfunc.check_bounds(self._vector + self.speed)
+        new_vector = self._vector + self.speed
         new_indiv = Indiv(self.objfunc, new_vector, self.speed, self.operator)
         if self.fitness > new_indiv.fitness:
             new_indiv.best = self._vector

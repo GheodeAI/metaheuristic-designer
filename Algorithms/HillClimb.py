@@ -2,6 +2,7 @@ import random
 import numpy as np
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
+from ..Operators import Operator
 from .BaseAlgorithm import BaseAlgorithm
 
 
@@ -10,7 +11,7 @@ class HillClimb(BaseAlgorithm):
     Search strtategy example, HillClimbing
     """
     
-    def __init__(self, perturb_op, name="HillClimb"):
+    def __init__(self, perturb_op: Operator, name: str="HillClimb"):
         """
         Constructor of the Example search strategy class
         """
@@ -47,9 +48,8 @@ class HillClimb(BaseAlgorithm):
         indiv = indiv_list[0]
 
         # Perturb individual
-        new_solution = self.perturb_op(indiv, indiv_list, objfunc)
-        new_solution = objfunc.repair_solution(new_solution)
-        new_indiv = Indiv(objfunc, new_solution)
+        new_indiv = self.perturb_op(indiv, indiv_list, objfunc, indiv)
+        new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
 
         # If it improves the previous solution keep it
         if new_indiv.fitness > indiv.fitness:

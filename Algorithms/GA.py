@@ -2,7 +2,11 @@ import random
 import numpy as np
 from copy import copy
 import time
+from typing import Union, List
 from ..Individual import Indiv
+from ..Operators import Operator
+from ..ParentSelection import ParentSelection
+from ..SurvivorSelection import SurvivorSelection
 from ..ParamScheduler import ParamScheduler
 from .BaseAlgorithm import BaseAlgorithm
 
@@ -12,7 +16,8 @@ class GA(BaseAlgorithm):
     Population of the Genetic algorithm
     """
 
-    def __init__(self, mutation_op, cross_op, parent_sel_op, selection_op, objfunc=None, params={}, name="GA", population=None):
+    def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection,
+                       params: Union[ParamScheduler, dict]={}, name: str="GA", population: List[Indiv]=None):
         """
         Constructor of the GeneticPopulation class
         """
@@ -31,6 +36,8 @@ class GA(BaseAlgorithm):
         self.parent_sel_op = parent_sel_op
         self.selection_op = selection_op
 
+        self.best = None
+
         # Population initialization
         if population is not None:
             self.population = population
@@ -40,11 +47,11 @@ class GA(BaseAlgorithm):
         Gives the best solution found by the algorithm and its fitness
         """
 
-        best_solution = sorted(self.population, reverse=True, key = lambda c: c.fitness)[0]
-        best_fitness = best_solution.fitness
-        if best_solution.objfunc.opt == "min":
-            best_fitness *= -1
-        return (best_solution.vector, best_fitness)
+        best_fitness = self.best.fitness
+        if self.best.objfunc.opt == "min":
+            best_fitness *= -1        
+
+        return self.best.vector, best_fitness
 
     def initialize(self, objfunc):
         """
@@ -54,6 +61,10 @@ class GA(BaseAlgorithm):
         self.population = []
         for i in range(self.size):
             new_indiv = Indiv(objfunc, objfunc.random_solution())
+
+            if self.best is None or self.best.fitness < new_indiv.fitness:
+                self.best = new_indiv
+            
             self.population.append(new_indiv)
     
 
@@ -68,21 +79,23 @@ class GA(BaseAlgorithm):
             # Cross
             parent1 = random.choice(parent_list)
             if random.random() < self.pcross:
-                new_solution = self.cross_op.evolve(parent1, parent_list, objfunc)
-                new_solution = objfunc.repair_solution(new_solution)
-                new_indiv = Indiv(objfunc, new_solution)
+                new_indiv = self.cross_op(parent1, parent_list, objfunc, self.best)
+                new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
             else:
                 new_indiv = copy(parent1)
             
             # Mutate
             if random.random() < self.pmut:
-                new_solution = self.mutation_op(new_indiv, self.population, objfunc)
-                new_solution = objfunc.repair_solution(new_solution)
-                new_indiv = Indiv(objfunc, new_solution)
-            
-            
+                new_indiv = self.mutation_op(parent1, parent_list, objfunc, self.best)
+                new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
+
             # Add to offspring list
             offspring.append(new_indiv)
+        
+        # Update best solution
+        current_best = max(offspring, key = lambda x: x.fitness)
+        if self.best.fitness < current_best.fitness:
+            self.best = current_best
         
         return offspring
     

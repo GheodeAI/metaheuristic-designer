@@ -1,5 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
+from typing import Union
+from .ParamScheduler import ParamScheduler
+from .Algorithms import BaseAlgorithm
 import time
 
 
@@ -8,7 +11,7 @@ class GeneralSearch:
     General framework for metaheuristic algorithms
     """
     
-    def __init__(self, search_strategy, params):
+    def __init__(self, search_strategy: BaseAlgorithm, params: Union[ParamScheduler, dict]):
         """
         Constructor of the Metaheuristic class
         """

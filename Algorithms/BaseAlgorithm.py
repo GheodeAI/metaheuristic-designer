@@ -6,7 +6,7 @@ class BaseAlgorithm(ABC):
     Note: for methods that use only one solution at a time, use a population of length 1 to store it.
     """
 
-    def __init__(self, name="some algorithm"):
+    def __init__(self, name: str="some algorithm"):
         """
         Constructor of the GeneticPopulation class
         """

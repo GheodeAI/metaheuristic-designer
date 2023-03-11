@@ -483,21 +483,16 @@ def DECurrentToPBest1(vector, population, F, CR, P):
     return vector
 
 
-def pso_operator(solution, population, objfunc, w, c1, c2):
+def pso_operator(indiv, population, global_best, w, c1, c2):
     """
     Performs a step of the Particle Swarm algorithm
     """
-   
-    fitness_list = [i.fitness for i in population]
-    best_idx = fitness_list.index(max(fitness_list))
-    best_particle = population[best_idx]
 
-    c1 = c1 * np.random.random(best_particle.vector.shape) 
-    c2 = c2 * np.random.random(best_particle.vector.shape) 
+    c1 = c1 * np.random.random(indiv.vector.shape) 
+    c2 = c2 * np.random.random(indiv.vector.shape) 
 
-    solution.speed = w * solution.speed + c1 * (solution.best - solution.vector) + c2 * (best_particle.vector - solution.vector)
-    new_solution = solution.apply_speed()
-    return new_solution.vector
+    indiv.speed = w * indiv.speed + c1 * (indiv.best - indiv.vector) + c2 * (global_best.vector - indiv.vector)
+    return indiv.apply_speed()
 
 
 def firefly(solution, population, objfunc, alpha_0, beta_0, delta, gamma):

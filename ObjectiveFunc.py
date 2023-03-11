@@ -10,7 +10,7 @@ class ObjectiveFunc(ABC):
     mutation function and crossing of solutions.
     """
 
-    def __init__(self, input_size, opt, name="some function"):
+    def __init__(self, input_size: int, opt: str, name: str="some function"):
         """
         Constructor for the AbsObjectiveFunc class
         """

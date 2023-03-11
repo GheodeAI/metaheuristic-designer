@@ -1,17 +1,19 @@
 import random
 import numpy as np
+from typing import List, Union
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
+from ..Operators import Operator
 from ..SurvivorSelection import SurvivorSelection
 from .BaseAlgorithm import BaseAlgorithm
 
 
-class DE(BaseAlgorithm):
+class StaticPopulation(BaseAlgorithm):
     """
     Population of the Genetic algorithm
     """
 
-    def __init__(self, de_op, params={}, selection_op=None, name="DE", population=None):
+    def __init__(self, operator: Operator, params: Union[ParamScheduler, dict]={}, selection_op: SurvivorSelection=None, name: str="stpop", population: List[Indiv]=None):
         """
         Constructor of the GeneticPopulation class
         """
@@ -21,12 +23,13 @@ class DE(BaseAlgorithm):
         # Hyperparameters of the algorithm
         self.params = params
         self.size = params["popSize"] if "popSize" in params else 100
-        self.de_op = de_op
+        self.operator = operator
 
         if selection_op is None:
-            selection_op = SurvivorSelection("One-to-one")
+            selection_op = SurvivorSelection("Generational")
         self.selection_op = selection_op
-        
+
+        self.best = None
 
         # Population initialization
         if population is not None:
@@ -37,11 +40,11 @@ class DE(BaseAlgorithm):
         Gives the best solution found by the algorithm and its fitness
         """
 
-        best_solution = sorted(self.population, reverse=True, key = lambda c: c.fitness)[0]
-        best_fitness = best_solution.fitness
-        if best_solution.objfunc.opt == "min":
-            best_fitness *= -1
-        return (best_solution.vector, best_fitness)
+        best_fitness = self.best.fitness
+        if self.best.objfunc.opt == "min":
+            best_fitness *= -1        
+
+        return self.best.vector, best_fitness
 
     def initialize(self, objfunc):
         """
@@ -51,17 +54,28 @@ class DE(BaseAlgorithm):
         self.population = []
         for i in range(self.size):
             new_indiv = Indiv(objfunc, objfunc.random_solution())
+
+            if self.best is None or self.best.fitness < new_indiv.fitness:
+                self.best = new_indiv
+            
             self.population.append(new_indiv)
     
     def perturb(self, parent_list, objfunc, progress=0, history=None):
         offspring = []
-
         for indiv in parent_list:
-            new_solution = self.de_op(indiv, parent_list, objfunc)
-            new_solution = objfunc.repair_solution(new_solution)
-            new_indiv = Indiv(objfunc, new_solution)
+
+            # Apply operator
+            new_indiv = self.operator(indiv, parent_list, objfunc, self.best)
+            new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
+            new_indiv.speed = objfunc.repair_solution(new_indiv.speed)
             
+            # Add to offspring list
             offspring.append(new_indiv)
+        
+        # Update best solution
+        current_best = max(offspring, key = lambda x: x.fitness)
+        if self.best.fitness < current_best.fitness:
+            self.best = current_best
         
         return offspring
     
@@ -73,7 +87,7 @@ class DE(BaseAlgorithm):
         Updates the parameters and the operators
         """
 
-        self.de_op.step(progress)
+        self.operator.step(progress)
         self.selection_op.step(progress)
 
         if isinstance(self.params, ParamScheduler):

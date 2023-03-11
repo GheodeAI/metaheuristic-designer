@@ -1,6 +1,6 @@
 import random
 import numpy as np
-
+from typing import Union
 from .ParamScheduler import *
 
 
@@ -9,7 +9,7 @@ class SurvivorSelection:
     Operator class that has continuous mutation and cross methods
     """
 
-    def __init__(self, name, params = {}):
+    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None):
         """
         Constructor for the SurvivorSelection class
         """
