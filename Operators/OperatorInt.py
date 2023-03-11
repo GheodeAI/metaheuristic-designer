@@ -157,4 +157,4 @@ class OperatorInt(Operator):
             exit(1)
         
             
-        return new_indiv
+        return np.round(new_indiv)
