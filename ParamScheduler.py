@@ -8,7 +8,7 @@ class ParamScheduler:
     This class is responsible of varying the parameters of an algorithm over time.
     """
 
-    def __init__(self, strategy, param_schedule):
+    def __init__(self, strategy: str, param_schedule: dict):
         """
         Constructor for the ParamScheduler class
         """

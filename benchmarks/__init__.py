@@ -1,1 +1,1 @@
-from .benchmarkFuncs import *
+from .benchmark_funcs import *

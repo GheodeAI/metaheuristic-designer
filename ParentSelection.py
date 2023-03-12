@@ -1,6 +1,6 @@
 import random
 import numpy as np
-
+from typing import Union
 from .ParamScheduler import *
 
 
@@ -8,12 +8,13 @@ class ParentSelection:
     """
     Operator class that has continuous mutation and cross methods
     """
-    def __init__(self, name, params = None):
+
+    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None):
         """
         Constructor for the ParentSelection class
         """
 
-        self.name = name
+        self.name = name.lower()
         
         self.param_scheduler = None
         if params is None:
@@ -50,12 +51,15 @@ class ParentSelection:
         
         parents = []
         order = []
-        if self.name == "Tournament":
+        if self.name == "tournament":
             parents, order = prob_tournament(population, self.params["amount"], self.params["p"])
-        elif self.name == "Best":
+
+        elif self.name == "best":
             parents, order = select_best(population, self.params["amount"])
-        elif self.name == "Nothing":
+
+        elif self.name == "nothing":
             parents, order = population, range(len(population))
+            
         else:
             print(f"Error: parent selection method \"{self.name}\" not defined")
             exit(1)
@@ -74,7 +78,7 @@ def select_best(population, amount):
     fitness_list = np.fromiter(map(lambda x: x.fitness, population), dtype=float)
 
     # Get the index of the individuals sorted by fitness 
-    order = np.argsort(fitness_list)[:amount]
+    order = np.argsort(fitness_list)[::-1][:amount]
     
     # Select the 'amount' best individuals
     parents = [population[i] for i in order]

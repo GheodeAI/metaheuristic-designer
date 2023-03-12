@@ -1,4 +1,6 @@
+import time
 from abc import ABC, abstractmethod
+
 
 class BaseAlgorithm(ABC):
     """
@@ -6,13 +8,12 @@ class BaseAlgorithm(ABC):
     Note: for methods that use only one solution at a time, use a population of length 1 to store it.
     """
 
-    def __init__(self, objfunc, name="some algorithm"):
+    def __init__(self, name: str="some algorithm"):
         """
         Constructor of the GeneticPopulation class
         """
 
         self.name = name
-        self.objfunc = objfunc
         self.population = []
 
     @abstractmethod
@@ -22,7 +23,7 @@ class BaseAlgorithm(ABC):
         """
 
     @abstractmethod
-    def initialize(self):
+    def initialize(self, objfunc):
         """
         Generates a random population of individuals
         """
@@ -37,12 +38,12 @@ class BaseAlgorithm(ABC):
         return population, list(range(len(population)))
     
     @abstractmethod
-    def perturb(self, parent_list, progress, history):
+    def perturb(self, parent_list, progress, objfunc, history):
         """
         Applies operators to the population in some way
         Returns the offspring generated.
         """
-    
+            
 
     def select_individuals(self, population, offspring, progress=0, history=None):
         """
