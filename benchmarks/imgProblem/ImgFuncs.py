@@ -33,7 +33,7 @@ class ImgExperimental(ObjectiveFunc):
     def random_solution(self):
         return np.random.randint(0,256,size=64*64*3)
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, 0, 255).astype(np.int32)
 
 class ImgApprox(ObjectiveFunc):
@@ -56,7 +56,7 @@ class ImgApprox(ObjectiveFunc):
     def random_solution(self):
         return np.random.randint(0, 256, size=self.size)
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, 0, 255)
 
 
@@ -73,7 +73,7 @@ class ImgStd(ObjectiveFunc):
     def random_solution(self):
         return np.random.randint(0, 256, size=self.size)
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, 0, 255).astype(np.uint8)
 
 class ImgEntropy(ObjectiveFunc):
@@ -94,7 +94,7 @@ class ImgEntropy(ObjectiveFunc):
     def random_solution(self):
         return np.random.randint(0, 256, size=self.size)
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, 0, 255).astype(np.uint8)
 
 # class ImgEntropy(ObjectiveFunc):
@@ -113,7 +113,7 @@ class ImgEntropy(ObjectiveFunc):
 #     def random_solution(self):
 #         return np.random.randint(0,256,size=64*64*3)
     
-#     def check_bounds(self, solution):
+#     def repair_solution(self, solution):
 #         return np.clip(solution, 0, 255).astype(np.int32)
 
 @jit(nopython=True)

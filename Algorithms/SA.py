@@ -1,8 +1,11 @@
 import random
 import numpy as np
+from typing import Union
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
+from ..Operators import Operator
 from .BaseAlgorithm import BaseAlgorithm
+
 
 
 class SA(BaseAlgorithm):
@@ -10,12 +13,12 @@ class SA(BaseAlgorithm):
     Class implementing the Simulated annealing algorithm
     """
 
-    def __init__(self, objfunc, perturb_op, params={}, name="SA"):
+    def __init__(self, perturb_op: Operator, params: Union[ParamScheduler, dict]={}, name: str="SA"):
         """
         Constructor of the SimAnnEvolve class
         """
 
-        super().__init__(objfunc, name)
+        super().__init__(name)
 
         # Parameters of the algorithm
         self.params = params
@@ -33,31 +36,33 @@ class SA(BaseAlgorithm):
         """
 
         best_fitness = self.best_indiv.fitness
-        if self.objfunc.opt == "min":
+        if self.best_indiv.objfunc.opt == "min":
             best_fitness *= -1
         return (self.best_indiv.vector, best_fitness)
 
 
-    def initialize(self):
+    def initialize(self, objfunc):
         """
         Generates a random vector as a starting point for the algorithm
         """
 
-        self.population[0] = Indiv(self.objfunc, self.objfunc.random_solution())
+        self.population[0] = Indiv(objfunc, objfunc.random_solution())
         self.best_indiv = self.population[0]
 
-
-    def perturb(self, indiv_list, progress=None, history=None):
+    def perturb(self, indiv_list, objfunc, progress=None, history=None):
         """
         Applies a mutation operator to the current individual
         """
 
         indiv = indiv_list[0]
         for j in range(self.iter):
-            new_solution = self.perturb_op(indiv, indiv_list, self.objfunc)
-            new_solution = self.objfunc.check_bounds(new_solution)
-            new_indiv = Indiv(self.objfunc, new_solution)
+            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best_indiv)
+            new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
 
+            # Store best vector for individual
+            new_indiv.store_best(indiv)
+            
+            # Accept the new solution even if it is worse with a probability
             p = np.exp(-1/self.temp)
             if new_indiv.fitness > indiv.fitness or random.random() < p:
                 indiv = new_indiv

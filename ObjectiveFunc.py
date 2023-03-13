@@ -10,7 +10,7 @@ class ObjectiveFunc(ABC):
     mutation function and crossing of solutions.
     """
 
-    def __init__(self, input_size, opt, name="some function"):
+    def __init__(self, input_size: int, opt: str, name: str="some function"):
         """
         Constructor for the AbsObjectiveFunc class
         """
@@ -24,28 +24,36 @@ class ObjectiveFunc(ABC):
             self.factor = -1
     
 
-    def __call__(self, solution, adjusted=True):
+    def __call__(self, indiv, adjusted=True):
         """
         Shorthand for executing the objective function on a vector.
         """
         
-        result = None
-        if adjusted:
-            result = self.fitness(solution)
-        else:
-            result = self.objective(solution)
-        
-        return result
+        return self.fitness(indiv, adjusted)
 
 
-    def fitness(self, solution):
+    def decode(self, indiv):
+        """
+        Transforms the vector contained inside an individual in our algorithm to an
+        usable format for our objective function.
+        """
+
+        return indiv.vector
+    
+
+    def fitness(self, indiv, adjusted=True):
         """
         Returns the value of the objective function given a vector changing the sign so that
         the optimization problem is solved by maximizing the fitness function.
         """
 
         self.counter += 1
-        return self.factor * self.objective(solution)
+        value = self.objective(self.decode(indiv))
+
+        if adjusted:
+            value = self.factor * value - self.penalize(indiv)
+        
+        return value
     
 
     @abstractmethod
@@ -63,7 +71,18 @@ class ObjectiveFunc(ABC):
     
 
     @abstractmethod
-    def check_bounds(self, vector):
+    def repair_solution(self, vector):
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
         """
+    
+
+    def penalize(self, indiv):
+        """
+        Gives a penalization to the fitness value of an individual if it violates any constraints propotional
+        to how far it is to a viable solution.
+
+        If not implemented always returns 0.
+        """
+
+        return 0

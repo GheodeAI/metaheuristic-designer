@@ -1,5 +1,7 @@
 from .Operator import Operator
-from .operatorFunctions import *
+from ..ParamScheduler import ParamScheduler
+from typing import Union
+from .operator_functions import *
 
 
 class OperatorBinary(Operator):
@@ -7,56 +9,90 @@ class OperatorBinary(Operator):
     Operator class that has discrete mutation and cross methods
     """
 
-    def __init__(self, name, params = None):
+    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None):
         """
         Constructor for the Operator class
         """
 
-        self.name = name
-        super().__init__(self.name, params)
+        super().__init__(name, params)
     
     
-    def evolve(self, solution, population, objfunc):
+    def evolve(self, indiv, population, objfunc, global_best=None):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """
 
-        result = None
-        others = [i for i in population if i != solution]
+        new_indiv = copy(indiv)
+        others = [i for i in population if i != indiv]
         if len(others) > 1:
-            solution2 = random.choice(others)
+            indiv2 = random.choice(others)
         else:
-            solution2 = solution
+            indiv2 = indiv
+        
+        if global_best is None:
+            global_best = indiv
+
+        params = copy(self.params)
+        
+        if "N" in params:
+            params["N"] = round(params["N"])
+        
+        if "Cr" in params and "N" not in params:
+            params["N"] = np.count_nonzero(np.random.random(indiv.vector.size) < params["Cr"])
+
+        params["N"] = round(params["N"])
+        
         
         if self.name == "1point":
-            result = cross1p(solution.vector.copy(), solution2.vector.copy())
+            new_indiv.vector = cross1p(new_indiv.vector, solution2.vector.copy())
+
         elif self.name == "2point":
-            result = cross2p(solution.vector.copy(), solution2.vector.copy())
-        elif self.name == "Multipoint":
-            result = crossMp(solution.vector.copy(), solution2.vector.copy())
-        elif self.name == "Multicross":
-            result = multiCross(solution.vector.copy(), others, self.params["N"])
-        elif self.name == "Perm":
-            result = permutation(solution.vector.copy(), self.params["N"])
-        elif self.name == "Xor" or self.name == "FlipRandom":
-            result = xorMask(solution.vector.copy(), self.params["N"], mode="bin")
-        elif self.name == "XorCross" or self.name == "FlipCross":
-            result = xorCross(solution.vector.copy(), solution2.vector.copy())
-        elif self.name == "RandSample":
-            self.params["method"] = "Bernouli"
-            result = randSample(solution.vector.copy(), population, self.params)
-        elif self.name == "MutSample":
-            self.params["method"] = "Bernouli"
-            result = mutateSample(solution.vector.copy(), population, self.params)
-        elif self.name == "Dummy":
-            result = dummyOp(solution.vector.copy(), self.params["F"])
-        elif self.name == "Nothing":
-            result = solution.vector.copy()
-        elif self.name == "Custom":
-            fn = self.params["function"]
-            result = fn(solution, population, objfunc, self.params)
+            new_indiv.vector = cross2p(new_indiv.vector, solution2.vector.copy())
+
+        elif self.name == "multipoint":
+            new_indiv.vector = crossMp(new_indiv.vector, solution2.vector.copy())
+
+        elif self.name == "multicross":
+            new_indiv.vector = multiCross(new_indiv.vector, others, params["N"])
+
+        elif self.name == "perm":
+            new_indiv.vector = permutation(new_indiv.vector, params["N"])
+
+        elif self.name == "xor" or self.name == "fliprandom":
+            new_indiv.vector = xorMask(new_indiv.vector, params["N"], mode="bin")
+
+        elif self.name == "xorcross" or self.name == "flipcross":
+            new_indiv.vector = xorCross(new_indiv.vector, solution2.vector.copy())
+
+        elif self.name == "randsample":
+            params["method"] = "Bernouli"
+            new_indiv.vector = randSample(new_indiv.vector, population, params)
+
+        elif self.name == "mutsample":
+            params["method"] = "Bernouli"
+            new_indiv.vector = mutateSample(new_indiv.vector, population, params)
+        
+        elif self.name == "random":
+            new_indiv.vector = objfunc.random_solution()
+        
+        elif self.name == "randommask":
+            mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.vector.size - params["N"])]).astype(bool)
+            np.random.shuffle(mask_pos)
+
+            new_indiv.vector[mask_pos] = objfunc.random_solution()[mask_pos]
+
+        elif self.name == "dummy":
+            new_indiv.vector = dummyOp(new_indiv.vector, params["F"])
+
+        elif self.name == "nothing":
+            pass
+
+        elif self.name == "custom":
+            fn = params["function"]
+            new_indiv.vector = fn(indiv, population, objfunc, params)
+
         else:
             print(f"Error: evolution method \"{self.name}\" not defined")
             exit(1)
 
-        return (result != 0).astype(np.int32)
+        return (new_indiv.vector != 0).astype(np.int32)

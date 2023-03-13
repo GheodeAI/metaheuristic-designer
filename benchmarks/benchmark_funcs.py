@@ -23,7 +23,7 @@ class MaxOnes(ObjectiveFunc):
     def random_solution(self):
         return (np.random.random(self.size) < 0.5).astype(np.int32)
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return (solution.copy() >= 0.5).astype(np.int32)
 
 class DiophantineEq(ObjectiveFunc):
@@ -39,7 +39,7 @@ class DiophantineEq(ObjectiveFunc):
     def random_solution(self):
         return (np.random.randint(-100, 100, size=self.size)).astype(np.int32)
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return solution.astype(np.int32)
 
 class MaxOnesReal(ObjectiveFunc):
@@ -53,7 +53,7 @@ class MaxOnesReal(ObjectiveFunc):
     def random_solution(self):
         return np.random.random(self.size)
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution.copy(), 0, 1)
 
 ### Benchmark functions
@@ -68,7 +68,7 @@ class Sphere(ObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class HighCondElliptic(ObjectiveFunc):
@@ -82,7 +82,7 @@ class HighCondElliptic(ObjectiveFunc):
     def random_solution(self):
         return 10.24*np.random.random(self.size)-5.12
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
 class BentCigar(ObjectiveFunc):
@@ -96,7 +96,7 @@ class BentCigar(ObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Discus(ObjectiveFunc):
@@ -110,7 +110,7 @@ class Discus(ObjectiveFunc):
     def random_solution(self):
         return 10.24*np.random.random(self.size)-5.12
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
 class Rosenbrock(ObjectiveFunc):
@@ -124,7 +124,7 @@ class Rosenbrock(ObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Ackley(ObjectiveFunc):
@@ -138,7 +138,7 @@ class Ackley(ObjectiveFunc):
     def random_solution(self):
         return 10.24*np.random.random(self.size)-5.12
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
 class Weierstrass(ObjectiveFunc):
@@ -152,7 +152,7 @@ class Weierstrass(ObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Griewank(ObjectiveFunc):
@@ -166,7 +166,7 @@ class Griewank(ObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Rastrigin(ObjectiveFunc):
@@ -180,7 +180,7 @@ class Rastrigin(ObjectiveFunc):
     def random_solution(self):
         return 10.24*np.random.random(self.size)-5.12
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
 class ModSchwefel(ObjectiveFunc):
@@ -194,7 +194,7 @@ class ModSchwefel(ObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Katsuura(ObjectiveFunc):
@@ -208,7 +208,7 @@ class Katsuura(ObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class HappyCat(ObjectiveFunc):
@@ -222,7 +222,7 @@ class HappyCat(ObjectiveFunc):
     def random_solution(self):
         return 4*np.random.random(self.size)-2
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -2, 2)
 
 class HGBat(ObjectiveFunc):
@@ -236,7 +236,7 @@ class HGBat(ObjectiveFunc):
     def random_solution(self):
         return 4*np.random.random(self.size)-2
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -2, 2)
 
 class ExpandedGriewankPlusRosenbrock(ObjectiveFunc):
@@ -250,7 +250,7 @@ class ExpandedGriewankPlusRosenbrock(ObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class ExpandedShafferF6(ObjectiveFunc):
@@ -264,7 +264,7 @@ class ExpandedShafferF6(ObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 
@@ -284,7 +284,7 @@ class SumPowell(ObjectiveFunc):
     def random_solution(self):
         return np.random.random(self.size) * (self.lim_max - self.lim_min) - self.lim_min
 
-    def check_bounds(self, solution, parent=None):
+    def repair_solution(self, solution, parent=None):
         # bounce back method
         if parent:
             mask_inf = (solution < self.lim_min) 
@@ -313,7 +313,7 @@ class N4XinSheYang(ObjectiveFunc):
     def random_solution(self, lim_min=None, lim_max=None):
         return np.random.random(self.size) * (self.lim_max - self.lim_min) - self.lim_min
     
-    def check_bounds(self, solution, parent=None):
+    def repair_solution(self, solution, parent=None):
         # bounce back method
         if parent:
             mask_inf = (solution < self.lim_min) 

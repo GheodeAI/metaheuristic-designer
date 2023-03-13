@@ -1,6 +1,6 @@
 import random
 import numpy as np
-
+from typing import Union
 from .ParamScheduler import *
 
 
@@ -8,12 +8,13 @@ class ParentSelection:
     """
     Operator class that has continuous mutation and cross methods
     """
-    def __init__(self, name, params = None):
+
+    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None):
         """
         Constructor for the ParentSelection class
         """
 
-        self.name = name
+        self.name = name.lower()
         
         self.param_scheduler = None
         if params is None:
@@ -49,12 +50,15 @@ class ParentSelection:
         """
         
         result = []
-        if self.name == "Tournament":
+        if self.name == "tournament":
             result = tournament(population, self.params["amount"], self.params["p"])
-        elif self.name == "Best":
+
+        elif self.name == "best":
             result = select_best(population, self.params["amount"])
-        elif self.name == "Nothing":
+
+        elif self.name == "nothing":
             result = population
+            
         else:
             print(f"Error: parent selection method \"{self.name}\" not defined")
             exit(1)
