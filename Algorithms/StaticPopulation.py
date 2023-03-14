@@ -34,31 +34,7 @@ class StaticPopulation(BaseAlgorithm):
         # Population initialization
         if population is not None:
             self.population = population
-
-    def best_solution(self):
-        """
-        Gives the best solution found by the algorithm and its fitness
-        """
-
-        best_fitness = self.best.fitness
-        if self.best.objfunc.opt == "min":
-            best_fitness *= -1        
-
-        return self.best.vector, best_fitness
-
-    def initialize(self, objfunc):
-        """
-        Generates a random population of individuals
-        """
-
-        self.population = []
-        for i in range(self.size):
-            new_indiv = Indiv(objfunc, objfunc.random_solution())
-
-            if self.best is None or self.best.fitness < new_indiv.fitness:
-                self.best = new_indiv
-            
-            self.population.append(new_indiv)
+    
     
     def perturb(self, parent_list, objfunc, progress=0, history=None):
         offspring = []

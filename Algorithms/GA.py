@@ -22,11 +22,9 @@ class GA(BaseAlgorithm):
         Constructor of the GeneticPopulation class
         """
 
-        super().__init__(name)
-
         # Hyperparameters of the algorithm
         self.params = params
-        self.size = params["popSize"] if "popSize" in params else 100
+        self.popsize = params["popSize"] if "popSize" in params else 100
         self.pmut = params["pmut"] if "pmut" in params else 0.1
         self.pcross = params["pcross"] if "pcross" in params else 0.9
 
@@ -41,40 +39,18 @@ class GA(BaseAlgorithm):
         # Population initialization
         if population is not None:
             self.population = population
+        
+        super().__init__(name, self.popsize)
 
-    def best_solution(self):
-        """
-        Gives the best solution found by the algorithm and its fitness
-        """
-
-        best_fitness = self.best.fitness
-        if self.best.objfunc.opt == "min":
-            best_fitness *= -1        
-
-        return self.best.vector, best_fitness
-
-    def initialize(self, objfunc):
-        """
-        Generates a random population of individuals
-        """
-
-        self.population = []
-        for i in range(self.size):
-            new_indiv = Indiv(objfunc, objfunc.random_solution())
-
-            if self.best is None or self.best.fitness < new_indiv.fitness:
-                self.best = new_indiv
-            
-            self.population.append(new_indiv)
-    
 
     def select_parents(self, population, progress=0, history=None):
         return self.parent_sel_op(population)
     
+
     def perturb(self, parent_list, objfunc, progress=0, history=None):
         # Generation of offspring by crossing and mutation
         offspring = []
-        while len(offspring) < self.size:
+        while len(offspring) < self.popsize:
 
             # Cross
             parent1 = random.choice(parent_list)

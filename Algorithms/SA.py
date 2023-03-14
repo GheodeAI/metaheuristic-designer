@@ -18,7 +18,7 @@ class SA(BaseAlgorithm):
         Constructor of the SimAnnEvolve class
         """
 
-        super().__init__(name)
+        
 
         # Parameters of the algorithm
         self.params = params
@@ -29,25 +29,9 @@ class SA(BaseAlgorithm):
 
         self.population = [None]
         self.perturb_op = perturb_op
+
+        super().__init__(name, popSize=1)
     
-    def best_solution(self):
-        """
-        Gives the best solution found by the algorithm and its fitness
-        """
-
-        best_fitness = self.best_indiv.fitness
-        if self.best_indiv.objfunc.opt == "min":
-            best_fitness *= -1
-        return (self.best_indiv.vector, best_fitness)
-
-
-    def initialize(self, objfunc):
-        """
-        Generates a random vector as a starting point for the algorithm
-        """
-
-        self.population[0] = Indiv(objfunc, objfunc.random_solution())
-        self.best_indiv = self.population[0]
 
     def perturb(self, indiv_list, objfunc, progress=None, history=None):
         """
@@ -56,7 +40,7 @@ class SA(BaseAlgorithm):
 
         indiv = indiv_list[0]
         for j in range(self.iter):
-            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best_indiv)
+            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best)
             new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
 
             # Store best vector for individual
@@ -67,8 +51,8 @@ class SA(BaseAlgorithm):
             if new_indiv.fitness > indiv.fitness or random.random() < p:
                 indiv = new_indiv
             
-            if new_indiv.fitness > self.best_indiv.fitness:
-                self.best_indiv = new_indiv
+            if new_indiv.fitness > self.best.fitness:
+                self.best = new_indiv
             
         return [indiv]
         

@@ -16,54 +16,25 @@ class ES(BaseAlgorithm):
     """
 
     def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection, 
-                       params: Union[ParamScheduler, dict]={}, name: str="ES", population: List[Indiv]=None):
+                       params: Union[ParamScheduler, dict] = {}, name: str = "ES", population: List[Indiv] = None):
         """
         Constructor of the GeneticPopulation class
         """
 
-        super().__init__(name)
-
         # Hyperparameters of the algorithm
         self.params = params
-        self.size = params["popSize"] if "popSize" in params else 100
+        self.popsize = params["popSize"] if "popSize" in params else 100
         self.n_offspring = params["offspringSize"] if "offspringSize" in params else self.size
         self.mutation_op = mutation_op
         self.cross_op = cross_op
         self.parent_sel_op = parent_sel_op
         self.selection_op = selection_op
 
-        self.best = None
-
         # Population initialization
         if population is not None:
             self.population = population
-
-    def best_solution(self):
-        """
-        Gives the best solution found by the algorithm and its fitness
-        """
-
-        best_fitness = self.best.fitness
-        if self.best.objfunc.opt == "min":
-            best_fitness *= -1        
-
-        return self.best.vector, best_fitness
-
-    def initialize(self, objfunc):
-        """
-        Generates a random population of individuals
-        """
-
-        self.population = []
-        self.best = None
-        for i in range(self.size):
-            new_indiv = Indiv(objfunc, objfunc.random_solution())
-
-            if self.best is None or self.best.fitness < new_indiv.fitness:
-                self.best = new_indiv
-
-            self.population.append(new_indiv)
-
+        
+        super().__init__(name, self.popsize)
     
     def select_parents(self, population, progress=0, history=None):
         return self.parent_sel_op(population)

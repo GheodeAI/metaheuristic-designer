@@ -40,11 +40,11 @@ def run_algorithm(alg_name):
     elif alg_name == "GA":
         search_strat = GA(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.2})
     elif alg_name == "SA":
-        search_strat = SA(mutation_op, {"iter":100, "temp_init":30, "alpha":0.999})
+        search_strat = SA(mutation_op, {"iter":100, "temp_init":1, "alpha":0.999})
     elif alg_name == "DE":
         search_strat = DE(OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}), {"popSize":100})
     elif alg_name == "PSO":
-        search_strat = PSO(params={"popSize":100})
+        search_strat = PSO({"popSize":100})
     else:
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()

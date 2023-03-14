@@ -16,28 +16,9 @@ class HillClimb(BaseAlgorithm):
         Constructor of the Example search strategy class
         """
 
-        super().__init__(name)
-
-        self.population = [None]
         self.perturb_op = perturb_op
 
-    def best_solution(self):
-        """
-        Gives the best solution found by the algorithm and its fitness
-        """
-
-        curr_fitness = self.population[0].fitness
-        if self.population[0].objfunc.opt == "min":
-            curr_fitness *= -1
-        return (self.population[0].vector, curr_fitness)
-
-    
-    def initialize(self, objfunc):
-        """
-        Generates a random population of individuals
-        """
-
-        self.population[0] = Indiv(objfunc, objfunc.random_solution())
+        super().__init__(name, popSize=1)
 
     
     def perturb(self, indiv_list, objfunc, progress=0, history=None):
@@ -48,7 +29,7 @@ class HillClimb(BaseAlgorithm):
         indiv = indiv_list[0]
 
         # Perturb individual
-        new_indiv = self.perturb_op(indiv, indiv_list, objfunc, indiv)
+        new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best)
         new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
     
         # Store best vector for individual
@@ -56,7 +37,10 @@ class HillClimb(BaseAlgorithm):
 
         # If it improves the previous solution keep it
         if new_indiv.fitness > indiv.fitness:
-            indiv = new_indiv        
+            indiv = new_indiv       
+
+        if new_indiv.fitness > self.best.fitness:
+            self.best = new_indiv
                 
         return [indiv]
 
