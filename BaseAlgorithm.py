@@ -43,7 +43,8 @@ class BaseAlgorithm(ABC):
         self.best = None
         for i in range(self.popsize):
             genotype = objfunc.decoder.encode(objfunc.random_solution())
-            new_indiv = Indiv(objfunc, genotype)
+            speed = objfunc.decoder.encode(objfunc.random_solution())
+            new_indiv = Indiv(objfunc, genotype, speed)
 
             if self.best is None or self.best.fitness < new_indiv.fitness:
                 self.best = new_indiv

@@ -148,7 +148,7 @@ class OperatorReal(Operator):
             mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
             np.random.shuffle(mask_pos)
 
-            new_indiv.genotype[mask_pos] = objfunc.random_solution()[mask_pos]
+            new_indiv.genotype[mask_pos] = objfunc.decoder.encode(objfunc.random_solution())[mask_pos]
 
         elif self.name == "dummy":
             new_indiv.genotype = dummyOp(new_indiv.genotype, params["F"])

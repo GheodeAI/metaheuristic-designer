@@ -1,6 +1,7 @@
 from .Operator import Operator
 from ..ParamScheduler import ParamScheduler
 from typing import Union
+from copy import copy
 from .vector_operator_functions import *
 
 
@@ -157,4 +158,5 @@ class OperatorInt(Operator):
             exit(1)
         
             
-        return np.round(new_indiv)
+        new_indiv.genotype = np.round(new_indiv.genotype)
+        return new_indiv

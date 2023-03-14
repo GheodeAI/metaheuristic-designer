@@ -101,6 +101,7 @@ class GA(BaseAlgorithm):
         """
         Specific information to display relevant to this algorithm
         """
+        
         popul_matrix = np.array(list(map(lambda x: x.genotype, self.population)))
         divesity = popul_matrix.std(axis=1).mean()
         print(f"\tdiversity: {divesity:0.3}")

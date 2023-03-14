@@ -22,7 +22,8 @@ class OperatorMeta(Operator):
             # Default parameters
             params = {
                 "p": 0.5,
-                "weights": [1]*len(op_list)
+                "weights": [1]*len(op_list),
+                "mask": 0
             }
 
         super().__init__(name, params)

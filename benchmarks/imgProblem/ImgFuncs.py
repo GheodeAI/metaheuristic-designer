@@ -2,6 +2,7 @@ import sys
 sys.path.append("../../..")
 
 from PyMetaheuristics import *
+from PyMetaheuristics.Decoders import ImageDecoder
 
 import math
 from numba import jit
@@ -10,10 +11,11 @@ from PIL import Image
 import cv2
 
 class ImgExperimental(ObjectiveFunc):
-    def __init__(self, img_dim, reference, opt="min"):
+    def __init__(self, img_dim, reference, opt="min", decoder=None):
         self.size = img_dim[0]*img_dim[1]*3
-        self.reference = np.asarray(reference.resize([img_dim[0], img_dim[1]]))[:,:,:3].flatten().astype(np.uint32)
-        super().__init__(self.size, opt, "Image optimization function")
+        self.reference = np.asarray(reference.resize([img_dim[0], img_dim[1]]))[:,:,:3].astype(np.uint32)
+
+        super().__init__(self.size, opt, "Image optimization function", decoders)
     
     def objective(self, solution):
         dist = imgdistance(solution, self.reference)
@@ -31,42 +33,49 @@ class ImgExperimental(ObjectiveFunc):
         return dist_norm*dev
 
     def random_solution(self):
-        return np.random.randint(0,256,size=64*64*3)
+        return np.random.randint(0, 256, size=self.size)
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255).astype(np.int32)
+        
 
 class ImgApprox(ObjectiveFunc):
-    def __init__(self, img_dim, reference, opt="min", img_name=""):
+    def __init__(self, img_dim, reference, opt="min", img_name="", decoder=None):
+        self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0]*img_dim[1]*3
         self.reference = reference.resize((img_dim[0],img_dim[1]))
-        self.reference = np.asarray(self.reference)[:, :, :3].flatten().astype(np.uint8)
+        self.reference = np.asarray(self.reference)[:, :, :3].astype(np.uint8)
 
         if img_name == "":
             name = "Image approximation"
         else:
             name = f"Approximating \"{img_name}\""
+        
+        if decoder is None:
+            decoder = ImageDecoder(img_dim, color=True)
 
-        super().__init__(self.size, opt, name)
+        super().__init__(self.size, opt, name, decoder=decoder)
     
     def objective(self, solution):
-        #return imgdistance(solution, self.reference)
-        return np.sum((solution-self.reference)**2)
+        return imgdistance(solution, self.reference)
 
     def random_solution(self):
-        return np.random.randint(0, 256, size=self.size)
+        return np.random.randint(0, 256, size=self.img_dim)
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255)
 
 
 class ImgStd(ObjectiveFunc):
-    def __init__(self, img_dim, opt="max"):
+    def __init__(self, img_dim, opt="max", decoder=None):
         self.size = img_dim[0]*img_dim[1]*3
-        super().__init__(self.size, opt, "Image standard deviation")
+        
+        if decoder is None:
+            decoder = ImageDecoder(img_dim, color=True)
+        
+        super().__init__(self.size, opt, "Image standard deviation", decoder)
     
     def objective(self, solution):
-        # The distance between a white and a black image is of sqrt(N*M*3)*255
         solution_color = solution.reshape([3,-1])
         return solution_color.std(axis=1).max()
 
@@ -77,11 +86,14 @@ class ImgStd(ObjectiveFunc):
         return np.clip(solution, 0, 255).astype(np.uint8)
 
 class ImgEntropy(ObjectiveFunc):
-    def __init__(self, img_dim, nbins=10, opt="min"):
+    def __init__(self, img_dim, nbins=10, opt="min", decoder=None):
         self.size = img_dim[0]*img_dim[1]*3
         self.nbins = 10
-        print("a")
-        super().__init__(self.size, opt, "Image entropy")
+
+        if decoder is None:
+            decoder = ImageDecoder(img_dim, color=True)
+
+        super().__init__(self.size, opt, "Image entropy", decoder)
     
     def objective(self, solution):
         solution_channels = solution.reshape([3, -1])
@@ -97,25 +109,6 @@ class ImgEntropy(ObjectiveFunc):
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255).astype(np.uint8)
 
-# class ImgEntropy(ObjectiveFunc):
-#     def __init__(self, img_dim, opt="min"):
-#         self.size = img_dim[0]*img_dim[1]*3
-#         super().__init__(self.size, opt, "Image entropy")
-    
-#     def objective(self, solution):
-#         # The distance between a white and a black image is of sqrt(N*M*3)*255
-#         solution_rounded = solution//75
-#         solution_color = solution_rounded.reshape([3,-1])
-#         _, counts = np.unique(solution_color, axis=1, return_counts=True)
-#         freq = counts/self.size
-#         return -(freq*np.log(freq)).sum()
-
-#     def random_solution(self):
-#         return np.random.randint(0,256,size=64*64*3)
-    
-#     def repair_solution(self, solution):
-#         return np.clip(solution, 0, 255).astype(np.int32)
-
 @jit(nopython=True)
 def imgdistance(img, reference):
-    return ((img-reference)**2).sum()
+    return np.sum((img-reference)**2)

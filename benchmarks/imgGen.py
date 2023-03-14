@@ -1,9 +1,11 @@
 import sys
 sys.path.append("../..")
 
-from PyMetaheuristics import GeneralSearch, ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from PyMetaheuristics import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
 from PyMetaheuristics.Operators import OperatorReal, OperatorInt, OperatorBinary
 from PyMetaheuristics.Algorithms import *
+from PyMetaheuristics.SearchMethods import GeneralSearch
+from PyMetaheuristics.Decoders import ImageDecoder
 from imgProblem import * 
 
 import pygame
@@ -21,7 +23,7 @@ import argparse
 
 
 def render(image, display_dim, src):
-    texture = cv2.resize(image.astype(np.uint8).transpose([1,0,2]), display_dim, interpolation = cv2.INTER_NEAREST)
+    texture = cv2.resize(image.transpose([1,0,2]), display_dim, interpolation = cv2.INTER_NEAREST)
     pygame.surfarray.blit_array(src, texture)
     pygame.display.flip()
 
@@ -53,12 +55,14 @@ def run_algorithm(alg_name, img_file_name):
         src = pygame.display.set_mode(display_dim)
         pygame.display.set_caption("Evo graphics")
 
+    decoder = ImageDecoder(image_shape, color=True)
+
     reference_img = Image.open(img_file_name)
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
-    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
+    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
 
-    mutation_op = OperatorInt("MutRand", {"method": "Uniform", "Low":-10, "Up":10, "N":500})
+    mutation_op = OperatorInt("MutRand", {"method": "Uniform", "Low":-10, "Up":10, "N":100})
     cross_op = OperatorInt("Multicross", {"N": 3})
     parent_sel_op = ParentSelection("Best", {"amount": 20})
     selection_op = SurvivorSelection("(m+n)")
@@ -71,10 +75,14 @@ def run_algorithm(alg_name, img_file_name):
         search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
     elif alg_name == "GA":
         search_strat = GA(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.2})
+    elif alg_name == "HS":
+        search_strat = HS({"HMS":100, "HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "SA":
-        search_strat = SA(mutation_op, {"iter":100, "temp_init":30, "alpha":0.99})
+        search_strat = SA(mutation_op, {"iter":100, "temp_init":1.7, "alpha":0.9975})
     elif alg_name == "DE":
         search_strat = DE(OperatorReal("DE/best/1", {"F":0.2, "Cr":0.5, "P":0.11}), {"popSize":100})
+    elif alg_name == "PSO":
+        search_strat = PSO({"popSize":100, "w":0.7, "c1":1.5, "c2":1.5})
     else:
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()
@@ -106,7 +114,7 @@ def run_algorithm(alg_name, img_file_name):
         
         if display:
             img_flat = alg.best_solution()[0]
-            render(img_flat.reshape(image_shape + [3]).astype(np.int32), display_dim, src)
+            render(decoder.decode(img_flat), display_dim, src)
             pygame.display.update()
     
     alg.real_time_spent = time.time() - real_time_start

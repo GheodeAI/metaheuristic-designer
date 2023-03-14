@@ -80,7 +80,7 @@ def mutateSample(vector, population, params):
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
     np.random.shuffle(mask_pos)
-    popul_matrix = np.vstack([i.vector for i in population])
+    popul_matrix = np.vstack([i.genotype for i in population])
     mean = popul_matrix.mean(axis=0)[mask_pos]
     std = (popul_matrix.std(axis=0)[mask_pos] + 1e-6)*strength # ensure there will be some standard deviation
     
@@ -101,7 +101,7 @@ def randSample(vector, population, params):
     up = params["Up"] if "Low" in params else 1
     strength = params["F"] if "F" in params else 1
 
-    popul_matrix = np.vstack([i.vector for i in population])
+    popul_matrix = np.vstack([i.genotype for i in population])
     mean = popul_matrix.mean(axis=0)
     std = (popul_matrix.std(axis=0) + 1e-6)*strength # ensure there will be some standard deviation
     
@@ -280,7 +280,7 @@ def multiCross(vector, population, n_ind):
     other_parents = random.sample(population, n_ind-1)
     mask_pos = np.random.randint(n_ind, size=vector.size) - 1
     for i in range(0, n_ind-1):
-        vector[mask_pos==i] = other_parents[i].vector[mask_pos==i]
+        vector[mask_pos==i] = other_parents[i].genotype[mask_pos==i]
     return vector
 
 
@@ -293,7 +293,7 @@ def crossInterAvg(vector, population, n_ind):
         n_ind = len(population)
     
     other_parents = random.sample(population, n_ind-1)
-    parents = [parent.vector for parent in other_parents] + [vector]
+    parents = [parent.genotype for parent in other_parents] + [vector]
     return np.mean(parents, axis=0)
 
 def weightedAverage(vector1, vector2, alpha):
@@ -342,7 +342,7 @@ def simAnnealing(solution, strength, objfunc, temp_changes, iter):
 
     temp_init = temp = 100
     temp_fin = alpha**temp_changes * temp_init
-    vector_new = solution.vector
+    vector_new = solution.genotype
     while temp >= temp_fin:
         for j in range(iter):
             vector_new = gaussian(vector_new, strength)
@@ -362,12 +362,12 @@ def harmonySearch(vector, population, strength, HMCR, PAR):
     """
    
     new_vector = np.zeros(vector.shape)
-    popul_matrix = np.vstack([i.vector for i in population])
+    popul_matrix = np.vstack([i.genotype for i in population])
     popul_mean = popul_matrix.mean(axis=0)
     popul_std = popul_matrix.std(axis=0)
     for i in range(vector.size):
         if random.random() < HMCR:
-            new_vector[i] = random.choice(population).vector[i]
+            new_vector[i] = random.choice(population).genotype[i]
             if random.random() <= PAR:
                 new_vector[i] += np.random.normal(0,strength)
         else:
@@ -383,7 +383,7 @@ def DERand1(vector, population, F, CR):
     if len(population) > 3:
         r1, r2, r3 = random.sample(population, 3)
 
-        v = r1.vector + F*(r2.vector-r3.vector)
+        v = r1.genotype + F*(r2.genotype-r3.genotype)
         mask_pos = np.random.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
@@ -399,7 +399,7 @@ def DEBest1(vector, population, F, CR):
         best = population[fitness.index(max(fitness))]
         r1, r2 = random.sample(population, 2)
 
-        v = best.vector + F*(r1.vector-r2.vector)
+        v = best.genotype + F*(r1.genotype-r2.genotype)
         mask_pos = np.random.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
@@ -413,7 +413,7 @@ def DERand2(vector, population, F, CR):
     if len(population) > 5:
         r1, r2, r3, r4, r5 = random.sample(population, 5)
 
-        v = r1.vector + F*(r2.vector-r3.vector) + F*(r4.vector-r5.vector)
+        v = r1.genotype + F*(r2.genotype-r3.genotype) + F*(r4.genotype-r5.genotype)
         mask_pos = np.random.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
@@ -429,7 +429,7 @@ def DEBest2(vector, population, F, CR):
         best = population[fitness.index(max(fitness))]
         r1, r2, r3, r4 = random.sample(population, 4)
 
-        v = best.vector + F*(r1.vector-r2.vector) + F*(r3.vector-r4.vector)
+        v = best.genotype + F*(r1.genotype-r2.genotype) + F*(r3.genotype-r4.genotype)
         mask_pos = np.random.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
@@ -443,7 +443,7 @@ def DECurrentToRand1(vector, population, F, CR):
     if len(population) > 3:
         r1, r2, r3 = random.sample(population, 3)
 
-        v = vector + np.random.random()*(r1.vector-vector) + F*(r2.vector-r3.vector)
+        v = vector + np.random.random()*(r1.genotype-vector) + F*(r2.genotype-r3.genotype)
         mask_pos = np.random.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
@@ -459,7 +459,7 @@ def DECurrentToBest1(vector, population, F, CR):
         best = population[fitness.index(max(fitness))]
         r1, r2 = random.sample(population, 2)
 
-        v = vector + F*(best.vector-vector) + F*(r1.vector-r2.vector)
+        v = vector + F*(best.genotype-vector) + F*(r1.genotype-r2.genotype)
         mask_pos = np.random.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
@@ -477,7 +477,7 @@ def DECurrentToPBest1(vector, population, F, CR, P):
         pbest = population[pbest_idx]
         r1, r2 = random.sample(population, 2)
 
-        v = vector + F*(pbest.vector-vector) + F*(r1.vector-r2.vector)
+        v = vector + F*(pbest.genotype-vector) + F*(r1.genotype-r2.genotype)
         mask_pos = np.random.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
@@ -488,10 +488,10 @@ def pso_operator(indiv, population, global_best, w, c1, c2):
     Performs a step of the Particle Swarm algorithm
     """
 
-    c1 = c1 * np.random.random(indiv.vector.shape) 
-    c2 = c2 * np.random.random(indiv.vector.shape) 
+    c1 = c1 * np.random.random(indiv.genotype.shape) 
+    c2 = c2 * np.random.random(indiv.genotype.shape) 
 
-    indiv.speed = w * indiv.speed + c1 * (indiv.best - indiv.vector) + c2 * (global_best.vector - indiv.vector)
+    indiv.speed = w * indiv.speed + c1 * (indiv.best - indiv.genotype) + c2 * (global_best.genotype - indiv.genotype)
     return indiv.apply_speed()
 
 
@@ -501,14 +501,14 @@ def firefly(solution, population, objfunc, alpha_0, beta_0, delta, gamma):
     """
    
     sol_range = objfunc.sup_lim - objfunc.inf_lim
-    n_dim = solution.vector.size
-    new_vector = solution.vector.copy()
+    n_dim = solution.genotype.size
+    new_vector = solution.genotype.copy()
     for idx, ind in enumerate(population):
         if solution.fitness < ind.fitness:
-            r = np.linalg.norm(solution.vector - ind.vector)
+            r = np.linalg.norm(solution.genotype - ind.genotype)
             alpha = alpha_0 * delta ** idx
             beta = beta_0 * np.exp(-gamma*(r/(sol_range*np.sqrt(n_dim)))**2)
-            new_vector = new_solution + beta*(ind.vector-new_vector) + alpha * sol_range * random.random()-0.5
+            new_vector = new_solution + beta*(ind.genotype-new_vector) + alpha * sol_range * random.random()-0.5
             new_vector = objfunc.check_bounds(new_vector)
     
     return new_solution

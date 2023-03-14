@@ -77,6 +77,7 @@ class SA(BaseAlgorithm):
         Specific information to display relevant to this algorithm
         """
 
-        print(f"\ttemperature: {float(self.temp):0.3}")
-        print(f"\taccept prob: {np.exp(-1/self.temp):0.3}")
+        print()
+        print(f"\tTemperature: {float(self.temp):0.3}")
+        print(f"\tAccept prob: {np.exp(-1/self.temp):0.3}")
     
