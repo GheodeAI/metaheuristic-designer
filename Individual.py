@@ -15,7 +15,7 @@ class Indiv:
         """
 
         self.objfunc = objfunc
-        self._vector = vector
+        self._genotype = vector
         self.speed = speed
         self.operator = operator
         self._fitness = 0
@@ -29,7 +29,7 @@ class Indiv:
         Returns a copy of the Individual.
         """
 
-        copied_ind = Indiv(self.objfunc, copy(self._vector), copy(self.speed), self.operator)
+        copied_ind = Indiv(self.objfunc, copy(self._genotype), copy(self.speed), self.operator)
         copied_ind._fitness = self._fitness
         copied_ind.fitness_calculated = self.fitness_calculated
         copied_ind.best = copy(self.best)
@@ -37,22 +37,22 @@ class Indiv:
     
 
     @property
-    def vector(self) -> np.ndarray:
+    def genotype(self) -> np.ndarray:
         """
         Gets the value of the vector.
         """
 
-        return self._vector
+        return self._genotype
 
 
-    @vector.setter
-    def vector(self, vector: np.ndarray):
+    @genotype.setter
+    def genotype(self, vector: np.ndarray):
         """
         Sets the value of the vector.
         """
 
         self.fitness_calculated = False
-        self._vector = vector
+        self._genotype = vector
     
 
     def store_best(self, past_indiv: Indiv):
@@ -61,7 +61,7 @@ class Indiv:
         """
 
         if self.fitness < past_indiv.fitness:
-            self.best = past_indiv.vector
+            self.best = past_indiv.genotype
 
 
     def reproduce(self, population: List[Indiv]) -> Indiv:
@@ -69,8 +69,8 @@ class Indiv:
         Apply the operator to obtain a new individual.
         """
 
-        new_vector = self.operator(self, population, self.objfunc)
-        new_vector = self.objfunc.check_bounds(new_vector)
+        new_indiv = self.operator(self, population, self.objfunc)
+        new_indiv.genotype = self.objfunc.repair_solution(new_indiv.genotype)
         return Indiv(self.objfunc, new_vector, self.speed, self.operator)
 
 
@@ -79,7 +79,7 @@ class Indiv:
         Apply the speed to obtain an individual with a new position.
         """
 
-        return Indiv(self.objfunc, self._vector + self.speed, self.speed, self.operator)
+        return Indiv(self.objfunc, self._genotype + self.speed, self.speed, self.operator)
 
 
     @property

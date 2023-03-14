@@ -56,14 +56,14 @@ class GA(BaseAlgorithm):
             parent1 = random.choice(parent_list)
             if random.random() < self.pcross:
                 new_indiv = self.cross_op(parent1, parent_list, objfunc, self.best)
-                new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
+                new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             else:
                 new_indiv = copy(parent1)
             
             # Mutate
             if random.random() < self.pmut:
                 new_indiv = self.mutation_op(parent1, parent_list, objfunc, self.best)
-                new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
+                new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             
             # Store best vector for individual
             new_indiv.store_best(parent1)
@@ -101,7 +101,7 @@ class GA(BaseAlgorithm):
         """
         Specific information to display relevant to this algorithm
         """
-        popul_matrix = np.array(list(map(lambda x: x.vector, self.population)))
+        popul_matrix = np.array(list(map(lambda x: x.genotype, self.population)))
         divesity = popul_matrix.std(axis=1).mean()
         print(f"\tdiversity: {divesity:0.3}")
 

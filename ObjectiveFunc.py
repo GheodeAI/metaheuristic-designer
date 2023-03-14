@@ -53,7 +53,7 @@ class ObjectiveFunc(ABC):
         """
 
         self.counter += 1
-        solution = self.decoder.decode(indiv.vector)
+        solution = self.decoder.decode(indiv.genotype)
         value = self.objective(solution)
 
         if adjusted:

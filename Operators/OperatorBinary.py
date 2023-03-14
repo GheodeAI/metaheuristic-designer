@@ -1,7 +1,7 @@
 from .Operator import Operator
 from ..ParamScheduler import ParamScheduler
 from typing import Union
-from .operator_functions import *
+from .vector_operator_functions import *
 
 
 class OperatorBinary(Operator):
@@ -38,61 +38,61 @@ class OperatorBinary(Operator):
             params["N"] = round(params["N"])
         
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(np.random.random(indiv.vector.size) < params["Cr"])
+            params["N"] = np.count_nonzero(np.random.random(indiv.genotype.size) < params["Cr"])
 
         params["N"] = round(params["N"])
         
         
         if self.name == "1point":
-            new_indiv.vector = cross1p(new_indiv.vector, solution2.vector.copy())
+            new_indiv.genotype = cross1p(new_indiv.genotype, solution2.genotype.copy())
 
         elif self.name == "2point":
-            new_indiv.vector = cross2p(new_indiv.vector, solution2.vector.copy())
+            new_indiv.genotype = cross2p(new_indiv.genotype, solution2.genotype.copy())
 
         elif self.name == "multipoint":
-            new_indiv.vector = crossMp(new_indiv.vector, solution2.vector.copy())
+            new_indiv.genotype = crossMp(new_indiv.genotype, solution2.genotype.copy())
 
         elif self.name == "multicross":
-            new_indiv.vector = multiCross(new_indiv.vector, others, params["N"])
+            new_indiv.genotype = multiCross(new_indiv.genotype, others, params["N"])
 
         elif self.name == "perm":
-            new_indiv.vector = permutation(new_indiv.vector, params["N"])
+            new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
 
         elif self.name == "xor" or self.name == "fliprandom":
-            new_indiv.vector = xorMask(new_indiv.vector, params["N"], mode="bin")
+            new_indiv.genotype = xorMask(new_indiv.genotype, params["N"], mode="bin")
 
         elif self.name == "xorcross" or self.name == "flipcross":
-            new_indiv.vector = xorCross(new_indiv.vector, solution2.vector.copy())
+            new_indiv.genotype = xorCross(new_indiv.genotype, solution2.genotype.copy())
 
         elif self.name == "randsample":
             params["method"] = "Bernouli"
-            new_indiv.vector = randSample(new_indiv.vector, population, params)
+            new_indiv.genotype = randSample(new_indiv.genotype, population, params)
 
         elif self.name == "mutsample":
             params["method"] = "Bernouli"
-            new_indiv.vector = mutateSample(new_indiv.vector, population, params)
+            new_indiv.genotype = mutateSample(new_indiv.genotype, population, params)
         
         elif self.name == "random":
-            new_indiv.vector = objfunc.random_solution()
+            new_indiv.genotype = objfunc.random_solution()
         
         elif self.name == "randommask":
-            mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.vector.size - params["N"])]).astype(bool)
+            mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
             np.random.shuffle(mask_pos)
 
-            new_indiv.vector[mask_pos] = objfunc.random_solution()[mask_pos]
+            new_indiv.genotype[mask_pos] = objfunc.random_solution()[mask_pos]
 
         elif self.name == "dummy":
-            new_indiv.vector = dummyOp(new_indiv.vector, params["F"])
+            new_indiv.genotype = dummyOp(new_indiv.genotype, params["F"])
 
         elif self.name == "nothing":
             pass
 
         elif self.name == "custom":
             fn = params["function"]
-            new_indiv.vector = fn(indiv, population, objfunc, params)
+            new_indiv.genotype = fn(indiv, population, objfunc, params)
 
         else:
             print(f"Error: evolution method \"{self.name}\" not defined")
             exit(1)
 
-        return (new_indiv.vector != 0).astype(np.int32)
+        return (new_indiv.genotype != 0).astype(np.int32)

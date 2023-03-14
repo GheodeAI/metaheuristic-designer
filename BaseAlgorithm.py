@@ -31,7 +31,7 @@ class BaseAlgorithm(ABC):
         if self.best.objfunc.opt == "min":
             best_fitness *= -1        
 
-        return self.best.vector, best_fitness
+        return self.best.genotype, best_fitness
 
 
     def initialize(self, objfunc: ObjectiveFunc):

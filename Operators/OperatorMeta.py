@@ -3,7 +3,6 @@ from copy import copy
 from typing import List, Union
 from ..ParamScheduler import ParamScheduler
 from .Operator import Operator
-from .operator_functions import *
 
 
 class OperatorMeta(Operator):

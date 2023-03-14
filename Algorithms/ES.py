@@ -49,11 +49,11 @@ class ES(BaseAlgorithm):
             # Cross
             parent1 = random.choice(parent_list)
             new_indiv = self.cross_op(parent1, parent_list, objfunc, self.best)
-            new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
+            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             # Mutate
             new_indiv = self.mutation_op(parent1, parent_list, objfunc, self.best)
-            new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
+            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             # Store best vector for individual (useful for some operators, not extrictly needed)
             new_indiv.store_best(parent1)

@@ -30,7 +30,7 @@ class HillClimb(BaseAlgorithm):
 
         # Perturb individual
         new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best)
-        new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
+        new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
     
         # Store best vector for individual
         new_indiv.store_best(indiv)
