@@ -56,6 +56,7 @@ class BaseAlgorithm(ABC):
         Selects the individuals that will be perturbed in this generation
         Returns the whole population if not implemented.
         """
+        
         return population
     
     @abstractmethod
@@ -74,7 +75,6 @@ class BaseAlgorithm(ABC):
 
         return offspring
 
-    @abstractmethod
     def update_params(self, progress: float):
         """
         Updates the parameters and the operators
