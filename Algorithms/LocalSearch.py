@@ -4,7 +4,7 @@ from typing import Union
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
 from ..Operators import Operator
-from .BaseAlgorithm import BaseAlgorithm
+from ..BaseAlgorithm import BaseAlgorithm
 
 class LocalSearch(BaseAlgorithm):
     """

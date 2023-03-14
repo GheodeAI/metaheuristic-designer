@@ -1,7 +1,10 @@
+from __future__ import annotations
+from typing import Union, List
+from .ParamScheduler import *
 import random
 import numpy as np
-from typing import Union
-from .ParamScheduler import *
+
+
 
 
 class ParentSelection:
@@ -26,7 +29,7 @@ class ParentSelection:
             self.params = params
     
 
-    def __call__(self, population):
+    def __call__(self, population: List[Indiv]):
         """
         Shorthand for calling the 'select' method
         """
@@ -34,7 +37,7 @@ class ParentSelection:
         return self.select(population)
 
 
-    def step(self, progress):
+    def step(self, progress: float):
         """
         Updates the parameters of the method using a paramater scheduler if it exists
         """
@@ -44,7 +47,7 @@ class ParentSelection:
             self.params = self.param_scheduler.get_params()
 
 
-    def select(self, population): 
+    def select(self, population: List[Indiv]) -> List[Indiv]: 
         """
         Evolves a solution with a different strategy depending on the type of operator
         """

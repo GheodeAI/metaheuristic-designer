@@ -1,11 +1,11 @@
 import sys
 sys.path.append("..")
 
-from PyMetaheuristics import GeneralSearch, ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from PyMetaheuristics import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from PyMetaheuristics.SearchMethods import GeneralSearch
 from PyMetaheuristics.Operators import OperatorReal, OperatorInt, OperatorBinary
 from PyMetaheuristics.Algorithms import *
-
-from PyMetaheuristics.benchmarks.benchmark_funcs import *
+from PyMetaheuristics.benchmarks import *
 
 import argparse
 
@@ -13,13 +13,13 @@ def run_algorithm(alg_name):
     params = {
         # General
         "stop_cond": "time_limit",
-        "time_limit": 80.0,
+        "time_limit": 20.0,
         "ngen": 1000,
         "neval": 6e5,
         "fit_target": 1e-8,
 
         "verbose": True,
-        "v_timer": 1
+        "v_timer": 0.5
     }
 
     objfunc = Rosenbrock(2, "min")

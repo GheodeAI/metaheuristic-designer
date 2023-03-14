@@ -1,5 +1,7 @@
-import time
+from __future__ import annotations
+from typing import Tuple, List
 from abc import ABC, abstractmethod
+import time
 
 
 class BaseAlgorithm(ABC):
@@ -17,19 +19,19 @@ class BaseAlgorithm(ABC):
         self.population = []
 
     @abstractmethod
-    def best_solution(self):
+    def best_solution(self) -> Tuple(Indiv, float):
         """
         Gives the best solution found by the algorithm and its fitness
         """
 
     @abstractmethod
-    def initialize(self, objfunc):
+    def initialize(self, objfunc: ObjectiveFunc):
         """
         Generates a random population of individuals
         """
     
 
-    def select_parents(self, population, progress=0, history=None):
+    def select_parents(self, population: List[Indiv], progress: float = 0, history: List[float] = None) -> List[Indiv]:
         """
         Selects the individuals that will be perturbed in this generation
         Returns the whole population if not implemented.
@@ -37,14 +39,14 @@ class BaseAlgorithm(ABC):
         return population
     
     @abstractmethod
-    def perturb(self, parent_list, progress, objfunc, history):
+    def perturb(self, parent_list: List[Indiv], progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Indiv]:
         """
         Applies operators to the population in some way
         Returns the offspring generated.
         """
             
 
-    def select_individuals(self, population, offspring, progress=0, history=None):
+    def select_individuals(self, population: List[Indiv], offspring: List[Indiv], progress: float = 0, history: List[float] = None)-> List[Indiv]:
         """
         Selects the individuals that will pass to the next generation.
         Returns the offspring if not implemented.
@@ -54,7 +56,7 @@ class BaseAlgorithm(ABC):
 
 
     @abstractmethod
-    def update_params(self, progress):
+    def update_params(self, progress: float):
         """
         Updates the parameters and the operators
         """
@@ -65,7 +67,7 @@ class BaseAlgorithm(ABC):
         Specific information to display relevant to this algorithm
         """
     
-    def extra_report(self, show_plots):
+    def extra_report(self, show_plots: bool):
         """
         Specific information to display relevant to this algorithm
         """

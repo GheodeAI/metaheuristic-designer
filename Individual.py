@@ -1,7 +1,6 @@
-import numpy as np
+from __future__ import annotations
+from typing import List
 from copy import copy
-from .ObjectiveFunc import ObjectiveFunc
-from .Operators import Operator
 
 
 class Indiv:
@@ -25,7 +24,7 @@ class Indiv:
         self.is_dead = False
     
 
-    def __copy__(self):
+    def __copy__(self) -> Indiv:
         """
         Returns a copy of the Individual.
         """
@@ -38,7 +37,7 @@ class Indiv:
     
 
     @property
-    def vector(self):
+    def vector(self) -> np.ndarray:
         """
         Gets the value of the vector.
         """
@@ -47,7 +46,7 @@ class Indiv:
 
 
     @vector.setter
-    def vector(self, vector):
+    def vector(self, vector: np.ndarray):
         """
         Sets the value of the vector.
         """
@@ -56,7 +55,7 @@ class Indiv:
         self._vector = vector
     
 
-    def store_best(self, past_indiv):
+    def store_best(self, past_indiv: Indiv):
         """
         Stores the vector that yeided the best fitness between the one the indiviudal has and another input vector
         """
@@ -65,7 +64,7 @@ class Indiv:
             self.best = past_indiv.vector
 
 
-    def reproduce(self, population):
+    def reproduce(self, population: List[Indiv]) -> Indiv:
         """
         Apply the operator to obtain a new individual.
         """
@@ -75,7 +74,7 @@ class Indiv:
         return Indiv(self.objfunc, new_vector, self.speed, self.operator)
 
 
-    def apply_speed(self):
+    def apply_speed(self) -> Indiv:
         """
         Apply the speed to obtain an individual with a new position.
         """
@@ -84,7 +83,7 @@ class Indiv:
 
 
     @property
-    def fitness(self):
+    def fitness(self) -> float:
         """
         Obtain the fitness of the individual, optimized to be calculated 
         only once per individual.
@@ -95,7 +94,7 @@ class Indiv:
         return self._fitness
     
     @fitness.setter
-    def fitness(self, fit):
+    def fitness(self, fit: float):
         """
         Obtain the fitness of the individual, optimized to be calculated 
         only once per individual.

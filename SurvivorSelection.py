@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import Union, List, Tuple
 import random
 import numpy as np
 from typing import Union
@@ -26,7 +28,7 @@ class SurvivorSelection:
             self.params = params
     
 
-    def __call__(self, popul, offspring):
+    def __call__(self, popul: List[Indiv], offspring: List[Indiv]) -> List[Indiv]:
         """
         Shorthand for calling the 'select' method
         """
@@ -34,7 +36,7 @@ class SurvivorSelection:
         return self.select(popul, offspring)
     
 
-    def step(self, progress):
+    def step(self, progress: float):
         """
         Updates the parameters of the method using a paramater scheduler if it exists
         """
@@ -44,7 +46,7 @@ class SurvivorSelection:
             self.params = self.param_scheduler.get_params()
     
     
-    def select(self, popul, offspring):     
+    def select(self, popul: List[Indiv], offspring: List[Indiv]) -> List[Indiv]:     
         """
         Takes a population with its offspring and returns the individuals that survive
         to produce the next generation.

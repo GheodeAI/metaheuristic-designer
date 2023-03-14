@@ -8,7 +8,7 @@ from ..Operators import Operator
 from ..ParentSelection import ParentSelection
 from ..SurvivorSelection import SurvivorSelection
 from ..ParamScheduler import ParamScheduler
-from .BaseAlgorithm import BaseAlgorithm
+from ..BaseAlgorithm import BaseAlgorithm
 
 
 class GA(BaseAlgorithm):

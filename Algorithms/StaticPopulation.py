@@ -5,7 +5,7 @@ from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
 from ..Operators import Operator
 from ..SurvivorSelection import SurvivorSelection
-from .BaseAlgorithm import BaseAlgorithm
+from ..BaseAlgorithm import BaseAlgorithm
 
 
 class StaticPopulation(BaseAlgorithm):

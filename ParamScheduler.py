@@ -19,7 +19,7 @@ class ParamScheduler:
         self.reset()
 
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: str) -> type:
         """
         Gets the current value of a parameter given it's name
         """
@@ -27,14 +27,14 @@ class ParamScheduler:
         return self.current_params[idx]
     
 
-    def __setitem__(self, idx, value):
+    def __setitem__(self, idx: str, value: type):
         """
         Sets the current value of a parameter given it's name
         """
 
         self.current_params[idx] = value
     
-    def __contains__(self, value):
+    def __contains__(self, value: str) -> bool:
         """
         Gets wether an element is inside the dictionary or not
         """
@@ -55,7 +55,7 @@ class ParamScheduler:
                 self.current_params[key] = self.param_schedule[key][0]    
 
 
-    def get_params(self):
+    def get_params(self) -> dict:
         """
         Returns a dictionary containing the current parameters
         """
@@ -63,7 +63,7 @@ class ParamScheduler:
         return self.current_params
 
 
-    def step(self, progress):
+    def step(self, progress: float):
         """
         Changes the values of the parameters interpolating between the initial and final values.
         """

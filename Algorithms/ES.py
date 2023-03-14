@@ -7,7 +7,7 @@ from ..ParamScheduler import ParamScheduler
 from ..Operators import Operator
 from ..ParentSelection import ParentSelection
 from ..SurvivorSelection import SurvivorSelection
-from .BaseAlgorithm import BaseAlgorithm
+from ..BaseAlgorithm import BaseAlgorithm
 
 
 class ES(BaseAlgorithm):
