@@ -2,8 +2,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 import time
 from .GeneralSearch import GeneralSearch
+from ..BaseSearch import BaseSearch
 
-class MemeticSearch(GeneralSearch):
+class MemeticSearch(BaseSearch):
     """
     General framework for metaheuristic algorithms
     """
@@ -75,3 +76,46 @@ class MemeticSearch(GeneralSearch):
         self.update(self.steps, time_start, objfunc)
         
         return (best_individual, best_fitness)
+    
+    def step_info(self, objfunc, start_time):
+        """
+        Displays information about the current state of the algotithm
+        """
+
+        print(f"Optimizing {objfunc.name} using {self.search_strategy.name}+{self.local_search.name}:")
+        print(f"\tTime Spent {round(time.time() - start_time,2)} s")
+        print(f"\tGeneration: {self.steps}")
+        best_fitness = self.best_solution()[1]
+        print(f"\tBest fitness: {best_fitness}")
+        print(f"\tEvaluations of fitness: {objfunc.counter}")
+        self.search_strategy.extra_step_info()
+        self.local_search.extra_step_info()
+        print()
+    
+    
+    def display_report(self, objfunc, show_plots=True):
+        """
+        Shows a summary of the execution of the algorithm
+        """
+        
+        # Print Info
+        print("Number of generations:", len(self.fit_history))
+        print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
+        print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
+        print("Number of fitness evaluations:", objfunc.counter)
+        
+        best_fitness = self.best_solution()[1]
+        print("Best fitness:", best_fitness)
+
+        if show_plots:
+            
+            # Plot fitness history
+            plt.axhline(y=0, color="black", alpha=0.9)
+            plt.axvline(x=0, color="black", alpha=0.9)            
+            plt.plot(self.fit_history, "blue")
+            plt.xlabel("generations")
+            plt.ylabel("fitness")
+            plt.title(f"{self.search_strategy.name} fitness")
+            plt.show()
+        
+        self.search_strategy.extra_report(show_plots)

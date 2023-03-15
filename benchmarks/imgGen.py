@@ -62,10 +62,11 @@ def run_algorithm(alg_name, img_file_name, memetic):
     img_name = img_name.split(".")[0]
     objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
 
-    mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":20, "N":10})
-    cross_op = OperatorInt("Multipoint")
-    parent_sel_op = ParentSelection("Best", {"amount": 100})
-    selection_op = SurvivorSelection("(m+n)")
+    mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":15, "N":20})
+    cross_op = OperatorReal("Multicross", {"N":3})
+    parent_sel_op = ParentSelection("Best", {"amount": 20})
+    #selection_op = SurvivorSelection("(m+n)")
+    selection_op = SurvivorSelection("Elitism", {"amount": 20})
 
     if alg_name == "HillClimb":
         search_strat = HillClimb(mutation_op)
@@ -74,11 +75,11 @@ def run_algorithm(alg_name, img_file_name, memetic):
     elif alg_name == "ES":
         search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
     elif alg_name == "GA":
-        search_strat = GA(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.2})
+        search_strat = GA(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.9, "pmut":0.15})
     elif alg_name == "HS":
         search_strat = HS({"HMS":100, "HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "SA":
-        search_strat = SA(mutation_op, {"iter":100, "temp_init":1.7, "alpha":0.9975})
+        search_strat = SA(mutation_op, {"iter":100, "temp_init":1, "alpha":0.9975})
     elif alg_name == "DE":
         de_op = OperatorReal("DE/best/1", {"F":0.2, "Cr":0.3, "P":0.11})
         search_strat = DE(de_op, {"popSize":100})
@@ -91,7 +92,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         exit()
     
     if memetic:
-        local_search = LocalSearch(OperatorInt("MutRand", {"method": "Uniform", "Low":-4, "Up":4, "N":1}), {"iters":10})
+        local_search = LocalSearch(OperatorInt("MutRand", {"method": "Cauchy", "F":3, "N":3}), {"iters":10})
         alg = MemeticSearch(search_strat, local_search, ParentSelection("Best", {"amount": 10}), params)
     else:
         alg = GeneralSearch(search_strat, params)
