@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from typing import Union
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
 from ..Operators import Operator
@@ -11,12 +12,13 @@ class HillClimb(BaseAlgorithm):
     Search strtategy example, HillClimbing
     """
     
-    def __init__(self, perturb_op: Operator, name: str="HillClimb"):
+    def __init__(self, perturb_op: Operator, params: Union[ParamScheduler, dict]={}, name: str="HillClimb"):
         """
         Constructor of the Example search strategy class
         """
 
         self.perturb_op = perturb_op
+        self.iterations = params["iters"] if "iters" in params else 1
 
         super().__init__(name, popSize=1)
 
@@ -25,25 +27,30 @@ class HillClimb(BaseAlgorithm):
         """
         Performs a step of the algorithm
         """
+        
+        result = []
 
-        indiv = indiv_list[0]
-
-        # Perturb individual
-        new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best)
-        new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
+        for indiv in indiv_list:            
+            for i in range(self.iterations):                
+                # Perturb individual
+                new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best)
+                new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
     
-        # Store best vector for individual
-        new_indiv.store_best(indiv)
+                # Store best vector for individual
+                new_indiv.store_best(indiv)
 
-        # If it improves the previous solution keep it
-        if new_indiv.fitness > indiv.fitness:
-            indiv = new_indiv       
+                # If it improves the previous solution keep it
+                if new_indiv.fitness > indiv.fitness:
+                    indiv = new_indiv        
+            
+            result.append(indiv)
 
-        if new_indiv.fitness > self.best.fitness:
-            self.best = new_indiv
+        curr_best = max(result, key=lambda x: x.fitness)
+        if curr_best.fitness > self.best.fitness:
+            self.best = curr_best
                 
-        return [indiv]
-
+        return result
+    
     
     def update_params(self, progress):
         """

@@ -9,7 +9,7 @@ class Indiv:
     its fitness.
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, vector: np.ndarray, speed: np.ndarray=0, operator: Operator=None):
+    def __init__(self, objfunc: ObjectiveFunc, vector: np.ndarray, speed: np.ndarray = None, operator: Operator=None):
         """
         Constructor of the Individual class.
         """
@@ -17,6 +17,8 @@ class Indiv:
         self.objfunc = objfunc
         self._genotype = vector
         self.speed = speed
+        if speed is None:
+            self.speed = np.zeros_like(vector)
         self.operator = operator
         self._fitness = 0
         self.fitness_calculated = False

@@ -23,25 +23,31 @@ class LocalSearch(BaseAlgorithm):
 
 
     def perturb(self, indiv_list, objfunc, progress=0, history=None):
-        indiv = indiv_list[0]
-        best_indiv = indiv
-        for i in range(self.iterations):
+        result = []
 
-            # Perturb individual
-            new_indiv = self.perturb_op(indiv, self.population, objfunc, self.best)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-
-            # Store best vector for individual
-            new_indiv.store_best(indiv)
-
-            # If it improves the previous solution keep it
-            if new_indiv.fitness > best_indiv.fitness:
-                best_indiv = new_indiv
+        for indiv in indiv_list:
+            best_indiv = indiv
             
-            if new_indiv.fitness > self.best.fitness:
-                self.best = new_indiv
+            for i in range(self.iterations):
+    
+                # Perturb individual
+                new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best)
+                new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
+
+                # Store best vector for individual
+                new_indiv.store_best(indiv)
+
+                # If it improves the best solution keep it
+                if new_indiv.fitness > best_indiv.fitness:
+                    best_indiv = new_indiv
+                
+            result.append(best_indiv)
+            
+        curr_best = max(result, key=lambda x: x.fitness)
+        if curr_best.fitness > self.best.fitness:
+            self.best = curr_best
         
-        return [best_indiv]
+        return result
 
     
     def update_params(self, progress):

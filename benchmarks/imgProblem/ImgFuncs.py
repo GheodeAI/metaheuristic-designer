@@ -36,7 +36,10 @@ class ImgExperimental(ObjectiveFunc):
         return np.random.randint(0, 256, size=self.size)
     
     def repair_solution(self, solution):
-        return np.clip(solution, 0, 255).astype(np.int32)
+        return np.clip(solution, 0, 255)
+    
+    def repair_speed(self, solution):
+        return np.clip(solution, -255, 255)
         
 
 class ImgApprox(ObjectiveFunc):

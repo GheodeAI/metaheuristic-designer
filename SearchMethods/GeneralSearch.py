@@ -28,7 +28,7 @@ class GeneralSearch(BaseSearch):
         # Do a search step
         population = self.search_strategy.population
         
-        parents = self.search_strategy.select_parents(population, self.progress, self.best_history)
+        parents, _ = self.search_strategy.select_parents(population, self.progress, self.best_history)
 
         offspring = self.search_strategy.perturb(parents, objfunc, self.progress, self.best_history)
 

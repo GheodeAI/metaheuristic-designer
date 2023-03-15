@@ -24,7 +24,7 @@ class MaxOnes(ObjectiveFunc):
         return (np.random.random(self.size) < 0.5).astype(np.int32)
     
     def repair_solution(self, solution):
-        return (solution.copy() >= 0.5).astype(np.int32)
+        return (solution >= 0.5).astype(np.int32)
 
 class DiophantineEq(ObjectiveFunc):
     def __init__(self, size, coeff, target, opt="min"):

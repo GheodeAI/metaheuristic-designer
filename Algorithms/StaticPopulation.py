@@ -43,7 +43,7 @@ class StaticPopulation(BaseAlgorithm):
             # Apply operator
             new_indiv = self.operator(indiv, parent_list, objfunc, self.best)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-            new_indiv.speed = objfunc.repair_solution(new_indiv.speed)
+            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 
             # Store best vector for individual
             new_indiv.store_best(indiv)
@@ -55,6 +55,11 @@ class StaticPopulation(BaseAlgorithm):
         current_best = max(offspring, key = lambda x: x.fitness)
         if self.best.fitness < current_best.fitness:
             self.best = current_best
+            # print("new best")
+        
+        # print(self.best.fitness)
+        # print(self.best.speed.min(), self.best.speed.max())
+        # print(self.best.vector.min(), self.best.vector.max())
         
         return offspring
     

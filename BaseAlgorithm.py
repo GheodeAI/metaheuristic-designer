@@ -40,7 +40,6 @@ class BaseAlgorithm(ABC):
         """
 
         self.population = []
-        self.best = None
         for i in range(self.popsize):
             genotype = objfunc.decoder.encode(objfunc.random_solution())
             speed = objfunc.decoder.encode(objfunc.random_solution())
@@ -58,7 +57,7 @@ class BaseAlgorithm(ABC):
         Returns the whole population if not implemented.
         """
         
-        return population
+        return population, range(len(population))
     
     @abstractmethod
     def perturb(self, parent_list: List[Indiv], progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Indiv]:

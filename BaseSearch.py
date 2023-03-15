@@ -162,7 +162,7 @@ class BaseSearch(ABC):
         display_timer = time.time()
 
         # Initizalize search strategy 
-        self.search_strategy.initialize(objfunc)
+        self.initialize(objfunc)
 
         # Search untill the stopping condition is met
         self.update(self.steps, real_time_start, objfunc)

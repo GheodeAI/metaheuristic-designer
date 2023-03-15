@@ -1,6 +1,7 @@
 from .Operator import Operator
 from ..ParamScheduler import ParamScheduler
 from typing import Union
+from copy import copy
 from .vector_operator_functions import *
 
 
@@ -65,11 +66,11 @@ class OperatorBinary(Operator):
             new_indiv.genotype = xorCross(new_indiv.genotype, solution2.genotype.copy())
 
         elif self.name == "randsample":
-            params["method"] = "Bernouli"
+            params["method"] = "bernouli"
             new_indiv.genotype = randSample(new_indiv.genotype, population, params)
 
         elif self.name == "mutsample":
-            params["method"] = "Bernouli"
+            params["method"] = "bernouli"
             new_indiv.genotype = mutateSample(new_indiv.genotype, population, params)
         
         elif self.name == "random":
@@ -95,4 +96,5 @@ class OperatorBinary(Operator):
             print(f"Error: evolution method \"{self.name}\" not defined")
             exit(1)
 
-        return (new_indiv.genotype != 0).astype(np.int32)
+        new_indiv.genotype = (new_indiv.genotype != 0).astype(np.int32)
+        return new_indiv

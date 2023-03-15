@@ -4,7 +4,7 @@ sys.path.append("../..")
 from PyMetaheuristics import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
 from PyMetaheuristics.Operators import OperatorReal, OperatorInt, OperatorBinary
 from PyMetaheuristics.Algorithms import *
-from PyMetaheuristics.SearchMethods import GeneralSearch
+from PyMetaheuristics.SearchMethods import GeneralSearch, MemeticSearch
 from PyMetaheuristics.Decoders import ImageDecoder
 from imgProblem import * 
 
@@ -33,7 +33,7 @@ def save_to_image(image, img_name="result.png"):
     filename = './results/' + img_name
     Image.fromarray(image.astype(np.uint8)).save(filename)
 
-def run_algorithm(alg_name, img_file_name):
+def run_algorithm(alg_name, img_file_name, memetic):
     params = {
         # General
         "stop_cond": "neval",
@@ -62,9 +62,9 @@ def run_algorithm(alg_name, img_file_name):
     img_name = img_name.split(".")[0]
     objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
 
-    mutation_op = OperatorInt("MutRand", {"method": "Uniform", "Low":-10, "Up":10, "N":100})
-    cross_op = OperatorInt("Multicross", {"N": 3})
-    parent_sel_op = ParentSelection("Best", {"amount": 20})
+    mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":20, "N":10})
+    cross_op = OperatorInt("Multipoint")
+    parent_sel_op = ParentSelection("Best", {"amount": 100})
     selection_op = SurvivorSelection("(m+n)")
 
     if alg_name == "HillClimb":
@@ -80,16 +80,21 @@ def run_algorithm(alg_name, img_file_name):
     elif alg_name == "SA":
         search_strat = SA(mutation_op, {"iter":100, "temp_init":1.7, "alpha":0.9975})
     elif alg_name == "DE":
-        search_strat = DE(OperatorReal("DE/best/1", {"F":0.2, "Cr":0.5, "P":0.11}), {"popSize":100})
+        de_op = OperatorReal("DE/best/1", {"F":0.2, "Cr":0.3, "P":0.11})
+        search_strat = DE(de_op, {"popSize":100})
     elif alg_name == "PSO":
         search_strat = PSO({"popSize":100, "w":0.7, "c1":1.5, "c2":1.5})
+    elif alg_name == "NoSearch":
+        search_strat = NoSearch({"popSize":100})
     else:
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()
     
-
-    alg = GeneralSearch(search_strat, params)
-
+    if memetic:
+        local_search = LocalSearch(OperatorInt("MutRand", {"method": "Uniform", "Low":-4, "Up":4, "N":1}), {"iters":10})
+        alg = MemeticSearch(search_strat, local_search, ParentSelection("Best", {"amount": 10}), params)
+    else:
+        alg = GeneralSearch(search_strat, params)
 
     # Optimize with display of image
     time_start = time.process_time()
@@ -129,18 +134,23 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", dest='alg', help='Specify an algorithm')
     parser.add_argument("-i", "--image", dest='img', help='Specify an image as reference')
+    parser.add_argument("-m", "--memetic", dest='mem', action="store_true", help='Specify an algorithm')
     args = parser.parse_args()
 
     algorithm_name = "SA"
     img_file_name = "images/cat.png"
+    mem = False
 
     if args.alg:
         algorithm_name = args.alg
     
     if args.img:
         img_file_name = args.img
+    
+    if args.mem:
+        mem = True
    
-    run_algorithm(alg_name = algorithm_name, img_file_name = img_file_name)
+    run_algorithm(alg_name = algorithm_name, img_file_name = img_file_name, memetic=mem)
 
 
 if __name__ == "__main__":

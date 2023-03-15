@@ -82,6 +82,13 @@ class ObjectiveFunc(ABC):
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
         """
     
+    def repair_speed(self, speed):
+        """
+        Transforms an invalid vector into one that satisfies the restrictions of the problem.
+        """
+
+        return self.repair_solution(speed)
+    
 
     def penalize(self, indiv: Indiv) -> float:
         """
