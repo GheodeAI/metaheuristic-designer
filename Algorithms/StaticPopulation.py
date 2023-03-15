@@ -55,11 +55,6 @@ class StaticPopulation(BaseAlgorithm):
         current_best = max(offspring, key = lambda x: x.fitness)
         if self.best.fitness < current_best.fitness:
             self.best = current_best
-            # print("new best")
-        
-        # print(self.best.fitness)
-        # print(self.best.speed.min(), self.best.speed.max())
-        # print(self.best.vector.min(), self.best.vector.max())
         
         return offspring
     

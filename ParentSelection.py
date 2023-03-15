@@ -112,7 +112,7 @@ def prob_tournament(population, tourn_size, prob):
             idx = fits.index(max(fits))
 
         # Add the individuals to the list
-        order.append(idx)
+        order.append(parent_idxs[idx])
         parent = parents[idx]
         parent_pool.append(parent)
 
