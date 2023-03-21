@@ -1,4 +1,4 @@
-# PyMetaheuristics
+# PyEvolComp
 Python implementation of a general framework for the design and execution of metaheuristic algorithms.
 
 Created with the purpose of creating the necesary tools for the analysis and design of metaheuristics
