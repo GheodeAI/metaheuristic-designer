@@ -4,7 +4,7 @@ from ..BaseDecoder import BaseDecoder
 
 class MatrixDecoder(BaseDecoder):
     """
-    Default encoder that uses the input vector as from the individual as the solution
+    Decoder used to evolve matrices
     """
 
     def __init__(self, shape):

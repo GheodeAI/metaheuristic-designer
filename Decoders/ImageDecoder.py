@@ -4,7 +4,7 @@ from ..BaseDecoder import BaseDecoder
 
 class ImageDecoder(BaseDecoder):
     """
-    Default encoder that uses the input vector as from the individual as the solution
+    Decoder used to evolve images
     """
 
     def __init__(self, shape, color=True):

@@ -60,7 +60,8 @@ def run_algorithm(alg_name, img_file_name, memetic):
     reference_img = Image.open(img_file_name)
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
-    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
+    #objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
+    objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name, decoder=decoder)
 
     mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":15, "N":20})
     cross_op = OperatorReal("Multicross", {"N":3})
