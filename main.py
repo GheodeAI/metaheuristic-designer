@@ -12,17 +12,20 @@ import argparse
 def run_algorithm(alg_name, memetic):
     params = {
         # General
-        "stop_cond": "time_limit",
-        "time_limit": 10.0,
+        "stop_cond": "neval or time_limit or fit_target",
+        "time_limit": 1.0,
+        "cpu_time_limit": 100.0,
         "ngen": 1000,
         "neval": 6e5,
-        "fit_target": 1e-8,
+        "fit_target": 1e-3,
 
         "verbose": True,
         "v_timer": 0.5
     }
 
-    objfunc = Sphere(30, "min")
+    # ["neval", "ngen", "real_time", "cpu_time", "fit_target"]
+
+    objfunc = Sphere(10, "min")
 
     mutation_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.001})
     cross_op = OperatorReal("Multipoint")
@@ -85,3 +88,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# if __name__ == "__main__":
+#     from PyMetaheuristics.BaseSearch import parse_stopping_cond, process_condition
+#     a_str = "neval or ngen"
+#     parsed = parse_stopping_cond(a_str).as_list()
+#     print(process_condition(parsed, neval=True, ngen=True, real_time=True, target=True))
