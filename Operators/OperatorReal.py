@@ -4,6 +4,46 @@ from ..ParamScheduler import ParamScheduler
 from typing import Union
 from copy import copy
 
+
+_real_ops = [
+    "1point",
+    "2point",
+    "multipoint",
+    "weightedAvg",
+    "blxalpha",
+    "sbx",
+    "multicross",
+    "crossinteravg",
+    "mutate1sigma",
+    "mutatensigmas",
+    "samplesigma",
+    "perm",
+    "gauss",
+    "laplace",
+    "cauchy",
+    "uniform",
+    "mutrand",
+    "mutnoise",
+    "randnoise",
+    "randsample",
+    "mutsample",
+    "de/rand/1",
+    "de/best/1",
+    "de/rand/2",
+    "de/best/2",
+    "de/current-to-rand/1",
+    "de/current-to-best/1",
+    "de/current-to-pbest/1",
+    "pso",
+    "firefly",
+    "random",
+    "randommask",
+    "dummy",
+    "custom",
+    "nothing"
+]
+
+
 class OperatorReal(Operator):
     """
     Operator class that has continuous mutation and cross methods
@@ -13,6 +53,9 @@ class OperatorReal(Operator):
         """
         Constructor for the OperatorReal class
         """
+
+        if name.lower() not in _real_ops:
+            raise ValueError(f"Real operator \"{self.name}\" not defined")
 
         super().__init__(name, params)
     
@@ -141,16 +184,9 @@ class OperatorReal(Operator):
         elif self.name == "dummy":
             new_indiv.genotype = dummyOp(new_indiv.genotype, params["F"])
 
-        elif self.name == "nothing":
-            pass
-
         elif self.name == "custom":
             fn = params["function"]
             new_indiv.genotype = fn(indiv, population, objfunc, params)
-
-        else:
-            print(f"Error: evolution method \"{self.name}\" not defined")
-            exit(1)
         
             
         return new_indiv

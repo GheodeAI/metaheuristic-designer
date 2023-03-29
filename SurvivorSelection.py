@@ -5,6 +5,14 @@ import numpy as np
 from typing import Union
 from .ParamScheduler import *
 
+_surv_methods = [
+    "elitism",
+    "condelitism",
+    "generational",
+    "one-to-one",
+    "(m+n)",
+    "(m,n)"
+]
 
 class SurvivorSelection:
     """
@@ -17,6 +25,9 @@ class SurvivorSelection:
         """
 
         self.name = name.lower()
+
+        if name.lower() not in _surv_methods:
+            raise ValueError(f"Survivor selection method \"{self.name}\" not defined")
 
         self.param_scheduler = None
         if params is None:
@@ -70,10 +81,6 @@ class SurvivorSelection:
 
         elif self.name == "(m,n)":
             result = lamb_comma_mu(popul, offspring)
-
-        else:
-            print(f"Error: parent selection method \"{self.name}\" not defined")
-            exit(1)
         
         return result
 

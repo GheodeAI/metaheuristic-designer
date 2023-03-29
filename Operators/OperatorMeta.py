@@ -5,6 +5,13 @@ from ..ParamScheduler import ParamScheduler
 from ..Operator import Operator
 
 
+_meta_ops = [
+    "branch2",
+    "branch",
+    "sequence"
+]
+
+
 class OperatorMeta(Operator):
     """
     Operator class that has discrete mutation and cross methods

@@ -3,6 +3,14 @@ from .list_operator_functions import *
 from ..ParamScheduler import ParamScheduler
 from typing import Union
 from copy import copy
+from .OperatorReal import OperatorReal, _real_ops
+
+_list_ops = [
+    "expand",
+    "shrink"
+]
+
+_list_ops = _list_ops + _real_ops
 
 class OperatorList(Operator):
     """
@@ -13,6 +21,9 @@ class OperatorList(Operator):
         """
         Constructor for the OperatorReal class
         """
+
+        if name.lower() not in _list_ops:
+            raise ValueError(f"Real operator \"{self.name}\" not defined")
 
         super().__init__(name, params)
     

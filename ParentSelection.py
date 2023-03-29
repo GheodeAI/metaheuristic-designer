@@ -5,6 +5,11 @@ import random
 import numpy as np
 
 
+_parent_sel_methods = [
+    "tournament",
+    "best",
+    "nothing"   
+]
 
 
 class ParentSelection:
@@ -18,6 +23,9 @@ class ParentSelection:
         """
 
         self.name = name.lower()
+
+        if name.lower() not in _parent_sel_methods:
+            raise ValueError(f"Parent selection method \"{self.name}\" not defined")
         
         self.param_scheduler = None
         if params is None:
@@ -62,10 +70,6 @@ class ParentSelection:
 
         elif self.name == "nothing":
             parents, order = population, range(len(population))
-            
-        else:
-            print(f"Error: parent selection method \"{self.name}\" not defined")
-            exit(1)
         
         return parents, order
 

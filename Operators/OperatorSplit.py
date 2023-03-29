@@ -19,7 +19,7 @@ class OperatorSplit(Operator):
         self.op_list = op_list
         self.mask = mask
 
-        name = "+".join([op.name for op in op_list if op.name != "Nothing"])
+        name = "+".join([op.name for op in op_list if op.name.lower() != "nothing"])
 
         super().__init__(name, {})
     

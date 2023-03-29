@@ -4,6 +4,22 @@ from typing import Union
 from copy import copy
 from .vector_operator_functions import *
 
+_bin_ops = [
+    "1point",
+    "2point",
+    "multipoint",
+    "multicross",
+    "xor",
+    "xorcross",
+    "perm",
+    "randsample",
+    "mutsample",
+    "random",
+    "randommask",
+    "dummy",
+    "custom",
+    "nothing"
+]
 
 class OperatorBinary(Operator):
     """
@@ -14,6 +30,9 @@ class OperatorBinary(Operator):
         """
         Constructor for the Operator class
         """
+
+        if name.lower() not in _bin_ops:
+            raise ValueError(f"Binary operator \"{self.name}\" not defined")
 
         super().__init__(name, params)
     
@@ -85,16 +104,9 @@ class OperatorBinary(Operator):
         elif self.name == "dummy":
             new_indiv.genotype = dummyOp(new_indiv.genotype, params["F"])
 
-        elif self.name == "nothing":
-            pass
-
         elif self.name == "custom":
             fn = params["function"]
             new_indiv.genotype = fn(indiv, population, objfunc, params)
-
-        else:
-            print(f"Error: evolution method \"{self.name}\" not defined")
-            exit(1)
 
         new_indiv.genotype = (new_indiv.genotype != 0).astype(np.int32)
         return new_indiv
