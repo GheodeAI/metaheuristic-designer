@@ -330,51 +330,6 @@ def sbx(vector1, vector2, strength):
     return 0.5*(vector1+vector2) + sign*0.5*beta*(vector1-vector2)
 
 
-def simAnnealing(solution, strength, objfunc, temp_changes, iter):
-    """
-    Performs a number of rounds of Simulated Annealing using a gaussian mutation
-    """
-    
-    p0, pf = (0.1, 7)
-
-    alpha = 0.99
-    best_fit = solution.fitness
-
-    temp_init = temp = 100
-    temp_fin = alpha**temp_changes * temp_init
-    vector_new = solution.genotype
-    while temp >= temp_fin:
-        for j in range(iter):
-            vector_new = gaussian(vector_new, strength)
-            new_fit = objfunc.fitness(vector_new)
-            y = ((pf-p0)/(temp_fin-temp_init))*(temp-temp_init) + p0 
-
-            p = np.exp(-y)
-            if new_fit > best_fit or random.random() < p:
-                best_fit = new_fit
-        temp = temp*alpha
-    return vector_new
-
-
-def harmonySearch(vector, population, strength, HMCR, PAR):
-    """
-    Performs a step of the Harmony search algorithm
-    """
-   
-    new_vector = np.zeros(vector.shape)
-    popul_matrix = np.vstack([i.genotype for i in population])
-    popul_mean = popul_matrix.mean(axis=0)
-    popul_std = popul_matrix.std(axis=0)
-    for i in range(vector.size):
-        if random.random() < HMCR:
-            new_vector[i] = random.choice(population).genotype[i]
-            if random.random() <= PAR:
-                new_vector[i] += np.random.normal(0,strength)
-        else:
-            new_vector[i] = np.random.normal(popul_mean[i], popul_std[i])
-    return new_vector
-
-
 def DERand1(vector, population, F, CR):
     """
     Performs the differential evolution operator DE/rand/1

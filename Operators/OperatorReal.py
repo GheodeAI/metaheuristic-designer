@@ -123,18 +123,6 @@ class OperatorReal(Operator):
         elif self.name == "de/current-to-pbest/1":
             new_indiv.genotype = DECurrentToPBest1(new_indiv.genotype, others, params["F"], params["Cr"], params["P"])
 
-        elif self.name == "lshade":
-            params["Cr"] = np.clip(np.random.normal(params["Cr"], 0.1), 0, 1)
-            params["F"] = np.clip(np.random.normal(params["F"], 0.1), 0, 1)
-
-            new_indiv.genotype = DECurrentToPBest1(new_indiv.genotype, others, params["F"], params["Cr"])      
-
-        elif self.name == "sa":
-            new_indiv.genotype = simAnnealing(indiv, params["F"], objfunc, params["temp_ch"], params["iter"])
-
-        elif self.name == "hs":
-            new_indiv.genotype = harmonySearch(new_indiv.genotype, others, params["F"], params["Cr"], params["Par"])
-
         elif self.name == "pso":
             new_indiv = pso_operator(indiv, others, global_best, params["w"], params["c1"], params["c2"])
 
