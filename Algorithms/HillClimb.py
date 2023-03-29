@@ -1,13 +1,13 @@
+from __future__ import annotations
 import random
 import numpy as np
 from typing import Union
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
-from ..Operators import Operator
-from ..BaseAlgorithm import BaseAlgorithm
+from ..Algorithm import Algorithm
 
 
-class HillClimb(BaseAlgorithm):
+class HillClimb(Algorithm):
     """
     Search strtategy example, HillClimbing
     """

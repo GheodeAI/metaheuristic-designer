@@ -2,9 +2,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 import time
 from .GeneralSearch import GeneralSearch
-from ..BaseSearch import BaseSearch
+from ..Search import Search
 
-class MemeticSearch(BaseSearch):
+class MemeticSearch(Search):
     """
     General framework for metaheuristic algorithms
     """

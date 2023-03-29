@@ -1,14 +1,14 @@
 import time
 import numpy as np
-from ..BaseDecoder import BaseDecoder
+from ..Decoder import Decoder
 from .DefaultDecoder import DefaultDecoder
 
-class CMADecoder(BaseDecoder):
+class CMADecoder(Decoder):
     """
     Decoder used to implement the CMA-ES algorithm
     """
 
-    def __init__(self, nparams: int, pre_decoder: BaseDecoder = None):
+    def __init__(self, nparams: int, pre_decoder: Decoder = None):
         self.nparams = nparams
         self.pre_decoder = pre_decoder
         if pre_decoder is None:

@@ -1,8 +1,8 @@
 import time
 import numpy as np
-from ..BaseDecoder import BaseDecoder
+from ..Decoder import Decoder
 
-class ImageDecoder(BaseDecoder):
+class ImageDecoder(Decoder):
     """
     Decoder used to evolve images
     """

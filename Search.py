@@ -2,19 +2,19 @@ from __future__ import annotations
 from typing import Tuple, List
 from typing import Union
 from .ParamScheduler import ParamScheduler
-from .BaseAlgorithm import BaseAlgorithm
+from .Algorithm import Algorithm
 from abc import ABC, abstractmethod
 import time
 import numpy as np
 import matplotlib.pyplot as plt
 import pyparsing as pp
 
-class BaseSearch(ABC):
+class Search(ABC):
     """
     General framework for metaheuristic algorithms
     """
     
-    def __init__(self, search_strategy: BaseAlgorithm, params: Union[ParamScheduler, dict]):
+    def __init__(self, search_strategy: Algorithm, params: Union[ParamScheduler, dict]):
         """
         Constructor of the Metaheuristic class
         """

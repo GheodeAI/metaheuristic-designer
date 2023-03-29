@@ -1,14 +1,14 @@
+from __future__ import annotations
 import random
 import numpy as np
 from typing import List, Union
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
-from ..Operators import Operator
 from ..SurvivorSelection import SurvivorSelection
-from ..BaseAlgorithm import BaseAlgorithm
+from ..Algorithm import Algorithm
 
 
-class StaticPopulation(BaseAlgorithm):
+class StaticPopulation(Algorithm):
     """
     Population of the Genetic algorithm
     """

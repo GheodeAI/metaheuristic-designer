@@ -1,7 +1,7 @@
 import time
 from abc import ABC, abstractmethod
 
-class BaseDecoder(ABC):
+class Decoder(ABC):
     """
     Base class for transforming between phenotype and genotype
     """

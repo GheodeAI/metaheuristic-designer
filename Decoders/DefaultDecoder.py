@@ -1,8 +1,8 @@
 import time
 import numpy as np
-from ..BaseDecoder import BaseDecoder
+from ..Decoder import Decoder
 
-class DefaultDecoder(BaseDecoder):
+class DefaultDecoder(Decoder):
     """
     Default encoder that uses the input vector as from the individual as the solution
     """

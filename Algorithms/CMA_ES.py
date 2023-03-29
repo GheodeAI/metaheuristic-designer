@@ -1,7 +1,7 @@
 import numpy as np
 from .ES import ES
 from typing import Union, List
-from ..BaseAlgorithm import BaseAlgorithm
+from ..Algorithm import Algorithm
 from ..Individual import Indiv
 from ..Operators import Operator, OperatorReal, OperatorMeta
 from ..SurvivorSelection import SurvivorSelection

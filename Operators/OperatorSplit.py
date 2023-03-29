@@ -2,7 +2,7 @@ import random
 from copy import copy
 from typing import List, Union
 from ..ParamScheduler import ParamScheduler
-from .Operator import Operator
+from ..Operator import Operator
 from .Individual import Indiv
 
 

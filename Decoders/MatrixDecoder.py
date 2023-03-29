@@ -1,8 +1,8 @@
 import time
 import numpy as np
-from ..BaseDecoder import BaseDecoder
+from ..Decoder import Decoder
 
-class MatrixDecoder(BaseDecoder):
+class MatrixDecoder(Decoder):
     """
     Decoder used to evolve matrices
     """

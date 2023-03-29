@@ -2,17 +2,17 @@ import numpy as np
 from matplotlib import pyplot as plt
 from typing import Union
 from ..ParamScheduler import ParamScheduler
-from ..BaseAlgorithm import BaseAlgorithm
-from ..BaseSearch import BaseSearch
+from ..Algorithm import Algorithm
+from ..Search import Search
 import time
 
 
-class GeneralSearch(BaseSearch):
+class GeneralSearch(Search):
     """
     General framework for metaheuristic algorithms
     """
     
-    def __init__(self, search_strategy: BaseAlgorithm, params: Union[ParamScheduler, dict]):
+    def __init__(self, search_strategy: Algorithm, params: Union[ParamScheduler, dict]):
         """
         Constructor of the Metaheuristic class
         """

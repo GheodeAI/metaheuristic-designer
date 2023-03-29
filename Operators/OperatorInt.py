@@ -1,4 +1,4 @@
-from .Operator import Operator
+from ..Operator import Operator
 from ..ParamScheduler import ParamScheduler
 from typing import Union
 from copy import copy

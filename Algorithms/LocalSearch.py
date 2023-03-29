@@ -1,12 +1,12 @@
+from __future__ import annotations
 import random
 import numpy as np
 from typing import Union
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
-from ..Operators import Operator
-from ..BaseAlgorithm import BaseAlgorithm
+from ..Algorithm import Algorithm
 
-class LocalSearch(BaseAlgorithm):
+class LocalSearch(Algorithm):
     """
     Search strtategy example, HillClimbing
     """

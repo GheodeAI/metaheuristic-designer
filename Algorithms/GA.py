@@ -1,17 +1,17 @@
+from __future__ import annotations
 import random
 import numpy as np
 from copy import copy
 import time
 from typing import Union, List
 from ..Individual import Indiv
-from ..Operators import Operator
 from ..ParentSelection import ParentSelection
 from ..SurvivorSelection import SurvivorSelection
 from ..ParamScheduler import ParamScheduler
-from ..BaseAlgorithm import BaseAlgorithm
+from ..Algorithm import Algorithm
 
 
-class GA(BaseAlgorithm):
+class GA(Algorithm):
     """
     Population of the Genetic algorithm
     """
