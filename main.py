@@ -1,11 +1,11 @@
 import sys
 sys.path.append("..")
 
-from PyMetaheuristics import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
-from PyMetaheuristics.SearchMethods import GeneralSearch, MemeticSearch
-from PyMetaheuristics.Operators import OperatorReal, OperatorInt, OperatorBinary
-from PyMetaheuristics.Algorithms import *
-from PyMetaheuristics.benchmarks import *
+from PyEvolComp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from PyEvolComp.SearchMethods import GeneralSearch, MemeticSearch
+from PyEvolComp.Operators import OperatorReal, OperatorInt, OperatorBinary
+from PyEvolComp.Algorithms import *
+from PyEvolComp.benchmarks import *
 
 import argparse
 
@@ -90,7 +90,8 @@ if __name__ == "__main__":
     main()
 
 # if __name__ == "__main__":
-#     from PyMetaheuristics.BaseSearch import parse_stopping_cond, process_condition
-#     a_str = "neval or ngen"
-#     parsed = parse_stopping_cond(a_str).as_list()
+#     from PyEvolComp.BaseSearch import parse_stopping_cond, process_condition
+#     a_str = "neval or ngen and time_limit or ngen and ngen"
+#     parsed = parse_stopping_cond(a_str)
+#     print(parsed)
 #     print(process_condition(parsed, neval=True, ngen=True, real_time=True, target=True))

@@ -1,11 +1,11 @@
 import sys
 sys.path.append("../..")
 
-from PyMetaheuristics import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
-from PyMetaheuristics.Operators import OperatorReal, OperatorInt, OperatorBinary
-from PyMetaheuristics.Algorithms import *
-from PyMetaheuristics.SearchMethods import GeneralSearch, MemeticSearch
-from PyMetaheuristics.Decoders import ImageDecoder
+from PyEvolComp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from PyEvolComp.Operators import OperatorReal, OperatorInt, OperatorBinary
+from PyEvolComp.Algorithms import *
+from PyEvolComp.SearchMethods import GeneralSearch, MemeticSearch
+from PyEvolComp.Decoders import ImageDecoder
 from imgProblem import * 
 
 import pygame

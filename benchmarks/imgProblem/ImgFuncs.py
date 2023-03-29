@@ -1,8 +1,8 @@
 import sys
 sys.path.append("../../..")
 
-from PyMetaheuristics import *
-from PyMetaheuristics.Decoders import ImageDecoder
+from PyEvolComp import *
+from PyEvolComp.Decoders import ImageDecoder
 
 import math
 from numba import jit

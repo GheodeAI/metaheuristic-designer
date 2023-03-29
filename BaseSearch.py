@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-import re
 import pyparsing as pp
 
 class BaseSearch(ABC):

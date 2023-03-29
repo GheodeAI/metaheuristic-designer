@@ -4,7 +4,7 @@ sys.path.append("../..")
 import numpy as np
 import random
 from numba import jit
-from PyMetaheuristics import ObjectiveFunc
+from PyEvolComp import ObjectiveFunc
 
 
 class MaxOnes(ObjectiveFunc):
