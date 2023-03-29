@@ -17,6 +17,8 @@ To configure the hyperparameters a dictionary will have to be given to the class
         - "ngen": stop after a given number of generations
         - "time": stop after a fixed amount of execution time (real time, not CPU time)
         - "fit_target": stop after reaching a desired fitness, accounting for whether we have maximization and minimization
+        - All of the above can be combined with the logical 'or' or 'and' to make more complex stopping conditions,
+        an example can be "ngen or time" which will stop when the number of generations or the time limit is reached.
     - Neval: number of evaluations of the fitness function
     - Ngen: number of generations
     - time_limit: execution time limit given in seconds
@@ -41,9 +43,6 @@ To configure the hyperparameters a dictionary will have to be given to the class
 - mutation adding Laplace noise (Laplace)
 - mutation adding Uniform noise (Uniform)
 - Differential evolution operators (DE/best/1, DE/best/2, DE/rand/1, DE/rand/2, DE/current-to-rand/1, DE/current-to-best/1, DE/current-to-pbest/1)
-- LSHADE operator (LSHADE)
-- reduced Simulated annealing (SA)
-- Harmony search operator (HS)
 - Approximate population with a prob. distribution and sample (RandSample)
 - Approximate population with a prob. distribution and sample on some vector components (MutSample)
 - Placing fixed vector into the population (Dummy) [only intended for debugging]
