@@ -1,9 +1,11 @@
 import sys
 sys.path.append("../..")
 
-from PyMetaheuristics import GeneralSearch, ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
-from PyMetaheuristics.Operators import OperatorReal, OperatorInt, OperatorBinary
-from PyMetaheuristics.Algorithms import *
+from PyEvolComp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from PyEvolComp.Operators import OperatorReal, OperatorInt, OperatorBinary
+from PyEvolComp.Algorithms import *
+from PyEvolComp.SearchMethods import GeneralSearch, MemeticSearch
+from PyEvolComp.Decoders import ImageDecoder
 from imgProblem import * 
 
 import pygame
@@ -21,7 +23,7 @@ import argparse
 
 
 def render(image, display_dim, src):
-    texture = cv2.resize(image.astype(np.uint8).transpose([1,0,2]), display_dim, interpolation = cv2.INTER_NEAREST)
+    texture = cv2.resize(image.transpose([1,0,2]), display_dim, interpolation = cv2.INTER_NEAREST)
     pygame.surfarray.blit_array(src, texture)
     pygame.display.flip()
 
@@ -31,7 +33,7 @@ def save_to_image(image, img_name="result.png"):
     filename = './results/' + img_name
     Image.fromarray(image.astype(np.uint8)).save(filename)
 
-def run_algorithm(alg_name, img_file_name):
+def run_algorithm(alg_name, img_file_name, memetic):
     params = {
         # General
         "stop_cond": "neval",
@@ -53,15 +55,19 @@ def run_algorithm(alg_name, img_file_name):
         src = pygame.display.set_mode(display_dim)
         pygame.display.set_caption("Evo graphics")
 
+    decoder = ImageDecoder(image_shape, color=True)
+
     reference_img = Image.open(img_file_name)
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
-    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
+    #objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
+    objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name, decoder=decoder)
 
-    mutation_op = OperatorInt("MutRand", {"method": "Uniform", "Low":-10, "Up":10, "N":500})
-    cross_op = OperatorInt("Multicross", {"N": 3})
+    mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":15, "N":20})
+    cross_op = OperatorReal("Multicross", {"N":3})
     parent_sel_op = ParentSelection("Best", {"amount": 20})
-    selection_op = SurvivorSelection("(m+n)")
+    #selection_op = SurvivorSelection("(m+n)")
+    selection_op = SurvivorSelection("Elitism", {"amount": 20})
 
     if alg_name == "HillClimb":
         search_strat = HillClimb(mutation_op)
@@ -70,18 +76,27 @@ def run_algorithm(alg_name, img_file_name):
     elif alg_name == "ES":
         search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
     elif alg_name == "GA":
-        search_strat = GA(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.2})
+        search_strat = GA(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.9, "pmut":0.15})
+    elif alg_name == "HS":
+        search_strat = HS({"HMS":100, "HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "SA":
-        search_strat = SA(mutation_op, {"iter":100, "temp_init":30, "alpha":0.99})
+        search_strat = SA(mutation_op, {"iter":100, "temp_init":1, "alpha":0.9975})
     elif alg_name == "DE":
-        search_strat = DE(OperatorReal("DE/best/1", {"F":0.2, "Cr":0.5, "P":0.11}), {"popSize":100})
+        de_op = OperatorReal("DE/best/1", {"F":0.2, "Cr":0.3, "P":0.11})
+        search_strat = DE(de_op, {"popSize":100})
+    elif alg_name == "PSO":
+        search_strat = PSO({"popSize":100, "w":0.7, "c1":1.5, "c2":1.5})
+    elif alg_name == "NoSearch":
+        search_strat = NoSearch({"popSize":100})
     else:
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()
     
-
-    alg = GeneralSearch(search_strat, params)
-
+    if memetic:
+        local_search = LocalSearch(OperatorInt("MutRand", {"method": "Cauchy", "F":3, "N":3}), {"iters":10})
+        alg = MemeticSearch(search_strat, local_search, ParentSelection("Best", {"amount": 10}), params)
+    else:
+        alg = GeneralSearch(search_strat, params)
 
     # Optimize with display of image
     time_start = time.process_time()
@@ -106,7 +121,7 @@ def run_algorithm(alg_name, img_file_name):
         
         if display:
             img_flat = alg.best_solution()[0]
-            render(img_flat.reshape(image_shape + [3]).astype(np.int32), display_dim, src)
+            render(decoder.decode(img_flat), display_dim, src)
             pygame.display.update()
     
     alg.real_time_spent = time.time() - real_time_start
@@ -121,18 +136,23 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", dest='alg', help='Specify an algorithm')
     parser.add_argument("-i", "--image", dest='img', help='Specify an image as reference')
+    parser.add_argument("-m", "--memetic", dest='mem', action="store_true", help='Specify an algorithm')
     args = parser.parse_args()
 
     algorithm_name = "SA"
     img_file_name = "images/cat.png"
+    mem = False
 
     if args.alg:
         algorithm_name = args.alg
     
     if args.img:
         img_file_name = args.img
+    
+    if args.mem:
+        mem = True
    
-    run_algorithm(alg_name = algorithm_name, img_file_name = img_file_name)
+    run_algorithm(alg_name = algorithm_name, img_file_name = img_file_name, memetic=mem)
 
 
 if __name__ == "__main__":

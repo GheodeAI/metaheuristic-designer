@@ -1,65 +1,56 @@
+from __future__ import annotations
 import random
 import numpy as np
+from typing import Union
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
-from ..Operators import Operator
-from .BaseAlgorithm import BaseAlgorithm
+from ..Algorithm import Algorithm
 
 
-class HillClimb(BaseAlgorithm):
+class HillClimb(Algorithm):
     """
     Search strtategy example, HillClimbing
     """
     
-    def __init__(self, perturb_op: Operator, name: str="HillClimb"):
+    def __init__(self, perturb_op: Operator, params: Union[ParamScheduler, dict]={}, name: str="HillClimb"):
         """
         Constructor of the Example search strategy class
         """
 
-        super().__init__(name)
-
-        self.population = [None]
         self.perturb_op = perturb_op
+        self.iterations = params["iters"] if "iters" in params else 1
 
-    def best_solution(self):
-        """
-        Gives the best solution found by the algorithm and its fitness
-        """
-
-        curr_fitness = self.population[0].fitness
-        if self.population[0].objfunc.opt == "min":
-            curr_fitness *= -1
-        return (self.population[0].vector, curr_fitness)
-
-    
-    def initialize(self, objfunc):
-        """
-        Generates a random population of individuals
-        """
-
-        self.population[0] = Indiv(objfunc, objfunc.random_solution())
+        super().__init__(name, popSize=1)
 
     
     def perturb(self, indiv_list, objfunc, progress=0, history=None):
         """
         Performs a step of the algorithm
         """
+        
+        result = []
 
-        indiv = indiv_list[0]
-
-        # Perturb individual
-        new_indiv = self.perturb_op(indiv, indiv_list, objfunc, indiv)
-        new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
+        for indiv in indiv_list:            
+            for i in range(self.iterations):                
+                # Perturb individual
+                new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best)
+                new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
     
-        # Store best vector for individual
-        new_indiv.store_best(indiv)
+                # Store best vector for individual
+                new_indiv.store_best(indiv)
 
-        # If it improves the previous solution keep it
-        if new_indiv.fitness > indiv.fitness:
-            indiv = new_indiv        
+                # If it improves the previous solution keep it
+                if new_indiv.fitness > indiv.fitness:
+                    indiv = new_indiv        
+            
+            result.append(indiv)
+
+        curr_best = max(result, key=lambda x: x.fitness)
+        if curr_best.fitness > self.best.fitness:
+            self.best = curr_best
                 
-        return [indiv]
-
+        return result
+    
     
     def update_params(self, progress):
         """

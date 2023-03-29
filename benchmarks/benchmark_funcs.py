@@ -4,7 +4,7 @@ sys.path.append("../..")
 import numpy as np
 import random
 from numba import jit
-from PyMetaheuristics import ObjectiveFunc
+from PyEvolComp import ObjectiveFunc
 
 
 class MaxOnes(ObjectiveFunc):
@@ -24,7 +24,7 @@ class MaxOnes(ObjectiveFunc):
         return (np.random.random(self.size) < 0.5).astype(np.int32)
     
     def repair_solution(self, solution):
-        return (solution.copy() >= 0.5).astype(np.int32)
+        return (solution >= 0.5).astype(np.int32)
 
 class DiophantineEq(ObjectiveFunc):
     def __init__(self, size, coeff, target, opt="min"):

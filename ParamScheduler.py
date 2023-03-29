@@ -3,6 +3,12 @@ import numpy as np
 import math 
 
 
+_par_sch_methods = [
+    "linear",
+    "exp"
+]
+
+
 class ParamScheduler:
     """
     This class is responsible of varying the parameters of an algorithm over time.
@@ -13,13 +19,18 @@ class ParamScheduler:
         Constructor for the ParamScheduler class
         """
 
+        self.strategy = strategy.lower()
+
+        if strategy.lower() not in _par_sch_methods:
+            raise ValueError(f"Parameter scheduler strategy \"{self.name}\" not defined")
+
         self.param_schedule = param_schedule
-        self.strategy = strategy
+        
 
         self.reset()
 
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: str) -> type:
         """
         Gets the current value of a parameter given it's name
         """
@@ -27,14 +38,14 @@ class ParamScheduler:
         return self.current_params[idx]
     
 
-    def __setitem__(self, idx, value):
+    def __setitem__(self, idx: str, value: type):
         """
         Sets the current value of a parameter given it's name
         """
 
         self.current_params[idx] = value
     
-    def __contains__(self, value):
+    def __contains__(self, value: str) -> bool:
         """
         Gets wether an element is inside the dictionary or not
         """
@@ -55,7 +66,7 @@ class ParamScheduler:
                 self.current_params[key] = self.param_schedule[key][0]    
 
 
-    def get_params(self):
+    def get_params(self) -> dict:
         """
         Returns a dictionary containing the current parameters
         """
@@ -63,12 +74,12 @@ class ParamScheduler:
         return self.current_params
 
 
-    def step(self, progress):
+    def step(self, progress: float):
         """
         Changes the values of the parameters interpolating between the initial and final values.
         """
 
-        if self.strategy == "Linear":
+        if self.strategy == "linear":
 
             for key in self.param_schedule:
                 if type(self.param_schedule[key]) in (list, tuple):
@@ -76,7 +87,7 @@ class ParamScheduler:
                     end_param = self.param_schedule[key][1]
                     self.current_params[key] = (1-progress)*start_param + progress*end_param
                 
-        elif self.strategy == "Exp":
+        elif self.strategy == "exp":
             # with f(x) = k·e^{a·x}+b,  f(0) = p[0],  f(1) = p[1] 
             for key in self.param_schedule:
                 if type(self.param_schedule[key]) in (list, tuple):

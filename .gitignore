@@ -4,5 +4,5 @@ __pycache__/*
 */__pycache__/*
 stats/
 stats/*
-benchmarks/results/*
+benchmarks/results
 benchmarks/results/*

@@ -1,8 +1,45 @@
-from .Operator import Operator
+from ..Operator import Operator
 from ..ParamScheduler import ParamScheduler
 from typing import Union
-from .operator_functions import *
+from copy import copy
+from .vector_operator_functions import *
 
+_real_ops = [
+    "1point",
+    "2point",
+    "multipoint",
+    "weightedAvg",
+    "blxalpha",
+    "multicross",
+    "xor",
+    "xorcross",
+    "crossinteravg",
+    "perm",
+    "gauss",
+    "laplace",
+    "cauchy",
+    "uniform",
+    "poisson",
+    "mutrand",
+    "mutnoise",
+    "randnoise",
+    "randsample",
+    "mutsample",
+    "de/rand/1",
+    "de/best/1",
+    "de/rand/2",
+    "de/best/2",
+    "de/current-to-rand/1",
+    "de/current-to-best/1",
+    "de/current-to-pbest/1",
+    "pso",
+    "firefly",
+    "random",
+    "randommask",
+    "dummy",
+    "custom",
+    "nothing"
+]
 
 class OperatorInt(Operator):
     """
@@ -13,6 +50,9 @@ class OperatorInt(Operator):
         """
         Constructor for the Operator class
         """
+
+        if name.lower() not in _int_ops:
+            raise ValueError(f"Integer operator \"{self.name}\" not defined")
 
         super().__init__(name, params)
     
@@ -38,123 +78,105 @@ class OperatorInt(Operator):
             params["N"] = round(params["N"])
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(np.random.random(indiv.vector.size) < params["Cr"])
+            params["N"] = np.count_nonzero(np.random.random(indiv.genotype.size) < params["Cr"])
 
         params["N"] = round(params["N"])
         
 
         if self.name == "1point":
-            new_indiv.vector = cross1p(new_indiv.vector, indiv2.vector.copy())
+            new_indiv.genotype = cross1p(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.name == "2point":
-            new_indiv.vector = cross2p(new_indiv.vector, indiv2.vector.copy())
+            new_indiv.genotype = cross2p(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.name == "multipoint":
-            new_indiv.vector = crossMp(new_indiv.vector, indiv2.vector.copy())
+            new_indiv.genotype = crossMp(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.name == "weightedAvg":
-            new_indiv.vector = weightedAverage(new_indiv.vector, indiv2.vector.copy(), params["F"])
+            new_indiv.genotype = weightedAverage(new_indiv.genotype, indiv2.genotype.copy(), params["F"])
 
         elif self.name == "blxalpha":
-            new_indiv.vector = blxalpha(new_indiv.vector, indiv2.vector.copy(), params["Cr"])
+            new_indiv.genotype = blxalpha(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
             
         elif self.name == "multicross":
-            new_indiv.vector = multiCross(new_indiv.vector, others, params["N"])
+            new_indiv.genotype = multiCross(new_indiv.genotype, others, params["N"])
         
         elif self.name == "xor":
-            new_indiv.vector = xorMask(new_indiv.vector, self.params["N"])
+            new_indiv.genotype = xorMask(new_indiv.genotype, self.params["N"])
 
         elif self.name == "xorcross":
-            new_indiv.vector = xorCross(new_indiv.vector, solution2.vector.copy())
+            new_indiv.genotype = xorCross(new_indiv.genotype, solution2.genotype.copy())
 
         elif self.name == "crossinteravg":
-            new_indiv.vector = crossInterAvg(new_indiv.vector, others, params["N"])
+            new_indiv.genotype = crossInterAvg(new_indiv.genotype, others, params["N"])
 
         elif self.name == "perm":
-            new_indiv.vector = permutation(new_indiv.vector, params["N"])
+            new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
 
         elif self.name == "gauss":
-            new_indiv.vector = gaussian(new_indiv.vector, params["F"])
+            new_indiv.genotype = gaussian(new_indiv.genotype, params["F"])
 
         elif self.name == "laplace":
-            new_indiv.vector = laplace(new_indiv.vector, params["F"])
+            new_indiv.genotype = laplace(new_indiv.genotype, params["F"])
             
         elif self.name == "cauchy":
-            new_indiv.vector = cauchy(new_indiv.vector, params["F"])
+            new_indiv.genotype = cauchy(new_indiv.genotype, params["F"])
 
         elif self.name == "uniform":
-            new_indiv.vector = uniform(new_indiv.vector, params["Low"], params["Up"])
+            new_indiv.genotype = uniform(new_indiv.genotype, params["Low"], params["Up"])
         
         elif self.name == "poisson":
-            new_indiv.vector = poisson(new_indiv.vector, self.params["F"])
+            new_indiv.genotype = poisson(new_indiv.genotype, self.params["F"])
 
         elif self.name == "mutrand" or self.name == "mutnoise":
-            new_indiv.vector = mutateRand(new_indiv.vector, others, params)
+            new_indiv.genotype = mutateRand(new_indiv.genotype, others, params)
 
         elif self.name == "randnoise":
-            new_indiv.vector = randNoise(new_indiv.vector, params)
+            new_indiv.genotype = randNoise(new_indiv.genotype, params)
 
         elif self.name == "randsample":
-            new_indiv.vector = randSample(new_indiv.vector, others, params)
+            new_indiv.genotype = randSample(new_indiv.genotype, others, params)
 
         elif self.name == "mutsample":
-            new_indiv.vector = mutateSample(new_indiv.vector, others, params)
+            new_indiv.genotype = mutateSample(new_indiv.genotype, others, params)
 
         elif self.name == "de/rand/1":
-            new_indiv.vector = DERand1(new_indiv.vector, others, params["F"], params["Cr"])
+            new_indiv.genotype = DERand1(new_indiv.genotype, others, params["F"], params["Cr"])
 
         elif self.name == "de/best/1":
-            new_indiv.vector = DEBest1(new_indiv.vector, others, params["F"], params["Cr"])
+            new_indiv.genotype = DEBest1(new_indiv.genotype, others, params["F"], params["Cr"])
 
         elif self.name == "de/rand/2":
-            new_indiv.vector = DERand2(new_indiv.vector, others, params["F"], params["Cr"])
+            new_indiv.genotype = DERand2(new_indiv.genotype, others, params["F"], params["Cr"])
 
         elif self.name == "de/best/2":
-            new_indiv.vector = DEBest2(new_indiv.vector, others, params["F"], params["Cr"])
+            new_indiv.genotype = DEBest2(new_indiv.genotype, others, params["F"], params["Cr"])
 
         elif self.name == "de/current-to-rand/1":
-            new_indiv.vector = DECurrentToRand1(new_indiv.vector, others, params["F"], params["Cr"])
+            new_indiv.genotype = DECurrentToRand1(new_indiv.genotype, others, params["F"], params["Cr"])
 
         elif self.name == "de/current-to-best/1":
-            new_indiv.vector = DECurrentToBest1(new_indiv.vector, others, params["F"], params["Cr"])
+            new_indiv.genotype = DECurrentToBest1(new_indiv.genotype, others, params["F"], params["Cr"])
 
         elif self.name == "de/current-to-pbest/1":
-            new_indiv.vector = DECurrentToPBest1(new_indiv.vector, others, params["F"], params["Cr"], params["P"])
-
-        elif self.name == "lshade":
-            params["Cr"] = np.clip(np.random.normal(params["Cr"], 0.1), 0, 1)
-            params["F"] = np.clip(np.random.normal(params["F"], 0.1), 0, 1)
-
-            new_indiv.vector = DECurrentToPBest1(new_indiv.vector, others, params["F"], params["Cr"])      
-
-        elif self.name == "sa":
-            new_indiv.vector = simAnnealing(indiv, params["F"], objfunc, params["temp_ch"], params["iter"])
-
-        elif self.name == "hs":
-            new_indiv.vector = harmonySearch(new_indiv.vector, others, params["F"], params["Cr"], params["Par"])
+            new_indiv.genotype = DECurrentToPBest1(new_indiv.genotype, others, params["F"], params["Cr"], params["P"])
 
         elif self.name == "random":
-            new_indiv.vector = objfunc.random_solution()
+            new_indiv.genotype = objfunc.random_solution()
 
         elif self.name == "randommask":
-            mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.vector.size - params["N"])]).astype(bool)
+            mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
             np.random.shuffle(mask_pos)
 
-            new_indiv.vector[mask_pos] = objfunc.random_solution()[mask_pos]
+            new_indiv.genotype[mask_pos] = objfunc.random_solution()[mask_pos]
 
         elif self.name == "dummy":
-            new_indiv.vector = dummyOp(new_indiv.vector, params["F"])
-
-        elif self.name == "nothing":
-            pass
+            new_indiv.genotype = dummyOp(new_indiv.genotype, params["F"])
 
         elif self.name == "custom":
             fn = params["function"]
-            new_indiv.vector = fn(indiv, population, objfunc, params)
-
-        else:
-            print(f"Error: evolution method \"{self.name}\" not defined")
-            exit(1)
+            new_indiv.genotype = fn(indiv, population, objfunc, params)
         
             
-        return np.round(new_indiv)
+        new_indiv.genotype = np.round(new_indiv.genotype)
+        return new_indiv

@@ -1,7 +1,15 @@
+from __future__ import annotations
+from typing import Union, List
+from .ParamScheduler import *
 import random
 import numpy as np
-from typing import Union
-from .ParamScheduler import *
+
+
+_parent_sel_methods = [
+    "tournament",
+    "best",
+    "nothing"   
+]
 
 
 class ParentSelection:
@@ -15,6 +23,9 @@ class ParentSelection:
         """
 
         self.name = name.lower()
+
+        if name.lower() not in _parent_sel_methods:
+            raise ValueError(f"Parent selection method \"{self.name}\" not defined")
         
         self.param_scheduler = None
         if params is None:
@@ -26,7 +37,7 @@ class ParentSelection:
             self.params = params
     
 
-    def __call__(self, population):
+    def __call__(self, population: List[Indiv]):
         """
         Shorthand for calling the 'select' method
         """
@@ -34,7 +45,7 @@ class ParentSelection:
         return self.select(population)
 
 
-    def step(self, progress):
+    def step(self, progress: float):
         """
         Updates the parameters of the method using a paramater scheduler if it exists
         """
@@ -44,45 +55,69 @@ class ParentSelection:
             self.params = self.param_scheduler.get_params()
 
 
-    def select(self, population): 
+    def select(self, population: List[Indiv]) -> List[Indiv]: 
         """
-        Evolves a solution with a different strategy depending on the type of operator
+        Selects a subsection of the population along with the indices of each individual in the original population
         """
         
-        result = []
+        parents = []
+        order = []
         if self.name == "tournament":
-            result = tournament(population, self.params["amount"], self.params["p"])
+            parents, order = prob_tournament(population, self.params["amount"], self.params["p"])
 
         elif self.name == "best":
-            result = select_best(population, self.params["amount"])
+            parents, order = select_best(population, self.params["amount"])
 
         elif self.name == "nothing":
-            result = population
-            
-        else:
-            print(f"Error: parent selection method \"{self.name}\" not defined")
-            exit(1)
+            parents, order = population, range(len(population))
         
-        return result
+        return parents, order
 
 
 def select_best(population, amount):
+    """
+    Selects the best parent of the population as parents
+    """
+
     amount = round(amount)
-    return sorted(population, reverse=True, key = lambda x: x.fitness)[:amount]
+
+    # Get the fitness of all the individuals
+    fitness_list = np.fromiter(map(lambda x: x.fitness, population), dtype=float)
+
+    # Get the index of the individuals sorted by fitness 
+    order = np.argsort(fitness_list)[::-1][:amount]
+    
+    # Select the 'amount' best individuals
+    parents = [population[i] for i in order]
+
+    return parents, order
 
 
-def tournament(population, tourn_size, prob):
+def prob_tournament(population, tourn_size, prob):
+    """
+    Selects the parents for the next generation by tournament
+    """
+
     parent_pool = []
-    for _ in range(len(population)):
-        parents = random.sample(population, tourn_size)
+    order = []
+    
+
+    for _ in population:
+
+        # Choose 'tourn_size' individuals for the torunament
+        parent_idxs = random.sample(range(len(population)), tourn_size)
+        parents = [population[i] for i in parent_idxs]
         fits = [i.fitness for i in parents]
 
-        parent = None
+        # Choose one of the individuals
         if random.random() < prob:
-            parent = random.choice(parents)
+            idx = random.randint(0,tourn_size-1)
         else:
-            parent = parents[fits.index(max(fits))]
-        
+            idx = fits.index(max(fits))
+
+        # Add the individuals to the list
+        order.append(parent_idxs[idx])
+        parent = parents[idx]
         parent_pool.append(parent)
-    
-    return parent_pool
+
+    return parent_pool, order

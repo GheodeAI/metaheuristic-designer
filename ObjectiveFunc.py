@@ -1,5 +1,7 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
-
+import numpy as np
+from .Decoders import DefaultDecoder
 
 class ObjectiveFunc(ABC):
     """
@@ -10,7 +12,7 @@ class ObjectiveFunc(ABC):
     mutation function and crossing of solutions.
     """
 
-    def __init__(self, input_size: int, opt: str, name: str="some function"):
+    def __init__(self, input_size: int, opt: str, name: str = "some function", decoder: BaseDecoder = None):
         """
         Constructor for the AbsObjectiveFunc class
         """
@@ -20,35 +22,39 @@ class ObjectiveFunc(ABC):
         self.input_size = input_size
         self.factor = 1
         self.opt = opt
+        self.decoder = decoder
+        if decoder is None:
+            self.decoder = DefaultDecoder()
+        
         if self.opt == "min":
             self.factor = -1
     
 
-    def __call__(self, indiv, adjusted=True):
+    def __call__(self, indiv: Indiv, adjusted: bool = True):
         """
         Shorthand for executing the objective function on a vector.
         """
         
         return self.fitness(indiv, adjusted)
-
-
-    def decode(self, indiv):
-        """
-        Transforms the vector contained inside an individual in our algorithm to an
-        usable format for our objective function.
-        """
-
-        return indiv.vector
     
+    
+    def set_decoder(self, decoder: BaseDecoder):
+        """
+        Sets the decoder
+        """
 
-    def fitness(self, indiv, adjusted=True):
+        self.decoder = decoder
+        
+
+    def fitness(self, indiv: Indiv, adjusted: bool = True) -> float:
         """
         Returns the value of the objective function given a vector changing the sign so that
         the optimization problem is solved by maximizing the fitness function.
         """
 
         self.counter += 1
-        value = self.objective(self.decode(indiv))
+        solution = self.decoder.decode(indiv.genotype)
+        value = self.objective(solution)
 
         if adjusted:
             value = self.factor * value - self.penalize(indiv)
@@ -57,27 +63,34 @@ class ObjectiveFunc(ABC):
     
 
     @abstractmethod
-    def objective(self, vector):
+    def objective(self, vector: np.ndarray) -> float:
         """
         Implementation of the objective function.
         """
     
 
     @abstractmethod
-    def random_solution(self):
+    def random_solution(self) -> np.ndarray:
         """
         Returns a random vector that represents one viable solution to our optimization problem. 
         """
     
 
     @abstractmethod
-    def repair_solution(self, vector):
+    def repair_solution(self, vector: np.ndarray) -> np.ndarray:
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
         """
     
+    def repair_speed(self, speed):
+        """
+        Transforms an invalid vector into one that satisfies the restrictions of the problem.
+        """
 
-    def penalize(self, indiv):
+        return self.repair_solution(speed)
+    
+
+    def penalize(self, indiv: Indiv) -> float:
         """
         Gives a penalization to the fitness value of an individual if it violates any constraints propotional
         to how far it is to a viable solution.

@@ -1,8 +1,18 @@
+from __future__ import annotations
+from typing import Union, List, Tuple
 import random
 import numpy as np
 from typing import Union
 from .ParamScheduler import *
 
+_surv_methods = [
+    "elitism",
+    "condelitism",
+    "generational",
+    "one-to-one",
+    "(m+n)",
+    "(m,n)"
+]
 
 class SurvivorSelection:
     """
@@ -16,6 +26,9 @@ class SurvivorSelection:
 
         self.name = name.lower()
 
+        if name.lower() not in _surv_methods:
+            raise ValueError(f"Survivor selection method \"{self.name}\" not defined")
+
         self.param_scheduler = None
         if params is None:
             self.params = {"amount": 10, "p":0.1}
@@ -26,7 +39,7 @@ class SurvivorSelection:
             self.params = params
     
 
-    def __call__(self, popul, offspring):
+    def __call__(self, popul: List[Indiv], offspring: List[Indiv]) -> List[Indiv]:
         """
         Shorthand for calling the 'select' method
         """
@@ -34,7 +47,7 @@ class SurvivorSelection:
         return self.select(popul, offspring)
     
 
-    def step(self, progress):
+    def step(self, progress: float):
         """
         Updates the parameters of the method using a paramater scheduler if it exists
         """
@@ -44,7 +57,7 @@ class SurvivorSelection:
             self.params = self.param_scheduler.get_params()
     
     
-    def select(self, popul, offspring):     
+    def select(self, popul: List[Indiv], offspring: List[Indiv]) -> List[Indiv]:     
         """
         Takes a population with its offspring and returns the individuals that survive
         to produce the next generation.
@@ -68,10 +81,6 @@ class SurvivorSelection:
 
         elif self.name == "(m,n)":
             result = lamb_comma_mu(popul, offspring)
-
-        else:
-            print(f"Error: parent selection method \"{self.name}\" not defined")
-            exit(1)
         
         return result
 

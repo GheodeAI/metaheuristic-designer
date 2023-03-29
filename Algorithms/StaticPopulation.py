@@ -1,14 +1,14 @@
+from __future__ import annotations
 import random
 import numpy as np
 from typing import List, Union
 from ..Individual import Indiv
 from ..ParamScheduler import ParamScheduler
-from ..Operators import Operator
 from ..SurvivorSelection import SurvivorSelection
-from .BaseAlgorithm import BaseAlgorithm
+from ..Algorithm import Algorithm
 
 
-class StaticPopulation(BaseAlgorithm):
+class StaticPopulation(Algorithm):
     """
     Population of the Genetic algorithm
     """
@@ -34,31 +34,7 @@ class StaticPopulation(BaseAlgorithm):
         # Population initialization
         if population is not None:
             self.population = population
-
-    def best_solution(self):
-        """
-        Gives the best solution found by the algorithm and its fitness
-        """
-
-        best_fitness = self.best.fitness
-        if self.best.objfunc.opt == "min":
-            best_fitness *= -1        
-
-        return self.best.vector, best_fitness
-
-    def initialize(self, objfunc):
-        """
-        Generates a random population of individuals
-        """
-
-        self.population = []
-        for i in range(self.size):
-            new_indiv = Indiv(objfunc, objfunc.random_solution())
-
-            if self.best is None or self.best.fitness < new_indiv.fitness:
-                self.best = new_indiv
-            
-            self.population.append(new_indiv)
+    
     
     def perturb(self, parent_list, objfunc, progress=0, history=None):
         offspring = []
@@ -66,8 +42,8 @@ class StaticPopulation(BaseAlgorithm):
 
             # Apply operator
             new_indiv = self.operator(indiv, parent_list, objfunc, self.best)
-            new_indiv.vector = objfunc.repair_solution(new_indiv.vector)
-            new_indiv.speed = objfunc.repair_solution(new_indiv.speed)
+            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
+            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 
             # Store best vector for individual
             new_indiv.store_best(indiv)
