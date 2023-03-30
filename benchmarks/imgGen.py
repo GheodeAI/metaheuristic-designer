@@ -48,7 +48,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
 
     display = True
     display_dim = [600, 600]
-    image_shape = [64, 64]
+    image_shape = [48, 48]
 
     if display:
         pygame.init()

@@ -7,7 +7,6 @@ import scipy.stats
 
 def expand(input_list, n, method):
     result = input_list
-    
     if method == "right":
         result = expand_right(input_list, n)
     elif method == "left":
