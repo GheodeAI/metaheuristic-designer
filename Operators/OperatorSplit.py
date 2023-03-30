@@ -11,7 +11,7 @@ class OperatorSplit(Operator):
     Operator class that has discrete mutation and cross methods
     """
 
-    def __init__(self, op_list: List[Operator], mask: np.ndarray):
+    def __init__(self, op_list: List[Operator], mask: np.ndarray, name=None):
         """
         Constructor for the Operator class
         """
@@ -21,7 +21,7 @@ class OperatorSplit(Operator):
 
         name = "+".join([op.name for op in op_list if op.name.lower() != "nothing"])
 
-        super().__init__(name, {})
+        super().__init__(name, {}, name)
     
     
     def evolve(self, indiv, population, objfunc, global_best=None):

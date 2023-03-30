@@ -26,15 +26,15 @@ class OperatorBinary(Operator):
     Operator class that has discrete mutation and cross methods
     """
 
-    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict]=None):
         """
         Constructor for the Operator class
         """
 
-        if name.lower() not in _bin_ops:
-            raise ValueError(f"Binary operator \"{self.name}\" not defined")
+        super().__init__(method, params)
 
-        super().__init__(name, params)
+        if self.method not in _bin_ops:
+            raise ValueError(f"Binary operator \"{self.method}\" not defined")
     
     
     def evolve(self, indiv, population, objfunc, global_best=None):
@@ -63,48 +63,48 @@ class OperatorBinary(Operator):
         params["N"] = round(params["N"])
         
         
-        if self.name == "1point":
+        if self.method == "1point":
             new_indiv.genotype = cross1p(new_indiv.genotype, solution2.genotype.copy())
 
-        elif self.name == "2point":
+        elif self.method == "2point":
             new_indiv.genotype = cross2p(new_indiv.genotype, solution2.genotype.copy())
 
-        elif self.name == "multipoint":
+        elif self.method == "multipoint":
             new_indiv.genotype = crossMp(new_indiv.genotype, solution2.genotype.copy())
 
-        elif self.name == "multicross":
+        elif self.method == "multicross":
             new_indiv.genotype = multiCross(new_indiv.genotype, others, params["N"])
 
-        elif self.name == "perm":
+        elif self.method == "perm":
             new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
 
-        elif self.name == "xor" or self.name == "fliprandom":
+        elif self.method == "xor" or self.method == "fliprandom":
             new_indiv.genotype = xorMask(new_indiv.genotype, params["N"], mode="bin")
 
-        elif self.name == "xorcross" or self.name == "flipcross":
+        elif self.method == "xorcross" or self.method == "flipcross":
             new_indiv.genotype = xorCross(new_indiv.genotype, solution2.genotype.copy())
 
-        elif self.name == "randsample":
+        elif self.method == "randsample":
             params["method"] = "bernouli"
             new_indiv.genotype = randSample(new_indiv.genotype, population, params)
 
-        elif self.name == "mutsample":
+        elif self.method == "mutsample":
             params["method"] = "bernouli"
             new_indiv.genotype = mutateSample(new_indiv.genotype, population, params)
         
-        elif self.name == "random":
+        elif self.method == "random":
             new_indiv.genotype = objfunc.random_solution()
         
-        elif self.name == "randommask":
+        elif self.method == "randommask":
             mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
             np.random.shuffle(mask_pos)
 
             new_indiv.genotype[mask_pos] = objfunc.random_solution()[mask_pos]
 
-        elif self.name == "dummy":
+        elif self.method == "dummy":
             new_indiv.genotype = dummyOp(new_indiv.genotype, params["F"])
 
-        elif self.name == "custom":
+        elif self.method == "custom":
             fn = params["function"]
             new_indiv.genotype = fn(indiv, population, objfunc, params)
 
