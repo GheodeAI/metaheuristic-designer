@@ -21,6 +21,10 @@ class Algorithm(ABC):
         self.population = []
         self.best = None
 
+        self.parent_sel = []
+        self.operators = []
+        self.surv_sel = []
+
 
     def best_solution(self) -> Tuple(Indiv, float):
         """
@@ -79,7 +83,31 @@ class Algorithm(ABC):
         """
         Updates the parameters and the operators
         """
+        
 
+    def get_state(self):
+        """
+        Gets the current state of the algorithm as a dictionary.
+        """
+
+        data = {
+            "name": self.name,
+            "population_size": self.popsize,
+            "best_individual": self.best.get_state(),
+        }
+
+        if self.parent_sel:
+            data["parent_sel"] = [par.get_state() for par in self.parent_sel]
+        
+        if self.operators:
+            data["operators"] = [op.get_state() for op in self.operators]
+        
+        if self.surv_sel:
+            data["survivor_sel"] = [surv.get_state() for surv in self.surv_sel]
+        
+        data["population"] = [ind.get_state() for ind in self.population]
+
+        return data
 
     def extra_step_info(self):
         """

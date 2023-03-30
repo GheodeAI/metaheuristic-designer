@@ -8,6 +8,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import pyparsing as pp
+import json
 
 class Search(ABC):
     """
@@ -180,6 +181,44 @@ class Search(ABC):
         
         return self.best_solution()
     
+    def get_state(self, objfunc):
+        """
+        Gets the current state of the algorithm as a dictionary
+        """
+        
+        data = {
+            "ended": self.ended,
+            "generation": self.steps,
+            "evaluations": objfunc.counter,
+            "time_spent": self.time_spent,
+            "real_time_spent": self.time_spent,
+            "fit_history": self.fit_history,
+            "best_history": self.best_history,
+            "search_strat_state": self.search_strategy.get_state()
+        }
+        
+        return data
+    
+    def store_state(self, objfunc, file_name="dumped_state.json"):
+        """
+        Dumps the current state of the algorithm to a file.
+
+        Everything will be stored in a JSON file.
+        """
+
+        dumped = json.dumps(self.get_state(objfunc), cls=NumpyEncoder, indent=4)
+
+        print(dumped)
+
+        with open(file_name, "w") as fp:
+            fp.write(dumped)
+    
+    
+    def load_state(self, objfunc):
+        """
+        Loads the state of the algorithm from a file
+        """
+    
     @abstractmethod
     def step_info(self, objfunc, start_time):
         """
@@ -191,7 +230,19 @@ class Search(ABC):
         """
         Shows a summary of the execution of the algorithm
         """
-    
+
+
+class NumpyEncoder(json.JSONEncoder):
+    """ Special json encoder for numpy types """
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
 # Stopping condition string parsing methods
 
 def parse_stopping_cond(condition_str):

@@ -9,20 +9,20 @@ class Indiv:
     its fitness.
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, vector: np.ndarray, speed: np.ndarray = None, operator: Operator=None):
+    def __init__(self, objfunc: ObjectiveFunc, genotype: Any, speed: np.ndarray = None, operator: Operator=None):
         """
         Constructor of the Individual class.
         """
 
         self.objfunc = objfunc
-        self._genotype = vector
+        self._genotype = genotype
         self.speed = speed
-        if speed is None:
-            self.speed = np.zeros_like(vector)
+        if speed is None and isinstance(genotype, np.ndarray):
+            self.speed = np.zeros_like(genotype)
         self.operator = operator
         self._fitness = 0
         self.fitness_calculated = False
-        self.best = vector
+        self.best = genotype
         self.is_dead = False
     
 
@@ -104,3 +104,19 @@ class Indiv:
         
         self._fitness = fit
         self.fitness_calculated = True
+    
+    def get_state(self):
+        """
+        Gets the current state of the algorithm as a dictionary.
+        """
+
+        data = {
+            "genotype": self._genotype,
+            "speed": self.speed,
+            "operator": self.operator.name if self.operator else None,
+            "fitness_calculated": self.fitness_calculated,
+            "fitness": self._fitness,
+            "best_genotype": self.best
+        }
+
+        return data

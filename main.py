@@ -13,11 +13,11 @@ def run_algorithm(alg_name, memetic):
     params = {
         # General
         "stop_cond": "neval or time_limit or fit_target",
-        "time_limit": 1.0,
+        "time_limit": 20.0,
         "cpu_time_limit": 100.0,
         "ngen": 1000,
         "neval": 6e5,
-        "fit_target": 1e-3,
+        "fit_target": 1e-10,
 
         "verbose": True,
         "v_timer": 0.5
@@ -66,7 +66,8 @@ def run_algorithm(alg_name, memetic):
     
     ind, fit = alg.optimize(objfunc)
     print(ind)
-    alg.display_report(objfunc)
+    alg.display_report(objfunc, show_plots=False)
+    alg.store_state(objfunc, "test.json")
 
 
 def main():
