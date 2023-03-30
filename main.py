@@ -12,8 +12,9 @@ import argparse
 def run_algorithm(alg_name, memetic):
     params = {
         # General
-        "stop_cond": "neval or time_limit or fit_target",
-        "time_limit": 20.0,
+        "stop_cond": "neval or time_limit",
+        "progress_metric": "time_limit",
+        "time_limit": 10.0,
         "cpu_time_limit": 100.0,
         "ngen": 1000,
         "neval": 6e5,
@@ -23,26 +24,32 @@ def run_algorithm(alg_name, memetic):
         "v_timer": 0.5
     }
 
-    # ["neval", "ngen", "real_time", "cpu_time", "fit_target"]
-
     objfunc = Sphere(10, "min")
 
-    mutation_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.001})
+    mut_params = ParamScheduler("Linear", {"method":"Cauchy", "F": [0.01, 0.00001]})
+    parent_params = ParamScheduler("Linear", {"amount": 20})
+    # select_params = ParamScheduler("Linear")
+
+    mutation_op = OperatorReal("RandNoise", mut_params)
     cross_op = OperatorReal("Multipoint")
-    parent_sel_op = ParentSelection("Best", {"amount": 20})
+    parent_sel_op = ParentSelection("Best", parent_params)
     selection_op = SurvivorSelection("(m+n)")
 
-
+    
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.0001})
+    neihbourhood_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.0002})
     local_search =  LocalSearch(neihbourhood_op, {"iters":10})
+
+    
 
     if alg_name == "HillClimb":
         search_strat = HillClimb(mutation_op)
     elif alg_name == "LocalSearch":
         search_strat = LocalSearch(mutation_op, {"iters":20})
     elif alg_name == "ES":
-        search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
+        # search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
+        es_params = ParamScheduler("Linear", {"popSize":100, "offspringSize":[200, 10]})
+        search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, es_params)
     elif alg_name == "HS":
         search_strat = HS({"HMS":100, "HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "GA":
@@ -67,7 +74,7 @@ def run_algorithm(alg_name, memetic):
     ind, fit = alg.optimize(objfunc)
     print(ind)
     alg.display_report(objfunc, show_plots=False)
-    alg.store_state(objfunc, "test.json")
+    alg.store_state(objfunc, "test.json", readable=False)
 
 
 def main():

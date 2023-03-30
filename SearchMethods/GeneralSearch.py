@@ -38,19 +38,11 @@ class GeneralSearch(Search):
         
         best_individual, best_fitness = self.search_strategy.best_solution()
         self.search_strategy.update_params(self.progress)
-        self.steps += 1
-            
+
         # Store information
         self.best_history.append(best_individual)
         self.fit_history.append(best_fitness)
 
-        # Display information
-        if verbose:
-            self.step_info(time_start)
-        
-        # Update internal state
-        self.update(self.steps, time_start, objfunc)
-        
         return (best_individual, best_fitness)
         
     
@@ -60,7 +52,8 @@ class GeneralSearch(Search):
         """
 
         print(f"Optimizing {objfunc.name} using {self.search_strategy.name}:")
-        print(f"\tTime Spent {round(time.time() - start_time,2)} s")
+        print(f"\tReal time Spent: {round(time.time() - start_time,2)} s")
+        print(f"\tCPU time Spent:  {round(time.time() - start_time,2)} s")
         print(f"\tGeneration: {self.steps}")
         best_fitness = self.best_solution()[1]
         print(f"\tBest fitness: {best_fitness}")
@@ -77,7 +70,7 @@ class GeneralSearch(Search):
         # Print Info
         print("Number of generations:", len(self.fit_history))
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
-        print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
+        print("CPU time spent: ", round(self.cpu_time_spent, 5), "s", sep="")
         print("Number of fitness evaluations:", objfunc.counter)
         
         best_fitness = self.best_solution()[1]

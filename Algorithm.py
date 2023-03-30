@@ -1,7 +1,11 @@
 from __future__ import annotations
-from typing import Tuple, List
+from typing import Tuple, List, Union
 from abc import ABC, abstractmethod
 from .Individual import Indiv
+from .ParentSelection import ParentSelection
+from .Operator import Operator
+from .SurvivorSelection import SurvivorSelection
+from .ParamScheduler import ParamScheduler
 import time
 
 
@@ -11,19 +15,60 @@ class Algorithm(ABC):
     Note: for methods that use only one solution at a time, use a population of length 1 to store it.
     """
 
-    def __init__(self, name: str="some algorithm", popSize: int = 100):
+    def __init__(self, name: str="some algorithm", popSize: int = 100, params: Union[ParamScheduler, dict]=None, population=None):
         """
         Constructor of the GeneticPopulation class
         """
 
         self.name = name
         self.popsize = popSize
-        self.population = []
+
+        if population is None:
+            self.population = []
+        else:
+            self.population = population
+        
         self.best = None
+
+        self.param_scheduler = None
+        if params is None:
+            self.params = {}
+        elif isinstance(params, ParamScheduler):
+            self.param_scheduler = params
+            self.params = self.param_scheduler.get_params()
+        else:
+            self.params = params
+
+        self._find_operator_attributes()
+
+    
+    def _find_operator_attributes(self):
+        attr_dict = vars(self).copy()
 
         self.parent_sel = []
         self.operators = []
         self.surv_sel = []
+
+        for var_key in attr_dict:
+            
+            attr = attr_dict[var_key]
+
+            if attr:
+                # We have a parent selection method
+                if isinstance(attr, ParentSelection):
+                    self.parent_sel.append(attr)
+
+                # We have an operator
+                if isinstance(attr, Operator):
+                    self.operators.append(attr)
+
+                # We have a survivor selection method
+                if isinstance(attr, SurvivorSelection):
+                    self.surv_sel.append(attr)
+                
+                # We have a list of operators
+                if isinstance(attr, list) and isinstance(attr[0], Operator):
+                    self.operators += attr
 
 
     def best_solution(self) -> Tuple(Indiv, float):
@@ -93,8 +138,13 @@ class Algorithm(ABC):
         data = {
             "name": self.name,
             "population_size": self.popsize,
-            "best_individual": self.best.get_state(),
         }
+
+        if self.param_scheduler:
+            data["param_scheduler"] = self.param_scheduler.get_state()
+            data["params"] = self.param_scheduler.get_params()
+        else:
+            data["params"] = self.params
 
         if self.parent_sel:
             data["parent_sel"] = [par.get_state() for par in self.parent_sel]
@@ -104,8 +154,16 @@ class Algorithm(ABC):
         
         if self.surv_sel:
             data["survivor_sel"] = [surv.get_state() for surv in self.surv_sel]
-        
+
+        data["best_individual"] = self.best.get_state()
+
         data["population"] = [ind.get_state() for ind in self.population]
+
+        # if self.param_scheduler:
+        #     data["param_scheduler"] = self.param_scheduler.get_state()
+        #     data["params"] = self.param_scheduler.get_params()
+        # else:
+        #     data["params"] = self.params
 
         return data
 

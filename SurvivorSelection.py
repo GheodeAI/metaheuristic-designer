@@ -56,6 +56,24 @@ class SurvivorSelection:
             self.param_scheduler.step(progress)
             self.params = self.param_scheduler.get_params()
     
+
+    def get_state(self):
+        """
+        Gets the current state of the algorithm as a dictionary.
+        """
+
+        data = {
+            "name": self.name
+        }
+
+        if self.param_scheduler:
+            data["param_scheduler"] = self.param_scheduler.get_state()
+            data["params"] = self.param_scheduler.get_params()
+        else:
+            data["params"] = self.params
+        
+        return data
+    
     
     def select(self, popul: List[Indiv], offspring: List[Indiv]) -> List[Indiv]:     
         """

@@ -19,7 +19,7 @@ class LocalSearch(Algorithm):
         self.perturb_op = perturb_op
         self.iterations = params["iters"] if "iters" in params else 100
 
-        super().__init__(name, popSize=1)
+        super().__init__(name, popSize=1, params=params)
 
 
     def perturb(self, indiv_list, objfunc, progress=0, history=None):

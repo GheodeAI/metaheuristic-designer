@@ -64,7 +64,7 @@ class ParentSelection:
             "name": self.name
         }
 
-        if isinstance(self.params, ParamScheduler):
+        if self.param_scheduler:
             data["param_scheduler"] = self.param_scheduler.get_state()
             data["params"] = self.param_scheduler.get_params()
         else:
