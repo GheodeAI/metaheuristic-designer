@@ -8,3 +8,5 @@ benchmarks/results
 benchmarks/results/*
 .nox/*
 .pytest_cache/*
+dist/
+dist/*

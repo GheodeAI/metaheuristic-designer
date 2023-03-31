@@ -5,6 +5,7 @@ import pyevolcomp.Algorithms
 import pyevolcomp.SearchMethods
 import pyevolcomp.Operators
 import pyevolcomp.Decoders
+import pyevolcomp.benchmarks
 
 def test_test():
     print("hi")
@@ -25,4 +26,4 @@ def test_test():
     strat = pec.Algorithms.HillClimb(pec.Operators.OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.001}))
     alg = pec.SearchMethods.GeneralSearch(strat, params)
 
-    objfunc = Sphere(10, "min")
+    objfunc = pec.benchmarks.Sphere(10, "min")
