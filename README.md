@@ -10,6 +10,10 @@ https://arxiv.org/pdf/2011.09821.pdf
 
 To configure the hyperparameters a dictionary will have to be given to the class of each algorithm.
 
+## Project structure
+This project uses "poetry" as a package manager and nox for unit testing.
+
+
 ## General parameters
 - Stopping conditions:
     - stop_cond: stopping condition, there are various options
