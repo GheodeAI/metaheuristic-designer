@@ -1,6 +1,3 @@
-import sys
-sys.path.append("src")
-
 from pyevolcomp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
 from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
 from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary

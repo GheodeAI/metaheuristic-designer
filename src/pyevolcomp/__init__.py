@@ -6,6 +6,3 @@ from .SurvivorSelection import SurvivorSelection
 from .Algorithm import Algorithm
 from .Decoder import Decoder
 from .Search import Search
-
-# import matplotlib
-# matplotlib.use("GTK3Agg")
