@@ -1,18 +1,13 @@
 import sys
-sys.path.append("../..")
+sys.path.append("../src")
 
 import numpy as np
 import random
 from numba import jit
-from PyEvolComp import ObjectiveFunc
+from pyevolcomp import ObjectiveFunc
 
 
 class MaxOnes(ObjectiveFunc):
-    """
-    Example of objective function.
-
-    Counts the number of ones in the array
-    """
     def __init__(self, size, opt="max"):
         self.size = size
         super().__init__(self.size, opt, "Max ones")

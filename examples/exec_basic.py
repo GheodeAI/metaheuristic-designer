@@ -1,11 +1,11 @@
 import sys
-sys.path.append("..")
+sys.path.append("src")
 
-from PyEvolComp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
-from PyEvolComp.SearchMethods import GeneralSearch, MemeticSearch
-from PyEvolComp.Operators import OperatorReal, OperatorInt, OperatorBinary
-from PyEvolComp.Algorithms import *
-from PyEvolComp.benchmarks import *
+from pyevolcomp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
+from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary
+from pyevolcomp.Algorithms import *
+from pyevolcomp.benchmarks import *
 
 import argparse
 
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     main()
 
 # if __name__ == "__main__":
-#     from PyEvolComp.BaseSearch import parse_stopping_cond, process_condition
+#     from pyevolcomp.BaseSearch import parse_stopping_cond, process_condition
 #     a_str = "neval or ngen and time_limit or ngen and ngen"
 #     parsed = parse_stopping_cond(a_str)
 #     print(parsed)

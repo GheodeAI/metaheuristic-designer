@@ -1,14 +1,9 @@
-import sys
-sys.path.append("../../..")
-
-from PyEvolComp import *
-from PyEvolComp.Decoders import ImageDecoder
+from ..ObjectiveFunc import ObjectiveFunc
+from ..Decoders import ImageDecoder
 
 import math
-from numba import jit
 import numpy as np
-from PIL import Image
-import cv2
+from numba import jit
 
 class ImgExperimental(ObjectiveFunc):
     def __init__(self, img_dim, reference, img_name, opt="min", decoder=None):
@@ -112,6 +107,7 @@ class ImgEntropy(ObjectiveFunc):
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255).astype(np.uint8)
+    
 
 @jit(nopython=True)
 def imgdistance(img, reference):

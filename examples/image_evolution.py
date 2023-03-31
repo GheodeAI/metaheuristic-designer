@@ -1,12 +1,12 @@
 import sys
-sys.path.append("../..")
+sys.path.append("src")
 
-from PyEvolComp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
-from PyEvolComp.Operators import OperatorReal, OperatorInt, OperatorBinary
-from PyEvolComp.Algorithms import *
-from PyEvolComp.SearchMethods import GeneralSearch, MemeticSearch
-from PyEvolComp.Decoders import ImageDecoder
-from imgProblem import * 
+from pyevolcomp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
+from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary
+from pyevolcomp.Algorithms import *
+from pyevolcomp.Decoders import ImageDecoder
+from pyevolcomp.benchmarks import * 
 
 import pygame
 import time
@@ -16,8 +16,8 @@ import os
 from copy import deepcopy
 from PIL import Image
 
-import matplotlib
-matplotlib.use("TkAgg")
+# import matplotlib
+# matplotlib.use("Gtk3Agg")
 
 import argparse
 
@@ -48,7 +48,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
 
     display = True
     display_dim = [600, 600]
-    image_shape = [48, 48]
+    image_shape = [64, 64]
 
     if display:
         pygame.init()
@@ -63,7 +63,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     #objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
     objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name, decoder=decoder)
 
-    mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":15, "N":20})
+    mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":5, "N":20})
     cross_op = OperatorReal("Multicross", {"N":3})
     parent_sel_op = ParentSelection("Best", {"amount": 20})
     #selection_op = SurvivorSelection("(m+n)")

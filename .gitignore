@@ -6,3 +6,5 @@ stats/
 stats/*
 benchmarks/results
 benchmarks/results/*
+.nox/*
+.pytest_cache/*
