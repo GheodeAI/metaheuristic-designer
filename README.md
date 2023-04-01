@@ -13,6 +13,39 @@ Mostly following the book:
 
 To configure the hyperparameters a dictionary will have to be given to the class of each algorithm.
 
+## Project structure
+This project uses "poetry" as a package manager and nox for unit testing.
+
+
+## Examples
+- There are 2 scripts to test this repository:
+    - "examples/exec_basic.py": Optimize a simple function, in this case, the "sphere" function that calculates the squared norm of a vector, we want a vector that minmizes this function. There are two possible flags that can be added:
+        - "-a \[Alg\]" use one of the available algorithms, the choices are:
+            - HillClimb: simple hill climbing algorithm.
+            - LocalSearch: take the best of 20 randomly chosen neighbours.
+            - ES: (100+150)-ES, basic evolutionary strategy.
+            - HS: Harmony search algorithm.
+            - GA: genetic algorithm.
+            - SA: simulated annealing algorithm.
+            - DE: DE/best/1, differential evolution algorithm.
+            - PSO: simple particle swarm algorithm.
+            - NoSearch: no search is done.
+        - "-m" use a memetic search like structure, do local search after mutation.
+    - "examples/exec_basic.py": Evolve an image so that it matches the one given as an input. Recieves mostly the same parameters except for one for indicating the input image:
+        - "-i \[Image path\]" read the image and evolve a random image into this one.
+
+To execute the scripts with the correct dependencies first run
+
+```bash
+poetry install
+```
+
+Then you can run one the scripts as:
+
+```bash
+poetry run python examples/image_evolution.py -a SA -i images/saturn.png
+```
+
 ## General parameters
 - Stopping conditions:
     - stop_cond: stopping condition, there are various options
