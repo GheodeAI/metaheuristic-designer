@@ -16,7 +16,6 @@ example_populaton3 = [Individual(Sphere(100), np.random.uniform(-100, 100, 100))
 @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 @pytest.mark.parametrize("op_method", _real_ops)
 def test_basic_working(population, op_method):
-    print(op_method)
     operator = OperatorReal(op_method)
 
     indiv = population[0]

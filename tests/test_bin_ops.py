@@ -14,7 +14,6 @@ example_populaton3 = [Individual(MaxOnes(100), np.random.random(100) > 0.5) for 
 @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 @pytest.mark.parametrize("op_method", _bin_ops)
 def test_basic_working(population, op_method):
-    print(op_method)
     operator = OperatorBinary(op_method)
 
     indiv = population[0]

@@ -66,7 +66,6 @@ example_img2 = np.random.randint(0,256,[30,40,3])
     ]
 )
 def test_rgb_img(genotype, phenotype):
-    print(genotype.shape)
     decoder = ImageDecoder(phenotype.shape[:2], color=True)
 
     np.testing.assert_array_equal(decoder.decode(genotype), phenotype)
