@@ -23,6 +23,8 @@ class ObjectiveFunc(ABC):
         self.factor = 1
         self.opt = opt
         self.decoder = decoder
+        self.up_lim = -100
+        self.low_lim = 100
         if decoder is None:
             self.decoder = DefaultDecoder()
         

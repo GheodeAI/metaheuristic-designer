@@ -53,27 +53,27 @@ class OperatorBinary(Operator):
             global_best = indiv
 
         params = copy(self.params)
-        
-        if "N" in params:
-            params["N"] = round(params["N"])
-        
+                
         if "Cr" in params and "N" not in params:
             params["N"] = np.count_nonzero(np.random.random(indiv.genotype.size) < params["Cr"])
 
-        params["N"] = round(params["N"])
+        if "N" in params:
+            params["N"] = round(params["N"])
+            params["N"] = min(params["N"], new_indiv.genotype.size)
+        
         
         
         if self.method == "1point":
-            new_indiv.genotype = cross1p(new_indiv.genotype, solution2.genotype.copy())
+            new_indiv.genotype = cross1p(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == "2point":
-            new_indiv.genotype = cross2p(new_indiv.genotype, solution2.genotype.copy())
+            new_indiv.genotype = cross2p(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == "multipoint":
-            new_indiv.genotype = crossMp(new_indiv.genotype, solution2.genotype.copy())
+            new_indiv.genotype = crossMp(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == "multicross":
-            new_indiv.genotype = multiCross(new_indiv.genotype, others, params["N"])
+            new_indiv.genotype = multiCross(new_indiv.genotype, others, params["Nindiv"])
 
         elif self.method == "perm":
             new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
@@ -82,7 +82,7 @@ class OperatorBinary(Operator):
             new_indiv.genotype = xorMask(new_indiv.genotype, params["N"], mode="bin")
 
         elif self.method == "xorcross" or self.method == "flipcross":
-            new_indiv.genotype = xorCross(new_indiv.genotype, solution2.genotype.copy())
+            new_indiv.genotype = xorCross(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == "randsample":
             params["method"] = "bernouli"

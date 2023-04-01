@@ -455,7 +455,7 @@ def firefly(solution, population, objfunc, alpha_0, beta_0, delta, gamma):
     Performs a step of the Firefly algorithm
     """
    
-    sol_range = objfunc.sup_lim - objfunc.inf_lim
+    sol_range = objfunc.up_lim - objfunc.low_lim
     n_dim = solution.genotype.size
     new_vector = solution.genotype.copy()
     for idx, ind in enumerate(population):
@@ -463,10 +463,10 @@ def firefly(solution, population, objfunc, alpha_0, beta_0, delta, gamma):
             r = np.linalg.norm(solution.genotype - ind.genotype)
             alpha = alpha_0 * delta ** idx
             beta = beta_0 * np.exp(-gamma*(r/(sol_range*np.sqrt(n_dim)))**2)
-            new_vector = new_solution + beta*(ind.genotype-new_vector) + alpha * sol_range * random.random()-0.5
-            new_vector = objfunc.check_bounds(new_vector)
+            new_vector = new_vector + beta*(ind.genotype-new_vector) + alpha * sol_range * random.random()-0.5
+            new_vector = objfunc.repair_solution(new_vector)
     
-    return new_solution
+    return new_vector
 
 
 def dummyOp(vector, scale=1000):

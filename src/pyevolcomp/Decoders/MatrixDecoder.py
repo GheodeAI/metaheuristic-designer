@@ -11,7 +11,7 @@ class MatrixDecoder(Decoder):
         self.shape = shape
     
     def encode(self, phenotype: np.ndarray) -> np.ndarray:
-        return np.flatten(genotype)
+        return np.ndarray.flatten(phenotype)
     
     def decode(self, genotype: np.ndarray) -> np.ndarray:
-        return np.reshape(phenotype, self.shape)
+        return np.reshape(genotype, self.shape)

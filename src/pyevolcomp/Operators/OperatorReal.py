@@ -9,7 +9,7 @@ _real_ops = [
     "1point",
     "2point",
     "multipoint",
-    "weightedAvg",
+    "weightedavg",
     "blxalpha",
     "sbx",
     "multicross",
@@ -76,12 +76,14 @@ class OperatorReal(Operator):
             global_best = indiv
 
         params = copy(self.params)
-        
-        if "N" in params:
-            params["N"] = round(params["N"])
+
 
         if "Cr" in params and "N" not in params:
             params["N"] = np.count_nonzero(np.random.random(indiv.genotype.size) < params["Cr"])
+        
+        if "N" in params:
+            params["N"] = round(params["N"])
+            params["N"] = min(params["N"], new_indiv.genotype.size)
             
         
 
@@ -104,7 +106,7 @@ class OperatorReal(Operator):
             new_indiv.genotype = sbx(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
             
         elif self.method == "multicross":
-            new_indiv.genotype = multiCross(new_indiv.genotype, others, params["N"])
+            new_indiv.genotype = multiCross(new_indiv.genotype, others, params["Nindiv"])
 
         elif self.method == "crossinteravg":
             new_indiv.genotype = crossInterAvg(new_indiv.genotype, others, params["N"])

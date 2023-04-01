@@ -8,7 +8,7 @@ _int_ops = [
     "1point",
     "2point",
     "multipoint",
-    "weightedAvg",
+    "weightedavg",
     "blxalpha",
     "multicross",
     "xor",
@@ -74,13 +74,12 @@ class OperatorInt(Operator):
 
         params = copy(self.params)
         
-        if "N" in params:
-            params["N"] = round(params["N"])
-
         if "Cr" in params and "N" not in params:
             params["N"] = np.count_nonzero(np.random.random(indiv.genotype.size) < params["Cr"])
 
-        params["N"] = round(params["N"])
+        if "N" in params:
+            params["N"] = round(params["N"])
+            params["N"] = min(params["N"], new_indiv.genotype.size)
         
 
         if self.method == "1point":
@@ -99,13 +98,13 @@ class OperatorInt(Operator):
             new_indiv.genotype = blxalpha(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
             
         elif self.method == "multicross":
-            new_indiv.genotype = multiCross(new_indiv.genotype, others, params["N"])
+            new_indiv.genotype = multiCross(new_indiv.genotype, others, params["Nindiv"])
         
         elif self.method == "xor":
-            new_indiv.genotype = xorMask(new_indiv.genotype, self.params["N"])
+            new_indiv.genotype = xorMask(new_indiv.genotype, params["N"])
 
         elif self.method == "xorcross":
-            new_indiv.genotype = xorCross(new_indiv.genotype, solution2.genotype.copy())
+            new_indiv.genotype = xorCross(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == "crossinteravg":
             new_indiv.genotype = crossInterAvg(new_indiv.genotype, others, params["N"])
@@ -126,7 +125,7 @@ class OperatorInt(Operator):
             new_indiv.genotype = uniform(new_indiv.genotype, params["Low"], params["Up"])
         
         elif self.method == "poisson":
-            new_indiv.genotype = poisson(new_indiv.genotype, self.params["F"])
+            new_indiv.genotype = poisson(new_indiv.genotype, params["F"])
 
         elif self.method == "mutrand" or self.method == "mutnoise":
             new_indiv.genotype = mutateRand(new_indiv.genotype, others, params)

@@ -1,9 +1,9 @@
 import random
+import numpy as np
 from copy import copy
 from typing import List, Union
 from ..ParamScheduler import ParamScheduler
 from ..Operator import Operator
-from .Individual import Indiv
 
 
 class OperatorSplit(Operator):
