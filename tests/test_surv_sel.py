@@ -1,22 +1,94 @@
-import sys
-sys.path.append("../..")
+import pytest
 
-from PyEvolAlg import *
-from PyEvolAlg.benchmarks.benchmarkFuncs import *
-from PyEvolAlg.Metaheuristics.Individual import Indiv 
+from pyevolcomp import Individual, SurvivorSelection
 
-import unittest
+pop_size = 100
 
-repetitions = 100
-popul_size = 100
-vecsize = 100
-objfunc = Sphere(vecsize)
-ordered_population = [Indiv(objfunc, i*np.ones(vecsize)) for i in np.linspace(0, 40, popul_size)]
-#random_population = [Indiv(objfunc, 100*np.random.random(size=vecsize)) for i in range(popul_size)]
+example_populaton = [Individual(None, None) for i in range(pop_size)]
+example_offspring = [Individual(None, None) for i in range(pop_size)]
+example_offspring_small = [Individual(None, None) for i in range(pop_size//2)]
+example_offspring_big = [Individual(None, None) for i in range(pop_size*2)]
 
-class OperatorRealTests(unittest.TestCase):
-    def test_elitism(self):
-        pass
+for idx, ind in enumerate(example_populaton):
+    example_populaton[idx].fitness = 10
 
-if __name__ == "__main__":
-    unittest.main()
+for idx, ind in enumerate(example_offspring):
+    example_offspring[idx].fitness = 10
+
+for idx, ind in enumerate(example_offspring_small):
+    example_offspring_small[idx].fitness = 10
+
+for idx, ind in enumerate(example_offspring_big):
+    example_offspring_big[idx].fitness = 10
+
+
+@pytest.mark.parametrize("population", [example_populaton])
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
+@pytest.mark.parametrize("keep_amount", [1, 5, 20])
+def test_elitism(population, offspring, keep_amount):
+    surv_selection = SurvivorSelection("Elitism", {"amount": keep_amount})
+    survivors = surv_selection.select(population, offspring)
+    assert len(population) >= len(survivors)
+    assert set(population[:keep_amount]) == set(survivors[:keep_amount])
+    pop_fit_avg = sum([i.fitness for i in population])/len(population)
+    surv_fit_avg = sum([i.fitness for i in population])/len(population)
+    assert pop_fit_avg <= surv_fit_avg
+
+
+@pytest.mark.parametrize("population", [example_populaton])
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
+@pytest.mark.parametrize("keep_amount", [1, 5, 20])
+def test_condelitism(population, offspring, keep_amount):
+    surv_selection = SurvivorSelection("CondElitism", {"amount": keep_amount})
+    survivors = surv_selection.select(population, offspring)
+    assert len(population) >= len(survivors)
+    pop_fit_avg = sum([i.fitness for i in population])/len(population)
+    surv_fit_avg = sum([i.fitness for i in population])/len(population)
+    assert pop_fit_avg <= surv_fit_avg
+
+
+@pytest.mark.parametrize("population", [example_populaton])
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
+def test_one_to_one(population, offspring):
+    surv_selection = SurvivorSelection("One-to-one")
+    survivors = surv_selection.select(population, offspring)
+    assert len(population) >= len(survivors)
+    assert set(population[:len(offspring)]) == set(survivors[:len(offspring)])
+    pop_fit_avg = sum([i.fitness for i in population])/len(population)
+    surv_fit_avg = sum([i.fitness for i in population])/len(population)
+    assert pop_fit_avg <= surv_fit_avg
+
+
+@pytest.mark.parametrize("population", [example_populaton])
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
+def test_generational(population, offspring):
+    surv_selection = SurvivorSelection("Generational")
+    survivors = surv_selection.select(population, offspring)
+    assert survivors == offspring
+
+
+@pytest.mark.parametrize("population", [example_populaton])
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
+def test_m_plus_n(population, offspring):
+    surv_selection = SurvivorSelection("(m+n)")
+    survivors = surv_selection.select(population, offspring)
+    assert len(population) >= len(survivors)
+
+    pop_fit_avg = sum([i.fitness for i in population])/len(population)
+    surv_fit_avg = sum([i.fitness for i in population])/len(population)
+    assert pop_fit_avg <= surv_fit_avg
+
+
+@pytest.mark.parametrize("population", [example_populaton])
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
+def test_m_comma_n(population, offspring):
+    surv_selection = SurvivorSelection("(m,n)")
+    survivors = surv_selection.select(population, offspring)
+    assert len(population) >= len(survivors)
+
+    for parent in population:
+        assert parent not in survivors
+
+    pop_fit_avg = sum([i.fitness for i in population])/len(population)
+    surv_fit_avg = sum([i.fitness for i in population])/len(population)
+    assert pop_fit_avg <= surv_fit_avg
