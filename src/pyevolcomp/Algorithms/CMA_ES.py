@@ -2,7 +2,7 @@ import numpy as np
 from .ES import ES
 from typing import Union, List
 from ..Algorithm import Algorithm
-from ..Individual import Indiv
+from ..Individual import Individual
 from ..Operators import Operator, OperatorReal, OperatorMeta
 from ..SurvivorSelection import SurvivorSelection
 from ..ParentSelection import ParentSelection
@@ -12,7 +12,7 @@ from ..Decoders import CMADecoder
 
 class CMA_ES(ES):
     def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection, 
-                       params: Union[ParamScheduler, dict] = {}, name: str = "ES", population: List[Indiv] = None):
+                       params: Union[ParamScheduler, dict] = {}, name: str = "ES", population: List[Individual] = None):
 
         
 

@@ -11,7 +11,8 @@ _surv_methods = [
     "generational",
     "one-to-one",
     "(m+n)",
-    "(m,n)"
+    "(m,n)",
+    "nothing"
 ]
 
 class SurvivorSelection:
@@ -19,7 +20,7 @@ class SurvivorSelection:
     Operator class that has continuous mutation and cross methods
     """
 
-    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None):
+    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None, padding=False):
         """
         Constructor for the SurvivorSelection class
         """
@@ -39,7 +40,7 @@ class SurvivorSelection:
             self.params = params
     
 
-    def __call__(self, popul: List[Indiv], offspring: List[Indiv]) -> List[Indiv]:
+    def __call__(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:
         """
         Shorthand for calling the 'select' method
         """
@@ -55,9 +56,12 @@ class SurvivorSelection:
         if self.param_scheduler:
             self.param_scheduler.step(progress)
             self.params = self.param_scheduler.get_params()
+
+            if "amount" in self.params:
+                self.params["amount"] = round(self.params["amount"])
+
     
-    
-    def select(self, popul: List[Indiv], offspring: List[Indiv]) -> List[Indiv]:     
+    def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:     
         """
         Takes a population with its offspring and returns the individuals that survive
         to produce the next generation.
@@ -70,7 +74,7 @@ class SurvivorSelection:
         elif self.name == "condelitism":
             result = cond_elitism(popul, offspring, self.params["amount"])
 
-        elif self.name == "generational":
+        elif self.name == "generational" or self.name == "nothing":
             result = offspring
 
         elif self.name == "one-to-one":
@@ -101,10 +105,10 @@ def one_to_one(popul, offspring):
 
 
 def elitism(popul, offspring, amount):
-    amount = round(amount)
+    selected_offspring = sorted(offspring, reverse=True, key = lambda x: x.fitness)[:len(popul)-amount]
     best_parents = sorted(popul, reverse=True, key = lambda x: x.fitness)[:amount]
-    new_offspring = sorted(offspring, reverse=True, key = lambda x: x.fitness)[:len(popul)-amount] + best_parents
-    return new_offspring
+
+    return best_parents + selected_offspring
 
 
 def cond_elitism(popul, offspring, amount):

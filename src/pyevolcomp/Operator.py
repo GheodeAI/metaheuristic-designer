@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Union
 from .ParamScheduler import ParamScheduler
@@ -46,7 +47,7 @@ class Operator(ABC):
         
     
 
-    def __call__(self, solution, population, objfunc, global_best):
+    def __call__(self, solution: Individual, population: List[Individual], objfunc: ObjectiveFunc, global_best: Individual) -> Individual:
         """
         A shorthand for calling the 'evolve' method
         """
@@ -54,7 +55,7 @@ class Operator(ABC):
         return self.evolve(solution, population, objfunc, global_best)
     
     
-    def step(self, progress):
+    def step(self, progress: float):
         """
         Updates the parameters of the method using a paramater scheduler if it exists
         """
@@ -65,7 +66,7 @@ class Operator(ABC):
 
 
     @abstractmethod
-    def evolve(self, solution, population, objfunc):
+    def evolve(self, solution: Individual, population: List[Individual], objfunc: ObjectiveFunc, global_best: Individual) -> Individual:
         """
         Evolves a solution with a different strategy depending on the type of substrate
         """

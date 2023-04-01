@@ -2,7 +2,7 @@ from __future__ import annotations
 import random
 import numpy as np
 from typing import List, Union
-from ..Individual import Indiv
+from ..Individual import Individual
 from ..ParamScheduler import ParamScheduler
 from ..SurvivorSelection import SurvivorSelection
 from ..Algorithm import Algorithm
@@ -13,7 +13,7 @@ class StaticPopulation(Algorithm):
     Population of the Genetic algorithm
     """
 
-    def __init__(self, operator: Operator, params: Union[ParamScheduler, dict]={}, selection_op: SurvivorSelection=None, name: str="stpop", population: List[Indiv]=None):
+    def __init__(self, operator: Operator, params: Union[ParamScheduler, dict]={}, selection_op: SurvivorSelection=None, name: str="stpop", population: List[Individual]=None):
         """
         Constructor of the GeneticPopulation class
         """

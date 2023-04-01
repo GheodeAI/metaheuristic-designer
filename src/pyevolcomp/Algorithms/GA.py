@@ -4,7 +4,7 @@ import numpy as np
 from copy import copy
 import time
 from typing import Union, List
-from ..Individual import Indiv
+from ..Individual import Individual
 from ..ParentSelection import ParentSelection
 from ..SurvivorSelection import SurvivorSelection
 from ..ParamScheduler import ParamScheduler
@@ -17,7 +17,7 @@ class GA(Algorithm):
     """
 
     def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection,
-                       params: Union[ParamScheduler, dict]={}, name: str="GA", population: List[Indiv]=None):
+                       params: Union[ParamScheduler, dict]={}, name: str="GA", population: List[Individual]=None):
         """
         Constructor of the GeneticPopulation class
         """

@@ -3,7 +3,7 @@ import random
 import numpy as np
 import time
 from typing import Union, List
-from ..Individual import Indiv
+from ..Individual import Individual
 from ..ParamScheduler import ParamScheduler
 from ..ParentSelection import ParentSelection
 from ..SurvivorSelection import SurvivorSelection
@@ -16,7 +16,7 @@ class ES(Algorithm):
     """
 
     def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection, 
-                       params: Union[ParamScheduler, dict] = {}, name: str = "ES", population: List[Indiv] = None):
+                       params: Union[ParamScheduler, dict] = {}, name: str = "ES", population: List[Individual] = None):
         """
         Constructor of the GeneticPopulation class
         """

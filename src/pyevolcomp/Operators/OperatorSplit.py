@@ -24,7 +24,7 @@ class OperatorSplit(Operator):
         super().__init__(name, {}, name)
     
     
-    def evolve(self, indiv, population, objfunc, global_best=None):
+    def evolve(self, indiv, population, objfunc, global_best):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """

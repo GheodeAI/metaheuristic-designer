@@ -2,7 +2,7 @@ from __future__ import annotations
 import random
 import numpy as np
 from typing import Union
-from ..Individual import Indiv
+from ..Individual import Individual
 from ..ParamScheduler import ParamScheduler
 from ..Algorithm import Algorithm
 

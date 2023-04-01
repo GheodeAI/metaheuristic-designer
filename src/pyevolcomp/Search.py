@@ -142,7 +142,7 @@ class Search(ABC):
         self.search_strategy.initialize(objfunc)
     
     @abstractmethod
-    def step(self, objfunc, time_start=0, verbose=False) -> Tuple[Indiv, float]:        
+    def step(self, objfunc, time_start=0, verbose=False) -> Tuple[Individual, float]:        
         """
         Performs a step in the algorithm
         """

@@ -3,7 +3,7 @@ import nox_poetry
 
 
 nox.options.sessions = "tests",
-locations = "src", "noxfile.py"
+locations = "noxfile.py"
 
 @nox_poetry.session
 def tests(session):

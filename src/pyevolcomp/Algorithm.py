@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Tuple, List
 from abc import ABC, abstractmethod
-from .Individual import Indiv
+from .Individual import Individual
 import time
 
 
@@ -22,7 +22,7 @@ class Algorithm(ABC):
         self.best = None
 
 
-    def best_solution(self) -> Tuple(Indiv, float):
+    def best_solution(self) -> Tuple(Individual, float):
         """
         Gives the best solution found by the algorithm and its fitness
         """
@@ -43,7 +43,7 @@ class Algorithm(ABC):
         for i in range(self.popsize):
             genotype = objfunc.decoder.encode(objfunc.random_solution())
             speed = objfunc.decoder.encode(objfunc.random_solution())
-            new_indiv = Indiv(objfunc, genotype, speed)
+            new_indiv = Individual(objfunc, genotype, speed)
 
             if self.best is None or self.best.fitness < new_indiv.fitness:
                 self.best = new_indiv
@@ -51,7 +51,7 @@ class Algorithm(ABC):
             self.population.append(new_indiv)
     
 
-    def select_parents(self, population: List[Indiv], progress: float = 0, history: List[float] = None) -> List[Indiv]:
+    def select_parents(self, population: List[Individual], progress: float = 0, history: List[float] = None) -> List[Individual]:
         """
         Selects the individuals that will be perturbed in this generation
         Returns the whole population if not implemented.
@@ -60,14 +60,14 @@ class Algorithm(ABC):
         return population, range(len(population))
     
     @abstractmethod
-    def perturb(self, parent_list: List[Indiv], progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Indiv]:
+    def perturb(self, parent_list: List[Individual], progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Individual]:
         """
         Applies operators to the population in some way
         Returns the offspring generated.
         """
             
 
-    def select_individuals(self, population: List[Indiv], offspring: List[Indiv], progress: float = 0, history: List[float] = None)-> List[Indiv]:
+    def select_individuals(self, population: List[Individual], offspring: List[Individual], progress: float = 0, history: List[float] = None)-> List[Individual]:
         """
         Selects the individuals that will pass to the next generation.
         Returns the offspring if not implemented.

@@ -37,7 +37,7 @@ class ParentSelection:
             self.params = params
     
 
-    def __call__(self, population: List[Indiv]):
+    def __call__(self, population: List[Individual]):
         """
         Shorthand for calling the 'select' method
         """
@@ -54,8 +54,11 @@ class ParentSelection:
             self.param_scheduler.step(progress)
             self.params = self.param_scheduler.get_params()
 
+            if "amount" in self.params:
+                self.params["amount"] = round(self.params["amount"])
 
-    def select(self, population: List[Indiv]) -> List[Indiv]: 
+
+    def select(self, population: List[Individual]) -> List[Individual]: 
         """
         Selects a subsection of the population along with the indices of each individual in the original population
         """
@@ -78,8 +81,6 @@ def select_best(population, amount):
     """
     Selects the best parent of the population as parents
     """
-
-    amount = round(amount)
 
     # Get the fitness of all the individuals
     fitness_list = np.fromiter(map(lambda x: x.fitness, population), dtype=float)

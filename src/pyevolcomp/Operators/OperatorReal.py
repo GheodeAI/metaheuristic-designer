@@ -60,7 +60,7 @@ class OperatorReal(Operator):
             raise ValueError(f"Real operator \"{self.method}\" not defined")
     
     
-    def evolve(self, indiv, population, objfunc, global_best=None):
+    def evolve(self, indiv, population, objfunc, global_best):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """
