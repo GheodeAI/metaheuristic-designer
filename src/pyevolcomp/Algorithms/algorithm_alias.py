@@ -19,7 +19,7 @@ class HS(ES):
         parent_select = ParentSelection("Nothing")
         selection = SurvivorSelection("(m+n)")
 
-        cross = OperatorReal("Multicross", {"N":params["HMS"]})
+        cross = OperatorReal("Multicross", {"Nindiv":params["HMS"]})
         
         mutate1 = OperatorReal("MutNoise", {"method":"Gauss", "F":params["BW"], "Cr":params["HMCR"] * params["PAR"]})
         rand1 = OperatorReal("RandomMask", {"Cr":1-params["HMCR"]})

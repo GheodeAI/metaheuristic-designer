@@ -25,9 +25,9 @@ def render(image, display_dim, src):
     pygame.display.flip()
 
 def save_to_image(image, img_name="result.png"):
-    if not os.path.exists('./results/'):
-        os.makedirs('./results/')
-    filename = './results/' + img_name
+    if not os.path.exists('./examples/results/'):
+        os.makedirs('./examples/results/')
+    filename = './examples/results/' + img_name
     Image.fromarray(image.astype(np.uint8)).save(filename)
 
 def run_algorithm(alg_name, img_file_name, memetic):
@@ -45,7 +45,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
 
     display = True
     display_dim = [600, 600]
-    image_shape = [64, 64]
+    image_shape = [32, 32]
 
     if display:
         pygame.init()
@@ -57,20 +57,20 @@ def run_algorithm(alg_name, img_file_name, memetic):
     reference_img = Image.open(img_file_name)
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
-    #objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
-    objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name, decoder=decoder)
+    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
+    # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name, decoder=decoder)
 
-    mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":5, "N":20})
-    cross_op = OperatorReal("Multicross", {"N":3})
-    parent_sel_op = ParentSelection("Best", {"amount": 20})
-    #selection_op = SurvivorSelection("(m+n)")
-    selection_op = SurvivorSelection("Elitism", {"amount": 20})
+    mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":15, "N":20})
+    cross_op = OperatorReal("Multicross", {"Nindiv": 4})
+    parent_sel_op = ParentSelection("Best", {"amount": 15})
+    selection_op = SurvivorSelection("Elitism", {"amount": 10})
 
     if alg_name == "HillClimb":
         search_strat = HillClimb(mutation_op)
     elif alg_name == "LocalSearch":
         search_strat = LocalSearch(mutation_op, {"iters":20})
     elif alg_name == "ES":
+        selection_op = SurvivorSelection("(m+n)")
         search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
     elif alg_name == "GA":
         search_strat = GA(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.9, "pmut":0.15})
@@ -90,7 +90,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         exit()
     
     if memetic:
-        local_search = LocalSearch(OperatorInt("MutRand", {"method": "Cauchy", "F":3, "N":3}), {"iters":10})
+        local_search = LocalSearch(OperatorInt("MutRand", {"method": "Uniform", "Low":-3, "Up":-3, "N":3}), {"iters":10})
         alg = MemeticSearch(search_strat, local_search, ParentSelection("Best", {"amount": 10}), params)
     else:
         alg = GeneralSearch(search_strat, params)

@@ -8,19 +8,16 @@ import argparse
 
 def run_algorithm(alg_name, memetic):
     params = {
-        # General
         "stop_cond": "neval or time_limit or fit_target",
-        "time_limit": 1.0,
-        "cpu_time_limit": 100.0,
+        "time_limit": 10.0,
+        "cpu_time_limit": 10.0,
         "ngen": 1000,
         "neval": 6e5,
-        "fit_target": 1e-3,
+        "fit_target": 1e-30,
 
         "verbose": True,
         "v_timer": 0.5
     }
-
-    # ["neval", "ngen", "real_time", "cpu_time", "fit_target"]
 
     objfunc = Sphere(10, "min")
 
@@ -39,7 +36,7 @@ def run_algorithm(alg_name, memetic):
     elif alg_name == "LocalSearch":
         search_strat = LocalSearch(mutation_op, {"iters":20})
     elif alg_name == "ES":
-        search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
+        search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":150})
     elif alg_name == "HS":
         search_strat = HS({"HMS":100, "HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "GA":

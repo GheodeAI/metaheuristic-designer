@@ -10,3 +10,5 @@ benchmarks/results/*
 .pytest_cache/*
 dist/
 dist/*
+examples/results/
+examples/results/*
