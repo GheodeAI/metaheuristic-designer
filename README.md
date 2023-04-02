@@ -11,7 +11,7 @@ Mostly following the book:
     Eiben, Agoston E., and James E. Smith. Introduction to evolutionary computing. Springer-Verlag Berlin Heidelberg, 2015.
 
 ## Project structure
-This project uses "poetry" as a package manager and nox for unit testing.
+This project uses poetry as a package manager and nox for unit testing.
 
 
 ## Examples
