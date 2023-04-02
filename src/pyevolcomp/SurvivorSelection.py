@@ -2,33 +2,53 @@ from __future__ import annotations
 from typing import Union, List, Tuple
 import random
 import numpy as np
+from enum import Enum 
 from typing import Union
 from .ParamScheduler import *
 
-_surv_methods = [
-    "elitism",
-    "condelitism",
-    "generational",
-    "one-to-one",
-    "(m+n)",
-    "(m,n)",
-    "nothing"
-]
+class SurvSelMethod(Enum):
+    ELITISM = 1
+    COND_ELITISM = 2
+    GENERATIONAL = 3
+    ONE_TO_ONE = 4
+    MU_PLUS_LAMBDA = 5
+    MU_COMMA_lAMBDA = 6
+
+    @staticmethod
+    def from_str(str_input):
+
+        str_input = str_input.lower()
+
+        if str_input not in surv_method_map:
+            raise ValueError(f"Parent selection method \"{str_input}\" not defined")
+        
+        return surv_method_map[str_input]       
+
+surv_method_map = {
+    "elitism": SurvSelMethod.ELITISM,
+    "condelitism": SurvSelMethod.COND_ELITISM,
+    "generational": SurvSelMethod.GENERATIONAL,
+    "nothing": SurvSelMethod.GENERATIONAL,
+    "one-to-one": SurvSelMethod.ONE_TO_ONE,
+    "(m+n)": SurvSelMethod.MU_PLUS_LAMBDA,
+    "(m,n)": SurvSelMethod.MU_COMMA_lAMBDA  
+}
+
 
 class SurvivorSelection:
     """
     Operator class that has continuous mutation and cross methods
     """
 
-    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None, padding=False):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict]=None, name: str = None, padding=False):
         """
         Constructor for the SurvivorSelection class
         """
 
-        self.name = name.lower()
-
-        if name.lower() not in _surv_methods:
-            raise ValueError(f"Survivor selection method \"{self.name}\" not defined")
+        if name is None:
+            self.name = method 
+        
+        self.method = SurvSelMethod.from_str(method)
 
         self.param_scheduler = None
         if params is None:
@@ -68,22 +88,22 @@ class SurvivorSelection:
         """   
 
         result = []
-        if self.name == "elitism":
+        if self.method == SurvSelMethod.ELITISM:
             result = elitism(popul, offspring, self.params["amount"])
 
-        elif self.name == "condelitism":
+        elif self.method == SurvSelMethod.COND_ELITISM:
             result = cond_elitism(popul, offspring, self.params["amount"])
 
-        elif self.name == "generational" or self.name == "nothing":
+        elif self.method == SurvSelMethod.GENERATIONAL:
             result = offspring
 
-        elif self.name == "one-to-one":
+        elif self.method == SurvSelMethod.ONE_TO_ONE:
             result = one_to_one(popul, offspring)
 
-        elif self.name == "(m+n)":
+        elif self.method == SurvSelMethod.MU_PLUS_LAMBDA:
             result = lamb_plus_mu(popul, offspring)
 
-        elif self.name == "(m,n)":
+        elif self.method == SurvSelMethod.MU_COMMA_lAMBDA:
             result = lamb_comma_mu(popul, offspring)
         
         return result

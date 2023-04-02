@@ -5,14 +5,29 @@ from ..ParamScheduler import ParamScheduler
 from typing import Union
 from copy import copy
 from .OperatorReal import OperatorReal, _real_ops
+from enum import Enum
 
-_list_ops = [
-    "expand",
-    "shrink",
-    "nothing"
-]
 
-_list_ops = _list_ops
+class ListOpMethods(Enum):
+    EXPAND = 1
+    SHRINK = 2
+    NOTHING = 3
+
+    @staticmethod
+    def from_str(str_input):
+
+        str_input = str_input.lower()
+
+        if str_input not in list_ops_map:
+            raise ValueError(f"List operator \"{str_input}\" not defined")
+        
+        return list_ops_map[str_input]
+
+list_ops_map = {
+    "expand": ListOpMethods.EXPAND,
+    "shrink": ListOpMethods.SHRINK,
+    "nothing": ListOpMethods.NOTHING,
+}
 
 class OperatorList(Operator):
     """
@@ -24,10 +39,12 @@ class OperatorList(Operator):
         Constructor for the OperatorReal class
         """
 
-        super().__init__(method, params, name)
+        if name is None:
+            name = method
 
-        if self.method not in _list_ops and not self.is_vec_op:
-            raise ValueError(f"Real operator \"{self.method}\" not defined")
+        super().__init__(params, name)
+
+        self.method = ListOpMethods.from_str(method)
     
     
     def evolve(self, indiv, population, objfunc, global_best):
@@ -44,9 +61,9 @@ class OperatorList(Operator):
         
         params = copy(self.params)
 
-        if self.method == "expand":
-            nex_indiv.genotype = expand(new_indiv.genotype, params["N"], params["method"])
-        elif self.method == "shrink":
+        if self.method == ListOpMethods.EXPAND:
+            nex_indiv.genotype = expand(new_indiv.genotype, params["N"], params["method"], params["maxlen"])
+        elif self.method == ListOpMethods.SHRINK:
             nex_indiv.genotype = shrink(new_indiv.genotype, params["N"], params["method"])
         
         return new_indiv

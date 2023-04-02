@@ -21,7 +21,7 @@ class OperatorSplit(Operator):
 
         name = "+".join([op.name for op in op_list if op.method.lower() != "nothing"])
 
-        super().__init__(name, {}, name)
+        super().__init__({}, name)
     
     
     def evolve(self, indiv, population, objfunc, global_best):
