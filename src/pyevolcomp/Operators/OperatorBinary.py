@@ -3,23 +3,56 @@ from ..ParamScheduler import ParamScheduler
 from typing import Union
 from copy import copy
 from .vector_operator_functions import *
+from enum import Enum
 
-_bin_ops = [
-    "1point",
-    "2point",
-    "multipoint",
-    "multicross",
-    "xor",
-    "xorcross",
-    "perm",
-    "randsample",
-    "mutsample",
-    "random",
-    "randommask",
-    "dummy",
-    "custom",
-    "nothing"
-]
+class BinOpMethods(Enum):
+    ONE_POINT = 1
+    TWO_POINT = 2
+    MULTIPOINT = 3
+    MULTICROSS = 4
+    XOR = 5
+    XOR_CROSS = 6
+    PERM = 7
+    MUTSAMPLE = 8
+    RANDSAMPLE = 9
+    RANDOM = 10
+    RANDOM_MASK = 11
+    DUMMY = 12
+    CUSTOM = 13
+    NOTHING = 14
+
+    @staticmethod
+    def from_str(str_input):
+
+        str_input = str_input.lower()
+
+        if str_input not in bin_ops_map:
+            raise ValueError(f"Binary operator \"{str_input}\" not defined")
+        
+        return bin_ops_map[str_input]
+
+bin_ops_map = {
+    "1point": BinOpMethods.ONE_POINT,
+    "2point": BinOpMethods.TWO_POINT,
+    "multipoint": BinOpMethods.MULTIPOINT,
+    "multicross": BinOpMethods.MULTICROSS,
+    "xor": BinOpMethods.XOR,
+    "fliprandom": BinOpMethods.XOR,
+    "xorcross": BinOpMethods.XOR_CROSS,
+    "flipcross": BinOpMethods.XOR_CROSS,
+    "perm": BinOpMethods.PERM,
+    "mutrand": BinOpMethods.MUTSAMPLE,
+    "mutnoise": BinOpMethods.MUTSAMPLE,
+    "mutsample": BinOpMethods.MUTSAMPLE,
+    "randnoise": BinOpMethods.RANDSAMPLE,
+    "randsample": BinOpMethods.RANDSAMPLE,
+    "random": BinOpMethods.RANDOM,
+    "randommask": BinOpMethods.RANDOM_MASK,
+    "dummy": BinOpMethods.DUMMY,
+    "custom": BinOpMethods.CUSTOM,
+    "nothing": BinOpMethods.NOTHING,
+}
+
 
 class OperatorBinary(Operator):
     """
@@ -31,10 +64,12 @@ class OperatorBinary(Operator):
         Constructor for the Operator class
         """
 
-        super().__init__(method, params)
+        if name is None:
+            name = method
 
-        if self.method not in _bin_ops:
-            raise ValueError(f"Binary operator \"{self.method}\" not defined")
+        super().__init__(params, name)
+
+        self.method = BinOpMethods.from_str(method)
     
     
     def evolve(self, indiv, population, objfunc, global_best):
@@ -63,48 +98,48 @@ class OperatorBinary(Operator):
         
         
         
-        if self.method == "1point":
+        if self.method == BinOpMethods.ONE_POINT:
             new_indiv.genotype = cross1p(new_indiv.genotype, indiv2.genotype.copy())
 
-        elif self.method == "2point":
+        elif self.method == BinOpMethods.TWO_POINT:
             new_indiv.genotype = cross2p(new_indiv.genotype, indiv2.genotype.copy())
 
-        elif self.method == "multipoint":
+        elif self.method == BinOpMethods.MULTIPOINT:
             new_indiv.genotype = crossMp(new_indiv.genotype, indiv2.genotype.copy())
 
-        elif self.method == "multicross":
+        elif self.method == BinOpMethods.MULTICROSS:
             new_indiv.genotype = multiCross(new_indiv.genotype, others, params["Nindiv"])
 
-        elif self.method == "perm":
+        elif self.method == BinOpMethods.PERM:
             new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
 
-        elif self.method == "xor" or self.method == "fliprandom":
+        elif self.method == BinOpMethods.XOR:
             new_indiv.genotype = xorMask(new_indiv.genotype, params["N"], mode="bin")
 
-        elif self.method == "xorcross" or self.method == "flipcross":
+        elif self.method == BinOpMethods.XORCROSS:
             new_indiv.genotype = xorCross(new_indiv.genotype, indiv2.genotype.copy())
 
-        elif self.method == "randsample":
-            params["method"] = "bernouli"
-            new_indiv.genotype = randSample(new_indiv.genotype, population, params)
-
-        elif self.method == "mutsample":
+        elif self.method == BinOpMethods.MUTSAMPLE:
             params["method"] = "bernouli"
             new_indiv.genotype = mutateSample(new_indiv.genotype, population, params)
+
+        elif self.method == BinOpMethods.RANDSAMPLE:
+            params["method"] = "bernouli"
+            new_indiv.genotype = randSample(new_indiv.genotype, population, params)
         
-        elif self.method == "random":
+        elif self.method == BinOpMethods.RANDOM:
             new_indiv.genotype = objfunc.random_solution()
         
-        elif self.method == "randommask":
+        elif self.method == BinOpMethods.RANDOM_MASK:
             mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
             np.random.shuffle(mask_pos)
 
             new_indiv.genotype[mask_pos] = objfunc.random_solution()[mask_pos]
 
-        elif self.method == "dummy":
+        elif self.method == BinOpMethods.DUMMY:
             new_indiv.genotype = dummyOp(new_indiv.genotype, params["F"])
 
-        elif self.method == "custom":
+        elif self.method == BinOpMethods.CUSTOM:
             fn = params["function"]
             new_indiv.genotype = fn(indiv, population, objfunc, params)
 

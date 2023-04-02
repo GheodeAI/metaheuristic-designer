@@ -9,16 +9,13 @@ class Operator(ABC):
     Abstract Operator class
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict], name=None):
+    def __init__(self, params: Union[ParamScheduler, dict], name=None):
         """
         Constructor for the Operator class
         """
 
-        self.method = method.lower()
         self.param_scheduler = None
 
-        if name is None:
-            name = method
         self.name = name
 
         if params is None:

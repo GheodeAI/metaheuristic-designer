@@ -3,13 +3,29 @@ from typing import Union, List
 from .ParamScheduler import *
 import random
 import numpy as np
+from enum import Enum
 
 
-_parent_sel_methods = [
-    "tournament",
-    "best",
-    "nothing"   
-]
+class ParentSelMethod(Enum):
+    TOURNAMENT = 1
+    BEST = 2
+    NOTHING = 3
+
+    @staticmethod
+    def from_str(str_input):
+
+        str_input = str_input.lower()
+
+        if str_input not in parent_sel_map:
+            raise ValueError(f"Survivor selection method \"{str_input}\" not defined")
+        
+        return parent_sel_map[str_input]
+
+parent_sel_map = {
+    "tournament": ParentSelMethod.TOURNAMENT,
+    "best": ParentSelMethod.BEST,
+    "nothing": ParentSelMethod.NOTHING   
+}
 
 
 class ParentSelection:
@@ -17,15 +33,15 @@ class ParentSelection:
     Operator class that has continuous mutation and cross methods
     """
 
-    def __init__(self, name: str, params: Union[ParamScheduler, dict]=None):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict]=None, name: str=None):
         """
         Constructor for the ParentSelection class
         """
 
-        self.name = name.lower()
+        if name is None:
+            self.name = method
 
-        if name.lower() not in _parent_sel_methods:
-            raise ValueError(f"Parent selection method \"{self.name}\" not defined")
+        self.method = ParentSelMethod.from_str(method)
         
         self.param_scheduler = None
         if params is None:
@@ -65,13 +81,13 @@ class ParentSelection:
         
         parents = []
         order = []
-        if self.name == "tournament":
+        if self.method == ParentSelMethod.TOURNAMENT:
             parents, order = prob_tournament(population, self.params["amount"], self.params["p"])
 
-        elif self.name == "best":
+        elif self.method == ParentSelMethod.BEST:
             parents, order = select_best(population, self.params["amount"])
 
-        elif self.name == "nothing":
+        elif self.method == ParentSelMethod.NOTHING:
             parents, order = population, range(len(population))
         
         return parents, order

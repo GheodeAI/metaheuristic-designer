@@ -5,12 +5,14 @@ import scipy as sp
 import scipy.stats
 
 
-def expand(input_list, n, method):
+def expand(input_list, n, method, maxlen):
     result = input_list
-    if method == "right":
-        result = expand_right(input_list, n)
-    elif method == "left":
-        result = expand_left(input_list, n)
+    
+    if len(input_list) < maxlen:
+        if method == "right":
+            result = expand_right(input_list, n)
+        elif method == "left":
+            result = expand_left(input_list, n)
     
     return result
 
