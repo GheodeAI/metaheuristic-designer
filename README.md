@@ -4,11 +4,11 @@ Python implementation of a general framework for the design and execution of met
 Created with the purpose of creating the necesary tools for the analysis and design of metaheuristics
 in a more granular way, choosing algorithm components and adding them to a general search framework.
 
-[Still in progress]
-
-https://arxiv.org/pdf/2011.09821.pdf
-
-To configure the hyperparameters a dictionary will have to be given to the class of each algorithm.
+Inspired by this article: 
+    Swan, Jerry, et al. "Metaheuristics “in the large”." European Journal of Operational Research 297.2 (2022): 393-406.
+   
+Mostly following the book: 
+    Eiben, Agoston E., and James E. Smith. Introduction to evolutionary computing. Springer-Verlag Berlin Heidelberg, 2015.
 
 ## Project structure
 This project uses "poetry" as a package manager and nox for unit testing.
