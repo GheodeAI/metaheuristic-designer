@@ -1,17 +1,16 @@
 from __future__ import annotations
-from typing import Tuple, List
 from abc import ABC, abstractmethod
 from .Individual import Individual
-import time
 
 
 class Algorithm(ABC):
     """
     Population of the Genetic algorithm
-    Note: for methods that use only one solution at a time, use a population of length 1 to store it.
+    Note: for methods that use only one solution at a time,
+          use a population of length 1 to store it.
     """
 
-    def __init__(self, name: str="some algorithm", popSize: int = 100):
+    def __init__(self, name: str = "some algorithm", popSize: int = 100):
         """
         Constructor of the GeneticPopulation class
         """
@@ -21,7 +20,6 @@ class Algorithm(ABC):
         self.population = []
         self.best = None
 
-
     def best_solution(self) -> Tuple(Individual, float):
         """
         Gives the best solution found by the algorithm and its fitness
@@ -29,10 +27,9 @@ class Algorithm(ABC):
 
         best_fitness = self.best.fitness
         if self.best.objfunc.opt == "min":
-            best_fitness *= -1        
+            best_fitness *= -1
 
         return self.best.genotype, best_fitness
-
 
     def initialize(self, objfunc: ObjectiveFunc):
         """
@@ -49,25 +46,23 @@ class Algorithm(ABC):
                 self.best = new_indiv
 
             self.population.append(new_indiv)
-    
 
     def select_parents(self, population: List[Individual], progress: float = 0, history: List[float] = None) -> List[Individual]:
         """
         Selects the individuals that will be perturbed in this generation
         Returns the whole population if not implemented.
         """
-        
+
         return population, range(len(population))
-    
+
     @abstractmethod
     def perturb(self, parent_list: List[Individual], progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Individual]:
         """
         Applies operators to the population in some way
         Returns the offspring generated.
         """
-            
 
-    def select_individuals(self, population: List[Individual], offspring: List[Individual], progress: float = 0, history: List[float] = None)-> List[Individual]:
+    def select_individuals(self, population: List[Individual], offspring: List[Individual], progress: float = 0, history: List[float] = None) -> List[Individual]:
         """
         Selects the individuals that will pass to the next generation.
         Returns the offspring if not implemented.
@@ -80,12 +75,10 @@ class Algorithm(ABC):
         Updates the parameters and the operators
         """
 
-
     def extra_step_info(self):
         """
         Specific information to display relevant to this algorithm
         """
-    
 
     def extra_report(self, show_plots: bool):
         """

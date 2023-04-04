@@ -1,9 +1,9 @@
+from __future__ import annotations
 from ..Operator import Operator
-from ..ParamScheduler import ParamScheduler
-from typing import Union
-from copy import copy
 from .vector_operator_functions import *
+from copy import copy
 from enum import Enum
+
 
 class BinOpMethods(Enum):
     ONE_POINT = 1
@@ -28,8 +28,9 @@ class BinOpMethods(Enum):
 
         if str_input not in bin_ops_map:
             raise ValueError(f"Binary operator \"{str_input}\" not defined")
-        
+
         return bin_ops_map[str_input]
+
 
 bin_ops_map = {
     "1point": BinOpMethods.ONE_POINT,
@@ -59,7 +60,7 @@ class OperatorBinary(Operator):
     Operator class that has discrete mutation and cross methods
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict]=None):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
         Constructor for the Operator class
         """
@@ -70,8 +71,7 @@ class OperatorBinary(Operator):
         super().__init__(params, name)
 
         self.method = BinOpMethods.from_str(method)
-    
-    
+
     def evolve(self, indiv, population, objfunc, global_best):
         """
         Evolves a solution with a different strategy depending on the type of operator
@@ -83,21 +83,19 @@ class OperatorBinary(Operator):
             indiv2 = random.choice(others)
         else:
             indiv2 = indiv
-        
+
         if global_best is None:
             global_best = indiv
 
         params = copy(self.params)
-                
+
         if "Cr" in params and "N" not in params:
             params["N"] = np.count_nonzero(np.random.random(indiv.genotype.size) < params["Cr"])
 
         if "N" in params:
             params["N"] = round(params["N"])
             params["N"] = min(params["N"], new_indiv.genotype.size)
-        
-        
-        
+
         if self.method == BinOpMethods.ONE_POINT:
             new_indiv.genotype = cross1p(new_indiv.genotype, indiv2.genotype.copy())
 
@@ -116,7 +114,7 @@ class OperatorBinary(Operator):
         elif self.method == BinOpMethods.XOR:
             new_indiv.genotype = xorMask(new_indiv.genotype, params["N"], mode="bin")
 
-        elif self.method == BinOpMethods.XORCROSS:
+        elif self.method == BinOpMethods.XOR_CROSS:
             new_indiv.genotype = xorCross(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == BinOpMethods.MUTSAMPLE:
@@ -126,10 +124,10 @@ class OperatorBinary(Operator):
         elif self.method == BinOpMethods.RANDSAMPLE:
             params["method"] = "bernouli"
             new_indiv.genotype = randSample(new_indiv.genotype, population, params)
-        
+
         elif self.method == BinOpMethods.RANDOM:
             new_indiv.genotype = objfunc.random_solution()
-        
+
         elif self.method == BinOpMethods.RANDOM_MASK:
             mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
             np.random.shuffle(mask_pos)

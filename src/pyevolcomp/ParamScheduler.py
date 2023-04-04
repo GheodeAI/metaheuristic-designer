@@ -1,6 +1,6 @@
 import random
 import numpy as np
-import math 
+import math
 
 
 _par_sch_methods = [
@@ -25,10 +25,8 @@ class ParamScheduler:
             raise ValueError(f"Parameter scheduler strategy \"{self.name}\" not defined")
 
         self.param_schedule = param_schedule
-        
 
         self.reset()
-
 
     def __getitem__(self, idx: str) -> type:
         """
@@ -36,7 +34,6 @@ class ParamScheduler:
         """
 
         return self.current_params[idx]
-    
 
     def __setitem__(self, idx: str, value: type):
         """
@@ -44,14 +41,13 @@ class ParamScheduler:
         """
 
         self.current_params[idx] = value
-    
+
     def __contains__(self, value: str) -> bool:
         """
         Gets wether an element is inside the dictionary or not
         """
 
         return value in self.current_params
-    
 
     def reset(self):
         """
@@ -63,8 +59,7 @@ class ParamScheduler:
 
         for key in self.param_schedule:
             if type(self.param_schedule[key]) in (list, tuple):
-                self.current_params[key] = self.param_schedule[key][0]    
-
+                self.current_params[key] = self.param_schedule[key][0]
 
     def get_params(self) -> dict:
         """
@@ -72,7 +67,6 @@ class ParamScheduler:
         """
 
         return self.current_params
-
 
     def step(self, progress: float):
         """
@@ -85,18 +79,18 @@ class ParamScheduler:
                 if type(self.param_schedule[key]) in (list, tuple):
                     start_param = self.param_schedule[key][0]
                     end_param = self.param_schedule[key][1]
-                    self.current_params[key] = (1-progress)*start_param + progress*end_param
-                
+                    self.current_params[key] = (1 - progress) * start_param + progress * end_param
+
         elif self.strategy == "exp":
-            # with f(x) = k·e^{a·x}+b,  f(0) = p[0],  f(1) = p[1] 
+            # with f(x) = k·e^{a·x}+b,  f(0) = p[0],  f(1) = p[1]
             for key in self.param_schedule:
                 if type(self.param_schedule[key]) in (list, tuple):
                     start_param = self.param_schedule[key][0]
                     end_param = self.param_schedule[key][1]
                     k = 1
-                    a = (end_param - start_param)/math.exp(k)
+                    a = (end_param - start_param) / math.exp(k)
                     b = start_param
-                    self.current_params[key] = a*math.exp(k*progress) + b
+                    self.current_params[key] = a * math.exp(k * progress) + b
 
 
 if __name__ == "__main__":
@@ -106,11 +100,8 @@ if __name__ == "__main__":
     }
 
     p = ParamScheduler("Linear", a)
-    for i in np.linspace(0,1,101):
+    for i in np.linspace(0, 1, 101):
         p.step(i)
         p["a"] = p["a"][0] + p["a"]
         print(p.get_params())
         print(p["a"])
-
-
-

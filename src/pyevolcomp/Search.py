@@ -1,19 +1,15 @@
 from __future__ import annotations
-from typing import Tuple, List
-from typing import Union
-from .ParamScheduler import ParamScheduler
-from .Algorithm import Algorithm
 from abc import ABC, abstractmethod
 import time
 import numpy as np
-import matplotlib.pyplot as plt
 import pyparsing as pp
+
 
 class Search(ABC):
     """
     General framework for metaheuristic algorithms
     """
-    
+
     def __init__(self, search_strategy: Algorithm, params: Union[ParamScheduler, dict]):
         """
         Constructor of the Metaheuristic class
@@ -44,7 +40,6 @@ class Search(ABC):
         self.time_spent = 0
         self.real_time_spent = 0
 
-
     def restart(self):
         """
         Resets the internal values of the algorithm and the number of evaluations of the fitness function.
@@ -57,7 +52,6 @@ class Search(ABC):
         self.best_fitness = 0
         self.time_spent = 0
         self.real_time_spent = 0
-    
 
     def save_solution(self, file_name="solution.csv"):
         """
@@ -68,7 +62,6 @@ class Search(ABC):
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=',')
         with open(file_name, "a") as file:
             file.write(str(fit))
-    
 
     def best_solution(self):
         """
@@ -76,7 +69,6 @@ class Search(ABC):
         """
 
         return self.search_strategy.best_solution()
-    
 
     def stopping_condition(self, gen, real_time_start, objfunc):
         """
@@ -84,7 +76,7 @@ class Search(ABC):
         """
 
         neval_reached = objfunc.counter >= self.Neval
-        
+
         ngen_reached = gen >= self.Ngen
 
         time_reached = time.time() - real_time_start >= self.time_limit
@@ -94,45 +86,42 @@ class Search(ABC):
         else:
             target_reached = self.best_solution()[1] <= self.fit_target
 
-        return process_condition(self.stop_cond_parsed, neval_reached, ngen_reached, time_reached, target_reached)      
-    
+        return process_condition(self.stop_cond_parsed, neval_reached, ngen_reached, time_reached, target_reached)
 
     def get_progress(self, gen, time_start, objfunc):
         """
-        Given the state of the algorithm, returns a number between 0 and 1 indicating 
+        Given the state of the algorithm, returns a number between 0 and 1 indicating
         how close to the end of the algorithm we are, 0 when starting and 1 when finished.
         """
 
         prog = 0
         if self.stop_cond == "neval":
-            prog = objfunc.counter/self.Neval
+            prog = objfunc.counter / self.Neval
         elif self.stop_cond == "ngen":
-            prog = gen/self.Ngen 
+            prog = gen / self.Ngen
         elif self.stop_cond == "time_limit":
-            prog = (time.time()-time_start)/self.time_limit
+            prog = (time.time() - time_start) / self.time_limit
         elif self.stop_cond == "fit_target":
             best_fitness = self.best_solution()[1]
             if objfunc.opt == "max":
-                prog = best_fitness/self.fit_target
+                prog = best_fitness / self.fit_target
             else:
                 if best_fitness == 0:
                     best_fitness = 1e-40
-                prog = self.fit_target/best_fitness
+                prog = self.fit_target / best_fitness
 
         return prog
 
-
     def update(self, gen, time_start, objfunc):
         """
-        Given the state of the algorithm, returns a number between 0 and 1 indicating 
+        Given the state of the algorithm, returns a number between 0 and 1 indicating
         how close to the end of the algorithm we are, 0 when starting and 1 when finished.
         """
 
         self.progress = self.get_progress(gen, time_start, objfunc)
-        
+
         self.ended = self.stopping_condition(gen, time_start, objfunc)
-    
-    
+
     def initialize(self, objfunc):
         """
         Generates a random population of individuals
@@ -140,14 +129,13 @@ class Search(ABC):
 
         self.restart()
         self.search_strategy.initialize(objfunc)
-    
+
     @abstractmethod
-    def step(self, objfunc, time_start=0, verbose=False) -> Tuple[Individual, float]:        
+    def step(self, objfunc, time_start=0, verbose=False) -> Tuple[Individual, float]:
         """
         Performs a step in the algorithm
         """
 
-    
     def optimize(self, objfunc):
         """
         Execute the algorithm to get the best solution possible along with it's evaluation
@@ -160,7 +148,7 @@ class Search(ABC):
         real_time_start = time.time()
         display_timer = time.time()
 
-        # Initizalize search strategy 
+        # Initizalize search strategy
         self.initialize(objfunc)
 
         # Search untill the stopping condition is met
@@ -173,33 +161,32 @@ class Search(ABC):
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(objfunc, real_time_start)
                 display_timer = time.time()
-        
+
         # Store the time spent optimizing
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
-        
+
         return self.best_solution()
-    
+
     @abstractmethod
     def step_info(self, objfunc, start_time):
         """
         Displays information about the current state of the algotithm
         """
-    
+
     @abstractmethod
     def display_report(self, objfunc, show_plots=True):
         """
         Shows a summary of the execution of the algorithm
         """
-    
-# Stopping condition string parsing methods
 
+
+# Stopping condition string parsing methods
 def parse_stopping_cond(condition_str):
     """
     This function parses an expression of the form "neval or cpu_time" into
     a tree structure so that it can be futher processed.
     """
-    str_input = pp.Word(pp.alphas)
 
     orop = pp.Literal("and")
     andop = pp.Literal("or")
@@ -210,7 +197,7 @@ def parse_stopping_cond(condition_str):
         [
             (orop, 2, pp.opAssoc.RIGHT),
             (andop, 2, pp.opAssoc.RIGHT)
-        ] 
+        ]
     )
 
     return expr.parse_string(condition_str).as_list()
@@ -218,8 +205,8 @@ def parse_stopping_cond(condition_str):
 
 def process_condition(cond_parsed, neval, ngen, real_time, target):
     """
-    This function recieves as an input an expression for the stopping condition 
-    and the truth variable of the possible stopping conditions and returns wether to stop or not. 
+    This function recieves as an input an expression for the stopping condition
+    and the truth variable of the possible stopping conditions and returns wether to stop or not.
     """
     result = None
 
@@ -232,7 +219,7 @@ def process_condition(cond_parsed, neval, ngen, real_time, target):
                 result = cond1 or cond2
             elif cond_parsed[1] == "and":
                 result = cond1 and cond2
-            
+
         elif len(cond_parsed) == 1:
             result = process_condition(cond_parsed[0], neval, ngen, real_time, target)
     else:
@@ -244,5 +231,5 @@ def process_condition(cond_parsed, neval, ngen, real_time, target):
             result = real_time
         elif cond_parsed == "fit_target":
             result = target
-    
-    return result    
+
+    return result

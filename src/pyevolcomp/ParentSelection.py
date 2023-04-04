@@ -1,9 +1,8 @@
 from __future__ import annotations
-from typing import Union, List
-from .ParamScheduler import *
-import random
 import numpy as np
+import random
 from enum import Enum
+from .ParamScheduler import ParamScheduler
 
 
 class ParentSelMethod(Enum):
@@ -18,13 +17,14 @@ class ParentSelMethod(Enum):
 
         if str_input not in parent_sel_map:
             raise ValueError(f"Survivor selection method \"{str_input}\" not defined")
-        
+
         return parent_sel_map[str_input]
+
 
 parent_sel_map = {
     "tournament": ParentSelMethod.TOURNAMENT,
     "best": ParentSelMethod.BEST,
-    "nothing": ParentSelMethod.NOTHING   
+    "nothing": ParentSelMethod.NOTHING
 }
 
 
@@ -33,7 +33,7 @@ class ParentSelection:
     Operator class that has continuous mutation and cross methods
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict]=None, name: str=None):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
         Constructor for the ParentSelection class
         """
@@ -42,24 +42,22 @@ class ParentSelection:
             self.name = method
 
         self.method = ParentSelMethod.from_str(method)
-        
+
         self.param_scheduler = None
         if params is None:
-            self.params = {"amount": 10, "p":0.1}
+            self.params = {"amount": 10, "p": 0.1}
         elif isinstance(params, ParamScheduler):
             self.param_scheduler = params
             self.params = self.param_scheduler.get_params()
         else:
             self.params = params
-    
 
     def __call__(self, population: List[Individual]):
         """
         Shorthand for calling the 'select' method
         """
-        
-        return self.select(population)
 
+        return self.select(population)
 
     def step(self, progress: float):
         """
@@ -73,12 +71,11 @@ class ParentSelection:
             if "amount" in self.params:
                 self.params["amount"] = round(self.params["amount"])
 
-
-    def select(self, population: List[Individual]) -> List[Individual]: 
+    def select(self, population: List[Individual]) -> List[Individual]:
         """
         Selects a subsection of the population along with the indices of each individual in the original population
         """
-        
+
         parents = []
         order = []
         if self.method == ParentSelMethod.TOURNAMENT:
@@ -89,7 +86,7 @@ class ParentSelection:
 
         elif self.method == ParentSelMethod.NOTHING:
             parents, order = population, range(len(population))
-        
+
         return parents, order
 
 
@@ -101,9 +98,9 @@ def select_best(population, amount):
     # Get the fitness of all the individuals
     fitness_list = np.fromiter(map(lambda x: x.fitness, population), dtype=float)
 
-    # Get the index of the individuals sorted by fitness 
+    # Get the index of the individuals sorted by fitness
     order = np.argsort(fitness_list)[::-1][:amount]
-    
+
     # Select the 'amount' best individuals
     parents = [population[i] for i in order]
 
@@ -117,7 +114,6 @@ def prob_tournament(population, tourn_size, prob):
 
     parent_pool = []
     order = []
-    
 
     for _ in population:
 
@@ -128,7 +124,7 @@ def prob_tournament(population, tourn_size, prob):
 
         # Choose one of the individuals
         if random.random() < prob:
-            idx = random.randint(0,tourn_size-1)
+            idx = random.randint(0, tourn_size - 1)
         else:
             idx = fits.index(max(fits))
 

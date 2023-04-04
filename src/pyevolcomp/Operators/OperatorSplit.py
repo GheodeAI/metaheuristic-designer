@@ -1,8 +1,4 @@
-import random
-import numpy as np
-from copy import copy
-from typing import List, Union
-from ..ParamScheduler import ParamScheduler
+from __future__ import annotations
 from ..Operator import Operator
 
 
@@ -22,13 +18,12 @@ class OperatorSplit(Operator):
         name = "+".join([op.name for op in op_list if op.method.lower() != "nothing"])
 
         super().__init__({}, name)
-    
-    
+
     def evolve(self, indiv, population, objfunc, global_best):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """
-        
+
         for idx, op in enumerate(op_list):
             aux_indiv = op.evolve(indiv, population, objfunc, global_best)
             indiv.genotype[self.mask == idx] = aux_indiv.genotype[self.mask == idx]
