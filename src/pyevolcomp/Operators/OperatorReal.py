@@ -1,4 +1,5 @@
 from __future__ import annotations
+import numpy as np
 from ..Operator import Operator
 from .vector_operator_functions import *
 from ..ParamScheduler import ParamScheduler
@@ -94,7 +95,7 @@ real_ops_map = {
 
 class OperatorReal(Operator):
     """
-    Operator class that has continuous mutation and cross methods
+    Operator class that has mutation and cross methods for real coded vectors
     """
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):

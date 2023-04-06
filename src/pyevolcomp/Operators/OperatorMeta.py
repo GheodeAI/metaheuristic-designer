@@ -5,9 +5,8 @@ from enum import Enum
 
 
 class MetaOpMethods(Enum):
-    BRANCH2 = 1
-    BRANCH = 2
-    SEQUENCE = 3
+    BRANCH = 1
+    SEQUENCE = 2
 
     @staticmethod
     def from_str(str_input):
@@ -21,7 +20,6 @@ class MetaOpMethods(Enum):
 
 
 meta_ops_map = {
-    "branch2": MetaOpMethods.BRANCH2,
     "branch": MetaOpMethods.BRANCH,
     "sequence": MetaOpMethods.SEQUENCE,
 }
@@ -55,20 +53,17 @@ class OperatorMeta(Operator):
 
         self.method = MetaOpMethods.from_str(method)
 
+        # If we have a branch with 2 operators and "p" is given as an input
+        if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
+            params["weights"] = [params["p"], 1 - params["p"]]
+
     def evolve(self, indiv, population, objfunc, global_best):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """
 
-        if self.method == MetaOpMethods.BRANCH2:
-            if random.random() > self.params["P"]:
-                op = self.op_list[0]
-            else:
-                op = self.op_list[1]
-            result = op(indiv, population, objfunc, global_best)
-
-        elif self.method == MetaOpMethods.BRANCH:
-            op = random.choices(op_list, weights=self.params["weights"])
+        if self.method == MetaOpMethods.BRANCH:
+            op = random.choices(self.op_list, k=1, weights=self.params["weights"])[0]
             result = op(indiv, population, objfunc, global_best)
 
         elif self.method == MetaOpMethods.SEQUENCE:

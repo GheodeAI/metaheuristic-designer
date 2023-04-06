@@ -4,7 +4,7 @@ from ..Operator import Operator
 
 class OperatorSplit(Operator):
     """
-    Operator class that has discrete mutation and cross methods
+    Operator class that implements methods to apply different operators to different components of a vector
     """
 
     def __init__(self, op_list: List[Operator], mask: np.ndarray, name=None):

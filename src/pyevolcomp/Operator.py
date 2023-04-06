@@ -1,4 +1,5 @@
 from __future__ import annotations
+from .ParamScheduler import ParamScheduler
 from abc import ABC, abstractmethod
 
 
