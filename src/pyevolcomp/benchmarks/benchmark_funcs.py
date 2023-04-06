@@ -1,10 +1,6 @@
-import sys
-sys.path.append("../src")
-
 import numpy as np
-import random
 from numba import jit
-from pyevolcomp import ObjectiveFunc
+from ..ObjectiveFunc import ObjectiveFunc
 
 
 class MaxOnes(ObjectiveFunc):

@@ -1,0 +1,345 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>pyevolcomp.Algorithms package &#8212; PyEvolComp 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pyevolcomp.Decoders package" href="pyevolcomp.Decoders.html" />
+    <link rel="prev" title="pyevolcomp package" href="pyevolcomp.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pyevolcomp-algorithms-package">
+<h1>pyevolcomp.Algorithms package<a class="headerlink" href="#pyevolcomp-algorithms-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-pyevolcomp.Algorithms.ES">
+<span id="pyevolcomp-algorithms-es-module"></span><h2>pyevolcomp.Algorithms.ES module<a class="headerlink" href="#module-pyevolcomp.Algorithms.ES" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.ES.ES">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyevolcomp.Algorithms.ES.</span></span><span class="sig-name descname"><span class="pre">ES</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mutation_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Operator.Operator" title="pyevolcomp.Operator.Operator"><span class="pre">Operator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Operator.Operator" title="pyevolcomp.Operator.Operator"><span class="pre">Operator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_sel_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParentSelection.ParentSelection" title="pyevolcomp.ParentSelection.ParentSelection"><span class="pre">ParentSelection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.SurvivorSelection.SurvivorSelection" title="pyevolcomp.SurvivorSelection.SurvivorSelection"><span class="pre">SurvivorSelection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParamScheduler.ParamScheduler" title="pyevolcomp.ParamScheduler.ParamScheduler"><span class="pre">ParamScheduler</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ES'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Individual.Indiv" title="pyevolcomp.Individual.Indiv"><span class="pre">Indiv</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.ES.ES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pyevolcomp.html#pyevolcomp.Algorithm.Algorithm" title="pyevolcomp.Algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a></p>
+<p>Population of the Genetic algorithm</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.ES.ES.perturb">
+<span class="sig-name descname"><span class="pre">perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objfunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.ES.ES.perturb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies operators to the population in some way
+Returns the offspring generated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.ES.ES.select_individuals">
+<span class="sig-name descname"><span class="pre">select_individuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offspring</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.ES.ES.select_individuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects the individuals that will pass to the next generation.
+Returns the offspring if not implemented.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.ES.ES.select_parents">
+<span class="sig-name descname"><span class="pre">select_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.ES.ES.select_parents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects the individuals that will be perturbed in this generation
+Returns the whole population if not implemented.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.ES.ES.update_params">
+<span class="sig-name descname"><span class="pre">update_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.ES.ES.update_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the parameters and the operators</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyevolcomp.Algorithms.GA">
+<span id="pyevolcomp-algorithms-ga-module"></span><h2>pyevolcomp.Algorithms.GA module<a class="headerlink" href="#module-pyevolcomp.Algorithms.GA" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.GA.GA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyevolcomp.Algorithms.GA.</span></span><span class="sig-name descname"><span class="pre">GA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mutation_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Operator.Operator" title="pyevolcomp.Operator.Operator"><span class="pre">Operator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Operator.Operator" title="pyevolcomp.Operator.Operator"><span class="pre">Operator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_sel_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParentSelection.ParentSelection" title="pyevolcomp.ParentSelection.ParentSelection"><span class="pre">ParentSelection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.SurvivorSelection.SurvivorSelection" title="pyevolcomp.SurvivorSelection.SurvivorSelection"><span class="pre">SurvivorSelection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParamScheduler.ParamScheduler" title="pyevolcomp.ParamScheduler.ParamScheduler"><span class="pre">ParamScheduler</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'GA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Individual.Indiv" title="pyevolcomp.Individual.Indiv"><span class="pre">Indiv</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.GA.GA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pyevolcomp.html#pyevolcomp.Algorithm.Algorithm" title="pyevolcomp.Algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a></p>
+<p>Population of the Genetic algorithm</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.GA.GA.extra_step_info">
+<span class="sig-name descname"><span class="pre">extra_step_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.GA.GA.extra_step_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specific information to display relevant to this algorithm</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.GA.GA.perturb">
+<span class="sig-name descname"><span class="pre">perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objfunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.GA.GA.perturb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies operators to the population in some way
+Returns the offspring generated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.GA.GA.select_individuals">
+<span class="sig-name descname"><span class="pre">select_individuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offspring</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.GA.GA.select_individuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects the individuals that will pass to the next generation.
+Returns the offspring if not implemented.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.GA.GA.select_parents">
+<span class="sig-name descname"><span class="pre">select_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.GA.GA.select_parents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects the individuals that will be perturbed in this generation
+Returns the whole population if not implemented.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.GA.GA.update_params">
+<span class="sig-name descname"><span class="pre">update_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.GA.GA.update_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the parameters and the operators</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyevolcomp.Algorithms.HillClimb">
+<span id="pyevolcomp-algorithms-hillclimb-module"></span><h2>pyevolcomp.Algorithms.HillClimb module<a class="headerlink" href="#module-pyevolcomp.Algorithms.HillClimb" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.HillClimb.HillClimb">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyevolcomp.Algorithms.HillClimb.</span></span><span class="sig-name descname"><span class="pre">HillClimb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perturb_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Operator.Operator" title="pyevolcomp.Operator.Operator"><span class="pre">Operator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParamScheduler.ParamScheduler" title="pyevolcomp.ParamScheduler.ParamScheduler"><span class="pre">ParamScheduler</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HillClimb'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.HillClimb.HillClimb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pyevolcomp.html#pyevolcomp.Algorithm.Algorithm" title="pyevolcomp.Algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a></p>
+<p>Search strtategy example, HillClimbing</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.HillClimb.HillClimb.perturb">
+<span class="sig-name descname"><span class="pre">perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indiv_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objfunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.HillClimb.HillClimb.perturb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a step of the algorithm</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.HillClimb.HillClimb.update_params">
+<span class="sig-name descname"><span class="pre">update_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.HillClimb.HillClimb.update_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the parameters of each component of the algorithm</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyevolcomp.Algorithms.LocalSearch">
+<span id="pyevolcomp-algorithms-localsearch-module"></span><h2>pyevolcomp.Algorithms.LocalSearch module<a class="headerlink" href="#module-pyevolcomp.Algorithms.LocalSearch" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.LocalSearch.LocalSearch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyevolcomp.Algorithms.LocalSearch.</span></span><span class="sig-name descname"><span class="pre">LocalSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perturb_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Operator.Operator" title="pyevolcomp.Operator.Operator"><span class="pre">Operator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParamScheduler.ParamScheduler" title="pyevolcomp.ParamScheduler.ParamScheduler"><span class="pre">ParamScheduler</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'LocalSearch'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.LocalSearch.LocalSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pyevolcomp.html#pyevolcomp.Algorithm.Algorithm" title="pyevolcomp.Algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a></p>
+<p>Search strtategy example, HillClimbing</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.LocalSearch.LocalSearch.perturb">
+<span class="sig-name descname"><span class="pre">perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indiv_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objfunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.LocalSearch.LocalSearch.perturb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies operators to the population in some way
+Returns the offspring generated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.LocalSearch.LocalSearch.update_params">
+<span class="sig-name descname"><span class="pre">update_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.LocalSearch.LocalSearch.update_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the parameters of each component of the algorithm</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyevolcomp.Algorithms.SA">
+<span id="pyevolcomp-algorithms-sa-module"></span><h2>pyevolcomp.Algorithms.SA module<a class="headerlink" href="#module-pyevolcomp.Algorithms.SA" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.SA.SA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyevolcomp.Algorithms.SA.</span></span><span class="sig-name descname"><span class="pre">SA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perturb_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Operator.Operator" title="pyevolcomp.Operator.Operator"><span class="pre">Operator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParamScheduler.ParamScheduler" title="pyevolcomp.ParamScheduler.ParamScheduler"><span class="pre">ParamScheduler</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'SA'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.SA.SA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pyevolcomp.html#pyevolcomp.Algorithm.Algorithm" title="pyevolcomp.Algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a></p>
+<p>Class implementing the Simulated annealing algorithm</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.SA.SA.extra_step_info">
+<span class="sig-name descname"><span class="pre">extra_step_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.SA.SA.extra_step_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specific information to display relevant to this algorithm</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.SA.SA.perturb">
+<span class="sig-name descname"><span class="pre">perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indiv_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objfunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.SA.SA.perturb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a mutation operator to the current individual</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.SA.SA.update_params">
+<span class="sig-name descname"><span class="pre">update_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.SA.SA.update_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the parameters and the operators</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyevolcomp.Algorithms.StaticPopulation">
+<span id="pyevolcomp-algorithms-staticpopulation-module"></span><h2>pyevolcomp.Algorithms.StaticPopulation module<a class="headerlink" href="#module-pyevolcomp.Algorithms.StaticPopulation" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.StaticPopulation.StaticPopulation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyevolcomp.Algorithms.StaticPopulation.</span></span><span class="sig-name descname"><span class="pre">StaticPopulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Operator.Operator" title="pyevolcomp.Operator.Operator"><span class="pre">Operator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParamScheduler.ParamScheduler" title="pyevolcomp.ParamScheduler.ParamScheduler"><span class="pre">ParamScheduler</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.SurvivorSelection.SurvivorSelection" title="pyevolcomp.SurvivorSelection.SurvivorSelection"><span class="pre">SurvivorSelection</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stpop'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Individual.Indiv" title="pyevolcomp.Individual.Indiv"><span class="pre">Indiv</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.StaticPopulation.StaticPopulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pyevolcomp.html#pyevolcomp.Algorithm.Algorithm" title="pyevolcomp.Algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a></p>
+<p>Population of the Genetic algorithm</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.StaticPopulation.StaticPopulation.perturb">
+<span class="sig-name descname"><span class="pre">perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objfunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.StaticPopulation.StaticPopulation.perturb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies operators to the population in some way
+Returns the offspring generated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.StaticPopulation.StaticPopulation.select_individuals">
+<span class="sig-name descname"><span class="pre">select_individuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offspring</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.StaticPopulation.StaticPopulation.select_individuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects the individuals that will pass to the next generation.
+Returns the offspring if not implemented.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.StaticPopulation.StaticPopulation.update_params">
+<span class="sig-name descname"><span class="pre">update_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.StaticPopulation.StaticPopulation.update_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the parameters and the operators</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyevolcomp.Algorithms.algorithm_alias">
+<span id="pyevolcomp-algorithms-algorithm-alias-module"></span><h2>pyevolcomp.Algorithms.algorithm_alias module<a class="headerlink" href="#module-pyevolcomp.Algorithms.algorithm_alias" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.algorithm_alias.DE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyevolcomp.Algorithms.algorithm_alias.</span></span><span class="sig-name descname"><span class="pre">DE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">de_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Operator.Operator" title="pyevolcomp.Operator.Operator"><span class="pre">Operator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParamScheduler.ParamScheduler" title="pyevolcomp.ParamScheduler.ParamScheduler"><span class="pre">ParamScheduler</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.SurvivorSelection.SurvivorSelection" title="pyevolcomp.SurvivorSelection.SurvivorSelection"><span class="pre">SurvivorSelection</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'DE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Individual.Indiv" title="pyevolcomp.Individual.Indiv"><span class="pre">Indiv</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.algorithm_alias.DE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyevolcomp.Algorithms.StaticPopulation.StaticPopulation" title="pyevolcomp.Algorithms.StaticPopulation.StaticPopulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">StaticPopulation</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.algorithm_alias.HS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyevolcomp.Algorithms.algorithm_alias.</span></span><span class="sig-name descname"><span class="pre">HS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParamScheduler.ParamScheduler" title="pyevolcomp.ParamScheduler.ParamScheduler"><span class="pre">ParamScheduler</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Individual.Indiv" title="pyevolcomp.Individual.Indiv"><span class="pre">Indiv</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.algorithm_alias.HS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyevolcomp.Algorithms.ES.ES" title="pyevolcomp.Algorithms.ES.ES"><code class="xref py py-class docutils literal notranslate"><span class="pre">ES</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.algorithm_alias.NoSearch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyevolcomp.Algorithms.algorithm_alias.</span></span><span class="sig-name descname"><span class="pre">NoSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParamScheduler.ParamScheduler" title="pyevolcomp.ParamScheduler.ParamScheduler"><span class="pre">ParamScheduler</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'No</span> <span class="pre">search'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Individual.Indiv" title="pyevolcomp.Individual.Indiv"><span class="pre">Indiv</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.algorithm_alias.NoSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyevolcomp.Algorithms.StaticPopulation.StaticPopulation" title="pyevolcomp.Algorithms.StaticPopulation.StaticPopulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">StaticPopulation</span></code></a></p>
+<p>Debug Algorithm that does nothing</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.algorithm_alias.NoSearch.perturb">
+<span class="sig-name descname"><span class="pre">perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objfunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.algorithm_alias.NoSearch.perturb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies operators to the population in some way
+Returns the offspring generated.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.algorithm_alias.PSO">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyevolcomp.Algorithms.algorithm_alias.</span></span><span class="sig-name descname"><span class="pre">PSO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.ParamScheduler.ParamScheduler" title="pyevolcomp.ParamScheduler.ParamScheduler"><span class="pre">ParamScheduler</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pso_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Operator.Operator" title="pyevolcomp.Operator.Operator"><span class="pre">Operator</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'PSO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pyevolcomp.html#pyevolcomp.Individual.Indiv" title="pyevolcomp.Individual.Indiv"><span class="pre">Indiv</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.algorithm_alias.PSO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyevolcomp.Algorithms.StaticPopulation.StaticPopulation" title="pyevolcomp.Algorithms.StaticPopulation.StaticPopulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">StaticPopulation</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyevolcomp.Algorithms.algorithm_alias.PSO.extra_step_info">
+<span class="sig-name descname"><span class="pre">extra_step_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyevolcomp.Algorithms.algorithm_alias.PSO.extra_step_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specific information to display relevant to this algorithm</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyevolcomp.Algorithms">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyevolcomp.Algorithms" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PyEvolComp</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pyevolcomp</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyevolcomp.html">pyevolcomp package</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">pyevolcomp</a><ul>
+  <li><a href="pyevolcomp.html">pyevolcomp package</a><ul>
+      <li>Previous: <a href="pyevolcomp.html" title="previous chapter">pyevolcomp package</a></li>
+      <li>Next: <a href="pyevolcomp.Decoders.html" title="next chapter">pyevolcomp.Decoders package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, eugeniolr.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/pyevolcomp.Algorithms.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

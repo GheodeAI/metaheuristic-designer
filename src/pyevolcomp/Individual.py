@@ -1,15 +1,14 @@
 from __future__ import annotations
-from typing import List
 from copy import copy
 import numpy as np
 
+
 class Individual:
     """
-    Individual that holds a tentative solution with 
-    its fitness.
+    Individual that holds a tentative solution with its fitness.
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, vector: np.ndarray, speed: np.ndarray = None, operator: Operator=None):
+    def __init__(self, objfunc: ObjectiveFunc, vector: np.ndarray, speed: np.ndarray = None, operator: Operator = None):
         """
         Constructor of the Individual class.
         """
@@ -24,7 +23,6 @@ class Individual:
         self.fitness_calculated = False
         self.best = vector
         self.is_dead = False
-    
 
     def __copy__(self) -> Individual:
         """
@@ -36,7 +34,6 @@ class Individual:
         copied_ind.fitness_calculated = self.fitness_calculated
         copied_ind.best = copy(self.best)
         return copied_ind
-    
 
     @property
     def genotype(self) -> np.ndarray:
@@ -46,7 +43,6 @@ class Individual:
 
         return self._genotype
 
-
     @genotype.setter
     def genotype(self, vector: np.ndarray):
         """
@@ -55,7 +51,6 @@ class Individual:
 
         self.fitness_calculated = False
         self._genotype = vector
-    
 
     def store_best(self, past_indiv: Individual):
         """
@@ -64,7 +59,6 @@ class Individual:
 
         if self.fitness < past_indiv.fitness:
             self.best = past_indiv.genotype
-
 
     def reproduce(self, population: List[Individual]) -> Individual:
         """
@@ -75,7 +69,6 @@ class Individual:
         new_indiv.genotype = self.objfunc.repair_solution(new_indiv.genotype)
         return Individual(self.objfunc, new_vector, self.speed, self.operator)
 
-
     def apply_speed(self) -> Individual:
         """
         Apply the speed to obtain an individual with a new position.
@@ -83,24 +76,21 @@ class Individual:
 
         return Individual(self.objfunc, self._genotype + self.speed, self.speed, self.operator)
 
-
     @property
     def fitness(self) -> float:
         """
-        Obtain the fitness of the individual, optimized to be calculated 
-        only once per individual.
+        Obtain the fitness of the individual, optimized to be calculated only once per individual.
         """
 
         if not self.fitness_calculated:
             self.fitness = self.objfunc(self)
         return self._fitness
-    
+
     @fitness.setter
     def fitness(self, fit: float):
         """
-        Obtain the fitness of the individual, optimized to be calculated 
-        only once per individual.
+        Obtain the fitness of the individual, optimized to be calculated only once per individual.
         """
-        
+
         self._fitness = fit
         self.fitness_calculated = True

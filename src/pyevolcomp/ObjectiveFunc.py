@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from .Decoders import DefaultDecoder
 
+
 class ObjectiveFunc(ABC):
     """
     Abstract Fitness function class.
@@ -27,26 +28,23 @@ class ObjectiveFunc(ABC):
         self.low_lim = 100
         if decoder is None:
             self.decoder = DefaultDecoder()
-        
+
         if self.opt == "min":
             self.factor = -1
-    
 
     def __call__(self, indiv: Indiv, adjusted: bool = True):
         """
         Shorthand for executing the objective function on a vector.
         """
-        
+
         return self.fitness(indiv, adjusted)
-    
-    
+
     def set_decoder(self, decoder: BaseDecoder):
         """
         Sets the decoder
         """
 
         self.decoder = decoder
-        
 
     def fitness(self, indiv: Indiv, adjusted: bool = True) -> float:
         """
@@ -60,37 +58,33 @@ class ObjectiveFunc(ABC):
 
         if adjusted:
             value = self.factor * value - self.penalize(indiv)
-        
+
         return value
-    
 
     @abstractmethod
     def objective(self, vector: np.ndarray) -> float:
         """
         Implementation of the objective function.
         """
-    
 
     @abstractmethod
     def random_solution(self) -> np.ndarray:
         """
-        Returns a random vector that represents one viable solution to our optimization problem. 
+        Returns a random vector that represents one viable solution to our optimization problem.
         """
-    
 
     @abstractmethod
     def repair_solution(self, vector: np.ndarray) -> np.ndarray:
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
         """
-    
+
     def repair_speed(self, speed):
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
         """
 
         return self.repair_solution(speed)
-    
 
     def penalize(self, indiv: Indiv) -> float:
         """

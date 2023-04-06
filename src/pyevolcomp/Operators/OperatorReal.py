@@ -1,9 +1,11 @@
+from __future__ import annotations
+import numpy as np
 from ..Operator import Operator
 from .vector_operator_functions import *
 from ..ParamScheduler import ParamScheduler
-from typing import Union
 from copy import copy
 from enum import Enum
+
 
 class RealOpMethods(Enum):
     ONE_POINT = 1
@@ -48,8 +50,9 @@ class RealOpMethods(Enum):
 
         if str_input not in real_ops_map:
             raise ValueError(f"Real operator \"{str_input}\" not defined")
-        
+
         return real_ops_map[str_input]
+
 
 real_ops_map = {
     "1point": RealOpMethods.ONE_POINT,
@@ -92,10 +95,10 @@ real_ops_map = {
 
 class OperatorReal(Operator):
     """
-    Operator class that has continuous mutation and cross methods
+    Operator class that has mutation and cross methods for real coded vectors
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict]=None, name=None):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
         Constructor for the OperatorReal class
         """
@@ -106,8 +109,7 @@ class OperatorReal(Operator):
         super().__init__(params, name)
 
         self.method = RealOpMethods.from_str(method)
-    
-    
+
     def evolve(self, indiv, population, objfunc, global_best):
         """
         Evolves a solution with a different strategy depending on the type of operator
@@ -119,21 +121,18 @@ class OperatorReal(Operator):
             indiv2 = random.choice(others)
         else:
             indiv2 = indiv
-        
+
         if global_best is None:
             global_best = indiv
 
         params = copy(self.params)
 
-
         if "Cr" in params and "N" not in params:
             params["N"] = np.count_nonzero(np.random.random(indiv.genotype.size) < params["Cr"])
-        
+
         if "N" in params:
             params["N"] = round(params["N"])
             params["N"] = min(params["N"], new_indiv.genotype.size)
-            
-        
 
         if self.method == RealOpMethods.ONE_POINT:
             new_indiv.genotype = cross1p(new_indiv.genotype, indiv2.genotype.copy())
@@ -152,7 +151,7 @@ class OperatorReal(Operator):
 
         elif self.method == RealOpMethods.SBX:
             new_indiv.genotype = sbx(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
-            
+
         elif self.method == RealOpMethods.MULTICROSS:
             new_indiv.genotype = multiCross(new_indiv.genotype, others, params["Nindiv"])
 
@@ -176,7 +175,7 @@ class OperatorReal(Operator):
 
         elif self.method == RealOpMethods.LAPLACE:
             new_indiv.genotype = laplace(new_indiv.genotype, params["F"])
-            
+
         elif self.method == RealOpMethods.CAUCHY:
             new_indiv.genotype = cauchy(new_indiv.genotype, params["F"])
 
@@ -237,6 +236,5 @@ class OperatorReal(Operator):
         elif self.method == RealOpMethods.CUSTOM:
             fn = params["function"]
             new_indiv.genotype = fn(indiv, population, objfunc, params)
-        
-            
+
         return new_indiv

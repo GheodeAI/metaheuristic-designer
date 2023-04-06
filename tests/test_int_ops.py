@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 from pyevolcomp import Individual
-from pyevolcomp.Operators import OperatorInt, _int_ops
+from pyevolcomp.Operators import OperatorInt, int_ops_map
 from pyevolcomp.benchmarks.benchmark_funcs import Sphere
 
 pop_size = 100
@@ -12,7 +12,7 @@ example_populaton2 = [Individual(Sphere(20), np.random.randint(-100, 100, 20)) f
 example_populaton3 = [Individual(Sphere(100), np.random.randint(-100, 100, 100)) for i in range(pop_size)]
 
 @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
-@pytest.mark.parametrize("op_method", _int_ops)
+@pytest.mark.parametrize("op_method", int_ops_map.keys())
 def test_basic_working(population, op_method):
     operator = OperatorInt(op_method)
 

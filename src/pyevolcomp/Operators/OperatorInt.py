@@ -1,9 +1,9 @@
+from __future__ import annotations
 from ..Operator import Operator
-from ..ParamScheduler import ParamScheduler
-from typing import Union
-from copy import copy
 from .vector_operator_functions import *
+from copy import copy
 from enum import Enum
+
 
 class IntOpMethods(Enum):
     ONE_POINT = 1
@@ -47,8 +47,9 @@ class IntOpMethods(Enum):
 
         if str_input not in int_ops_map:
             raise ValueError(f"Integer operator \"{str_input}\" not defined")
-        
+
         return int_ops_map[str_input]
+
 
 int_ops_map = {
     "1point": IntOpMethods.ONE_POINT,
@@ -87,12 +88,13 @@ int_ops_map = {
     "nothing": IntOpMethods.NOTHING,
 }
 
+
 class OperatorInt(Operator):
     """
     Operator class that has discrete mutation and cross methods
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict]=None, name=None):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
         Constructor for the Operator class
         """
@@ -103,8 +105,7 @@ class OperatorInt(Operator):
         super().__init__(params, name)
 
         self.method = IntOpMethods.from_str(method)
-    
-    
+
     def evolve(self, indiv, population, objfunc, global_best):
         """
         Evolves a solution with a different strategy depending on the type of operator
@@ -116,12 +117,12 @@ class OperatorInt(Operator):
             indiv2 = random.choice(others)
         else:
             indiv2 = indiv
-        
+
         if global_best is None:
             global_best = indiv
 
         params = copy(self.params)
-        
+
         if "Cr" in params and "N" not in params:
             params["N"] = np.count_nonzero(np.random.random(indiv.genotype.size) < params["Cr"])
 
@@ -143,10 +144,10 @@ class OperatorInt(Operator):
 
         elif self.method == IntOpMethods.BLXALPHA:
             new_indiv.genotype = blxalpha(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
-            
+
         elif self.method == IntOpMethods.MULTICROSS:
             new_indiv.genotype = multiCross(new_indiv.genotype, others, params["Nindiv"])
-        
+
         elif self.method == IntOpMethods.XOR:
             new_indiv.genotype = xorMask(new_indiv.genotype, params["N"])
 
@@ -164,13 +165,13 @@ class OperatorInt(Operator):
 
         elif self.method == IntOpMethods.LAPLACE:
             new_indiv.genotype = laplace(new_indiv.genotype, params["F"])
-            
+
         elif self.method == IntOpMethods.CAUCHY:
             new_indiv.genotype = cauchy(new_indiv.genotype, params["F"])
 
         elif self.method == IntOpMethods.UNIFORM:
             new_indiv.genotype = uniform(new_indiv.genotype, params["Low"], params["Up"])
-        
+
         elif self.method == IntOpMethods.POISSON:
             new_indiv.genotype = poisson(new_indiv.genotype, params["F"])
 
@@ -227,7 +228,7 @@ class OperatorInt(Operator):
 
         elif self.method == IntOpMethods.CUSTOM:
             fn = params["function"]
-            new_indiv.genotype = fn(indiv, population, objfunc, params)        
-            
+            new_indiv.genotype = fn(indiv, population, objfunc, params)
+
         new_indiv.genotype = np.round(new_indiv.genotype)
         return new_indiv

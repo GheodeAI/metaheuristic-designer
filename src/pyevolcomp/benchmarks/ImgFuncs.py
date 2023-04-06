@@ -1,7 +1,5 @@
 from ..ObjectiveFunc import ObjectiveFunc
 from ..Decoders import ImageDecoder
-
-import math
 import numpy as np
 from numba import jit
 
