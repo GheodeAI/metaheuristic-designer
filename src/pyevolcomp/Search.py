@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 import time
 import numpy as np
 import pyparsing as pp
+from .ObjectiveFunc import ObjectiveVectorFunc
+from .Initializers import UniformVectorInitializer
 
 
 class Search(ABC):
@@ -10,13 +12,24 @@ class Search(ABC):
     General framework for metaheuristic algorithms
     """
 
-    def __init__(self, search_strategy: Algorithm, params: Union[ParamScheduler, dict]):
+    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, pop_init: Initializer = None, params: Union[ParamScheduler, dict] = None):
         """
         Constructor of the Metaheuristic class
         """
 
         self.params = params
         self.search_strategy = search_strategy
+        self.objfunc = objfunc
+
+        self.pop_init = pop_init
+        if pop_init is None:
+            if not isinstance(objfunc, ObjectiveVectorFunc):
+                raise ValueError("A population initializer must be indicated.")
+            else:
+                self.pop_init = UniformVectorInitializer(search_strategy.popsize, objfunc.vecsize, objfunc.low_lim, objfunc.up_lim)
+
+        if params is None:
+            params = {}
 
         # Verbose parameters
         self.verbose = params["verbose"] if "verbose" in params else True
@@ -70,25 +83,25 @@ class Search(ABC):
 
         return self.search_strategy.best_solution()
 
-    def stopping_condition(self, gen, real_time_start, objfunc):
+    def stopping_condition(self, gen, real_time_start):
         """
         Given the state of the algorithm, returns wether we have finished or not.
         """
 
-        neval_reached = objfunc.counter >= self.Neval
+        neval_reached = self.objfunc.counter >= self.Neval
 
         ngen_reached = gen >= self.Ngen
 
         time_reached = time.time() - real_time_start >= self.time_limit
 
-        if objfunc.opt == "max":
+        if self.objfunc.mode == "max":
             target_reached = self.best_solution()[1] >= self.fit_target
         else:
             target_reached = self.best_solution()[1] <= self.fit_target
 
         return process_condition(self.stop_cond_parsed, neval_reached, ngen_reached, time_reached, target_reached)
 
-    def get_progress(self, gen, time_start, objfunc):
+    def get_progress(self, gen, time_start):
         """
         Given the state of the algorithm, returns a number between 0 and 1 indicating
         how close to the end of the algorithm we are, 0 when starting and 1 when finished.
@@ -96,14 +109,14 @@ class Search(ABC):
 
         prog = 0
         if self.stop_cond == "neval":
-            prog = objfunc.counter / self.Neval
+            prog = self.objfunc.counter / self.Neval
         elif self.stop_cond == "ngen":
             prog = gen / self.Ngen
         elif self.stop_cond == "time_limit":
             prog = (time.time() - time_start) / self.time_limit
         elif self.stop_cond == "fit_target":
             best_fitness = self.best_solution()[1]
-            if objfunc.opt == "max":
+            if self.objfunc.mode == "max":
                 prog = best_fitness / self.fit_target
             else:
                 if best_fitness == 0:
@@ -112,31 +125,32 @@ class Search(ABC):
 
         return prog
 
-    def update(self, gen, time_start, objfunc):
+    def update(self, gen, time_start):
         """
         Given the state of the algorithm, returns a number between 0 and 1 indicating
         how close to the end of the algorithm we are, 0 when starting and 1 when finished.
         """
 
-        self.progress = self.get_progress(gen, time_start, objfunc)
+        self.progress = self.get_progress(gen, time_start)
 
-        self.ended = self.stopping_condition(gen, time_start, objfunc)
+        self.ended = self.stopping_condition(gen, time_start)
 
-    def initialize(self, objfunc):
+    def initialize(self):
         """
         Generates a random population of individuals
         """
 
         self.restart()
-        self.search_strategy.initialize(objfunc)
+        initial_population = self.pop_init.generate_population(self.objfunc)
+        self.search_strategy.initialize(initial_population)
 
     @abstractmethod
-    def step(self, objfunc, time_start=0, verbose=False) -> Tuple[Individual, float]:
+    def step(self, time_start=0, verbose=False) -> Tuple[Individual, float]:
         """
         Performs a step in the algorithm
         """
 
-    def optimize(self, objfunc):
+    def optimize(self):
         """
         Execute the algorithm to get the best solution possible along with it's evaluation
         """
@@ -149,17 +163,17 @@ class Search(ABC):
         display_timer = time.time()
 
         # Initizalize search strategy
-        self.initialize(objfunc)
+        self.initialize()
 
         # Search untill the stopping condition is met
-        self.update(self.steps, real_time_start, objfunc)
+        self.update(self.steps, real_time_start)
         while not self.ended:
 
-            self.step(objfunc, real_time_start)
+            self.step(real_time_start)
 
             # Display information
             if self.verbose and time.time() - display_timer > self.v_timer:
-                self.step_info(objfunc, real_time_start)
+                self.step_info(real_time_start)
                 display_timer = time.time()
 
         # Store the time spent optimizing
@@ -169,13 +183,13 @@ class Search(ABC):
         return self.best_solution()
 
     @abstractmethod
-    def step_info(self, objfunc, start_time):
+    def step_info(self, start_time):
         """
         Displays information about the current state of the algotithm
         """
 
     @abstractmethod
-    def display_report(self, objfunc, show_plots=True):
+    def display_report(self, show_plots=True):
         """
         Shows a summary of the execution of the algorithm
         """

@@ -10,14 +10,14 @@ class GeneralSearch(Search):
     General framework for metaheuristic algorithms
     """
 
-    def __init__(self, search_strategy: Algorithm, params: Union[ParamScheduler, dict]):
+    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, pop_init: Initializer = None, params: Union[ParamScheduler, dict] = None):
         """
         Constructor of the Metaheuristic class
         """
 
-        super().__init__(search_strategy, params)
+        super().__init__(objfunc, search_strategy, pop_init, params)
 
-    def step(self, objfunc, time_start=0, verbose=False):
+    def step(self, time_start=0, verbose=False):
         """
         Performs a step in the algorithm
         """
@@ -27,7 +27,7 @@ class GeneralSearch(Search):
 
         parents, _ = self.search_strategy.select_parents(population, self.progress, self.best_history)
 
-        offspring = self.search_strategy.perturb(parents, objfunc, self.progress, self.best_history)
+        offspring = self.search_strategy.perturb(parents, self.objfunc, self.progress, self.best_history)
 
         population = self.search_strategy.select_individuals(population, offspring, self.progress, self.best_history)
 
@@ -46,25 +46,25 @@ class GeneralSearch(Search):
             self.step_info(time_start)
 
         # Update internal state
-        self.update(self.steps, time_start, objfunc)
+        self.update(self.steps, time_start)
 
         return (best_individual, best_fitness)
 
-    def step_info(self, objfunc, start_time):
+    def step_info(self, start_time):
         """
         Displays information about the current state of the algotithm
         """
 
-        print(f"Optimizing {objfunc.name} using {self.search_strategy.name}:")
+        print(f"Optimizing {self.objfunc.name} using {self.search_strategy.name}:")
         print(f"\tTime Spent {round(time.time() - start_time,2)} s")
         print(f"\tGeneration: {self.steps}")
         best_fitness = self.best_solution()[1]
         print(f"\tBest fitness: {best_fitness}")
-        print(f"\tEvaluations of fitness: {objfunc.counter}")
+        print(f"\tEvaluations of fitness: {self.objfunc.counter}")
         self.search_strategy.extra_step_info()
         print()
 
-    def display_report(self, objfunc, show_plots=True):
+    def display_report(self, show_plots=True):
         """
         Shows a summary of the execution of the algorithm
         """
@@ -73,7 +73,7 @@ class GeneralSearch(Search):
         print("Number of generations:", len(self.fit_history))
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
         print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
-        print("Number of fitness evaluations:", objfunc.counter)
+        print("Number of fitness evaluations:", self.objfunc.counter)
 
         best_fitness = self.best_solution()[1]
         print("Best fitness:", best_fitness)

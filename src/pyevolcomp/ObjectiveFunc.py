@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 import numpy as np
 from .Decoders import DefaultDecoder
+from .Initializers import UniformVectorInitializer
 
 
 class ObjectiveFunc(ABC):
@@ -13,25 +14,21 @@ class ObjectiveFunc(ABC):
     mutation function and crossing of solutions.
     """
 
-    def __init__(self, input_size: int, opt: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = "some function", decoder: BaseDecoder = None):
+    def __init__(self, mode: str = "max", name: str = "some function", decoder: BaseDecoder = None):
         """
         Constructor for the AbsObjectiveFunc class
         """
 
         self.name = name
         self.counter = 0
-        self.input_size = input_size
         self.factor = 1
         
-        self.opt = opt
-        if opt not in ["max", "min"]:
+        self.mode = mode
+        if mode not in ["max", "min"]:
             raise ValueError("Optimization objective (opt) must be \"min\" or \"max\".")
         
-        if self.opt == "min":
-            self.factor = -1      
-
-        self.low_lim = low_lim
-        self.up_lim = up_lim     
+        if self.mode == "min":
+            self.factor = -1
 
         self.decoder = decoder
         if decoder is None:
@@ -100,6 +97,22 @@ class ObjectiveFunc(ABC):
         """
 
         return 0
+
+
+class ObjectiveVectorFunc(ObjectiveFunc):
+    def __init__(self, vecsize: int, mode: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = "some function", decoder: BaseDecoder = None):
+        super().__init__(mode, name, decoder)
+
+        self.vecsize = vecsize
+        self.low_lim = low_lim
+        self.up_lim = up_lim
+    
+    def random_solution(self) -> np.ndarray:
+        return np.random.uniform(self.low_lim, self.up_lim, self.vecsize)
+
+    def repair_solution(self, vector: np.ndarray) -> np.ndarray:
+        return np.clip(vector, self.low_lim, self.up_lim)
+
 
 class ObjectiveFromLambda(ObjectiveFunc):
     def __init__(self, obj_func: Callable, input_size: int, opt: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = None, decoder: BaseDecoder = None):

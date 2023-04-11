@@ -1,6 +1,7 @@
 from pyevolcomp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
 from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
 from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary
+from pyevolcomp.Initializers import UniformVectorInitializer
 from pyevolcomp.Algorithms import *
 from pyevolcomp.benchmarks import *
 
@@ -25,7 +26,6 @@ def run_algorithm(alg_name, memetic):
     cross_op = OperatorReal("Multipoint")
     parent_sel_op = ParentSelection("Best", {"amount": 20})
     selection_op = SurvivorSelection("(m+n)")
-
 
     mem_select = ParentSelection("Best", {"amount": 5})
     neihbourhood_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.0001})
@@ -52,15 +52,17 @@ def run_algorithm(alg_name, memetic):
     else:
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()
+
+    pop_initializer = UniformVectorInitializer(10, -100, 100)
     
     if memetic:
-        alg = MemeticSearch(search_strat, local_search, mem_select, params)
+        alg = MemeticSearch(objfunc, search_strat, local_search, mem_select, pop_initializer, params=params)
     else:
-        alg = GeneralSearch(search_strat, params)
+        alg = GeneralSearch(objfunc, search_strat, pop_initializer, params=params)
     
-    ind, fit = alg.optimize(objfunc)
+    ind, fit = alg.optimize()
     print(ind)
-    alg.display_report(objfunc)
+    alg.display_report()
 
 
 def main():

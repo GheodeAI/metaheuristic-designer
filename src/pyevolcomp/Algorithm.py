@@ -26,26 +26,34 @@ class Algorithm(ABC):
         """
 
         best_fitness = self.best.fitness
-        if self.best.objfunc.opt == "min":
+        if self.best.objfunc.mode == "min":
             best_fitness *= -1
 
         return self.best.genotype, best_fitness
 
-    def initialize(self, objfunc: ObjectiveFunc):
+    # def initialize(self, objfunc: ObjectiveFunc):
+    #     """
+    #     Generates a random population of individuals
+    #     """
+
+    #     self.population = []
+    #     for i in range(self.popsize):
+    #         genotype = objfunc.decoder.encode(objfunc.random_solution())
+    #         speed = objfunc.decoder.encode(objfunc.random_solution())
+    #         new_indiv = Individual(objfunc, genotype, speed)
+
+    #         if self.best is None or self.best.fitness < new_indiv.fitness:
+    #             self.best = new_indiv
+
+    #         self.population.append(new_indiv)
+
+    def initialize(self, population: List[Individual]):
         """
         Generates a random population of individuals
         """
-
-        self.population = []
-        for i in range(self.popsize):
-            genotype = objfunc.decoder.encode(objfunc.random_solution())
-            speed = objfunc.decoder.encode(objfunc.random_solution())
-            new_indiv = Individual(objfunc, genotype, speed)
-
-            if self.best is None or self.best.fitness < new_indiv.fitness:
-                self.best = new_indiv
-
-            self.population.append(new_indiv)
+        
+        self.population = population
+        self.best = max(self.population, key=lambda x: x.fitness)
 
     def select_parents(self, population: List[Individual], progress: float = 0, history: List[float] = None) -> List[Individual]:
         """

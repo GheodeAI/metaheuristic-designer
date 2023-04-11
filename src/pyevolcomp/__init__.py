@@ -1,5 +1,5 @@
 from .ParamScheduler import ParamScheduler
-from .ObjectiveFunc import ObjectiveFunc, ObjectiveFromLambda
+from .ObjectiveFunc import ObjectiveFunc, ObjectiveVectorFunc, ObjectiveFromLambda
 from .ParentSelection import ParentSelection
 from .SurvivorSelection import SurvivorSelection
 from .Operator import Operator

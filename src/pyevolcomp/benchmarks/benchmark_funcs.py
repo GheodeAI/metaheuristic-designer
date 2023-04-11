@@ -1,28 +1,29 @@
 import numpy as np
 from numba import jit
-from ..ObjectiveFunc import ObjectiveFunc
+from ..ObjectiveFunc import ObjectiveVectorFunc, ObjectiveVectorFunc
 
 
-class MaxOnes(ObjectiveFunc):
+class MaxOnes(ObjectiveVectorFunc):
     def __init__(self, size, opt="max"):
         self.size = size
-        super().__init__(self.size, opt, "Max ones")
+        super().__init__(self.size, opt, name="Max ones")
 
     def objective(self, solution):
         return solution.sum()
     
     def random_solution(self):
-        return (np.random.random(self.size) < 0.5).astype(np.int32)
+        return (np.random.random(self.size) >= 0.5).astype(np.int32)
     
     def repair_solution(self, solution):
         return (solution >= 0.5).astype(np.int32)
 
-class DiophantineEq(ObjectiveFunc):
+
+class DiophantineEq(ObjectiveVectorFunc):
     def __init__(self, size, coeff, target, opt="min"):
         self.size = size
         self.coeff = coeff
         self.target = target
-        super().__init__(self.size, opt, "Diophantine equation")
+        super().__init__(self.size, opt, name="Diophantine equation")
     
     def objective(self, solution):
         return abs((solution*self.coeff).sum() - self.target)
@@ -33,10 +34,11 @@ class DiophantineEq(ObjectiveFunc):
     def repair_solution(self, solution):
         return solution.astype(np.int32)
 
-class MaxOnesReal(ObjectiveFunc):
+
+class MaxOnesReal(ObjectiveVectorFunc):
     def __init__(self, size, opt="max"):
         self.size = size
-        super().__init__(self.size, opt, "Max ones")
+        super().__init__(self.size, opt, name="Max ones")
 
     def objective(self, solution):
         return solution.sum()
@@ -47,219 +49,144 @@ class MaxOnesReal(ObjectiveFunc):
     def repair_solution(self, solution):
         return np.clip(solution.copy(), 0, 1)
 
+
 ### Benchmark functions
-class Sphere(ObjectiveFunc):
+class Sphere(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Sphere function")
+        super().__init__(self.size, opt, -100, 100, name="Sphere function")
 
     def objective(self, solution):
         return sphere(solution)
-    
-    def random_solution(self):
-        return 200*np.random.random(self.size)-100
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -100, 100)
 
-class HighCondElliptic(ObjectiveFunc):
+
+class HighCondElliptic(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "High condition elliptic function")
+        super().__init__(self.size, opt, -5.12, 5.12, name="High condition elliptic function")
 
     def objective(self, solution):
         return high_cond_elipt_f(solution)
-    
-    def random_solution(self):
-        return 10.24*np.random.random(self.size)-5.12
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -5.12, 5.12)
 
-class BentCigar(ObjectiveFunc):
+
+class BentCigar(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Bent Cigar function")
+        super().__init__(self.size, opt, -100, 100, name="Bent Cigar function")
 
     def objective(self, solution):
         return bent_cigar(solution)
-    
-    def random_solution(self):
-        return 200*np.random.random(self.size)-100
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -100, 100)
 
-class Discus(ObjectiveFunc):
+
+class Discus(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Discus function")
+        super().__init__(self.size, opt, -5.12, 5.12, name="Discus function")
 
     def objective(self, solution):
         return discus(solution)
-    
-    def random_solution(self):
-        return 10.24*np.random.random(self.size)-5.12
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -5.12, 5.12)
 
-class Rosenbrock(ObjectiveFunc):
+
+class Rosenbrock(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Rosenbrock function")
+        super().__init__(self.size, opt, -100, 100, name="Rosenbrock function")
 
     def objective(self, solution):
         return rosenbrock(solution)
-    
-    def random_solution(self):
-        return 200*np.random.random(self.size)-100
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -100, 100)
 
-class Ackley(ObjectiveFunc):
+
+class Ackley(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Ackley function")
+        super().__init__(self.size, opt, -5.12, 5.12, name="Ackley function")
 
     def objective(self, solution):
         return ackley(solution)
-    
-    def random_solution(self):
-        return 10.24*np.random.random(self.size)-5.12
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -5.12, 5.12)
 
-class Weierstrass(ObjectiveFunc):
+
+class Weierstrass(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Weierstrass function")
+        super().__init__(self.size, opt, -100, 100, name="Weierstrass function")
 
     def objective(self, solution):
         return weierstrass(solution)
-    
-    def random_solution(self):
-        return 200*np.random.random(self.size)-100
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -100, 100)
 
-class Griewank(ObjectiveFunc):
+
+class Griewank(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Griewank function")
+        super().__init__(self.size, opt, -100, 100, name="Griewank function")
 
     def objective(self, solution):
         return griewank(solution)
-    
-    def random_solution(self):
-        return 200*np.random.random(self.size)-100
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -100, 100)
 
-class Rastrigin(ObjectiveFunc):
+
+class Rastrigin(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Rastrigin function")
+        super().__init__(self.size, opt, -5.12, 5.12, name="Rastrigin function")
 
     def objective(self, solution):
         return rastrigin(solution)
-    
-    def random_solution(self):
-        return 10.24*np.random.random(self.size)-5.12
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -5.12, 5.12)
 
-class ModSchwefel(ObjectiveFunc):
+
+class ModSchwefel(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Modified Schweafel function")
+        super().__init__(self.size, opt, -100, 100, name="Modified Schweafel function")
 
     def objective(self, solution):
         return mod_schwefel(solution)
-    
-    def random_solution(self):
-        return 200*np.random.random(self.size)-100
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -100, 100)
 
-class Katsuura(ObjectiveFunc):
+
+class Katsuura(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Katsuura function")
+        super().__init__(self.size, opt, -100, 100, name="Katsuura function")
 
     def objective(self, solution):
         return katsuura(solution)
-    
-    def random_solution(self):
-        return 200*np.random.random(self.size)-100
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -100, 100)
 
-class HappyCat(ObjectiveFunc):
+
+class HappyCat(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Happy Cat function")
+        super().__init__(self.size, opt, -2, 2, name="Happy Cat function")
 
     def objective(self, solution):
         return happy_cat(solution)
-    
-    def random_solution(self):
-        return 4*np.random.random(self.size)-2
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -2, 2)
 
-class HGBat(ObjectiveFunc):
+
+class HGBat(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "HGBat function")
+        super().__init__(self.size, opt, -2, 2, name="HGBat function")
 
     def objective(self, solution):
         return hgbat(solution)
-    
-    def random_solution(self):
-        return 4*np.random.random(self.size)-2
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -2, 2)
 
-class ExpandedGriewankPlusRosenbrock(ObjectiveFunc):
+
+class ExpandedGriewankPlusRosenbrock(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Expanded Griewank + Rosenbrock")
+        super().__init__(self.size, opt, -100, 100, name="Expanded Griewank + Rosenbrock")
 
     def objective(self, solution):
         return exp_griewank_plus_rosenbrock(solution)
-    
-    def random_solution(self):
-        return 200*np.random.random(self.size)-100
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -100, 100)
 
-class ExpandedShafferF6(ObjectiveFunc):
+
+class ExpandedShafferF6(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt, "Expanded Shaffer F6 function")
+        super().__init__(self.size, opt, -100, 100, name="Expanded Shaffer F6 function")
 
     def objective(self, solution):
         return exp_shafferF6(solution)
-    
-    def random_solution(self):
-        return 200*np.random.random(self.size)-100
-    
-    def repair_solution(self, solution):
-        return np.clip(solution, -100, 100)
 
 
-class SumPowell(ObjectiveFunc):
+class SumPowell(ObjectiveVectorFunc):
     """
     Sum of Powell function
     """
@@ -288,7 +215,8 @@ class SumPowell(ObjectiveFunc):
             solution[mask] = np.random.random(len(mask[mask==True])) * (self.lim_max - self.lim_min) - self.lim_min
         return solution
 
-class N4XinSheYang(ObjectiveFunc):
+
+class N4XinSheYang(ObjectiveVectorFunc):
     """
     N4 Xin-She Yang function
     """
@@ -316,6 +244,7 @@ class N4XinSheYang(ObjectiveFunc):
             mask = (solution < self.lim_min) | (solution > self.lim_max)
             solution[mask] = np.random.random(len(mask[mask==True])) * (self.lim_max - self.lim_min) - self.lim_min
         return solution
+
 
 @jit(nopython=True)
 def sphere(solution):
