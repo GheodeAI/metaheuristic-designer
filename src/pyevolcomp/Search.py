@@ -26,7 +26,8 @@ class Search(ABC):
             if not isinstance(objfunc, ObjectiveVectorFunc):
                 raise ValueError("A population initializer must be indicated.")
             else:
-                self.pop_init = UniformVectorInitializer(search_strategy.popsize, objfunc.vecsize, objfunc.low_lim, objfunc.up_lim)
+                print(objfunc.vecsize)
+                self.pop_init = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, search_strategy.popsize)
 
         if params is None:
             params = {}

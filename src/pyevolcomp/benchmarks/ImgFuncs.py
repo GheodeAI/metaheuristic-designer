@@ -1,10 +1,10 @@
-from ..ObjectiveFunc import ObjectiveFunc
+from ..ObjectiveFunc import ObjectiveVectorFunc
 from ..Decoders import ImageDecoder
 import numpy as np
 from numba import jit
 
 
-class ImgApprox(ObjectiveFunc):
+class ImgApprox(ObjectiveVectorFunc):
     def __init__(self, img_dim, reference, opt="min", img_name="", decoder=None):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0]*img_dim[1]*3
@@ -19,7 +19,7 @@ class ImgApprox(ObjectiveFunc):
         if decoder is None:
             decoder = ImageDecoder(img_dim, color=True)
 
-        super().__init__(self.size, opt, name, decoder=decoder)
+        super().__init__(self.size, opt, 0, 256, name=name, decoder=decoder)
     
     def objective(self, solution):
         return imgdistance(solution, self.reference)
@@ -35,7 +35,7 @@ def imgdistance(img, reference):
     return np.sum((img-reference)**2)
 
 
-class ImgStd(ObjectiveFunc):
+class ImgStd(ObjectiveVectorFunc):
     def __init__(self, img_dim, opt="max", decoder=None):
         self.size = img_dim[0]*img_dim[1]*3
         
@@ -55,7 +55,7 @@ class ImgStd(ObjectiveFunc):
         return np.clip(solution, 0, 255).astype(np.uint8)
 
 
-class ImgEntropy(ObjectiveFunc):
+class ImgEntropy(ObjectiveVectorFunc):
     def __init__(self, img_dim, nbins=10, opt="min", decoder=None):
         self.size = img_dim[0]*img_dim[1]*3
         self.nbins = 10
@@ -80,7 +80,7 @@ class ImgEntropy(ObjectiveFunc):
         return np.clip(solution, 0, 255).astype(np.uint8)
 
 
-class ImgExperimental(ObjectiveFunc):
+class ImgExperimental(ObjectiveVectorFunc):
     def __init__(self, img_dim, reference, img_name, opt="min", decoder=None):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0]*img_dim[1]*3

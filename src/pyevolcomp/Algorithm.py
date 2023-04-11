@@ -53,6 +53,7 @@ class Algorithm(ABC):
         """
         
         self.population = population
+
         self.best = max(self.population, key=lambda x: x.fitness)
 
     def select_parents(self, population: List[Individual], progress: float = 0, history: List[float] = None) -> List[Individual]:

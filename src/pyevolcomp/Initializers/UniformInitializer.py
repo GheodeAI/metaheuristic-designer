@@ -7,8 +7,9 @@ from ..Individual import Individual
 class UniformInitializer(Initializer):
     def __init__(self, genotype_size, low_lim, up_lim, popSize = 1):
         super().__init__(popSize)
-
+        
         self.genotype_size = genotype_size
+        print(self.genotype_size)
 
         if type(low_lim) in [list, tuple, np.ndarray]:
             if len(low_lim) != self.init_len:

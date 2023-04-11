@@ -34,7 +34,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     params = {
         # General
         "stop_cond": "time_limit",
-        "time_limit": 4.0,
+        "time_limit": 60.0,
         "ngen": 1000,
         "neval": 3e5,
         "fit_target": 0,
@@ -57,8 +57,8 @@ def run_algorithm(alg_name, img_file_name, memetic):
     reference_img = Image.open(img_file_name)
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
-    # objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
-    objfunc = ImgEntropy(image_shape, 256, decoder=decoder)
+    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
+    # objfunc = ImgEntropy(image_shape, 256, decoder=decoder)
     # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name, decoder=decoder)
 
     mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":15, "N":20})
@@ -94,14 +94,14 @@ def run_algorithm(alg_name, img_file_name, memetic):
         local_search = LocalSearch(OperatorInt("MutRand", {"method": "Uniform", "Low":-3, "Up":-3, "N":3}), {"iters":10})
         alg = MemeticSearch(search_strat, local_search, ParentSelection("Best", {"amount": 10}), params)
     else:
-        alg = GeneralSearch(search_strat, params)
+        alg = GeneralSearch(objfunc, search_strat, params=params)
 
     # Optimize with display of image
     time_start = time.process_time()
     real_time_start = time.time()
     display_timer = time.time()
 
-    alg.initialize(objfunc)
+    alg.initialize()
 
     while not alg.ended:
         # process GUI events and reset screen
@@ -111,10 +111,10 @@ def run_algorithm(alg_name, img_file_name, memetic):
                     exit(0)
             src.fill('#000000')
         
-        alg.step(objfunc, time_start=real_time_start)
+        alg.step(time_start=real_time_start)
 
         if alg.verbose and time.time() - display_timer > alg.v_timer:
-            alg.step_info(objfunc, real_time_start)
+            alg.step_info(real_time_start)
             display_timer = time.time()
         
         if display:
@@ -128,7 +128,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     image = img_flat.reshape(image_shape + [3])
     if display:
         render(image, display_dim, src)
-    alg.display_report(objfunc, show_plots=True)
+    alg.display_report(show_plots=True)
     save_to_image(image, f"{img_name}_{image_shape[0]}x{image_shape[1]}_{alg_name}.png")
     
 def main():
