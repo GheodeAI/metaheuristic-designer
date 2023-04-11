@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 import numpy as np
 from .Decoders import DefaultDecoder
+from .Initializers import UniformVectorInitializer
 
 
 class ObjectiveFunc(ABC):
@@ -13,24 +14,25 @@ class ObjectiveFunc(ABC):
     mutation function and crossing of solutions.
     """
 
-    def __init__(self, input_size: int, opt: str, name: str = "some function", decoder: BaseDecoder = None):
+    def __init__(self, mode: str = "max", name: str = "some function", decoder: BaseDecoder = None):
         """
         Constructor for the AbsObjectiveFunc class
         """
 
         self.name = name
         self.counter = 0
-        self.input_size = input_size
         self.factor = 1
-        self.opt = opt
+        
+        self.mode = mode
+        if mode not in ["max", "min"]:
+            raise ValueError("Optimization objective (opt) must be \"min\" or \"max\".")
+        
+        if self.mode == "min":
+            self.factor = -1
+
         self.decoder = decoder
-        self.up_lim = -100
-        self.low_lim = 100
         if decoder is None:
             self.decoder = DefaultDecoder()
-
-        if self.opt == "min":
-            self.factor = -1
 
     def __call__(self, indiv: Indiv, adjusted: bool = True):
         """
@@ -95,3 +97,41 @@ class ObjectiveFunc(ABC):
         """
 
         return 0
+
+
+class ObjectiveVectorFunc(ObjectiveFunc):
+    def __init__(self, vecsize: int, mode: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = "some function", decoder: BaseDecoder = None):
+        super().__init__(mode, name, decoder)
+
+        self.vecsize = vecsize
+        self.low_lim = low_lim
+        self.up_lim = up_lim
+    
+    def random_solution(self) -> np.ndarray:
+        return np.random.uniform(self.low_lim, self.up_lim, self.vecsize)
+
+    def repair_solution(self, vector: np.ndarray) -> np.ndarray:
+        return np.clip(vector, self.low_lim, self.up_lim)
+
+
+class ObjectiveFromLambda(ObjectiveFunc):
+    def __init__(self, obj_func: Callable, input_size: int, opt: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = None, decoder: BaseDecoder = None):
+        """
+        Constructor for the AbsObjectiveFunc class
+        """
+
+        if name is None:
+            name = obj_func.__name__
+
+        super().__init__(input_size, opt, low_lim, up_lim, name, decoder)
+
+        self.obj_func = obj_func
+    
+    def objective(self, vector):
+        return self.obj_func(vector)
+    
+    def random_solution(self):
+        return np.random.uniform(self.low_lim, self.up_lim, self.input_size)
+    
+    def repair_solution(self, vector):
+        return np.clip(vector, self.low_lim, self.up_lim)
