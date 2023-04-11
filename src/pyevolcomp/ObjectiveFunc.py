@@ -13,7 +13,7 @@ class ObjectiveFunc(ABC):
     mutation function and crossing of solutions.
     """
 
-    def __init__(self, input_size: int, opt: str, name: str = "some function", decoder: BaseDecoder = None):
+    def __init__(self, input_size: int, opt: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = "some function", decoder: BaseDecoder = None):
         """
         Constructor for the AbsObjectiveFunc class
         """
@@ -22,15 +22,20 @@ class ObjectiveFunc(ABC):
         self.counter = 0
         self.input_size = input_size
         self.factor = 1
+        
         self.opt = opt
+        if opt not in ["max", "min"]:
+            raise ValueError("Optimization objective (opt) must be \"min\" or \"max\".")
+        
+        if self.opt == "min":
+            self.factor = -1      
+
+        self.low_lim = low_lim
+        self.up_lim = up_lim     
+
         self.decoder = decoder
-        self.up_lim = -100
-        self.low_lim = 100
         if decoder is None:
             self.decoder = DefaultDecoder()
-
-        if self.opt == "min":
-            self.factor = -1
 
     def __call__(self, indiv: Indiv, adjusted: bool = True):
         """
@@ -95,3 +100,25 @@ class ObjectiveFunc(ABC):
         """
 
         return 0
+
+class ObjectiveFromLambda(ObjectiveFunc):
+    def __init__(self, obj_func: Callable, input_size: int, opt: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = None, decoder: BaseDecoder = None):
+        """
+        Constructor for the AbsObjectiveFunc class
+        """
+
+        if name is None:
+            name = obj_func.__name__
+
+        super().__init__(input_size, opt, low_lim, up_lim, name, decoder)
+
+        self.obj_func = obj_func
+    
+    def objective(self, vector):
+        return self.obj_func(vector)
+    
+    def random_solution(self):
+        return np.random.uniform(self.low_lim, self.up_lim, self.input_size)
+    
+    def repair_solution(self, vector):
+        return np.clip(vector, self.low_lim, self.up_lim)
