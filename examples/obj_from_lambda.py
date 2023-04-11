@@ -29,11 +29,11 @@ def run_algorithm():
 
     search_strat = HillClimb(mutation_op)
     
-    alg = GeneralSearch(search_strat, params)
+    alg = GeneralSearch(objfunc, search_strat, params=params)
     
-    ind, fit = alg.optimize(objfunc)
+    ind, fit = alg.optimize()
     print(ind)
-    alg.display_report(objfunc)
+    alg.display_report()
 
 
 def main():

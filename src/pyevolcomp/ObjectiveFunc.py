@@ -114,7 +114,7 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         return np.clip(vector, self.low_lim, self.up_lim)
 
 
-class ObjectiveFromLambda(ObjectiveFunc):
+class ObjectiveFromLambda(ObjectiveVectorFunc):
     def __init__(self, obj_func: Callable, input_size: int, opt: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = None, decoder: BaseDecoder = None):
         """
         Constructor for the AbsObjectiveFunc class
@@ -124,6 +124,7 @@ class ObjectiveFromLambda(ObjectiveFunc):
             name = obj_func.__name__
 
         super().__init__(input_size, opt, low_lim, up_lim, name, decoder)
+        #self, vecsize, mode, low_lim, up_lim, name, decoder
 
         self.obj_func = obj_func
     
