@@ -21,6 +21,7 @@ def run_algorithm(alg_name, memetic):
     }
 
     objfunc = Sphere(10, "min")
+    pop_initializer = UniformVectorInitializer(10, objfunc.low_lim, objfunc.up_lim)
 
     mutation_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.001})
     cross_op = OperatorReal("Multipoint")
@@ -52,8 +53,6 @@ def run_algorithm(alg_name, memetic):
     else:
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()
-
-    pop_initializer = UniformVectorInitializer(10, -100, 100)
     
     if memetic:
         alg = MemeticSearch(objfunc, search_strat, local_search, mem_select, pop_initializer, params=params)

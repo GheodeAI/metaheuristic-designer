@@ -42,7 +42,7 @@ class ImgStd(ObjectiveVectorFunc):
         if decoder is None:
             decoder = ImageDecoder(img_dim, color=True)
         
-        super().__init__(self.size, opt, "Image standard deviation", decoder)
+        super().__init__(self.size, opt, 0, 256, name="Image standard deviation", decoder=decoder)
     
     def objective(self, solution):
         solution_color = solution.reshape([3,-1])
@@ -63,7 +63,7 @@ class ImgEntropy(ObjectiveVectorFunc):
         if decoder is None:
             decoder = ImageDecoder(img_dim, color=True)
 
-        super().__init__(self.size, opt, "Image entropy", decoder)
+        super().__init__(self.size, opt, 0, 256, name="Image entropy", decoder=decoder)
     
     def objective(self, solution):
         solution_channels = solution.reshape([3, -1])
@@ -86,7 +86,7 @@ class ImgExperimental(ObjectiveVectorFunc):
         self.size = img_dim[0]*img_dim[1]*3
         self.reference = np.asarray(reference.resize([img_dim[0], img_dim[1]]))[:,:,:3].astype(np.uint32)
 
-        super().__init__(self.size, opt, "Image approx and std", decoder)
+        super().__init__(self.size, opt, 0, 256, name="Image approx and std", decoder=decoder)
     
     def objective(self, solution):
         dist = imgdistance(solution, self.reference)

@@ -9,7 +9,6 @@ class UniformInitializer(Initializer):
         super().__init__(popSize)
         
         self.genotype_size = genotype_size
-        print(self.genotype_size)
 
         if type(low_lim) in [list, tuple, np.ndarray]:
             if len(low_lim) != self.init_len:

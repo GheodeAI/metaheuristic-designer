@@ -23,6 +23,7 @@ class Initializer(ABC):
         """
         Generate n_indiv Individuals using the generate_individual method.
         """
+        
         if n_indiv is None:
             n_indiv = self.popSize
         
