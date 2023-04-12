@@ -43,6 +43,13 @@ Then you can run one the scripts as:
 poetry run python examples/image_evolution.py -a SA -i images/saturn.png
 ```
 
+To run the tests you need to install nox and nox_poetry, to execute the tests use the command
+
+```bash
+nox
+```
+
+
 ## General parameters
 - Stopping conditions:
     - stop_cond: stopping condition, there are various options
