@@ -48,6 +48,8 @@ def run_algorithm(alg_name, memetic):
         search_strat = DE(OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}), {"popSize":100})
     elif alg_name == "PSO":
         search_strat = PSO({"popSize":100, "w":0.7, "c1":1.5, "c2":1.5})
+    elif alg_name == "CRO":
+        search_strat = CRO(mutation_op, cross_op, {"popSize":100, "rho":0.5, "Fb":0.75, "Fd":1.5, "Pd":1.5, "attempts":4})
     elif alg_name == "NoSearch":
         search_strat = NoSearch({"popSize":100})
     else:

@@ -8,7 +8,7 @@ from ..Decoders import CMADecoder
 
 class CMA_ES(ES):
     def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection,
-                 params: Union[ParamScheduler, dict] = {}, name: str = "ES", population: List[Individual] = None):
+                 params: Union[ParamScheduler, dict] = {}, name: str = "ES"):
 
         parent_select = ParentSelection("Nothing")
         selection = SurvivorSelection("(m+n)")
@@ -19,7 +19,7 @@ class CMA_ES(ES):
 
         mutate = OperatorMeta("Sequence", [mutate1, rand1])
 
-        super().__init__(mutate, cross, parent_select, selection, params, name, population)
+        super().__init__(mutate, cross, parent_select, selection, params, name)
 
     def initialize(self, objfunc):
         objfunc.decoder = CMADecoder(self.params["nparams"], pre_decoder=objfunc.decoder)

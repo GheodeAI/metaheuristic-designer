@@ -10,7 +10,7 @@ class StaticPopulation(Algorithm):
     """
 
     def __init__(self, operator: Operator, params: Union[ParamScheduler, dict] = {}, selection_op: SurvivorSelection = None,
-                 name: str = "stpop", population: List[Individual] = None):
+                 name: str = "stpop"):
         """
         Constructor of the GeneticPopulation class
         """
@@ -27,10 +27,6 @@ class StaticPopulation(Algorithm):
         self.selection_op = selection_op
 
         self.best = None
-
-        # Population initialization
-        if population is not None:
-            self.population = population
 
     def perturb(self, parent_list, objfunc, progress=0, history=None):
         offspring = []

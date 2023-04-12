@@ -16,7 +16,7 @@ class GA(Algorithm):
     """
 
     def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection,
-                 params: Union[ParamScheduler, dict] = {}, name: str = "GA", population: List[Individual] = None):
+                 params: Union[ParamScheduler, dict] = {}, name: str = "GA"):
         """
         Constructor of the GeneticPopulation class
         """
@@ -34,10 +34,6 @@ class GA(Algorithm):
         self.selection_op = selection_op
 
         self.best = None
-
-        # Population initialization
-        if population is not None:
-            self.population = population
 
         super().__init__(name, self.popsize)
 

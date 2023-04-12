@@ -14,7 +14,7 @@ class ES(Algorithm):
     """
 
     def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection,
-                 params: Union[ParamScheduler, dict] = {}, name: str = "ES", population: List[Individual] = None):
+                 params: Union[ParamScheduler, dict] = {}, name: str = "ES"):
         """
         Constructor of the GeneticPopulation class
         """
@@ -27,10 +27,6 @@ class ES(Algorithm):
         self.cross_op = cross_op
         self.parent_sel_op = parent_sel_op
         self.selection_op = selection_op
-
-        # Population initialization
-        if population is not None:
-            self.population = population
 
         super().__init__(name, self.popsize)
 

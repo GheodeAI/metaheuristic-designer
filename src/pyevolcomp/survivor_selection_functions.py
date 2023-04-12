@@ -65,6 +65,7 @@ def _cro_set_larvae(population, offspring, attempts, maxpopsize):
                 new_population[idx] = larva
 
             attempts_left -= 1
+    
     return new_population
 
 
