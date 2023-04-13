@@ -49,7 +49,25 @@ def run_algorithm(alg_name, memetic):
     elif alg_name == "PSO":
         search_strat = PSO({"popSize":100, "w":0.7, "c1":1.5, "c2":1.5})
     elif alg_name == "CRO":
-        search_strat = CRO(mutation_op, cross_op, {"popSize":100, "rho":0.5, "Fb":0.75, "Fd":1.5, "Pd":1.5, "attempts":4})
+        search_strat = CRO(mutation_op, cross_op, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+    elif alg_name == "CRO_SL":
+        DEparams = {"F":0.7, "Cr":0.8}
+        op_list = [
+            OperatorReal("DE/rand/1", DEparams),
+            OperatorReal("DE/best/2", DEparams),
+            OperatorReal("DE/current-to-best/1", DEparams),
+            OperatorReal("DE/current-to-rand/1", DEparams)
+        ]
+        search_strat = CRO_SL(op_list, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+    elif alg_name == "PCRO_SL":
+        DEparams = {"F":0.7, "Cr":0.8}
+        op_list = [
+            OperatorReal("DE/rand/1", DEparams),
+            OperatorReal("DE/best/2", DEparams),
+            OperatorReal("DE/current-to-best/1", DEparams),
+            OperatorReal("DE/current-to-rand/1", DEparams)
+        ]
+        search_strat = PCRO_SL(op_list, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
     elif alg_name == "NoSearch":
         search_strat = NoSearch({"popSize":100})
     else:

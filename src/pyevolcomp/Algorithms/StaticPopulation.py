@@ -19,7 +19,7 @@ class StaticPopulation(Algorithm):
 
         # Hyperparameters of the algorithm
         self.params = params
-        self.size = params["popSize"] if "popSize" in params else 100
+        self.popsize = params["popSize"] if "popSize" in params else 100
         self.operator = operator
 
         if selection_op is None:

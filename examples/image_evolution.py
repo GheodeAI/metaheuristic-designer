@@ -35,7 +35,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     params = {
         # General
         "stop_cond": "time_limit",
-        "time_limit": 60.0,
+        "time_limit": 120.0,
         "ngen": 1000,
         "neval": 3e5,
         "fit_target": 0,
@@ -47,7 +47,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
 
     display = True
     display_dim = [600, 600]
-    image_shape = [64, 64]
+    image_shape = [32, 32]
 
     if display:
         pygame.init()
@@ -59,8 +59,8 @@ def run_algorithm(alg_name, img_file_name, memetic):
     reference_img = Image.open(img_file_name)
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
-    # objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
-    objfunc = ImgEntropy(image_shape, 256, decoder=decoder)
+    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
+    # objfunc = ImgEntropy(image_shape, 256, decoder=decoder)
     # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name, decoder=decoder)
     
     print(objfunc.low_lim, objfunc.up_lim)
@@ -68,7 +68,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     print(pop_initializer.genotype_size, image_shape[0]*image_shape[1]*3, objfunc.vecsize)
 
 
-    mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F":10, "N":6})
+    mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F":10, "N":3})
     cross_op = OperatorReal("Multicross", {"Nindiv": 4})
     parent_sel_op = ParentSelection("Best", {"amount": 15})
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
@@ -91,6 +91,8 @@ def run_algorithm(alg_name, img_file_name, memetic):
         search_strat = DE(de_op, {"popSize":100})
     elif alg_name == "PSO":
         search_strat = PSO({"popSize":100, "w":0.7, "c1":1.5, "c2":1.5})
+    elif alg_name == "CRO":
+        search_strat = CRO(mutation_op, cross_op, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
     elif alg_name == "NoSearch":
         search_strat = NoSearch({"popSize":100})
     else:
