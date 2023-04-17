@@ -199,7 +199,7 @@ class Search(ABC):
 
         return self.best_solution()
 
-    def get_state(self):
+    def get_state(self, best_solution=True, fit_history=False, genotype_history=False, population=False):
         """
         Gets the current state of the algorithm as a dictionary
         """
@@ -212,10 +212,20 @@ class Search(ABC):
             "real_time_spent": self.real_time_spent,
             "cpu_time_spent": self.cpu_time_spent,
             "params": self.params,
-            "fit_history": self.fit_history,
-            "best_history": self.best_history,
-            # "search_strat_state": self.search_strategy.get_state()
+            
         }
+
+        if best_solution:
+            data["best_individual"] = self.search_strategy.best.get_state()
+
+        if fit_history:
+            data["fit_history"] = self.fit_history
+
+        if genotype_history:
+            data["best_history"] = self.best_history
+
+        data["search_strat_state"] = self.search_strategy.get_state(population=False)
+
 
         return data
     

@@ -76,7 +76,7 @@ class Operator(ABC):
         
         data = {
             "name": self.name,
-            "method": self.method
+            # "method": self.method
         }
 
         if self.param_scheduler:
