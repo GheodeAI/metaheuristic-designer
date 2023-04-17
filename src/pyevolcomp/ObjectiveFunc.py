@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 import numpy as np
-from .Decoders import DefaultDecoder
+# from .Decoders import DefaultDecoder
 from .Initializers import UniformVectorInitializer
 
 
@@ -14,7 +14,7 @@ class ObjectiveFunc(ABC):
     mutation function and crossing of solutions.
     """
 
-    def __init__(self, mode: str = "max", name: str = "some function", decoder: BaseDecoder = None):
+    def __init__(self, mode: str = "max", name: str = "some function"):
         """
         Constructor for the AbsObjectiveFunc class
         """
@@ -30,23 +30,12 @@ class ObjectiveFunc(ABC):
         if self.mode == "min":
             self.factor = -1
 
-        self.decoder = decoder
-        if decoder is None:
-            self.decoder = DefaultDecoder()
-
     def __call__(self, indiv: Indiv, adjusted: bool = True):
         """
         Shorthand for executing the objective function on a vector.
         """
 
         return self.fitness(indiv, adjusted)
-
-    def set_decoder(self, decoder: BaseDecoder):
-        """
-        Sets the decoder
-        """
-
-        self.decoder = decoder
 
     def fitness(self, indiv: Indiv, adjusted: bool = True) -> float:
         """
@@ -55,7 +44,7 @@ class ObjectiveFunc(ABC):
         """
 
         self.counter += 1
-        solution = self.decoder.decode(indiv.genotype)
+        solution = indiv.encoding.decode(indiv.genotype)
         value = self.objective(solution)
 
         if adjusted:
@@ -100,8 +89,8 @@ class ObjectiveFunc(ABC):
 
 
 class ObjectiveVectorFunc(ObjectiveFunc):
-    def __init__(self, vecsize: int, mode: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = "some function", decoder: BaseDecoder = None):
-        super().__init__(mode, name, decoder)
+    def __init__(self, vecsize: int, mode: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = "some function"):
+        super().__init__(mode, name)
 
         self.vecsize = vecsize
         self.low_lim = low_lim
@@ -115,7 +104,7 @@ class ObjectiveVectorFunc(ObjectiveFunc):
 
 
 class ObjectiveFromLambda(ObjectiveVectorFunc):
-    def __init__(self, obj_func: Callable, input_size: int, opt: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = None, decoder: BaseDecoder = None):
+    def __init__(self, obj_func: Callable, input_size: int, opt: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = None):
         """
         Constructor for the AbsObjectiveFunc class
         """
@@ -123,8 +112,7 @@ class ObjectiveFromLambda(ObjectiveVectorFunc):
         if name is None:
             name = obj_func.__name__
 
-        super().__init__(input_size, opt, low_lim, up_lim, name, decoder)
-        #self, vecsize, mode, low_lim, up_lim, name, decoder
+        super().__init__(input_size, opt, low_lim, up_lim, name)
 
         self.obj_func = obj_func
     

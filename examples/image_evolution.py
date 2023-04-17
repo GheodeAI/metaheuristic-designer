@@ -3,7 +3,7 @@ from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
 from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary
 from pyevolcomp.Algorithms import *
 from pyevolcomp.Initializers import *
-from pyevolcomp.Decoders import ImageDecoder
+from pyevolcomp.Encodings import ImageEncoding
 from pyevolcomp.benchmarks import * 
 
 import pygame
@@ -54,18 +54,17 @@ def run_algorithm(alg_name, img_file_name, memetic):
         src = pygame.display.set_mode(display_dim)
         pygame.display.set_caption("Evo graphics")
 
-    decoder = ImageDecoder(image_shape, color=True)
+    
 
     reference_img = Image.open(img_file_name)
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
-    # objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
-    objfunc = ImgEntropy(image_shape, 256, decoder=decoder)
-    # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name, decoder=decoder)
+    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
+    # objfunc = ImgEntropy(image_shape, 256)
+    # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name)
     
-    print(objfunc.low_lim, objfunc.up_lim)
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim)
-    print(pop_initializer.genotype_size, image_shape[0]*image_shape[1]*3, objfunc.vecsize)
+    encoding = ImageEncoding(image_shape, color=True)
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, encoding=encoding)
 
 
     mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F":10, "N":6})
@@ -126,7 +125,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         
         if display:
             img_flat = alg.best_solution()[0]
-            render(decoder.decode(img_flat), display_dim, src)
+            render(encoding.decode(img_flat), display_dim, src)
             pygame.display.update()
     
     alg.real_time_spent = time.time() - real_time_start

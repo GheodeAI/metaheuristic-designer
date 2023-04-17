@@ -4,6 +4,6 @@ from .ParentSelection import ParentSelection
 from .SurvivorSelection import SurvivorSelection
 from .Operator import Operator
 from .Algorithm import Algorithm
-from .Decoder import Decoder
+from .Encoding import Encoding
 from .Search import Search
 from .Individual import Individual

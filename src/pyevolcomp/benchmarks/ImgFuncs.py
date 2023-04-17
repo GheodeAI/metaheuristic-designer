@@ -1,11 +1,11 @@
 from ..ObjectiveFunc import ObjectiveVectorFunc
-from ..Decoders import ImageDecoder
+from ..Encodings import ImageEncoding
 import numpy as np
 from numba import jit
 
 
 class ImgApprox(ObjectiveVectorFunc):
-    def __init__(self, img_dim, reference, opt="min", img_name="", decoder=None):
+    def __init__(self, img_dim, reference, opt="min", img_name=""):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0]*img_dim[1]*3
         self.reference = reference.resize((img_dim[0],img_dim[1]))
@@ -15,11 +15,8 @@ class ImgApprox(ObjectiveVectorFunc):
             name = "Image approximation"
         else:
             name = f"Approximating \"{img_name}\""
-        
-        if decoder is None:
-            decoder = ImageDecoder(img_dim, color=True)
 
-        super().__init__(self.size, opt, 0, 256, name=name, decoder=decoder)
+        super().__init__(self.size, opt, 0, 256, name=name)
     
     def objective(self, solution):
         return imgdistance(solution, self.reference)
@@ -36,13 +33,13 @@ def imgdistance(img, reference):
 
 
 class ImgStd(ObjectiveVectorFunc):
-    def __init__(self, img_dim, opt="max", decoder=None):
+    def __init__(self, img_dim, opt="max"):
         self.size = img_dim[0]*img_dim[1]*3
         
-        if decoder is None:
-            decoder = ImageDecoder(img_dim, color=True)
+        if encoding is None:
+            encoding = ImageEncoding(img_dim, color=True)
         
-        super().__init__(self.size, opt, 0, 256, name="Image standard deviation", decoder=decoder)
+        super().__init__(self.size, opt, 0, 256, name="Image standard deviation")
     
     def objective(self, solution):
         solution_color = solution.reshape([3,-1])
@@ -56,14 +53,14 @@ class ImgStd(ObjectiveVectorFunc):
 
 
 class ImgEntropy(ObjectiveVectorFunc):
-    def __init__(self, img_dim, nbins=10, opt="min", decoder=None):
+    def __init__(self, img_dim, nbins=10, opt="min"):
         self.size = img_dim[0]*img_dim[1]*3
         self.nbins = 10
 
-        if decoder is None:
-            decoder = ImageDecoder(img_dim, color=True)
+        if encoding is None:
+            encoding = ImageEncoding(img_dim, color=True)
 
-        super().__init__(self.size, opt, 0, 256, name="Image entropy", decoder=decoder)
+        super().__init__(self.size, opt, 0, 256, name="Image entropy")
     
     def objective(self, solution):
         solution_channels = solution.reshape([3, -1])
@@ -81,12 +78,12 @@ class ImgEntropy(ObjectiveVectorFunc):
 
 
 class ImgExperimental(ObjectiveVectorFunc):
-    def __init__(self, img_dim, reference, img_name, opt="min", decoder=None):
+    def __init__(self, img_dim, reference, img_name, opt="min"):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0]*img_dim[1]*3
         self.reference = np.asarray(reference.resize([img_dim[0], img_dim[1]]))[:,:,:3].astype(np.uint32)
 
-        super().__init__(self.size, opt, 0, 256, name="Image approx and std", decoder=decoder)
+        super().__init__(self.size, opt, 0, 256, name="Image approx and std")
     
     def objective(self, solution):
         dist = imgdistance(solution, self.reference)

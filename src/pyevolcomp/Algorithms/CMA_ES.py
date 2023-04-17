@@ -3,7 +3,7 @@ from .ES import ES
 from ..Operators import OperatorReal, OperatorMeta
 from ..SurvivorSelection import SurvivorSelection
 from ..ParentSelection import ParentSelection
-from ..Decoders import CMADecoder
+from ..Encodings import CMAEncoding
 
 
 class CMA_ES(ES):
@@ -22,5 +22,5 @@ class CMA_ES(ES):
         super().__init__(mutate, cross, parent_select, selection, params, name, population)
 
     def initialize(self, objfunc):
-        objfunc.decoder = CMADecoder(self.params["nparams"], pre_decoder=objfunc.decoder)
+        objfunc.encoding = CMAEncoding(self.params["nparams"], pre_Encoding=objfunc.Encoding)
         super().initialize(objfunc)

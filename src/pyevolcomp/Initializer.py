@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from .Encodings import DefaultEncoding
 
 
 class Initializer(ABC):
@@ -7,8 +8,11 @@ class Initializer(ABC):
     Abstract population initializer class
     """
 
-    def __init__(self, popSize: int = 1):
+    def __init__(self, popSize: int = 1, encoding: Encoding = None):
         self.popSize = popSize
+        if encoding is None:
+            encoding = DefaultEncoding()
+        self.encoding = encoding
     
     @abstractmethod
     def generate_individual(self, objfunc: ObjectiveFunc) -> Individual:
