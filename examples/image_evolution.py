@@ -2,6 +2,7 @@ from pyevolcomp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamS
 from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
 from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary
 from pyevolcomp.Algorithms import *
+from pyevolcomp.Initializers import *
 from pyevolcomp.Decoders import ImageDecoder
 from pyevolcomp.benchmarks import * 
 
@@ -33,19 +34,20 @@ def save_to_image(image, img_name="result.png"):
 def run_algorithm(alg_name, img_file_name, memetic):
     params = {
         # General
-        "stop_cond": "neval",
-        "time_limit": 20.0,
+        "stop_cond": "time_limit",
+        "time_limit": 60.0,
         "ngen": 1000,
         "neval": 3e5,
         "fit_target": 0,
 
         "verbose": True,
+        # "verbose": False,
         "v_timer": 0.5
     }
 
     display = True
     display_dim = [600, 600]
-    image_shape = [32, 32]
+    image_shape = [64, 64]
 
     if display:
         pygame.init()
@@ -57,10 +59,16 @@ def run_algorithm(alg_name, img_file_name, memetic):
     reference_img = Image.open(img_file_name)
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
-    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
+    # objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, decoder=decoder)
+    objfunc = ImgEntropy(image_shape, 256, decoder=decoder)
     # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name, decoder=decoder)
+    
+    print(objfunc.low_lim, objfunc.up_lim)
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim)
+    print(pop_initializer.genotype_size, image_shape[0]*image_shape[1]*3, objfunc.vecsize)
 
-    mutation_op = OperatorInt("MutRand", {"method": "Cauchy", "F":15, "N":20})
+
+    mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F":10, "N":6})
     cross_op = OperatorReal("Multicross", {"Nindiv": 4})
     parent_sel_op = ParentSelection("Best", {"amount": 15})
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
@@ -91,16 +99,16 @@ def run_algorithm(alg_name, img_file_name, memetic):
     
     if memetic:
         local_search = LocalSearch(OperatorInt("MutRand", {"method": "Uniform", "Low":-3, "Up":-3, "N":3}), {"iters":10})
-        alg = MemeticSearch(search_strat, local_search, ParentSelection("Best", {"amount": 10}), params)
+        alg = MemeticSearch(objfunc, search_strat, local_search, ParentSelection("Best", {"amount": 10}), pop_initializer, params)
     else:
-        alg = GeneralSearch(search_strat, params)
+        alg = GeneralSearch(objfunc, search_strat, pop_initializer, params)
 
     # Optimize with display of image
     time_start = time.process_time()
     real_time_start = time.time()
     display_timer = time.time()
 
-    alg.initialize(objfunc)
+    alg.initialize()
 
     while not alg.ended:
         # process GUI events and reset screen
@@ -110,10 +118,10 @@ def run_algorithm(alg_name, img_file_name, memetic):
                     exit(0)
             src.fill('#000000')
         
-        alg.step(objfunc, time_start=real_time_start)
+        alg.step(time_start=real_time_start)
 
         if alg.verbose and time.time() - display_timer > alg.v_timer:
-            alg.step_info(objfunc, real_time_start)
+            alg.step_info(real_time_start)
             display_timer = time.time()
         
         if display:
@@ -125,8 +133,9 @@ def run_algorithm(alg_name, img_file_name, memetic):
     alg.time_spent = time.process_time() - time_start
     img_flat = alg.best_solution()[0]
     image = img_flat.reshape(image_shape + [3])
-    render(image, display_dim, src)
-    alg.display_report(objfunc)
+    if display:
+        render(image, display_dim, src)
+    alg.display_report(show_plots=True)
     save_to_image(image, f"{img_name}_{image_shape[0]}x{image_shape[1]}_{alg_name}.png")
     
 def main():

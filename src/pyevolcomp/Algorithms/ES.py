@@ -1,7 +1,5 @@
 from __future__ import annotations
 import random
-import numpy as np
-import time
 from typing import Union, List
 from ..Individual import Individual
 from ..ParamScheduler import ParamScheduler
@@ -15,8 +13,8 @@ class ES(Algorithm):
     Population of the Genetic algorithm
     """
 
-    def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection, 
-                       params: Union[ParamScheduler, dict] = {}, name: str = "ES", population: List[Individual] = None):
+    def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection,
+                 params: Union[ParamScheduler, dict] = {}, name: str = "ES", population: List[Individual] = None):
         """
         Constructor of the GeneticPopulation class
         """
@@ -39,7 +37,6 @@ class ES(Algorithm):
     def select_parents(self, population, progress=0, history=None):
         return self.parent_sel_op(population)
 
-
     def perturb(self, parent_list, objfunc, progress=0, history=None):
         # Generation of offspring by crossing and mutation
         offspring = []
@@ -60,15 +57,14 @@ class ES(Algorithm):
 
             # Add to offspring list
             offspring.append(new_indiv)
-        
 
         # Update best solution
-        current_best = max(offspring, key = lambda x: x.fitness)
+        current_best = max(offspring, key=lambda x: x.fitness)
         if self.best.fitness < current_best.fitness:
             self.best = current_best
-        
+
         return offspring
-    
+
     def select_individuals(self, population, offspring, progress=0, history=None):
         return self.selection_op(population, offspring)
 

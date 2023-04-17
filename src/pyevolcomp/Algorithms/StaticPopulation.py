@@ -1,8 +1,4 @@
 from __future__ import annotations
-import random
-import numpy as np
-from typing import List, Union
-from ..Individual import Individual
 from ..ParamScheduler import ParamScheduler
 from ..SurvivorSelection import SurvivorSelection
 from ..Algorithm import Algorithm
@@ -13,7 +9,8 @@ class StaticPopulation(Algorithm):
     Population of the Genetic algorithm
     """
 
-    def __init__(self, operator: Operator, params: Union[ParamScheduler, dict]={}, selection_op: SurvivorSelection=None, name: str="stpop", population: List[Individual]=None):
+    def __init__(self, operator: Operator, params: Union[ParamScheduler, dict] = {}, selection_op: SurvivorSelection = None,
+                 name: str = "stpop", population: List[Individual] = None):
         """
         Constructor of the GeneticPopulation class
         """
@@ -47,17 +44,17 @@ class StaticPopulation(Algorithm):
 
             # Store best vector for individual
             new_indiv.store_best(indiv)
-            
+
             # Add to offspring list
             offspring.append(new_indiv)
-        
+
         # Update best solution
-        current_best = max(offspring, key = lambda x: x.fitness)
+        current_best = max(offspring, key=lambda x: x.fitness)
         if self.best.fitness < current_best.fitness:
             self.best = current_best
-        
+
         return offspring
-    
+
     def select_individuals(self, population, offspring, progress=0, history=None):
         return self.selection_op(population, offspring)
 
@@ -73,8 +70,3 @@ class StaticPopulation(Algorithm):
             self.param_scheduler.step(progress)
             self.params = self.param_scheduler.get_params()
             self.size = self.params["popSize"]
-
-
-
-
-

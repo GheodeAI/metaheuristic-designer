@@ -1,6 +1,7 @@
 from pyevolcomp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
 from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
 from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary
+from pyevolcomp.Initializers import UniformVectorInitializer
 from pyevolcomp.Algorithms import *
 from pyevolcomp.benchmarks import *
 
@@ -21,6 +22,7 @@ def run_algorithm(alg_name, memetic, save_state):
     }
 
     objfunc = Sphere(10, "min")
+    pop_initializer = UniformVectorInitializer(10, objfunc.low_lim, objfunc.up_lim)
 
     mut_params = ParamScheduler("Linear", {"method":"Cauchy", "F": [0.01, 0.00001]})
     parent_params = ParamScheduler("Linear", {"amount": 20})
@@ -30,7 +32,6 @@ def run_algorithm(alg_name, memetic, save_state):
     cross_op = OperatorReal("Multipoint")
     parent_sel_op = ParentSelection("Best", parent_params)
     selection_op = SurvivorSelection("(m+n)")
-
     
     mem_select = ParentSelection("Best", {"amount": 5})
     neihbourhood_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.0002})
@@ -61,16 +62,16 @@ def run_algorithm(alg_name, memetic, save_state):
         exit()
     
     if memetic:
-        alg = MemeticSearch(search_strat, local_search, mem_select, params)
+        alg = MemeticSearch(objfunc, search_strat, local_search, mem_select, pop_initializer, params=params)
     else:
-        alg = GeneralSearch(search_strat, params)
+        alg = GeneralSearch(objfunc, search_strat, pop_initializer, params=params)
     
-    ind, fit = alg.optimize(objfunc)
+    ind, fit = alg.optimize()
     print(ind)
-    alg.display_report(objfunc, show_plots=False)
+    alg.display_report(show_plots=False)
 
     if save_state:
-        alg.store_state(objfunc, "./examples/results/test.json", readable=True)
+        alg.store_state("./examples/results/test.json", readable=True)
 
 
 def main():

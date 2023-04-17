@@ -10,11 +10,8 @@ Inspired by this article:
 Mostly following the book: 
     Eiben, Agoston E., and James E. Smith. Introduction to evolutionary computing. Springer-Verlag Berlin Heidelberg, 2015.
 
-
-To configure the hyperparameters a dictionary will have to be given to the class of each algorithm.
-
 ## Project structure
-This project uses "poetry" as a package manager and nox for unit testing.
+This project uses poetry as a package manager and nox for unit testing.
 
 
 ## Examples
@@ -45,6 +42,13 @@ Then you can run one the scripts as:
 ```bash
 poetry run python examples/image_evolution.py -a SA -i images/saturn.png
 ```
+
+To run the tests you need to install nox and nox_poetry, to execute the tests use the command
+
+```bash
+nox
+```
+
 
 ## General parameters
 - Stopping conditions:

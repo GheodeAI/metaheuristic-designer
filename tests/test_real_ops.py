@@ -2,10 +2,10 @@ import pytest
 
 import numpy as np
 from pyevolcomp import Individual
-from pyevolcomp.Operators import OperatorReal, _real_ops
+from pyevolcomp.Operators import OperatorReal, real_ops_map
 from pyevolcomp.benchmarks.benchmark_funcs import Sphere
 
-_real_ops = [i for i in _real_ops if i not in ["mutate1sigma", "mutatensigmas"]]
+real_ops = [i for i in real_ops_map.keys() if i not in ["mutate1sigma", "mutatensigmas"]]
 
 pop_size = 100
 
@@ -14,7 +14,7 @@ example_populaton2 = [Individual(Sphere(20), np.random.uniform(-100, 100, 20)) f
 example_populaton3 = [Individual(Sphere(100), np.random.uniform(-100, 100, 100)) for i in range(pop_size)]
 
 @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
-@pytest.mark.parametrize("op_method", _real_ops)
+@pytest.mark.parametrize("op_method", real_ops)
 def test_basic_working(population, op_method):
     operator = OperatorReal(op_method)
 
