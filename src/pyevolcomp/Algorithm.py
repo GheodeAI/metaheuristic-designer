@@ -159,17 +159,9 @@ class Algorithm(ABC):
         
         if self.surv_sel:
             data["survivor_sel"] = [surv.get_state() for surv in self.surv_sel]
-
-        # data["best_individual"] = self.best.get_state()
-
+        
         if population:
             data["population"] = [ind.get_state() for ind in self.population]
-
-        if self.param_scheduler:
-            data["param_scheduler"] = self.param_scheduler.get_state()
-            data["params"] = self.param_scheduler.get_params()
-        else:
-            data["params"] = self.params
 
         return data
 

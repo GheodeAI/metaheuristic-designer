@@ -224,8 +224,7 @@ class Search(ABC):
         if genotype_history:
             data["best_history"] = self.best_history
 
-        data["search_strat_state"] = self.search_strategy.get_state(population=False)
-
+        data["search_strat_state"] = self.search_strategy.get_state(population)
 
         return data
     
