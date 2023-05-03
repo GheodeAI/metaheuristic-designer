@@ -35,7 +35,7 @@ class DE(StaticPopulation):
         if selection_op is None:
             selection_op = SurvivorSelection("One-to-one")
 
-        super().__init__(de_op, params, selection_op, name,)
+        super().__init__(de_op, params, selection_op, name)
 
 
 class PSO(StaticPopulation):
