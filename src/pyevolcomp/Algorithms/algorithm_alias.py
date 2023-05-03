@@ -78,7 +78,7 @@ class NoSearch(StaticPopulation):
 
 class RandomSearch(HillClimb):
     def __init__(self, name="RandomSearch"):
-        op = OperatorReal("Random")
+        op = OperatorReal("Random", {})
         super().__init__(op, name=name)
 
 

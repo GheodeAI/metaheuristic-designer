@@ -26,7 +26,8 @@ class SA(Algorithm):
         self.population = [None]
         self.perturb_op = perturb_op
 
-        super().__init__(name, popSize=1)
+        super().__init__(name, popSize=1, params=params)
+    
 
     def perturb(self, indiv_list, objfunc, progress=None, history=None):
         """
@@ -58,8 +59,9 @@ class SA(Algorithm):
 
         self.perturb_op.step(progress)
 
-        if isinstance(self.params, ParamScheduler):
-            self.params.step(progress)
+        if self.param_scheduler:
+            self.param_scheduler.step(progress)
+            self.params = self.param_scheduler.get_params()
             self.iter = round(self.params["iter"])
             self.alpha = self.params["alpha"]
 

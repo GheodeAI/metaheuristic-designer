@@ -71,6 +71,23 @@ class ParentSelection:
             if "amount" in self.params:
                 self.params["amount"] = round(self.params["amount"])
 
+    def get_state(self):
+        """
+        Gets the current state of the algorithm as a dictionary.
+        """
+
+        data = {
+            "name": self.name
+        }
+
+        if self.param_scheduler:
+            data["param_scheduler"] = self.param_scheduler.get_state()
+            data["params"] = self.param_scheduler.get_params()
+        else:
+            data["params"] = self.params
+        
+        return data           
+
     def select(self, population: List[Individual]) -> List[Individual]:
         """
         Selects a subsection of the population along with the indices of each individual in the original population

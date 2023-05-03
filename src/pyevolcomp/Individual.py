@@ -8,20 +8,20 @@ class Individual:
     Individual that holds a tentative solution with its fitness.
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, vector: np.ndarray, speed: np.ndarray = None, operator: Operator = None):
+    def __init__(self, objfunc: ObjectiveFunc, genotype: Any, speed: np.ndarray = None, operator: Operator = None):
         """
         Constructor of the Individual class.
         """
 
         self.objfunc = objfunc
-        self._genotype = vector
+        self._genotype = genotype
         self.speed = speed
-        if speed is None and isinstance(vector, np.ndarray):
-            self.speed = np.zeros_like(vector)
+        if speed is None and isinstance(genotype, np.ndarray):
+            self.speed = np.zeros_like(genotype)
         self.operator = operator
         self._fitness = 0
         self.fitness_calculated = False
-        self.best = vector
+        self.best = genotype
         self.is_dead = False
 
     def __copy__(self) -> Individual:
@@ -94,3 +94,24 @@ class Individual:
 
         self._fitness = fit
         self.fitness_calculated = True
+    
+    def get_state(self, show_speed=True, show_op=False, show_best=False):
+        """
+        Gets the current state of the algorithm as a dictionary.
+        """
+
+        data = {
+            "genotype": self._genotype,
+            "fitness": self._fitness
+        }
+
+        if show_speed:
+            data["speed"] = self.speed
+        
+        if show_op and self.operator is not None:
+            data["operator"] = self.operator.name
+        
+        if show_best:
+            data["best_genotype"] =  self.best
+
+        return data
