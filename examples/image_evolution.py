@@ -91,6 +91,8 @@ def run_algorithm(alg_name, img_file_name, memetic):
         search_strat = DE(de_op, {"popSize":100})
     elif alg_name == "PSO":
         search_strat = PSO({"popSize":100, "w":0.7, "c1":1.5, "c2":1.5})
+    elif alg_name == "RandomSearch":
+        search_strat = RandomSearch()
     elif alg_name == "NoSearch":
         search_strat = NoSearch({"popSize":100})
     else:
