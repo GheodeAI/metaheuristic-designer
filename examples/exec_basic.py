@@ -71,7 +71,9 @@ def run_algorithm(alg_name, memetic, save_state):
     alg.display_report(show_plots=False)
 
     if save_state:
-        alg.store_state("./examples/results/test.json", readable=True)
+        alg.store_state("./examples/results/test.json", readable=True, show_pop=True)
+        # show_best_solution=True,
+        # show_fit_history=False, show_gen_history=False, show_pop=False, show_pop_details=False):
 
 
 def main():

@@ -135,7 +135,7 @@ class Algorithm(ABC):
         """
         
 
-    def get_state(self, population=False):
+    def get_state(self, show_pop=False, show_pop_details=False):
         """
         Gets the current state of the algorithm as a dictionary.
         """
@@ -160,8 +160,9 @@ class Algorithm(ABC):
         if self.surv_sel:
             data["survivor_sel"] = [surv.get_state() for surv in self.surv_sel]
         
-        if population:
-            data["population"] = [ind.get_state() for ind in self.population]
+        if show_pop:
+
+            data["population"] = [ind.get_state(show_speed=show_pop_details, show_op=show_pop_details, show_best=show_pop_details) for ind in self.population]
 
         return data
 

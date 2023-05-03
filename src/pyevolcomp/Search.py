@@ -7,6 +7,7 @@ from .ObjectiveFunc import ObjectiveVectorFunc
 from .Initializers import UniformVectorInitializer
 
 import json
+from .utils import NumpyEncoder
 
 class Search(ABC):
     """
@@ -199,7 +200,7 @@ class Search(ABC):
 
         return self.best_solution()
 
-    def get_state(self, best_solution=True, fit_history=False, genotype_history=False, population=False):
+    def get_state(self, show_best_solution=True, show_fit_history=False, show_gen_history=False, show_pop=False, show_pop_details=False):
         """
         Gets the current state of the algorithm as a dictionary
         """
@@ -212,39 +213,35 @@ class Search(ABC):
             "real_time_spent": self.real_time_spent,
             "cpu_time_spent": self.cpu_time_spent,
             "params": self.params,
-            
         }
 
-        if best_solution:
-            data["best_individual"] = self.search_strategy.best.get_state()
+        if show_best_solution:
+            data["best_fitness"] = self.best_solution()[1]
+            data["best_individual"] = self.search_strategy.best.get_state(show_speed=False, show_op=False, show_best=False)
 
-        if fit_history:
+        if show_fit_history:
             data["fit_history"] = self.fit_history
 
-        if genotype_history:
+        if show_gen_history:
             data["best_history"] = self.best_history
 
-        data["search_strat_state"] = self.search_strategy.get_state(population)
+        data["search_strat_state"] = self.search_strategy.get_state(show_pop, show_pop_details)
 
         return data
     
-    def store_state(self, file_name="dumped_state.json", readable=False):
+    def store_state(self, file_name="dumped_state.json", readable=False, show_best_solution=True,
+                    show_fit_history=False, show_gen_history=False, show_pop=False, show_pop_details=False):
         """
         Dumps the current state of the algorithm to a file.
 
         Everything will be stored in a JSON file.
         """
 
-        dumped = json.dumps(self.get_state(), cls=NumpyEncoder, indent = 4 if readable else None)
+        dumped = json.dumps(self.get_state(show_best_solution, show_fit_history,
+                                           show_gen_history, show_pop, show_pop_details), cls=NumpyEncoder, indent = 4 if readable else None)
 
         with open(file_name, "w") as fp:
             fp.write(dumped)
-    
-    
-    def load_state(self):
-        """
-        Loads the state of the algorithm from a file
-        """
     
     @abstractmethod
     def step_info(self, start_time):
@@ -259,18 +256,6 @@ class Search(ABC):
         """
 
 
-class NumpyEncoder(json.JSONEncoder):
-    """ Special json encoder for numpy types """
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        elif isinstance(obj, np.floating):
-            return float(obj)
-        elif isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return json.JSONEncoder.default(self, obj)
-
-# Stopping condition string parsing methods
 def parse_stopping_cond(condition_str):
     """
     This function parses an expression of the form "neval or cpu_time" into

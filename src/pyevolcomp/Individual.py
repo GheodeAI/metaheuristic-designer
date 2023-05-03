@@ -95,18 +95,23 @@ class Individual:
         self._fitness = fit
         self.fitness_calculated = True
     
-    def get_state(self):
+    def get_state(self, show_speed=True, show_op=False, show_best=False):
         """
         Gets the current state of the algorithm as a dictionary.
         """
 
         data = {
             "genotype": self._genotype,
-            "speed": self.speed,
-            "operator": self.operator.name if self.operator else None,
-            "fitness_calculated": self.fitness_calculated,
-            "fitness": self._fitness,
-            "best_genotype": self.best
+            "fitness": self._fitness
         }
+
+        if show_speed:
+            data["speed"] = self.speed
+        
+        if show_op and self.operator is not None:
+            data["operator"] = self.operator.name
+        
+        if show_best:
+            data["best_genotype"] =  self.best
 
         return data
