@@ -10,7 +10,7 @@ import argparse
 def run_algorithm(alg_name, memetic):
     params = {
         "stop_cond": "neval or time_limit or fit_target",
-        "time_limit": 10.0,
+        "time_limit": 20.0,
         "cpu_time_limit": 10.0,
         "ngen": 1000,
         "neval": 6e5,
@@ -48,6 +48,8 @@ def run_algorithm(alg_name, memetic):
         search_strat = DE(OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}), {"popSize":100})
     elif alg_name == "PSO":
         search_strat = PSO({"popSize":100, "w":0.7, "c1":1.5, "c2":1.5})
+    elif alg_name == "RandomSearch":
+        search_strat = RandomSearch()
     elif alg_name == "NoSearch":
         search_strat = NoSearch({"popSize":100})
     else:
