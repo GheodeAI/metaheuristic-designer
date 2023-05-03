@@ -16,14 +16,12 @@ class GA(Algorithm):
     """
 
     def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection,
-                 params: Union[ParamScheduler, dict] = {}, name: str = "GA", population: List[Individual] = None):
+                 params: Union[ParamScheduler, dict] = {}, name: str = "GA"):
         """
         Constructor of the GeneticPopulation class
         """
 
         # Hyperparameters of the algorithm
-        self.params = params
-        self.popsize = params["popSize"] if "popSize" in params else 100
         self.pmut = params["pmut"] if "pmut" in params else 0.1
         self.pcross = params["pcross"] if "pcross" in params else 0.9
 
@@ -34,12 +32,9 @@ class GA(Algorithm):
         self.selection_op = selection_op
 
         self.best = None
-
-        # Population initialization
-        if population is not None:
-            self.population = population
-
-        super().__init__(name, self.popsize)
+        
+        popsize = params["popSize"] if "popSize" in params else 100
+        super().__init__(name, popSize=popsize, params=params)
 
     def select_parents(self, population, progress=0, history=None):
         return self.parent_sel_op(population)
@@ -88,9 +83,10 @@ class GA(Algorithm):
         self.parent_sel_op.step(progress)
         self.selection_op.step(progress)
 
-        if isinstance(self.params, ParamScheduler):
-            self.params.step(progress)
-            self.size = self.params["popSize"]
+        if self.param_scheduler:
+            self.param_scheduler.step(progress)
+            self.params = self.param_scheduler.get_params()
+            self.popsize = self.params["popSize"]
             self.pmut = self.params["pmut"]
             self.pcross = self.params["pcross"]
 

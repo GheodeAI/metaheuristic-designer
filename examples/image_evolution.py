@@ -35,13 +35,14 @@ def run_algorithm(alg_name, img_file_name, memetic):
     params = {
         # General
         "stop_cond": "time_limit",
-        "time_limit": 60.0,
+        "progress_metric": "time_limit",
+        "time_limit": 10.0,
+        "cpu_time_limit": 10.0,
         "ngen": 1000,
         "neval": 3e5,
         "fit_target": 0,
 
         "verbose": True,
-        # "verbose": False,
         "v_timer": 0.5
     }
 
@@ -55,7 +56,6 @@ def run_algorithm(alg_name, img_file_name, memetic):
         pygame.display.set_caption("Evo graphics")
 
     
-
     reference_img = Image.open(img_file_name)
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
@@ -105,8 +105,8 @@ def run_algorithm(alg_name, img_file_name, memetic):
         alg = GeneralSearch(objfunc, search_strat, pop_initializer, params)
 
     # Optimize with display of image
-    time_start = time.process_time()
     real_time_start = time.time()
+    cpu_time_start = time.process_time()
     display_timer = time.time()
 
     alg.initialize()
@@ -121,6 +121,8 @@ def run_algorithm(alg_name, img_file_name, memetic):
         
         alg.step(time_start=real_time_start)
 
+        alg.update(real_time_start, cpu_time_start)
+
         if alg.verbose and time.time() - display_timer > alg.v_timer:
             alg.step_info(real_time_start)
             display_timer = time.time()
@@ -131,7 +133,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
             pygame.display.update()
     
     alg.real_time_spent = time.time() - real_time_start
-    alg.time_spent = time.process_time() - time_start
+    alg.cpu_time_spent = time.process_time() - cpu_time_start
     img_flat = alg.best_solution()[0]
     image = img_flat.reshape(image_shape + [3])
     if display:

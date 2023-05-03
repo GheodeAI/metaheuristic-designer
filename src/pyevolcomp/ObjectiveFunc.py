@@ -25,12 +25,12 @@ class ObjectiveFunc(ABC):
         
         self.mode = mode
         if mode not in ["max", "min"]:
-            raise ValueError("Optimization objective (opt) must be \"min\" or \"max\".")
+            raise ValueError("Optimization objective (mode) must be \"min\" or \"max\".")
         
         if self.mode == "min":
             self.factor = -1
 
-    def __call__(self, indiv: Indiv, adjusted: bool = True):
+    def __call__(self, indiv: Indiv, adjusted: bool = True) -> float:
         """
         Shorthand for executing the objective function on a vector.
         """

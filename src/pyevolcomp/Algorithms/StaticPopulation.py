@@ -10,16 +10,13 @@ class StaticPopulation(Algorithm):
     """
 
     def __init__(self, operator: Operator, params: Union[ParamScheduler, dict] = {}, selection_op: SurvivorSelection = None,
-                 name: str = "stpop", population: List[Individual] = None):
+                 name: str = "stpop"):
         """
         Constructor of the GeneticPopulation class
         """
 
-        super().__init__(name)
-
         # Hyperparameters of the algorithm
         self.params = params
-        self.size = params["popSize"] if "popSize" in params else 100
         self.operator = operator
 
         if selection_op is None:
@@ -27,11 +24,11 @@ class StaticPopulation(Algorithm):
         self.selection_op = selection_op
 
         self.best = None
-
-        # Population initialization
-        if population is not None:
-            self.population = population
-
+        
+        popsize = params["popSize"] if "popSize" in params else 100
+        super().__init__(name, popSize=popsize, params=params)
+    
+    
     def perturb(self, parent_list, objfunc, progress=0, history=None):
         offspring = []
         for indiv in parent_list:
@@ -65,6 +62,7 @@ class StaticPopulation(Algorithm):
         self.operator.step(progress)
         self.selection_op.step(progress)
 
-        if isinstance(self.params, ParamScheduler):
-            self.params.step(progress)
+        if self.param_scheduler:
+            self.param_scheduler.step(progress)
+            self.params = self.param_scheduler.get_params()
             self.size = self.params["popSize"]

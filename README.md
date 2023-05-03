@@ -57,7 +57,7 @@ nox
         - "ngen": stop after a given number of generations
         - "time": stop after a fixed amount of execution time (real time, not CPU time)
         - "fit_target": stop after reaching a desired fitness, accounting for whether we have maximization and minimization
-        - All of the above can be combined with the logical 'or' or 'and' to make more complex stopping conditions,
+        - All of the above can be combined with the logical operators 'or' or 'and' to make more complex stopping conditions,
         an example can be "ngen or time" which will stop when the number of generations or the time limit is reached.
     - Neval: number of evaluations of the fitness function
     - Ngen: number of generations
@@ -70,22 +70,27 @@ nox
 ## Operators available
 - 1 point cross (1point)
 - 2 point cross (2point)
-- multipoint cross (Multipoint)
+- Multipoint cross (Multipoint)
+- Weighted average cross (WeightedAvg)
 - BLXalpha cross (BLXalpha)
 - SBX cross (SBX)
 - Multi-individual cross (Multicross)
-- Permutation of vector components (Perm)
 - Xor with random vector (Xor)
 - Cross two vectors with Xor (XorCross)
-- Random mutation of vector components (MutRand)
-- mutation adding Gaussian noise (Gauss)
-- mutation adding Cauchy noise (Cauchy)
-- mutation adding Laplace noise (Laplace)
-- mutation adding Uniform noise (Uniform)
-- Differential evolution operators (DE/best/1, DE/best/2, DE/rand/1, DE/rand/2, DE/current-to-rand/1, DE/current-to-best/1, DE/current-to-pbest/1)
-- Approximate population with a prob. distribution and sample (RandSample)
+- Permutation of vector components (Perm)
+- Random mutation of vector components (MutRand/MutNoise)
+- Add noise following a prob. distribution (RandNoise)
 - Approximate population with a prob. distribution and sample on some vector components (MutSample)
+- Approximate population with a prob. distribution and sample (RandSample)
+- Mutation adding Gaussian noise (Gauss)
+- Mutation adding Cauchy noise (Cauchy)
+- Mutation adding Laplace noise (Laplace)
+- Mutation adding Uniform noise (Uniform)
+- Differential evolution operators (DE/best/1, DE/best/2, DE/rand/1, DE/rand/2, DE/current-to-rand/1, DE/current-to-best/1, DE/current-to-pbest/1)
+- Particle swarm algorithm step (PSO)
+- Firefly algorithm step (Firefly)
 - Placing fixed vector into the population (Dummy) [only intended for debugging]
+- Return a copy of the individual (Nothing) 
 
 ## Parent selection methods available
 - Tournament (Tournament)

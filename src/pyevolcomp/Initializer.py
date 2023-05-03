@@ -20,7 +20,11 @@ class Initializer(ABC):
         Define how an individual is initialized
         """
     
-    def random_individual(self, objfunc):
+    def random_individual(self, objfunc: ObjectiveFunc) -> Individual:
+        """
+        Generates a random individual
+        """
+
         return self.generate_individual(objfunc)
     
     def generate_population(self, objfunc: ObjectiveFunc, n_indiv: int = None) -> List[Individual]:

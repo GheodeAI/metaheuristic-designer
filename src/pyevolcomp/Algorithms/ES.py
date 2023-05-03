@@ -14,26 +14,22 @@ class ES(Algorithm):
     """
 
     def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection,
-                 params: Union[ParamScheduler, dict] = {}, name: str = "ES", population: List[Individual] = None):
+                 params: Union[ParamScheduler, dict] = {}, name: str = "ES"):
         """
         Constructor of the GeneticPopulation class
         """
 
         # Hyperparameters of the algorithm
         self.params = params
-        self.popsize = params["popSize"] if "popSize" in params else 100
         self.n_offspring = params["offspringSize"] if "offspringSize" in params else self.size
         self.mutation_op = mutation_op
         self.cross_op = cross_op
         self.parent_sel_op = parent_sel_op
         self.selection_op = selection_op
-
-        # Population initialization
-        if population is not None:
-            self.population = population
-
-        super().__init__(name, self.popsize)
-
+        
+        popsize = params["popSize"] if "popSize" in params else 100
+        super().__init__(name, popSize=popsize, params=params)
+    
     def select_parents(self, population, progress=0, history=None):
         return self.parent_sel_op(population)
 
@@ -78,7 +74,12 @@ class ES(Algorithm):
         self.parent_sel_op.step(progress)
         self.selection_op.step(progress)
 
-        if isinstance(self.params, ParamScheduler):
-            self.params.step(progress)
-            self.size = self.params["popSize"]
+        if self.param_scheduler:
+            self.param_scheduler.step(progress)
+            self.params = self.param_scheduler.get_params()
+            self.popsize = self.params["popSize"]
             self.n_offspring = self.params["offspringSize"]
+
+
+
+
