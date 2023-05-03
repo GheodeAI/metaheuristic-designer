@@ -7,6 +7,7 @@ from ..Operators import OperatorReal, OperatorMeta
 from ..SurvivorSelection import SurvivorSelection
 from ..ParentSelection import ParentSelection
 from .StaticPopulation import StaticPopulation
+from .HillClimb import HillClimb
 from ..ParamScheduler import ParamScheduler
 
 
@@ -73,4 +74,11 @@ class NoSearch(StaticPopulation):
         super().__init__(noop, params, selection_op, name, population)
 
     def perturb(self, parent_list, objfunc, progress=0, history=None):
-        return parent_list
+        return 
+
+class RandomSearch(HillClimb):
+    def __init__(self, name="RandomSearch"):
+        op = OperatorReal("Random")
+        super().__init__(op, name=name)
+
+
