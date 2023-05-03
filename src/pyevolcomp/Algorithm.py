@@ -81,22 +81,6 @@ class Algorithm(ABC):
 
         return self.best.genotype, best_fitness
 
-    # def initialize(self, objfunc: ObjectiveFunc):
-    #     """
-    #     Generates a random population of individuals
-    #     """
-
-    #     self.population = []
-    #     for i in range(self.popsize):
-    #         genotype = objfunc.decoder.encode(objfunc.random_solution())
-    #         speed = objfunc.decoder.encode(objfunc.random_solution())
-    #         new_indiv = Individual(objfunc, genotype, speed)
-
-    #         if self.best is None or self.best.fitness < new_indiv.fitness:
-    #             self.best = new_indiv
-
-    #         self.population.append(new_indiv)
-
     def initialize(self, population: List[Individual]):
         """
         Generates a random population of individuals

@@ -73,8 +73,6 @@ def run_algorithm(alg_name, memetic, save_state):
 
     if save_state:
         alg.store_state("./examples/results/test.json", readable=True, show_pop=True)
-        # show_best_solution=True,
-        # show_fit_history=False, show_gen_history=False, show_pop=False, show_pop_details=False):
 
 
 def main():
@@ -101,10 +99,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# if __name__ == "__main__":
-#     from pyevolcomp.BaseSearch import parse_stopping_cond, process_condition
-#     a_str = "neval or ngen and time_limit or ngen and ngen"
-#     parsed = parse_stopping_cond(a_str)
-#     print(parsed)
-#     print(process_condition(parsed, neval=True, ngen=True, real_time=True, target=True))
