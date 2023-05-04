@@ -10,7 +10,7 @@ import argparse
 def run_algorithm(alg_name, memetic, save_state):
     params = {
         "stop_cond": "neval or time_limit or fit_target",
-        "time_limit": 20.0,
+        "time_limit": 10.0,
         "cpu_time_limit": 10.0,
         "ngen": 1000,
         "neval": 6e5,

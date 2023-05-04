@@ -39,7 +39,7 @@ class GA(Algorithm):
     def select_parents(self, population, progress=0, history=None):
         return self.parent_sel_op(population)
 
-    def perturb(self, parent_list, objfunc, progress=0, history=None):
+    def perturb(self, parent_list, pop_init, objfunc, progress=0, history=None):
         # Generation of offspring by crossing and mutation
         offspring = []
         while len(offspring) < self.popsize:
@@ -47,14 +47,14 @@ class GA(Algorithm):
             # Cross
             parent1 = random.choice(parent_list)
             if random.random() < self.pcross:
-                new_indiv = self.cross_op(parent1, parent_list, objfunc, self.best)
+                new_indiv = self.cross_op(parent1, parent_list, objfunc, self.best, pop_init)
                 new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             else:
                 new_indiv = copy(parent1)
 
             # Mutate
             if random.random() < self.pmut:
-                new_indiv = self.mutation_op(parent1, parent_list, objfunc, self.best)
+                new_indiv = self.mutation_op(parent1, parent_list, objfunc, self.best, pop_init)
                 new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             # Store best vector for individual

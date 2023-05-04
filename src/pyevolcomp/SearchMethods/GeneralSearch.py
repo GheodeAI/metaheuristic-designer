@@ -27,7 +27,7 @@ class GeneralSearch(Search):
 
         parents, _ = self.search_strategy.select_parents(population, self.progress, self.best_history)
 
-        offspring = self.search_strategy.perturb(parents, self.objfunc, self.progress, self.best_history)
+        offspring = self.search_strategy.perturb(parents, self.pop_init, self.objfunc, self.progress, self.best_history)
 
         population = self.search_strategy.select_individuals(population, offspring, self.progress, self.best_history)
 

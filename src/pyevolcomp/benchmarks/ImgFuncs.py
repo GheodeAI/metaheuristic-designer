@@ -20,9 +20,6 @@ class ImgApprox(ObjectiveVectorFunc):
     
     def objective(self, solution):
         return imgdistance(solution, self.reference)
-
-    def random_solution(self):
-        return np.random.randint(0, 256, size=self.img_dim)
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255)
@@ -44,9 +41,6 @@ class ImgStd(ObjectiveVectorFunc):
     def objective(self, solution):
         solution_color = solution.reshape([3,-1])
         return solution_color.std(axis=1).max()
-
-    def random_solution(self):
-        return np.random.randint(0, 256, size=self.size)
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255).astype(np.uint8)
@@ -69,9 +63,6 @@ class ImgEntropy(ObjectiveVectorFunc):
         img_hists_no_zeros = img_hists
         img_hists_no_zeros[img_hists==0] = 1
         return np.sum(-img_hists*np.log(img_hists_no_zeros))
-
-    def random_solution(self):
-        return np.random.randint(0, 256, size=self.size)
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255).astype(np.uint8)
@@ -99,9 +90,6 @@ class ImgExperimental(ObjectiveVectorFunc):
         dev = -solution_color.std(axis=1).max()
 
         return dist_norm + dev
-
-    def random_solution(self):
-        return np.random.randint(0, 256, size=self.size)
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255)

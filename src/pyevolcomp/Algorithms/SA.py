@@ -29,14 +29,14 @@ class SA(Algorithm):
         super().__init__(name, popSize=1, params=params)
     
 
-    def perturb(self, indiv_list, objfunc, progress=None, history=None):
+    def perturb(self, indiv_list, pop_init, objfunc, progress=None, history=None):
         """
         Applies a mutation operator to the current individual
         """
 
         indiv = indiv_list[0]
         for j in range(self.iter):
-            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best)
+            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             # Store best vector for individual

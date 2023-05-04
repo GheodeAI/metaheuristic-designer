@@ -33,7 +33,7 @@ class ES(Algorithm):
     def select_parents(self, population, progress=0, history=None):
         return self.parent_sel_op(population)
 
-    def perturb(self, parent_list, objfunc, progress=0, history=None):
+    def perturb(self, parent_list, pop_init, objfunc, progress=0, history=None):
         # Generation of offspring by crossing and mutation
         offspring = []
 
@@ -41,11 +41,11 @@ class ES(Algorithm):
 
             # Cross
             parent1 = random.choice(parent_list)
-            new_indiv = self.cross_op(parent1, parent_list, objfunc, self.best)
+            new_indiv = self.cross_op(parent1, parent_list, objfunc, self.best, pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             # Mutate
-            new_indiv = self.mutation_op(parent1, parent_list, objfunc, self.best)
+            new_indiv = self.mutation_op(parent1, parent_list, objfunc, self.best, pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             # Store best vector for individual (useful for some operators, not extrictly needed)

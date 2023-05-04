@@ -73,7 +73,7 @@ class NoSearch(StaticPopulation):
         selection_op = SurvivorSelection("Generational")
         super().__init__(noop, params, selection_op, name)
 
-    def perturb(self, parent_list, objfunc, progress=0, history=None):
+    def perturb(self, parent_list, pop_init, objfunc, progress=0, history=None):
         return parent_list
 
 

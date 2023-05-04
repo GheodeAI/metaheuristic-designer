@@ -96,7 +96,7 @@ class Algorithm(ABC):
         return population, range(len(population))
 
     @abstractmethod
-    def perturb(self, parent_list: List[Individual], progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Individual]:
+    def perturb(self, parent_list: List[Individual], pop_init: Initializer, progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Individual]:
         """
         Applies operators to the population in some way
         Returns the offspring generated.

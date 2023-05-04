@@ -36,8 +36,8 @@ def run_algorithm(alg_name, img_file_name, memetic):
         # General
         "stop_cond": "time_limit",
         "progress_metric": "time_limit",
-        "time_limit": 10.0,
-        "cpu_time_limit": 10.0,
+        "time_limit": 120.0,
+        "cpu_time_limit": 120.0,
         "ngen": 1000,
         "neval": 3e5,
         "fit_target": 0,

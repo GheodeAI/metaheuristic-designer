@@ -47,7 +47,7 @@ class OperatorList(Operator):
 
         self.method = ListOpMethods.from_str(method)
 
-    def evolve(self, indiv, population, objfunc, global_best):
+    def evolve(self, indiv, population, objfunc, global_best, initializer):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """

@@ -34,7 +34,7 @@ class MemeticSearch(Search):
 
         to_improve = [offspring[i] for i in off_idxs]
 
-        improved = self.local_search.perturb(to_improve, self.objfunc)
+        improved = self.local_search.perturb(to_improve, self.pop_init, self.objfunc)
 
         for idx, val in enumerate(off_idxs):
             offspring[val] = improved[idx]
@@ -55,7 +55,7 @@ class MemeticSearch(Search):
 
         parents, parent_idxs = self.search_strategy.select_parents(population, self.progress, self.best_history)
 
-        offspring = self.search_strategy.perturb(parents, self.objfunc, self.progress, self.best_history)
+        offspring = self.search_strategy.perturb(parents, self.pop_init, self.objfunc, self.progress, self.best_history)
 
         offspring = self._do_local_search(offspring)
 

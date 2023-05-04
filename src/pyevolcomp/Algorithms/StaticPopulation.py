@@ -29,12 +29,12 @@ class StaticPopulation(Algorithm):
         super().__init__(name, popSize=popsize, params=params)
     
     
-    def perturb(self, parent_list, objfunc, progress=0, history=None):
+    def perturb(self, parent_list, pop_init, objfunc, progress=0, history=None):
         offspring = []
         for indiv in parent_list:
 
             # Apply operator
-            new_indiv = self.operator(indiv, parent_list, objfunc, self.best)
+            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 

@@ -19,7 +19,7 @@ class LocalSearch(Algorithm):
 
         super().__init__(name, popSize=1, params=params)
 
-    def perturb(self, indiv_list, objfunc, progress=0, history=None):
+    def perturb(self, indiv_list, pop_init, objfunc, progress=0, history=None):
         result = []
 
         for indiv in indiv_list:
@@ -28,7 +28,7 @@ class LocalSearch(Algorithm):
             for i in range(self.iterations):
 
                 # Perturb individual
-                new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best)
+                new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, pop_init)
                 new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
                 # Store best vector for individual

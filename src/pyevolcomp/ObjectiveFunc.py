@@ -1,7 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 import numpy as np
-# from .Decoders import DefaultDecoder
 from .Initializers import UniformVectorInitializer
 
 
@@ -59,12 +58,6 @@ class ObjectiveFunc(ABC):
         """
 
     @abstractmethod
-    def random_solution(self) -> np.ndarray:
-        """
-        Returns a random vector that represents one viable solution to our optimization problem.
-        """
-
-    @abstractmethod
     def repair_solution(self, vector: np.ndarray) -> np.ndarray:
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
@@ -95,9 +88,6 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         self.vecsize = vecsize
         self.low_lim = low_lim
         self.up_lim = up_lim
-    
-    def random_solution(self) -> np.ndarray:
-        return np.random.uniform(self.low_lim, self.up_lim, self.vecsize)
 
     def repair_solution(self, vector: np.ndarray) -> np.ndarray:
         return np.clip(vector, self.low_lim, self.up_lim)
@@ -118,9 +108,6 @@ class ObjectiveFromLambda(ObjectiveVectorFunc):
     
     def objective(self, vector):
         return self.obj_func(vector)
-    
-    def random_solution(self):
-        return np.random.uniform(self.low_lim, self.up_lim, self.input_size)
     
     def repair_solution(self, vector):
         return np.clip(vector, self.low_lim, self.up_lim)
