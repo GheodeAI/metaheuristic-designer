@@ -6,9 +6,13 @@ from ..Individual import Individual
 
 
 class DirectInitializer(Initializer):    
-    def __init__(self, solutions: List[Individual], encoding: Encoding = None):
-        self.solutions = solutions
+    def __init__(self, default_init: Initializer, solutions: List[Individual], encoding: Encoding = None):
         super().__init__(len(solutions), encoding=encoding)
+        self.solutions = solutions
+        self.default_init = default_init
+    
+    def generate_random(self, objfunc):
+        self.default_init.generate_random(objfunc)
     
     def generate_individual(self, objfunc):
         return random.choice(self.solutions)

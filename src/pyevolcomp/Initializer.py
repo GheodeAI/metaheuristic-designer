@@ -15,17 +15,17 @@ class Initializer(ABC):
         self.encoding = encoding
     
     @abstractmethod
+    def generate_random(self, objfunc: ObjectiveFunc) -> Individual:
+        """
+        Generates a random individual
+        """
+    
     def generate_individual(self, objfunc: ObjectiveFunc) -> Individual:
         """
         Define how an individual is initialized
         """
-    
-    def random_individual(self, objfunc: ObjectiveFunc) -> Individual:
-        """
-        Generates a random individual
-        """
 
-        return self.generate_individual(objfunc)
+        return self.generate_random(objfunc)
     
     def generate_population(self, objfunc: ObjectiveFunc, n_indiv: int = None) -> List[Individual]:
         """

@@ -29,13 +29,19 @@ class UniformInitializer(Initializer):
         self.dtype = dtype
 
 
-class UniformVectorInitializer(UniformInitializer):    
-    def generate_individual(self, objfunc):
+class UniformVectorInitializer(UniformInitializer):
+    def generate_random(self, objfunc):
         new_vector = np.random.uniform(self.low_lim, self.up_lim, size=self.genotype_size).astype(self.dtype)
         return Individual(objfunc, new_vector, encoding=self.encoding)
 
+    def generate_individual(self, objfunc):
+        return self.generate_random(objfunc)
+
 
 class UniformListInitializer(UniformInitializer):
-    def generate_individual(self, objfunc):
-        new_list = [random.uniform(low, up).astype(self.dtype) for low, up in zip(self.low_lim, self.up_lim)]
+    def generate_random(self, objfunc):
+        new_list = [np.random.uniform(low, up) for low, up in zip(self.low_lim, self.up_lim)]
         return Individual(objfunc, new_list, encoding=self.encoding)
+    
+    def generate_individual(self, objfunc):
+        return self.generate_random(objfunc)
