@@ -10,12 +10,12 @@ class MemeticSearch(Search):
     General framework for metaheuristic algorithms
     """
 
-    def __init__(self, objfunc, search_strategy, local_search, improve_choice, pop_init = None, params = None):
+    def __init__(self, objfunc, search_strategy, local_search, improve_choice, params = None):
         """
         Constructor of the Metaheuristic class
         """
         
-        super().__init__(objfunc, search_strategy, pop_init, params)
+        super().__init__(objfunc, search_strategy, params)
 
         self.local_search = local_search
         self.improve_choice = improve_choice
@@ -26,15 +26,14 @@ class MemeticSearch(Search):
         """
 
         super().initialize()
-        initial_population = self.pop_init.generate_population(self.objfunc)[:1]
-        self.local_search.initialize(initial_population)
+        self.local_search.initialize(self.objfunc)
 
     def _do_local_search(self, offspring):
         offspring_to_imp, off_idxs = self.improve_choice(offspring)
 
         to_improve = [offspring[i] for i in off_idxs]
 
-        improved = self.local_search.perturb(to_improve, self.pop_init, self.objfunc)
+        improved = self.local_search.perturb(to_improve, self.objfunc)
 
         for idx, val in enumerate(off_idxs):
             offspring[val] = improved[idx]
@@ -55,7 +54,7 @@ class MemeticSearch(Search):
 
         parents, parent_idxs = self.search_strategy.select_parents(population, self.progress, self.best_history)
 
-        offspring = self.search_strategy.perturb(parents, self.pop_init, self.objfunc, self.progress, self.best_history)
+        offspring = self.search_strategy.perturb(parents, self.objfunc, self.progress, self.best_history)
 
         offspring = self._do_local_search(offspring)
 

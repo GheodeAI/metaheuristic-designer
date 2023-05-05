@@ -5,8 +5,8 @@ from ..Initializer import Initializer
 from ..Individual import Individual
 
 class GaussianInitializer(Initializer):
-    def __init__(self, genotype_size, g_mean, g_std, popSize = 1, encoding = None, dtype = float):
-        super().__init__(popSize, encoding)
+    def __init__(self, genotype_size, g_mean, g_std, pop_size = 1, encoding = None, dtype = float):
+        super().__init__(pop_size, encoding)
         
         self.genotype_size = genotype_size
 

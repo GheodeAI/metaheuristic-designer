@@ -10,8 +10,8 @@ class LambdaInitializer(Initializer):
     Abstract population initializer class
     """
 
-    def __init__(self, generator: callable, popSize: int = 1, encoding: Encoding = None):
-        self.popSize = popSize
+    def __init__(self, generator: callable, pop_size: int = 1, encoding: Encoding = None):
+        self.pop_size = pop_size
         self.generator = generator
 
         if encoding is None:

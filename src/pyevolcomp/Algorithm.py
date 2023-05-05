@@ -14,13 +14,13 @@ class Algorithm(ABC):
           use a population of length 1 to store it.
     """
 
-    def __init__(self, name: str="some algorithm", popSize: int = 100, params: Union[ParamScheduler, dict]=None):
+    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict]=None, name: str="some algorithm"):
         """
         Constructor of the GeneticPopulation class
         """
 
         self.name = name
-        self.popsize = popSize
+        self.pop_init = pop_init
 
         self.population = None
         
@@ -65,7 +65,10 @@ class Algorithm(ABC):
                 # We have a list of operators
                 if isinstance(attr, list) and isinstance(attr[0], Operator):
                     self.operators += attr
-
+    
+    @property
+    def pop_size(self):
+        return self.pop_init.pop_size
 
     def best_solution(self) -> Tuple(Individual, float):
         """
@@ -78,12 +81,13 @@ class Algorithm(ABC):
 
         return self.best.genotype, best_fitness
 
-    def initialize(self, population: List[Individual]):
+    # def initialize(self, population: List[Individual]):
+    def initialize(self, objfunc):
         """
         Generates a random population of individuals
         """
         
-        self.population = population
+        self.population = self.pop_init.generate_population(objfunc)
 
         self.best = max(self.population, key=lambda x: x.fitness)
 
@@ -96,7 +100,7 @@ class Algorithm(ABC):
         return population, range(len(population))
 
     @abstractmethod
-    def perturb(self, parent_list: List[Individual], pop_init: Initializer, progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Individual]:
+    def perturb(self, parent_list: List[Individual], progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Individual]:
         """
         Applies operators to the population in some way
         Returns the offspring generated.
@@ -123,7 +127,7 @@ class Algorithm(ABC):
 
         data = {
             "name": self.name,
-            "population_size": self.popsize,
+            "population_size": self.pop_size,
         }
 
         if self.param_scheduler:

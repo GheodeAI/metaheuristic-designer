@@ -9,7 +9,7 @@ class StaticPopulation(Algorithm):
     Population of the Genetic algorithm
     """
 
-    def __init__(self, operator: Operator, params: Union[ParamScheduler, dict] = {}, selection_op: SurvivorSelection = None,
+    def __init__(self, pop_init: Initializer, operator: Operator, params: Union[ParamScheduler, dict] = {}, selection_op: SurvivorSelection = None,
                  name: str = "stpop"):
         """
         Constructor of the GeneticPopulation class
@@ -25,16 +25,16 @@ class StaticPopulation(Algorithm):
 
         self.best = None
         
-        popsize = params["popSize"] if "popSize" in params else 100
-        super().__init__(name, popSize=popsize, params=params)
+        # popsize = params["popSize"] if "popSize" in params else 100
+        super().__init__(pop_init, params=params, name=name)
     
     
-    def perturb(self, parent_list, pop_init, objfunc, progress=0, history=None):
+    def perturb(self, parent_list, objfunc, progress=0, history=None):
         offspring = []
         for indiv in parent_list:
 
             # Apply operator
-            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, pop_init)
+            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 
@@ -65,4 +65,4 @@ class StaticPopulation(Algorithm):
         if self.param_scheduler:
             self.param_scheduler.step(progress)
             self.params = self.param_scheduler.get_params()
-            self.size = self.params["popSize"]
+            # self.size = self.params["popSize"]

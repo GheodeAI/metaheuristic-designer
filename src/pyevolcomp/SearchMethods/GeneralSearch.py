@@ -10,12 +10,12 @@ class GeneralSearch(Search):
     General framework for metaheuristic algorithms
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, pop_init: Initializer = None, params: Union[ParamScheduler, dict] = None):
+    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, params: Union[ParamScheduler, dict] = None):
         """
         Constructor of the Metaheuristic class
         """
 
-        super().__init__(objfunc, search_strategy, pop_init, params)
+        super().__init__(objfunc, search_strategy, params)
 
     def step(self, time_start=0, verbose=False):
         """
@@ -27,7 +27,7 @@ class GeneralSearch(Search):
 
         parents, _ = self.search_strategy.select_parents(population, self.progress, self.best_history)
 
-        offspring = self.search_strategy.perturb(parents, self.pop_init, self.objfunc, self.progress, self.best_history)
+        offspring = self.search_strategy.perturb(parents, self.objfunc, self.progress, self.best_history)
 
         population = self.search_strategy.select_individuals(population, offspring, self.progress, self.best_history)
 

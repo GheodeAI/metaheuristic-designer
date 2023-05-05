@@ -11,7 +11,7 @@ class SA(Algorithm):
     Class implementing the Simulated annealing algorithm
     """
 
-    def __init__(self, perturb_op: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "SA"):
+    def __init__(self, pop_init: Initializer, perturb_op: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "SA"):
         """
         Constructor of the SimAnnEvolve class
         """
@@ -26,17 +26,17 @@ class SA(Algorithm):
         self.population = [None]
         self.perturb_op = perturb_op
 
-        super().__init__(name, popSize=1, params=params)
+        super().__init__(pop_init, params=params, name=name)
     
 
-    def perturb(self, indiv_list, pop_init, objfunc, progress=None, history=None):
+    def perturb(self, indiv_list, objfunc, progress=None, history=None):
         """
         Applies a mutation operator to the current individual
         """
 
         indiv = indiv_list[0]
         for j in range(self.iter):
-            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, pop_init)
+            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             # Store best vector for individual

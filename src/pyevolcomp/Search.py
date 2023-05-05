@@ -14,7 +14,7 @@ class Search(ABC):
     General framework for metaheuristic algorithms
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, pop_init: Initializer = None, params: Union[ParamScheduler, dict] = None):
+    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, params: Union[ParamScheduler, dict] = None):
         """
         Constructor of the Metaheuristic class
         """
@@ -23,15 +23,14 @@ class Search(ABC):
         self.search_strategy = search_strategy
         self.objfunc = objfunc
 
-        self.pop_init = pop_init
-        
-        if pop_init is None:
-            if not isinstance(objfunc, ObjectiveVectorFunc):
-                raise ValueError("A population initializer must be indicated.")
-            else:
-                self.pop_init = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, search_strategy.popsize)
-        else:
-            self.pop_init.popSize = search_strategy.popsize
+        # self.pop_init = pop_init
+        # if pop_init is None:
+        #     if not isinstance(objfunc, ObjectiveVectorFunc):
+        #         raise ValueError("A population initializer must be indicated.")
+        #     else:
+        #         self.pop_init = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, search_strategy.pop_size)
+        # else:
+        #     self.pop_init.pop_size = search_strategy.pop_size
 
         if params is None:
             params = {}
@@ -157,8 +156,9 @@ class Search(ABC):
         """
 
         self.restart()
-        initial_population = self.pop_init.generate_population(self.objfunc)
-        self.search_strategy.initialize(initial_population)
+        # initial_population = self.pop_init.generate_population(self.objfunc)
+        # self.search_strategy.initialize(initial_population)
+        self.search_strategy.initialize(self.objfunc)
 
     @abstractmethod
     def step(self, time_start=0, verbose=False) -> Tuple[Individual, float]:
