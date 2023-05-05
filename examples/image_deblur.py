@@ -44,7 +44,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     params = {
         # General
         "stop_cond": "time_limit",
-        "time_limit": 120.0,
+        "time_limit": 300.0,
         "ngen": 1000,
         "neval": 3e5,
         "fit_target": 0,
@@ -74,46 +74,51 @@ def run_algorithm(alg_name, img_file_name, memetic):
     
     deblured_encoding = ImageEncoding(image_shape, color=True)
     encoding = ImageBlurEncoding(image_shape, color=True)
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, encoding=encoding)
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, encoding=encoding, pop_size=100)
 
-    # init_population = [Individual(objfunc, deblured_encoding.encode(np.asarray(reference_img)[:,:,:3].flatten())+np.random.normal(0, 10, np.asarray(reference_img)[:,:,:3].size), encoding=encoding) for i in range(100)]
-    # pop_initializer = DirectInitializer(init_population, encoding=encoding)
+    init_population = [Individual(objfunc, deblured_encoding.encode(np.asarray(reference_img)[:,:,:3].flatten())+np.random.normal(0, 2, np.asarray(reference_img)[:,:,:3].size), encoding=encoding) for i in range(100)]
+    pop_initializer = DirectInitializer(pop_initializer, init_population, encoding=encoding)
 
 
-    mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F":1, "N":6})
+    mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F":4, "N":6})
     cross_op = OperatorReal("Multicross", {"Nindiv": 4})
     parent_sel_op = ParentSelection("Best", {"amount": 15})
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
 
     if alg_name == "HillClimb":
-        search_strat = HillClimb(mutation_op)
+        pop_initializer.pop_size = 1
+        search_strat = HillClimb(pop_initializer, mutation_op)
     elif alg_name == "LocalSearch":
-        search_strat = LocalSearch(mutation_op, {"iters":20})
-    elif alg_name == "ES":
-        selection_op = SurvivorSelection("(m+n)")
-        search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":500})
-    elif alg_name == "GA":
-        search_strat = GA(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.9, "pmut":0.15})
-    elif alg_name == "HS":
-        search_strat = HS({"HMS":100, "HMCR":0.8, "BW":0.5, "PAR":0.2})
+        pop_initializer.pop_size = 1
+        search_strat = LocalSearch(pop_initializer, mutation_op, {"iters":20})
     elif alg_name == "SA":
-        search_strat = SA(mutation_op, {"iter":100, "temp_init":2, "alpha":0.998})
+        pop_initializer.pop_size = 1
+        search_strat = SA(pop_initializer, mutation_op, {"iter":100, "temp_init":2, "alpha":0.998})
+    elif alg_name == "ES":
+        search_strat = ES(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize":150})
+    elif alg_name == "GA":
+        search_strat = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.4})
+    elif alg_name == "HS":
+        search_strat = HS(pop_initializer, {"HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "DE":
-        de_op = OperatorReal("DE/best/1", {"F":0.2, "Cr":0.3, "P":0.11})
-        search_strat = DE(de_op, {"popSize":100})
+        search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}))
     elif alg_name == "PSO":
-        search_strat = PSO({"popSize":100, "w":0.7, "c1":1.5, "c2":1.5})
+        search_strat = PSO(pop_initializer, {"w":0.7, "c1":1.5, "c2":1.5})
+    elif alg_name == "RandomSearch":
+        pop_initializer.pop_size = 1
+        search_strat = RandomSearch(pop_initializer)
     elif alg_name == "NoSearch":
-        search_strat = NoSearch({"popSize":100})
+        pop_initializer.pop_size = 1
+        search_strat = NoSearch(pop_initializer)
     else:
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()
     
     if memetic:
         local_search = LocalSearch(OperatorInt("MutRand", {"method": "Uniform", "Low":-3, "Up":-3, "N":3}), {"iters":10})
-        alg = MemeticSearch(objfunc, search_strat, local_search, ParentSelection("Best", {"amount": 10}), pop_initializer, params)
+        alg = MemeticSearch(objfunc, search_strat, local_search, ParentSelection("Best", {"amount": 10}), params)
     else:
-        alg = GeneralSearch(objfunc, search_strat, pop_initializer, params)
+        alg = GeneralSearch(objfunc, search_strat, params)
 
     # Optimize with display of image
     real_time_start = time.time()
@@ -154,7 +159,14 @@ def run_algorithm(alg_name, img_file_name, memetic):
     img_flat = alg.best_solution()[0]
     image = img_flat.reshape(image_shape + [3])
     if display:
-        render(image, display_dim, src)
+        img_flat = alg.best_solution()[0]
+        image_blur = encoding.decode(img_flat)
+        image_orig = deblured_encoding.decode(img_flat)
+        full_texture = np.hstack([image_orig,image_blur])
+        # print(full_texture.shape)
+        # full_texture = image_orig
+        # full_texture = image_blur
+        render(full_texture, display_dim, src)
     alg.display_report(show_plots=True)
     save_to_image(image, f"{img_name}_{image_shape[0]}x{image_shape[1]}_deblured_{alg_name}.png")
     

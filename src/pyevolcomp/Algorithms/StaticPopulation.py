@@ -25,7 +25,7 @@ class StaticPopulation(Algorithm):
 
         self.best = None
         
-        # popsize = params["popSize"] if "popSize" in params else 100
+
         super().__init__(pop_init, params=params, name=name)
     
     
@@ -65,4 +65,3 @@ class StaticPopulation(Algorithm):
         if self.param_scheduler:
             self.param_scheduler.step(progress)
             self.params = self.param_scheduler.get_params()
-            # self.size = self.params["popSize"]

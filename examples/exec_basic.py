@@ -52,7 +52,7 @@ def run_algorithm(alg_name, memetic, save_state):
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, {"HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "DE":
-        search_strat = DE(pop_initializer,OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}), {"popSize":100})
+        search_strat = DE(pop_initializer,OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w":0.7, "c1":1.5, "c2":1.5})
     elif alg_name == "RandomSearch":

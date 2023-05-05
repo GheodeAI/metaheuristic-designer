@@ -33,7 +33,6 @@ class GA(Algorithm):
 
         self.best = None
         
-        popsize = params["popSize"] if "popSize" in params else 100
         super().__init__(pop_init, params=params, name=name)
 
     def select_parents(self, population, progress=0, history=None):
