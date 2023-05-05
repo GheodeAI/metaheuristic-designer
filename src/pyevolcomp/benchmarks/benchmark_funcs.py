@@ -11,9 +11,6 @@ class MaxOnes(ObjectiveVectorFunc):
     def objective(self, solution):
         return solution.sum()
     
-    def random_solution(self):
-        return (np.random.random(self.size) >= 0.5).astype(np.int32)
-    
     def repair_solution(self, solution):
         return (solution >= 0.5).astype(np.int32)
 
@@ -28,9 +25,6 @@ class DiophantineEq(ObjectiveVectorFunc):
     def objective(self, solution):
         return abs((solution*self.coeff).sum() - self.target)
     
-    def random_solution(self):
-        return (np.random.randint(-100, 100, size=self.size)).astype(np.int32)
-    
     def repair_solution(self, solution):
         return solution.astype(np.int32)
 
@@ -42,9 +36,6 @@ class MaxOnesReal(ObjectiveVectorFunc):
 
     def objective(self, solution):
         return solution.sum()
-    
-    def random_solution(self):
-        return np.random.random(self.size)
     
     def repair_solution(self, solution):
         return np.clip(solution.copy(), 0, 1)

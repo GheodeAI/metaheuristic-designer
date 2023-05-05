@@ -1,11 +1,11 @@
 from ..ObjectiveFunc import ObjectiveVectorFunc
-from ..Decoders import ImageDecoder
+from ..Encodings import ImageEncoding
 import numpy as np
 from numba import jit
 
 
 class ImgApprox(ObjectiveVectorFunc):
-    def __init__(self, img_dim, reference, opt="min", img_name="", decoder=None):
+    def __init__(self, img_dim, reference, opt="min", img_name=""):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0]*img_dim[1]*3
         self.reference = reference.resize((img_dim[0],img_dim[1]))
@@ -15,17 +15,11 @@ class ImgApprox(ObjectiveVectorFunc):
             name = "Image approximation"
         else:
             name = f"Approximating \"{img_name}\""
-        
-        if decoder is None:
-            decoder = ImageDecoder(img_dim, color=True)
 
-        super().__init__(self.size, opt, 0, 256, name=name, decoder=decoder)
+        super().__init__(self.size, opt, 0, 256, name=name)
     
     def objective(self, solution):
         return imgdistance(solution, self.reference)
-
-    def random_solution(self):
-        return np.random.randint(0, 256, size=self.img_dim)
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255)
@@ -36,34 +30,31 @@ def imgdistance(img, reference):
 
 
 class ImgStd(ObjectiveVectorFunc):
-    def __init__(self, img_dim, opt="max", decoder=None):
+    def __init__(self, img_dim, opt="max"):
         self.size = img_dim[0]*img_dim[1]*3
         
-        if decoder is None:
-            decoder = ImageDecoder(img_dim, color=True)
+        if encoding is None:
+            encoding = ImageEncoding(img_dim, color=True)
         
-        super().__init__(self.size, opt, 0, 256, name="Image standard deviation", decoder=decoder)
+        super().__init__(self.size, opt, 0, 256, name="Image standard deviation")
     
     def objective(self, solution):
         solution_color = solution.reshape([3,-1])
         return solution_color.std(axis=1).max()
-
-    def random_solution(self):
-        return np.random.randint(0, 256, size=self.size)
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255).astype(np.uint8)
 
 
 class ImgEntropy(ObjectiveVectorFunc):
-    def __init__(self, img_dim, nbins=10, opt="min", decoder=None):
+    def __init__(self, img_dim, nbins=10, opt="min"):
         self.size = img_dim[0]*img_dim[1]*3
         self.nbins = 10
 
-        if decoder is None:
-            decoder = ImageDecoder(img_dim, color=True)
+        if encoding is None:
+            encoding = ImageEncoding(img_dim, color=True)
 
-        super().__init__(self.size, opt, 0, 256, name="Image entropy", decoder=decoder)
+        super().__init__(self.size, opt, 0, 256, name="Image entropy")
     
     def objective(self, solution):
         solution_channels = solution.reshape([3, -1])
@@ -72,21 +63,18 @@ class ImgEntropy(ObjectiveVectorFunc):
         img_hists_no_zeros = img_hists
         img_hists_no_zeros[img_hists==0] = 1
         return np.sum(-img_hists*np.log(img_hists_no_zeros))
-
-    def random_solution(self):
-        return np.random.randint(0, 256, size=self.size)
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255).astype(np.uint8)
 
 
 class ImgExperimental(ObjectiveVectorFunc):
-    def __init__(self, img_dim, reference, img_name, opt="min", decoder=None):
+    def __init__(self, img_dim, reference, img_name, opt="min"):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0]*img_dim[1]*3
         self.reference = np.asarray(reference.resize([img_dim[0], img_dim[1]]))[:,:,:3].astype(np.uint32)
 
-        super().__init__(self.size, opt, 0, 256, name="Image approx and std", decoder=decoder)
+        super().__init__(self.size, opt, 0, 256, name="Image approx and std")
     
     def objective(self, solution):
         dist = imgdistance(solution, self.reference)
@@ -102,9 +90,6 @@ class ImgExperimental(ObjectiveVectorFunc):
         dev = -solution_color.std(axis=1).max()
 
         return dist_norm + dev
-
-    def random_solution(self):
-        return np.random.randint(0, 256, size=self.size)
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255)

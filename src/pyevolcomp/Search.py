@@ -14,7 +14,7 @@ class Search(ABC):
     General framework for metaheuristic algorithms
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, pop_init: Initializer = None, params: Union[ParamScheduler, dict] = None):
+    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, params: Union[ParamScheduler, dict] = None):
         """
         Constructor of the Metaheuristic class
         """
@@ -22,16 +22,6 @@ class Search(ABC):
         self.params = params
         self.search_strategy = search_strategy
         self.objfunc = objfunc
-
-        self.pop_init = pop_init
-        
-        if pop_init is None:
-            if not isinstance(objfunc, ObjectiveVectorFunc):
-                raise ValueError("A population initializer must be indicated.")
-            else:
-                self.pop_init = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, search_strategy.popsize)
-        else:
-            self.pop_init.popSize = search_strategy.popsize
 
         if params is None:
             params = {}
@@ -86,7 +76,7 @@ class Search(ABC):
         with open(file_name, "a") as file:
             file.write(str(fit))
 
-    def best_solution(self):
+    def best_solution(self) -> Tuple(Individual, float):
         """
         Returns the best solution so far in the population.
         """
@@ -94,7 +84,7 @@ class Search(ABC):
         return self.search_strategy.best_solution()
     
 
-    def stopping_condition(self, gen, real_time_start, cpu_time_start):
+    def stopping_condition(self, gen, real_time_start, cpu_time_start) -> bool:
         """
         Given the state of the algorithm, returns wether we have finished or not.
         """
@@ -114,7 +104,7 @@ class Search(ABC):
 
         return process_condition(self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_reached)
 
-    def get_progress(self, gen, real_time_start, cpu_time_start):
+    def get_progress(self, gen, real_time_start, cpu_time_start) -> float:
         """
         Given the state of the algorithm, returns a number between 0 and 1 indicating
         how close to the end of the algorithm we are, 0 when starting and 1 when finished.
@@ -157,8 +147,7 @@ class Search(ABC):
         """
 
         self.restart()
-        initial_population = self.pop_init.generate_population(self.objfunc)
-        self.search_strategy.initialize(initial_population)
+        self.search_strategy.initialize(self.objfunc)
 
     @abstractmethod
     def step(self, time_start=0, verbose=False) -> Tuple[Individual, float]:
@@ -200,7 +189,7 @@ class Search(ABC):
 
         return self.best_solution()
 
-    def get_state(self, show_best_solution=True, show_fit_history=False, show_gen_history=False, show_pop=False, show_pop_details=False):
+    def get_state(self, show_best_solution=True, show_fit_history=False, show_gen_history=False, show_pop=False, show_pop_details=False) -> dict:
         """
         Gets the current state of the algorithm as a dictionary
         """
@@ -256,7 +245,7 @@ class Search(ABC):
         """
 
 
-def parse_stopping_cond(condition_str):
+def parse_stopping_cond(condition_str: str) -> List[str]:
     """
     This function parses an expression of the form "neval or cpu_time" into
     a tree structure so that it can be futher processed.
@@ -277,7 +266,7 @@ def parse_stopping_cond(condition_str):
     return expr.parse_string(condition_str).as_list()
 
 
-def process_condition(cond_parsed, neval, ngen, real_time, cpu_time, target):
+def process_condition(cond_parsed, neval, ngen, real_time, cpu_time, target) -> bool:
     """
     This function recieves as an input an expression for the stopping condition
     and the truth variable of the possible stopping conditions and returns wether to stop or not.
@@ -311,7 +300,7 @@ def process_condition(cond_parsed, neval, ngen, real_time, cpu_time, target):
     
     return result
 
-def process_progress(cond_parsed, neval, ngen, real_time, cpu_time, target):
+def process_progress(cond_parsed, neval, ngen, real_time, cpu_time, target) -> float:
     """
     This function recieves as an input an expression for the stopping condition 
     and the truth variable of the possible stopping conditions and returns wether to stop or not. 

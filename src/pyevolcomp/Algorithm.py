@@ -14,18 +14,15 @@ class Algorithm(ABC):
           use a population of length 1 to store it.
     """
 
-    def __init__(self, name: str="some algorithm", popSize: int = 100, params: Union[ParamScheduler, dict]=None, population=None):
+    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict]=None, name: str="some algorithm"):
         """
         Constructor of the GeneticPopulation class
         """
 
         self.name = name
-        self.popsize = popSize
+        self.pop_init = pop_init
 
-        if population is None:
-            self.population = []
-        else:
-            self.population = population
+        self.population = None
         
         self.best = None
 
@@ -68,7 +65,10 @@ class Algorithm(ABC):
                 # We have a list of operators
                 if isinstance(attr, list) and isinstance(attr[0], Operator):
                     self.operators += attr
-
+    
+    @property
+    def pop_size(self):
+        return self.pop_init.pop_size
 
     def best_solution(self) -> Tuple(Individual, float):
         """
@@ -81,12 +81,12 @@ class Algorithm(ABC):
 
         return self.best.genotype, best_fitness
 
-    def initialize(self, population: List[Individual]):
+    def initialize(self, objfunc: ObjectiveFunc):
         """
         Generates a random population of individuals
         """
         
-        self.population = population
+        self.population = self.pop_init.generate_population(objfunc)
 
         self.best = max(self.population, key=lambda x: x.fitness)
 
@@ -119,14 +119,14 @@ class Algorithm(ABC):
         """
         
 
-    def get_state(self, show_pop=False, show_pop_details=False):
+    def get_state(self, show_pop: bool = False, show_pop_details: bool = False) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
         """
 
         data = {
             "name": self.name,
-            "population_size": self.popsize,
+            "population_size": self.pop_size,
         }
 
         if self.param_scheduler:

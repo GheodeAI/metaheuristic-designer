@@ -7,11 +7,14 @@ from ..Individual import Individual
 
 class SeedProbInitializer(Initializer):    
     def __init__(self, default_init: Initializer, solutions: List[Individual], insert_prob: float = 0.1):
-        super().__init__(default_init.popSize)
+        super().__init__(default_init.pop_size)
 
         self.default_init = default_init
         self.solutions = solutions
         self.insert_prob = insert_prob
+    
+    def generate_random(self, objfunc):
+        self.default_init.generate_random(objfunc)
 
     def generate_individual(self, objfunc):
         new_indiv = None
@@ -24,7 +27,7 @@ class SeedProbInitializer(Initializer):
 
 class SeedDetermInitializer(Initializer):    
     def __init__(self, default_init: Initializer, solutions: List[Individual], n_to_insert: int = None):
-        super().__init__(default_init.popSize)
+        super().__init__(default_init.pop_size)
 
         self.default_init = default_init
         self.solutions = solutions
@@ -34,6 +37,9 @@ class SeedDetermInitializer(Initializer):
             self.number_to_insert = len(solutions)
         
         self.inserted = 0
+    
+    def generate_random(self, objfunc):
+        self.default_init.generate_random(objfunc)
 
     def generate_individual(self, objfunc):
         new_indiv = None

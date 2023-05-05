@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 from pyevolcomp import Individual
-from pyevolcomp.Decoders import MatrixDecoder, ImageDecoder, DefaultDecoder
+from pyevolcomp.Encodings import MatrixEncoding, ImageEncoding, DefaultEncoding
 
 @pytest.mark.parametrize(
     "genotype, phenotype", [
@@ -13,14 +13,14 @@ from pyevolcomp.Decoders import MatrixDecoder, ImageDecoder, DefaultDecoder
     ]
 )
 def test_default(genotype, phenotype):
-    decoder = DefaultDecoder()
+    encoding = DefaultEncoding()
 
     if isinstance(genotype, np.ndarray):
-        np.testing.assert_array_equal(decoder.decode(genotype), phenotype)
-        np.testing.assert_array_equal(decoder.encode(phenotype), genotype)
+        np.testing.assert_array_equal(encoding.decode(genotype), phenotype)
+        np.testing.assert_array_equal(encoding.encode(phenotype), genotype)
     else:
-        assert decoder.decode(genotype) == phenotype
-        assert decoder.encode(phenotype) == genotype 
+        assert encoding.decode(genotype) == phenotype
+        assert encoding.encode(phenotype) == genotype 
         
 
 
@@ -34,10 +34,10 @@ example = np.random.random([30,40])
     ]
 )
 def test_matrix(genotype, phenotype):
-    decoder = MatrixDecoder(phenotype.shape)
+    encoding = MatrixEncoding(phenotype.shape)
 
-    np.testing.assert_array_equal(decoder.decode(genotype), phenotype)
-    np.testing.assert_array_equal(decoder.encode(phenotype), genotype)
+    np.testing.assert_array_equal(encoding.decode(genotype), phenotype)
+    np.testing.assert_array_equal(encoding.encode(phenotype), genotype)
 
 
 example_img1 = np.random.randint(0,256,[30,40,1])
@@ -50,10 +50,10 @@ example_img1 = np.random.randint(0,256,[30,40,1])
     ]
 )
 def test_gray_img(genotype, phenotype):
-    decoder = ImageDecoder(phenotype.shape[:2], color=False)
+    encoding = ImageEncoding(phenotype.shape[:2], color=False)
 
-    np.testing.assert_array_equal(decoder.decode(genotype), phenotype)
-    np.testing.assert_array_equal(decoder.encode(phenotype), genotype)
+    np.testing.assert_array_equal(encoding.decode(genotype), phenotype)
+    np.testing.assert_array_equal(encoding.encode(phenotype), genotype)
 
 
 example_img2 = np.random.randint(0,256,[30,40,3])
@@ -66,8 +66,8 @@ example_img2 = np.random.randint(0,256,[30,40,3])
     ]
 )
 def test_rgb_img(genotype, phenotype):
-    decoder = ImageDecoder(phenotype.shape[:2], color=True)
+    encoding = ImageEncoding(phenotype.shape[:2], color=True)
 
-    np.testing.assert_array_equal(decoder.decode(genotype), phenotype)
-    np.testing.assert_array_equal(decoder.encode(phenotype), genotype)
+    np.testing.assert_array_equal(encoding.decode(genotype), phenotype)
+    np.testing.assert_array_equal(encoding.encode(phenotype), genotype)
     

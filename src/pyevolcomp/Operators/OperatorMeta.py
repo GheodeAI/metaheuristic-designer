@@ -57,18 +57,18 @@ class OperatorMeta(Operator):
         if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
             params["weights"] = [params["p"], 1 - params["p"]]
 
-    def evolve(self, indiv, population, objfunc, global_best):
+    def evolve(self, indiv, population, objfunc, global_best, initializer=None):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """
 
         if self.method == MetaOpMethods.BRANCH:
             op = random.choices(self.op_list, k=1, weights=self.params["weights"])[0]
-            result = op(indiv, population, objfunc, global_best)
+            result = op(indiv, population, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.SEQUENCE:
             result = indiv
             for op in self.op_list:
-                result = op(result, population, objfunc, global_best)
+                result = op(result, population, objfunc, global_best, initializer)
 
         return result

@@ -10,7 +10,7 @@ import argparse
 def run_algorithm(alg_name, memetic, save_state):
     params = {
         "stop_cond": "neval or time_limit or fit_target",
-        "time_limit": 20.0,
+        "time_limit": 10.0,
         "cpu_time_limit": 10.0,
         "ngen": 1000,
         "neval": 6e5,
@@ -21,7 +21,7 @@ def run_algorithm(alg_name, memetic, save_state):
     }
 
     objfunc = Sphere(10, "min")
-    pop_initializer = UniformVectorInitializer(10, objfunc.low_lim, objfunc.up_lim)
+    pop_initializer = UniformVectorInitializer(10, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
     mut_params = ParamScheduler("Linear", {"method":"Cauchy", "F": [0.01, 0.00001]})
     parent_params = ParamScheduler("Linear", {"amount": 20})
@@ -34,38 +34,39 @@ def run_algorithm(alg_name, memetic, save_state):
     
     mem_select = ParentSelection("Best", {"amount": 5})
     neihbourhood_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.0002})
-    local_search =  LocalSearch(neihbourhood_op, {"iters":10})
-
-    
+    local_search =  LocalSearch(pop_initializer, neihbourhood_op, {"iters":10})    
 
     if alg_name == "HillClimb":
-        search_strat = HillClimb(mutation_op)
+        pop_initializer.pop_size = 1
+        search_strat = HillClimb(pop_initializer, mutation_op)
     elif alg_name == "LocalSearch":
-        search_strat = LocalSearch(mutation_op, {"iters":20})
-    elif alg_name == "ES":
-        search_strat = ES(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "offspringSize":150})
-    elif alg_name == "HS":
-        search_strat = HS({"HMS":100, "HMCR":0.8, "BW":0.5, "PAR":0.2})
-    elif alg_name == "GA":
-        search_strat = GA(mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.2})
+        pop_initializer.pop_size = 1
+        search_strat = LocalSearch(pop_initializer, mutation_op, {"iters":20})
     elif alg_name == "SA":
-        search_strat = SA(mutation_op, {"iter":100, "temp_init":1, "alpha":0.997})
+        pop_initializer.pop_size = 1
+        search_strat = SA(pop_initializer, mutation_op, {"iter":100, "temp_init":1, "alpha":0.997})
+    elif alg_name == "ES":
+        search_strat = ES(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize":150})
+    elif alg_name == "GA":
+        search_strat = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.2})
+    elif alg_name == "HS":
+        search_strat = HS(pop_initializer, {"HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "DE":
-        search_strat = DE(OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}), {"popSize":100})
+        search_strat = DE(pop_initializer,OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}))
     elif alg_name == "PSO":
-        search_strat = PSO({"popSize":100, "w":0.7, "c1":1.5, "c2":1.5})
+        search_strat = PSO(pop_initializer, {"w":0.7, "c1":1.5, "c2":1.5})
     elif alg_name == "RandomSearch":
-        search_strat = RandomSearch()
+        search_strat = RandomSearch(pop_initializer)
     elif alg_name == "NoSearch":
-        search_strat = NoSearch({"popSize":100})
+        search_strat = NoSearch(pop_initializer)
     else:
         print(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
         exit()
     
     if memetic:
-        alg = MemeticSearch(objfunc, search_strat, local_search, mem_select, pop_initializer, params=params)
+        alg = MemeticSearch(objfunc, search_strat, local_search, mem_select, params=params)
     else:
-        alg = GeneralSearch(objfunc, search_strat, pop_initializer, params=params)
+        alg = GeneralSearch(objfunc, search_strat, params=params)
     
     ind, fit = alg.optimize()
     print(ind)

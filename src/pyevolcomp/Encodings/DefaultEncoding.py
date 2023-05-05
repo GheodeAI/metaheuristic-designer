@@ -1,9 +1,9 @@
 from __future__ import annotations
 import numpy as np
-from ..Decoder import Decoder
+from ..Encoding import Encoding
 
 
-class DefaultDecoder(Decoder):
+class DefaultEncoding(Encoding):
     """
     Default encoder that uses the input vector as from the individual as the solution
     """

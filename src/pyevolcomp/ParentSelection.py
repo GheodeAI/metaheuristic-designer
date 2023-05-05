@@ -52,7 +52,7 @@ class ParentSelection:
         else:
             self.params = params
 
-    def __call__(self, population: List[Individual]):
+    def __call__(self, population: List[Individual]) -> List[Individual]:
         """
         Shorthand for calling the 'select' method
         """
@@ -71,7 +71,7 @@ class ParentSelection:
             if "amount" in self.params:
                 self.params["amount"] = round(self.params["amount"])
 
-    def get_state(self):
+    def get_state(self) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
         """

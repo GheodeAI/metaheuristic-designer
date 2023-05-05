@@ -106,7 +106,7 @@ class OperatorInt(Operator):
 
         self.method = IntOpMethods.from_str(method)
 
-    def evolve(self, indiv, population, objfunc, global_best):
+    def evolve(self, indiv, population, objfunc, global_best, initializer):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """
@@ -213,15 +213,15 @@ class OperatorInt(Operator):
 
         elif self.method == IntOpMethods.FIREFLY:
             new_indiv.genotype = firefly(indiv, others, objfunc, params["a"], params["b"], params["d"], params["g"])
-
+        
         elif self.method == IntOpMethods.RANDOM:
-            new_indiv.genotype = objfunc.random_solution()
+            new_indiv = initializer.generate_random(objfunc)
 
         elif self.method == IntOpMethods.RANDOM_MASK:
             mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
             np.random.shuffle(mask_pos)
 
-            new_indiv.genotype[mask_pos] = objfunc.decoder.encode(objfunc.random_solution())[mask_pos]
+            new_indiv.genotype[mask_pos] = initializer.generate_random(objfunc).genotype[mask_pos]
 
         elif self.method == IntOpMethods.DUMMY:
             new_indiv.genotype = dummyOp(new_indiv.genotype, params["F"])

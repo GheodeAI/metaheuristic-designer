@@ -10,11 +10,12 @@ class MemeticSearch(Search):
     General framework for metaheuristic algorithms
     """
 
-    def __init__(self, objfunc, search_strategy, local_search, improve_choice, pop_init = None, params = None):
+    def __init__(self, objfunc, search_strategy, local_search, improve_choice, params = None):
         """
         Constructor of the Metaheuristic class
         """
-        super().__init__(objfunc, search_strategy, pop_init, params)
+        
+        super().__init__(objfunc, search_strategy, params)
 
         self.local_search = local_search
         self.improve_choice = improve_choice
@@ -25,8 +26,7 @@ class MemeticSearch(Search):
         """
 
         super().initialize()
-        initial_population = self.pop_init.generate_population(self.objfunc)[:1]
-        self.local_search.initialize(initial_population)
+        self.local_search.initialize(self.objfunc)
 
     def _do_local_search(self, offspring):
         offspring_to_imp, off_idxs = self.improve_choice(offspring)
@@ -79,12 +79,12 @@ class MemeticSearch(Search):
 
         return (best_individual, best_fitness)
     
-    def get_state(self, objfunc):
+    def get_state(self):
         """
         Gets the current state of the algorithm as a dictionary
         """
         
-        data = super().get_state(objfunc)
+        data = super().get_state()
 
         # Add parent selection method for local search
         data["improve_selection"] = self.improve_choice.get_state()
@@ -101,7 +101,7 @@ class MemeticSearch(Search):
         
         return data
 
-    def step_info(self, objfunc, start_time):
+    def step_info(self, start_time):
         """
         Displays information about the current state of the algotithm
         """

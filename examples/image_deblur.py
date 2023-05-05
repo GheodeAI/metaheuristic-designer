@@ -1,4 +1,4 @@
-from pyevolcomp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from pyevolcomp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler, Individual
 from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
 from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary
 from pyevolcomp.Algorithms import *
@@ -13,6 +13,7 @@ import cv2
 import os
 from copy import deepcopy
 from PIL import Image
+import skimage.filters
 
 # import matplotlib
 # matplotlib.use("Gtk3Agg")
@@ -20,8 +21,16 @@ from PIL import Image
 import argparse
 
 
+class ImageBlurEncoding(ImageEncoding):
+    def __init__(self, shape, color=True):
+        super().__init__(shape, color=True)
+
+    def decode(self, genotype: np.ndarray) -> np.ndarray:
+        image_matrix = np.reshape(genotype, self.shape)
+        return skimage.filters.gaussian(image_matrix, channel_axis=-1).astype(np.uint8)
+
 def render(image, display_dim, src):
-    texture = cv2.resize(image.transpose([1,0,2]), display_dim, interpolation = cv2.INTER_NEAREST)
+    texture = cv2.resize(image.transpose([1,0,2]), (display_dim[1], display_dim[0]), interpolation = cv2.INTER_NEAREST)
     pygame.surfarray.blit_array(src, texture)
     pygame.display.flip()
 
@@ -35,19 +44,18 @@ def run_algorithm(alg_name, img_file_name, memetic):
     params = {
         # General
         "stop_cond": "time_limit",
-        "progress_metric": "time_limit",
-        "time_limit": 1000.0,
-        "cpu_time_limit": 120.0,
+        "time_limit": 300.0,
         "ngen": 1000,
         "neval": 3e5,
         "fit_target": 0,
 
         "verbose": True,
+        # "verbose": False,
         "v_timer": 0.5
     }
 
     display = True
-    display_dim = [600, 600]
+    display_dim = [1200, 600]
     image_shape = [64, 64]
 
     if display:
@@ -56,24 +64,27 @@ def run_algorithm(alg_name, img_file_name, memetic):
         pygame.display.set_caption("Evo graphics")
 
     
+
     reference_img = Image.open(img_file_name)
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
-
     objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
     # objfunc = ImgEntropy(image_shape, 256)
     # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name)
     
-    encoding = ImageEncoding(image_shape, color=True)
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=encoding)
+    deblured_encoding = ImageEncoding(image_shape, color=True)
+    encoding = ImageBlurEncoding(image_shape, color=True)
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, encoding=encoding, pop_size=100)
+
+    init_population = [Individual(objfunc, deblured_encoding.encode(np.asarray(reference_img)[:,:,:3].flatten())+np.random.normal(0, 2, np.asarray(reference_img)[:,:,:3].size), encoding=encoding) for i in range(100)]
+    pop_initializer = DirectInitializer(pop_initializer, init_population, encoding=encoding)
 
 
-    mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F":10, "N":6})
+    mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F":4, "N":6})
     cross_op = OperatorReal("Multicross", {"Nindiv": 4})
     parent_sel_op = ParentSelection("Best", {"amount": 15})
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
 
-    
     if alg_name == "HillClimb":
         pop_initializer.pop_size = 1
         search_strat = HillClimb(pop_initializer, mutation_op)
@@ -82,7 +93,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         search_strat = LocalSearch(pop_initializer, mutation_op, {"iters":20})
     elif alg_name == "SA":
         pop_initializer.pop_size = 1
-        search_strat = SA(pop_initializer, mutation_op, {"iter":100, "temp_init":1, "alpha":0.997})
+        search_strat = SA(pop_initializer, mutation_op, {"iter":100, "temp_init":2, "alpha":0.998})
     elif alg_name == "ES":
         search_strat = ES(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize":150})
     elif alg_name == "GA":
@@ -134,17 +145,30 @@ def run_algorithm(alg_name, img_file_name, memetic):
         
         if display:
             img_flat = alg.best_solution()[0]
-            render(encoding.decode(img_flat), display_dim, src)
+            image_blur = encoding.decode(img_flat)
+            image_orig = deblured_encoding.decode(img_flat)
+            full_texture = np.hstack([image_orig,image_blur])
+            # print(full_texture.shape)
+            # full_texture = image_orig
+            # full_texture = image_blur
+            render(full_texture, display_dim, src)
             pygame.display.update()
     
     alg.real_time_spent = time.time() - real_time_start
-    alg.cpu_time_spent = time.process_time() - cpu_time_start
+    alg.time_spent = time.process_time() - cpu_time_start
     img_flat = alg.best_solution()[0]
     image = img_flat.reshape(image_shape + [3])
     if display:
-        render(image, display_dim, src)
+        img_flat = alg.best_solution()[0]
+        image_blur = encoding.decode(img_flat)
+        image_orig = deblured_encoding.decode(img_flat)
+        full_texture = np.hstack([image_orig,image_blur])
+        # print(full_texture.shape)
+        # full_texture = image_orig
+        # full_texture = image_blur
+        render(full_texture, display_dim, src)
     alg.display_report(show_plots=True)
-    save_to_image(image, f"{img_name}_{image_shape[0]}x{image_shape[1]}_{alg_name}.png")
+    save_to_image(image, f"{img_name}_{image_shape[0]}x{image_shape[1]}_deblured_{alg_name}.png")
     
 def main():
     parser = argparse.ArgumentParser()
@@ -154,7 +178,7 @@ def main():
     args = parser.parse_args()
 
     algorithm_name = "SA"
-    img_file_name = "images/cat.png"
+    img_file_name = "images/cat_blurry.png"
     mem = False
 
     if args.alg:

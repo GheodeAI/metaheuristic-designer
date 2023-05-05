@@ -10,12 +10,12 @@ class GeneralSearch(Search):
     General framework for metaheuristic algorithms
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, pop_init: Initializer = None, params: Union[ParamScheduler, dict] = None):
+    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, params: Union[ParamScheduler, dict] = None):
         """
         Constructor of the Metaheuristic class
         """
 
-        super().__init__(objfunc, search_strategy, pop_init, params)
+        super().__init__(objfunc, search_strategy, params)
 
     def step(self, time_start=0, verbose=False):
         """

@@ -1,9 +1,9 @@
 from __future__ import annotations
 import numpy as np
-from ..Decoder import Decoder
+from ..Encoding import Encoding
 
 
-class MatrixDecoder(Decoder):
+class MatrixEncoding(Encoding):
     """
     Decoder used to evolve matrices
     """
