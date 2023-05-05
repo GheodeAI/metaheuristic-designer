@@ -23,15 +23,6 @@ class Search(ABC):
         self.search_strategy = search_strategy
         self.objfunc = objfunc
 
-        # self.pop_init = pop_init
-        # if pop_init is None:
-        #     if not isinstance(objfunc, ObjectiveVectorFunc):
-        #         raise ValueError("A population initializer must be indicated.")
-        #     else:
-        #         self.pop_init = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, search_strategy.pop_size)
-        # else:
-        #     self.pop_init.pop_size = search_strategy.pop_size
-
         if params is None:
             params = {}
 
@@ -156,8 +147,6 @@ class Search(ABC):
         """
 
         self.restart()
-        # initial_population = self.pop_init.generate_population(self.objfunc)
-        # self.search_strategy.initialize(initial_population)
         self.search_strategy.initialize(self.objfunc)
 
     @abstractmethod

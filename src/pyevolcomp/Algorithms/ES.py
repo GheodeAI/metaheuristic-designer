@@ -27,7 +27,6 @@ class ES(Algorithm):
         self.parent_sel_op = parent_sel_op
         self.selection_op = selection_op
         
-        # pop_size = params["popSize"] if "popSize" in params else 100
         super().__init__(pop_init, params=params, name=name)
     
     def select_parents(self, population, progress=0, history=None):

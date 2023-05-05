@@ -53,11 +53,6 @@ class OperatorList(Operator):
         """
 
         new_indiv = copy(indiv)
-        # others = [i for i in population if i != indiv]
-        # if len(others) > 1:
-        #     indiv2 = random.choice(others)
-        # else:
-        #     indiv2 = indiv
 
         params = copy(self.params)
 
