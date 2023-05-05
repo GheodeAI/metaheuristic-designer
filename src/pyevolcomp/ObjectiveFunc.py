@@ -94,7 +94,7 @@ class ObjectiveVectorFunc(ObjectiveFunc):
 
 
 class ObjectiveFromLambda(ObjectiveVectorFunc):
-    def __init__(self, obj_func: Callable, input_size: int, opt: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = None):
+    def __init__(self, obj_func: callable, input_size: int, opt: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = None):
         """
         Constructor for the AbsObjectiveFunc class
         """

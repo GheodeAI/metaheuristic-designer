@@ -81,8 +81,7 @@ class Algorithm(ABC):
 
         return self.best.genotype, best_fitness
 
-    # def initialize(self, population: List[Individual]):
-    def initialize(self, objfunc):
+    def initialize(self, objfunc: ObjectiveFunc):
         """
         Generates a random population of individuals
         """
