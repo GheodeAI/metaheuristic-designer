@@ -113,10 +113,14 @@ class OperatorInt(Operator):
 
         new_indiv = copy(indiv)
         others = [i for i in population if i != indiv]
-        if len(others) > 1:
-            indiv2 = random.choice(others)
-        else:
+        if len(others) == 0:
             indiv2 = indiv
+            others = [indiv]
+        elif len(others) == 1:
+            indiv2 = indiv
+        else:
+            indiv2 = random.choice(others)
+            
 
         if global_best is None:
             global_best = indiv
