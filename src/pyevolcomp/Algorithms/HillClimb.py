@@ -31,10 +31,7 @@ class HillClimb(Algorithm):
                 # Perturb individual
                 new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
                 new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-
-                # Store best vector for individual
-                new_indiv.store_best(indiv)
-
+                
                 # If it improves the previous solution keep it
                 if new_indiv.fitness > indiv.fitness:
                     indiv = new_indiv

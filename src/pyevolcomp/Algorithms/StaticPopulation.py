@@ -38,9 +38,6 @@ class StaticPopulation(Algorithm):
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 
-            # Store best vector for individual
-            new_indiv.store_best(indiv)
-
             # Add to offspring list
             offspring.append(new_indiv)
 

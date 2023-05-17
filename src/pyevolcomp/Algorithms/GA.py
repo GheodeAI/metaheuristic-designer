@@ -56,9 +56,6 @@ class GA(Algorithm):
                 new_indiv = self.mutation_op(parent1, parent_list, objfunc, self.best, self.pop_init)
                 new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
-            # Store best vector for individual
-            new_indiv.store_best(parent1)
-
             # Add to offspring list
             offspring.append(new_indiv)
 

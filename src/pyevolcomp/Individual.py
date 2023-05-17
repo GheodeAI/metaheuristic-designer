@@ -18,10 +18,11 @@ class Individual:
         self._genotype = genotype
         
         if speed is None and isinstance(genotype, np.ndarray):
-            speed = np.zeros_like(genotype)
+            speed = np.random.random(size=genotype.shape)
         self.speed = speed
         
         self._fitness = 0
+        self.best_fitness = None
         self.fitness_calculated = False
         self.best = genotype
         
@@ -57,13 +58,6 @@ class Individual:
         self.fitness_calculated = False
         self._genotype = vector
 
-    def store_best(self, past_indiv: Individual):
-        """
-        Stores the vector that yeided the best fitness between the one the indiviudal has and another input vector
-        """
-
-        if self.fitness < past_indiv.fitness:
-            self.best = past_indiv.genotype
 
     def apply_speed(self) -> Individual:
         """
@@ -88,6 +82,10 @@ class Individual:
         Obtain the fitness of the individual, optimized to be calculated only once per individual.
         """
 
+        if self.best_fitness is None or self.best_fitness < fit:
+            self.best_fitness = fit
+            self.best = self.genotype
+        
         self._fitness = fit
         self.fitness_calculated = True
     
