@@ -39,9 +39,6 @@ class SA(Algorithm):
             new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
-            # Store best vector for individual
-            new_indiv.store_best(indiv)
-
             # Accept the new solution even if it is worse with a probability
             p = np.exp(-1 / self.temp)
             if new_indiv.fitness > indiv.fitness or random.random() < p:

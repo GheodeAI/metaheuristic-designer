@@ -51,9 +51,6 @@ class ImgEntropy(ObjectiveVectorFunc):
         self.size = img_dim[0]*img_dim[1]*3
         self.nbins = 10
 
-        if encoding is None:
-            encoding = ImageEncoding(img_dim, color=True)
-
         super().__init__(self.size, opt, 0, 256, name="Image entropy")
     
     def objective(self, solution):

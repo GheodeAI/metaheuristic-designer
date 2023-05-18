@@ -31,9 +31,6 @@ class LocalSearch(Algorithm):
                 new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
                 new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
-                # Store best vector for individual
-                new_indiv.store_best(indiv)
-
                 # If it improves the best solution keep it
                 if new_indiv.fitness > best_indiv.fitness:
                     best_indiv = new_indiv

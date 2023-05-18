@@ -12,12 +12,12 @@ class DirectInitializer(Initializer):
         self.default_init = default_init
     
     def generate_random(self, objfunc):
-        self.default_init.generate_random(objfunc)
+        return self.default_init.generate_random(objfunc)
     
     def generate_individual(self, objfunc):
         return random.choice(self.solutions)
 
     def generate_population(self, objfunc, n_indiv=None):
-        return self.solutions
+        return self.solutions[:self.pop_size]
 
 

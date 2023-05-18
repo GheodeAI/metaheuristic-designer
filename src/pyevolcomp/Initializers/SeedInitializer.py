@@ -14,7 +14,7 @@ class SeedProbInitializer(Initializer):
         self.insert_prob = insert_prob
     
     def generate_random(self, objfunc):
-        self.default_init.generate_random(objfunc)
+        return self.default_init.generate_random(objfunc)
 
     def generate_individual(self, objfunc):
         new_indiv = None
@@ -39,7 +39,7 @@ class SeedDetermInitializer(Initializer):
         self.inserted = 0
     
     def generate_random(self, objfunc):
-        self.default_init.generate_random(objfunc)
+        return self.default_init.generate_random(objfunc)
 
     def generate_individual(self, objfunc):
         new_indiv = None
