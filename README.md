@@ -13,6 +13,15 @@ Mostly following the book:
 ## Project structure
 This project uses poetry as a package manager and nox for unit testing.
 
+## Instalation
+
+Since this package is not available in PyPi at the moment, you will have to install it manually, preferably in a virtual environment.
+
+To do this, get the package from the latest release, in this case, the file you are looking for is "pyevolcomp-0.1.0-py3-none-any.whl". and install it with the following command:
+
+```bash
+pip install pyevolcomp-0.1.0-py3-none-any.whl
+```
 
 ## Examples
 - There are 2 scripts to test this repository:
