@@ -67,6 +67,18 @@ class ParamScheduler:
         """
 
         return self.current_params
+    
+    def get_state(self) -> dict:
+        """
+        Gets the current state of the algorithm as a dictionary.
+        """
+
+        data = {
+            "strategy": self.strategy,
+            "param_schedule": self.param_schedule
+        }
+
+        return data
 
     def step(self, progress: float):
         """

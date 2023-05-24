@@ -51,7 +51,7 @@ class ParentSelection:
         else:
             self.params = params
 
-    def __call__(self, population: List[Individual]):
+    def __call__(self, population: List[Individual]) -> List[Individual]:
         """
         Shorthand for calling the 'select' method
         """
@@ -69,6 +69,23 @@ class ParentSelection:
 
             if "amount" in self.params:
                 self.params["amount"] = round(self.params["amount"])
+
+    def get_state(self) -> dict:
+        """
+        Gets the current state of the algorithm as a dictionary.
+        """
+
+        data = {
+            "name": self.name
+        }
+
+        if self.param_scheduler:
+            data["param_scheduler"] = self.param_scheduler.get_state()
+            data["params"] = self.param_scheduler.get_params()
+        else:
+            data["params"] = self.params
+        
+        return data           
 
     def select(self, population: List[Individual]) -> List[Individual]:
         """

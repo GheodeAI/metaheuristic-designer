@@ -3,11 +3,11 @@ from .ES import ES
 from ..Operators import OperatorReal, OperatorMeta
 from ..SurvivorSelection import SurvivorSelection
 from ..ParentSelection import ParentSelection
-from ..Decoders import CMADecoder
+from ..Encodings import CMAEncoding
 
 
 class CMA_ES(ES):
-    def __init__(self, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection,
+    def __init__(self, pop_init: Initializer, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection,
                  params: Union[ParamScheduler, dict] = {}, name: str = "ES"):
 
         parent_select = ParentSelection("Nothing")
@@ -19,8 +19,8 @@ class CMA_ES(ES):
 
         mutate = OperatorMeta("Sequence", [mutate1, rand1])
 
-        super().__init__(mutate, cross, parent_select, selection, params, name)
+        super().__init__(pop_init, mutate, cross, parent_select, selection, params, name)
 
     def initialize(self, objfunc):
-        objfunc.decoder = CMADecoder(self.params["nparams"], pre_decoder=objfunc.decoder)
+        objfunc.encoding = CMAEncoding(self.params["nparams"], pre_encoding=objfunc.encoding)
         super().initialize(objfunc)

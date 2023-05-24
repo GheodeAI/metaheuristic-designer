@@ -53,12 +53,12 @@ class Operator(ABC):
             else:
                 self.params = params
 
-    def __call__(self, solution: Individual, population: List[Individual], objfunc: ObjectiveFunc, global_best: Individual) -> Individual:
+    def __call__(self, solution: Individual, population: List[Individual], objfunc: ObjectiveFunc, global_best: Individual, initializer: Initializer) -> Individual:
         """
         A shorthand for calling the 'evolve' method
         """
 
-        return self.evolve(solution, population, objfunc, global_best)
+        return self.evolve(solution, population, objfunc, global_best, initializer)
 
     def step(self, progress: float):
         """
@@ -68,9 +68,29 @@ class Operator(ABC):
         if self.param_scheduler:
             self.param_scheduler.step(progress)
             self.params = self.param_scheduler.get_params()
+    
+    def get_state(self) -> dict:
+        """
+        Gets the current state of the algorithm as a dictionary.
+        """
+        
+        data = {
+            "name": self.name,
+            # "method": self.method
+        }
+
+        if self.param_scheduler:
+            data["param_scheduler"] = self.param_scheduler.get_state()
+            data["params"] = self.param_scheduler.get_params()
+        else:
+            data["params"] = self.params
+        
+        data["params"].pop("function", None)
+        
+        return data
 
     @abstractmethod
-    def evolve(self, solution: Individual, population: List[Individual], objfunc: ObjectiveFunc, global_best: Individual) -> Individual:
+    def evolve(self, solution: Individual, population: List[Individual], objfunc: ObjectiveFunc, global_best: Individual, initializer: Initializer) -> Individual:
         """
         Evolves a solution with a different strategy depending on the type of substrate
         """

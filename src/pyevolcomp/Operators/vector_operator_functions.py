@@ -41,7 +41,11 @@ def permutation(vector, n):
 
     if np.count_nonzero(mask_pos == 1) < 2:
         mask_pos[random.sample(range(mask_pos.size), 2)] = 1
-    np.random.shuffle(vector[mask_pos])
+
+    shuffled_vec = vector[mask_pos]
+    np.random.shuffle(shuffled_vec)
+    vector[mask_pos] = shuffled_vec
+
     return vector
 
 

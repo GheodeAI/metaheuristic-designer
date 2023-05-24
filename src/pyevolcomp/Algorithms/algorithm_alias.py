@@ -8,38 +8,39 @@ from ..Operators import OperatorReal, OperatorMeta
 from ..SurvivorSelection import SurvivorSelection
 from ..ParentSelection import ParentSelection
 from .StaticPopulation import StaticPopulation
+from .HillClimb import HillClimb
 from ..ParamScheduler import ParamScheduler
 
 
 class HS(ES):
-    def __init__(self, params: Union[ParamScheduler, dict] = {}, name: str = "HS", population: List[Individual] = None):
+    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict] = {}, name: str = "HS"):
 
-        params["popSize"] = params["HMS"]
         params["offspringSize"] = 1
 
         parent_select = ParentSelection("Nothing")
         selection = SurvivorSelection("(m+n)")
 
-        cross = OperatorReal("Multicross", {"Nindiv": params["HMS"]})
+        HSM = pop_init.pop_size
+        cross = OperatorReal("Multicross", {"Nindiv": HSM})
 
         mutate1 = OperatorReal("MutNoise", {"method": "Gauss", "F": params["BW"], "Cr": params["HMCR"] * params["PAR"]})
         rand1 = OperatorReal("RandomMask", {"Cr": 1 - params["HMCR"]})
 
         mutate = OperatorMeta("Sequence", [mutate1, rand1])
 
-        super().__init__(mutate, cross, parent_select, selection, params, name, population)
+        super().__init__(pop_init, mutate, cross, parent_select, selection, params, name=name)
 
 
 class DE(StaticPopulation):
-    def __init__(self, de_op: Operator, params: Union[ParamScheduler, dict] = {}, selection_op: SurvivorSelection = None, name: str = "DE"):
+    def __init__(self, pop_init: Initializer, de_op: Operator, params: Union[ParamScheduler, dict] = {}, selection_op: SurvivorSelection = None, name: str = "DE"):
         if selection_op is None:
             selection_op = SurvivorSelection("One-to-one")
 
-        super().__init__(de_op, params, selection_op, name)
+        super().__init__(pop_init, de_op, params, selection_op, name=name)
 
 
 class PSO(StaticPopulation):
-    def __init__(self, params: Union[ParamScheduler, dict] = {}, pso_op: Operator = None, name: str = "PSO"):
+    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict] = {}, pso_op: Operator = None, name: str = "PSO"):
         if pso_op is None:
             w = params["w"] if "w" in params else 0.7
             c1 = params["c1"] if "c1" in params else 1.5
@@ -48,7 +49,7 @@ class PSO(StaticPopulation):
 
         selection_op = SurvivorSelection("Generational")
 
-        super().__init__(pso_op, params, selection_op, name)
+        super().__init__(pop_init, pso_op, params, selection_op, name=name)
 
     def extra_step_info(self):
         """
@@ -64,7 +65,7 @@ class PSO(StaticPopulation):
 
 
 class CRO(StaticPopulation):
-    def __init__(self, mutate: Operator, cross: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "CRO"):
+    def __init__(self, pop_init: Initializer, mutate: Operator, cross: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "CRO"):
 
         evolve_op = OperatorMeta("Branch", [cross, mutate], {"p": params["Fb"]})
 
@@ -73,7 +74,7 @@ class CRO(StaticPopulation):
         params = copy(params)
         params["popSize"] = round(params["popSize"] * params["rho"])
         
-        super().__init__(evolve_op, params, selection_op, name)
+        super().__init__(pop_init, evolve_op, params, selection_op, name=name)
 
 
 class NoSearch(StaticPopulation):
@@ -81,10 +82,18 @@ class NoSearch(StaticPopulation):
     Debug Algorithm that does nothing
     """
 
-    def __init__(self, params: Union[ParamScheduler, dict] = {}, name: str = "No search"):
+    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict] = {}, name: str = "No search", population: List[Individual] = None):
         noop = OperatorReal("Nothing")
         selection_op = SurvivorSelection("Generational")
-        super().__init__(noop, params, selection_op, name)
+        super().__init__(pop_init, noop, params, selection_op, name=name)
 
-    def perturb(self, parent_list, objfunc, progress=0, history=None):
+    def perturb(self, parent_list, pop_init, objfunc, progress=0, history=None):
         return parent_list
+
+
+class RandomSearch(HillClimb):
+    def __init__(self, pop_init, name="RandomSearch"):
+        op = OperatorReal("Random", {})
+        super().__init__(pop_init, op, name=name)
+
+

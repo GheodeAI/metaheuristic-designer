@@ -13,13 +13,13 @@ from ..Algorithm import Algorithm
 
 
 class CRO_SL(Algorithm):
-    def __init__(self, operator_list: List[Operator], params: Union[ParamScheduler, dict] = {}, name: str = "CRO_SL"):
-        super().__init__(name)
+    def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = {}, name: str = "CRO-SL"):
+        super().__init__(pop_init, name=name)
 
         # Hyperparameters of the algorithm
         self.params = params
         self.maxpopsize = params["popSize"]
-        self.popsize = round(params["popSize"] * params["rho"])
+        self.pop_init.pop_size = round(params["popSize"] * params["rho"])
         self.operator_list = operator_list
         self.operator_idx = [i%len(operator_list) for i in range(params["popSize"])]
 
@@ -33,15 +33,13 @@ class CRO_SL(Algorithm):
             
             # Select operator
             op_idx = self.operator_idx[idx]
+            
             op = self.operator_list[op_idx]
 
             # Apply operator
-            new_indiv = op(indiv, parent_list, objfunc, self.best)
+            new_indiv = op(indiv, parent_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
-
-            # Store best vector for individual
-            new_indiv.store_best(indiv)
 
             # Add to offspring list
             offspring.append(new_indiv)
@@ -61,21 +59,20 @@ class CRO_SL(Algorithm):
         Updates the parameters and the operators
         """
 
-        self.popsize = len(self.population)
+        self.pop_init.pop_size = len(self.population)
 
         for op in self.operator_list:
             op.step(progress)
 
         if isinstance(self.params, ParamScheduler):
             self.params.step(progress)
-            self.size = self.params["popSize"]
             self.n_offspring = self.params["offspringSize"]
 
 
 class PCRO_SL(CRO_SL):
-    def __init__(self, operator_list: List[Operator], params: Union[ParamScheduler, dict] = {}, name: str = "PCRO_SL"):
-        super().__init__(operator_list, params, name)
-        self.operator_idx = random.choices(range(len(self.operator_list)), k=self.popsize)
+    def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = {}, name: str = "PCRO-SL"):
+        super().__init__(pop_init, operator_list, params, name=name)
+        self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
 
     def update_params(self, progress):
         """

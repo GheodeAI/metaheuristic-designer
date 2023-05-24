@@ -78,11 +78,33 @@ class SurvivorSelection:
 
             if "amount" in self.params:
                 self.params["amount"] = round(self.params["amount"])
-
+            
             if "maxPopSize" in self.params:
                 self.params["maxPopSize"] = round(self.params["maxPopSize"])
 
-    def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:
+    
+
+    def get_state(self):
+        """
+        Gets the current state of the algorithm as a dictionary.
+        """
+
+        data = {
+            "name": self.name
+        }
+
+        if self.param_scheduler:
+            data["param_scheduler"] = self.param_scheduler.get_state()
+            data["params"] = self.param_scheduler.get_params()
+        else:
+            data["params"] = self.params
+        
+        return data
+    
+    
+            
+
+    def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:     
         """
         Takes a population with its offspring and returns the individuals that survive
         to produce the next generation.

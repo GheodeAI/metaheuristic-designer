@@ -10,11 +10,12 @@ class MemeticSearch(Search):
     General framework for metaheuristic algorithms
     """
 
-    def __init__(self, objfunc, search_strategy, local_search, improve_choice, pop_init = None, params = None):
+    def __init__(self, objfunc, search_strategy, local_search, improve_choice, params = None):
         """
         Constructor of the Metaheuristic class
         """
-        super().__init__(objfunc, search_strategy, pop_init, params)
+        
+        super().__init__(objfunc, search_strategy, params)
 
         self.local_search = local_search
         self.improve_choice = improve_choice
@@ -25,8 +26,7 @@ class MemeticSearch(Search):
         """
 
         super().initialize()
-        initial_population = self.pop_init.generate_population(self.objfunc)[:1]
-        self.local_search.initialize(initial_population)
+        self.local_search.initialize(self.objfunc)
 
     def _do_local_search(self, offspring):
         offspring_to_imp, off_idxs = self.improve_choice(offspring)
@@ -78,6 +78,28 @@ class MemeticSearch(Search):
         self.update(self.steps, time_start)
 
         return (best_individual, best_fitness)
+    
+    def get_state(self):
+        """
+        Gets the current state of the algorithm as a dictionary
+        """
+        
+        data = super().get_state()
+
+        # Add parent selection method for local search
+        data["improve_selection"] = self.improve_choice.get_state()
+
+        # Add local search data
+        local_search_data = self.local_search.get_state()
+        local_search_data.pop("population", None)
+        local_search_data.pop("best_individual", None)
+        data["local_search_state"] = local_search_data
+
+        # push search strategy data to the bottom
+        search_strat_data = data.pop("search_strat_state", None)
+        data["search_strat_state"] = search_strat_data
+        
+        return data
 
     def step_info(self, start_time):
         """
@@ -85,7 +107,8 @@ class MemeticSearch(Search):
         """
 
         print(f"Optimizing {self.objfunc.name} using {self.search_strategy.name}+{self.local_search.name}:")
-        print(f"\tTime Spent {round(time.time() - start_time,2)} s")
+        print(f"\tReal time Spent: {round(time.time() - start_time,2)} s")
+        print(f"\tCPU time Spent:  {round(time.time() - start_time,2)} s")
         print(f"\tGeneration: {self.steps}")
         best_fitness = self.best_solution()[1]
         print(f"\tBest fitness: {best_fitness}")
@@ -102,7 +125,7 @@ class MemeticSearch(Search):
         # Print Info
         print("Number of generations:", len(self.fit_history))
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
-        print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
+        print("CPU time spent: ", round(self.cpu_time_spent, 5), "s", sep="")
         print("Number of fitness evaluations:", self.objfunc.counter)
 
         best_fitness = self.best_solution()[1]

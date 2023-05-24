@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Decoder(ABC):
+class Encoding(ABC):
     """
     Base class for transforming between phenotype and genotype
     """
