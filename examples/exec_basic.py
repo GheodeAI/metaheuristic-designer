@@ -29,6 +29,16 @@ def run_algorithm(alg_name, memetic, save_state):
 
     mutation_op = OperatorReal("RandNoise", mut_params)
     cross_op = OperatorReal("Multipoint")
+
+    DEparams = {"F":0.7, "Cr":0.8}
+    de_op_list = [
+        OperatorReal("DE/rand/1", DEparams),
+        OperatorReal("DE/best/2", DEparams),
+        OperatorReal("DE/current-to-best/1", DEparams),
+        OperatorReal("DE/current-to-rand/1", DEparams)
+    ]
+
+
     parent_sel_op = ParentSelection("Best", parent_params)
     selection_op = SurvivorSelection("(m+n)")
     
@@ -55,6 +65,12 @@ def run_algorithm(alg_name, memetic, save_state):
         search_strat = DE(pop_initializer,OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w":0.7, "c1":1.5, "c2":1.5})
+    elif alg_name == "CRO":
+        search_strat = CRO(pop_initializer, mutation_op, cross_op, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+    elif alg_name == "CRO_SL":
+        search_strat = CRO_SL(pop_initializer, de_op_list, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+    elif alg_name == "PCRO_SL":
+        search_strat = PCRO_SL(pop_initializer, de_op_list, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
     elif alg_name == "RandomSearch":
         search_strat = RandomSearch(pop_initializer)
     elif alg_name == "NoSearch":

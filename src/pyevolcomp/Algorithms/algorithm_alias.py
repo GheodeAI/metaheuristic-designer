@@ -2,6 +2,7 @@ from __future__ import annotations
 import numpy as np
 from .ES import ES
 from typing import Union, List
+from copy import copy
 from ..Individual import Individual
 from ..Operators import OperatorReal, OperatorMeta
 from ..SurvivorSelection import SurvivorSelection
@@ -63,12 +64,25 @@ class PSO(StaticPopulation):
         print(f"\tmean speed: {mean_speed:0.3}")
 
 
+class CRO(StaticPopulation):
+    def __init__(self, pop_init: Initializer, mutate: Operator, cross: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "CRO"):
+
+        evolve_op = OperatorMeta("Branch", [cross, mutate], {"p": params["Fb"]})
+
+        selection_op = SurvivorSelection("CRO", {"Fd": params["Fd"], "Pd": params["Pd"], "attempts": params["attempts"], "maxPopSize": params["popSize"]})
+        
+        params = copy(params)
+        params["popSize"] = round(params["popSize"] * params["rho"])
+        
+        super().__init__(pop_init, evolve_op, params, selection_op, name=name)
+
+
 class NoSearch(StaticPopulation):
     """
     Debug Algorithm that does nothing
     """
 
-    def __init__(self, pop_init:Initializer, params: Union[ParamScheduler, dict] = {}, name: str = "No search"):
+    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict] = {}, name: str = "No search"):
         noop = OperatorReal("Nothing")
         selection_op = SurvivorSelection("Generational")
         super().__init__(pop_init, noop, params, selection_op, name=name)
