@@ -7,6 +7,8 @@ from enum import Enum
 class MetaOpMethods(Enum):
     BRANCH = 1
     SEQUENCE = 2
+    SPLIT = 3
+    PICK_ONE = 4
 
     @staticmethod
     def from_str(str_input):
@@ -22,6 +24,8 @@ class MetaOpMethods(Enum):
 meta_ops_map = {
     "branch": MetaOpMethods.BRANCH,
     "sequence": MetaOpMethods.SEQUENCE,
+    "split": MetaOpMethods.SPLIT,
+    "pickone": MetaOpMethods.PICK_ONE
 }
 
 
@@ -43,15 +47,21 @@ class OperatorMeta(Operator):
             params = {
                 "p": 0.5,
                 "weights": [1] * len(op_list),
-                "mask": 0
+                "mask": 0,
+                "init_idx": -1
             }
 
         if name is None:
-            name = method
+            joined_names = "+".join([op.name for op in op_list if op.method.lower() != "nothing"])
+            name = f"{method}: {joined_names}" 
 
         super().__init__(params, name)
 
         self.method = MetaOpMethods.from_str(method)
+
+        # Record of the index of the last operator used 
+        self.chosen_idx = params["init_idx"] if "init_idx" in params else -1
+        self.mask = params["mask"] if "mask" in params else 0
 
         # If we have a branch with 2 operators and "p" is given as an input
         if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
@@ -63,13 +73,32 @@ class OperatorMeta(Operator):
         """
 
         if self.method == MetaOpMethods.BRANCH:
-            op = random.choices(self.op_list, k=1, weights=self.params["weights"])[0]
-            result = op(indiv, population, objfunc, global_best, initializer)
+            self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
+            result = self.op_list[self.chosen_idx].evolve(indiv, population, objfunc, global_best, initializer)
+        
+        elif self.method == MetaOpMethods.PICK_ONE:
+            # the chosen index is assumed to be changed by the user
+            result = self.op_list[self.chosen_idx].evolve(indiv, population, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.SEQUENCE:
             result = indiv
             for op in self.op_list:
-                result = op(result, population, objfunc, global_best, initializer)
+                result = op.evolve(result, population, objfunc, global_best, initializer)
+        
+        elif self.method == MetaOpMethods.SPLIT:
+            indiv_copy = indiv.copy()
+            global_best_copy = global_best.copy()
+            population_copy = [i.copy() for i in population]
+
+            for idx, op in enumerate(self.op_list):
+                indiv_copy.genotype = indiv.genotype[self.mask == idx]
+                global_best_copy.genotype = global_best.genotype[self.mask == idx]
+
+                for idx, val in enumeate(population_copy):
+                    val.genotype = population[idx].genotype[self.mask == idx]
+
+                aux_indiv = op.evolve(indiv_copy, population_copy, objfunc, global_best, initializer)
+                indiv.genotype[self.mask == idx] = aux_indiv.genotype
 
         return result
     

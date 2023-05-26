@@ -14,8 +14,8 @@ from .CRO_SL import CRO_SL
 
 
 class PCRO_SL(CRO_SL):
-    def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = {}, name: str = "PCRO-SL"):
-        super().__init__(pop_init, operator_list, params, name=name)
+    def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = None, name: str = "PCRO-SL"):
+        super().__init__(pop_init, operator_list, params=params, name=name)
         self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
 
     def update_params(self, progress):

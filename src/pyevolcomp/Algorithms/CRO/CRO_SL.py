@@ -12,21 +12,18 @@ from ...ParamScheduler import ParamScheduler
 from ...Algorithm import Algorithm
 
 class CRO_SL(Algorithm):
-    def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = {}, name: str = "CRO-SL"):
+    def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = None, name: str = "CRO-SL"):
         pop_init = deepcopy(pop_init)
         pop_init.pop_size = round(pop_init.pop_size * params["rho"])
 
-        super().__init__(pop_init, name=name)
+        super().__init__(pop_init, params=params, name=name)
 
         # Hyperparameters of the algorithm
-        self.params = params
         self.maxpopsize = pop_init.pop_size
         self.operator_list = operator_list
         self.operator_idx = [i%len(operator_list) for i in range(pop_init.pop_size)]
 
         self.selection_op = SurvivorSelection("CRO", {"Fd": params["Fd"], "Pd": params["Pd"], "attempts": params["attempts"], "maxPopSize": pop_init.pop_size})
-
-        self.best = None
     
     def perturb(self, parent_list, objfunc, progress, history):
         offspring = []
