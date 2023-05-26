@@ -82,7 +82,7 @@ class NoSearch(StaticPopulation):
     Debug Algorithm that does nothing
     """
 
-    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict] = {}, name: str = "No search", population: List[Individual] = None):
+    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict] = {}, name: str = "No search"):
         noop = OperatorReal("Nothing")
         selection_op = SurvivorSelection("Generational")
         super().__init__(pop_init, noop, params, selection_op, name=name)

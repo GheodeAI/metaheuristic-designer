@@ -31,7 +31,7 @@ surv_method_map = {
     "nothing": SurvSelMethod.GENERATIONAL,
     "one-to-one": SurvSelMethod.ONE_TO_ONE,
     "(m+n)": SurvSelMethod.MU_PLUS_LAMBDA,
-    "(m,n)": SurvSelMethod.MU_COMMA_lAMBDA,
+    "(m,n)": SurvSelMethod.MU_COMMA_LAMBDA,
     "cro": SurvSelMethod.CRO
 }
 
