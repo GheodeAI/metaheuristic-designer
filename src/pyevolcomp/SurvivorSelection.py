@@ -10,7 +10,7 @@ class SurvSelMethod(Enum):
     GENERATIONAL = 3
     ONE_TO_ONE = 4
     MU_PLUS_LAMBDA = 5
-    MU_COMMA_lAMBDA = 6
+    MU_COMMA_LAMBDA = 6
     CRO = 7
 
     @staticmethod

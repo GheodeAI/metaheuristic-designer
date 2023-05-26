@@ -72,3 +72,14 @@ class OperatorMeta(Operator):
                 result = op(result, population, objfunc, global_best, initializer)
 
         return result
+    
+    def step(self, progress: float):
+        """
+        Updates the parameters of the method using a paramater scheduler if it exists
+        """
+
+        super().step(progress)
+        
+        for op in self.op_list:
+            op.step(progress)
+

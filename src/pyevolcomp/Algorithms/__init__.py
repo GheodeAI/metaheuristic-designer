@@ -1,7 +1,14 @@
 from .HillClimb import HillClimb
 from .LocalSearch import LocalSearch
-from .GA import GA
-from .ES import ES
 from .SA import SA
+
+from .algorithm_alias import ES
+from .algorithm_alias import GA
+from .algorithm_alias import HS
+from .algorithm_alias import DE
+from .algorithm_alias import PSO
+from .algorithm_alias import CRO
+from .algorithm_alias import RandomSearch
+from .algorithm_alias import NoSearch
+
 from .CRO_SL import CRO_SL, PCRO_SL
-from .algorithm_alias import HS, DE, PSO, CRO, RandomSearch, NoSearch

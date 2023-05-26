@@ -1,51 +1,51 @@
 from __future__ import annotations
-import random
-from typing import Union, List
-from ..Individual import Individual
 from ..ParamScheduler import ParamScheduler
-from ..ParentSelection import ParentSelection
 from ..SurvivorSelection import SurvivorSelection
+from ..ParentSelection import ParentSelection
 from ..Algorithm import Algorithm
+import random
 
 
-class ES(Algorithm):
+class VariablePopulation(Algorithm):
     """
     Population of the Genetic algorithm
     """
 
-    def __init__(self, pop_init: Initializer, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, 
-                 selection_op: SurvivorSelection, params: Union[ParamScheduler, dict] = {}, name: str = "ES"):
+    def __init__(self, pop_init: Initializer, operator: Operator, params: Union[ParamScheduler, dict] = {}, parent_sel_op: ParentSelection = None, 
+                 selection_op: SurvivorSelection = None, name: str = "stpop"):
         """
         Constructor of the GeneticPopulation class
         """
 
         # Hyperparameters of the algorithm
         self.params = params
+        self.operator = operator
+
         self.n_offspring = params["offspringSize"] if "offspringSize" in params else pop_init.pop_size
-        self.mutation_op = mutation_op
-        self.cross_op = cross_op
-        self.parent_sel_op = parent_sel_op
+
+        if selection_op is None:
+            selection_op = SurvivorSelection("Generational")
         self.selection_op = selection_op
-        
+
+        if parent_sel_op is None:
+            parent_sel_op = ParentSelection("Nothing")
+        self.parent_sel_op = parent_sel_op
+
+        self.best = None
+
         super().__init__(pop_init, params=params, name=name)
     
-    def select_parents(self, population, progress=0, history=None):
-        return self.parent_sel_op(population)
-
+    
     def perturb(self, parent_list, objfunc, progress=0, history=None):
-        # Generation of offspring by crossing and mutation
         offspring = []
 
         while len(offspring) < self.n_offspring:
 
-            # Cross
-            parent1 = random.choice(parent_list)
-            new_indiv = self.cross_op(parent1, parent_list, objfunc, self.best, self.pop_init)
+            # Apply operator
+            indiv = random.choice(parent_list)
+            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-
-            # Mutate
-            new_indiv = self.mutation_op(parent1, parent_list, objfunc, self.best, self.pop_init)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
+            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 
             # Add to offspring list
             offspring.append(new_indiv)
@@ -65,17 +65,9 @@ class ES(Algorithm):
         Updates the parameters and the operators
         """
 
-        self.mutation_op.step(progress)
-        self.cross_op.step(progress)
-        self.parent_sel_op.step(progress)
+        self.operator.step(progress)
         self.selection_op.step(progress)
 
         if self.param_scheduler:
             self.param_scheduler.step(progress)
             self.params = self.param_scheduler.get_params()
-            # self.popsize = self.params["popSize"]
-            self.n_offspring = self.params["offspringSize"]
-
-
-
-

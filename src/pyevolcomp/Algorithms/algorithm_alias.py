@@ -1,6 +1,6 @@
 from __future__ import annotations
 import numpy as np
-from .ES import ES
+# from .ES import ES
 from typing import Union, List
 from copy import copy
 from ..Individual import Individual
@@ -8,8 +8,58 @@ from ..Operators import OperatorReal, OperatorMeta
 from ..SurvivorSelection import SurvivorSelection
 from ..ParentSelection import ParentSelection
 from .StaticPopulation import StaticPopulation
+from .VariablePopulation import VariablePopulation
 from .HillClimb import HillClimb
 from ..ParamScheduler import ParamScheduler
+
+
+class ES(VariablePopulation):
+    def __init__(self, pop_init: Initializer, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, 
+                 selection_op: SurvivorSelection, params: Union[ParamScheduler, dict] = {}, name: str = "ES"):
+
+        evolve_op = OperatorMeta("Sequence", [mutation_op, cross_op])
+
+        super().__init__(
+            pop_init, 
+            evolve_op,
+            params=params,
+            parent_sel_op=parent_sel_op,
+            selection_op=selection_op, 
+            name=name
+        )
+
+
+class GA(VariablePopulation):
+    def __init__(self, pop_init: Initializer, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, 
+                 selection_op: SurvivorSelection, params: Union[ParamScheduler, dict] = {}, name: str = "GA"):
+
+        self.pmut = params["pmut"] if "pmut" in params else 0.1
+        self.pcross = params["pcross"] if "pcross" in params else 0.9
+
+        null_operator = OperatorReal("Nothing", {})
+
+        prob_mut_op = OperatorMeta("Branch", [mutation_op, null_operator], {"p": self.pmut})
+        prob_cross_op = OperatorMeta("Branch", [cross_op, null_operator], {"p": self.pcross}) 
+
+        evolve_op = OperatorMeta("Sequence", [prob_mut_op, prob_cross_op])
+
+        super().__init__(
+            pop_init, 
+            evolve_op,
+            params=params,
+            parent_sel_op=parent_sel_op,
+            selection_op=selection_op, 
+            name=name
+        )
+
+    def extra_step_info(self):
+        """
+        Specific information to display relevant to this algorithm
+        """
+
+        popul_matrix = np.array(list(map(lambda x: x.genotype, self.population)))
+        divesity = popul_matrix.std(axis=1).mean()
+        print(f"\tdiversity: {divesity:0.3}")
 
 
 class HS(ES):
@@ -27,8 +77,16 @@ class HS(ES):
         rand1 = OperatorReal("RandomMask", {"Cr": 1 - params["HMCR"]})
 
         mutate = OperatorMeta("Sequence", [mutate1, rand1])
-
-        super().__init__(pop_init, mutate, cross, parent_select, selection, params, name=name)
+        
+        super().__init__(
+            pop_init, 
+            mutate, 
+            cross,
+            parent_sel_op,
+            selection_op, 
+            params=params,
+            name=name
+        )
 
 
 class DE(StaticPopulation):
@@ -36,7 +94,13 @@ class DE(StaticPopulation):
         if selection_op is None:
             selection_op = SurvivorSelection("One-to-one")
 
-        super().__init__(pop_init, de_op, params, selection_op, name=name)
+        super().__init__(
+            pop_init, 
+            de_op, 
+            params=params, 
+            selection_op=selection_op, 
+            name=name
+        )
 
 
 class PSO(StaticPopulation):
@@ -49,7 +113,13 @@ class PSO(StaticPopulation):
 
         selection_op = SurvivorSelection("Generational")
 
-        super().__init__(pop_init, pso_op, params, selection_op, name=name)
+        super().__init__(
+            pop_init,
+            pso_op,
+            params=params,
+            selection_op=selection_op,
+            name=name
+        )
 
     def extra_step_info(self):
         """
@@ -74,7 +144,13 @@ class CRO(StaticPopulation):
         params = copy(params)
         params["popSize"] = round(params["popSize"] * params["rho"])
         
-        super().__init__(pop_init, evolve_op, params, selection_op, name=name)
+        super().__init__(
+            pop_init,
+            evolve_op,
+            params=params,
+            selection_op=selection_op,
+            name=name
+        )
 
 
 class NoSearch(StaticPopulation):
@@ -83,9 +159,13 @@ class NoSearch(StaticPopulation):
     """
 
     def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict] = {}, name: str = "No search"):
-        noop = OperatorReal("Nothing")
-        selection_op = SurvivorSelection("Generational")
-        super().__init__(pop_init, noop, params, selection_op, name=name)
+        noop = OperatorReal("Nothing", {})
+        super().__init__(
+            pop_init, 
+            noop, 
+            params=params,
+            name=name
+        )
 
     def perturb(self, parent_list, pop_init, objfunc, progress=0, history=None):
         return parent_list

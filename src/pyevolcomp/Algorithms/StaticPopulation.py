@@ -1,6 +1,7 @@
 from __future__ import annotations
 from ..ParamScheduler import ParamScheduler
 from ..SurvivorSelection import SurvivorSelection
+from ..ParentSelection import ParentSelection
 from ..Algorithm import Algorithm
 
 
@@ -9,8 +10,8 @@ class StaticPopulation(Algorithm):
     Population of the Genetic algorithm
     """
 
-    def __init__(self, pop_init: Initializer, operator: Operator, params: Union[ParamScheduler, dict] = {}, selection_op: SurvivorSelection = None,
-                 name: str = "stpop"):
+    def __init__(self, pop_init: Initializer, operator: Operator, params: Union[ParamScheduler, dict] = {}, parent_sel_op: ParentSelection = None, 
+                 selection_op: SurvivorSelection = None, name: str = "stpop"):
         """
         Constructor of the GeneticPopulation class
         """
@@ -23,11 +24,17 @@ class StaticPopulation(Algorithm):
             selection_op = SurvivorSelection("Generational")
         self.selection_op = selection_op
 
+        if parent_sel_op is None:
+            parent_sel_op = ParentSelection("Nothing")
+        self.parent_sel_op = parent_sel_op
+
         self.best = None
-        
 
         super().__init__(pop_init, params=params, name=name)
     
+
+    def select_parents(self, population, progress=0, history=None):
+        return self.parent_sel_op(population)
     
     def perturb(self, parent_list, objfunc, progress=0, history=None):
         offspring = []
