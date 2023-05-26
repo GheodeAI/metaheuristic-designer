@@ -126,7 +126,7 @@ class SurvivorSelection:
         elif self.method == SurvSelMethod.MU_PLUS_LAMBDA:
             result = lamb_plus_mu(popul, offspring)
 
-        elif self.method == SurvSelMethod.MU_COMMA_lAMBDA:
+        elif self.method == SurvSelMethod.MU_COMMA_LAMBDA:
             result = lamb_comma_mu(popul, offspring)
         
         elif self.method == SurvSelMethod.CRO:
