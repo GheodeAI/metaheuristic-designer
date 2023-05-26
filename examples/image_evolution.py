@@ -99,7 +99,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     elif alg_name == "ES":
         search_strat = ES(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize":150})
     elif alg_name == "GA":
-        search_strat = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.4})
+        search_strat = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross":0.8, "pmut":0.4})
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, {"HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "DE":
@@ -107,11 +107,11 @@ def run_algorithm(alg_name, img_file_name, memetic):
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w":0.7, "c1":1.5, "c2":1.5})
     elif alg_name == "CRO":
-        search_strat = CRO(pop_initializer, mutation_op, cross_op, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = CRO(pop_initializer, mutation_op, cross_op, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
     elif alg_name == "CRO_SL":
-        search_strat = CRO_SL(pop_initializer, de_op_list, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = CRO_SL(pop_initializer, de_op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
     elif alg_name == "PCRO_SL":
-        search_strat = PCRO_SL(pop_initializer, de_op_list, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = PCRO_SL(pop_initializer, de_op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
     elif alg_name == "RandomSearch":
         pop_initializer.pop_size = 1
         search_strat = RandomSearch(pop_initializer)

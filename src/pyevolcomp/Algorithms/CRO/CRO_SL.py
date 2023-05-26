@@ -2,28 +2,29 @@ from __future__ import annotations
 import numpy as np
 import random
 from typing import Union, List
-from copy import copy
-from ..Individual import Individual
-from ..Operators import OperatorReal, OperatorMeta
-from ..SurvivorSelection import SurvivorSelection
-from ..ParentSelection import ParentSelection
-from .StaticPopulation import StaticPopulation
-from ..ParamScheduler import ParamScheduler
-from ..Algorithm import Algorithm
-
+from copy import copy, deepcopy
+from ...Individual import Individual
+from ...Operators import OperatorReal, OperatorMeta
+from ...SurvivorSelection import SurvivorSelection
+from ...ParentSelection import ParentSelection
+from ..StaticPopulation import StaticPopulation
+from ...ParamScheduler import ParamScheduler
+from ...Algorithm import Algorithm
 
 class CRO_SL(Algorithm):
     def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = {}, name: str = "CRO-SL"):
+        pop_init = deepcopy(pop_init)
+        pop_init.pop_size = round(pop_init.pop_size * params["rho"])
+
         super().__init__(pop_init, name=name)
 
         # Hyperparameters of the algorithm
         self.params = params
-        self.maxpopsize = params["popSize"]
-        self.pop_init.pop_size = round(params["popSize"] * params["rho"])
+        self.maxpopsize = pop_init.pop_size
         self.operator_list = operator_list
-        self.operator_idx = [i%len(operator_list) for i in range(params["popSize"])]
+        self.operator_idx = [i%len(operator_list) for i in range(pop_init.pop_size)]
 
-        self.selection_op = SurvivorSelection("CRO", {"Fd": params["Fd"], "Pd": params["Pd"], "attempts": params["attempts"], "maxPopSize": params["popSize"]})
+        self.selection_op = SurvivorSelection("CRO", {"Fd": params["Fd"], "Pd": params["Pd"], "attempts": params["attempts"], "maxPopSize": pop_init.pop_size})
 
         self.best = None
     
@@ -67,18 +68,3 @@ class CRO_SL(Algorithm):
         if isinstance(self.params, ParamScheduler):
             self.params.step(progress)
             self.n_offspring = self.params["offspringSize"]
-
-
-class PCRO_SL(CRO_SL):
-    def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = {}, name: str = "PCRO-SL"):
-        super().__init__(pop_init, operator_list, params, name=name)
-        self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
-
-    def update_params(self, progress):
-        """
-        Updates the parameters and the operators
-        """
-
-        self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
-
-        super().update_params(progress)
