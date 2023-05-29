@@ -1,34 +1,41 @@
 import random
 
 
-def expand(input_list, n, method, maxlen):
+def expand(input_list, n, method, maxlen, val_generator=None):
     result = input_list
 
+    if val_generator is None:
+        val_generator = random.random
+    
     if len(input_list) < maxlen:
+        if len(input_list) + n >= maxlen:
+            n = maxlen - len(input_list)
+
         if method == "rand":
-            result = expand_rand(input_list, n)
+            result = expand_rand(input_list, n, val_generator)
         elif method == "right":
-            result = expand_right(input_list, n)
+            result = expand_right(input_list, n, val_generator)
         elif method == "left":
-            result = expand_left(input_list, n)
+            result = expand_left(input_list, n, val_generator)
 
     return result
 
 
-def expand_rand(input_list, n):
+def expand_rand(input_list, n, val_generator):
     for i in range(n):
         inject_idx = random.randrange(len(input_list))
-        input_list = input_list[:inject_idx] + [random.random()] + input_list[inject_idx:]
+        input_list = input_list[:inject_idx] + [val_generator()] + input_list[inject_idx:]
 
     return input_list + new_values
 
-def expand_right(input_list, n):
-    new_values = [random.random() for i in n]
+
+def expand_right(input_list, n, val_generator):
+    new_values = [val_generator() for i in n]
     return input_list + new_values
 
 
-def expand_left(input_list, n):
-    new_values = [random.random() for i in n]
+def expand_left(input_list, n, val_generator):
+    new_values = [val_generator() for i in n]
     return new_values + input_list
 
 

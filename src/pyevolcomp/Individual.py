@@ -9,10 +9,15 @@ class Individual:
     Individual that holds a tentative solution with its fitness.
     """
 
+    last_id = 0
+
     def __init__(self, objfunc: ObjectiveFunc, genotype: Any, speed: np.ndarray = None, encoding: Encoding = None):
         """
         Constructor of the Individual class.
         """
+
+        self.id = Individual.last_id
+        Individual.last_id += 1
 
         self.objfunc = objfunc
         self._genotype = genotype

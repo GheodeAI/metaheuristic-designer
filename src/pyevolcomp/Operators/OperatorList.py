@@ -57,7 +57,7 @@ class OperatorList(Operator):
         params = copy(self.params)
 
         if self.method == ListOpMethods.EXPAND:
-            nex_indiv.genotype = expand(new_indiv.genotype, params["N"], params["method"], params["maxlen"])
+            nex_indiv.genotype = expand(new_indiv.genotype, params["N"], params["method"], params["maxlen"], params["generator"])
         elif self.method == ListOpMethods.SHRINK:
             nex_indiv.genotype = shrink(new_indiv.genotype, params["N"], params["method"])
 

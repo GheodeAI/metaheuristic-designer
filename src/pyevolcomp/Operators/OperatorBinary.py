@@ -38,7 +38,7 @@ bin_ops_map = {
     "multipoint": BinOpMethods.MULTIPOINT,
     "multicross": BinOpMethods.MULTICROSS,
     "xor": BinOpMethods.XOR,
-    "fliprandom": BinOpMethods.XOR,
+    "flip": BinOpMethods.XOR,
     "xorcross": BinOpMethods.XOR_CROSS,
     "flipcross": BinOpMethods.XOR_CROSS,
     "perm": BinOpMethods.PERM,

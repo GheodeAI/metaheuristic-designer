@@ -4,6 +4,7 @@ import numpy as np
 from typing import Union
 from ..ParamScheduler import ParamScheduler
 from ..Algorithm import Algorithm
+from ..Operator import Operator
 
 
 class SA(Algorithm):
@@ -54,7 +55,8 @@ class SA(Algorithm):
         Updates the parameters and the operators
         """
 
-        self.perturb_op.step(progress)
+        if isinstance(self.perturb_op, Operator):
+            self.perturb_op.step(progress)
 
         if self.param_scheduler:
             self.param_scheduler.step(progress)

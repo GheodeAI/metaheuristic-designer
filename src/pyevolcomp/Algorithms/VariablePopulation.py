@@ -3,6 +3,7 @@ from ..ParamScheduler import ParamScheduler
 from ..SurvivorSelection import SurvivorSelection
 from ..ParentSelection import ParentSelection
 from ..Algorithm import Algorithm
+from ..Operator import Operator
 import random
 
 
@@ -11,8 +12,8 @@ class VariablePopulation(Algorithm):
     Population of the Genetic algorithm
     """
 
-    def __init__(self, pop_init: Initializer, operator: Operator, params: Union[ParamScheduler, dict] = {}, parent_sel_op: ParentSelection = None, 
-                 selection_op: SurvivorSelection = None, name: str = "stpop"):
+    def __init__(self, pop_init: Initializer, operator: Operator, parent_sel_op: ParentSelection = None, 
+                 selection_op: SurvivorSelection = None, params: Union[ParamScheduler, dict] = {} , name: str = "stpop"):
         """
         Constructor of the GeneticPopulation class
         """
@@ -65,8 +66,11 @@ class VariablePopulation(Algorithm):
         Updates the parameters and the operators
         """
 
-        self.operator.step(progress)
-        self.selection_op.step(progress)
+        if isinstance(self.operator, Operator):
+            self.operator.step(progress)
+            
+        if isinstance(self.operator, SurvivorSelection):
+            self.selection_op.step(progress)
 
         if self.param_scheduler:
             self.param_scheduler.step(progress)

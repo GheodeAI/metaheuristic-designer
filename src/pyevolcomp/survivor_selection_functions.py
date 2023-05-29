@@ -58,7 +58,6 @@ def _cro_set_larvae(population, offspring, attempts, maxpopsize):
 
         while attempts_left > 0 and not setted:
             idx = random.randrange(0, maxpopsize)
-            # print(idx)
 
             if setted := (idx >= len(new_population)):
                 new_population.append(larva)

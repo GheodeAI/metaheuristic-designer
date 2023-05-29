@@ -31,7 +31,9 @@ surv_method_map = {
     "nothing": SurvSelMethod.GENERATIONAL,
     "one-to-one": SurvSelMethod.ONE_TO_ONE,
     "(m+n)": SurvSelMethod.MU_PLUS_LAMBDA,
+    "keepbest": SurvSelMethod.MU_PLUS_LAMBDA,
     "(m,n)": SurvSelMethod.MU_COMMA_LAMBDA,
+    "keepoffsping": SurvSelMethod.MU_COMMA_LAMBDA,
     "cro": SurvSelMethod.CRO
 }
 
@@ -82,8 +84,6 @@ class SurvivorSelection:
             if "maxPopSize" in self.params:
                 self.params["maxPopSize"] = round(self.params["maxPopSize"])
 
-    
-
     def get_state(self):
         """
         Gets the current state of the algorithm as a dictionary.
@@ -96,14 +96,11 @@ class SurvivorSelection:
         if self.param_scheduler:
             data["param_scheduler"] = self.param_scheduler.get_state()
             data["params"] = self.param_scheduler.get_params()
-        else:
+        elif self.params:
             data["params"] = self.params
         
         return data
     
-    
-            
-
     def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:     
         """
         Takes a population with its offspring and returns the individuals that survive

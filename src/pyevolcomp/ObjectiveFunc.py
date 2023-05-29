@@ -67,8 +67,10 @@ class ObjectiveFunc(ABC):
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
         """
-
-        return self.repair_solution(speed)
+        result = None
+        if speed is not None:
+            result = self.repair_solution(speed)
+        return result
 
     def penalize(self, indiv: Indiv) -> float:
         """

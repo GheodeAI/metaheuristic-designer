@@ -8,10 +8,15 @@ class Operator(ABC):
     Abstract Operator class
     """
 
+    last_id = 0
+
     def __init__(self, params: Union[ParamScheduler, dict], name=None):
         """
         Constructor for the Operator class
         """
+
+        self.id = Operator.last_id
+        Operator.last_id += 1
 
         self.param_scheduler = None
 
@@ -20,29 +25,7 @@ class Operator(ABC):
         if params is None:
 
             # Default parameters
-            self.params = {
-                "F": 0.5,
-                "Cr": 0.8,
-                "N": 5,
-                "Nindiv": 5,
-                "P": 0.1,
-                "method": "gauss",
-                "temp_ch": 10,
-                "iter": 20,
-                "Low": -10,
-                "Up": 10,
-                "epsilon": 0.1,
-                "tau": 0.1,
-                "tau_multiple": 0.1,
-                "a": 0.1,
-                "b": 0.1,
-                "d": 0.1,
-                "g": 0.1,
-                "w": 0.7,
-                "c1": 1.5,
-                "c2": 1.5,
-                "function": lambda x, y, z, w: x.genotype
-            }
+            self.params = {}
         else:
             if "method" in params:
                 params["method"] = params["method"].lower()
@@ -75,17 +58,16 @@ class Operator(ABC):
         """
         
         data = {
-            "name": self.name,
-            # "method": self.method
+            "name": self.name
         }
 
         if self.param_scheduler:
             data["param_scheduler"] = self.param_scheduler.get_state()
             data["params"] = self.param_scheduler.get_params()
-        else:
+            data["params"].pop("function", None)
+        elif self.params:
             data["params"] = self.params
-        
-        data["params"].pop("function", None)
+            data["params"].pop("function", None)
         
         return data
 

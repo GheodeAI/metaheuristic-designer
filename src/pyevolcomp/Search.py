@@ -65,6 +65,7 @@ class Search(ABC):
         self.best_fitness = 0
         self.cpu_time_spent = 0
         self.real_time_spent = 0
+        self.objfunc.counter = 0
 
     def save_solution(self, file_name="solution.csv"):
         """

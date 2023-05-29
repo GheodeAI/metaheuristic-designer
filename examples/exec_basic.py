@@ -3,9 +3,13 @@ from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
 from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary
 from pyevolcomp.Initializers import UniformVectorInitializer
 from pyevolcomp.Algorithms import *
+
 from pyevolcomp.benchmarks import *
 
 import argparse
+
+from copy import copy 
+import scipy as sp
 
 def run_algorithm(alg_name, memetic, save_state):
     params = {
@@ -20,18 +24,21 @@ def run_algorithm(alg_name, memetic, save_state):
         "v_timer": 0.5
     }
 
-    objfunc = Sphere(10, "min")
-    pop_initializer = UniformVectorInitializer(10, objfunc.low_lim, objfunc.up_lim, pop_size=100)
+    # objfunc = Sphere(100, "min")
+    objfunc = Rosenbrock(30, "min")
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
-    mut_params = ParamScheduler("Linear", {"method":"Cauchy", "F": [0.01, 0.00001]})
+    
     parent_params = ParamScheduler("Linear", {"amount": 20})
     # select_params = ParamScheduler("Linear")
-
+    
+    mut_params = ParamScheduler("Linear", {"method":"Cauchy", "F": [0.01, 0.00001]})
     mutation_op = OperatorReal("RandNoise", mut_params)
+
     cross_op = OperatorReal("Multipoint")
 
     DEparams = {"F":0.7, "Cr":0.8}
-    de_op_list = [
+    op_list = [
         OperatorReal("DE/rand/1", DEparams),
         OperatorReal("DE/best/2", DEparams),
         OperatorReal("DE/current-to-best/1", DEparams),
@@ -44,7 +51,9 @@ def run_algorithm(alg_name, memetic, save_state):
     
     mem_select = ParentSelection("Best", {"amount": 5})
     neihbourhood_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.0002})
-    local_search =  LocalSearch(pop_initializer, neihbourhood_op, {"iters":10})    
+    local_search =  LocalSearch(pop_initializer, neihbourhood_op, {"iters":10})
+
+    
 
     if alg_name == "HillClimb":
         pop_initializer.pop_size = 1
@@ -62,15 +71,28 @@ def run_algorithm(alg_name, memetic, save_state):
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, {"HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "DE":
-        search_strat = DE(pop_initializer,OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}))
+        search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w":0.7, "c1":1.5, "c2":1.5})
     elif alg_name == "CRO":
         search_strat = CRO(pop_initializer, mutation_op, cross_op, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
     elif alg_name == "CRO_SL":
-        search_strat = CRO_SL(pop_initializer, de_op_list, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = CRO_SL(pop_initializer, op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
     elif alg_name == "PCRO_SL":
-        search_strat = PCRO_SL(pop_initializer, de_op_list, {"popSize":110, "rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = PCRO_SL(pop_initializer, op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+    elif alg_name == "DPCRO_SL":
+        search_strat_params = {
+            "rho":0.6,
+            "Fb":0.95,
+            "Fd":0.1,
+            "Pd":0.9,
+            "attempts": 3,
+            "dyn_method": "success",
+            "dyn_metric": "best",
+            "dyn_steps": 75,
+            "prob_amp": 0.1
+        }
+        search_strat = DPCRO_SL(pop_initializer, op_list, search_strat_params)
     elif alg_name == "RandomSearch":
         search_strat = RandomSearch(pop_initializer)
     elif alg_name == "NoSearch":

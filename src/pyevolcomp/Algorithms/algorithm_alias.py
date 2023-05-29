@@ -22,9 +22,9 @@ class ES(VariablePopulation):
         super().__init__(
             pop_init, 
             evolve_op,
-            params=params,
             parent_sel_op=parent_sel_op,
-            selection_op=selection_op, 
+            selection_op=selection_op,
+            params=params,
             name=name
         )
 
@@ -46,9 +46,9 @@ class GA(VariablePopulation):
         super().__init__(
             pop_init, 
             evolve_op,
-            params=params,
             parent_sel_op=parent_sel_op,
             selection_op=selection_op, 
+            params=params,
             name=name
         )
 
@@ -67,8 +67,8 @@ class HS(ES):
 
         params["offspringSize"] = 1
 
-        parent_select = ParentSelection("Nothing")
-        selection = SurvivorSelection("(m+n)")
+        parent_sel_op = ParentSelection("Nothing")
+        selection_op = SurvivorSelection("(m+n)")
 
         HSM = pop_init.pop_size
         cross = OperatorReal("Multicross", {"Nindiv": HSM})
@@ -97,8 +97,8 @@ class DE(StaticPopulation):
         super().__init__(
             pop_init, 
             de_op, 
-            params=params, 
             selection_op=selection_op, 
+            params=params,
             name=name
         )
 
@@ -116,8 +116,8 @@ class PSO(StaticPopulation):
         super().__init__(
             pop_init,
             pso_op,
-            params=params,
             selection_op=selection_op,
+            params=params,
             name=name
         )
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Union
 from ..ParamScheduler import ParamScheduler
 from ..Algorithm import Algorithm
+from ..Operator import Operator
 
 
 class LocalSearch(Algorithm):
@@ -48,4 +49,5 @@ class LocalSearch(Algorithm):
         Updates the parameters of each component of the algorithm
         """
 
-        self.perturb_op.step(progress)
+        if isinstance(self.perturb_op, Operator):
+            self.perturb_op.step(progress)

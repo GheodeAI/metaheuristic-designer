@@ -10,6 +10,8 @@ from ...ParentSelection import ParentSelection
 from ..StaticPopulation import StaticPopulation
 from ...ParamScheduler import ParamScheduler
 from ...Algorithm import Algorithm
+from ...Operator import Operator
+
 
 class CRO_SL(Algorithm):
     def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = None, name: str = "CRO-SL"):
@@ -60,7 +62,8 @@ class CRO_SL(Algorithm):
         self.pop_init.pop_size = len(self.population)
 
         for op in self.operator_list:
-            op.step(progress)
+            if isinstance(op, Operator):
+                op.step(progress)
 
         if isinstance(self.params, ParamScheduler):
             self.params.step(progress)

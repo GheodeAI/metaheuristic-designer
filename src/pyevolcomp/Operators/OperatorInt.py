@@ -39,6 +39,7 @@ class IntOpMethods(Enum):
     DUMMY = 32
     CUSTOM = 33
     NOTHING = 34
+    RANDRESET = 35
 
     @staticmethod
     def from_str(str_input):
@@ -72,6 +73,8 @@ int_ops_map = {
     "mutsample": IntOpMethods.MUTSAMPLE,
     "randnoise": IntOpMethods.RANDNOISE,
     "randsample": IntOpMethods.RANDSAMPLE,
+    "randreset": IntOpMethods.RANDRESET,
+    "randomreset": IntOpMethods.RANDRESET,
     "de/rand/1": IntOpMethods.DE_RAND_1,
     "de/best/1": IntOpMethods.DE_BEST_1,
     "de/rand/2": IntOpMethods.DE_RAND_2,
@@ -105,6 +108,13 @@ class OperatorInt(Operator):
         super().__init__(params, name)
 
         self.method = IntOpMethods.from_str(method)
+
+        
+        if self.method == IntOpMethods.RANDRESET:
+            self.params["method"] = "uniform"
+            
+            if "Low" not in self.params:
+                self.params["Low"] = 0
 
     def evolve(self, indiv, population, objfunc, global_best, initializer):
         """
@@ -188,8 +198,11 @@ class OperatorInt(Operator):
         elif self.method == IntOpMethods.RANDNOISE:
             new_indiv.genotype = randNoise(new_indiv.genotype, params)
 
-        elif self.method == IntOpMethods.RANDNOISE:
+        elif self.method == IntOpMethods.RANDSAMPLE:
             new_indiv.genotype = randSample(new_indiv.genotype, others, params)
+        
+        elif self.method == IntOpMethods.RANDRESET:
+            new_indiv.genotype = mutateSample(new_indiv.genotype, others, params)
 
         elif self.method == IntOpMethods.DE_RAND_1:
             new_indiv.genotype = DERand1(new_indiv.genotype, others, params["F"], params["Cr"])

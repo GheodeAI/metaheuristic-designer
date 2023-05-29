@@ -117,7 +117,6 @@ class Algorithm(ABC):
         """
         Updates the parameters and the operators
         """
-        
 
     def get_state(self, show_pop: bool = False, show_pop_details: bool = False) -> dict:
         """
@@ -132,7 +131,7 @@ class Algorithm(ABC):
         if self.param_scheduler:
             data["param_scheduler"] = self.param_scheduler.get_state()
             data["params"] = self.param_scheduler.get_params()
-        else:
+        elif self.params:
             data["params"] = self.params
 
         if self.parent_sel:
@@ -145,7 +144,6 @@ class Algorithm(ABC):
             data["survivor_sel"] = [surv.get_state() for surv in self.surv_sel]
         
         if show_pop:
-
             data["population"] = [ind.get_state(show_speed=show_pop_details, show_op=show_pop_details, show_best=show_pop_details) for ind in self.population]
 
         return data

@@ -36,7 +36,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         # General
         "stop_cond": "time_limit",
         "progress_metric": "time_limit",
-        "time_limit": 1000.0,
+        "time_limit": 120.0,
         "cpu_time_limit": 120.0,
         "ngen": 1000,
         "neval": 3e5,
@@ -70,12 +70,9 @@ def run_algorithm(alg_name, img_file_name, memetic):
 
 
     mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F":10, "N":3})
-    cross_op = OperatorReal("Multicross", {"Nindiv": 4})
+    cross_op = OperatorReal("Multipoint")
     
-    DEparams = {"F":0.7, "Cr":0.8}
-    de_op_list = [
-        # OperatorReal("Multicross", {"Nindiv": 4}),
-        # OperatorReal("WeightedAvg", {"F": 0.75}),
+    op_list = [
         OperatorReal("Multipoint"),
         OperatorReal("MutRand", {"method": "Cauchy", "F":10, "N":3}),
         OperatorReal("MutRand", {"method": "Laplace", "F":10, "N":3}),
@@ -109,9 +106,22 @@ def run_algorithm(alg_name, img_file_name, memetic):
     elif alg_name == "CRO":
         search_strat = CRO(pop_initializer, mutation_op, cross_op, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
     elif alg_name == "CRO_SL":
-        search_strat = CRO_SL(pop_initializer, de_op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = CRO_SL(pop_initializer, op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
     elif alg_name == "PCRO_SL":
-        search_strat = PCRO_SL(pop_initializer, de_op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = PCRO_SL(pop_initializer, op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+    elif alg_name == "DPCRO_SL":
+        search_strat_params = {
+            "rho":0.6,
+            "Fb":0.95,
+            "Fd":0.1,
+            "Pd":0.9,
+            "attempts": 3,
+            "dyn_method": "success",
+            "dyn_metric": "best",
+            "dyn_steps": 75,
+            "prob_amp": 0.1
+        }
+        search_strat = DPCRO_SL(pop_initializer, op_list, search_strat_params)
     elif alg_name == "RandomSearch":
         pop_initializer.pop_size = 1
         search_strat = RandomSearch(pop_initializer)
