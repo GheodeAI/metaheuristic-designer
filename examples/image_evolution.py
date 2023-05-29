@@ -74,9 +74,9 @@ def run_algorithm(alg_name, img_file_name, memetic):
     
     op_list = [
         OperatorReal("Multipoint"),
-        OperatorReal("MutRand", {"method": "Cauchy", "F":10, "N":3}),
-        OperatorReal("MutRand", {"method": "Laplace", "F":10, "N":3}),
-        OperatorReal("RandNoise", {"method": "Laplace", "F":1})
+        OperatorReal("MutRand", {"method": "Cauchy", "F": 5, "N": 10}, name="MutCauchy"),
+        OperatorReal("MutRand", {"method": "Gauss", "F": 5, "N": 10}, name="MutGauss"),
+        OperatorReal("MutSample", {"method": "Uniform", "Low": 0, "Up": 256, "N": 10}, name="MutUniform")
     ]
 
 
@@ -104,11 +104,11 @@ def run_algorithm(alg_name, img_file_name, memetic):
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w":0.7, "c1":1.5, "c2":1.5})
     elif alg_name == "CRO":
-        search_strat = CRO(pop_initializer, mutation_op, cross_op, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = CRO(pop_initializer, mutation_op, cross_op, {"rho":0.6, "Fb":0.95, "Fd":0.1, "Pd":0.9, "attempts":3})
     elif alg_name == "CRO_SL":
-        search_strat = CRO_SL(pop_initializer, op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = CRO_SL(pop_initializer, op_list, {"rho":0.6, "Fb":0.95, "Fd":0.1, "Pd":0.9, "attempts":3})
     elif alg_name == "PCRO_SL":
-        search_strat = PCRO_SL(pop_initializer, op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = PCRO_SL(pop_initializer, op_list, {"rho":0.6, "Fb":0.95, "Fd":0.1, "Pd":0.9, "attempts":3})
     elif alg_name == "DPCRO_SL":
         search_strat_params = {
             "rho":0.6,
@@ -116,6 +116,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
             "Fd":0.1,
             "Pd":0.9,
             "attempts": 3,
+            "group_subs": True,
             "dyn_method": "success",
             "dyn_metric": "best",
             "dyn_steps": 75,

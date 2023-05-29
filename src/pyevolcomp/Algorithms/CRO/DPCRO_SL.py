@@ -14,9 +14,20 @@ from .CRO_SL import CRO_SL
 
 
 class DPCRO_SL(CRO_SL):
+    """
+    Dynamic Probabilistic Coral Reef Optimization with Substrate Layers.
+
+    Published in:
+    - Pérez-Aracil, Jorge, et al. "New Probabilistic, Dynamic Multi-Method Ensembles for Optimization Based on the CRO-SL." Mathematics 11.7 (2023): 1666.
+
+    Original implementation in https://github.com/jperezaracil/PyCROSL/
+    """
+
     def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = {}, name: str = "DPCRO-SL"):
         super().__init__(pop_init, operator_list, params=params, name=name)
 
+
+        self.group_subs = params["group_subs"]
         self.dyn_method = params["dyn_method"]
         self.dyn_metric = params["dyn_metric"]
         self.dyn_steps = params["dyn_steps"]
@@ -25,13 +36,14 @@ class DPCRO_SL(CRO_SL):
         self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
         self.operator_weight = [1/len(operator_list)]*len(operator_list)
 
-        self.operator_data = [[] for i in operator_list]
-
         if self.dyn_method == "success":
-            self.operator_data = [[0] for i in self.operator_data]
-            self.larva_count = [0 for i in operator_list]
-        elif self.dyn_method == "diff":
-            self.operator_metric_prev = [0 for i in operator_list]
+            self.operator_data = [[0] for i in operator_list]
+        else:
+            self.operator_data = [[] for i in operator_list]
+
+        self.operator_metric_prev = [0 for i in operator_list]
+        
+        self.larva_count = [0 for i in operator_list]
         
         self.operator_w_history = []
         self.op_steps = 0
@@ -40,6 +52,14 @@ class DPCRO_SL(CRO_SL):
     
     def perturb(self, parent_list, objfunc, progress, history):
         offspring = []
+
+
+        divided_population = [[] for i in self.operator_list]
+        for idx, indiv in enumerate(parent_list):
+            op_idx = self.operator_idx[idx]
+            divided_population[op_idx].append(indiv)
+
+
         for idx, indiv in enumerate(parent_list):
             
             # Select operator
@@ -47,8 +67,10 @@ class DPCRO_SL(CRO_SL):
             
             op = self.operator_list[op_idx]
 
+            new_parent_list = divided_population[op_idx] if self.group_subs else parent_list
+
             # Apply operator
-            new_indiv = op(indiv, parent_list, objfunc, self.best, self.pop_init)
+            new_indiv = op(indiv, new_parent_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 
@@ -99,12 +121,12 @@ class DPCRO_SL(CRO_SL):
 
         # Choose what information to extract from the data gathered
         if len(data) > 0:
-            data = sorted(data)
             if self.dyn_metric == "best":
                 result = max(data)
             elif self.dyn_metric == "avg":
                 result = sum(data)/len(data)
             elif self.dyn_metric == "med":
+                data = sorted(data)
                 if len(data) % 2 == 0:
                     result = (data[len(data)//2-1]+data[len(data)//2])/2
                 else:
@@ -148,7 +170,7 @@ class DPCRO_SL(CRO_SL):
         
         # take reference data for the calculation of the difference of the next evaluation
         if self.dyn_method == "diff":
-            full_data = [d for subs_data in self.operator_data for d in subs_data]
+            full_data = [data_point for op_data in self.operator_data for data_point in op_data]
             metric = self._operator_metric(full_data)
         
         # calculate the value of each operator with the data gathered

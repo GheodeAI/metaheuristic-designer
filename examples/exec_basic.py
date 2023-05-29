@@ -14,18 +14,20 @@ import scipy as sp
 def run_algorithm(alg_name, memetic, save_state):
     params = {
         "stop_cond": "neval or time_limit or fit_target",
-        "time_limit": 10.0,
-        "cpu_time_limit": 10.0,
+        # "stop_cond": "neval or time_limit",
+        "time_limit": 100.0,
+        "cpu_time_limit": 100.0,
         "ngen": 1000,
-        "neval": 6e5,
+        "neval": 3e6,
         "fit_target": 1e-10,
 
         "verbose": True,
         "v_timer": 0.5
     }
 
-    # objfunc = Sphere(100, "min")
-    objfunc = Rosenbrock(30, "min")
+    objfunc = Sphere(30, "min")
+    # objfunc = Rosenbrock(30, "min")
+    # objfunc = Weierstrass(30, "min")
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
     
@@ -75,11 +77,11 @@ def run_algorithm(alg_name, memetic, save_state):
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w":0.7, "c1":1.5, "c2":1.5})
     elif alg_name == "CRO":
-        search_strat = CRO(pop_initializer, mutation_op, cross_op, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = CRO(pop_initializer, mutation_op, cross_op, {"rho":0.6, "Fb":0.95, "Fd":0.1, "Pd":0.9, "attempts":3})
     elif alg_name == "CRO_SL":
-        search_strat = CRO_SL(pop_initializer, op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = CRO_SL(pop_initializer, op_list, {"rho":0.6, "Fb":0.95, "Fd":0.1, "Pd":0.9, "attempts":3})
     elif alg_name == "PCRO_SL":
-        search_strat = PCRO_SL(pop_initializer, op_list, {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+        search_strat = PCRO_SL(pop_initializer, op_list, {"rho":0.6, "Fb":0.95, "Fd":0.1, "Pd":0.9, "attempts":3})
     elif alg_name == "DPCRO_SL":
         search_strat_params = {
             "rho":0.6,
@@ -87,7 +89,8 @@ def run_algorithm(alg_name, memetic, save_state):
             "Fd":0.1,
             "Pd":0.9,
             "attempts": 3,
-            "dyn_method": "success",
+            "group_subs": True,
+            "dyn_method": "diff",
             "dyn_metric": "best",
             "dyn_steps": 75,
             "prob_amp": 0.1

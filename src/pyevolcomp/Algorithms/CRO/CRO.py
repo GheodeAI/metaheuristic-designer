@@ -13,6 +13,10 @@ from ...Algorithm import Algorithm
 
 
 class CRO(StaticPopulation):
+    """
+    Coral Reef Optimization
+    """
+
     def __init__(self, pop_init: Initializer, mutate: Operator, cross: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "CRO"):
 
         evolve_op = OperatorMeta("Branch", [cross, mutate], {"p": params["Fb"]})

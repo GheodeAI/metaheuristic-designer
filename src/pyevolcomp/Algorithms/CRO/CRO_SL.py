@@ -14,6 +14,10 @@ from ...Operator import Operator
 
 
 class CRO_SL(Algorithm):
+    """
+    Coral Reef Optimization with Substrate Layers
+    """
+
     def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = None, name: str = "CRO-SL"):
         pop_init = deepcopy(pop_init)
         pop_init.pop_size = round(pop_init.pop_size * params["rho"])
@@ -67,4 +71,3 @@ class CRO_SL(Algorithm):
 
         if isinstance(self.params, ParamScheduler):
             self.params.step(progress)
-            self.n_offspring = self.params["offspringSize"]
