@@ -10,7 +10,7 @@ class Operator(ABC):
 
     last_id = 0
 
-    def __init__(self, params: Union[ParamScheduler, dict], name=None):
+    def __init__(self, params: Union[ParamScheduler, dict] = None, name=None):
         """
         Constructor for the Operator class
         """
@@ -26,6 +26,30 @@ class Operator(ABC):
 
             # Default parameters
             self.params = {}
+        elif params == "default":
+            self.params = {
+                "F": 0.5,
+                "Cr": 0.8,
+                "N": 5,
+                "Nindiv": 5,
+                "P": 0.1,
+                "method": "gauss",
+                "temp_ch": 10,
+                "iter": 20,
+                "Low": -10,
+                "Up": 10,
+                "epsilon": 0.1,
+                "tau": 0.1,
+                "tau_multiple": 0.1,
+                "a": 0.1,
+                "b": 0.1,
+                "d": 0.1,
+                "g": 0.1,
+                "w": 0.7,
+                "c1": 1.5,
+                "c2": 1.5,
+                "function": lambda x, y, z, w: x.genotype
+            }
         else:
             if "method" in params:
                 params["method"] = params["method"].lower()

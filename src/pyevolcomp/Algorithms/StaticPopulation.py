@@ -8,7 +8,7 @@ from ..Operator import Operator
 
 class StaticPopulation(Algorithm):
     """
-    Population of the Genetic algorithm
+    Population-based algorithm where each individual is iteratively evolved with a given operator
     """
 
     def __init__(self, pop_init: Initializer, operator: Operator, parent_sel_op: ParentSelection = None, 

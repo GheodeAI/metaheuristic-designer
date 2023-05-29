@@ -18,7 +18,7 @@ example_populaton3 = [Individual(Sphere(100), np.random.uniform(-100, 100, 100))
 @pytest.mark.parametrize("op_method", real_ops)
 def test_basic_working(population, op_method):
     pop_init = UniformVectorInitializer(population[0].genotype.size, 0, 1, pop_size)
-    operator = OperatorReal(op_method)
+    operator = OperatorReal(op_method, "default")
 
     indiv = population[0]
     new_indiv = operator.evolve(indiv, population, indiv.objfunc, indiv, pop_init)

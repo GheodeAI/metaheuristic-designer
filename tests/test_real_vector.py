@@ -13,7 +13,7 @@ from pyevolcomp.benchmarks import Sphere
 
 test_params = {
     "stop_cond": "neval or cpu_time_limit",
-    "cpu_time_limit": 3.0,
+    "cpu_time_limit": 2.0,
     "neval": 10000,
 
     "verbose": False,
@@ -74,7 +74,7 @@ def test_staticpop():
     assert alg.fit_history[0] > alg.fit_history[-1]
 
 def test_varpop():
-    search_strat = VariablePopulation(pop_init, mutation_op, parent_sel_op, selection_op, {"offspringSize": 200})
+    search_strat = VariablePopulation(pop_init, mutation_op, parent_sel_op, selection_op, 200)
     alg = GeneralSearch(objfunc, search_strat, params=test_params)
     ind, fit = alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]

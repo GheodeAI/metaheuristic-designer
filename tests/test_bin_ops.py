@@ -18,7 +18,7 @@ example_populaton3 = [Individual(MaxOnes(100), np.random.random(100) > 0.5) for 
 @pytest.mark.parametrize("op_method", bin_ops_map.keys())
 def test_basic_working(population, op_method):
     pop_init = UniformVectorInitializer(population[0].genotype.size, 0, 1, pop_size)
-    operator = OperatorBinary(op_method)
+    operator = OperatorBinary(op_method, "default")
 
     indiv = population[0]
     new_indiv = operator.evolve(indiv, population, indiv.objfunc, indiv, pop_init)

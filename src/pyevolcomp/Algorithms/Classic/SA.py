@@ -2,14 +2,14 @@ from __future__ import annotations
 import random
 import numpy as np
 from typing import Union
-from ..ParamScheduler import ParamScheduler
-from ..Algorithm import Algorithm
-from ..Operator import Operator
+from ...ParamScheduler import ParamScheduler
+from ...Algorithm import Algorithm
+from ...Operator import Operator
 
 
 class SA(Algorithm):
     """
-    Class implementing the Simulated annealing algorithm
+    Simulated annealing
     """
 
     def __init__(self, pop_init: Initializer, perturb_op: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "SA"):

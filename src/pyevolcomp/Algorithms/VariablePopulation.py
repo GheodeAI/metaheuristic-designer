@@ -9,11 +9,11 @@ import random
 
 class VariablePopulation(Algorithm):
     """
-    Population of the Genetic algorithm
+    Population-based optimization algorithm where the number of individuals generated is different from the size of the population
     """
 
     def __init__(self, pop_init: Initializer, operator: Operator, parent_sel_op: ParentSelection = None, 
-                 selection_op: SurvivorSelection = None, params: Union[ParamScheduler, dict] = {} , name: str = "stpop"):
+                 selection_op: SurvivorSelection = None, n_offspring: int = None, params: Union[ParamScheduler, dict] = {}, name: str = "stpop"):
         """
         Constructor of the GeneticPopulation class
         """
@@ -22,7 +22,9 @@ class VariablePopulation(Algorithm):
         self.params = params
         self.operator = operator
 
-        self.n_offspring = params["offspringSize"] if "offspringSize" in params else pop_init.pop_size
+        if n_offspring is None:
+            n_offspring = pop_init.pop_size
+        self.n_offspring = n_offspring
 
         if selection_op is None:
             selection_op = SurvivorSelection("Generational")
