@@ -26,13 +26,13 @@ class VariablePopulation(Algorithm):
             n_offspring = pop_init.pop_size
         self.n_offspring = n_offspring
 
-        if selection_op is None:
-            selection_op = SurvivorSelection("Generational")
-        self.selection_op = selection_op
-
         if parent_sel_op is None:
             parent_sel_op = ParentSelection("Nothing")
         self.parent_sel_op = parent_sel_op
+        
+        if selection_op is None:
+            selection_op = SurvivorSelection("Generational")
+        self.selection_op = selection_op
 
         self.best = None
 

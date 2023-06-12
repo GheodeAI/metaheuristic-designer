@@ -3,14 +3,15 @@ import random
 from ..Operator import Operator
 from copy import copy
 import numpy as np
+import enum
 from enum import Enum
 
 
 class MetaOpMethods(Enum):
-    BRANCH = 1
-    SEQUENCE = 2
-    SPLIT = 3
-    PICK = 4
+    BRANCH = enum.auto()
+    SEQUENCE = enum.auto()
+    SPLIT = enum.auto()
+    PICK = enum.auto()
 
     @staticmethod
     def from_str(str_input):

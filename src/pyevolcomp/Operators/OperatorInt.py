@@ -2,44 +2,45 @@ from __future__ import annotations
 from ..Operator import Operator
 from .vector_operator_functions import *
 from copy import copy
+import enum
 from enum import Enum
 
 
 class IntOpMethods(Enum):
-    ONE_POINT = 1
-    TWO_POINT = 2
-    MULTIPOINT = 3
-    WEIGHTED_AVG = 4
-    BLXALPHA = 4
-    MULTICROSS = 5
-    XOR = 6
-    XOR_CROSS = 7
-    CROSSINTERAVG = 8
-    PERM = 11
-    GAUSS = 12
-    LAPLACE = 13
-    CAUCHY = 14
-    UNIFORM = 15
-    POISSON = 16
-    MUTNOISE = 17
-    MUTSAMPLE = 18
-    RANDNOISE = 19
-    RANDSAMPLE = 20
-    DE_RAND_1 = 21
-    DE_BEST_1 = 22
-    DE_RAND_2 = 23
-    DE_BEST_2 = 24
-    DE_CTRAND_1 = 25
-    DE_CTBEST_1 = 26
-    DE_CTPBEST_1 = 27
-    PSO = 28
-    FIREFLY = 29
-    RANDOM = 30
-    RANDOM_MASK = 31
-    DUMMY = 32
-    CUSTOM = 33
-    NOTHING = 34
-    RANDRESET = 35
+    ONE_POINT = enum.auto()
+    TWO_POINT = enum.auto()
+    MULTIPOINT = enum.auto()
+    WEIGHTED_AVG = enum.auto()
+    BLXALPHA = enum.auto()
+    MULTICROSS = enum.auto()
+    XOR = enum.auto()
+    XOR_CROSS = enum.auto()
+    CROSSINTERAVG = enum.auto()
+    PERM = enum.auto()
+    GAUSS = enum.auto()
+    LAPLACE = enum.auto()
+    CAUCHY = enum.auto()
+    UNIFORM = enum.auto()
+    POISSON = enum.auto()
+    MUTNOISE = enum.auto()
+    MUTSAMPLE = enum.auto()
+    RANDNOISE = enum.auto()
+    RANDSAMPLE = enum.auto()
+    DE_RAND_1 = enum.auto()
+    DE_BEST_1 = enum.auto()
+    DE_RAND_2 = enum.auto()
+    DE_BEST_2 = enum.auto()
+    DE_CTRAND_1 = enum.auto()
+    DE_CTBEST_1 = enum.auto()
+    DE_CTPBEST_1 = enum.auto()
+    PSO = enum.auto()
+    FIREFLY = enum.auto()
+    RANDOM = enum.auto()
+    RANDOM_MASK = enum.auto()
+    DUMMY = enum.auto()
+    CUSTOM = enum.auto()
+    NOTHING = enum.auto()
+    RANDRESET = enum.auto()
 
     @staticmethod
     def from_str(str_input):
@@ -109,9 +110,11 @@ class OperatorInt(Operator):
 
         self.method = IntOpMethods.from_str(method)
 
-        
-        if self.method == IntOpMethods.RANDRESET:
-            self.params["method"] = "uniform"
+        if self.method in [IntOpMethods.MUTNOISE, IntOpMethods.MUTSAMPLE, IntOpMethods.RANDNOISE, IntOpMethods.RANDSAMPLE]:
+            self.params["method"] = ProbDist.from_str(self.params["method"])
+
+        elif self.method == IntOpMethods.RANDRESET:
+            self.params["method"] = ProbDist.UNIFORM
             
             if "Low" not in self.params:
                 self.params["Low"] = 0

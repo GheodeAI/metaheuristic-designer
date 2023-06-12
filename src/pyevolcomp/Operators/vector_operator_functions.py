@@ -3,6 +3,37 @@ import random
 import numpy as np
 import scipy as sp
 import scipy.stats
+import enum
+from enum import Enum
+
+class ProbDist(Enum):
+    UNIFORM = enum.auto()
+    GAUSS = enum.auto()
+    CAUCHY = enum.auto()
+    LAPLACE = enum.auto()
+    POISSON = enum.auto()
+    BERNOULLI = enum.auto()
+
+    @staticmethod
+    def from_str(str_input):
+
+        str_input = str_input.lower()
+
+        if str_input not in prob_dist_map:
+            raise ValueError(f"Probability distribution \"{str_input}\" not defined")
+
+        return prob_dist_map[str_input]
+
+
+prob_dist_map = {
+    "uniform": ProbDist.UNIFORM,
+    "gauss": ProbDist.GAUSS,
+    "normal": ProbDist.GAUSS,
+    "cauchy": ProbDist.CAUCHY,
+    "laplace": ProbDist.LAPLACE,
+    "poisson": ProbDist.POISSON,
+    "bernoulli": ProbDist.BERNOULLI
+}
 
 
 def xorMask(vector, n, mode="byte"):
@@ -145,21 +176,19 @@ def sampleDistribution(method, n, mean=0, strength=0.01, low=0, up=1):
     """
 
     sample = 0
-    if method == "gauss":
+    if method == ProbDist.GAUSS:
         sample = np.random.normal(mean, strength, size=n)
-    elif method == "uniform":
+    elif method == ProbDist.UNIFORM:
         sample = np.random.uniform(low, up, size=n)
-    elif method == "cauchy":
+    elif method == ProbDist.CAUCHY:
         sample = sp.stats.cauchy.rvs(mean, strength, size=n)
-    elif method == "laplace":
+    elif method == ProbDist.LAPLACE:
         sample = sp.stats.laplace.rvs(mean, strength, size=n)
-    elif method == "poisson":
+    elif method == ProbDist.POISSON:
         sample = sp.stats.poisson.rvs(strength, size=n)
-    elif method == "bernouli":
+    elif method == ProbDist.BERNOULLI:
         sample = sp.stats.bernoulli.rvs(strength, size=n)
-    else:
-        print(f"Error: distribution \"{method}\" not defined")
-        exit(1)
+    
     return sample
 
 
@@ -168,7 +197,7 @@ def gaussian(vector, strength):
     Adds random noise following a Gaussian distribution to the vector.
     """
 
-    return randNoise(vector, {"method": "gauss", "F": strength})
+    return randNoise(vector, {"method": ProbDist.GAUSS, "F": strength})
 
 
 def cauchy(vector, strength):
@@ -176,7 +205,7 @@ def cauchy(vector, strength):
     Adds random noise following a Cauchy distribution to the vector.
     """
 
-    return randNoise(vector, {"method": "cauchy", "F": strength})
+    return randNoise(vector, {"method": ProbDist.CAUCHY, "F": strength})
 
 
 def laplace(vector, strength):
@@ -184,7 +213,7 @@ def laplace(vector, strength):
     Adds random noise following a Laplace distribution to the vector.
     """
 
-    return randNoise(vector, {"method": "laplace", "F": strength})
+    return randNoise(vector, {"method": ProbDist.LAPLACE, "F": strength})
 
 
 def uniform(vector, low, up):
@@ -192,7 +221,7 @@ def uniform(vector, low, up):
     Adds random noise following an Uniform distribution to the vector.
     """
 
-    return randNoise(vector, {"method": "uniform", "Low": low, "Up": up})
+    return randNoise(vector, {"method": ProbDist.UNIFORM, "Low": low, "Up": up})
 
 
 def poisson(vector, mu):
@@ -200,14 +229,7 @@ def poisson(vector, mu):
     Adds random noise following a Poisson distribution to the vector.
     """
 
-    return randNoise(vector, {"method": "poisson", "F": mu})
-
-# def bernoulli(vector, p):
-#     """
-#     Adds random noise following a Poisson distribution to the vector.
-#     """
-#
-#     return randNoise(vector, {"method":"Bernoulli", "F":p})
+    return randNoise(vector, {"method": ProbDist.POISSON, "F": mu})
 
 
 def sample_1_sigma(vector, n, epsilon, tau):

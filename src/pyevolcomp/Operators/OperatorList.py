@@ -4,13 +4,14 @@ from .OperatorReal import OperatorReal, _real_ops
 from .list_operator_functions import *
 from .vector_operator_functions import *
 from copy import copy
+import enum
 from enum import Enum
 
 
 class ListOpMethods(Enum):
-    EXPAND = 1
-    SHRINK = 2
-    NOTHING = 3
+    EXPAND = enum.auto()
+    SHRINK = enum.auto()
+    NOTHING = enum.auto()
 
     @staticmethod
     def from_str(str_input):

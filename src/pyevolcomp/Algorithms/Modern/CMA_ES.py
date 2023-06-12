@@ -1,9 +1,9 @@
 from __future__ import annotations
-from .StaticPopulation import StaticPopulation
-from ..Operators import OperatorReal, OperatorMeta
-from ..SurvivorSelection import SurvivorSelection
-from ..ParentSelection import ParentSelection
-from ..Encodings import CMAEncoding
+from ..StaticPopulation import StaticPopulation
+from ...Operators import OperatorReal, OperatorMeta
+from ...SurvivorSelection import SurvivorSelection
+from ...ParentSelection import ParentSelection
+from ...Encodings import CMAEncoding
 
 
 class CMA_ES(StaticPopulation):

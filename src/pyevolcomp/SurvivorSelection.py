@@ -1,17 +1,19 @@
 from __future__ import annotations
+import enum
 from enum import Enum
 from .ParamScheduler import ParamScheduler
 from .survivor_selection_functions import *
 
 
 class SurvSelMethod(Enum):
-    ELITISM = 1
-    COND_ELITISM = 2
-    GENERATIONAL = 3
-    ONE_TO_ONE = 4
-    MU_PLUS_LAMBDA = 5
-    MU_COMMA_LAMBDA = 6
-    CRO = 7
+    ELITISM = enum.auto()
+    COND_ELITISM = enum.auto()
+    GENERATIONAL = enum.auto()
+    ONE_TO_ONE = enum.auto()
+    PROB_ONE_TO_ONE = enum.auto()
+    MU_PLUS_LAMBDA = enum.auto()
+    MU_COMMA_LAMBDA = enum.auto()
+    CRO = enum.auto()
 
     @staticmethod
     def from_str(str_input):
@@ -30,6 +32,9 @@ surv_method_map = {
     "generational": SurvSelMethod.GENERATIONAL,
     "nothing": SurvSelMethod.GENERATIONAL,
     "one-to-one": SurvSelMethod.ONE_TO_ONE,
+    "hillclimb": SurvSelMethod.ONE_TO_ONE,
+    "prob-one-to-one": SurvSelMethod.PROB_ONE_TO_ONE,
+    "probhillclimb": SurvSelMethod.PROB_ONE_TO_ONE,
     "(m+n)": SurvSelMethod.MU_PLUS_LAMBDA,
     "keepbest": SurvSelMethod.MU_PLUS_LAMBDA,
     "(m,n)": SurvSelMethod.MU_COMMA_LAMBDA,
@@ -40,7 +45,7 @@ surv_method_map = {
 
 class SurvivorSelection:
     """
-    Operator class that has continuous mutation and cross methods
+    Survivor selection methods
     """
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None, padding: bool = False):
@@ -119,6 +124,9 @@ class SurvivorSelection:
 
         elif self.method == SurvSelMethod.ONE_TO_ONE:
             result = one_to_one(popul, offspring)
+
+        elif self.method == SurvSelMethod.PROB_ONE_TO_ONE:
+            result = prob_one_to_one(popul, offspring, self.params["p"])
 
         elif self.method == SurvSelMethod.MU_PLUS_LAMBDA:
             result = lamb_plus_mu(popul, offspring)
