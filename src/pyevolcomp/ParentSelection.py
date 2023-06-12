@@ -113,7 +113,7 @@ class ParentSelection:
             parents, order = select_best(population, self.params["amount"])
         
         elif self.method == ParentSelMethod.RANDOM:
-            parents, order = uniform_selection(population)
+            parents, order = uniform_selection(population, self.params["amount"])
         
         elif self.method == ParentSelMethod.ROULETTE:
             parents, order = roulette(population, self.params["amount"], self.params["method"], self.params["F"])

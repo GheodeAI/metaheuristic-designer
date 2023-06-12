@@ -61,6 +61,19 @@ def test_one_to_one(population, offspring):
 
 @pytest.mark.parametrize("population", [example_populaton])
 @pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
+@pytest.mark.parametrize("p", [0, 0.1, 0.25, 0.5, 0.75, 1])
+def test_prob_one_to_one(population, offspring, p):
+    surv_selection = SurvivorSelection("Prob-One-to-one", {"p": p})
+    survivors = surv_selection.select(population, offspring)
+    assert len(population) >= len(survivors)
+    assert set(population[len(offspring):]) == set(survivors[len(offspring):])
+    pop_fit_avg = sum([i.fitness for i in population])/len(population)
+    surv_fit_avg = sum([i.fitness for i in survivors])/len(survivors)
+    assert pop_fit_avg <= surv_fit_avg
+
+
+@pytest.mark.parametrize("population", [example_populaton])
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
 def test_generational(population, offspring):
     surv_selection = SurvivorSelection("Generational")
     survivors = surv_selection.select(population, offspring)
