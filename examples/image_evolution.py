@@ -13,7 +13,7 @@ import cv2
 import os
 from copy import deepcopy
 from PIL import Image
-
+from itertools import product
 # import matplotlib
 # matplotlib.use("Gtk3Agg")
 
@@ -79,6 +79,10 @@ def run_algorithm(alg_name, img_file_name, memetic):
         OperatorReal("MutSample", {"method": "Uniform", "Low": 0, "Up": 256, "N": 10}, name="MutUniform")
     ]
 
+    n_list = np.flip(np.logspace(0, 12, base=2, num=1000))
+
+    neighborhood_structures = [OperatorReal("MutNoise", {"method": "Uniform", "Low": -20, "Up":20, "N": n}, name=f"UniformSample(N={n:0.0f})") for n in n_list]
+
 
     parent_sel_op = ParentSelection("Best", {"amount": 15})
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
@@ -89,7 +93,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         search_strat = HillClimb(pop_initializer, mutation_op)
     elif alg_name == "LocalSearch":
         pop_initializer.pop_size = 1
-        search_strat = LocalSearch(pop_initializer, mutation_op, {"iters":20})
+        search_strat = LocalSearch(pop_initializer, mutation_op, params={"iters":20})
     elif alg_name == "SA":
         pop_initializer.pop_size = 1
         search_strat = SA(pop_initializer, mutation_op, {"iter":100, "temp_init":1, "alpha":0.997})
@@ -123,6 +127,15 @@ def run_algorithm(alg_name, img_file_name, memetic):
             "prob_amp": 0.1
         }
         search_strat = DPCRO_SL(pop_initializer, op_list, search_strat_params)
+    elif alg_name == "RVNS":
+        search_strat = RVNS(pop_initializer, neighborhood_structures)
+    elif alg_name == "VND":
+        search_strat = VND(pop_initializer, neighborhood_structures)
+    elif alg_name == "VNS":
+        local_search = LocalSearch(pop_initializer, params={"iters": 10})
+        search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 50})
+        # local_search = HillClimb(pop_initializer)
+        # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
     elif alg_name == "RandomSearch":
         pop_initializer.pop_size = 1
         search_strat = RandomSearch(pop_initializer)

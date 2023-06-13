@@ -10,12 +10,14 @@ import argparse
 
 from copy import copy 
 import scipy as sp
+import numpy as np
 
 def run_algorithm(alg_name, memetic, save_state):
     params = {
-        "stop_cond": "neval or time_limit or fit_target",
+        # "stop_cond": "neval or time_limit or fit_target",
         # "stop_cond": "neval or time_limit",
-        "time_limit": 100.0,
+        "stop_cond": "time_limit",
+        "time_limit": 120.0,
         "cpu_time_limit": 100.0,
         "ngen": 1000,
         "neval": 3e6,
@@ -25,8 +27,8 @@ def run_algorithm(alg_name, memetic, save_state):
         "v_timer": 0.5
     }
 
-    objfunc = Sphere(30, "min")
-    # objfunc = Rosenbrock(30, "min")
+    # objfunc = Sphere(30, "min")
+    objfunc = Rastrigin(30, "min")
     # objfunc = Weierstrass(30, "min")
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
@@ -46,6 +48,8 @@ def run_algorithm(alg_name, memetic, save_state):
         OperatorReal("DE/current-to-best/1", DEparams),
         OperatorReal("DE/current-to-rand/1", DEparams)
     ]
+
+    neighborhood_structures = [OperatorReal("cauchy", {"F": f}, name=f"Cauchy(s={f:0.5e})") for f in np.flip(np.logspace(-100, 1, base=2, num=200))]
 
 
     parent_sel_op = ParentSelection("Best", parent_params)
@@ -96,6 +100,15 @@ def run_algorithm(alg_name, memetic, save_state):
             "prob_amp": 0.1
         }
         search_strat = DPCRO_SL(pop_initializer, op_list, search_strat_params)
+    elif alg_name == "RVNS":
+        search_strat = RVNS(pop_initializer, neighborhood_structures)
+    elif alg_name == "VND":
+        search_strat = VND(pop_initializer, neighborhood_structures)
+    elif alg_name == "VNS":
+        local_search = LocalSearch(pop_initializer, params={"iters": 10})
+        search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 50})
+        # local_search = HillClimb(pop_initializer)
+        # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
     elif alg_name == "RandomSearch":
         search_strat = RandomSearch(pop_initializer)
     elif alg_name == "NoSearch":
@@ -111,7 +124,7 @@ def run_algorithm(alg_name, memetic, save_state):
     
     ind, fit = alg.optimize()
     print(ind)
-    alg.display_report(show_plots=False)
+    alg.display_report(show_plots=True)
 
     if save_state:
         alg.store_state("./examples/results/test.json", readable=True, show_pop=True)
