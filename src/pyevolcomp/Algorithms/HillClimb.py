@@ -53,7 +53,7 @@ class HillClimb(Algorithm):
         
         return next_indiv_list
 
-    def update_params(self, progress):
+    def update_params(self, progress=0):
         """
         Updates the parameters of each component of the algorithm
         """

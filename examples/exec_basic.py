@@ -16,19 +16,21 @@ def run_algorithm(alg_name, memetic, save_state):
     params = {
         # "stop_cond": "neval or time_limit or fit_target",
         # "stop_cond": "neval or time_limit",
-        "stop_cond": "time_limit",
-        "time_limit": 120.0,
+        "stop_cond": "convergence or time_limit",
+        "progress_metric": "time_limit",
+        "time_limit": 2.0,
         "cpu_time_limit": 100.0,
         "ngen": 1000,
         "neval": 3e6,
         "fit_target": 1e-10,
+        "patience": 200,
 
         "verbose": True,
         "v_timer": 0.5
     }
 
-    # objfunc = Sphere(30, "min")
-    objfunc = Rastrigin(30, "min")
+    objfunc = Sphere(30, "min")
+    # objfunc = Rastrigin(30, "min")
     # objfunc = Weierstrass(30, "min")
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
@@ -49,7 +51,7 @@ def run_algorithm(alg_name, memetic, save_state):
         OperatorReal("DE/current-to-rand/1", DEparams)
     ]
 
-    neighborhood_structures = [OperatorReal("cauchy", {"F": f}, name=f"Cauchy(s={f:0.5e})") for f in np.flip(np.logspace(-100, 1, base=2, num=200))]
+    neighborhood_structures = [OperatorReal("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 0, base=10, num=80)]
 
 
     parent_sel_op = ParentSelection("Best", parent_params)
@@ -105,8 +107,13 @@ def run_algorithm(alg_name, memetic, save_state):
     elif alg_name == "VND":
         search_strat = VND(pop_initializer, neighborhood_structures)
     elif alg_name == "VNS":
-        local_search = LocalSearch(pop_initializer, params={"iters": 10})
-        search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 50})
+        local_search = LocalSearch(pop_initializer, params={"iters": 100})
+        search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 100, "nchange": "seq"})
+        # local_search = HillClimb(pop_initializer)
+        # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
+    elif alg_name == "GVNS":
+        local_search = VND(pop_initializer, neighborhood_structures, params={"nchange": "cyclic"})
+        search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 100, "nchange": "seq"})
         # local_search = HillClimb(pop_initializer)
         # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
     elif alg_name == "RandomSearch":

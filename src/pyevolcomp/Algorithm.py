@@ -113,7 +113,7 @@ class Algorithm(ABC):
 
         return offspring
 
-    def update_params(self, progress: float):
+    def update_params(self, progress: float = 0):
         """
         Updates the parameters and the operators
         """

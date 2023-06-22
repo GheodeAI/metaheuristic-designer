@@ -103,7 +103,7 @@ class DPCRO_SL(CRO_SL):
         
         return new_population
 
-    def update_params(self, progress):
+    def update_params(self, progress=0):
         self._generate_substrates(progress)
         super().update_params(progress)
     

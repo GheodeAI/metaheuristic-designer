@@ -7,7 +7,7 @@ from ...Algorithm import Algorithm
 from ...Operator import Operator
 from ...Operators import OperatorMeta
 from ...SurvivorSelection import SurvivorSelection
-
+from .vns_neighborhood_changes import *
 
 class VNS(Algorithm):
     """
@@ -20,6 +20,8 @@ class VNS(Algorithm):
 
         self.op_list = op_list
         self.perturb_op = OperatorMeta("Pick", op_list, {"init_idx": 0})
+
+        self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 
         self.local_search = local_search
 
@@ -58,6 +60,8 @@ class VNS(Algorithm):
                 offspring = self.local_search.perturb(parents, objfunc, progress, history)
 
                 population = self.local_search.select_individuals(population, offspring, progress, history)
+
+                self.local_search.update_params()
             
             new_indiv = self.local_search.population[0]
 
@@ -72,15 +76,12 @@ class VNS(Algorithm):
     
     def select_individuals(self, population, offspring, progress=0, history=None):
         new_population = self.selection_op(population, offspring)
-
-        if new_population[0].id == population[0].id:
-            self.perturb_op.chosen_idx += 1
-        else:
-            self.perturb_op.chosen_idx = 0
+        
+        self.perturb_op.chosen_idx = next_neighborhood(offspring[0], population[0], self.perturb_op.chosen_idx, self.nchange)
         
         return new_population
 
-    def update_params(self, progress):
+    def update_params(self, progress=0):
         """
         Updates the parameters of each component of the algorithm
         """

@@ -59,7 +59,7 @@ class StaticPopulation(Algorithm):
     def select_individuals(self, population, offspring, progress=0, history=None):
         return self.selection_op(population, offspring)
 
-    def update_params(self, progress):
+    def update_params(self, progress=0):
         """
         Updates the parameters and the operators
         """

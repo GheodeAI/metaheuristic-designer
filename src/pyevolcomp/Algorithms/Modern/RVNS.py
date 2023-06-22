@@ -66,7 +66,7 @@ class RVNS(Algorithm):
         
         return new_population
 
-    def update_params(self, progress):
+    def update_params(self, progress=0):
         """
         Updates the parameters of each component of the algorithm
         """

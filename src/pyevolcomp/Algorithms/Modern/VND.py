@@ -7,6 +7,7 @@ from ...Algorithm import Algorithm
 from ...Operator import Operator
 from ...Operators import OperatorMeta
 from ...SurvivorSelection import SurvivorSelection
+from .vns_neighborhood_changes import *
 import time
 
 class VND(Algorithm):
@@ -24,6 +25,8 @@ class VND(Algorithm):
 
         self.op_list = op_list
         self.perturb_op = OperatorMeta("Pick", op_list, {"init_idx": 0})
+
+        self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 
         self.current_op = 0
 
@@ -67,15 +70,12 @@ class VND(Algorithm):
 
     def select_individuals(self, population, offspring, progress=0, history=None):
         new_population = self.selection_op(population, offspring)
-
-        if new_population[0].id == population[0].id:
-            self.perturb_op.chosen_idx += 1
-        else:
-            self.perturb_op.chosen_idx = 0
+        
+        self.perturb_op.chosen_idx = next_neighborhood(offspring[0], population[0], self.perturb_op.chosen_idx, self.nchange)
         
         return new_population
 
-    def update_params(self, progress):
+    def update_params(self, progress=0):
         """
         Updates the parameters of each component of the algorithm
         """
