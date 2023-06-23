@@ -86,7 +86,7 @@ nox
 - Multi-individual cross (Multicross)
 - Xor with random vector (Xor)
 - Cross two vectors with Xor (XorCross)
-- Permutation of vector components (Perm)
+- Permute of vector components (Perm)
 - Random mutation of vector components (MutRand/MutNoise)
 - Add noise following a prob. distribution (RandNoise)
 - Approximate population with a prob. distribution and sample on some vector components (MutSample)
@@ -98,20 +98,28 @@ nox
 - Differential evolution operators (DE/best/1, DE/best/2, DE/rand/1, DE/rand/2, DE/current-to-rand/1, DE/current-to-best/1, DE/current-to-pbest/1)
 - Particle swarm algorithm step (PSO)
 - Firefly algorithm step (Firefly)
-- Placing fixed vector into the population (Dummy) [only intended for debugging]
+- Place fixed vector into the population (Dummy) [only intended for debugging]
+- Generate a completely random solution (Random)
+- Replace some of the components with random values (RandomMask)
+- Apply a custom function (Custom) 
 - Return a copy of the individual (Nothing) 
 
 ## Parent selection methods available
 - Tournament (Tournament)
 - Taking the n best parents (Best)
+- Roulette method (Roulette)
+- Stochastic Universal Sampling (SUS)
 - Take all parents (Nothing)
 
 ## Survivor selection methods avaliable
 - Elitism (Elitism)
 - Conditional Elitism (CondElitism)
 - Generational (Generational)
+- Compare each parent with its child (One-to-one)
+- Compare each parent with its child, take the child with a probability (Prob-one-to-one)
 - (λ+μ) like method ( (m+n) )
 - (λ,μ) like method ( (m,n) )
+- Selection method in the Coral Reef optimization algorithm (CRO)
 
 
 

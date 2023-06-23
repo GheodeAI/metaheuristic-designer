@@ -1,51 +1,62 @@
 from __future__ import annotations
 from typing import Union
+from copy import copy
 from ..ParamScheduler import ParamScheduler
 from ..Algorithm import Algorithm
+from ..Operator import Operator
+from ..Operators import OperatorReal
+from ..SurvivorSelection import SurvivorSelection
 
 
 class LocalSearch(Algorithm):
     """
-    Search strtategy example, HillClimbing
+    Local search algorithm
     """
 
-    def __init__(self, pop_init:Initializer, perturb_op: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "LocalSearch"):
-        """
-        Constructor of the Example search strategy class
-        """
-
-        self.perturb_op = perturb_op
+    def __init__(self, pop_init: Initializer, perturb_op: Operator = None, selection_op: SurvivorSelection = None, params: Union[ParamScheduler, dict] = {}, name: str = "LocalSearch"):
+        
         self.iterations = params["iters"] if "iters" in params else 100
+
+        if perturb_op is None:
+            perturb_op = OperatorReal("Nothing")
+        self.perturb_op = perturb_op
+
+        if selection_op is None:
+            selection_op = SurvivorSelection("One-to-One")
+        self.selection_op = selection_op
 
         super().__init__(pop_init, params=params, name=name)
 
     def perturb(self, indiv_list, objfunc, progress=0, history=None):
-        result = []
-
-        for indiv in indiv_list:
-            best_indiv = indiv
-
-            for i in range(self.iterations):
+        """
+        Performs a step of the algorithm
+        """
+        
+        next_indiv_list = copy(indiv_list)
+        for i in range(self.iterations):
+            
+            offspring = []
+            for indiv in indiv_list:
 
                 # Perturb individual
                 new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
                 new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
-                # If it improves the best solution keep it
-                if new_indiv.fitness > best_indiv.fitness:
-                    best_indiv = new_indiv
+                offspring.append(new_indiv)
 
-            result.append(best_indiv)
+            # Keep best individual regardless of selection method
+            current_best = max(offspring, key=lambda x: x.fitness)
+            if self.best.fitness < current_best.fitness:
+                self.best = current_best
 
-        curr_best = max(result, key=lambda x: x.fitness)
-        if curr_best.fitness > self.best.fitness:
-            self.best = curr_best
+            next_indiv_list = self.selection_op(next_indiv_list, offspring)
+        
+        return next_indiv_list
 
-        return result
-
-    def update_params(self, progress):
+    def update_params(self, progress=0):
         """
         Updates the parameters of each component of the algorithm
         """
 
-        self.perturb_op.step(progress)
+        if isinstance(self.perturb_op, Operator):
+            self.perturb_op.step(progress)

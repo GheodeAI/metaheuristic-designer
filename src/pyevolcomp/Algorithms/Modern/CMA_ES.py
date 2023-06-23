@@ -1,12 +1,12 @@
 from __future__ import annotations
-from .ES import ES
-from ..Operators import OperatorReal, OperatorMeta
-from ..SurvivorSelection import SurvivorSelection
-from ..ParentSelection import ParentSelection
-from ..Encodings import CMAEncoding
+from ..StaticPopulation import StaticPopulation
+from ...Operators import OperatorReal, OperatorMeta
+from ...SurvivorSelection import SurvivorSelection
+from ...ParentSelection import ParentSelection
+from ...Encodings import CMAEncoding
 
 
-class CMA_ES(ES):
+class CMA_ES(StaticPopulation):
     def __init__(self, pop_init: Initializer, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, selection_op: SurvivorSelection,
                  params: Union[ParamScheduler, dict] = {}, name: str = "ES"):
 

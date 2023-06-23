@@ -2,6 +2,7 @@ from ..ObjectiveFunc import ObjectiveVectorFunc
 from ..Encodings import ImageEncoding
 import numpy as np
 from numba import jit
+from skimage import metrics
 
 
 class ImgApprox(ObjectiveVectorFunc):
@@ -15,11 +16,14 @@ class ImgApprox(ObjectiveVectorFunc):
             name = "Image approximation"
         else:
             name = f"Approximating \"{img_name}\""
+        
+        opt="max"
 
         super().__init__(self.size, opt, 0, 256, name=name)
     
     def objective(self, solution):
-        return imgdistance(solution, self.reference)
+        #return imgdistance(solution, self.reference)
+        return sum(metrics.structural_similarity(solution[:,:,i], self.reference[:,:,i]) for i in range(3))/3
     
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255)

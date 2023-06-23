@@ -2,24 +2,25 @@ from __future__ import annotations
 from ..Operator import Operator
 from .vector_operator_functions import *
 from copy import copy
+import enum
 from enum import Enum
 
 
 class BinOpMethods(Enum):
-    ONE_POINT = 1
-    TWO_POINT = 2
-    MULTIPOINT = 3
-    MULTICROSS = 4
-    XOR = 5
-    XOR_CROSS = 6
-    PERM = 7
-    MUTSAMPLE = 8
-    RANDSAMPLE = 9
-    RANDOM = 10
-    RANDOM_MASK = 11
-    DUMMY = 12
-    CUSTOM = 13
-    NOTHING = 14
+    ONE_POINT = enum.auto()
+    TWO_POINT = enum.auto()
+    MULTIPOINT = enum.auto()
+    MULTICROSS = enum.auto()
+    XOR = enum.auto()
+    XOR_CROSS = enum.auto()
+    PERM = enum.auto()
+    MUTSAMPLE = enum.auto()
+    RANDSAMPLE = enum.auto()
+    RANDOM = enum.auto()
+    RANDOM_MASK = enum.auto()
+    DUMMY = enum.auto()
+    CUSTOM = enum.auto()
+    NOTHING = enum.auto()
 
     @staticmethod
     def from_str(str_input):
@@ -38,7 +39,7 @@ bin_ops_map = {
     "multipoint": BinOpMethods.MULTIPOINT,
     "multicross": BinOpMethods.MULTICROSS,
     "xor": BinOpMethods.XOR,
-    "fliprandom": BinOpMethods.XOR,
+    "flip": BinOpMethods.XOR,
     "xorcross": BinOpMethods.XOR_CROSS,
     "flipcross": BinOpMethods.XOR_CROSS,
     "perm": BinOpMethods.PERM,
@@ -71,6 +72,9 @@ class OperatorBinary(Operator):
         super().__init__(params, name)
 
         self.method = BinOpMethods.from_str(method)
+
+        if self.method in [BinOpMethods.MUTSAMPLE, BinOpMethods.RANDSAMPLE]:
+            self.params["method"] = ProbDist.BERNOULLI
 
     def evolve(self, indiv, population, objfunc, global_best, initializer):
         """
@@ -122,11 +126,9 @@ class OperatorBinary(Operator):
             new_indiv.genotype = xorCross(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == BinOpMethods.MUTSAMPLE:
-            params["method"] = "bernouli"
             new_indiv.genotype = mutateSample(new_indiv.genotype, population, params)
 
         elif self.method == BinOpMethods.RANDSAMPLE:
-            params["method"] = "bernouli"
             new_indiv.genotype = randSample(new_indiv.genotype, population, params)
 
         elif self.method == BinOpMethods.RANDOM:

@@ -4,44 +4,45 @@ from ..Operator import Operator
 from .vector_operator_functions import *
 from ..ParamScheduler import ParamScheduler
 from copy import copy
+import enum
 from enum import Enum
 
 
 class RealOpMethods(Enum):
-    ONE_POINT = 1
-    TWO_POINT = 2
-    MULTIPOINT = 3
-    WEIGHTED_AVG = 4
-    BLXALPHA = 5
-    SBX = 6
-    MULTICROSS = 7
-    CROSSINTERAVG = 8
-    MUTATE1SIGMA = 9
-    MUTATENSIGMAS = 10
-    SAMPLESIGMA = 11
-    PERM = 12
-    GAUSS = 13
-    LAPLACE = 14
-    CAUCHY = 15
-    UNIFORM = 16
-    MUTNOISE = 17
-    MUTSAMPLE = 18
-    RANDNOISE = 19
-    RANDSAMPLE = 20
-    DE_RAND_1 = 21
-    DE_BEST_1 = 22
-    DE_RAND_2 = 23
-    DE_BEST_2 = 24
-    DE_CTRAND_1 = 25
-    DE_CTBEST_1 = 26
-    DE_CTPBEST_1 = 27
-    PSO = 28
-    FIREFLY = 29
-    RANDOM = 30
-    RANDOM_MASK = 31
-    DUMMY = 32
-    CUSTOM = 33
-    NOTHING = 34
+    ONE_POINT = enum.auto()
+    TWO_POINT = enum.auto()
+    MULTIPOINT = enum.auto()
+    WEIGHTED_AVG = enum.auto()
+    BLXALPHA = enum.auto()
+    SBX = enum.auto()
+    MULTICROSS = enum.auto()
+    CROSSINTERAVG = enum.auto()
+    MUTATE1SIGMA = enum.auto()
+    MUTATENSIGMAS = enum.auto()
+    SAMPLESIGMA = enum.auto()
+    PERM = enum.auto()
+    GAUSS = enum.auto()
+    LAPLACE = enum.auto()
+    CAUCHY = enum.auto()
+    UNIFORM = enum.auto()
+    MUTNOISE = enum.auto()
+    MUTSAMPLE = enum.auto()
+    RANDNOISE = enum.auto()
+    RANDSAMPLE = enum.auto()
+    DE_RAND_1 = enum.auto()
+    DE_BEST_1 = enum.auto()
+    DE_RAND_2 = enum.auto()
+    DE_BEST_2 = enum.auto()
+    DE_CTRAND_1 = enum.auto()
+    DE_CTBEST_1 = enum.auto()
+    DE_CTPBEST_1 = enum.auto()
+    PSO = enum.auto()
+    FIREFLY = enum.auto()
+    RANDOM = enum.auto()
+    RANDOM_MASK = enum.auto()
+    DUMMY = enum.auto()
+    CUSTOM = enum.auto()
+    NOTHING = enum.auto()
 
     @staticmethod
     def from_str(str_input):
@@ -109,6 +110,9 @@ class OperatorReal(Operator):
         super().__init__(params, name)
 
         self.method = RealOpMethods.from_str(method)
+
+        if self.method in [RealOpMethods.MUTNOISE, RealOpMethods.MUTSAMPLE, RealOpMethods.RANDNOISE, RealOpMethods.RANDSAMPLE]:
+            self.params["method"] = ProbDist.from_str(self.params["method"])
 
     def evolve(self, indiv, population, objfunc, global_best, initializer):
         """

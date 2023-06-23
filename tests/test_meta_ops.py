@@ -40,3 +40,40 @@ def test_sequence_op(indiv, op_list, expected_val):
     assert type(new_indiv.genotype) == np.ndarray
     assert np.all(new_indiv.genotype == new_indiv.genotype[0])
     assert new_indiv.genotype[0] == expected_val
+
+
+@pytest.mark.parametrize("indiv", [example_individual])
+@pytest.mark.parametrize("op_list, values, chosen_idx", [
+    ([OperatorReal("dummy", {"F": 1}), OperatorReal("dummy", {"F": 2})], (1,2)),
+    ([OperatorReal("dummy", {"F": 1}), OperatorReal("dummy", {"F": 23})], (1,23)),
+    ([OperatorReal("dummy", {"F": 1}), OperatorReal("dummy", {"F": 2}), OperatorReal("dummy", {"F": 3})], (1,2,3)),
+])
+def test_split_op(indiv, op_list, values):
+    operator = OperatorMeta("pick", op_list, {})
+    for i, _ in enumerate(op_list):
+        operator.chosen_idx = i
+        new_indiv = operator.evolve(example_individual, [example_individual], None, example_individual, pop_init)
+        assert type(new_indiv.genotype) == np.ndarray
+        assert np.all(new_indiv.genotype == values[i])
+
+
+@pytest.mark.parametrize("indiv", [example_individual])
+@pytest.mark.parametrize("op_list, values", [
+    ([OperatorReal("dummy", {"F": 1}), OperatorReal("dummy", {"F": 2})], (1,2)),
+    ([OperatorReal("dummy", {"F": 1}), OperatorReal("dummy", {"F": 23})], (1,23)),
+    ([OperatorReal("dummy", {"F": 1}), OperatorReal("dummy", {"F": 2}), OperatorReal("dummy", {"F": 3})], (1,2,3))
+])
+@pytest.mark.parametrize("mask",[
+    np.zeros(100),
+    np.ones(100),
+    (np.arange(100) > 50).astype(int)
+])
+def test_split_op(indiv, op_list, values, mask):
+    operator = OperatorMeta("split", op_list, {"mask": mask})
+
+    new_indiv = operator.evolve(example_individual, [example_individual], None, example_individual, pop_init)
+    assert type(new_indiv.genotype) == np.ndarray
+
+    for idx, val in enumerate(values):
+        if np.any(mask == idx):
+            assert np.all(new_indiv.genotype[mask==idx] == val)

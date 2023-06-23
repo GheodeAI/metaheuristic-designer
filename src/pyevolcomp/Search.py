@@ -42,6 +42,8 @@ class Search(ABC):
         self.time_limit = params["time_limit"] if "time_limit" in params else 10.0
         self.cpu_time_limit = params["cpu_time_limit"] if "cpu_time_limit" in params else 10.0
         self.fit_target = params["fit_target"] if "fit_target" in params else 0
+        self.max_patience = params["patience"] if "patience" in params else 1
+        self.patience_left = self.max_patience
 
         # Metrics
         self.fit_history = []
@@ -49,9 +51,10 @@ class Search(ABC):
         self.progress = 0
         self.ended = False
         self.steps = 0
-        self.best_fitness = 0
+        self.prev_best_fitness = None
         self.cpu_time_spent = 0
         self.real_time_spent = 0
+        self.converged_steps = 0
 
     def restart(self):
         """
@@ -62,9 +65,10 @@ class Search(ABC):
         self.best_history = []
         self.progress = 0
         self.ended = False
-        self.best_fitness = 0
+        self.prev_best_fitness = None
         self.cpu_time_spent = 0
         self.real_time_spent = 0
+        self.objfunc.counter = 0
 
     def save_solution(self, file_name="solution.csv"):
         """
@@ -102,7 +106,9 @@ class Search(ABC):
         else:
             target_reached = self.best_solution()[1] <= self.fit_target
 
-        return process_condition(self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_reached)
+        patience_reached = self.patience_left < 0
+
+        return process_condition(self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_reached, patience_reached)
 
     def get_progress(self, gen, real_time_start, cpu_time_start) -> float:
         """
@@ -125,8 +131,10 @@ class Search(ABC):
             if best_fitness == 0:
                 best_fitness = 1e-40
             target_reached = self.fit_target/best_fitness
+        
+        patience_prec = 1 - self.patience_left/self.max_patience
 
-        return process_progress(self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_reached)     
+        return process_progress(self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_reached, patience_prec)     
 
     def update(self, real_time_start, cpu_time_start, pass_step=True):
         """
@@ -136,6 +144,13 @@ class Search(ABC):
 
         if pass_step:
             self.steps += 1
+        
+        if self.best_solution()[1] == self.prev_best_fitness:
+            self.patience_left -= 1
+        else:
+            self.patience_left = self.max_patience
+        
+        self.prev_best_fitness = self.best_solution()[1]
 
         self.progress = self.get_progress(self.steps, real_time_start, cpu_time_start)
 
@@ -253,7 +268,7 @@ def parse_stopping_cond(condition_str: str) -> List[str]:
 
     orop = pp.Literal("and")
     andop = pp.Literal("or")
-    condition = pp.oneOf(["neval", "ngen", "time_limit", "cpu_time_limit", "fit_target"])
+    condition = pp.oneOf(["neval", "ngen", "time_limit", "cpu_time_limit", "fit_target", "convergence"])
 
     expr = pp.infixNotation(
         condition,
@@ -266,7 +281,7 @@ def parse_stopping_cond(condition_str: str) -> List[str]:
     return expr.parse_string(condition_str).as_list()
 
 
-def process_condition(cond_parsed, neval, ngen, real_time, cpu_time, target) -> bool:
+def process_condition(cond_parsed, neval, ngen, real_time, cpu_time, target, patience) -> bool:
     """
     This function recieves as an input an expression for the stopping condition
     and the truth variable of the possible stopping conditions and returns wether to stop or not.
@@ -275,8 +290,8 @@ def process_condition(cond_parsed, neval, ngen, real_time, cpu_time, target) -> 
 
     if isinstance(cond_parsed, list):
         if len(cond_parsed) == 3:
-            cond1 = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target)
-            cond2 = process_condition(cond_parsed[2], neval, ngen, real_time, cpu_time, target)
+            cond1 = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
+            cond2 = process_condition(cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience)
 
             if cond_parsed[1] == "or":
                 result = cond1 or cond2
@@ -284,7 +299,7 @@ def process_condition(cond_parsed, neval, ngen, real_time, cpu_time, target) -> 
                 result = cond1 and cond2
 
         elif len(cond_parsed) == 1:
-            result = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target)
+            result = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
 
     else:
         if cond_parsed == "neval":
@@ -297,10 +312,12 @@ def process_condition(cond_parsed, neval, ngen, real_time, cpu_time, target) -> 
             result = cpu_time
         elif cond_parsed == "fit_target":
             result = target
+        elif cond_parsed == "convergence":
+            result = patience
     
     return result
 
-def process_progress(cond_parsed, neval, ngen, real_time, cpu_time, target) -> float:
+def process_progress(cond_parsed, neval, ngen, real_time, cpu_time, target, patience) -> float:
     """
     This function recieves as an input an expression for the stopping condition 
     and the truth variable of the possible stopping conditions and returns wether to stop or not. 
@@ -310,8 +327,8 @@ def process_progress(cond_parsed, neval, ngen, real_time, cpu_time, target) -> f
     if isinstance(cond_parsed, list):
         if len(cond_parsed) == 3:
             
-            progress1 = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target)
-            progress2 = process_progress(cond_parsed[2], neval, ngen, real_time, cpu_time, target)
+            progress1 = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
+            progress2 = process_progress(cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience)
 
             if cond_parsed[1] == "or":
                 result = max(progress1, progress2)
@@ -319,7 +336,7 @@ def process_progress(cond_parsed, neval, ngen, real_time, cpu_time, target) -> f
                 result = min(progress1, progress2)
             
         elif len(cond_parsed) == 1:
-            result = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target)
+            result = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
     else:
         if cond_parsed == "neval":
             result = neval
@@ -331,5 +348,7 @@ def process_progress(cond_parsed, neval, ngen, real_time, cpu_time, target) -> f
             result = cpu_time
         elif cond_parsed == "fit_target":
             result = target
+        elif cond_parsed == "convergence":
+            result = patience
 
     return result

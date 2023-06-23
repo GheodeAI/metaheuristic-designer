@@ -4,13 +4,14 @@ from .OperatorReal import OperatorReal, _real_ops
 from .list_operator_functions import *
 from .vector_operator_functions import *
 from copy import copy
+import enum
 from enum import Enum
 
 
 class ListOpMethods(Enum):
-    EXPAND = 1
-    SHRINK = 2
-    NOTHING = 3
+    EXPAND = enum.auto()
+    SHRINK = enum.auto()
+    NOTHING = enum.auto()
 
     @staticmethod
     def from_str(str_input):
@@ -57,7 +58,7 @@ class OperatorList(Operator):
         params = copy(self.params)
 
         if self.method == ListOpMethods.EXPAND:
-            nex_indiv.genotype = expand(new_indiv.genotype, params["N"], params["method"], params["maxlen"])
+            nex_indiv.genotype = expand(new_indiv.genotype, params["N"], params["method"], params["maxlen"], params["generator"])
         elif self.method == ListOpMethods.SHRINK:
             nex_indiv.genotype = shrink(new_indiv.genotype, params["N"], params["method"])
 

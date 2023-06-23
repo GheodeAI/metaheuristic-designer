@@ -1,13 +1,17 @@
 from __future__ import annotations
+import enum
 from enum import Enum
 from .ParamScheduler import ParamScheduler
 from .parent_selection_functions import *
 
 
 class ParentSelMethod(Enum):
-    TOURNAMENT = 1
-    BEST = 2
-    NOTHING = 3
+    TOURNAMENT = enum.auto()
+    BEST = enum.auto()
+    RANDOM = enum.auto()
+    ROULETTE = enum.auto()
+    SUS = enum.auto()
+    NOTHING = enum.auto()
 
     @staticmethod
     def from_str(str_input):
@@ -23,13 +27,16 @@ class ParentSelMethod(Enum):
 parent_sel_map = {
     "tournament": ParentSelMethod.TOURNAMENT,
     "best": ParentSelMethod.BEST,
+    "random": ParentSelMethod.RANDOM,
+    "roulette": ParentSelMethod.ROULETTE,
+    "sus": ParentSelMethod.SUS,
     "nothing": ParentSelMethod.NOTHING
 }
 
 
 class ParentSelection:
     """
-    Operator class that has continuous mutation and cross methods
+    Parent selection methods
     """
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
@@ -50,6 +57,11 @@ class ParentSelection:
             self.params = self.param_scheduler.get_params()
         else:
             self.params = params
+        
+        if self.method in [ParentSelMethod.ROULETTE, ParentSelMethod.SUS]:
+            self.params["method"] = SelectionDist.from_str(self.params["method"])
+            if "F" not in self.params:
+                self.params["F"] = None
 
     def __call__(self, population: List[Individual]) -> List[Individual]:
         """
@@ -82,7 +94,7 @@ class ParentSelection:
         if self.param_scheduler:
             data["param_scheduler"] = self.param_scheduler.get_state()
             data["params"] = self.param_scheduler.get_params()
-        else:
+        elif self.params:
             data["params"] = self.params
         
         return data           
@@ -99,6 +111,15 @@ class ParentSelection:
 
         elif self.method == ParentSelMethod.BEST:
             parents, order = select_best(population, self.params["amount"])
+        
+        elif self.method == ParentSelMethod.RANDOM:
+            parents, order = uniform_selection(population, self.params["amount"])
+        
+        elif self.method == ParentSelMethod.ROULETTE:
+            parents, order = roulette(population, self.params["amount"], self.params["method"], self.params["F"])
+        
+        elif self.method == ParentSelMethod.SUS:
+            parents, order = sus(population, self.params["amount"], self.params["method"], self.params["F"])
 
         elif self.method == ParentSelMethod.NOTHING:
             parents, order = population, range(len(population))

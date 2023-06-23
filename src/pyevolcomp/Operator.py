@@ -8,10 +8,15 @@ class Operator(ABC):
     Abstract Operator class
     """
 
-    def __init__(self, params: Union[ParamScheduler, dict], name=None):
+    last_id = 0
+
+    def __init__(self, params: Union[ParamScheduler, dict] = None, name=None):
         """
         Constructor for the Operator class
         """
+
+        self.id = Operator.last_id
+        Operator.last_id += 1
 
         self.param_scheduler = None
 
@@ -20,6 +25,8 @@ class Operator(ABC):
         if params is None:
 
             # Default parameters
+            self.params = {}
+        elif params == "default":
             self.params = {
                 "F": 0.5,
                 "Cr": 0.8,
@@ -75,17 +82,16 @@ class Operator(ABC):
         """
         
         data = {
-            "name": self.name,
-            # "method": self.method
+            "name": self.name
         }
 
         if self.param_scheduler:
             data["param_scheduler"] = self.param_scheduler.get_state()
             data["params"] = self.param_scheduler.get_params()
-        else:
+            data["params"].pop("function", None)
+        elif self.params:
             data["params"] = self.params
-        
-        data["params"].pop("function", None)
+            data["params"].pop("function", None)
         
         return data
 

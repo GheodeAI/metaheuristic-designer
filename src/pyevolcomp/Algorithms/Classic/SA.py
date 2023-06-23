@@ -2,28 +2,25 @@ from __future__ import annotations
 import random
 import numpy as np
 from typing import Union
-from ..ParamScheduler import ParamScheduler
-from ..Algorithm import Algorithm
+from ...ParamScheduler import ParamScheduler
+from ...Algorithm import Algorithm
+from ...Operator import Operator
+from ..HillClimb import HillClimb
 
 
 class SA(Algorithm):
     """
-    Class implementing the Simulated annealing algorithm
+    Simulated annealing
     """
 
     def __init__(self, pop_init: Initializer, perturb_op: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "SA"):
-        """
-        Constructor of the SimAnnEvolve class
-        """
-
+        
         # Parameters of the algorithm
-        self.params = params
         self.iter = params["iter"] if "iter" in params else 100
         self.temp_init = params["temp_init"] if "temp_init" in params else 100
         self.temp = self.temp_init
         self.alpha = params["alpha"] if "alpha" in params else 0.99
 
-        self.population = [None]
         self.perturb_op = perturb_op
 
         super().__init__(pop_init, params=params, name=name)
@@ -54,7 +51,8 @@ class SA(Algorithm):
         Updates the parameters and the operators
         """
 
-        self.perturb_op.step(progress)
+        if isinstance(self.perturb_op, Operator):
+            self.perturb_op.step(progress)
 
         if self.param_scheduler:
             self.param_scheduler.step(progress)
