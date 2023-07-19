@@ -11,7 +11,7 @@ class Algorithm(ABC):
     """
     Population of the Genetic algorithm
     Note: for methods that use only one solution at a time,
-          use a population of length 1 to store it.
+    use a population of length 1 to store it.
     """
 
     def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict]=None, name: str="some algorithm"):

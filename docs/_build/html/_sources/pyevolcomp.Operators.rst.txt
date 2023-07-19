@@ -44,14 +44,6 @@ pyevolcomp.Operators.OperatorReal module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Operators.OperatorSplit module
------------------------------------------
-
-.. automodule:: pyevolcomp.Operators.OperatorSplit
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pyevolcomp.Operators.list\_operator\_functions module
 -----------------------------------------------------
 

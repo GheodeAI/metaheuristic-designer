@@ -1,24 +1,29 @@
+from __future__ import annotations
 from ..Initializers import UniformVectorInitializer
 from ..Algorithms import RandomSearch
 from ..SearchMethods import GeneralSearch
 
-def random_search(objfunc, params):
+def random_search(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
+    """
+    Instantiates a random search algorithm to optimize the given objective function.
+    """
+
     encoding_str = params["encoding"] if "encoding" in params else "bin"
 
     if encoding_str.lower() == "bin":
-        alg = random_search_bin_vec(objfunc, params)
+        alg = _random_search_bin_vec(objfunc, params)
     elif encoding_str.lower() == "int":
-        alg = random_search_int_vec(objfunc, params)
+        alg = _random_search_int_vec(objfunc, params)
     elif encoding_str.lower() == "real":
-        alg = random_search_real_vec(objfunc, params)
+        alg = _random_search_real_vec(objfunc, params)
     else:
         raise ValueError(f"The encoding \"{encoding_str}\" does not exist, try \"real\", \"int\" or \"bin\"")
     
     return alg
 
-def random_search_bin_vec(objfunc, params):
+def _random_search_bin_vec(objfunc, params):
     """
-    Instantiates a genetic algorithm to optimize the given objective function.
+    Instantiates a random search algorithm to optimize the given objective function.
     This objective function should accept binary coded vectors.
     """
 
@@ -29,9 +34,9 @@ def random_search_bin_vec(objfunc, params):
     return GeneralSearch(objfunc, search_strat, params=params)
 
 
-def random_search_int_vec(objfunc, params):
+def _random_search_int_vec(objfunc, params):
     """
-    Instantiates a genetic algorithm to optimize the given objective function.
+    Instantiates a random search algorithm to optimize the given objective function.
     This objective function should accept integer coded vectors.
     """
 
@@ -42,9 +47,9 @@ def random_search_int_vec(objfunc, params):
     return GeneralSearch(objfunc, search_strat, params=params)
 
 
-def random_search_real_vec(objfunc, params):
+def _random_search_real_vec(objfunc, params):
     """
-    Instantiates a genetic algorithm to optimize the given objective function.
+    Instantiates a random search algorithm to optimize the given objective function.
     This objective function should accept real coded vectors.
     """
 

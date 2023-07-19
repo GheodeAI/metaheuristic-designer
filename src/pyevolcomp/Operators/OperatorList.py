@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..Operator import Operator
-from .OperatorReal import OperatorReal, _real_ops
+from .OperatorReal import OperatorReal, real_ops_map
 from .list_operator_functions import *
 from .vector_operator_functions import *
 from copy import copy

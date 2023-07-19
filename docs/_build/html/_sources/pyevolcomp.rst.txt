@@ -7,27 +7,24 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   pyevolcomp.Algorithms
-   pyevolcomp.Decoders
-   pyevolcomp.Operators
+   pyevolcomp.simple
    pyevolcomp.SearchMethods
+   pyevolcomp.Algorithms
+   pyevolcomp.Operators
+   pyevolcomp.SurvivorSelection
+   pyevolcomp.ParentSelection
+   pyevolcomp.Initializers
+   pyevolcomp.Encodings
    pyevolcomp.benchmarks
+   
 
 Submodules
 ----------
 
-pyevolcomp.Algorithm module
----------------------------
+pyevolcomp.ObjectiveFunc module
+-------------------------------
 
-.. automodule:: pyevolcomp.Algorithm
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Decoder module
--------------------------
-
-.. automodule:: pyevolcomp.Decoder
+.. automodule:: pyevolcomp.ObjectiveFunc
    :members:
    :undoc-members:
    :show-inheritance:
@@ -40,10 +37,18 @@ pyevolcomp.Individual module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.ObjectiveFunc module
--------------------------------
+pyevolcomp.Search module
+------------------------
 
-.. automodule:: pyevolcomp.ObjectiveFunc
+.. automodule:: pyevolcomp.Search
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyevolcomp.Algorithm module
+---------------------------
+
+.. automodule:: pyevolcomp.Algorithm
    :members:
    :undoc-members:
    :show-inheritance:
@@ -56,6 +61,22 @@ pyevolcomp.Operator module
    :undoc-members:
    :show-inheritance:
 
+pyevolcomp.Encoding module
+--------------------------
+
+.. automodule:: pyevolcomp.Encoding
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyevolcomp.Initializer module
+-----------------------------
+
+.. automodule:: pyevolcomp.Initializer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyevolcomp.ParamScheduler module
 --------------------------------
 
@@ -64,26 +85,11 @@ pyevolcomp.ParamScheduler module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.ParentSelection module
----------------------------------
 
-.. automodule:: pyevolcomp.ParentSelection
-   :members:
-   :undoc-members:
-   :show-inheritance:
+pyevolcomp.utils module
+-----------------------
 
-pyevolcomp.Search module
-------------------------
-
-.. automodule:: pyevolcomp.Search
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.SurvivorSelection module
------------------------------------
-
-.. automodule:: pyevolcomp.SurvivorSelection
+.. automodule:: pyevolcomp.utils
    :members:
    :undoc-members:
    :show-inheritance:

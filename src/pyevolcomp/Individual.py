@@ -9,15 +9,15 @@ class Individual:
     Individual that holds a tentative solution with its fitness.
     """
 
-    last_id = 0
+    _last_id = 0
 
     def __init__(self, objfunc: ObjectiveFunc, genotype: Any, speed: np.ndarray = None, encoding: Encoding = None):
         """
         Constructor of the Individual class.
         """
 
-        self.id = Individual.last_id
-        Individual.last_id += 1
+        self.id = Individual._last_id
+        Individual._last_id += 1
 
         self.objfunc = objfunc
         self._genotype = genotype
@@ -84,7 +84,7 @@ class Individual:
     @fitness.setter
     def fitness(self, fit: float):
         """
-        Obtain the fitness of the individual, optimized to be calculated only once per individual.
+        Manually sets a fitness to the individual.
         """
 
         if self.best_fitness is None or self.best_fitness < fit:
