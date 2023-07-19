@@ -1,6 +1,6 @@
 import numpy as np
 from numba import jit
-from ..ObjectiveFunc import ObjectiveVectorFunc, ObjectiveVectorFunc
+from ..ObjectiveFunc import ObjectiveVectorFunc
 
 
 class MaxOnes(ObjectiveVectorFunc):
