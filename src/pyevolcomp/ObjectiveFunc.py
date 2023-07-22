@@ -47,7 +47,7 @@ class ObjectiveFunc(ABC):
         value = self.objective(solution)
 
         if adjusted:
-            value = self.factor * value - self.penalize(indiv)
+            value = self.factor * value - self.penalize(solution)
 
         return value
 
@@ -57,11 +57,12 @@ class ObjectiveFunc(ABC):
         Implementation of the objective function.
         """
 
-    @abstractmethod
     def repair_solution(self, vector: np.ndarray) -> np.ndarray:
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
         """
+
+        return vector
 
     def repair_speed(self, speed):
         """
@@ -72,7 +73,7 @@ class ObjectiveFunc(ABC):
             result = self.repair_solution(speed)
         return result
 
-    def penalize(self, indiv: Indiv) -> float:
+    def penalize(self, vector: np.ndarray) -> float:
         """
         Gives a penalization to the fitness value of an individual if it violates any constraints propotional
         to how far it is to a viable solution.

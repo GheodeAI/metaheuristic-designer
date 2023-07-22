@@ -46,7 +46,7 @@ class HillClimb(Algorithm):
 
             # Keep best individual regardless of selection method
             current_best = max(offspring, key=lambda x: x.fitness)
-            if self.best.fitness < current_best.fitness:
+            if self.best.fitness <= current_best.fitness:
                 self.best = current_best
 
             next_indiv_list = self.selection_op(next_indiv_list, offspring)

@@ -2,6 +2,7 @@ from ..Initializers import UniformVectorInitializer
 from ..Operators import OperatorInt, OperatorReal, OperatorBinary
 from ..ParentSelection import ParentSelection
 from ..SurvivorSelection import SurvivorSelection
+from ..Encodings import TypeCastEncoding
 from ..Algorithms import GA
 from ..SearchMethods import GeneralSearch
 
@@ -33,7 +34,9 @@ def genetic_algorithm_bin_vec(objfunc, params):
     pmut = params["pmut"] if "pmut" in params else 0.1
     mutstr = params["mutstr"] if "mutstr" in params else 1
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=bool)
+    encoding = TypeCastEncoding(int, bool)
+
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
 
     cross_op = OperatorBinary(cross_method)
     mutation_op = OperatorBinary("Flip", {"N":mutstr})
