@@ -13,12 +13,8 @@ class VariablePopulation(Algorithm):
     """
 
     def __init__(self, pop_init: Initializer, operator: Operator, parent_sel_op: ParentSelection = None, 
-                 selection_op: SurvivorSelection = None, n_offspring: int = None, params: Union[ParamScheduler, dict] = {}, name: str = "stpop"):
-        """
-        Constructor of the GeneticPopulation class
-        """
-
-        # Hyperparameters of the algorithm
+                 selection_op: SurvivorSelection = None, n_offspring: int = None, params: Union[ParamScheduler, dict] = {}, 
+                 name: str = "Variable Population Evolution"):
         self.params = params
         self.operator = operator
 
@@ -64,10 +60,6 @@ class VariablePopulation(Algorithm):
         return self.selection_op(population, offspring)
 
     def update_params(self, progress=0):
-        """
-        Updates the parameters and the operators
-        """
-
         if isinstance(self.operator, Operator):
             self.operator.step(progress)
             

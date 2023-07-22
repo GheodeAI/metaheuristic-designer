@@ -9,14 +9,21 @@ import time
 
 class Algorithm(ABC):
     """
-    Population of the Genetic algorithm
-    Note: for methods that use only one solution at a time,
-          use a population of length 1 to store it.
+    This is the class that defines how the optimization will be carried out.
+
+    Parameters
+    ----------
+    pop_init: Initializer
+        Population initializer that will generate the initial population of the algorithm.
+    param: Union[ParamScheduler, dict]
+        Dictionary of parameters to define the stopping condition and output of the algorithm.
+    name: str, optional
+        The name that will be displayed for this algorithm in the reports.
     """
 
-    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict]=None, name: str="some algorithm"):
+    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict] = None, name: str = "some algorithm"):
         """
-        Constructor of the GeneticPopulation class
+        Constructor of the Algorithm class
         """
 
         self.name = name
@@ -39,6 +46,10 @@ class Algorithm(ABC):
 
     
     def _find_operator_attributes(self):
+        """
+        Saves the attributes that represent operators or other relevant information
+        about the algorithm.
+        """
         attr_dict = vars(self).copy()
 
         self.parent_sel = []
@@ -68,11 +79,20 @@ class Algorithm(ABC):
     
     @property
     def pop_size(self):
+        """
+        Gets the amount of inidividuals in the population.
+        """
+
         return self.pop_init.pop_size
 
-    def best_solution(self) -> Tuple(Individual, float):
+    def best_solution(self) -> Tuple[Individual, float]:
         """
-        Gives the best solution found by the algorithm and its fitness
+        Returns the best solution found by the algorithm and its fitness.
+
+        Returns
+        -------
+        best_solution : Tuple[Individual, float]
+            A pair of the best individual with its fitness.
         """
 
         best_fitness = self.best.fitness
@@ -83,17 +103,35 @@ class Algorithm(ABC):
 
     def initialize(self, objfunc: ObjectiveFunc):
         """
-        Generates a random population of individuals
+        Initializes the optimization algorithm.
+
+        Parameters
+        ----------
+        objfunc: ObjectiveFunc
+            Objective function to be optimized.
         """
         
         self.population = self.pop_init.generate_population(objfunc)
 
         self.best = max(self.population, key=lambda x: x.fitness)
 
-    def select_parents(self, population: List[Individual], progress: float = 0, history: List[float] = None) -> List[Individual]:
+    def select_parents(self, population: List[Individual], progress: float = 0, history: List[float] = None) -> Tuple[List[Individual], List[int]]:
         """
-        Selects the individuals that will be perturbed in this generation
-        Returns the whole population if not implemented.
+        Selects the individuals that will be perturbed in this generation to generate the offspring.
+
+        Parameters
+        ----------
+        population: List[Individual]
+            The current population of the algorithm.
+        progress: float, optional
+            Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
+        history: List[float], optional
+            The list of the best fitness value in each iteration. 
+        
+        Returns
+        -------
+        parents: Tuple[List[Individual], List[int]]
+            A pair of the list of individuals considered as parents and their position in the original population.
         """
 
         return population, range(len(population))
@@ -101,26 +139,73 @@ class Algorithm(ABC):
     @abstractmethod
     def perturb(self, parent_list: List[Individual], progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Individual]:
         """
-        Applies operators to the population in some way
-        Returns the offspring generated.
+        Applies operators to the population to get the next generation of individuals.
+
+        Parameters
+        ----------
+        parent_list: List[Individual]
+            The current parents that will be used in the algorithm.
+        progress: float, optional
+            Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
+        objfunc: ObjectiveFunc
+            Objective function to be optimized.
+        history: List[float], optional
+            The list of the best fitness value in each iteration. 
+        
+        Returns
+        -------
+        offspring: List[Individual]
+            The list of individuals modified by the operators of the algorithm.
         """
 
     def select_individuals(self, population: List[Individual], offspring: List[Individual], progress: float = 0, history: List[float] = None) -> List[Individual]:
         """
         Selects the individuals that will pass to the next generation.
-        Returns the offspring if not implemented.
+
+        Parameters
+        ----------
+        population: List[Individual]
+            The current population of the algorithm.
+        offspring: List[Individual]
+            The list of individuals modified by the operators of the algorithm.
+        progress: float, optional
+            Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
+        history: List[float], optional
+            The list of the best fitness value in each iteration. 
+        
+        Returns
+        -------
+        offspring: List[Individual]
+            The list of individuals selected for the next generation.
         """
 
         return offspring
 
     def update_params(self, progress: float = 0):
         """
-        Updates the parameters and the operators
+        Updates the parameters of the algorithm and the operators.
+
+        Parameters
+        ----------
+        progress: float, optional
+            Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
         """
 
     def get_state(self, show_pop: bool = False, show_pop_details: bool = False) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
+
+        Parameters
+        ----------
+        show_pop: bool, optional
+            Save the current population.
+        show_pop_details: bool, optional
+            Save the complete details of each individual.
+
+        Returns
+        -------
+        state: dict
+            The complete state of the algorithm.
         """
 
         data = {
@@ -144,16 +229,21 @@ class Algorithm(ABC):
             data["survivor_sel"] = [surv.get_state() for surv in self.surv_sel]
         
         if show_pop:
-            data["population"] = [ind.get_state(show_speed=show_pop_details, show_op=show_pop_details, show_best=show_pop_details) for ind in self.population]
+            data["population"] = [ind.get_state(show_speed=show_pop_details, show_best=show_pop_details) for ind in self.population]
 
         return data
 
     def extra_step_info(self):
         """
-        Specific information to display relevant to this algorithm
+        Specific information to report relevant to this algorithm each iteration.
         """
 
     def extra_report(self, show_plots: bool):
         """
-        Specific information to display relevant to this algorithm
+        Specific information to display relevant to this algorithm at the end of the algorithm.
+
+        Parameters
+        ----------
+        show_plots: bool
+            Display plots specific to this algorithm.
         """

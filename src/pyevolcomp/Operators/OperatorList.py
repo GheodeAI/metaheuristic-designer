@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..Operator import Operator
-from .OperatorReal import OperatorReal, _real_ops
+from .OperatorReal import OperatorReal, real_ops_map
 from .list_operator_functions import *
 from .vector_operator_functions import *
 from copy import copy
@@ -49,10 +49,6 @@ class OperatorList(Operator):
         self.method = ListOpMethods.from_str(method)
 
     def evolve(self, indiv, population, objfunc, global_best, initializer):
-        """
-        Evolves a solution with a different strategy depending on the type of operator
-        """
-
         new_indiv = copy(indiv)
 
         params = copy(self.params)

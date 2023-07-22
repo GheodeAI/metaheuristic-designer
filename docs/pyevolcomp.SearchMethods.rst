@@ -1,9 +1,6 @@
 pyevolcomp.SearchMethods package
 ================================
 
-Submodules
-----------
-
 pyevolcomp.SearchMethods.GeneralSearch module
 ---------------------------------------------
 

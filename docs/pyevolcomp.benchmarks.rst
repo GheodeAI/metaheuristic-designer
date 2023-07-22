@@ -1,9 +1,6 @@
 pyevolcomp.benchmarks package
 =============================
 
-Submodules
-----------
-
 pyevolcomp.benchmarks.ImgFuncs module
 -------------------------------------
 

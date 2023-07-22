@@ -1,7 +1,7 @@
 from __future__ import annotations
 import enum
 from enum import Enum
-from .ParamScheduler import ParamScheduler
+from ..ParamScheduler import ParamScheduler
 from .survivor_selection_functions import *
 
 

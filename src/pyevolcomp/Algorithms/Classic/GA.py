@@ -11,7 +11,6 @@ class GA(VariablePopulation):
 
     def __init__(self, pop_init: Initializer, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, 
                  selection_op: SurvivorSelection, params: Union[ParamScheduler, dict] = {}, name: str = "GA"):
-
         self.pmut = params["pmut"] if "pmut" in params else 0.1
         self.pcross = params["pcross"] if "pcross" in params else 0.9
 
@@ -33,10 +32,6 @@ class GA(VariablePopulation):
         )
 
     def extra_step_info(self):
-        """
-        Specific information to display relevant to this algorithm
-        """
-
         popul_matrix = np.array(list(map(lambda x: x.genotype, self.population)))
         divesity = popul_matrix.std(axis=1).mean()
         print(f"\tdiversity: {divesity:0.3}")

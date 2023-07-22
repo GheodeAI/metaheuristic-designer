@@ -11,7 +11,6 @@ class ES(VariablePopulation):
 
     def __init__(self, pop_init: Initializer, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, 
                  selection_op: SurvivorSelection, params: Union[ParamScheduler, dict] = {}, name: str = "ES"):
-
         evolve_op = OperatorMeta("Sequence", [mutation_op, cross_op])
 
         super().__init__(

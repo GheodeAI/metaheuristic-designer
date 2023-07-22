@@ -39,11 +39,7 @@ class VNS(Algorithm):
         super().initialize(objfunc)
         self.local_search.initialize(objfunc)
 
-    def perturb(self, indiv_list, objfunc, progress=0, history=None):
-        """
-        Performs a step of the algorithm
-        """
-            
+    def perturb(self, indiv_list, objfunc, progress=0, history=None):   
         offspring = []
         for indiv in indiv_list:
 
@@ -82,10 +78,6 @@ class VNS(Algorithm):
         return new_population
 
     def update_params(self, progress=0):
-        """
-        Updates the parameters of each component of the algorithm
-        """
-
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)
         
@@ -93,10 +85,6 @@ class VNS(Algorithm):
             self.perturb_op.chosen_idx = 0
     
     def extra_step_info(self):
-        """
-        Specific information to display relevant to this algorithm
-        """
-
         idx = self.perturb_op.chosen_idx
 
         print(f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}")

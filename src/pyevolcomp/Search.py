@@ -11,12 +11,22 @@ from .utils import NumpyEncoder
 
 class Search(ABC):
     """
-    General framework for metaheuristic algorithms
+    General framework for metaheuristic algorithms.
+
+    Parameters
+    ----------
+
+    objfunc: ObjectiveFunc
+        Objective function to be optimized.
+    search_strategy: Algorithm
+        Search strategy that will iteratively optimize the function.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
     def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, params: Union[ParamScheduler, dict] = None):
         """
-        Constructor of the Metaheuristic class
+        Constructor of the Search class
         """
 
         self.params = params
@@ -70,27 +80,50 @@ class Search(ABC):
         self.real_time_spent = 0
         self.objfunc.counter = 0
 
-    def save_solution(self, file_name="solution.csv"):
+    def save_solution(self, file_name: str = "solution.csv"):
         """
         Save the result of an execution to a csv file in disk.
+
+        Parameters
+        ----------
+
+        file_name: str
+            Path to the file where the solution will be stored.
         """
 
         ind, fit = self.search_strategy.best_solution()
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=',')
-        with open(file_name, "a") as file:
-            file.write(str(fit))
 
-    def best_solution(self) -> Tuple(Individual, float):
+    def best_solution(self) -> Tuple[Individual, float]:
         """
         Returns the best solution so far in the population.
+
+        Returns
+        -------
+        best_solution: Tuple[Individual, float]
+            A pair of the best individual with its fitness.
         """
 
         return self.search_strategy.best_solution()
     
 
-    def stopping_condition(self, gen, real_time_start, cpu_time_start) -> bool:
+    def stopping_condition(self, gen: int, real_time_start: float, cpu_time_start: float) -> bool:
         """
         Given the state of the algorithm, returns wether we have finished or not.
+
+        Parameters
+        ----------
+        gen: int
+            The number of generations that has passed.
+        real_time_start: float
+            The time in seconds that passed since the algorithm was executed.
+        cpu_time_start: float
+            The time in seconds that the CPU has executed code in this algorithm.
+        
+        Returns
+        -------
+        has_stopped: bool
+            Whether the algorithm has reached its end
         """
 
         neval_reached = self.objfunc.counter >= self.Neval
@@ -110,10 +143,24 @@ class Search(ABC):
 
         return process_condition(self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_reached, patience_reached)
 
-    def get_progress(self, gen, real_time_start, cpu_time_start) -> float:
+    def get_progress(self, gen: int, real_time_start: float, cpu_time_start: float) -> float:
         """
         Given the state of the algorithm, returns a number between 0 and 1 indicating
         how close to the end of the algorithm we are, 0 when starting and 1 when finished.
+
+        Parameters
+        ----------
+        gen: int
+            The number of generations that has passed.
+        real_time_start: float
+            The time in seconds that passed since the algorithm was executed.
+        cpu_time_start: float
+            The time in seconds that the CPU has executed code in this algorithm.
+        
+        Returns
+        -------
+        progress: float
+            Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
         """
 
         neval_reached = self.objfunc.counter/self.Neval
@@ -136,10 +183,19 @@ class Search(ABC):
 
         return process_progress(self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_reached, patience_prec)     
 
-    def update(self, real_time_start, cpu_time_start, pass_step=True):
+    def update(self, real_time_start: float, cpu_time_start: float, pass_step:bool = True):
         """
-        Given the state of the algorithm, returns a number between 0 and 1 indicating
-        how close to the end of the algorithm we are, 0 when starting and 1 when finished.
+        Updates the attributes of the optimization algorithm.
+        This function should be called once per iteration of the algorithm.
+
+        Parameters
+        ----------
+        real_time_start: float
+            The time in seconds that passed since the algorithm was executed.
+        cpu_time_start: float
+            The time in seconds that the CPU has executed code in this algorithm.
+        pass_step: bool
+            Whether to increment the iteration counter or not.
         """        
 
         if pass_step:
@@ -158,21 +214,40 @@ class Search(ABC):
 
     def initialize(self):
         """
-        Generates a random population of individuals
+        Initializes the optimization algorithm.
         """
 
         self.restart()
         self.search_strategy.initialize(self.objfunc)
 
     @abstractmethod
-    def step(self, time_start=0, verbose=False) -> Tuple[Individual, float]:
+    def step(self, time_start: float = 0, verbose: bool = False) -> Tuple[Individual, float]:
         """
-        Performs a step in the algorithm
+        Performs an iteration of the algorithm.
+
+        Parameters
+        ----------
+        time_start: float, optional
+            Indicates to the algorihm how much time has already passed.
+        verbose: bool, optional
+            Indicates whether to show the status of the algorithm or not. 
+        
+        Returns
+        -------
+        best_solution: Tuple[Individual, float]
+            A pair of the best individual with its fitness.
         """
 
     def optimize(self) -> Tuple[Individual, float]:
         """
-        Execute the algorithm to get the best solution possible along with it's evaluation
+        Execute the algorithm to get the best solution possible along with its evaluation.
+        It will initialize the algorithm and repeat steps of the algorithm untill the 
+        stopping condition is met.
+
+        Returns
+        -------
+        best_solution: Tuple[Individual, float]
+            A pair of the best individual with its fitness.
         """
 
         self.steps = 0
@@ -204,9 +279,28 @@ class Search(ABC):
 
         return self.best_solution()
 
-    def get_state(self, show_best_solution=True, show_fit_history=False, show_gen_history=False, show_pop=False, show_pop_details=False) -> dict:
+    def get_state(self, show_best_solution: bool = True, show_fit_history: bool = False, show_gen_history: bool = False,
+                  show_pop: bool = False, show_pop_details:bool = False) -> dict:
         """
-        Gets the current state of the algorithm as a dictionary
+        Gets the current state of the algorithm as a dictionary.
+
+        Parameters
+        ----------
+        show_best_solution: bool, optional
+            Save the best solution found by the algorithm. 
+        show_fit_history: bool, optional
+            Save the fitness of the best individual of each iteration.
+        show_gen_history: bool, optional
+            Save the best inividual for each iteration.
+        show_pop: bool, optional
+            Save the entire population of the last iteration.
+        show_pop_details:bool, optional
+            Save the detailed information of each individual.
+
+        Returns
+        -------
+        state: dict
+            The complete state of the algorithm.
         """
         
         data = {
@@ -233,37 +327,74 @@ class Search(ABC):
 
         return data
     
-    def store_state(self, file_name="dumped_state.json", readable=False, show_best_solution=True,
-                    show_fit_history=False, show_gen_history=False, show_pop=False, show_pop_details=False):
+    def store_state(self, file_name: str = "dumped_state.json", readable: bool = False, show_best_solution: bool = True,
+                    show_fit_history: bool = False, show_gen_history: bool = False, show_pop: bool = False, 
+                    show_pop_details: bool = False):
         """
-        Dumps the current state of the algorithm to a file.
+        Dumps the current state of the algorithm to a JSON file.
 
-        Everything will be stored in a JSON file.
+        Parameters
+        ----------
+        file_name: str
+            Path to the file where the json file will be stored.
+        readable: bool, optional
+            Indent the JSON file to make it human-readable (comes at the cost of a higher file size).
+        show_best_solution: bool, optional
+            Save the best solution found by the algorithm. 
+        show_fit_history: bool, optional
+            Save the fitness of the best individual of each iteration.
+        show_gen_history: bool, optional
+            Save the best inividual for each iteration.
+        show_pop: bool, optional
+            Save the entire population of the last iteration.
+        show_pop_details:bool, optional
+            Save the detailed information of each individual.
         """
 
         dumped = json.dumps(self.get_state(show_best_solution, show_fit_history,
-                                           show_gen_history, show_pop, show_pop_details), cls=NumpyEncoder, indent = 4 if readable else None)
+                                           show_gen_history, show_pop, show_pop_details), 
+                                           cls=NumpyEncoder, indent = 4 if readable else None)
 
         with open(file_name, "w") as fp:
             fp.write(dumped)
     
     @abstractmethod
-    def step_info(self, start_time):
+    def step_info(self, start_time: float = 0):
         """
-        Displays information about the current state of the algotithm
+        Displays information about the current state of the algotithm.
+
+        Parameters
+        ----------
+        time_start: float, optional
+            Indicates to the algorihm how much time has already passed.
         """
 
     @abstractmethod
-    def display_report(self, show_plots=True):
+    def display_report(self, show_plots: bool = True):
         """
-        Shows a summary of the execution of the algorithm
+        Shows a summary of the execution of the algorithm.
+
+        Parameters
+        ----------
+        show_plots: bool, optional
+            Whether to display plots about the algorithm or not.
         """
 
 
-def parse_stopping_cond(condition_str: str) -> List[str]:
+def parse_stopping_cond(condition_str: str) -> List[str | List]:
     """
     This function parses an expression of the form "neval or cpu_time" into
     a tree structure so that it can be futher processed.
+
+    Parameters
+    ----------
+    condition_str: str
+        The string to be parsed.
+    
+    Returns
+    -------
+    token_list: List[str | List]
+        The list of tokens representing the original string.
     """
 
     orop = pp.Literal("and")
@@ -281,11 +412,35 @@ def parse_stopping_cond(condition_str: str) -> List[str]:
     return expr.parse_string(condition_str).as_list()
 
 
-def process_condition(cond_parsed, neval, ngen, real_time, cpu_time, target, patience) -> bool:
+def process_condition(cond_parsed: List[str | List], neval: int, ngen: int, real_time: float, 
+                      cpu_time: float, target: float, patience: int) -> bool:
     """
     This function recieves as an input an expression for the stopping condition
     and the truth variable of the possible stopping conditions and returns wether to stop or not.
+
+    Parameters
+    ----------
+    cond_parsed: List[str | List]
+        The list of tokens representing the parsed stopping condition.
+    neval: int
+        Number of function evaluations done.
+    ngen: int
+        Number of iterations done by the algorithm
+    real_time: float
+        Time since the start of the algorithm.
+    cpu_time: float
+        Time dedicated by the CPU to optimizing our function.
+    target: float
+        Fitness target.
+    patience: int
+        Number of time the algorithm has reached the same fitness value in a row.
+    
+    Returns
+    -------
+    has_stopped: bool
+        Whether the algorithm has reached its end
     """
+
     result = None
 
     if isinstance(cond_parsed, list):
@@ -317,11 +472,35 @@ def process_condition(cond_parsed, neval, ngen, real_time, cpu_time, target, pat
     
     return result
 
-def process_progress(cond_parsed, neval, ngen, real_time, cpu_time, target, patience) -> float:
+def process_progress(cond_parsed: List[str | List], neval: int, ngen: int, real_time: float, 
+                     cpu_time: float, target: float, patience: int) -> float:
     """
     This function recieves as an input an expression for the stopping condition 
     and the truth variable of the possible stopping conditions and returns wether to stop or not. 
+
+    Parameters
+    ----------
+    cond_parsed: List[str | List]
+        The list of tokens representing the parsed stopping condition.
+    neval: int
+        Number of function evaluations done.
+    ngen: int
+        Number of iterations done by the algorithm
+    real_time: float
+        Time since the start of the algorithm.
+    cpu_time: float
+        Time dedicated by the CPU to optimizing our function.
+    target: float
+        Fitness target.
+    patience: int
+        Number of time the algorithm has reached the same fitness value in a row.
+    
+    Returns
+    -------
+    has_stopped: bool
+        Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
     """
+
     result = None
     
     if isinstance(cond_parsed, list):

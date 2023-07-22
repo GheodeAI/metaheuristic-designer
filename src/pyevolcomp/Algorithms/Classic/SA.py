@@ -14,8 +14,6 @@ class SA(Algorithm):
     """
 
     def __init__(self, pop_init: Initializer, perturb_op: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "SA"):
-        
-        # Parameters of the algorithm
         self.iter = params["iter"] if "iter" in params else 100
         self.temp_init = params["temp_init"] if "temp_init" in params else 100
         self.temp = self.temp_init
@@ -27,10 +25,6 @@ class SA(Algorithm):
     
 
     def perturb(self, indiv_list, objfunc, progress=None, history=None):
-        """
-        Applies a mutation operator to the current individual
-        """
-
         indiv = indiv_list[0]
         for j in range(self.iter):
             new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
@@ -47,10 +41,6 @@ class SA(Algorithm):
         return [indiv]
 
     def update_params(self, progress):
-        """
-        Updates the parameters and the operators
-        """
-
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)
 
@@ -63,10 +53,6 @@ class SA(Algorithm):
         self.temp = self.temp * self.alpha
 
     def extra_step_info(self):
-        """
-        Specific information to display relevant to this algorithm
-        """
-
         print()
         print(f"\tTemperature: {float(self.temp):0.3}")
         print(f"\tAccept prob: {np.exp(-1 / self.temp):0.3}")

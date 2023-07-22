@@ -1,9 +1,6 @@
 pyevolcomp.Operators package
 ============================
 
-Submodules
-----------
-
 pyevolcomp.Operators.OperatorBinary module
 ------------------------------------------
 
@@ -40,14 +37,6 @@ pyevolcomp.Operators.OperatorReal module
 ----------------------------------------
 
 .. automodule:: pyevolcomp.Operators.OperatorReal
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Operators.OperatorSplit module
------------------------------------------
-
-.. automodule:: pyevolcomp.Operators.OperatorSplit
    :members:
    :undoc-members:
    :show-inheritance:
