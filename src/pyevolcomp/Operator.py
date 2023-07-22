@@ -5,18 +5,25 @@ from abc import ABC, abstractmethod
 
 class Operator(ABC):
     """
-    Abstract Operator class
+    Abstract Operator class.
+
+    Parameters
+    ----------
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the operator.
+    name: str, optional
+        Name that is associated with the operator.
     """
 
-    last_id = 0
+    _last_id = 0
 
-    def __init__(self, params: Union[ParamScheduler, dict] = None, name=None):
+    def __init__(self, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
-        Constructor for the Operator class
+        Constructor for the Operator class.
         """
 
-        self.id = Operator.last_id
-        Operator.last_id += 1
+        self.id = Operator._last_id
+        Operator._last_id += 1
 
         self.param_scheduler = None
 
@@ -62,14 +69,19 @@ class Operator(ABC):
 
     def __call__(self, solution: Individual, population: List[Individual], objfunc: ObjectiveFunc, global_best: Individual, initializer: Initializer) -> Individual:
         """
-        A shorthand for calling the 'evolve' method
+        A shorthand for calling the 'evolve' method.
         """
 
         return self.evolve(solution, population, objfunc, global_best, initializer)
 
     def step(self, progress: float):
         """
-        Updates the parameters of the method using a paramater scheduler if it exists
+        Updates the parameters of the method using a paramater scheduler if it exists.
+
+        Parameters
+        ----------
+        progress: float
+            Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
         """
 
         if self.param_scheduler:
@@ -79,6 +91,11 @@ class Operator(ABC):
     def get_state(self) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
+
+        Returns
+        -------
+        state: dict
+            The complete state of the operator.
         """
         
         data = {
@@ -96,7 +113,25 @@ class Operator(ABC):
         return data
 
     @abstractmethod
-    def evolve(self, solution: Individual, population: List[Individual], objfunc: ObjectiveFunc, global_best: Individual, initializer: Initializer) -> Individual:
+    def evolve(self, indiv: Individual, population: List[Individual], objfunc: ObjectiveFunc, global_best: Individual, initializer: Initializer) -> Individual:
         """
-        Evolves a solution with a different strategy depending on the type of substrate
+        Evolves an individual using a given strategy.
+
+        Parameters
+        ----------
+        indiv: Individual
+            Individual to be operated on.
+        population: List[Individual]
+            The population that will be used in crossing operations.
+        objfunc: ObjectiveFunc
+            The objective function being optimized.
+        global_best: Individual
+            The best individual found during the optimization of the algorithm
+        initializer: Initializer
+            The population initializer of the algorithm (used for randomly generating individuals).
+
+        Returns
+        -------
+        new_individual: Individual
+            The modified individual.
         """

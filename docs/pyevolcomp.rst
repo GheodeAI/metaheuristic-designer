@@ -1,26 +1,6 @@
 pyevolcomp package
 ==================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   pyevolcomp.simple
-   pyevolcomp.SearchMethods
-   pyevolcomp.Algorithms
-   pyevolcomp.Operators
-   pyevolcomp.SurvivorSelection
-   pyevolcomp.ParentSelection
-   pyevolcomp.Initializers
-   pyevolcomp.Encodings
-   pyevolcomp.benchmarks
-   
-
-Submodules
-----------
-
 pyevolcomp.ObjectiveFunc module
 -------------------------------
 
@@ -101,3 +81,20 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   pyevolcomp.simple
+   pyevolcomp.SearchMethods
+   pyevolcomp.Algorithms
+   pyevolcomp.Operators
+   pyevolcomp.SurvivorSelection
+   pyevolcomp.ParentSelection
+   pyevolcomp.Initializers
+   pyevolcomp.Encodings
+   pyevolcomp.benchmarks
