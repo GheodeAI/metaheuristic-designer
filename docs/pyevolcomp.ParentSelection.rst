@@ -1,9 +1,6 @@
 pyevolcomp.ParentSelection package
 ==================================
 
-Submodules
-----------
-
 pyevolcomp.ParentSelection.ParentSelection module
 -------------------------------------------------
 

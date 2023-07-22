@@ -1,9 +1,6 @@
 pyevolcomp.Operators package
 ============================
 
-Submodules
-----------
-
 pyevolcomp.Operators.OperatorBinary module
 ------------------------------------------
 

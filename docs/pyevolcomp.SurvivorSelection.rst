@@ -1,9 +1,6 @@
 pyevolcomp.SurvivorSelection package
 ====================================
 
-Submodules
-----------
-
 pyevolcomp.SurvivorSelection.SurvivorSelection module
 -----------------------------------------------------
 

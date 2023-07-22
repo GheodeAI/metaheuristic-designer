@@ -6,6 +6,18 @@ from ..SearchMethods import GeneralSearch
 def random_search(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     """
     Instantiates a random search algorithm to optimize the given objective function.
+
+    Parameters
+    ----------
+    objfunc: ObjectiveFunc
+        Objective function to be optimized.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters of the algorithm.
+
+    Returns
+    -------
+    algorithm: Search
+        Configured optimization algorithm.
     """
 
     encoding_str = params["encoding"] if "encoding" in params else "bin"

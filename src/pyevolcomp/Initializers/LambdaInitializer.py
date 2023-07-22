@@ -19,8 +19,4 @@ class LambdaInitializer(Initializer):
         self.encoding = encoding
     
     def generate_random(self, objfunc: ObjectiveFunc) -> Individual:
-        """
-        Generates a random individual
-        """
-
         return Individual(objfunc, self.generator(), encoding=self.encoding)

@@ -1,9 +1,6 @@
 pyevolcomp.Algorithms.Modern package
 ====================================
 
-Submodules
-----------
-
 pyevolcomp.Algorithms.Modern.CMA\_ES module
 -------------------------------------------
 

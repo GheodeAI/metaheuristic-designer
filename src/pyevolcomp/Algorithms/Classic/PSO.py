@@ -30,10 +30,6 @@ class PSO(StaticPopulation):
         )
 
     def extra_step_info(self):
-        """
-        Specific information to display relevant to this algorithm
-        """
-
         popul_matrix = np.array(list(map(lambda x: x.genotype, self.population)))
         speed_matrix = np.array(list(map(lambda x: x.speed, self.population)))
         divesity = popul_matrix.std(axis=1).mean()

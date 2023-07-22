@@ -1,19 +1,6 @@
 pyevolcomp.Algorithms package
 =============================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   pyevolcomp.Algorithms.CRO
-   pyevolcomp.Algorithms.Classic
-   pyevolcomp.Algorithms.Modern
-
-Submodules
-----------
-
 pyevolcomp.Algorithms.HillClimb module
 --------------------------------------
 
@@ -61,3 +48,13 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   pyevolcomp.Algorithms.CRO
+   pyevolcomp.Algorithms.Classic
+   pyevolcomp.Algorithms.Modern

@@ -77,10 +77,6 @@ class OperatorBinary(Operator):
             self.params["method"] = ProbDist.BERNOULLI
 
     def evolve(self, indiv, population, objfunc, global_best, initializer):
-        """
-        Evolves a solution with a different strategy depending on the type of operator
-        """
-
         new_indiv = copy(indiv)
         others = [i for i in population if i != indiv]
         if len(others) == 0:

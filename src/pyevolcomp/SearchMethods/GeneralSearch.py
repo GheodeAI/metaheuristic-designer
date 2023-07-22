@@ -18,11 +18,6 @@ class GeneralSearch(Search):
         super().__init__(objfunc, search_strategy, params)
 
     def step(self, time_start=0, verbose=False):
-        """
-        Performs a step in the algorithm
-        """
-
-        # Do a search step
         population = self.search_strategy.population
 
         parents, _ = self.search_strategy.select_parents(population, self.progress, self.best_history)
@@ -43,10 +38,6 @@ class GeneralSearch(Search):
         return (best_individual, best_fitness)
 
     def step_info(self, start_time):
-        """
-        Displays information about the current state of the algotithm
-        """
-
         print(f"Optimizing {self.objfunc.name} using {self.search_strategy.name}:")
         print(f"\tReal time Spent: {round(time.time() - start_time,2)} s")
         print(f"\tCPU time Spent:  {round(time.time() - start_time,2)} s")
@@ -58,11 +49,6 @@ class GeneralSearch(Search):
         print()
 
     def display_report(self, show_plots=True):
-        """
-        Shows a summary of the execution of the algorithm
-        """
-
-        # Print Info
         print("Number of generations:", len(self.fit_history))
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
         print("CPU time spent: ", round(self.cpu_time_spent, 5), "s", sep="")

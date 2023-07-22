@@ -78,10 +78,6 @@ class OperatorMeta(Operator):
             params["weights"] = [params["p"], 1 - params["p"]]
 
     def evolve(self, indiv, population, objfunc, global_best, initializer=None):
-        """
-        Evolves a solution with a different strategy depending on the type of operator
-        """
-
         if self.method == MetaOpMethods.BRANCH:
             self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
             chosen_op = self.op_list[self.chosen_idx]
@@ -117,10 +113,6 @@ class OperatorMeta(Operator):
         return result
     
     def step(self, progress: float):
-        """
-        Updates the parameters of the method using a paramater scheduler if it exists
-        """
-
         super().step(progress)
         
         for op in self.op_list:
@@ -128,10 +120,6 @@ class OperatorMeta(Operator):
                 op.step(progress)
             
     def get_state(self) -> dict:
-        """
-        Gets the current state of the algorithm as a dictionary.
-        """
-        
         data = super().get_state()
 
         data["op_list"] = []

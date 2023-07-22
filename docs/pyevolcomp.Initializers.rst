@@ -1,9 +1,6 @@
 pyevolcomp.Initializers package
 ===============================
 
-Submodules
-----------
-
 pyevolcomp.Initializers.DirectInitializer module
 ------------------------------------------------
 

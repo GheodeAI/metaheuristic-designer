@@ -1,9 +1,6 @@
 pyevolcomp.Encodings package
 ============================
 
-Submodules
-----------
-
 pyevolcomp.Encodings.CMAEncoding module
 ---------------------------------------
 

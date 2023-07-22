@@ -7,6 +7,18 @@ from ..SearchMethods import GeneralSearch
 def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
+
+    Parameters
+    ----------
+    objfunc: ObjectiveFunc
+        Objective function to be optimized.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters of the algorithm.
+
+    Returns
+    -------
+    algorithm: Search
+        Configured optimization algorithm.
     """
 
     encoding_str = params["encoding"] if "encoding" in params else "bin"

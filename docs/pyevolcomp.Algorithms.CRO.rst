@@ -1,9 +1,6 @@
 pyevolcomp.Algorithms.CRO package
 =================================
 
-Submodules
-----------
-
 pyevolcomp.Algorithms.CRO.CRO module
 ------------------------------------
 

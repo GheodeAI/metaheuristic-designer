@@ -1,9 +1,6 @@
 pyevolcomp.Algorithms.Classic package
 =====================================
 
-Submodules
-----------
-
 pyevolcomp.Algorithms.Classic.DE module
 ---------------------------------------
 

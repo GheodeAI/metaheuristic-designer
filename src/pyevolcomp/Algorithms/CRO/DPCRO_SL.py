@@ -26,7 +26,6 @@ class DPCRO_SL(CRO_SL):
     def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = {}, name: str = "DPCRO-SL"):
         super().__init__(pop_init, operator_list, params=params, name=name)
 
-
         self.group_subs = params["group_subs"]
         self.dyn_method = params["dyn_method"]
         self.dyn_metric = params["dyn_metric"]
