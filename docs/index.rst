@@ -13,7 +13,7 @@ Subsection1
 ~~~~~~~~~~~
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
    :caption: Contents:
    
    modules

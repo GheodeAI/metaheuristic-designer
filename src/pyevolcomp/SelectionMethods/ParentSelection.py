@@ -2,6 +2,7 @@ from __future__ import annotations
 import enum
 from enum import Enum
 from ..ParamScheduler import ParamScheduler
+from ..SelectionMethod import SelectionMethod
 from .parent_selection_functions import *
 
 
@@ -34,12 +35,12 @@ parent_sel_map = {
 }
 
 
-class ParentSelection:
+class ParentSelection(SelectionMethod):
     """
     Parent selection methods
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, padding: bool = False, name: str = None):
         """
         Constructor for the ParentSelection class
         """
@@ -48,62 +49,15 @@ class ParentSelection:
             self.name = method
 
         self.method = ParentSelMethod.from_str(method)
-
-        self.param_scheduler = None
-        if params is None:
-            self.params = {"amount": 10, "p": 0.1}
-        elif isinstance(params, ParamScheduler):
-            self.param_scheduler = params
-            self.params = self.param_scheduler.get_params()
-        else:
-            self.params = params
         
         if self.method in [ParentSelMethod.ROULETTE, ParentSelMethod.SUS]:
             self.params["method"] = SelectionDist.from_str(self.params["method"])
             if "F" not in self.params:
                 self.params["F"] = None
-
-    def __call__(self, population: List[Individual]) -> List[Individual]:
-        """
-        Shorthand for calling the 'select' method
-        """
-
-        return self.select(population)
-
-    def step(self, progress: float):
-        """
-        Updates the parameters of the method using a paramater scheduler if it exists
-        """
-
-        if self.param_scheduler:
-            self.param_scheduler.step(progress)
-            self.params = self.param_scheduler.get_params()
-
-            if "amount" in self.params:
-                self.params["amount"] = round(self.params["amount"])
-
-    def get_state(self) -> dict:
-        """
-        Gets the current state of the algorithm as a dictionary.
-        """
-
-        data = {
-            "name": self.name
-        }
-
-        if self.param_scheduler:
-            data["param_scheduler"] = self.param_scheduler.get_state()
-            data["params"] = self.param_scheduler.get_params()
-        elif self.params:
-            data["params"] = self.params
         
-        return data           
+        super().__init__(params, padding, name)
 
-    def select(self, population: List[Individual]) -> List[Individual]:
-        """
-        Selects a subsection of the population along with the indices of each individual in the original population
-        """
-
+    def select(self, population: List[Individual], offsping: List[Individual] = None) -> List[Individual]:
         parents = []
         order = []
         if self.method == ParentSelMethod.TOURNAMENT:

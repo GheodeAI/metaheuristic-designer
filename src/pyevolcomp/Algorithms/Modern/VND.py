@@ -6,7 +6,7 @@ from ...ParamScheduler import ParamScheduler
 from ...Algorithm import Algorithm
 from ...Operator import Operator
 from ...Operators import OperatorMeta
-from ...SurvivorSelection import SurvivorSelection
+from ...SelectionMethods import SurvivorSelection
 from .vns_neighborhood_changes import *
 import time
 

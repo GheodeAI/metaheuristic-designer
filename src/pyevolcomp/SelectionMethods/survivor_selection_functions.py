@@ -25,7 +25,7 @@ def one_to_one(popul, offspring):
             new_population.append(parent)
 
     if len(offspring) < len(popul):
-        n_leftover = len(offspring) - len(popul)
+        n_leftover = len(popul) - len(offspring)
         new_population += popul[n_leftover:]
 
     return new_population
@@ -45,7 +45,7 @@ def prob_one_to_one(popul, offspring, p):
             new_population.append(parent)
 
     if len(offspring) < len(popul):
-        n_leftover = len(offspring) - len(popul)
+        n_leftover = len(popul) - len(offspring)
         new_population += popul[n_leftover:]
 
     return new_population

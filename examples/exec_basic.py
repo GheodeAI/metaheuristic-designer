@@ -18,7 +18,7 @@ def run_algorithm(alg_name, memetic, save_state):
         # "stop_cond": "neval or time_limit",
         "stop_cond": "convergence or time_limit",
         "progress_metric": "time_limit",
-        "time_limit": 2.0,
+        "time_limit": 100.0,
         "cpu_time_limit": 100.0,
         "ngen": 1000,
         "neval": 3e6,
@@ -29,8 +29,9 @@ def run_algorithm(alg_name, memetic, save_state):
         "v_timer": 0.5
     }
 
-    objfunc = Sphere(30, "min")
+    # objfunc = Sphere(30, "min")
     # objfunc = Rastrigin(30, "min")
+    objfunc = Rosenbrock(30, "min")
     # objfunc = Weierstrass(30, "min")
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 

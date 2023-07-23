@@ -8,6 +8,20 @@ from ..Search import Search
 class MemeticSearch(Search):
     """
     General framework for metaheuristic algorithms
+
+    Parameters
+    ----------
+
+    objfunc: ObjectiveFunc
+        Objective function to be optimized.
+    search_strategy: Algorithm
+        Search strategy that will iteratively optimize the function.
+    local_search: Algorithm
+        Search strategy that will improve a selection of the individuals.
+    improve_choice: SelectionMethod
+        Method used to select the individuals that will be improved
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
     def __init__(self, objfunc, search_strategy, local_search, improve_choice, params = None):

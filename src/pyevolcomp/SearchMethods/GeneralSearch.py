@@ -8,6 +8,16 @@ import time
 class GeneralSearch(Search):
     """
     General framework for metaheuristic algorithms
+
+    Parameters
+    ----------
+
+    objfunc: ObjectiveFunc
+        Objective function to be optimized.
+    search_strategy: Algorithm
+        Search strategy that will iteratively optimize the function.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
     def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, params: Union[ParamScheduler, dict] = None):

@@ -2,7 +2,7 @@ from __future__ import annotations
 import numpy as np
 from typing import Union, List
 from ...Operators import OperatorReal
-from ...SurvivorSelection import SurvivorSelection
+from ...SelectionMethods import SurvivorSelection
 from ..StaticPopulation import StaticPopulation
 from ...ParamScheduler import ParamScheduler
 

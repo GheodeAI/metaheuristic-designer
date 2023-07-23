@@ -2,9 +2,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from .Individual import Individual
 from .ParamScheduler import ParamScheduler
-from .ParentSelection import ParentSelection
+from .SelectionMethods import ParentSelection, SurvivorSelection
 from .Operator import Operator
-from .SurvivorSelection import SurvivorSelection
 import time
 
 class Algorithm(ABC):

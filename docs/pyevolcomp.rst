@@ -12,7 +12,7 @@ pyevolcomp.ObjectiveFunc module
 pyevolcomp.Individual module
 ----------------------------
 
-.. automodule:: pyevolcomp.Individual
+.. autoclass:: pyevolcomp.Individual
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ pyevolcomp.Individual module
 pyevolcomp.Search module
 ------------------------
 
-.. automodule:: pyevolcomp.Search
+.. autoclass:: pyevolcomp.Search
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ pyevolcomp.Search module
 pyevolcomp.Algorithm module
 ---------------------------
 
-.. automodule:: pyevolcomp.Algorithm
+.. autoclass:: pyevolcomp.Algorithm
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ pyevolcomp.Algorithm module
 pyevolcomp.Operator module
 --------------------------
 
-.. automodule:: pyevolcomp.Operator
+.. autoclass:: pyevolcomp.Operator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,7 @@ pyevolcomp.Operator module
 pyevolcomp.Encoding module
 --------------------------
 
-.. automodule:: pyevolcomp.Encoding
+.. autoclass:: pyevolcomp.Encoding
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,7 +52,7 @@ pyevolcomp.Encoding module
 pyevolcomp.Initializer module
 -----------------------------
 
-.. automodule:: pyevolcomp.Initializer
+.. autoclass:: pyevolcomp.Initializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -60,7 +60,7 @@ pyevolcomp.Initializer module
 pyevolcomp.ParamScheduler module
 --------------------------------
 
-.. automodule:: pyevolcomp.ParamScheduler
+.. autoclass:: pyevolcomp.ParamScheduler
    :members:
    :undoc-members:
    :show-inheritance:
@@ -87,14 +87,13 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    pyevolcomp.simple
    pyevolcomp.SearchMethods
    pyevolcomp.Algorithms
    pyevolcomp.Operators
-   pyevolcomp.SurvivorSelection
-   pyevolcomp.ParentSelection
+   pyevolcomp.SelectionMethods
    pyevolcomp.Initializers
    pyevolcomp.Encodings
    pyevolcomp.benchmarks
