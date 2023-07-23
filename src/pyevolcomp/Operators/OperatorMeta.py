@@ -34,7 +34,18 @@ meta_ops_map = {
 
 class OperatorMeta(Operator):
     """
-    Operator class that has discrete mutation and cross methods
+    Operator class that utilizes a list of operators to modify individuals.
+
+    Parameters
+    ----------
+    method: str
+        Type of operator that will be applied.
+    op_list: List[Operator]
+        List of operators that will be used.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the operator.
+    name: str, optional
+        Name that is associated with the operator.
     """
 
     def __init__(self, method: str, op_list: List[Operator], params: Union[ParamScheduler, dict] = None, name: str = None):

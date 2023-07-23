@@ -39,7 +39,10 @@ class MemeticSearch(Search):
         self.local_search.initialize(self.objfunc)
 
     def _do_local_search(self, offspring):
-        offspring_to_imp, off_idxs = self.improve_choice(offspring)
+        offspring_ids = [indiv.id for indiv in offspring]
+
+        offspring_to_imp = self.improve_choice(offspring)
+        off_idxs = [offspring_ids.index(indiv.id) for indiv in offspring_to_imp]
 
         to_improve = [offspring[i] for i in off_idxs]
 
@@ -57,7 +60,7 @@ class MemeticSearch(Search):
     def step(self, time_start=0, verbose=False):
         population = self.search_strategy.population
 
-        parents, parent_idxs = self.search_strategy.select_parents(population, self.progress, self.best_history)
+        parents = self.search_strategy.select_parents(population, self.progress, self.best_history)
 
         offspring = self.search_strategy.perturb(parents, self.objfunc, self.progress, self.best_history)
 
@@ -84,8 +87,9 @@ class MemeticSearch(Search):
 
         return (best_individual, best_fitness)
     
-    def get_state(self):
-        data = super().get_state()
+    def get_state(self, show_best_solution: bool = True, show_fit_history: bool = False, show_gen_history: bool = False,
+                  show_pop: bool = False, show_pop_details:bool = False):
+        data = super().get_state(show_best_solution, show_fit_history, show_gen_history, show_pop, show_pop_details)
 
         # Add parent selection method for local search
         data["improve_selection"] = self.improve_choice.get_state()

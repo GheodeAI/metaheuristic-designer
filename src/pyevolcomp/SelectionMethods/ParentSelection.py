@@ -37,7 +37,18 @@ parent_sel_map = {
 
 class ParentSelection(SelectionMethod):
     """
-    Parent selection methods
+    Parent selection methods.
+
+    Parameters
+    ----------
+    method: str
+        Strategy used in the selection process.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the behaviour of the selection method.
+    padding: bool, optional
+        Whether to fill the entire list of selected individuals to match the size of the original one.
+    name: str, optional
+        The name that will be assigned to this selection method.
     """
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, padding: bool = False, name: str = None):
@@ -46,7 +57,9 @@ class ParentSelection(SelectionMethod):
         """
 
         if name is None:
-            self.name = method
+            name = method
+        
+        super().__init__(params, padding, name)
 
         self.method = ParentSelMethod.from_str(method)
         
@@ -55,27 +68,28 @@ class ParentSelection(SelectionMethod):
             if "F" not in self.params:
                 self.params["F"] = None
         
-        super().__init__(params, padding, name)
+        
 
     def select(self, population: List[Individual], offsping: List[Individual] = None) -> List[Individual]:
+        population = population.copy()
         parents = []
-        order = []
+        
         if self.method == ParentSelMethod.TOURNAMENT:
-            parents, order = prob_tournament(population, self.params["amount"], self.params["p"])
+            parents = prob_tournament(population, self.params["amount"], self.params["p"])
 
         elif self.method == ParentSelMethod.BEST:
-            parents, order = select_best(population, self.params["amount"])
+            parents = select_best(population, self.params["amount"])
         
         elif self.method == ParentSelMethod.RANDOM:
-            parents, order = uniform_selection(population, self.params["amount"])
+            parents = uniform_selection(population, self.params["amount"])
         
         elif self.method == ParentSelMethod.ROULETTE:
-            parents, order = roulette(population, self.params["amount"], self.params["method"], self.params["F"])
+            parents = roulette(population, self.params["amount"], self.params["method"], self.params["F"])
         
         elif self.method == ParentSelMethod.SUS:
-            parents, order = sus(population, self.params["amount"], self.params["method"], self.params["F"])
+            parents = sus(population, self.params["amount"], self.params["method"], self.params["F"])
 
         elif self.method == ParentSelMethod.NOTHING:
-            parents, order = population, range(len(population))
+            parents = population
 
-        return parents, order
+        return parents

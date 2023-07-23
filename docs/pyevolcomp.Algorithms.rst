@@ -1,50 +1,42 @@
 pyevolcomp.Algorithms package
 =============================
 
-pyevolcomp.Algorithms.HillClimb module
+HillClimb
 --------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.HillClimb
+.. autoclass:: pyevolcomp.Algorithms.HillClimb
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.LocalSearch module
+LocalSearch
 ----------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.LocalSearch
+.. autoclass:: pyevolcomp.Algorithms.LocalSearch
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.NoSearch module
--------------------------------------
-
-.. automodule:: pyevolcomp.Algorithms.NoSearch
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Algorithms.StaticPopulation module
+StaticPopulation
 ---------------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.StaticPopulation
+.. autoclass:: pyevolcomp.Algorithms.StaticPopulation
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.VariablePopulation module
+VariablePopulation
 -----------------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.VariablePopulation
+.. autoclass:: pyevolcomp.Algorithms.VariablePopulation
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+NoSearch
+-------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms
+.. autoclass:: pyevolcomp.Algorithms.NoSearch
    :members:
    :undoc-members:
    :show-inheritance:
@@ -53,7 +45,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    pyevolcomp.Algorithms.CRO
    pyevolcomp.Algorithms.Classic

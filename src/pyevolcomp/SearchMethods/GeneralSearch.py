@@ -30,7 +30,7 @@ class GeneralSearch(Search):
     def step(self, time_start=0, verbose=False):
         population = self.search_strategy.population
 
-        parents, _ = self.search_strategy.select_parents(population, self.progress, self.best_history)
+        parents = self.search_strategy.select_parents(population, self.progress, self.best_history)
 
         offspring = self.search_strategy.perturb(parents, self.objfunc, self.progress, self.best_history)
 

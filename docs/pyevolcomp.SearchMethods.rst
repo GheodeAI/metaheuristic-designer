@@ -1,26 +1,18 @@
 pyevolcomp.SearchMethods package
 ================================
 
-pyevolcomp.SearchMethods.GeneralSearch module
+General Search
 ---------------------------------------------
 
-.. automodule:: pyevolcomp.SearchMethods.GeneralSearch
+.. autoclass:: pyevolcomp.SearchMethods.GeneralSearch
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.SearchMethods.MemeticSearch module
+Memetic Search
 ---------------------------------------------
 
-.. automodule:: pyevolcomp.SearchMethods.MemeticSearch
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pyevolcomp.SearchMethods
+.. autoclass:: pyevolcomp.SearchMethods.MemeticSearch
    :members:
    :undoc-members:
    :show-inheritance:

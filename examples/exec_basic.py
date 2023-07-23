@@ -60,7 +60,7 @@ def run_algorithm(alg_name, memetic, save_state):
     
     mem_select = ParentSelection("Best", {"amount": 5})
     neihbourhood_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.0002})
-    local_search =  LocalSearch(pop_initializer, neihbourhood_op, {"iters":10})
+    local_search =  LocalSearch(pop_initializer, neihbourhood_op, params={"iters":10})
 
     
 
@@ -69,7 +69,7 @@ def run_algorithm(alg_name, memetic, save_state):
         search_strat = HillClimb(pop_initializer, mutation_op)
     elif alg_name == "LocalSearch":
         pop_initializer.pop_size = 1
-        search_strat = LocalSearch(pop_initializer, mutation_op, {"iters":20})
+        search_strat = LocalSearch(pop_initializer, mutation_op, params={"iters":20})
     elif alg_name == "SA":
         pop_initializer.pop_size = 1
         search_strat = SA(pop_initializer, mutation_op, {"iter":100, "temp_init":1, "alpha":0.997})

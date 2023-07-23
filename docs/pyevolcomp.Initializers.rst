@@ -1,7 +1,7 @@
 pyevolcomp.Initializers package
 ===============================
 
-pyevolcomp.Initializers.DirectInitializer module
+DirectInitializer
 ------------------------------------------------
 
 .. automodule:: pyevolcomp.Initializers.DirectInitializer
@@ -9,7 +9,7 @@ pyevolcomp.Initializers.DirectInitializer module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Initializers.GaussianInitializer module
+GaussianInitializer
 --------------------------------------------------
 
 .. automodule:: pyevolcomp.Initializers.GaussianInitializer
@@ -17,7 +17,7 @@ pyevolcomp.Initializers.GaussianInitializer module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Initializers.LambdaInitializer module
+LambdaInitializer
 ------------------------------------------------
 
 .. automodule:: pyevolcomp.Initializers.LambdaInitializer
@@ -25,7 +25,7 @@ pyevolcomp.Initializers.LambdaInitializer module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Initializers.SeedInitializer module
+SeedInitializer
 ----------------------------------------------
 
 .. automodule:: pyevolcomp.Initializers.SeedInitializer
@@ -33,18 +33,10 @@ pyevolcomp.Initializers.SeedInitializer module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Initializers.UniformInitializer module
+UniformInitializer
 -------------------------------------------------
 
 .. automodule:: pyevolcomp.Initializers.UniformInitializer
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pyevolcomp.Initializers
    :members:
    :undoc-members:
    :show-inheritance:

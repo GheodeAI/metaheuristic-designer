@@ -97,6 +97,15 @@ real_ops_map = {
 class OperatorReal(Operator):
     """
     Operator class that has mutation and cross methods for real coded vectors
+
+    Parameters
+    ----------
+    method: str
+        Type of operator that will be applied.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the operator.
+    name: str, optional
+        Name that is associated with the operator.
     """
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
@@ -195,7 +204,7 @@ class OperatorReal(Operator):
         elif self.method == RealOpMethods.RANDNOISE:
             new_indiv.genotype = randNoise(new_indiv.genotype, params)
 
-        elif self.method == RealOpMethods.RANDNOISE:
+        elif self.method == RealOpMethods.RANDSAMPLE:
             new_indiv.genotype = randSample(new_indiv.genotype, others, params)
 
         elif self.method == RealOpMethods.DE_RAND_1:

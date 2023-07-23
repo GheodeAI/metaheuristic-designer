@@ -12,6 +12,10 @@ example_populaton1 = [Individual(Sphere(3), np.random.randint(-100, 100, 3)) for
 example_populaton2 = [Individual(Sphere(20), np.random.randint(-100, 100, 20)) for i in range(pop_size)]
 example_populaton3 = [Individual(Sphere(100), np.random.randint(-100, 100, 100)) for i in range(pop_size)]
 
+def test_errors():
+    with pytest.raises(ValueError):
+        operator = OperatorInt("not_a_method")
+
 @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 @pytest.mark.parametrize("op_method", int_ops_map.keys())
 def test_basic_working(population, op_method):

@@ -1,7 +1,7 @@
 pyevolcomp.SelectionMethods package
 ===================================
 
-pyevolcomp.SelectionMethods.ParentSelection module
+ParentSelection
 --------------------------------------------------
 
 .. automodule:: pyevolcomp.SelectionMethods.ParentSelection
@@ -9,7 +9,7 @@ pyevolcomp.SelectionMethods.ParentSelection module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.SelectionMethods.SurvivorSelection module
+SurvivorSelection
 ----------------------------------------------------
 
 .. automodule:: pyevolcomp.SelectionMethods.SurvivorSelection
@@ -17,7 +17,7 @@ pyevolcomp.SelectionMethods.SurvivorSelection module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.SelectionMethods.parent\_selection\_functions module
+Parent selection functions
 ---------------------------------------------------------------
 
 .. automodule:: pyevolcomp.SelectionMethods.parent_selection_functions
@@ -25,18 +25,10 @@ pyevolcomp.SelectionMethods.parent\_selection\_functions module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.SelectionMethods.survivor\_selection\_functions module
+Survivor selection functions
 -----------------------------------------------------------------
 
 .. automodule:: pyevolcomp.SelectionMethods.survivor_selection_functions
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pyevolcomp.SelectionMethods
    :members:
    :undoc-members:
    :show-inheritance:

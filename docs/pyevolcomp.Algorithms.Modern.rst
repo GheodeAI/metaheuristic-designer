@@ -1,7 +1,7 @@
 pyevolcomp.Algorithms.Modern package
 ====================================
 
-pyevolcomp.Algorithms.Modern.CMA\_ES module
+CMA\_ES
 -------------------------------------------
 
 .. automodule:: pyevolcomp.Algorithms.Modern.CMA_ES
@@ -9,7 +9,7 @@ pyevolcomp.Algorithms.Modern.CMA\_ES module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.Modern.RVNS module
+RVNS
 ----------------------------------------
 
 .. automodule:: pyevolcomp.Algorithms.Modern.RVNS
@@ -17,7 +17,7 @@ pyevolcomp.Algorithms.Modern.RVNS module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.Modern.VND module
+VND
 ---------------------------------------
 
 .. automodule:: pyevolcomp.Algorithms.Modern.VND
@@ -25,7 +25,7 @@ pyevolcomp.Algorithms.Modern.VND module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.Modern.VNS module
+VNS
 ---------------------------------------
 
 .. automodule:: pyevolcomp.Algorithms.Modern.VNS
@@ -33,18 +33,10 @@ pyevolcomp.Algorithms.Modern.VNS module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.Modern.vns\_neighborhood\_changes module
+Vns neighborhood changes
 --------------------------------------------------------------
 
 .. automodule:: pyevolcomp.Algorithms.Modern.vns_neighborhood_changes
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pyevolcomp.Algorithms.Modern
    :members:
    :undoc-members:
    :show-inheritance:

@@ -41,6 +41,14 @@ pyevolcomp.Operator module
    :undoc-members:
    :show-inheritance:
 
+pyevolcomp.SelectionMethod module
+---------------------------------
+
+.. autoclass:: pyevolcomp.SelectionMethod
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyevolcomp.Encoding module
 --------------------------
 

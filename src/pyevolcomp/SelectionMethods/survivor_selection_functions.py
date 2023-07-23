@@ -4,8 +4,17 @@ import random
 def argsort(seq):
     """
     Implementation of argsort for python-style lists.
+    Source: https://stackoverflow.com/questions/3382352/equivalent-of-numpy-argsort-in-basic-python
 
-    source: https://stackoverflow.com/questions/3382352/equivalent-of-numpy-argsort-in-basic-python
+    Parameters
+    ----------
+    seq: Iterable
+        Iterable for which we want to obtain the order of.
+    
+    Returns
+    -------
+    order: List
+        The positions of the original elements of the list in order. 
     """
 
     return sorted(range(len(seq)), key=seq.__getitem__)
@@ -15,6 +24,18 @@ def one_to_one(popul, offspring):
     """
     Compares each new individual with its parent and it replaces it if
     it has a better fitness.
+
+    Parameters
+    ----------
+    popul: List[Individual]
+        Original population of individuals before being operated on.
+    offspring: List[Individual]
+        Individuals resulting from an iteration of the algorithm.
+    
+    Returns
+    -------
+    survivors: List[Individual]
+        The individuals selected for the next generation.
     """
 
     new_population = []
@@ -35,6 +56,20 @@ def prob_one_to_one(popul, offspring, p):
     """
     Compares each new individual with its parent and it replaces it with a 
     probability of p or if it has a better fitness.
+
+    Parameters
+    ----------
+    popul: List[Individual]
+        Original population of individuals before being operated on.
+    offspring: List[Individual]
+        Individuals resulting from an iteration of the algorithm.
+    p: float
+        Probability that an individual will be replaced by its child even if it has a worse fitness.
+    
+    Returns
+    -------
+    survivors: List[Individual]
+        The individuals selected for the next generation.
     """
 
     new_population = []
@@ -55,6 +90,20 @@ def elitism(popul, offspring, amount):
     """
     The offspring is passed to the next generation and a number of the
     parents replace the worst individuals.
+
+    Parameters
+    ----------
+    popul: List[Individual]
+        Original population of individuals before being operated on.
+    offspring: List[Individual]
+        Individuals resulting from an iteration of the algorithm.
+    amount: int
+        Amount of parents from the original population that will be kept.
+    
+    Returns
+    -------
+    survivors: List[Individual]
+        The individuals selected for the next generation.
     """
     selected_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[:len(popul) - amount]
     best_parents = sorted(popul, reverse=True, key=lambda x: x.fitness)[:amount]
@@ -64,6 +113,19 @@ def elitism(popul, offspring, amount):
 
 def cond_elitism(popul, offspring, amount):
     """
+    Parameters
+    ----------
+    popul: List[Individual]
+        Original population of individuals before being operated on.
+    offspring: List[Individual]
+        Individuals resulting from an iteration of the algorithm.
+    amount: int
+        Amount of parents from the original population that will be kept.
+    
+    Returns
+    -------
+    survivors: List[Individual]
+        The individuals selected for the next generation.
     """
 
     best_parents = sorted(popul, reverse=True, key=lambda x: x.fitness)[:amount]
@@ -81,7 +143,19 @@ def cond_elitism(popul, offspring, amount):
 def lamb_plus_mu(popul, offspring):
     """
     Both the parents and the offspring are considered and the best
-    of them will pass to the next generation
+    of them will pass to the next generation.
+
+    Parameters
+    ----------
+    popul: List[Individual]
+        Original population of individuals before being operated on.
+    offspring: List[Individual]
+        Individuals resulting from an iteration of the algorithm.
+    
+    Returns
+    -------
+    survivors: List[Individual]
+        The individuals selected for the next generation.
     """
 
     population = popul + offspring
@@ -90,7 +164,19 @@ def lamb_plus_mu(popul, offspring):
 
 def lamb_comma_mu(popul, offspring):
     """
-    Only the best individuals in the offsping are selected 
+    Only the best individuals in the offsping are selected.
+
+    Parameters
+    ----------
+    popul: List[Individual]
+        Original population of individuals before being operated on.
+    offspring: List[Individual]
+        Individuals resulting from an iteration of the algorithm.
+    
+    Returns
+    -------
+    survivors: List[Individual]
+        The individuals selected for the next generation.
     """
 
     return sorted(offspring, reverse=True, key=lambda x: x.fitness)[:len(popul)]
@@ -157,7 +243,34 @@ def _cro_depredation(population, Fd, Pd):
 def cro_selection(popul, offspring, Fd, Pd, attempts, maxpopsize):
     """
     Selection method of the Coral Reef Optimization algorithm.
+    The offspring first tries to be inserted into the population, then
+    the whole resulting population will go through a depredation phase
+    where the worse individuals will be removed.
+
+    Parameters
+    ----------
+    popul: List[Individual]
+        Original population of individuals before being operated on.
+    offspring: List[Individual]
+        Individuals resulting from an iteration of the algorithm.
+    Fd: float
+        Proportion of individuals with the worse fintess that will go through
+        a depredation step.
+    Pd: float
+        Probability that an individual will be eliminated from the population
+        in the depredation step.
+    attempts: int
+        Maximum number of times a solution can attempt to be inserted into a
+        position with an individual with a better fitness value.
+    maxpopsize: int
+        Maximum size of the population.
+    
+    Returns
+    -------
+    survivors: List[Individual]
+        The individuals selected for the next generation.
     """
+    
     setted_corals = _cro_set_larvae(popul, offspring, attempts, maxpopsize)
     reduced_population = _cro_depredation(setted_corals, Fd, Pd)
     return reduced_population

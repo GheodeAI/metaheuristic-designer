@@ -33,6 +33,8 @@ class VariablePopulation(Algorithm):
 
         super().__init__(pop_init, params=params, name=name)
     
+    def select_parents(self, population, progress=0, history=None):
+        return self.parent_sel_op(population)
     
     def perturb(self, parent_list, objfunc, progress=0, history=None):
         offspring = []

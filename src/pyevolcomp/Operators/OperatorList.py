@@ -33,7 +33,16 @@ list_ops_map = {
 
 class OperatorList(Operator):
     """
-    Operator class that has continuous mutation and cross methods
+    Operator class that works on variable length lists.
+
+    Parameters
+    ----------
+    method: str
+        Type of operator that will be applied.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the operator.
+    name: str, optional
+        Name that is associated with the operator.
     """
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):

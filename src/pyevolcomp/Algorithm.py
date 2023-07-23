@@ -49,6 +49,7 @@ class Algorithm(ABC):
         Saves the attributes that represent operators or other relevant information
         about the algorithm.
         """
+        
         attr_dict = vars(self).copy()
 
         self.parent_sel = []
@@ -133,7 +134,7 @@ class Algorithm(ABC):
             A pair of the list of individuals considered as parents and their position in the original population.
         """
 
-        return population, range(len(population))
+        return population
 
     @abstractmethod
     def perturb(self, parent_list: List[Individual], progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Individual]:
