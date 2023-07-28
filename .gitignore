@@ -8,6 +8,7 @@ benchmarks/results
 benchmarks/results/*
 .nox/*
 .pytest_cache/*
+.coverage
 dist/
 dist/*
 examples/results/

@@ -13,13 +13,13 @@ from copy import copy
 import scipy as sp
 import numpy as np
 
-def run_algorithm(alg_name, memetic, save_state):
+def run_algorithm(alg_name, problem_name, memetic, save_state):
     params = {
         # "stop_cond": "neval or time_limit or fit_target",
         # "stop_cond": "neval or time_limit",
         "stop_cond": "time_limit",
         "progress_metric": "time_limit",
-        "time_limit": 10.0,
+        "time_limit": 100.0,
         "cpu_time_limit": 100.0,
         "ngen": 1000,
         "neval": 3e6,
@@ -30,22 +30,27 @@ def run_algorithm(alg_name, memetic, save_state):
         "v_timer": 0.5
     }
 
-    values = [
-        360, 83, 59, 130, 431, 67, 230, 52, 93, 125, 670, 892, 600, 38, 48, 147,
-        78, 256, 63, 17, 120, 164, 432, 35, 92, 110, 22, 42, 50, 323, 514, 28,
-        87, 73, 78, 15, 26, 78, 210, 36, 85, 189, 274, 43, 33, 10, 19, 389, 276,
-        312
-    ]
+    if problem_name == "knapsack":
+        values = [
+            360, 83, 59, 130, 431, 67, 230, 52, 93, 125, 670, 892, 600, 38, 48, 147,
+            78, 256, 63, 17, 120, 164, 432, 35, 92, 110, 22, 42, 50, 323, 514, 28,
+            87, 73, 78, 15, 26, 78, 210, 36, 85, 189, 274, 43, 33, 10, 19, 389, 276,
+            312
+        ]
 
-    weights = [
-        7, 0, 30, 22, 80, 94, 11, 81, 70, 64, 59, 18, 0, 36, 3, 8, 15, 42, 9, 0,
-        42, 47, 52, 32, 26, 48, 55, 6, 29, 84, 2, 4, 18, 56, 7, 29, 93, 44, 71,
-        3, 86, 66, 31, 65, 0, 79, 20, 65, 52, 13
-    ]
+        weights = [
+            7, 0, 30, 22, 80, 94, 11, 81, 70, 64, 59, 18, 0, 36, 3, 8, 15, 42, 9, 0,
+            42, 47, 52, 32, 26, 48, 55, 6, 29, 84, 2, 4, 18, 56, 7, 29, 93, 44, 71,
+            3, 86, 66, 31, 65, 0, 79, 20, 65, 52, 13
+        ]
 
-    capacity = 850
+        capacity = 850
 
-    objfunc = Bin_Knapsack_problem(weights, values, capacity)
+        objfunc = Bin_Knapsack_problem(weights, values, capacity)
+    elif problem_name == "SAT":
+        objfunc = Three_SAT.from_cnf_file("./data/sat_examples/uf100-02.cnf")
+    else:
+        raise ValueError(f"The problem '{problem_name}' does not exist.")
 
     encoding = TypeCastEncoding(int, bool)
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding)
@@ -67,7 +72,7 @@ def run_algorithm(alg_name, memetic, save_state):
         
     ]
 
-    neighborhood_structures = [OperatorBinary("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(len(weights))]
+    neighborhood_structures = [OperatorBinary("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
 
 
     parent_sel_op = ParentSelection("Best", parent_params)
@@ -75,7 +80,7 @@ def run_algorithm(alg_name, memetic, save_state):
     
     mem_select = ParentSelection("Best", {"amount": 5})
     neihbourhood_op = OperatorBinary("RandNoise", {"method":"Cauchy", "F": 0.0002})
-    local_search =  LocalSearch(pop_initializer, neihbourhood_op, {"iters":10})
+    local_search =  LocalSearch(pop_initializer, neihbourhood_op, params={"iters":10})
 
     
 
@@ -87,7 +92,7 @@ def run_algorithm(alg_name, memetic, save_state):
         search_strat = LocalSearch(pop_initializer, mutation_op, {"iters":20})
     elif alg_name == "SA":
         pop_initializer.pop_size = 1
-        search_strat = SA(pop_initializer, mutation_op, {"iter":100, "temp_init":1, "alpha":0.999})
+        search_strat = SA(pop_initializer, mutation_op, {"iter":100, "temp_init":1, "alpha":0.99})
     elif alg_name == "ES":
         search_strat = ES(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize":150})
     elif alg_name == "GA":
@@ -173,7 +178,7 @@ def main():
     if args.save_state:
         save_state = True
    
-    run_algorithm(alg_name = algorithm_name, memetic=mem, save_state=save_state)
+    run_algorithm(alg_name = algorithm_name, problem_name="SAT", memetic=mem, save_state=save_state)
 
 if __name__ == "__main__":
     main()

@@ -47,7 +47,7 @@ class ObjectiveFunc(ABC):
         value = self.objective(solution)
 
         if adjusted:
-            value = self.factor * value - self.penalize(solution)
+            value = self.factor * (value - self.penalize(solution))
 
         return value
 
