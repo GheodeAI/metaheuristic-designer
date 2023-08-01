@@ -1,6 +1,14 @@
 pyevolcomp.benchmarks package
 =============================
 
+pyevolcomp.benchmarks.classic_problems module
+---------------------------------------------
+
+.. automodule:: pyevolcomp.benchmarks.classic_problems
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyevolcomp.benchmarks.ImgFuncs module
 -------------------------------------
 
