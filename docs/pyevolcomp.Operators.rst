@@ -25,6 +25,14 @@ OperatorBinary
    :undoc-members:
    :show-inheritance:
 
+OperatorPerm
+------------------------------------------
+
+.. automodule:: pyevolcomp.Operators.OperatorPerm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 OperatorList
 ----------------------------------------
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 from ..Initializers import UniformVectorInitializer
 from ..Operators import OperatorInt, OperatorReal, OperatorBinary
 from ..Algorithms import SA
+from ..Encodings import TypeCastEncoding
 from ..SearchMethods import GeneralSearch
 
 def simulated_annealing(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
@@ -45,7 +46,9 @@ def _simulated_annealing_bin_vec(objfunc, params):
     alpha = params["alpha"] if "alpha" in params else 0.99
     mutstr = params["mutstr"] if "mutstr" in params else 1
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=bool)
+    encoding = TypeCastEncoding(int, bool)
+
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
 
     mutation_op = OperatorBinary("Flip", {"N":mutstr})
 

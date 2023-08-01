@@ -68,7 +68,7 @@ class ObjectiveFunc(ABC):
         value = self.objective(solution)
 
         if adjusted:
-            value = self.factor * value - self.penalize(solution)
+            value = self.factor * (value - self.penalize(solution))
 
         return value
 
@@ -103,6 +103,8 @@ class ObjectiveFunc(ABC):
         repaired_solution: Any
             A modified version of the solution passed that satisfies the restrictions of the problem.             
         """
+
+        return vector
 
     def repair_speed(self, speed: ndarray) -> ndarray:
         """

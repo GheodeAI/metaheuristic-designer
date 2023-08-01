@@ -1,5 +1,6 @@
 from __future__ import annotations
 from ..Initializers import UniformVectorInitializer
+from ..Encodings import TypeCastEncoding
 from ..Algorithms import RandomSearch
 from ..SearchMethods import GeneralSearch
 
@@ -39,7 +40,9 @@ def _random_search_bin_vec(objfunc, params):
     This objective function should accept binary coded vectors.
     """
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=bool)
+    encoding = TypeCastEncoding(int, bool)
+
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
 
     search_strat = RandomSearch(pop_initializer)
 

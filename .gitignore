@@ -14,5 +14,4 @@ dist/
 dist/*
 examples/results/
 examples/results/*
-docs/_build
-
+docs/_build/

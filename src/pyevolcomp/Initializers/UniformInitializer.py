@@ -50,7 +50,13 @@ class UniformInitializer(Initializer):
 
 class UniformVectorInitializer(UniformInitializer):
     def generate_random(self, objfunc):
-        new_vector = np.random.uniform(self.low_lim, self.up_lim, size=self.genotype_size).astype(self.dtype)
+        new_vector_float = np.random.uniform(self.low_lim, self.up_lim, size=self.genotype_size)
+        if self.dtype is int:
+            new_vector = np.round(new_vector_float).astype(self.dtype)
+        else:
+            new_vector = new_vector_float.astype(self.dtype)
+
+
         return Individual(objfunc, new_vector, encoding=self.encoding)
 
     def generate_individual(self, objfunc):

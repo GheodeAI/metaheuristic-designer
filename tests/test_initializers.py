@@ -124,3 +124,21 @@ def test_gaussian_list_init(list_size, mean_val, std_val, pop_size):
     for indiv in rand_pop:
         assert len(indiv.genotype) == list_size
 
+
+@pytest.mark.parametrize("vec_size", [2, 10, 100])
+@pytest.mark.parametrize("pop_size", [1, 10, 100])
+def test_perm_init(vec_size, pop_size):
+    pop_init = PermInitializer(vec_size, pop_size)
+
+    for _ in range(30):
+        rand_inidv = pop_init.generate_random(None)
+        assert np.all(np.isin(np.arange(vec_size), rand_inidv.genotype))
+    
+        rand_inidv = pop_init.generate_individual(None)
+        assert np.all(np.isin(np.arange(vec_size), rand_inidv.genotype))
+    
+    rand_pop = pop_init.generate_population(None)
+    assert len(rand_pop) == pop_size
+
+    for indiv in rand_pop:
+        assert np.all(np.isin(np.arange(vec_size), rand_inidv.genotype))

@@ -40,3 +40,11 @@ UniformInitializer
    :members:
    :undoc-members:
    :show-inheritance:
+
+PermInitializer
+-------------------------------------------------
+
+.. automodule:: pyevolcomp.Initializers.PermInitializer
+   :members:
+   :undoc-members:
+   :show-inheritance:

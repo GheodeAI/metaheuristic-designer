@@ -2,6 +2,7 @@ from __future__ import annotations
 from ..Initializers import UniformVectorInitializer
 from ..Operators import OperatorInt, OperatorReal, OperatorBinary
 from ..SelectionMethods import  SurvivorSelection, ParentSelection
+from ..Encodings import TypeCastEncoding
 from ..Algorithms import ES
 from ..SearchMethods import GeneralSearch
 
@@ -47,7 +48,9 @@ def _evolution_strategy_bin_vec(objfunc, params):
     n_parents = params["n_parents"] if "n_parents" in params else 100
     mutstr = params["mutstr"] if "mutstr" in params else 1
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=bool)
+    encoding = TypeCastEncoding(int, bool)
+
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
 
     cross_op = OperatorBinary("Nothing")
     mutation_op = OperatorBinary("Flip", {"N":mutstr})
