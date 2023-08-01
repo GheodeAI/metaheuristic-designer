@@ -1,6 +1,6 @@
 import numpy as np
-from numba import jit
-from ..ObjectiveFunc import ObjectiveVectorFunc, ObjectiveVectorFunc
+# from numba import jit
+from ..ObjectiveFunc import ObjectiveVectorFunc
 
 
 class MaxOnes(ObjectiveVectorFunc):
@@ -48,7 +48,7 @@ class Sphere(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -100, 100, name="Sphere function")
 
     def objective(self, solution):
-        return sphere(solution)
+        return _sphere(solution)
 
 
 class HighCondElliptic(ObjectiveVectorFunc):
@@ -57,7 +57,7 @@ class HighCondElliptic(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -5.12, 5.12, name="High condition elliptic function")
 
     def objective(self, solution):
-        return high_cond_elipt_f(solution)
+        return _high_cond_elipt_f(solution)
 
 
 class BentCigar(ObjectiveVectorFunc):
@@ -66,7 +66,7 @@ class BentCigar(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -100, 100, name="Bent Cigar function")
 
     def objective(self, solution):
-        return bent_cigar(solution)
+        return _bent_cigar(solution)
 
 
 class Discus(ObjectiveVectorFunc):
@@ -75,7 +75,7 @@ class Discus(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -5.12, 5.12, name="Discus function")
 
     def objective(self, solution):
-        return discus(solution)
+        return _discus(solution)
 
 
 class Rosenbrock(ObjectiveVectorFunc):
@@ -84,7 +84,7 @@ class Rosenbrock(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -100, 100, name="Rosenbrock function")
 
     def objective(self, solution):
-        return rosenbrock(solution)
+        return _rosenbrock(solution)
 
 
 class Ackley(ObjectiveVectorFunc):
@@ -93,7 +93,7 @@ class Ackley(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -5.12, 5.12, name="Ackley function")
 
     def objective(self, solution):
-        return ackley(solution)
+        return _ackley(solution)
 
 
 class Weierstrass(ObjectiveVectorFunc):
@@ -102,7 +102,7 @@ class Weierstrass(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -100, 100, name="Weierstrass function")
 
     def objective(self, solution):
-        return weierstrass(solution)
+        return _weierstrass(solution)
 
 
 class Griewank(ObjectiveVectorFunc):
@@ -111,7 +111,7 @@ class Griewank(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -100, 100, name="Griewank function")
 
     def objective(self, solution):
-        return griewank(solution)
+        return _griewank(solution)
 
 
 class Rastrigin(ObjectiveVectorFunc):
@@ -120,7 +120,7 @@ class Rastrigin(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -5.12, 5.12, name="Rastrigin function")
 
     def objective(self, solution):
-        return rastrigin(solution)
+        return _rastrigin(solution)
 
 
 class ModSchwefel(ObjectiveVectorFunc):
@@ -129,7 +129,7 @@ class ModSchwefel(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -100, 100, name="Modified Schweafel function")
 
     def objective(self, solution):
-        return mod_schwefel(solution)
+        return _mod_schwefel(solution)
 
 
 class Katsuura(ObjectiveVectorFunc):
@@ -138,7 +138,7 @@ class Katsuura(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -100, 100, name="Katsuura function")
 
     def objective(self, solution):
-        return katsuura(solution)
+        return _katsuura(solution)
 
 
 class HappyCat(ObjectiveVectorFunc):
@@ -147,7 +147,7 @@ class HappyCat(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -2, 2, name="Happy Cat function")
 
     def objective(self, solution):
-        return happy_cat(solution)
+        return _happy_cat(solution)
 
 
 class HGBat(ObjectiveVectorFunc):
@@ -156,7 +156,7 @@ class HGBat(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -2, 2, name="HGBat function")
 
     def objective(self, solution):
-        return hgbat(solution)
+        return _hgbat(solution)
 
 
 class ExpandedGriewankPlusRosenbrock(ObjectiveVectorFunc):
@@ -165,7 +165,7 @@ class ExpandedGriewankPlusRosenbrock(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -100, 100, name="Expanded Griewank + Rosenbrock")
 
     def objective(self, solution):
-        return exp_griewank_plus_rosenbrock(solution)
+        return _exp_griewank_plus_rosenbrock(solution)
 
 
 class ExpandedShafferF6(ObjectiveVectorFunc):
@@ -174,7 +174,7 @@ class ExpandedShafferF6(ObjectiveVectorFunc):
         super().__init__(self.size, opt, -100, 100, name="Expanded Shaffer F6 function")
 
     def objective(self, solution):
-        return exp_shafferF6(solution)
+        return _exp_shafferF6(solution)
 
 
 class SumPowell(ObjectiveVectorFunc):
@@ -185,13 +185,10 @@ class SumPowell(ObjectiveVectorFunc):
         self.size = size
         self.lim_min = lim_min
         self.lim_max = lim_max
-        super().__init__(self.size, opt, "Sum Powell")
+        super().__init__(self.size, opt, low_lim=lim_min, up_lim=lim_max, name="Sum Powell")
 
     def objective(self, solution):
-        return sum_powell(solution)
-    
-    def random_solution(self):
-        return np.random.random(self.size) * (self.lim_max - self.lim_min) - self.lim_min
+        return _sum_powell(solution)
 
     def repair_solution(self, solution, parent=None):
         # bounce back method
@@ -215,13 +212,10 @@ class N4XinSheYang(ObjectiveVectorFunc):
         self.size = size
         self.lim_min = lim_min
         self.lim_max = lim_max
-        super().__init__(self.size, opt, "N4 Xin-She Yang")
+        super().__init__(self.size, opt, low_lim=lim_min, up_lim=lim_max, name="N4 Xin-She Yang")
 
     def objective(self, solution):
-        return n4xinshe_yang(solution)
-    
-    def random_solution(self, lim_min=None, lim_max=None):
-        return np.random.random(self.size) * (self.lim_max - self.lim_min) - self.lim_min
+        return _n4xinshe_yang(solution)
     
     def repair_solution(self, solution, parent=None):
         # bounce back method
@@ -237,53 +231,53 @@ class N4XinSheYang(ObjectiveVectorFunc):
         return solution
 
 
-@jit(nopython=True)
-def sphere(solution):
+# @jit(nopython=True)
+def _sphere(solution):
     return (solution**2).sum()
 
-@jit(nopython=True)
-def high_cond_elipt_f(vect):
+# @jit(nopython=True)
+def _high_cond_elipt_f(vect):
     c = 1.0e6**((np.arange(vect.shape[0])/(vect.shape[0]-1)))
     return np.sum(c*vect*vect)
 
-@jit(nopython=True)
-def bent_cigar(solution):
+# @jit(nopython=True)
+def _bent_cigar(solution):
     return solution[0]**2 + 1e6*(solution[1:]**2).sum()
 
-@jit(nopython=True)
-def discus(solution):
+# @jit(nopython=True)
+def _discus(solution):
     return 1e6*solution[0]**2 + (solution[1:]**2).sum()
 
-@jit(nopython=True)
-def rosenbrock(solution):
+# @jit(nopython=True)
+def _rosenbrock(solution):
     term1 = solution[1:] - solution[:-1]**2
     term2 = 1 - solution[:-1]
     result = 100*term1**2 + term2**2
     return result.sum()
 
-@jit(nopython=True)
-def ackley(solution):
+# @jit(nopython=True)
+def _ackley(solution):
     term1 = (solution**2).sum()
     term1 = -0.2 * np.sqrt(term1/solution.size)
     term2 = (np.cos(2*np.pi*solution)).sum()/solution.size
     return np.exp(1) - 20 * np.exp(term1) - np.exp(term2) + 20
 
 #@jit(nopython=False)
-def weierstrass(solution, iter=20):
+def _weierstrass(solution, iter=20):
     return np.sum(np.array([0.5**k * np.cos(2*np.pi*3**k*(solution+0.5)) for k in range(iter)]))
 
-#@jit(nopython=True)
-def griewank(solution):
+# @jit(nopython=True)
+def _griewank(solution):
     term1 = (solution**2).sum()
     term2 = np.prod(np.cos(solution/np.sqrt(np.arange(1, solution.size+1))))
     return 1 + term1/4000 - term2
 
-@jit(nopython=True)
-def rastrigin(solution, A=10):
+# @jit(nopython=True)
+def _rastrigin(solution, A=10):
     return (A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())
 
-@jit(nopython=True)
-def mod_schwefel(solution):
+# @jit(nopython=True)
+def _mod_schwefel(solution):
     fit = 0
     for i in range(solution.size):
         z = solution[i] + 4.209687462275036e2
@@ -299,30 +293,30 @@ def mod_schwefel(solution):
             fit = fit - z * np.sin(abs( z )**0.5)
     return fit + 4.189828872724338e2 * solution.size
 
-#@jit(nopython=True)
-def katsuura(solution):
+# @jit(nopython=True)
+def _katsuura(solution):
     A = 10/solution.size**2
 
     temp_list = [1 + (i+1)*np.sum((np.abs(2**(np.arange(1, 32+1))*solution[i]-np.round(2**(np.arange(1, 32+1))*solution[i]))*2**(-np.arange(1, 32+1, dtype=float)))**(10/solution.size**1.2)) for i in range(solution.size)]
     prod_val = np.prod(temp_list) 
     return  A * prod_val - A
 
-@jit(nopython=True)
-def happy_cat(solution):
+# @jit(nopython=True)
+def _happy_cat(solution):
     z = solution+4.189828872724338e2
     r2 = (z * solution).sum()
     s = solution.sum()
     return np.abs(r2-solution.size)**0.25 + (0.5*r2+s)/solution.size + 0.5
 
-@jit(nopython=True)
-def hgbat(solution):
+# @jit(nopython=True)
+def _hgbat(solution):
     z = solution+4.189828872724338e2
     r2 = (z * solution).sum()
     s = solution.sum()
     return np.abs((r2**2-s**2))**0.5 + (0.5*r2 + s)/solution.size + 0.5
 
-@jit(nopython=True)
-def exp_griewank_plus_rosenbrock(solution):
+# @jit(nopython=True)
+def _exp_griewank_plus_rosenbrock(solution):
     z = solution[:-1]+4.189828872724338e2
     tmp1 = solution[:-1]**2-solution[1:]
     tmp2 = z - 1
@@ -335,8 +329,8 @@ def exp_griewank_plus_rosenbrock(solution):
     
     return grw + ros**2/4000 - np.cos(ros) + 1
 
-#@jit(nopython=True)
-def exp_shafferF6(solution):
+# @jit(nopython=True)
+def _exp_shafferF6(solution):
     term1 = np.sin(np.sqrt(np.sum(solution[:-1]**2 + solution[1:]**2)))**2 - 0.5
     term2 = 1 + 0.001*(solution[:-1]**2 + solution[1:]**2).sum()
     temp = 0.5 + term1/term2
@@ -346,12 +340,12 @@ def exp_shafferF6(solution):
 
     return temp + 0.5 + term1/term2
 
-@jit(nopython=True)
-def sum_powell(solution):
+# @jit(nopython=True)
+def _sum_powell(solution):
     return (np.abs(solution)**np.arange(2,solution.shape[0]+2)).sum()
 
-@jit(nopython=True)
-def n4xinshe_yang(solution):
+# @jit(nopython=True)
+def _n4xinshe_yang(solution):
     sum_1 = np.exp(-(solution**2).sum())
     sum_2 = np.exp(-(np.sin(np.sqrt(np.abs(solution)))**2).sum())
     return (np.sin(solution)**2 - sum_1).sum() * sum_2

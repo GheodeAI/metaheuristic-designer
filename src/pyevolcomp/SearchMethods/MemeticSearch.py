@@ -8,6 +8,20 @@ from ..Search import Search
 class MemeticSearch(Search):
     """
     General framework for metaheuristic algorithms
+
+    Parameters
+    ----------
+
+    objfunc: ObjectiveFunc
+        Objective function to be optimized.
+    search_strategy: Algorithm
+        Search strategy that will iteratively optimize the function.
+    local_search: Algorithm
+        Search strategy that will improve a selection of the individuals.
+    improve_choice: SelectionMethod
+        Method used to select the individuals that will be improved
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
     def __init__(self, objfunc, search_strategy, local_search, improve_choice, params = None):
@@ -21,15 +35,14 @@ class MemeticSearch(Search):
         self.improve_choice = improve_choice
 
     def initialize(self):
-        """
-        Generates a random population of individuals
-        """
-
         super().initialize()
         self.local_search.initialize(self.objfunc)
 
     def _do_local_search(self, offspring):
-        offspring_to_imp, off_idxs = self.improve_choice(offspring)
+        offspring_ids = [indiv.id for indiv in offspring]
+
+        offspring_to_imp = self.improve_choice(offspring)
+        off_idxs = [offspring_ids.index(indiv.id) for indiv in offspring_to_imp]
 
         to_improve = [offspring[i] for i in off_idxs]
 
@@ -45,14 +58,9 @@ class MemeticSearch(Search):
         return offspring
 
     def step(self, time_start=0, verbose=False):
-        """
-        Performs a step in the algorithm
-        """
-
-        # Do a search step
         population = self.search_strategy.population
 
-        parents, parent_idxs = self.search_strategy.select_parents(population, self.progress, self.best_history)
+        parents = self.search_strategy.select_parents(population, self.progress, self.best_history)
 
         offspring = self.search_strategy.perturb(parents, self.objfunc, self.progress, self.best_history)
 
@@ -79,12 +87,9 @@ class MemeticSearch(Search):
 
         return (best_individual, best_fitness)
     
-    def get_state(self):
-        """
-        Gets the current state of the algorithm as a dictionary
-        """
-        
-        data = super().get_state()
+    def get_state(self, show_best_solution: bool = True, show_fit_history: bool = False, show_gen_history: bool = False,
+                  show_pop: bool = False, show_pop_details:bool = False):
+        data = super().get_state(show_best_solution, show_fit_history, show_gen_history, show_pop, show_pop_details)
 
         # Add parent selection method for local search
         data["improve_selection"] = self.improve_choice.get_state()
@@ -102,10 +107,6 @@ class MemeticSearch(Search):
         return data
 
     def step_info(self, start_time):
-        """
-        Displays information about the current state of the algotithm
-        """
-
         print(f"Optimizing {self.objfunc.name} using {self.search_strategy.name}+{self.local_search.name}:")
         print(f"\tReal time Spent: {round(time.time() - start_time,2)} s")
         print(f"\tCPU time Spent:  {round(time.time() - start_time,2)} s")
@@ -118,11 +119,6 @@ class MemeticSearch(Search):
         print()
 
     def display_report(self, show_plots=True):
-        """
-        Shows a summary of the execution of the algorithm
-        """
-
-        # Print Info
         print("Number of generations:", len(self.fit_history))
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
         print("CPU time spent: ", round(self.cpu_time_spent, 5), "s", sep="")

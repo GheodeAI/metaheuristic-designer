@@ -6,9 +6,13 @@ stats/
 stats/*
 benchmarks/results
 benchmarks/results/*
-.nox/*
-.pytest_cache/*
+.nox/
+.pytest_cache/
+.coverage
+.coverage*
+htmlcov
 dist/
 dist/*
 examples/results/
 examples/results/*
+docs/_build/

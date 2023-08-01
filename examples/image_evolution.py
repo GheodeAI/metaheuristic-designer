@@ -13,7 +13,7 @@ import cv2
 import os
 from copy import deepcopy
 from PIL import Image
-
+from itertools import product
 # import matplotlib
 # matplotlib.use("Gtk3Agg")
 
@@ -34,13 +34,14 @@ def save_to_image(image, img_name="result.png"):
 def run_algorithm(alg_name, img_file_name, memetic):
     params = {
         # General
-        "stop_cond": "time_limit",
+        "stop_cond": "convergence or time_limit",
         "progress_metric": "time_limit",
-        "time_limit": 1000.0,
+        "time_limit": 500.0,
         "cpu_time_limit": 120.0,
         "ngen": 1000,
         "neval": 3e5,
         "fit_target": 0,
+        "patience": 200,
 
         "verbose": True,
         "v_timer": 0.5
@@ -60,16 +61,32 @@ def run_algorithm(alg_name, img_file_name, memetic):
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
 
-    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
+    # objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
     # objfunc = ImgEntropy(image_shape, 256)
-    # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name)
+    objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name)
     
     encoding = ImageEncoding(image_shape, color=True)
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=encoding)
 
 
-    mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F":10, "N":6})
-    cross_op = OperatorReal("Multicross", {"Nindiv": 4})
+
+    mutation_op = OperatorReal("MutRand", {"method": "Uniform", "Low": -20, "Up":20, "N": 15})
+    cross_op = OperatorReal("Multipoint")
+    
+    op_list = [
+        OperatorReal("Multipoint"),
+        OperatorReal("MutRand", {"method": "Cauchy", "F": 5, "N": 10}, name="MutCauchy"),
+        OperatorReal("MutRand", {"method": "Gauss", "F": 5, "N": 10}, name="MutGauss"),
+        OperatorReal("MutSample", {"method": "Uniform", "Low": 0, "Up": 256, "N": 10}, name="MutUniform")
+    ]
+
+    # n_list = np.flip(np.logspace(0, 12, base=2, num=1000))
+    # n_list = np.logspace(4, 12, base=2, num=200)
+    n_list = np.logspace(5, 12, base=2, num=200)
+
+    neighborhood_structures = [OperatorReal("MutNoise", {"method": "Uniform", "Low": -10, "Up":10, "N": n}, name=f"UniformSample(N={n:0.0f})") for n in n_list]
+
+
     parent_sel_op = ParentSelection("Best", {"amount": 15})
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
 
@@ -79,20 +96,49 @@ def run_algorithm(alg_name, img_file_name, memetic):
         search_strat = HillClimb(pop_initializer, mutation_op)
     elif alg_name == "LocalSearch":
         pop_initializer.pop_size = 1
-        search_strat = LocalSearch(pop_initializer, mutation_op, {"iters":20})
+        search_strat = LocalSearch(pop_initializer, mutation_op, params={"iters":20})
     elif alg_name == "SA":
         pop_initializer.pop_size = 1
         search_strat = SA(pop_initializer, mutation_op, {"iter":100, "temp_init":1, "alpha":0.997})
     elif alg_name == "ES":
         search_strat = ES(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize":150})
     elif alg_name == "GA":
-        search_strat = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"popSize":100, "pcross":0.8, "pmut":0.4})
+        search_strat = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross":0.8, "pmut":0.4})
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, {"HMCR":0.8, "BW":0.5, "PAR":0.2})
     elif alg_name == "DE":
         search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F":0.8, "Cr":0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w":0.7, "c1":1.5, "c2":1.5})
+    elif alg_name == "CRO":
+        search_strat = CRO(pop_initializer, mutation_op, cross_op, {"rho":0.6, "Fb":0.95, "Fd":0.1, "Pd":0.9, "attempts":3})
+    elif alg_name == "CRO_SL":
+        search_strat = CRO_SL(pop_initializer, op_list, {"rho":0.6, "Fb":0.95, "Fd":0.1, "Pd":0.9, "attempts":3})
+    elif alg_name == "PCRO_SL":
+        search_strat = PCRO_SL(pop_initializer, op_list, {"rho":0.6, "Fb":0.95, "Fd":0.1, "Pd":0.9, "attempts":3})
+    elif alg_name == "DPCRO_SL":
+        search_strat_params = {
+            "rho":0.6,
+            "Fb":0.95,
+            "Fd":0.1,
+            "Pd":0.9,
+            "attempts": 3,
+            "group_subs": True,
+            "dyn_method": "success",
+            "dyn_metric": "best",
+            "dyn_steps": 75,
+            "prob_amp": 0.1
+        }
+        search_strat = DPCRO_SL(pop_initializer, op_list, search_strat_params)
+    elif alg_name == "RVNS":
+        search_strat = RVNS(pop_initializer, neighborhood_structures)
+    elif alg_name == "VND":
+        search_strat = VND(pop_initializer, neighborhood_structures)
+    elif alg_name == "VNS":
+        local_search = LocalSearch(pop_initializer, params={"iters": 10})
+        search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 200, "nchange":"pipe"})
+        # local_search = HillClimb(pop_initializer)
+        # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
     elif alg_name == "RandomSearch":
         pop_initializer.pop_size = 1
         search_strat = RandomSearch(pop_initializer)
@@ -154,7 +200,7 @@ def main():
     args = parser.parse_args()
 
     algorithm_name = "SA"
-    img_file_name = "images/cat.png"
+    img_file_name = "data/images/cat.png"
     mem = False
 
     if args.alg:

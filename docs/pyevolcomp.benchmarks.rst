@@ -1,8 +1,13 @@
 pyevolcomp.benchmarks package
 =============================
 
-Submodules
-----------
+pyevolcomp.benchmarks.classic_problems module
+---------------------------------------------
+
+.. automodule:: pyevolcomp.benchmarks.classic_problems
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 pyevolcomp.benchmarks.ImgFuncs module
 -------------------------------------
@@ -16,14 +21,6 @@ pyevolcomp.benchmarks.benchmark\_funcs module
 ---------------------------------------------
 
 .. automodule:: pyevolcomp.benchmarks.benchmark_funcs
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pyevolcomp.benchmarks
    :members:
    :undoc-members:
    :show-inheritance:

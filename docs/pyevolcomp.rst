@@ -1,45 +1,6 @@
 pyevolcomp package
 ==================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   pyevolcomp.Algorithms
-   pyevolcomp.Decoders
-   pyevolcomp.Operators
-   pyevolcomp.SearchMethods
-   pyevolcomp.benchmarks
-
-Submodules
-----------
-
-pyevolcomp.Algorithm module
----------------------------
-
-.. automodule:: pyevolcomp.Algorithm
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Decoder module
--------------------------
-
-.. automodule:: pyevolcomp.Decoder
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Individual module
-----------------------------
-
-.. automodule:: pyevolcomp.Individual
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pyevolcomp.ObjectiveFunc module
 -------------------------------
 
@@ -48,26 +9,10 @@ pyevolcomp.ObjectiveFunc module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Operator module
---------------------------
+pyevolcomp.Individual module
+----------------------------
 
-.. automodule:: pyevolcomp.Operator
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.ParamScheduler module
---------------------------------
-
-.. automodule:: pyevolcomp.ParamScheduler
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.ParentSelection module
----------------------------------
-
-.. automodule:: pyevolcomp.ParentSelection
+.. autoclass:: pyevolcomp.Individual
    :members:
    :undoc-members:
    :show-inheritance:
@@ -75,15 +20,64 @@ pyevolcomp.ParentSelection module
 pyevolcomp.Search module
 ------------------------
 
-.. automodule:: pyevolcomp.Search
+.. autoclass:: pyevolcomp.Search
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.SurvivorSelection module
------------------------------------
+pyevolcomp.Algorithm module
+---------------------------
 
-.. automodule:: pyevolcomp.SurvivorSelection
+.. autoclass:: pyevolcomp.Algorithm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyevolcomp.Operator module
+--------------------------
+
+.. autoclass:: pyevolcomp.Operator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyevolcomp.SelectionMethod module
+---------------------------------
+
+.. autoclass:: pyevolcomp.SelectionMethod
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyevolcomp.Encoding module
+--------------------------
+
+.. autoclass:: pyevolcomp.Encoding
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyevolcomp.Initializer module
+-----------------------------
+
+.. autoclass:: pyevolcomp.Initializer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyevolcomp.ParamScheduler module
+--------------------------------
+
+.. autoclass:: pyevolcomp.ParamScheduler
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+pyevolcomp.utils module
+-----------------------
+
+.. automodule:: pyevolcomp.utils
    :members:
    :undoc-members:
    :show-inheritance:
@@ -95,3 +89,19 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   pyevolcomp.simple
+   pyevolcomp.SearchMethods
+   pyevolcomp.Algorithms
+   pyevolcomp.Operators
+   pyevolcomp.SelectionMethods
+   pyevolcomp.Initializers
+   pyevolcomp.Encodings
+   pyevolcomp.benchmarks

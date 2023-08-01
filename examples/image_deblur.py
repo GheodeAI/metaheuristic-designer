@@ -178,7 +178,7 @@ def main():
     args = parser.parse_args()
 
     algorithm_name = "SA"
-    img_file_name = "images/cat_blurry.png"
+    img_file_name = "data/images/cat_blurry.png"
     mem = False
 
     if args.alg:
