@@ -1,23 +1,31 @@
 from __future__ import annotations
 from copy import copy
 import numpy as np
+from numpy import ndarray
 from .Encodings import DefaultEncoding
 
 
 class Individual:
     """
     Individual that holds a tentative solution with its fitness.
+
+    Parameters
+    ----------
+    objfunc: ObjectiveFunc
+    genotype: Any
+    speed: ndarray, optional
+    encoding: Encoding, optional
     """
 
-    last_id = 0
+    _last_id = 0
 
-    def __init__(self, objfunc: ObjectiveFunc, genotype: Any, speed: np.ndarray = None, encoding: Encoding = None):
+    def __init__(self, objfunc: ObjectiveFunc, genotype: Any, speed: ndarray = None, encoding: Encoding = None):
         """
         Constructor of the Individual class.
         """
 
-        self.id = Individual.last_id
-        Individual.last_id += 1
+        self.id = Individual._last_id
+        Individual._last_id += 1
 
         self.objfunc = objfunc
         self._genotype = genotype
@@ -47,15 +55,15 @@ class Individual:
         return copied_ind
 
     @property
-    def genotype(self) -> np.ndarray:
+    def genotype(self) -> ndarray:
         """
-        Gets the value of the vector.
+        The encoded information represented the individual.
         """
 
         return self._genotype
 
     @genotype.setter
-    def genotype(self, vector: np.ndarray):
+    def genotype(self, vector: ndarray):
         """
         Sets the value of the vector.
         """
@@ -63,10 +71,14 @@ class Individual:
         self.fitness_calculated = False
         self._genotype = vector
 
-
     def apply_speed(self) -> Individual:
         """
         Apply the speed to obtain an individual with a new position.
+
+        Returns
+        -------
+        modified_individual: Individual
+            Individual with the speed applied.
         """
 
         return Individual(self.objfunc, self._genotype + self.speed, self.speed, self.encoding)
@@ -74,7 +86,7 @@ class Individual:
     @property
     def fitness(self) -> float:
         """
-        Obtain the fitness of the individual, optimized to be calculated only once per individual.
+        The fitness of the individual, optimized to be calculated only once per individual.
         """
 
         if not self.fitness_calculated:
@@ -84,7 +96,7 @@ class Individual:
     @fitness.setter
     def fitness(self, fit: float):
         """
-        Obtain the fitness of the individual, optimized to be calculated only once per individual.
+        Manually sets a fitness to the individual.
         """
 
         if self.best_fitness is None or self.best_fitness < fit:
@@ -94,9 +106,21 @@ class Individual:
         self._fitness = fit
         self.fitness_calculated = True
     
-    def get_state(self, show_speed: bool = True, show_op: bool = False, show_best: bool = False) -> dict:
+    def get_state(self, show_speed: bool = True, show_best: bool = False) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
+
+        Parameters
+        ----------
+        show_speed: bool, optional
+            Save the speed of the individual.
+        show_best: bool, optional
+            Save the best parent of this individual.
+
+        Returns
+        -------
+        state: dict
+            The current state of this individual.
         """
 
         data = {
@@ -106,9 +130,6 @@ class Individual:
 
         if show_speed:
             data["speed"] = self.speed
-        
-        if show_op and self.operator is not None:
-            data["operator"] = self.operator.name
         
         if show_best:
             data["best_genotype"] =  self.best

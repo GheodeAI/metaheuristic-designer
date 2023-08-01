@@ -1,24 +1,41 @@
+from __future__ import annotations
 from ..Initializers import UniformVectorInitializer
 from ..Operators import OperatorInt, OperatorReal, OperatorBinary
 from ..Algorithms import HillClimb
 from ..Encodings import TypeCastEncoding
 from ..SearchMethods import GeneralSearch
 
-def hill_climb(objfunc, params):
+def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
+    """
+    Instantiates a hill climbing algorithm to optimize the given objective function.
+
+    Parameters
+    ----------
+    objfunc: ObjectiveFunc
+        Objective function to be optimized.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters of the algorithm.
+
+    Returns
+    -------
+    algorithm: Search
+        Configured optimization algorithm.
+    """
+
     encoding_str = params["encoding"] if "encoding" in params else "bin"
 
     if encoding_str.lower() == "bin":
-        alg = hill_climb_bin_vec(objfunc, params)
+        alg = _hill_climb_bin_vec(objfunc, params)
     elif encoding_str.lower() == "int":
-        alg = hill_climb_int_vec(objfunc, params)
+        alg = _hill_climb_int_vec(objfunc, params)
     elif encoding_str.lower() == "real":
-        alg = hill_climb_real_vec(objfunc, params)
+        alg = _hill_climb_real_vec(objfunc, params)
     else:
         raise ValueError(f"The encoding \"{encoding_str}\" does not exist, try \"real\", \"int\" or \"bin\"")
     
     return alg
 
-def hill_climb_bin_vec(objfunc, params):
+def _hill_climb_bin_vec(objfunc, params):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept binary coded vectors.
@@ -37,7 +54,7 @@ def hill_climb_bin_vec(objfunc, params):
     return GeneralSearch(objfunc, search_strat, params=params)
 
 
-def hill_climb_int_vec(objfunc, params):
+def _hill_climb_int_vec(objfunc, params):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept integer coded vectors.
@@ -54,7 +71,7 @@ def hill_climb_int_vec(objfunc, params):
     return GeneralSearch(objfunc, search_strat, params=params)
 
 
-def hill_climb_real_vec(objfunc, params):
+def _hill_climb_real_vec(objfunc, params):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept real coded vectors.

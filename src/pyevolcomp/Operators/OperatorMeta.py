@@ -34,7 +34,18 @@ meta_ops_map = {
 
 class OperatorMeta(Operator):
     """
-    Operator class that has discrete mutation and cross methods
+    Operator class that utilizes a list of operators to modify individuals.
+
+    Parameters
+    ----------
+    method: str
+        Type of operator that will be applied.
+    op_list: List[Operator]
+        List of operators that will be used.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the operator.
+    name: str, optional
+        Name that is associated with the operator.
     """
 
     def __init__(self, method: str, op_list: List[Operator], params: Union[ParamScheduler, dict] = None, name: str = None):
@@ -78,10 +89,6 @@ class OperatorMeta(Operator):
             params["weights"] = [params["p"], 1 - params["p"]]
 
     def evolve(self, indiv, population, objfunc, global_best, initializer=None):
-        """
-        Evolves a solution with a different strategy depending on the type of operator
-        """
-
         if self.method == MetaOpMethods.BRANCH:
             self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
             chosen_op = self.op_list[self.chosen_idx]
@@ -117,10 +124,6 @@ class OperatorMeta(Operator):
         return result
     
     def step(self, progress: float):
-        """
-        Updates the parameters of the method using a paramater scheduler if it exists
-        """
-
         super().step(progress)
         
         for op in self.op_list:
@@ -128,10 +131,6 @@ class OperatorMeta(Operator):
                 op.step(progress)
             
     def get_state(self) -> dict:
-        """
-        Gets the current state of the algorithm as a dictionary.
-        """
-        
         data = super().get_state()
 
         data["op_list"] = []

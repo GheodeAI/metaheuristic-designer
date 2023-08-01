@@ -6,9 +6,10 @@ stats/
 stats/*
 benchmarks/results
 benchmarks/results/*
-.nox/*
-.pytest_cache/*
+.nox/
+.pytest_cache/
 .coverage
+htmlcov
 dist/
 dist/*
 examples/results/

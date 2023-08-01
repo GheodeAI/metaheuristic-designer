@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..Operator import Operator
-from .OperatorReal import OperatorReal, _real_ops
+from .OperatorReal import OperatorReal, real_ops_map
 from .list_operator_functions import *
 from .vector_operator_functions import *
 from copy import copy
@@ -33,7 +33,16 @@ list_ops_map = {
 
 class OperatorList(Operator):
     """
-    Operator class that has continuous mutation and cross methods
+    Operator class that works on variable length lists.
+
+    Parameters
+    ----------
+    method: str
+        Type of operator that will be applied.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the operator.
+    name: str, optional
+        Name that is associated with the operator.
     """
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
@@ -49,10 +58,6 @@ class OperatorList(Operator):
         self.method = ListOpMethods.from_str(method)
 
     def evolve(self, indiv, population, objfunc, global_best, initializer):
-        """
-        Evolves a solution with a different strategy depending on the type of operator
-        """
-
         new_indiv = copy(indiv)
 
         params = copy(self.params)

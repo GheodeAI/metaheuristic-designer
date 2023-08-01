@@ -18,7 +18,7 @@ def run_algorithm(alg_name, memetic, save_state):
         # "stop_cond": "neval or time_limit",
         "stop_cond": "convergence or time_limit",
         "progress_metric": "time_limit",
-        "time_limit": 2.0,
+        "time_limit": 100.0,
         "cpu_time_limit": 100.0,
         "ngen": 1000,
         "neval": 3e6,
@@ -29,8 +29,9 @@ def run_algorithm(alg_name, memetic, save_state):
         "v_timer": 0.5
     }
 
-    objfunc = Sphere(30, "min")
+    # objfunc = Sphere(30, "min")
     # objfunc = Rastrigin(30, "min")
+    objfunc = Rosenbrock(30, "min")
     # objfunc = Weierstrass(30, "min")
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
@@ -59,7 +60,7 @@ def run_algorithm(alg_name, memetic, save_state):
     
     mem_select = ParentSelection("Best", {"amount": 5})
     neihbourhood_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.0002})
-    local_search =  LocalSearch(pop_initializer, neihbourhood_op, {"iters":10})
+    local_search =  LocalSearch(pop_initializer, neihbourhood_op, params={"iters":10})
 
     
 
@@ -68,7 +69,7 @@ def run_algorithm(alg_name, memetic, save_state):
         search_strat = HillClimb(pop_initializer, mutation_op)
     elif alg_name == "LocalSearch":
         pop_initializer.pop_size = 1
-        search_strat = LocalSearch(pop_initializer, mutation_op, {"iters":20})
+        search_strat = LocalSearch(pop_initializer, mutation_op, params={"iters":20})
     elif alg_name == "SA":
         pop_initializer.pop_size = 1
         search_strat = SA(pop_initializer, mutation_op, {"iter":100, "temp_init":1, "alpha":0.997})

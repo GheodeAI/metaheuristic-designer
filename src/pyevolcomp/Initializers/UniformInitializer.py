@@ -5,6 +5,25 @@ from ..Initializer import Initializer
 from ..Individual import Individual
 
 class UniformInitializer(Initializer):
+    """
+    Initializer that generates individuals with vectors following an uniform distribution.
+
+    Parameters
+    ----------
+    genotype_size: ndarray
+        The dimension of the vectors accepted by the objective function.
+    low_lim: ndarray or float
+        Lower limit restriction for the vectors. 
+    up_lim: ndarray or float
+        Upper limit restriction for the vectors.
+    pop_size: int, optional
+        Number of individuals to be generated.
+    encoding: Encoding, optional
+        Encoding that will be passed to each individual.
+    dtype: type, optional
+        Data type used in each of the components of the vector in the individual.
+    """
+
     def __init__(self, genotype_size, low_lim, up_lim, pop_size = 1, encoding = None, dtype = float):
         super().__init__(pop_size, encoding)
         

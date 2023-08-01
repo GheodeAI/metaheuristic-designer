@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Union, List
-from ...SurvivorSelection import SurvivorSelection
+from ...SelectionMethods import SurvivorSelection
 from ..StaticPopulation import StaticPopulation
 
 

@@ -46,7 +46,7 @@ def next_neighborhood(new_indiv, prev_indiv, chosen_idx, method):
 def sequential_n_change(new_indiv, prev_indiv, chosen_idx):
     next_idx = None
 
-    if new_indiv.fitness >= prev_indiv.fitness:
+    if new_indiv.fitness > prev_indiv.fitness:
         next_idx = 0
     else:
         next_idx = chosen_idx + 1
@@ -59,7 +59,7 @@ def cyclic_n_change(new_indiv, prev_indiv, chosen_idx):
 def pipe_n_change(new_indiv, prev_indiv, chosen_idx):
     next_idx = None
 
-    if new_indiv.fitness >= prev_indiv.fitness:
+    if new_indiv.fitness > prev_indiv.fitness:
         next_idx = chosen_idx
     else:
         next_idx = chosen_idx + 1

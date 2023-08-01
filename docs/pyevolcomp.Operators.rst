@@ -1,42 +1,7 @@
 pyevolcomp.Operators package
 ============================
 
-Submodules
-----------
-
-pyevolcomp.Operators.OperatorBinary module
-------------------------------------------
-
-.. automodule:: pyevolcomp.Operators.OperatorBinary
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Operators.OperatorInt module
----------------------------------------
-
-.. automodule:: pyevolcomp.Operators.OperatorInt
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Operators.OperatorList module
-----------------------------------------
-
-.. automodule:: pyevolcomp.Operators.OperatorList
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Operators.OperatorMeta module
-----------------------------------------
-
-.. automodule:: pyevolcomp.Operators.OperatorMeta
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Operators.OperatorReal module
+OperatorReal
 ----------------------------------------
 
 .. automodule:: pyevolcomp.Operators.OperatorReal
@@ -44,15 +9,47 @@ pyevolcomp.Operators.OperatorReal module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Operators.OperatorSplit module
------------------------------------------
+OperatorInt
+---------------------------------------
 
-.. automodule:: pyevolcomp.Operators.OperatorSplit
+.. automodule:: pyevolcomp.Operators.OperatorInt
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Operators.list\_operator\_functions module
+OperatorBinary
+------------------------------------------
+
+.. automodule:: pyevolcomp.Operators.OperatorBinary
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+OperatorPerm
+------------------------------------------
+
+.. automodule:: pyevolcomp.Operators.OperatorPerm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+OperatorList
+----------------------------------------
+
+.. automodule:: pyevolcomp.Operators.OperatorList
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+OperatorMeta
+----------------------------------------
+
+.. automodule:: pyevolcomp.Operators.OperatorMeta
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+List operator functions
 -----------------------------------------------------
 
 .. automodule:: pyevolcomp.Operators.list_operator_functions
@@ -60,18 +57,10 @@ pyevolcomp.Operators.list\_operator\_functions module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Operators.vector\_operator\_functions module
+Vector operator functions
 -------------------------------------------------------
 
 .. automodule:: pyevolcomp.Operators.vector_operator_functions
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pyevolcomp.Operators
    :members:
    :undoc-members:
    :show-inheritance:

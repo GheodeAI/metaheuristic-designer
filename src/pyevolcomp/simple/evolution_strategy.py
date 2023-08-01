@@ -1,29 +1,45 @@
+from __future__ import annotations
 from ..Initializers import UniformVectorInitializer
 from ..Operators import OperatorInt, OperatorReal, OperatorBinary
-from ..ParentSelection import ParentSelection
-from ..SurvivorSelection import SurvivorSelection
+from ..SelectionMethods import  SurvivorSelection, ParentSelection
 from ..Encodings import TypeCastEncoding
 from ..Algorithms import ES
 from ..SearchMethods import GeneralSearch
 
-def evolution_strategy(objfunc, params):
+def evolution_strategy(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
+    """
+    Instantiates a evolution strategy to optimize the given objective function.
+
+    Parameters
+    ----------
+    objfunc: ObjectiveFunc
+        Objective function to be optimized.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters of the algorithm.
+
+    Returns
+    -------
+    algorithm: Search
+        Configured optimization algorithm.
+    """
+
     encoding_str = params["encoding"] if "encoding" in params else "bin"
 
     if encoding_str.lower() == "bin":
-        alg = evolution_strategy_bin_vec(objfunc, params)
+        alg = _evolution_strategy_bin_vec(objfunc, params)
     elif encoding_str.lower() == "int":
-        alg = evolution_strategy_int_vec(objfunc, params)
+        alg = _evolution_strategy_int_vec(objfunc, params)
     elif encoding_str.lower() == "real":
-        alg = evolution_strategy_real_vec(objfunc, params)
+        alg = _evolution_strategy_real_vec(objfunc, params)
     else:
         raise ValueError(f"The encoding \"{encoding_str}\" does not exist, try \"real\", \"int\" or \"bin\"")
     
     return alg
 
 
-def evolution_strategy_bin_vec(objfunc, params):
+def _evolution_strategy_bin_vec(objfunc, params):
     """
-    Instantiates a genetic algorithm to optimize the given objective function.
+    Instantiates a evolution strategy to optimize the given objective function.
     This objective function should accept binary coded vectors.
     """
 
@@ -47,9 +63,9 @@ def evolution_strategy_bin_vec(objfunc, params):
     return GeneralSearch(objfunc, search_strat, params=params)
 
 
-def evolution_strategy_int_vec(objfunc, params):
+def _evolution_strategy_int_vec(objfunc, params):
     """
-    Instantiates a genetic algorithm to optimize the given objective function.
+    Instantiates a evolution strategy to optimize the given objective function.
     This objective function should accept integer coded vectors.
     """
 
@@ -71,9 +87,9 @@ def evolution_strategy_int_vec(objfunc, params):
     return GeneralSearch(objfunc, search_strat, params=params)
 
 
-def evolution_strategy_real_vec(objfunc, params):
+def _evolution_strategy_real_vec(objfunc, params):
     """
-    Instantiates a genetic algorithm to optimize the given objective function.
+    Instantiates a evolution strategy to optimize the given objective function.
     This objective function should accept real coded vectors.
     """
 

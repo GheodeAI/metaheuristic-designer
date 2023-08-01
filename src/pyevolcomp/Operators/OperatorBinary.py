@@ -58,7 +58,16 @@ bin_ops_map = {
 
 class OperatorBinary(Operator):
     """
-    Operator class that has discrete mutation and cross methods
+    Operator class that has binary mutation and cross methods
+
+    Parameters
+    ----------
+    method: str
+        Type of operator that will be applied
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the operator.
+    name: str, optional
+        Name that is associated with the operator.
     """
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
@@ -77,10 +86,6 @@ class OperatorBinary(Operator):
             self.params["method"] = ProbDist.BERNOULLI
 
     def evolve(self, indiv, population, objfunc, global_best, initializer):
-        """
-        Evolves a solution with a different strategy depending on the type of operator
-        """
-
         new_indiv = copy(indiv)
         others = [i for i in population if i != indiv]
         if len(others) == 0:

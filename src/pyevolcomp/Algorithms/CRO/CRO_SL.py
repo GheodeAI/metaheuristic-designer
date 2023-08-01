@@ -5,8 +5,7 @@ from typing import Union, List
 from copy import copy, deepcopy
 from ...Individual import Individual
 from ...Operators import OperatorReal, OperatorMeta
-from ...SurvivorSelection import SurvivorSelection
-from ...ParentSelection import ParentSelection
+from ...SelectionMethods import SurvivorSelection, ParentSelection
 from ..StaticPopulation import StaticPopulation
 from ...ParamScheduler import ParamScheduler
 from ...Algorithm import Algorithm
@@ -59,10 +58,6 @@ class CRO_SL(Algorithm):
         return self.selection_op(population, offspring)
 
     def update_params(self, progress=0):
-        """
-        Updates the parameters and the operators
-        """
-
         self.pop_init.pop_size = len(self.population)
 
         for op in self.operator_list:

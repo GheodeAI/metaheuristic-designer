@@ -6,7 +6,7 @@ from ...ParamScheduler import ParamScheduler
 from ...Algorithm import Algorithm
 from ...Operator import Operator
 from ...Operators import OperatorMeta
-from ...SurvivorSelection import SurvivorSelection
+from ...SelectionMethods import SurvivorSelection
 from .vns_neighborhood_changes import *
 import time
 
@@ -43,10 +43,6 @@ class VND(Algorithm):
         super().__init__(pop_init, params=params, name=name)
 
     def perturb(self, indiv_list, objfunc, progress=0, history=None):
-        """
-        Performs a step of the algorithm
-        """
-
         next_indiv_list = copy(indiv_list)
         for i in range(self.iterations):
             
@@ -76,10 +72,6 @@ class VND(Algorithm):
         return new_population
 
     def update_params(self, progress=0):
-        """
-        Updates the parameters of each component of the algorithm
-        """
-
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)
         
@@ -87,10 +79,6 @@ class VND(Algorithm):
             self.perturb_op.chosen_idx = 0
     
     def extra_step_info(self):
-        """
-        Specific information to display relevant to this algorithm
-        """
-
         idx = self.perturb_op.chosen_idx
 
         print(f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}")

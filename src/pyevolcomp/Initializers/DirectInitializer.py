@@ -5,7 +5,20 @@ from ..Initializer import Initializer
 from ..Individual import Individual
 
 
-class DirectInitializer(Initializer):    
+class DirectInitializer(Initializer):
+    """
+    Initializer that uses a predefined population to generate the first generation.
+
+    Parameters
+    ----------
+    default_init: Initializer
+        Initializer used to generate random individuals
+    solutions: List[Individual]
+        The initial population.
+    encoding: Encoding, optional
+        Encoding that will be passed to each individual.
+    """
+
     def __init__(self, default_init: Initializer, solutions: List[Individual], encoding: Encoding = None):
         super().__init__(len(solutions), encoding=encoding)
         self.solutions = solutions

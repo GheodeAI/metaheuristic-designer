@@ -5,7 +5,18 @@ from ..Initializer import Initializer
 from ..Individual import Individual
 
 
-class PermInitializer(Initializer):    
+class PermInitializer(Initializer):
+    """
+    Initializer that generates individuals with random permutations of n components.
+
+    Parameters
+    ----------
+    genotype_size: ndarray
+        The dimension of the vectors accepted by the objective function.
+    pop_size: int, optional
+        Number of individuals to be generated.
+    """
+
     def __init__(self, genotype_size, pop_size = 1):
         self.genotype_size = genotype_size
 

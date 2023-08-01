@@ -12,7 +12,9 @@ example_populaton1 = [Individual(MaxOnes(3), np.random.random(3) > 0.5) for i in
 example_populaton2 = [Individual(MaxOnes(20), np.random.random(20) > 0.5) for i in range(pop_size)]
 example_populaton3 = [Individual(MaxOnes(100), np.random.random(100) > 0.5) for i in range(pop_size)]
 
-
+def test_errors():
+    with pytest.raises(ValueError):
+        operator = OperatorBinary("not_a_method")
 
 @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 @pytest.mark.parametrize("op_method", bin_ops_map.keys())

@@ -1,8 +1,7 @@
 from __future__ import annotations
 from ..StaticPopulation import StaticPopulation
 from ...Operators import OperatorReal, OperatorMeta
-from ...SurvivorSelection import SurvivorSelection
-from ...ParentSelection import ParentSelection
+from ...SelectionMethods import  SurvivorSelection, ParentSelection
 from ...Encodings import CMAEncoding
 
 

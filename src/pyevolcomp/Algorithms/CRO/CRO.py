@@ -5,8 +5,7 @@ from typing import Union, List
 from copy import copy, deepcopy
 from ...Individual import Individual
 from ...Operators import OperatorReal, OperatorMeta
-from ...SurvivorSelection import SurvivorSelection
-from ...ParentSelection import ParentSelection
+from ...SelectionMethods import SurvivorSelection, ParentSelection
 from ..StaticPopulation import StaticPopulation
 from ...ParamScheduler import ParamScheduler
 from ...Algorithm import Algorithm
@@ -17,8 +16,8 @@ class CRO(StaticPopulation):
     Coral Reef Optimization
     """
 
-    def __init__(self, pop_init: Initializer, mutate: Operator, cross: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "CRO"):
-
+    def __init__(self, pop_init: Initializer, mutate: Operator, cross: Operator, 
+                 params: Union[ParamScheduler, dict] = {}, name: str = "CRO"):
         evolve_op = OperatorMeta("Branch", [cross, mutate], {"p": params["Fb"]})
 
         selection_op = SurvivorSelection("CRO", {"Fd": params["Fd"], "Pd": params["Pd"], "attempts": params["attempts"], "maxPopSize": pop_init.pop_size})

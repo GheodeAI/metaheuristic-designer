@@ -5,8 +5,7 @@ from typing import Union, List
 from copy import copy, deepcopy
 from ...Individual import Individual
 from ...Operators import OperatorReal, OperatorMeta
-from ...SurvivorSelection import SurvivorSelection
-from ...ParentSelection import ParentSelection
+from ...SelectionMethods import SurvivorSelection, ParentSelection
 from ..StaticPopulation import StaticPopulation
 from ...ParamScheduler import ParamScheduler
 from ...Algorithm import Algorithm
@@ -28,10 +27,6 @@ class PCRO_SL(CRO_SL):
         self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
 
     def update_params(self, progress=0):
-        """
-        Updates the parameters and the operators
-        """
-
         self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
 
         super().update_params(progress)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 from ..ParamScheduler import ParamScheduler
-from ..SurvivorSelection import SurvivorSelection
-from ..ParentSelection import ParentSelection
+from ..SelectionMethods import SurvivorSelection, ParentSelection
 from ..Algorithm import Algorithm
 from ..Operator import Operator
 import random
@@ -13,12 +12,8 @@ class VariablePopulation(Algorithm):
     """
 
     def __init__(self, pop_init: Initializer, operator: Operator, parent_sel_op: ParentSelection = None, 
-                 selection_op: SurvivorSelection = None, n_offspring: int = None, params: Union[ParamScheduler, dict] = {}, name: str = "stpop"):
-        """
-        Constructor of the GeneticPopulation class
-        """
-
-        # Hyperparameters of the algorithm
+                 selection_op: SurvivorSelection = None, n_offspring: int = None, params: Union[ParamScheduler, dict] = {}, 
+                 name: str = "Variable Population Evolution"):
         self.params = params
         self.operator = operator
 
@@ -38,6 +33,8 @@ class VariablePopulation(Algorithm):
 
         super().__init__(pop_init, params=params, name=name)
     
+    def select_parents(self, population, progress=0, history=None):
+        return self.parent_sel_op(population)
     
     def perturb(self, parent_list, objfunc, progress=0, history=None):
         offspring = []
@@ -64,10 +61,6 @@ class VariablePopulation(Algorithm):
         return self.selection_op(population, offspring)
 
     def update_params(self, progress=0):
-        """
-        Updates the parameters and the operators
-        """
-
         if isinstance(self.operator, Operator):
             self.operator.step(progress)
             

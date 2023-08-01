@@ -5,6 +5,25 @@ from ..Initializer import Initializer
 from ..Individual import Individual
 
 class GaussianInitializer(Initializer):
+    """
+    Initializer that generates individuals with vectors following a normal distribution.
+
+    Parameters
+    ----------
+    genotype_size: ndarray
+        The dimension of the vectors accepted by the objective function.
+    g_mean: ndarray or float
+        Mean of the probability distribution used to generate the individuals.
+    g_str: ndarray or float
+        Standard deviation of the probability distribution used to generate the individuals.
+    pop_size: int, optional
+        Number of individuals to be generated.
+    encoding: Encoding, optional
+        Encoding that will be passed to each individual.
+    dtype: type, optional
+        Data type used in each of the components of the vector in the individual.
+    """
+
     def __init__(self, genotype_size, g_mean, g_std, pop_size = 1, encoding = None, dtype = float):
         super().__init__(pop_size, encoding)
         
@@ -30,6 +49,7 @@ class GaussianInitializer(Initializer):
 
 
 class GaussianVectorInitializer(GaussianInitializer):
+    
     def generate_random(self, objfunc):
         new_vector = np.random.normal(self.g_mean, self.g_std, size=self.genotype_size).astype(self.dtype)
         return Individual(objfunc, new_vector, encoding=self.encoding)

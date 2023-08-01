@@ -12,6 +12,13 @@ _par_sch_methods = [
 class ParamScheduler:
     """
     This class is responsible of varying the parameters of an algorithm over time.
+
+    Parameters
+    ----------
+    strategy: str
+        Strategy
+    param_schedule: dict
+        Definition of the parameters to be varied.
     """
 
     def __init__(self, strategy: str, param_schedule: dict):
@@ -51,7 +58,7 @@ class ParamScheduler:
 
     def reset(self):
         """
-        Sets all the parameters to their initial values
+        Sets all the parameters to their initial values.
         """
 
         self.current_params = {}
@@ -63,7 +70,11 @@ class ParamScheduler:
 
     def get_params(self) -> dict:
         """
-        Returns a dictionary containing the current parameters
+        Returns a dictionary containing the current parameters.
+
+        Returns
+        -------
+        current_params: dict
         """
 
         return self.current_params
@@ -71,6 +82,10 @@ class ParamScheduler:
     def get_state(self) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
+
+        Returns
+        -------
+        state: dict
         """
 
         data = {
@@ -83,6 +98,10 @@ class ParamScheduler:
     def step(self, progress: float):
         """
         Changes the values of the parameters interpolating between the initial and final values.
+
+        Parameters
+        ----------
+        progress: float
         """
 
         if self.strategy == "linear":
@@ -103,17 +122,3 @@ class ParamScheduler:
                     a = (end_param - start_param) / math.exp(k)
                     b = start_param
                     self.current_params[key] = a * math.exp(k * progress) + b
-
-
-if __name__ == "__main__":
-    a = {
-        "a": "Gauss",
-        "b": [0.01, 0.0000001]
-    }
-
-    p = ParamScheduler("Linear", a)
-    for i in np.linspace(0, 1, 101):
-        p.step(i)
-        p["a"] = p["a"][0] + p["a"]
-        print(p.get_params())
-        print(p["a"])

@@ -97,6 +97,15 @@ real_ops_map = {
 class OperatorReal(Operator):
     """
     Operator class that has mutation and cross methods for real coded vectors
+
+    Parameters
+    ----------
+    method: str
+        Type of operator that will be applied.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the operator.
+    name: str, optional
+        Name that is associated with the operator.
     """
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
@@ -115,10 +124,6 @@ class OperatorReal(Operator):
             self.params["method"] = ProbDist.from_str(self.params["method"])
 
     def evolve(self, indiv, population, objfunc, global_best, initializer):
-        """
-        Evolves a solution with a different strategy depending on the type of operator
-        """
-
         new_indiv = copy(indiv)
         others = [i for i in population if i != indiv]
         if len(others) == 0:
@@ -199,7 +204,7 @@ class OperatorReal(Operator):
         elif self.method == RealOpMethods.RANDNOISE:
             new_indiv.genotype = rand_noise(new_indiv.genotype, params)
 
-        elif self.method == RealOpMethods.RANDNOISE:
+        elif self.method == RealOpMethods.RANDSAMPLE:
             new_indiv.genotype = rand_sample(new_indiv.genotype, others, params)
 
         elif self.method == RealOpMethods.DE_RAND_1:

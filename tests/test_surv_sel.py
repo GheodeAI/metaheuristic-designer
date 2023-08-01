@@ -22,6 +22,10 @@ for idx, ind in enumerate(example_offspring_big):
     example_offspring_big[idx].fitness = 100
 
 
+def test_error():
+    with pytest.raises(ValueError):
+        surv_selection = SurvivorSelection("not_a_method")
+
 @pytest.mark.parametrize("population", [example_populaton])
 @pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
 @pytest.mark.parametrize("keep_amount", [1, 5, 20])

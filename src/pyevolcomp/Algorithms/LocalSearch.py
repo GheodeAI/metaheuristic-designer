@@ -5,7 +5,7 @@ from ..ParamScheduler import ParamScheduler
 from ..Algorithm import Algorithm
 from ..Operator import Operator
 from ..Operators import OperatorReal
-from ..SurvivorSelection import SurvivorSelection
+from ..SelectionMethods import SurvivorSelection
 
 
 class LocalSearch(Algorithm):
@@ -13,7 +13,8 @@ class LocalSearch(Algorithm):
     Local search algorithm
     """
 
-    def __init__(self, pop_init: Initializer, perturb_op: Operator = None, selection_op: SurvivorSelection = None, params: Union[ParamScheduler, dict] = {}, name: str = "LocalSearch"):
+    def __init__(self, pop_init: Initializer, perturb_op: Operator = None, selection_op: SurvivorSelection = None,
+                 params: Union[ParamScheduler, dict] = {}, name: str = "LocalSearch"):
         
         self.iterations = params["iters"] if "iters" in params else 100
 
@@ -28,10 +29,6 @@ class LocalSearch(Algorithm):
         super().__init__(pop_init, params=params, name=name)
 
     def perturb(self, indiv_list, objfunc, progress=0, history=None):
-        """
-        Performs a step of the algorithm
-        """
-        
         next_indiv_list = copy(indiv_list)
         for i in range(self.iterations):
             
@@ -54,9 +51,5 @@ class LocalSearch(Algorithm):
         return next_indiv_list
 
     def update_params(self, progress=0):
-        """
-        Updates the parameters of each component of the algorithm
-        """
-
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)

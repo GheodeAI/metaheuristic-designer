@@ -7,7 +7,16 @@ from ..Individual import Individual
 
 class LambdaInitializer(Initializer):
     """
-    Abstract population initializer class
+    Initializer that generates individuals with vectors following an user-defined distribution.
+
+    Parameters
+    ----------
+    generator: callable
+        Function that samples an user-defined probability distribution to generate individuals.
+    pop_size: int, optional
+        Number of individuals to be generated.
+    encoding: Encoding, optional
+        Encoding that will be passed to each individual.
     """
 
     def __init__(self, generator: callable, pop_size: int = 1, encoding: Encoding = None):
@@ -19,8 +28,4 @@ class LambdaInitializer(Initializer):
         self.encoding = encoding
     
     def generate_random(self, objfunc: ObjectiveFunc) -> Individual:
-        """
-        Generates a random individual
-        """
-
         return Individual(objfunc, self.generator(), encoding=self.encoding)
