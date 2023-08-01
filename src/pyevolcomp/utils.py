@@ -1,3 +1,4 @@
+from enum import Enum 
 import numpy as np
 import json
 
@@ -10,4 +11,6 @@ class NumpyEncoder(json.JSONEncoder):
             return float(obj)
         elif isinstance(obj, np.ndarray):
             return obj.tolist()
+        elif isinstance(obj, Enum):
+            return str(obj)
         return json.JSONEncoder.default(self, obj)

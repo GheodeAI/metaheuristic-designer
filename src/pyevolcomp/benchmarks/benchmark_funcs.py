@@ -185,13 +185,10 @@ class SumPowell(ObjectiveVectorFunc):
         self.size = size
         self.lim_min = lim_min
         self.lim_max = lim_max
-        super().__init__(self.size, opt, "Sum Powell")
+        super().__init__(self.size, opt, low_lim=lim_min, up_lim=lim_max, name="Sum Powell")
 
     def objective(self, solution):
         return _sum_powell(solution)
-    
-    def random_solution(self):
-        return np.random.random(self.size) * (self.lim_max - self.lim_min) - self.lim_min
 
     def repair_solution(self, solution, parent=None):
         # bounce back method
@@ -215,13 +212,10 @@ class N4XinSheYang(ObjectiveVectorFunc):
         self.size = size
         self.lim_min = lim_min
         self.lim_max = lim_max
-        super().__init__(self.size, opt, "N4 Xin-She Yang")
+        super().__init__(self.size, opt, low_lim=lim_min, up_lim=lim_max, name="N4 Xin-She Yang")
 
     def objective(self, solution):
         return _n4xinshe_yang(solution)
-    
-    def random_solution(self, lim_min=None, lim_max=None):
-        return np.random.random(self.size) * (self.lim_max - self.lim_min) - self.lim_min
     
     def repair_solution(self, solution, parent=None):
         # bounce back method
@@ -346,11 +340,11 @@ def _exp_shafferF6(solution):
 
     return temp + 0.5 + term1/term2
 
-@jit(nopython=True)
+# @jit(nopython=True)
 def _sum_powell(solution):
     return (np.abs(solution)**np.arange(2,solution.shape[0]+2)).sum()
 
-@jit(nopython=True)
+# @jit(nopython=True)
 def _n4xinshe_yang(solution):
     sum_1 = np.exp(-(solution**2).sum())
     sum_2 = np.exp(-(np.sin(np.sqrt(np.abs(solution)))**2).sum())

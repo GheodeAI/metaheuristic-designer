@@ -11,6 +11,9 @@ pop_size = 100
 example_individual = Individual(None, np.zeros(100))
 pop_init = UniformVectorInitializer(100, 0, 1, pop_size)
 
+def test_errors():
+    with pytest.raises(ValueError):
+        operator = OperatorMeta("not_a_method", [])
 
 @pytest.mark.parametrize("indiv", [example_individual])
 @pytest.mark.parametrize("op_list, args", [
@@ -43,12 +46,12 @@ def test_sequence_op(indiv, op_list, expected_val):
 
 
 @pytest.mark.parametrize("indiv", [example_individual])
-@pytest.mark.parametrize("op_list, values, chosen_idx", [
+@pytest.mark.parametrize("op_list, values", [
     ([OperatorReal("dummy", {"F": 1}), OperatorReal("dummy", {"F": 2})], (1,2)),
     ([OperatorReal("dummy", {"F": 1}), OperatorReal("dummy", {"F": 23})], (1,23)),
     ([OperatorReal("dummy", {"F": 1}), OperatorReal("dummy", {"F": 2}), OperatorReal("dummy", {"F": 3})], (1,2,3)),
 ])
-def test_split_op(indiv, op_list, values):
+def test_pick_op(indiv, op_list, values):
     operator = OperatorMeta("pick", op_list, {})
     for i, _ in enumerate(op_list):
         operator.chosen_idx = i

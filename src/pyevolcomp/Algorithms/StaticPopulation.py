@@ -1,7 +1,6 @@
 from __future__ import annotations
 from ..ParamScheduler import ParamScheduler
-from ..SurvivorSelection import SurvivorSelection
-from ..ParentSelection import ParentSelection
+from ..SelectionMethods import SurvivorSelection, ParentSelection
 from ..Algorithm import Algorithm
 from ..Operator import Operator
 

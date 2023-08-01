@@ -1,66 +1,58 @@
 pyevolcomp.Algorithms.Classic package
 =====================================
 
-pyevolcomp.Algorithms.Classic.DE module
+ES
 ---------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.Classic.DE
+.. autoclass:: pyevolcomp.Algorithms.Classic.ES
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.Classic.ES module
+GA
 ---------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.Classic.ES
+.. autoclass:: pyevolcomp.Algorithms.Classic.GA
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.Classic.GA module
----------------------------------------
-
-.. automodule:: pyevolcomp.Algorithms.Classic.GA
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Algorithms.Classic.HS module
----------------------------------------
-
-.. automodule:: pyevolcomp.Algorithms.Classic.HS
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Algorithms.Classic.PSO module
+PSO
 ----------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.Classic.PSO
+.. autoclass:: pyevolcomp.Algorithms.Classic.PSO
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.Classic.RandomSearch module
--------------------------------------------------
-
-.. automodule:: pyevolcomp.Algorithms.Classic.RandomSearch
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Algorithms.Classic.SA module
+SA
 ---------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.Classic.SA
+.. autoclass:: pyevolcomp.Algorithms.Classic.SA
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+DE
+---------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.Classic
+.. autoclass:: pyevolcomp.Algorithms.Classic.DE
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+HS
+---------------------------------------
+
+.. autoclass:: pyevolcomp.Algorithms.Classic.HS
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+RandomSearch
+-------------------------------------------------
+
+.. autoclass:: pyevolcomp.Algorithms.Classic.RandomSearch
    :members:
    :undoc-members:
    :show-inheritance:

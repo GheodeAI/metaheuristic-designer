@@ -16,11 +16,3 @@ pyevolcomp.benchmarks.benchmark\_funcs module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pyevolcomp.benchmarks
-   :members:
-   :undoc-members:
-   :show-inheritance:

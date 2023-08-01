@@ -5,7 +5,7 @@ from ..ParamScheduler import ParamScheduler
 from ..Algorithm import Algorithm
 from ..Operator import Operator
 from ..Operators import OperatorReal
-from ..SurvivorSelection import SurvivorSelection
+from ..SelectionMethods import SurvivorSelection
 
 
 class LocalSearch(Algorithm):

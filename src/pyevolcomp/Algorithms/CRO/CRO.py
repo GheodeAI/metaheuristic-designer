@@ -5,8 +5,7 @@ from typing import Union, List
 from copy import copy, deepcopy
 from ...Individual import Individual
 from ...Operators import OperatorReal, OperatorMeta
-from ...SurvivorSelection import SurvivorSelection
-from ...ParentSelection import ParentSelection
+from ...SelectionMethods import SurvivorSelection, ParentSelection
 from ..StaticPopulation import StaticPopulation
 from ...ParamScheduler import ParamScheduler
 from ...Algorithm import Algorithm

@@ -81,7 +81,7 @@ def test_uniform_list_init(list_size, min_val, max_val, pop_size):
     ]
 )
 @pytest.mark.parametrize("pop_size", [1, 10, 100])
-def test_uniform_vec_init(vec_size, mean_val, std_val, pop_size):
+def test_gaussian_vec_init(vec_size, mean_val, std_val, pop_size):
     pop_init = GaussianVectorInitializer(vec_size, mean_val, std_val, pop_size)
 
     for _ in range(30):
@@ -108,7 +108,7 @@ def test_uniform_vec_init(vec_size, mean_val, std_val, pop_size):
     ]
 )
 @pytest.mark.parametrize("pop_size", [1, 10, 100])
-def test_uniform_list_init(list_size, mean_val, std_val, pop_size):
+def test_gaussian_list_init(list_size, mean_val, std_val, pop_size):
     pop_init = GaussianListInitializer(list_size, mean_val, std_val, pop_size)
 
     for _ in range(30):

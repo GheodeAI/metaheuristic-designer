@@ -1,50 +1,42 @@
 pyevolcomp.Encodings package
 ============================
 
-pyevolcomp.Encodings.CMAEncoding module
----------------------------------------
-
-.. automodule:: pyevolcomp.Encodings.CMAEncoding
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Encodings.DefaultEncoding module
+DefaultEncoding
 -------------------------------------------
 
-.. automodule:: pyevolcomp.Encodings.DefaultEncoding
+.. autoclass:: pyevolcomp.Encodings.DefaultEncoding
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Encodings.ImageEncoding module
------------------------------------------
-
-.. automodule:: pyevolcomp.Encodings.ImageEncoding
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Encodings.MatrixEncoding module
-------------------------------------------
-
-.. automodule:: pyevolcomp.Encodings.MatrixEncoding
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Encodings.TypeCastEncoding module
+TypeCastEncoding
 --------------------------------------------
 
-.. automodule:: pyevolcomp.Encodings.TypeCastEncoding
+.. autoclass:: pyevolcomp.Encodings.TypeCastEncoding
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+MatrixEncoding
+------------------------------------------
 
-.. automodule:: pyevolcomp.Encodings
+.. autoclass:: pyevolcomp.Encodings.MatrixEncoding
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ImageEncoding
+-----------------------------------------
+
+.. autoclass:: pyevolcomp.Encodings.ImageEncoding
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+CMAEncoding
+---------------------------------------
+
+.. autoclass:: pyevolcomp.Encodings.CMAEncoding
    :members:
    :undoc-members:
    :show-inheritance:

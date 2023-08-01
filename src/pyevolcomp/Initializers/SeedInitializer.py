@@ -5,7 +5,21 @@ from ..Initializer import Initializer
 from ..Individual import Individual
 
 
-class SeedProbInitializer(Initializer):    
+class SeedProbInitializer(Initializer):
+    """
+    Initializer that inserts predefined solutions into the population with a given probability, generating
+    random individuals otherwise.
+
+    Parameters
+    ----------
+    default_init: Initializer
+        Initializer used to generate random individuals.
+    solutions: List[Individual]
+        The predefined individuals that will be inserted into the population.
+    insert_prob: float
+        Probability of inserting one of the predefined solutions into the population.
+    """
+       
     def __init__(self, default_init: Initializer, solutions: List[Individual], insert_prob: float = 0.1):
         super().__init__(default_init.pop_size)
 
@@ -25,7 +39,21 @@ class SeedProbInitializer(Initializer):
         return new_indiv
 
 
-class SeedDetermInitializer(Initializer):    
+class SeedDetermInitializer(Initializer):
+    """
+    Initializer that inserts predefined solutions into the population with a given probability, generating
+    random individuals otherwise.
+
+    Parameters
+    ----------
+    default_init: Initializer
+        Initializer used to generate random individuals.
+    solutions: List[Individual]
+        The predefined individuals that will be inserted into the population.
+    n_to_insert: float
+        Amount of predefined individuals to insert in the population. 
+    """
+    
     def __init__(self, default_init: Initializer, solutions: List[Individual], n_to_insert: int = None):
         super().__init__(default_init.pop_size)
 

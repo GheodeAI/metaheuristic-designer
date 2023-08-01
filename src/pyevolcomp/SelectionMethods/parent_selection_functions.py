@@ -31,7 +31,19 @@ select_dist_map = {
 
 def select_best(population, amount):
     """
-    Selects the best parent of the population as parents
+    Selects the best parent of the population as parents.
+
+    Parameters
+    ----------
+    population: List[Individual]
+        List of individuals from which the parents will be selected.
+    amount: int
+        Amount of individuals to be chosen as parents.
+
+    Returns
+    -------
+    parents: List[Individual]
+        List of individuals chosen as parents.
     """
 
     # Get the fitness of all the individuals
@@ -43,12 +55,27 @@ def select_best(population, amount):
     # Select the 'amount' best individuals
     parents = [population[i] for i in order]
 
-    return parents, order
+    # return parents, order
+    return parents
 
 
 def prob_tournament(population, tourn_size, prob):
     """
-    Selects the parents for the next generation by tournament
+    Selects the parents for the next generation by tournament.
+
+    Parameters
+    ----------
+    population: List[Individual]
+        List of individuals from which the parents will be selected.
+    tourn_size: int
+        Amount of individuals that will be chosen for each tournament.
+    prob: float
+        Probability that a parent with low fitness will win the tournament.
+
+    Returns
+    -------
+    parents: List[Individual]
+        List of individuals chosen as parents.
     """
 
     parent_pool = []
@@ -72,20 +99,52 @@ def prob_tournament(population, tourn_size, prob):
         parent = parents[idx]
         parent_pool.append(parent)
 
-    return parent_pool, order
+    # return parent_pool, order
+    return parent_pool
 
 def uniform_selection(population, amount):
     """
-    Chooses a number of individuals from the population at random
+    Chooses a number of individuals from the population at random.
+
+    Parameters
+    ----------
+    population: List[Individual]
+        List of individuals from which the parents will be selected.
+    amount: int
+        Amount of individuals to be chosen as parents.
+
+    Returns
+    -------
+    parents: List[Individual]
+        List of individuals chosen as parents.
     """
 
     order = random.choices(range(len(population)), k=amount)
     parents = [population[i] for i in order]
 
-    return parents, order
+    # return parents, order
+    return parents
 
 
 def selection_distribution(population, method, f=2):
+    """
+    Gives the weights that will be applied to each individual in 
+    the selection process.
+
+    Parameters
+    ----------
+    population: List[Individual]
+        List of individuals from which the parents will be selected.
+    method: str, optional
+        Indicates how the roulette will be generated.
+    f: float, optional
+        Parameter passed to some of the roulette generating methods.
+
+    Returns
+    -------
+    weights: ndarray
+        Weight assinged to each of the individuals 
+    """
     fit_list = np.fromiter((i.fitness for i in population), float)
 
     if method == SelectionDist.FIT_PROP:
@@ -110,6 +169,22 @@ def selection_distribution(population, method, f=2):
 def roulette(population, amount, method=None, f=None):
     """
     Fitness proportionate parent selection.
+
+    Parameters
+    ----------
+    population: List[Individual]
+        List of individuals from which the parents will be selected.
+    amount: int
+        Amount of individuals to be chosen as parents.
+    method: str, optional
+        Indicates how the roulette will be generated.
+    f: float, optional
+        Parameter passed to some of the roulette generating methods.
+
+    Returns
+    -------
+    parents: List[Individual]
+        List of individuals chosen as parents.
     """
 
     if method is None:
@@ -126,12 +201,29 @@ def roulette(population, amount, method=None, f=None):
     order = random.choices(range(len(population)), k=amount, weights=weights)
     parents = [population[i] for i in order]
 
-    return parents, order
+    # return parents, order
+    return parents
 
 
 def sus(population, amount, method=None, f=None):
     """
-    Stochastic universal sampling parent selection method
+    Stochastic universal sampling parent selection method.
+
+    Parameters
+    ----------
+    population: List[Individual]
+        List of individuals from which the parents will be selected.
+    amount: int
+        Amount of individuals to be chosen as parents.
+    method: str, optional
+        Indicates how the roulette will be generated.
+    f: float, optional
+        Parameter passed to some of the roulette generating methods.
+
+    Returns
+    -------
+    parents: List[Individual]
+        List of individuals chosen as parents.
     """
 
     if method is None:
@@ -156,7 +248,8 @@ def sus(population, amount, method=None, f=None):
 
     parents = [population[idx] for idx in order]
 
-    return parents, order
+    # return parents, order
+    return parents
 
 
     

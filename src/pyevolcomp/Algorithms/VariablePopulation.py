@@ -1,7 +1,6 @@
 from __future__ import annotations
 from ..ParamScheduler import ParamScheduler
-from ..SurvivorSelection import SurvivorSelection
-from ..ParentSelection import ParentSelection
+from ..SelectionMethods import SurvivorSelection, ParentSelection
 from ..Algorithm import Algorithm
 from ..Operator import Operator
 import random
@@ -34,6 +33,8 @@ class VariablePopulation(Algorithm):
 
         super().__init__(pop_init, params=params, name=name)
     
+    def select_parents(self, population, progress=0, history=None):
+        return self.parent_sel_op(population)
     
     def perturb(self, parent_list, objfunc, progress=0, history=None):
         offspring = []

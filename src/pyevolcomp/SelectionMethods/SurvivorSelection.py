@@ -2,6 +2,7 @@ from __future__ import annotations
 import enum
 from enum import Enum
 from ..ParamScheduler import ParamScheduler
+from ..SelectionMethod import SelectionMethod
 from .survivor_selection_functions import *
 
 
@@ -43,75 +44,35 @@ surv_method_map = {
 }
 
 
-class SurvivorSelection:
+class SurvivorSelection(SelectionMethod):
     """
     Survivor selection methods
+
+    Parameters
+    ----------
+    method: str
+        Strategy used in the selection process.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the behaviour of the selection method.
+    padding: bool, optional
+        Whether to fill the entire list of selected individuals to match the size of the original one.
+    name: str, optional
+        The name that will be assigned to this selection method.
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None, padding: bool = False):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, padding: bool = False, name: str = None):
         """
         Constructor for the SurvivorSelection class
         """
 
         if name is None:
-            self.name = method
+            name = method
+        
+        super().__init__(params, padding, name)
 
         self.method = SurvSelMethod.from_str(method)
-
-        self.param_scheduler = None
-        if params is None:
-            self.params = {"amount": 10, "p": 0.1}
-        elif isinstance(params, ParamScheduler):
-            self.param_scheduler = params
-            self.params = self.param_scheduler.get_params()
-        else:
-            self.params = params
-
-    def __call__(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:
-        """
-        Shorthand for calling the 'select' method
-        """
-
-        return self.select(popul, offspring)
-
-    def step(self, progress: float):
-        """
-        Updates the parameters of the method using a paramater scheduler if it exists
-        """
-
-        if self.param_scheduler:
-            self.param_scheduler.step(progress)
-            self.params = self.param_scheduler.get_params()
-
-            if "amount" in self.params:
-                self.params["amount"] = round(self.params["amount"])
-            
-            if "maxPopSize" in self.params:
-                self.params["maxPopSize"] = round(self.params["maxPopSize"])
-
-    def get_state(self):
-        """
-        Gets the current state of the algorithm as a dictionary.
-        """
-
-        data = {
-            "name": self.name
-        }
-
-        if self.param_scheduler:
-            data["param_scheduler"] = self.param_scheduler.get_state()
-            data["params"] = self.param_scheduler.get_params()
-        elif self.params:
-            data["params"] = self.params
-        
-        return data
     
-    def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:     
-        """
-        Takes a population with its offspring and returns the individuals that survive
-        to produce the next generation.
-        """
-
+    def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:
         result = []
         if self.method == SurvSelMethod.ELITISM:
             result = elitism(popul, offspring, self.params["amount"])

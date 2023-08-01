@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 from pyevolcomp import Individual
-from pyevolcomp.Encodings import MatrixEncoding, ImageEncoding, DefaultEncoding
+from pyevolcomp.Encodings import MatrixEncoding, ImageEncoding, DefaultEncoding, TypeCastEncoding
 
 @pytest.mark.parametrize(
     "genotype, phenotype", [
@@ -21,7 +21,25 @@ def test_default(genotype, phenotype):
     else:
         assert encoding.decode(genotype) == phenotype
         assert encoding.encode(phenotype) == genotype 
-        
+
+
+@pytest.mark.parametrize(
+    "genotype, phenotype, type_in, type_out", [
+        (np.array([1,2,6,4,6], dtype=int), np.array([1,2,6,4,6], dtype=int), int, int),
+        (np.array([1.5,2.2,6.1,4.4,6.2], dtype=float), np.array([1.5,2.2,6.1,4.4,6.2], dtype=float), float, float),
+        (np.array([1.5,2.2,6.1,4.4,6.2], dtype=float), np.array([1,2,6,4,6], dtype=int), float, int),
+        (np.array([1,2,6,4,6], dtype=int), np.array([2.0,2.0,6.0,4.0,6.0], dtype=float), int, float),
+        (np.array([0,1,1,0,0], dtype=int), np.array([False, True, True, False, False], dtype=bool), int, bool),
+        (np.array([False, True, True, False, False], dtype=bool), np.array([0,1,1,0,0], dtype=int), bool, int)
+    ]
+)
+def test_typecast(genotype, phenotype, type_in, type_out):
+    encoding = TypeCastEncoding(type_in, type_out)
+
+    assert encoding.decode(genotype).dtype is np.dtype(type_out)
+    assert encoding.encode(phenotype).dtype is np.dtype(type_in)
+    
+
 
 
 example = np.random.random([30,40])

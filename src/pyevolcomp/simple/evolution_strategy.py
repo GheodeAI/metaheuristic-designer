@@ -1,8 +1,7 @@
 from __future__ import annotations
 from ..Initializers import UniformVectorInitializer
 from ..Operators import OperatorInt, OperatorReal, OperatorBinary
-from ..ParentSelection import ParentSelection
-from ..SurvivorSelection import SurvivorSelection
+from ..SelectionMethods import  SurvivorSelection, ParentSelection
 from ..Algorithms import ES
 from ..SearchMethods import GeneralSearch
 

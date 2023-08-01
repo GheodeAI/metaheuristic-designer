@@ -1,42 +1,34 @@
 pyevolcomp.Algorithms.CRO package
 =================================
 
-pyevolcomp.Algorithms.CRO.CRO module
+CRO
 ------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.CRO.CRO
+.. autoclass:: pyevolcomp.Algorithms.CRO.CRO
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.CRO.CRO\_SL module
+CRO\_SL
 ----------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.CRO.CRO_SL
+.. autoclass:: pyevolcomp.Algorithms.CRO.CRO_SL
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.Algorithms.CRO.DPCRO\_SL module
-------------------------------------------
-
-.. automodule:: pyevolcomp.Algorithms.CRO.DPCRO_SL
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyevolcomp.Algorithms.CRO.PCRO\_SL module
+PCRO\_SL
 -----------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.CRO.PCRO_SL
+.. autoclass:: pyevolcomp.Algorithms.CRO.PCRO_SL
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+DPCRO\_SL
+------------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.CRO
+.. autoclass:: pyevolcomp.Algorithms.CRO.DPCRO_SL
    :members:
    :undoc-members:
    :show-inheritance:

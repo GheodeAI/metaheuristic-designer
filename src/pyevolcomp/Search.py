@@ -315,7 +315,7 @@ class Search(ABC):
 
         if show_best_solution:
             data["best_fitness"] = self.best_solution()[1]
-            data["best_individual"] = self.search_strategy.best.get_state(show_speed=False, show_op=False, show_best=False)
+            data["best_individual"] = self.search_strategy.best.get_state(show_speed=False, show_best=False)
 
         if show_fit_history:
             data["fit_history"] = self.fit_history
