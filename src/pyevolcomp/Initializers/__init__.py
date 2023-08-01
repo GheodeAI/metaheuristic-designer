@@ -3,3 +3,4 @@ from .GaussianInitializer import GaussianVectorInitializer, GaussianListInitiali
 from .LambdaInitializer import LambdaInitializer
 from .SeedInitializer import SeedDetermInitializer, SeedProbInitializer
 from .DirectInitializer import DirectInitializer
+from .PermInitializer import PermInitializer

@@ -1,0 +1,18 @@
+from __future__ import annotations
+import numpy as np
+import random
+from ..Initializer import Initializer
+from ..Individual import Individual
+
+
+class PermInitializer(Initializer):    
+    def __init__(self, genotype_size, pop_size = 1):
+        self.genotype_size = genotype_size
+
+        super().__init__(pop_size, encoding=None)
+    
+    def generate_random(self, objfunc):
+        rang_vec = np.arange(self.genotype_size)
+        np.random.shuffle(rang_vec)
+        return Individual(objfunc, rang_vec)
+

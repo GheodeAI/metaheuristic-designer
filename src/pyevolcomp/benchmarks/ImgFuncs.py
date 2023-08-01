@@ -1,7 +1,7 @@
 from ..ObjectiveFunc import ObjectiveVectorFunc
 from ..Encodings import ImageEncoding
 import numpy as np
-from numba import jit
+# from numba import jit
 from skimage import metrics
 
 
@@ -28,7 +28,7 @@ class ImgApprox(ObjectiveVectorFunc):
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255)
 
-@jit(nopython=True)
+# @jit(nopython=True)
 def imgdistance(img, reference):
     return np.sum((img-reference)**2)
 
