@@ -136,6 +136,41 @@ def test_cro():
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size <= pop_init.pop_size
 
+def test_cro_sl():
+    search_strat = CRO_SL(pop_init, [mutation_op, cross_op], {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+    alg = GeneralSearch(objfunc, search_strat, params=test_params)
+    ind, fit = alg.optimize()
+    assert alg.fit_history[0] > alg.fit_history[-1]
+    assert search_strat.pop_size <= pop_init.pop_size
+
+def test_pcro_sl():
+    search_strat = PCRO_SL(pop_init, [mutation_op, cross_op], {"rho":0.5, "Fb":0.75, "Fd":0.2, "Pd":0.7, "attempts":4})
+    alg = GeneralSearch(objfunc, search_strat, params=test_params)
+    ind, fit = alg.optimize()
+    assert alg.fit_history[0] > alg.fit_history[-1]
+    assert search_strat.pop_size <= pop_init.pop_size
+
+@pytest.mark.parametrize("dyn_method", ["success", "fitness", "diff"])
+@pytest.mark.parametrize("dyn_metric", ["best", "avg", "med", "worse"])
+def test_dpcro_sl(dyn_method, dyn_metric):
+    search_strat_params = {
+        "rho":0.6,
+        "Fb":0.95,
+        "Fd":0.1,
+        "Pd":0.9,
+        "attempts": 3,
+        "group_subs": True,
+        "dyn_method": dyn_method,
+        "dyn_metric": dyn_metric,
+        "dyn_steps": 75,
+        "prob_amp": 0.1
+    }
+    search_strat = DPCRO_SL(pop_init, [mutation_op, cross_op], search_strat_params)
+    alg = GeneralSearch(objfunc, search_strat, params=test_params)
+    ind, fit = alg.optimize()
+    assert alg.fit_history[0] > alg.fit_history[-1]
+    assert search_strat.pop_size <= pop_init.pop_size
+
 def test_memetic():
     search_strat = GA(pop_init, mutation_op, cross_op, parent_sel_op, selection_op)
     mem_select = ParentSelection("Best", {"amount": 5})
@@ -155,7 +190,6 @@ def test_reporting():
     
     alg.store_state("temp_pytest.json", True, True, True, True, True, True)
     os.remove("temp_pytest.json")
-
 
 def test_reporting_memetic():
     test_params["verbose"] = True

@@ -27,3 +27,7 @@ def test_basic_working(population, op_method):
     indiv = population[0]
     new_indiv = operator.evolve(indiv, population, indiv.objfunc, indiv, pop_init)
     assert type(new_indiv.genotype) == np.ndarray
+    
+    # Test when global best is not defined
+    new_indiv = operator.evolve(indiv, population, indiv.objfunc, None, pop_init)
+    assert type(new_indiv.genotype) == np.ndarray

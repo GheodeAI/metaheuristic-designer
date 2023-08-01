@@ -31,6 +31,9 @@ class DirectInitializer(Initializer):
         return random.choice(self.solutions)
 
     def generate_population(self, objfunc, n_indiv=None):
-        return self.solutions[:self.pop_size]
+        if n_indiv is None:
+            n_indiv = self.pop_size
+        
+        return self.solutions[:n_indiv]
 
 

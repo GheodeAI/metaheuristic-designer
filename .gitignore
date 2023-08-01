@@ -9,6 +9,7 @@ benchmarks/results/*
 .nox/
 .pytest_cache/
 .coverage
+.coverage*
 htmlcov
 dist/
 dist/*

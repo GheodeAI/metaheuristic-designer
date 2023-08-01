@@ -3,6 +3,7 @@ import numpy as np
 import random
 from ..Initializer import Initializer
 from ..Individual import Individual
+from ..Encodings import DefaultEncoding
 
 
 class LambdaInitializer(Initializer):
