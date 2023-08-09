@@ -250,20 +250,26 @@ class Search(ABC):
             A pair of the best individual with its fitness.
         """
 
+        if self.verbose:
+            self.init_info()
+
         self.steps = 0
 
         # initialize clocks
         real_time_start = time.time()
         cpu_time_start = time.process_time()
         display_timer = time.time()
-
+        
         # Initizalize search strategy
         self.initialize()
 
         # Search untill the stopping condition is met
         self.update(real_time_start, cpu_time_start, pass_step=False)
+        
+        if self.verbose:
+            self.step_info(real_time_start)
+        
         while not self.ended:
-
             self.step(real_time_start)
 
             self.update(real_time_start, cpu_time_start)
@@ -272,6 +278,7 @@ class Search(ABC):
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(real_time_start)
                 display_timer = time.time()
+            
 
         # Store the time spent optimizing
         self.real_time_spent = time.time() - real_time_start
@@ -357,6 +364,12 @@ class Search(ABC):
 
         with open(file_name, "w") as fp:
             fp.write(dumped)
+    
+    def init_info(self):
+        print(f"Initializing optimization of {self.objfunc.name} using {self.search_strategy.name}")
+        print(f"-----------------------------{'-'*len(self.objfunc.name)}-------{'-'*len(self.search_strategy.name)}")
+        print()
+
     
     @abstractmethod
     def step_info(self, start_time: float = 0):
