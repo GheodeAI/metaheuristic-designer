@@ -9,10 +9,10 @@ pyevolcomp.benchmarks.classic_problems module
    :undoc-members:
    :show-inheritance:
 
-pyevolcomp.benchmarks.ImgFuncs module
--------------------------------------
+pyevolcomp.benchmarks.img_funcs module
+--------------------------------------
 
-.. automodule:: pyevolcomp.benchmarks.ImgFuncs
+.. automodule:: pyevolcomp.benchmarks.img_funcs
    :members:
    :undoc-members:
    :show-inheritance:

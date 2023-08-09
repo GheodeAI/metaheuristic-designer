@@ -1,6 +1,24 @@
 pyevolcomp package
 ==================
 
+Subpackages
+-----------
+
+These subpackages provide implementations of the interfaces needed to define an optimization algorithm.
+
+.. toctree::
+   :maxdepth: 1
+
+   pyevolcomp.simple
+   pyevolcomp.benchmarks
+   pyevolcomp.SearchMethods
+   pyevolcomp.Algorithms
+   pyevolcomp.Operators
+   pyevolcomp.SelectionMethods
+   pyevolcomp.Initializers
+   pyevolcomp.Encodings
+
+
 pyevolcomp.ObjectiveFunc module
 -------------------------------
 
@@ -81,27 +99,3 @@ pyevolcomp.utils module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pyevolcomp
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 2
-
-   pyevolcomp.simple
-   pyevolcomp.SearchMethods
-   pyevolcomp.Algorithms
-   pyevolcomp.Operators
-   pyevolcomp.SelectionMethods
-   pyevolcomp.Initializers
-   pyevolcomp.Encodings
-   pyevolcomp.benchmarks
