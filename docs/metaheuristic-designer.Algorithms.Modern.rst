@@ -1,10 +1,10 @@
-pyevolcomp.Algorithms.Modern package
+metaheuristic_designer.Algorithms.Modern package
 ====================================
 
 CMA\_ES
 -------------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.Modern.CMA_ES
+.. automodule:: metaheuristic_designer.Algorithms.Modern.CMA_ES
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ CMA\_ES
 RVNS
 ----------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.Modern.RVNS
+.. automodule:: metaheuristic_designer.Algorithms.Modern.RVNS
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ RVNS
 VND
 ---------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.Modern.VND
+.. automodule:: metaheuristic_designer.Algorithms.Modern.VND
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ VND
 VNS
 ---------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.Modern.VNS
+.. automodule:: metaheuristic_designer.Algorithms.Modern.VNS
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ VNS
 Vns neighborhood changes
 --------------------------------------------------------------
 
-.. automodule:: pyevolcomp.Algorithms.Modern.vns_neighborhood_changes
+.. automodule:: metaheuristic_designer.Algorithms.Modern.vns_neighborhood_changes
    :members:
    :undoc-members:
    :show-inheritance:

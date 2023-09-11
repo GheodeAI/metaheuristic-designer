@@ -58,41 +58,41 @@ Implementation
 This is implemented as Interfaces (or more accurately, abstract classes) that are related to each other and which must be implemented
 to constuct an optimization algorithm.
 
-First, **objective functions** are implemented as instances of the class :class:`ObjectiveFunc <pyevolcomp.ObjectiveFunc>` which receive
+First, **objective functions** are implemented as instances of the class :class:`ObjectiveFunc <metaheuristic_designer.ObjectiveFunc>` which receive
 an input in some unspecified format (an array, a tree or any other object) and output a single numerical value. Our goal is to find
 an input that maximizes (or minimizes) this output value.
 
-Each **solution** is represented as an instance of the class :class:`Individual <pyevolcomp.Individual>`, that is a class that holds a possible 
+Each **solution** is represented as an instance of the class :class:`Individual <metaheuristic_designer.Individual>`, that is a class that holds a possible 
 solution (its genotype) to our optimization problem and has a fitness which is the value of the objective function for this solution adjusted
 so that we are always solving a maximization problem (flipping the sign for minimization problems).
 
 The solutions that an individual has are encoded in a certain way, but our objective function might need an input encoded in a different way. 
-This is where **encodings** are used, they are represented as instances of the class :class:`Encoding <pyevolcomp.Encoding>` which isolates the 
+This is where **encodings** are used, they are represented as instances of the class :class:`Encoding <metaheuristic_designer.Encoding>` which isolates the 
 representation of the solution in the optimization prodecure and the one used in the calculation of the objective function.
 
-For the **initialization step**, there will be an instance of the class :class:`Initializer <pyevolcomp.Initializer>` that will generate
+For the **initialization step**, there will be an instance of the class :class:`Initializer <metaheuristic_designer.Initializer>` that will generate
 an initial population, often completely at random, and will be used whenever a random solution needs to be generated. This class will
 also indicate the size of the population (1 if the algorithm works with only one solution).
 
-Both parent selection and survivor selection are implemented as instances of the class :class:`SelectionMethod <pyevolcomp.SelectionMethod>` 
-although it is recomended to use the classes :class:`ParentSelection <pyevolcomp.SelectionMethods.ParentSelection>` and
-:class:`SurvivorSelection <pyevolcomp.SelectionMethods.SurvivorSelection>` respectively.
+Both parent selection and survivor selection are implemented as instances of the class :class:`SelectionMethod <metaheuristic_designer.SelectionMethod>` 
+although it is recomended to use the classes :class:`ParentSelection <metaheuristic_designer.SelectionMethods.ParentSelection>` and
+:class:`SurvivorSelection <metaheuristic_designer.SelectionMethods.SurvivorSelection>` respectively.
 
-To perturb individuals we use operators are instances of the class :class:`Operator <pyevolcomp.Operator>` which take an individual and the population
+To perturb individuals we use operators are instances of the class :class:`Operator <metaheuristic_designer.Operator>` which take an individual and the population
 and returns a perturbed individual. This could represent a crossing operation, a mutation, generating a completely random individual or
 even a sequence of operators.
 
 We define an algorithm as the way of combining of the previous elements and specifies how each iteration or step is carried out and
-is implemented as as instance of the class :class:`Algorithm <pyevolcomp.Algorithm>`.
+is implemented as as instance of the class :class:`Algorithm <metaheuristic_designer.Algorithm>`.
 
 The proper optimization is carried repeating steps until a stopping condition is reached, this is implemented as an instance of the class 
-:class:`Search <pyevolcomp.Search>` which also provides some information about the progress of the algorithm and is the interface that is
+:class:`Search <metaheuristic_designer.Search>` which also provides some information about the progress of the algorithm and is the interface that is
 used for the optimization.
 
 All of these components have working implementations in their respective subpackages except for individuals, which are already implemented since
 there is not much room for customization there.
 
-There is also some default implementation of popular optimization algorithms available in the :any:`pyevolcomp.simple` such 
+There is also some default implementation of popular optimization algorithms available in the :any:`metaheuristic_designer.simple` such 
 as genetic algorithms, particle swarm and simulated annealing.
 
 Indices and tables
@@ -105,4 +105,4 @@ Indices and tables
    :maxdepth: 1
    :caption: Contents:
    
-    API reference <pyevolcomp>
+    API reference <metaheuristic_designer>

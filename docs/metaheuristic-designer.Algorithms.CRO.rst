@@ -1,10 +1,10 @@
-pyevolcomp.Algorithms.CRO package
+metaheuristic_designer.Algorithms.CRO package
 =================================
 
 CRO
 ------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.CRO.CRO
+.. autoclass:: metaheuristic_designer.Algorithms.CRO.CRO
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ CRO
 CRO\_SL
 ----------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.CRO.CRO_SL
+.. autoclass:: metaheuristic_designer.Algorithms.CRO.CRO_SL
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ CRO\_SL
 PCRO\_SL
 -----------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.CRO.PCRO_SL
+.. autoclass:: metaheuristic_designer.Algorithms.CRO.PCRO_SL
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ PCRO\_SL
 DPCRO\_SL
 ------------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.CRO.DPCRO_SL
+.. autoclass:: metaheuristic_designer.Algorithms.CRO.DPCRO_SL
    :members:
    :undoc-members:
    :show-inheritance:

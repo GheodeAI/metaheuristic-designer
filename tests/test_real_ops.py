@@ -1,10 +1,10 @@
 import pytest
 
 import numpy as np
-from pyevolcomp import Individual
-from pyevolcomp.Operators import OperatorReal, real_ops_map
-from pyevolcomp.benchmarks.benchmark_funcs import Sphere
-from pyevolcomp.Initializers import UniformVectorInitializer
+from metaheuristic_designer import Individual
+from metaheuristic_designer.Operators import OperatorReal, real_ops_map
+from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
+from metaheuristic_designer.Initializers import UniformVectorInitializer
 
 real_ops = [i for i in real_ops_map.keys() if i not in ["mutate1sigma", "mutatensigmas"]]
 

@@ -1,10 +1,10 @@
-pyevolcomp.Initializers package
+metaheuristic_designer.Initializers package
 ===============================
 
 DirectInitializer
 ------------------------------------------------
 
-.. automodule:: pyevolcomp.Initializers.DirectInitializer
+.. automodule:: metaheuristic_designer.Initializers.DirectInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ DirectInitializer
 GaussianInitializer
 --------------------------------------------------
 
-.. automodule:: pyevolcomp.Initializers.GaussianInitializer
+.. automodule:: metaheuristic_designer.Initializers.GaussianInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ GaussianInitializer
 LambdaInitializer
 ------------------------------------------------
 
-.. automodule:: pyevolcomp.Initializers.LambdaInitializer
+.. automodule:: metaheuristic_designer.Initializers.LambdaInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ LambdaInitializer
 SeedInitializer
 ----------------------------------------------
 
-.. automodule:: pyevolcomp.Initializers.SeedInitializer
+.. automodule:: metaheuristic_designer.Initializers.SeedInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ SeedInitializer
 UniformInitializer
 -------------------------------------------------
 
-.. automodule:: pyevolcomp.Initializers.UniformInitializer
+.. automodule:: metaheuristic_designer.Initializers.UniformInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,7 @@ UniformInitializer
 PermInitializer
 -------------------------------------------------
 
-.. automodule:: pyevolcomp.Initializers.PermInitializer
+.. automodule:: metaheuristic_designer.Initializers.PermInitializer
    :members:
    :undoc-members:
    :show-inheritance:

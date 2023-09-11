@@ -1,10 +1,10 @@
-pyevolcomp.Operators package
+metaheuristic_designer.Operators package
 ============================
 
 OperatorReal
 ----------------------------------------
 
-.. automodule:: pyevolcomp.Operators.OperatorReal
+.. automodule:: metaheuristic_designer.Operators.OperatorReal
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ OperatorReal
 OperatorInt
 ---------------------------------------
 
-.. automodule:: pyevolcomp.Operators.OperatorInt
+.. automodule:: metaheuristic_designer.Operators.OperatorInt
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ OperatorInt
 OperatorBinary
 ------------------------------------------
 
-.. automodule:: pyevolcomp.Operators.OperatorBinary
+.. automodule:: metaheuristic_designer.Operators.OperatorBinary
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ OperatorBinary
 OperatorPerm
 ------------------------------------------
 
-.. automodule:: pyevolcomp.Operators.OperatorPerm
+.. automodule:: metaheuristic_designer.Operators.OperatorPerm
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ OperatorPerm
 OperatorList
 ----------------------------------------
 
-.. automodule:: pyevolcomp.Operators.OperatorList
+.. automodule:: metaheuristic_designer.Operators.OperatorList
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,7 @@ OperatorList
 OperatorMeta
 ----------------------------------------
 
-.. automodule:: pyevolcomp.Operators.OperatorMeta
+.. automodule:: metaheuristic_designer.Operators.OperatorMeta
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,7 +52,7 @@ OperatorMeta
 List operator functions
 -----------------------------------------------------
 
-.. automodule:: pyevolcomp.Operators.list_operator_functions
+.. automodule:: metaheuristic_designer.Operators.list_operator_functions
    :members:
    :undoc-members:
    :show-inheritance:
@@ -60,7 +60,7 @@ List operator functions
 Vector operator functions
 -------------------------------------------------------
 
-.. automodule:: pyevolcomp.Operators.vector_operator_functions
+.. automodule:: metaheuristic_designer.Operators.vector_operator_functions
    :members:
    :undoc-members:
    :show-inheritance:

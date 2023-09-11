@@ -1,10 +1,10 @@
-pyevolcomp.SelectionMethods package
+metaheuristic_designer.SelectionMethods package
 ===================================
 
 ParentSelection
 --------------------------------------------------
 
-.. automodule:: pyevolcomp.SelectionMethods.ParentSelection
+.. automodule:: metaheuristic_designer.SelectionMethods.ParentSelection
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ ParentSelection
 SurvivorSelection
 ----------------------------------------------------
 
-.. automodule:: pyevolcomp.SelectionMethods.SurvivorSelection
+.. automodule:: metaheuristic_designer.SelectionMethods.SurvivorSelection
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ SurvivorSelection
 Parent selection functions
 ---------------------------------------------------------------
 
-.. automodule:: pyevolcomp.SelectionMethods.parent_selection_functions
+.. automodule:: metaheuristic_designer.SelectionMethods.parent_selection_functions
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ Parent selection functions
 Survivor selection functions
 -----------------------------------------------------------------
 
-.. automodule:: pyevolcomp.SelectionMethods.survivor_selection_functions
+.. automodule:: metaheuristic_designer.SelectionMethods.survivor_selection_functions
    :members:
    :undoc-members:
    :show-inheritance:
