@@ -1,6 +1,6 @@
 import pytest
 
-from pyevolcomp import Individual, ParentSelection
+from metaheuristic_designer import Individual, ParentSelection
 
 pop_size = 100
 

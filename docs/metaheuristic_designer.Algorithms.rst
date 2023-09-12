@@ -1,10 +1,10 @@
-pyevolcomp.Algorithms package
+metaheuristic_designer.Algorithms package
 =============================
 
 HillClimb
 --------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.HillClimb
+.. autoclass:: metaheuristic_designer.Algorithms.HillClimb
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ HillClimb
 LocalSearch
 ----------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.LocalSearch
+.. autoclass:: metaheuristic_designer.Algorithms.LocalSearch
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ LocalSearch
 StaticPopulation
 ---------------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.StaticPopulation
+.. autoclass:: metaheuristic_designer.Algorithms.StaticPopulation
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ StaticPopulation
 VariablePopulation
 -----------------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.VariablePopulation
+.. autoclass:: metaheuristic_designer.Algorithms.VariablePopulation
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ VariablePopulation
 NoSearch
 -------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.NoSearch
+.. autoclass:: metaheuristic_designer.Algorithms.NoSearch
    :members:
    :undoc-members:
    :show-inheritance:
@@ -47,6 +47,6 @@ Subpackages
 .. toctree::
    :maxdepth: 2
 
-   pyevolcomp.Algorithms.CRO
-   pyevolcomp.Algorithms.Classic
-   pyevolcomp.Algorithms.Modern
+   metaheuristic_designer.Algorithms.CRO
+   metaheuristic_designer.Algorithms.Classic
+   metaheuristic_designer.Algorithms.Modern

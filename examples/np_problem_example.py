@@ -1,11 +1,11 @@
-from pyevolcomp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
-from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
-from pyevolcomp.Encodings import TypeCastEncoding
-from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary, OperatorPerm
-from pyevolcomp.Initializers import UniformVectorInitializer, PermInitializer
-from pyevolcomp.Algorithms import *
+from metaheuristic_designer import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from metaheuristic_designer.SearchMethods import GeneralSearch, MemeticSearch
+from metaheuristic_designer.Encodings import TypeCastEncoding
+from metaheuristic_designer.Operators import OperatorReal, OperatorInt, OperatorBinary, OperatorPerm
+from metaheuristic_designer.Initializers import UniformVectorInitializer, PermInitializer
+from metaheuristic_designer.Algorithms import *
 
-from pyevolcomp.benchmarks import *
+from metaheuristic_designer.benchmarks import *
 
 import argparse
 

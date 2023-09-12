@@ -1,10 +1,10 @@
-pyevolcomp.Encodings package
+metaheuristic_designer.Encodings package
 ============================
 
 DefaultEncoding
 -------------------------------------------
 
-.. autoclass:: pyevolcomp.Encodings.DefaultEncoding
+.. autoclass:: metaheuristic_designer.Encodings.DefaultEncoding
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ DefaultEncoding
 TypeCastEncoding
 --------------------------------------------
 
-.. autoclass:: pyevolcomp.Encodings.TypeCastEncoding
+.. autoclass:: metaheuristic_designer.Encodings.TypeCastEncoding
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ TypeCastEncoding
 MatrixEncoding
 ------------------------------------------
 
-.. autoclass:: pyevolcomp.Encodings.MatrixEncoding
+.. autoclass:: metaheuristic_designer.Encodings.MatrixEncoding
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ MatrixEncoding
 ImageEncoding
 -----------------------------------------
 
-.. autoclass:: pyevolcomp.Encodings.ImageEncoding
+.. autoclass:: metaheuristic_designer.Encodings.ImageEncoding
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ ImageEncoding
 CMAEncoding
 ---------------------------------------
 
-.. autoclass:: pyevolcomp.Encodings.CMAEncoding
+.. autoclass:: metaheuristic_designer.Encodings.CMAEncoding
    :members:
    :undoc-members:
    :show-inheritance:

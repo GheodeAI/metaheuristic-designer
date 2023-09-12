@@ -12,13 +12,13 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../src/pyevolcomp'))
-sys.path.insert(0, os.path.abspath('./src/pyevolcomp'))
+sys.path.insert(0, os.path.abspath('../src/metaheuristic_designer'))
+sys.path.insert(0, os.path.abspath('./src/metaheuristic_designer'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'PyEvolComp'
+project = 'metaheuristic-designer'
 copyright = '2023, Eugenio Lorente-Ramos'
 author = 'Eugenio Lorente-Ramos'
 

@@ -1,10 +1,10 @@
 import pytest
 
 import numpy as np
-from pyevolcomp import Individual
-from pyevolcomp.Operators import OperatorMeta, meta_ops_map, OperatorReal
-from pyevolcomp.benchmarks.benchmark_funcs import Sphere
-from pyevolcomp.Initializers import UniformVectorInitializer
+from metaheuristic_designer import Individual
+from metaheuristic_designer.Operators import OperatorMeta, meta_ops_map, OperatorReal
+from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
+from metaheuristic_designer.Initializers import UniformVectorInitializer
 
 pop_size = 100
 

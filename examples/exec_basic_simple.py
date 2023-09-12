@@ -1,17 +1,17 @@
-# from pyevolcomp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
-# from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
-# from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary
-# from pyevolcomp.Initializers import UniformVectorInitializer
-# from pyevolcomp.Algorithms import *
+# from metaheuristic_designer import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+# from metaheuristic_designer.SearchMethods import GeneralSearch, MemeticSearch
+# from metaheuristic_designer.Operators import OperatorReal, OperatorInt, OperatorBinary
+# from metaheuristic_designer.Initializers import UniformVectorInitializer
+# from metaheuristic_designer.Algorithms import *
 
-from pyevolcomp.simple import hill_climb
-from pyevolcomp.simple import genetic_algorithm
-from pyevolcomp.simple import evolution_strategy
-from pyevolcomp.simple import particle_swarm
-from pyevolcomp.simple import differential_evolution
-from pyevolcomp.simple import random_search
-from pyevolcomp.simple import simulated_annealing
-from pyevolcomp.benchmarks import *
+from metaheuristic_designer.simple import hill_climb
+from metaheuristic_designer.simple import genetic_algorithm
+from metaheuristic_designer.simple import evolution_strategy
+from metaheuristic_designer.simple import particle_swarm
+from metaheuristic_designer.simple import differential_evolution
+from metaheuristic_designer.simple import random_search
+from metaheuristic_designer.simple import simulated_annealing
+from metaheuristic_designer.benchmarks import *
 
 import argparse
 

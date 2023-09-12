@@ -1,8 +1,8 @@
 import pytest
 
 import numpy as np
-from pyevolcomp import Individual
-from pyevolcomp.Encodings import MatrixEncoding, ImageEncoding, DefaultEncoding, TypeCastEncoding
+from metaheuristic_designer import Individual
+from metaheuristic_designer.Encodings import MatrixEncoding, ImageEncoding, DefaultEncoding, TypeCastEncoding
 
 @pytest.mark.parametrize(
     "genotype, phenotype", [

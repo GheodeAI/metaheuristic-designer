@@ -1,10 +1,10 @@
-from pyevolcomp import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
-from pyevolcomp.SearchMethods import GeneralSearch, MemeticSearch
-from pyevolcomp.Operators import OperatorReal, OperatorInt, OperatorBinary
-from pyevolcomp.Algorithms import *
-from pyevolcomp.Initializers import *
-from pyevolcomp.Encodings import ImageEncoding
-from pyevolcomp.benchmarks import * 
+from metaheuristic_designer import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from metaheuristic_designer.SearchMethods import GeneralSearch, MemeticSearch
+from metaheuristic_designer.Operators import OperatorReal, OperatorInt, OperatorBinary
+from metaheuristic_designer.Algorithms import *
+from metaheuristic_designer.Initializers import *
+from metaheuristic_designer.Encodings import ImageEncoding
+from metaheuristic_designer.benchmarks import * 
 
 import pygame
 import time

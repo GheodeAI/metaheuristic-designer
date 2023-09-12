@@ -1,9 +1,9 @@
 import numpy as np
 
-from pyevolcomp import ObjectiveFromLambda, ParamScheduler
-from pyevolcomp.SearchMethods import GeneralSearch
-from pyevolcomp.Operators import OperatorReal
-from pyevolcomp.Algorithms import *
+from metaheuristic_designer import ObjectiveFromLambda, ParamScheduler
+from metaheuristic_designer.SearchMethods import GeneralSearch
+from metaheuristic_designer.Operators import OperatorReal
+from metaheuristic_designer.Algorithms import *
 
 
 def func(vector):
