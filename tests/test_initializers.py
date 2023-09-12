@@ -1,8 +1,8 @@
 import pytest
 
 import numpy as np
-from pyevolcomp import Individual
-from pyevolcomp.Initializers import *
+from metaheuristic_designer import Individual
+from metaheuristic_designer.Initializers import *
 
 pop_size = 100
 

@@ -1,7 +1,7 @@
 import pytest
 
-from pyevolcomp.Initializers import UniformVectorInitializer
-from pyevolcomp.benchmarks import *
+from metaheuristic_designer.Initializers import UniformVectorInitializer
+from metaheuristic_designer.benchmarks import *
 
 benchmark_functions = [
     MaxOnes,

@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from pyevolcomp import Individual, SurvivorSelection
+from metaheuristic_designer import Individual, SurvivorSelection
 
 pop_size = 100
 

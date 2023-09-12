@@ -1,10 +1,10 @@
-pyevolcomp.SearchMethods package
+metaheuristic_designer.SearchMethods package
 ================================
 
 General Search
 ---------------------------------------------
 
-.. autoclass:: pyevolcomp.SearchMethods.GeneralSearch
+.. autoclass:: metaheuristic_designer.SearchMethods.GeneralSearch
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ General Search
 Memetic Search
 ---------------------------------------------
 
-.. autoclass:: pyevolcomp.SearchMethods.MemeticSearch
+.. autoclass:: metaheuristic_designer.SearchMethods.MemeticSearch
    :members:
    :undoc-members:
    :show-inheritance:

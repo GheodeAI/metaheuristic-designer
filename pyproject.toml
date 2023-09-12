@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "PyEvolComp"
+name = "metaheuristic-designer"
 version = "0.1.1"
 description = "A python package to desing metaheuristic optimization algorithms from components."
 authors = ["eugenioLR <eugeniolorente0@gmail.com>"]

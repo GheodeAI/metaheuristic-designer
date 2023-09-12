@@ -1,10 +1,10 @@
-pyevolcomp.Algorithms.Classic package
+metaheuristic_designer.Algorithms.Classic package
 =====================================
 
 ES
 ---------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.Classic.ES
+.. autoclass:: metaheuristic_designer.Algorithms.Classic.ES
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ ES
 GA
 ---------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.Classic.GA
+.. autoclass:: metaheuristic_designer.Algorithms.Classic.GA
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ GA
 PSO
 ----------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.Classic.PSO
+.. autoclass:: metaheuristic_designer.Algorithms.Classic.PSO
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ PSO
 SA
 ---------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.Classic.SA
+.. autoclass:: metaheuristic_designer.Algorithms.Classic.SA
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ SA
 DE
 ---------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.Classic.DE
+.. autoclass:: metaheuristic_designer.Algorithms.Classic.DE
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,7 @@ DE
 HS
 ---------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.Classic.HS
+.. autoclass:: metaheuristic_designer.Algorithms.Classic.HS
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,7 +52,7 @@ HS
 RandomSearch
 -------------------------------------------------
 
-.. autoclass:: pyevolcomp.Algorithms.Classic.RandomSearch
+.. autoclass:: metaheuristic_designer.Algorithms.Classic.RandomSearch
    :members:
    :undoc-members:
    :show-inheritance:
