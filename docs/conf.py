@@ -55,9 +55,29 @@ autodoc_member_order = 'bysource'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'pydata_sphinx_theme'
+html_theme = 'sphinx_material'
+
+html_theme_options = {
+    'nav_title': 'metaheuristic-designer docs',
+    'color_primary': 'teal',
+    'color_accent': 'green',
+    'globaltoc_collapse': True,
+    'globaltoc_includehidden': False,
+    'globaltoc_depth': 1,
+    'nav_links': [
+        {
+            "href": "metaheuristic_designer",
+            "title": "API reference",
+            "internal": "api_ref"
+        }
+    ]
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_css_files = [
+    'custom.css'
+]

@@ -4,6 +4,7 @@
 # from metaheuristic_designer.Initializers import UniformVectorInitializer
 # from metaheuristic_designer.Algorithms import *
 
+import metaheuristic_designer as mhd
 from metaheuristic_designer.simple import hill_climb
 from metaheuristic_designer.simple import genetic_algorithm
 from metaheuristic_designer.simple import evolution_strategy
@@ -15,9 +16,10 @@ from metaheuristic_designer.benchmarks import *
 
 import argparse
 
-from copy import copy 
+from copy import copy
 import scipy as sp
 import numpy as np
+
 
 def run_algorithm(alg_name, memetic, save_state):
     params = {
@@ -66,6 +68,7 @@ def run_algorithm(alg_name, memetic, save_state):
         "temp_init":1,
         "alpha":0.997
     }
+    
 
     objfunc = Sphere(30, "min")
     # objfunc = Rastrigin(10, "min")
