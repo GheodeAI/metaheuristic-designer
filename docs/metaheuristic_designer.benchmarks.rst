@@ -2,7 +2,7 @@ metaheuristic_designer.benchmarks package
 =============================
 
 metaheuristic_designer.benchmarks.classic_problems module
----------------------------------------------
+---------------------------------------------------------
 
 .. automodule:: metaheuristic_designer.benchmarks.classic_problems
    :members:
@@ -10,7 +10,7 @@ metaheuristic_designer.benchmarks.classic_problems module
    :show-inheritance:
 
 metaheuristic_designer.benchmarks.img_funcs module
---------------------------------------
+--------------------------------------------------
 
 .. automodule:: metaheuristic_designer.benchmarks.img_funcs
    :members:
@@ -18,7 +18,7 @@ metaheuristic_designer.benchmarks.img_funcs module
    :show-inheritance:
 
 metaheuristic_designer.benchmarks.benchmark\_funcs module
----------------------------------------------
+---------------------------------------------------------
 
 .. automodule:: metaheuristic_designer.benchmarks.benchmark_funcs
    :members:

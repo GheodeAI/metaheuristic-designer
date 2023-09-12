@@ -1,5 +1,5 @@
 metaheuristic_designer.simple package
-=========================
+=====================================
 
 .. automodule:: metaheuristic_designer.simple.differential_evolution
    :members:
