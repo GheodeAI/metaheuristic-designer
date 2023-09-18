@@ -32,10 +32,12 @@ dev = [
     "sphinx >=7.1.1",
     "pygame >=2.5.0",    
     "networkx >=3.1"
+    "opencv-python >= 4.8"
 ]
 
 examples = [
     "pygame >=2.5.0",    
-    "networkx >=3.1"    
+    "networkx >=3.1",
+    "opencv-python"
 ]
 

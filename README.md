@@ -12,12 +12,12 @@ Mostly following the book:
 
 ## Instalation
 
-Since this package is not available in PyPi at the moment, you will have to install it manually, preferably in a virtual environment.
+The package is available in the PyPi repository (https://pypi.org/project/metaheuristic-designer/).
 
-To do this, get the package from the latest release, in this case, the file you are looking for is "metaheuristic_designer-0.1.0-py3-none-any.whl". and install it with the following command:
+To install it, use the pip command as follows:
 
 ```bash
-pip install .
+pip install metaheuristic-designer
 ```
 
 ## Examples
@@ -38,15 +38,23 @@ pip install .
         - "-i \[Image path\]" read the image and evolve a random image into this one.
 
 It is recomended that you create a virtual environment to test the examples.
+
 This is done with the following commands:
 ```bash
 python -m venv venv
 source venv/bin/activate
+pip install .[examples]
 ```
 
 Once you have activate the virtual environment, you can execute one of the examples like this:
 ```
 python examples/example_basic.py
+``` 
+
+or
+
+```
+python examples/image_evolution.py
 ``` 
 
 To run the tests you need to install nox, to execute the tests use the command
