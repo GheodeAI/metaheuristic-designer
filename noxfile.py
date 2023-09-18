@@ -1,12 +1,11 @@
 import nox
-import nox_poetry
 
-
-nox.options.sessions = "tests",
+nox.options.sessions = "test",
 locations = "noxfile.py"
 
-@nox_poetry.session
-def tests(session):
+@nox.session
+def test(session):
     session.install('.')
     session.install('pytest', 'coverage')
-    session.run('coverage', 'run', '--parallel', '-m', 'pytest')
+    session.run('coverage', 'run', '--data-file', '.coverage.nox', '--parallel', '-m', 'pytest')
+    session.run('coverage', 'html', '--data-file', '.coverage.nox')
