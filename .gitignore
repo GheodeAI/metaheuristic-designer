@@ -10,9 +10,12 @@ benchmarks/results/*
 .pytest_cache/
 .coverage
 .coverage*
-htmlcov
+htmlcov/
 dist/
 dist/*
 examples/results/
 examples/results/*
 docs/_build/
+venv/
+build/
+*.egg*
