@@ -1,26 +1,43 @@
-[tool.poetry]
-name = "metaheuristic-designer"
-version = "0.1.1"
-description = "A python package to desing metaheuristic optimization algorithms from components."
-authors = ["eugenioLR <eugeniolorente0@gmail.com>"]
-license = "MIT"
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = ">=3.10"
-matplotlib = ">=3.5.1"
-numpy = ">=1.21.5"
-scipy = ">=1.8.1"
-pyparsing = ">=3.0.9"
-scikit-image = ">=0.21.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = ">=7.4.0"
-pygame = ">=2.5.0"
-opencv-python = ">=4.8.0.74"
-sphinx = ">=7.1.1"
-networkx = ">=3.1"
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metaheuristic-designer"
+version = "0.1.2"
+authors = [
+    {name = "eugenioLR", email = "eugeniolorente0@gmail.com"}
+]
+description = "A python package to desing metaheuristic optimization algorithms from components."
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["optization", "genetic-algorithm", "evolutionary-algorithms", "metaheuristics"]
+license = {text = "LICENSE"}
+dependencies = [
+    "matplotlib >= 3.5",
+    "numpy >= 1.21",
+    "scipy >= 1.8",
+    "pyparsing >= 3.0",
+    "scikit-image >= 0.21",
+]
+
+[project.urls]
+Homepage = "https://github.com/eugenioLR/metaheuristic-designer"
+
+[project.optional-dependencies]
+dev = [
+    "pytest >=7.4.0",
+    "coverage >=7.3.1",
+    "pydata-sphinx-theme >=0.13.3",
+    "sphinx >=7.1.1",
+    "pygame >=2.5.0",    
+    "networkx >=3.1"
+    "opencv-python >= 4.8"
+]
+
+examples = [
+    "pygame >=2.5.0",    
+    "networkx >=3.1",
+    "opencv-python"
+]
+

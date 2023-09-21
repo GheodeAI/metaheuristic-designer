@@ -1,4 +1,4 @@
-# Metaheuristi-designer
+# Metaheuristic-designer
 Python implementation of a general framework for the design and execution of metaheuristic algorithms.
 
 Created with the purpose of creating the necesary tools for the analysis and design of metaheuristics
@@ -10,17 +10,14 @@ Inspired by this article:
 Mostly following the book: 
     Eiben, Agoston E., and James E. Smith. Introduction to evolutionary computing. Springer-Verlag Berlin Heidelberg, 2015.
 
-## Project structure
-This project uses poetry as a package manager and nox for unit testing.
-
 ## Instalation
 
-Since this package is not available in PyPi at the moment, you will have to install it manually, preferably in a virtual environment.
+The package is available in the PyPi repository (https://pypi.org/project/metaheuristic-designer/).
 
-To do this, get the package from the latest release, in this case, the file you are looking for is "metaheuristic_designer-0.1.0-py3-none-any.whl". and install it with the following command:
+To install it, use the pip command as follows:
 
 ```bash
-pip install metaheuristic_designer-0.1.0-py3-none-any.whl
+pip install metaheuristic-designer
 ```
 
 ## Examples
@@ -40,22 +37,30 @@ pip install metaheuristic_designer-0.1.0-py3-none-any.whl
     - "examples/exec_basic.py": Evolve an image so that it matches the one given as an input. Recieves mostly the same parameters except for one for indicating the input image:
         - "-i \[Image path\]" read the image and evolve a random image into this one.
 
-To execute the scripts with the correct dependencies first run
+It is recomended that you create a virtual environment to test the examples.
 
+This is done with the following commands:
 ```bash
-poetry install
+python -m venv venv
+source venv/bin/activate
+pip install .[examples]
 ```
 
-Then you can run one the scripts as:
-
-```bash
-poetry run python examples/image_evolution.py -a SA -i images/saturn.png
+Once you have activate the virtual environment, you can execute one of the examples like this:
 ```
+python examples/example_basic.py
+``` 
 
-To run the tests you need to install nox and nox_poetry, to execute the tests use the command
+or
+
+```
+python examples/image_evolution.py
+``` 
+
+To run the tests you need to install nox, to execute the tests use the command
 
 ```bash
-nox
+nox test
 ```
 
 
