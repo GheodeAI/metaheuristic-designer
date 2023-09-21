@@ -1,4 +1,6 @@
 # Metaheuristic-designer
+[![Documentation Status](https://readthedocs.org/projects/metaheuristic-designer/badge/?version=latest)](https://metaheuristic-designer.readthedocs.io/en/latest/?badge=latest)
+
 Python implementation of a general framework for the design and execution of metaheuristic algorithms.
 
 Created with the purpose of creating the necesary tools for the analysis and design of metaheuristics
