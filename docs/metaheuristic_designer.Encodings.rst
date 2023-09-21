@@ -1,8 +1,8 @@
 metaheuristic_designer.Encodings package
-============================
+========================================
 
 DefaultEncoding
--------------------------------------------
+---------------
 
 .. autoclass:: metaheuristic_designer.Encodings.DefaultEncoding
    :members:
@@ -10,7 +10,7 @@ DefaultEncoding
    :show-inheritance:
 
 TypeCastEncoding
---------------------------------------------
+----------------
 
 .. autoclass:: metaheuristic_designer.Encodings.TypeCastEncoding
    :members:
@@ -18,7 +18,7 @@ TypeCastEncoding
    :show-inheritance:
 
 MatrixEncoding
-------------------------------------------
+--------------
 
 .. autoclass:: metaheuristic_designer.Encodings.MatrixEncoding
    :members:
@@ -26,7 +26,7 @@ MatrixEncoding
    :show-inheritance:
 
 ImageEncoding
------------------------------------------
+-------------
 
 .. autoclass:: metaheuristic_designer.Encodings.ImageEncoding
    :members:
@@ -34,7 +34,7 @@ ImageEncoding
    :show-inheritance:
 
 CMAEncoding
----------------------------------------
+-----------
 
 .. autoclass:: metaheuristic_designer.Encodings.CMAEncoding
    :members:

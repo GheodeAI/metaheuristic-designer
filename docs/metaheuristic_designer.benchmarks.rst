@@ -1,5 +1,5 @@
 metaheuristic_designer.benchmarks package
-=============================
+=========================================
 
 metaheuristic_designer.benchmarks.classic_problems module
 ---------------------------------------------------------

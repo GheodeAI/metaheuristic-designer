@@ -1,8 +1,8 @@
 metaheuristic_designer.Algorithms package
-=============================
+=========================================
 
 HillClimb
---------------------------------------
+---------
 
 .. autoclass:: metaheuristic_designer.Algorithms.HillClimb
    :members:
@@ -10,7 +10,7 @@ HillClimb
    :show-inheritance:
 
 LocalSearch
-----------------------------------------
+-----------
 
 .. autoclass:: metaheuristic_designer.Algorithms.LocalSearch
    :members:
@@ -18,7 +18,7 @@ LocalSearch
    :show-inheritance:
 
 StaticPopulation
----------------------------------------------
+----------------
 
 .. autoclass:: metaheuristic_designer.Algorithms.StaticPopulation
    :members:
@@ -26,7 +26,7 @@ StaticPopulation
    :show-inheritance:
 
 VariablePopulation
------------------------------------------------
+------------------
 
 .. autoclass:: metaheuristic_designer.Algorithms.VariablePopulation
    :members:
@@ -34,7 +34,7 @@ VariablePopulation
    :show-inheritance:
 
 NoSearch
--------------------------------------
+--------
 
 .. autoclass:: metaheuristic_designer.Algorithms.NoSearch
    :members:
