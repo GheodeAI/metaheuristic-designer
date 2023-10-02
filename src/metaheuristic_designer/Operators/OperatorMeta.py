@@ -81,8 +81,8 @@ class OperatorMeta(Operator):
         self.method = MetaOpMethods.from_str(method)
 
         # Record of the index of the last operator used 
-        self.chosen_idx = params["init_idx"] if "init_idx" in params else -1
-        self.mask = params["mask"] if "mask" in params else 0
+        self.chosen_idx = params.get("init_idx", -1)
+        self.mask = params.get("mask", 0)
 
         # If we have a branch with 2 operators and "p" is given as an input
         if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:

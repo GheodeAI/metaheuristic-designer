@@ -23,7 +23,7 @@ def genetic_algorithm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         Configured optimization algorithm.
     """
 
-    encoding_str = params["encoding"] if "encoding" in params else "bin"
+    encoding_str = params.get("encoding", "bin")
 
     if encoding_str.lower() == "bin":
         alg = _genetic_algorithm_bin_vec(objfunc, params)
@@ -43,12 +43,12 @@ def _genetic_algorithm_bin_vec(objfunc, params):
     This objective function should accept binary coded vectors.
     """
 
-    pop_size = params["pop_size"] if "pop_size" in params else 100
-    n_parents = params["n_parents"] if "n_parents" in params else 20
-    cross_method = params["cross"] if "cross" in params else "Multipoint"
-    pcross = params["pcross"] if "pcross" in params else 0.8
-    pmut = params["pmut"] if "pmut" in params else 0.1
-    mutstr = params["mutstr"] if "mutstr" in params else 1
+    pop_size = params.get("pop_size", 100)
+    n_parents = params.get("n_parents", 20)
+    cross_method = params.get("cross", "Multipoint")
+    pcross = params.get("pcross", 0.8)
+    pmut = params.get("pmut", 0.1)
+    mutstr = params.get("mutstr", 1)
 
     encoding = TypeCastEncoding(int, bool)
 
@@ -71,12 +71,12 @@ def _genetic_algorithm_int_vec(objfunc, params):
     This objective function should accept integer coded vectors.
     """
 
-    pop_size = params["pop_size"] if "pop_size" in params else 100
-    n_parents = params["n_parents"] if "n_parents" in params else 20
-    cross_method = params["cross"] if "cross" in params else "Multipoint"
-    pcross = params["pcross"] if "pcross" in params else 0.8
-    pmut = params["pmut"] if "pmut" in params else 0.1
-    mutstr = params["mutstr"] if "mutstr" in params else 1
+    pop_size = params.get("pop_size", 100)
+    n_parents = params.get("n_parents", 20)
+    cross_method = params.get("cross", "Multipoint")
+    pcross = params.get("pcross", 0.8)
+    pmut = params.get("pmut", 0.1)
+    mutstr = params.get("mutstr", 1)
 
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=int)
 
@@ -98,12 +98,12 @@ def _genetic_algorithm_real_vec(objfunc, params):
     This objective function should accept real coded vectors.
     """
 
-    pop_size = params["pop_size"] if "pop_size" in params else 100
-    n_parents = params["n_parents"] if "n_parents" in params else 20
-    cross_method = params["cross"] if "cross" in params else "Multipoint"
-    pcross = params["pcross"] if "pcross" in params else 0.8
-    pmut = params["pmut"] if "pmut" in params else 0.1
-    mutstr = params["mutstr"] if "mutstr" in params else 1e-5 
+    pop_size = params.get("pop_size", 100)
+    n_parents = params.get("n_parents", 20)
+    cross_method = params.get("cross", "Multipoint")
+    pcross = params.get("pcross", 0.8)
+    pmut = params.get("pmut", 0.1)
+    mutstr = params.get("mutstr", 1e-5 )
 
 
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float)

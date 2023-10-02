@@ -22,7 +22,7 @@ def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         Configured optimization algorithm.
     """
 
-    encoding_str = params["encoding"] if "encoding" in params else "bin"
+    encoding_str = params.get("encoding", "bin")
 
     if encoding_str.lower() == "bin":
         alg = _hill_climb_bin_vec(objfunc, params)
@@ -41,7 +41,7 @@ def _hill_climb_bin_vec(objfunc, params):
     This objective function should accept binary coded vectors.
     """
 
-    mutstr = params["mutstr"] if "mutstr" in params else 1
+    mutstr = params.get("mutstr", 1)
 
     encoding = TypeCastEncoding(int, bool)
 
@@ -60,7 +60,7 @@ def _hill_climb_int_vec(objfunc, params):
     This objective function should accept integer coded vectors.
     """
 
-    mutstr = params["mutstr"] if "mutstr" in params else 1
+    mutstr = params.get("mutstr", 1)
 
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int)
 
@@ -77,7 +77,7 @@ def _hill_climb_real_vec(objfunc, params):
     This objective function should accept real coded vectors.
     """
 
-    mutstr = params["mutstr"] if "mutstr" in params else 1e-5 
+    mutstr = params.get("mutstr", 1e-5 )
 
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float)
 

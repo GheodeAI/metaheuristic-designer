@@ -14,10 +14,10 @@ class SA(Algorithm):
     """
 
     def __init__(self, pop_init: Initializer, perturb_op: Operator, params: Union[ParamScheduler, dict] = {}, name: str = "SA"):
-        self.iter = params["iter"] if "iter" in params else 100
-        self.temp_init = params["temp_init"] if "temp_init" in params else 100
+        self.iter = params.get("iter", 100)
+        self.temp_init = params.get("temp_init", 100)
         self.temp = self.temp_init
-        self.alpha = params["alpha"] if "alpha" in params else 0.99
+        self.alpha = params.get("alpha", 0.99)
 
         self.perturb_op = perturb_op
 

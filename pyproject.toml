@@ -31,7 +31,7 @@ dev = [
     "pydata-sphinx-theme >=0.13.3",
     "sphinx >=7.1.1",
     "pygame >=2.5.0",    
-    "networkx >=3.1"
+    "networkx >=3.1",
     "opencv-python >= 4.8"
 ]
 

@@ -16,7 +16,7 @@ class LocalSearch(Algorithm):
     def __init__(self, pop_init: Initializer, perturb_op: Operator = None, selection_op: SurvivorSelection = None,
                  params: Union[ParamScheduler, dict] = {}, name: str = "LocalSearch"):
         
-        self.iterations = params["iters"] if "iters" in params else 100
+        self.iterations = params.get("iters", 100)
 
         if perturb_op is None:
             perturb_op = OperatorReal("Nothing")
