@@ -6,6 +6,7 @@ from ..ParamScheduler import ParamScheduler
 from copy import copy
 import enum
 from enum import Enum
+from ..utils import RAND_GEN
 
 
 class RealOpMethods(Enum):
@@ -141,7 +142,7 @@ class OperatorReal(Operator):
         params = copy(self.params)
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(np.random.random(indiv.genotype.size) < params["Cr"])
+            params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
 
         if "N" in params:
             params["N"] = round(params["N"])
@@ -239,7 +240,7 @@ class OperatorReal(Operator):
 
         elif self.method == RealOpMethods.RANDOM_MASK:
             mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
-            np.random.shuffle(mask_pos)
+            RAND_GEN.shuffle(mask_pos)
 
             new_indiv.genotype[mask_pos] = initializer.generate_random(objfunc).genotype[mask_pos]
 

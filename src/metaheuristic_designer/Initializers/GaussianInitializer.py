@@ -3,6 +3,7 @@ import numpy as np
 import random
 from ..Initializer import Initializer
 from ..Individual import Individual
+from ..utils import RAND_GEN
 
 class GaussianInitializer(Initializer):
     """
@@ -51,7 +52,7 @@ class GaussianInitializer(Initializer):
 class GaussianVectorInitializer(GaussianInitializer):
     
     def generate_random(self, objfunc):
-        new_vector_float = np.random.normal(self.g_mean, self.g_std, size=self.genotype_size)
+        new_vector_float = RAND_GEN.normal(self.g_mean, self.g_std, size=self.genotype_size)
         if self.dtype is int:
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:
@@ -65,7 +66,7 @@ class GaussianVectorInitializer(GaussianInitializer):
 
 class GaussianListInitializer(GaussianInitializer):
     def generate_random(self, objfunc):
-        new_list = [np.random.normal(m, s) for m, s in zip(self.g_mean, self.g_std)]
+        new_list = [RAND_GEN.normal(m, s) for m, s in zip(self.g_mean, self.g_std)]
         return Individual(objfunc, new_list, encoding=self.encoding)
     
     def generate_individual(self, objfunc):

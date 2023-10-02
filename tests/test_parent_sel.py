@@ -1,6 +1,8 @@
 import pytest
 
 from metaheuristic_designer import Individual, ParentSelection
+import metaheuristic_designer as mhd
+mhd.reset_seed(0)
 
 pop_size = 100
 

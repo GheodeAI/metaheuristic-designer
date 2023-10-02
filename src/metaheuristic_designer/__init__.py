@@ -8,3 +8,4 @@ from .Operator import Operator
 from .SelectionMethod import SelectionMethod
 from .SelectionMethods import SurvivorSelection, ParentSelection
 from .ParamScheduler import ParamScheduler
+from .utils import RAND_GEN, reset_seed

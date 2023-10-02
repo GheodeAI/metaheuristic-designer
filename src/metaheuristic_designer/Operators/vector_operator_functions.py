@@ -5,6 +5,7 @@ import scipy as sp
 import scipy.stats
 import enum
 from enum import Enum
+from ..utils import RAND_GEN
 
 class ProbDist(Enum):
     UNIFORM = enum.auto()
@@ -49,7 +50,7 @@ def mutate_rand(vector, population, params):
     strength = params.get("F", 1)
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
-    np.random.shuffle(mask_pos)
+    RAND_GEN.shuffle(mask_pos)
 
     rand_vec = sample_distribution(method, n, 0, strength, low, up)
 
@@ -70,7 +71,7 @@ def mutate_sample(vector, population, params):
     strength = params.get("F", 1)
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
-    np.random.shuffle(mask_pos)
+    RAND_GEN.shuffle(mask_pos)
     popul_matrix = np.vstack([i.genotype for i in population])
     mean = popul_matrix.mean(axis=0)[mask_pos]
     std = (popul_matrix.std(axis=0)[mask_pos] + 1e-6) * strength  # ensure there will be some standard deviation
@@ -124,9 +125,9 @@ def sample_distribution(method, n, mean=0, strength=0.01, low=0, up=1):
 
     sample = 0
     if method == ProbDist.GAUSS:
-        sample = np.random.normal(mean, strength, size=n)
+        sample = RAND_GEN.normal(mean, strength, size=n)
     elif method == ProbDist.UNIFORM:
-        sample = np.random.uniform(low, up, size=n)
+        sample = RAND_GEN.uniform(low, up, size=n)
     elif method == ProbDist.CAUCHY:
         sample = sp.stats.cauchy.rvs(mean, strength, size=n)
     elif method == ProbDist.LAPLACE:
@@ -188,7 +189,7 @@ def sample_1_sigma(vector, n, epsilon, tau):
     """
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
-    np.random.shuffle(mask_pos)
+    RAND_GEN.shuffle(mask_pos)
 
     sampled = np.array([mutate_1_sigma(vector[pos], epsilon, tau) for pos in mask_pos])
     vector[mask_pos] = sampled[mask_pos]
@@ -200,7 +201,7 @@ def mutate_1_sigma(sigma, epsilon, tau):
     Mutate a sigma value in base of tau param, where epsilon is de minimum value that a sigma can have.
     """
 
-    return max(epsilon, np.exp(tau * np.random.normal()))
+    return max(epsilon, np.exp(tau * RAND_GEN.normal()))
 
 
 def mutate_n_sigmas(list_sigmas, epsilon, tau, tau_multiple):
@@ -208,8 +209,8 @@ def mutate_n_sigmas(list_sigmas, epsilon, tau, tau_multiple):
     Mutate a list of sigmas values in base of tau and tau_multiple params, where epsilon is de minimum value that a sigma can have.
     """
 
-    base_tau = tau * np.random.normal()
-    new_sigmas = [max(epsilon, sigma * np.exp(base_tau + tau_multiple * np.random.normal())) for sigma in list_sigmas]
+    base_tau = tau * RAND_GEN.normal()
+    new_sigmas = [max(epsilon, sigma * np.exp(base_tau + tau_multiple * RAND_GEN.normal())) for sigma in list_sigmas]
     return new_sigmas
 
 
@@ -219,14 +220,14 @@ def xor_mask(vector, n, mode="byte"):
     """
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
-    np.random.shuffle(mask_pos)
+    RAND_GEN.shuffle(mask_pos)
 
     if mode == "bin":
         mask = mask_pos
     elif mode == "byte":
-        mask = np.random.randint(1, 0xFF, size=vector.shape) * mask_pos
+        mask = RAND_GEN.integers(1, 0xFF, size=vector.shape) * mask_pos
     elif mode == "int":
-        mask = np.random.randint(1, 0xFFFF, size=vector.shape) * mask_pos
+        mask = RAND_GEN.integers(1, 0xFFFF, size=vector.shape) * mask_pos
 
     return vector ^ mask
 
@@ -237,13 +238,13 @@ def permutation(vector, n):
     """
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
-    np.random.shuffle(mask_pos)
+    RAND_GEN.shuffle(mask_pos)
 
     if np.count_nonzero(mask_pos == 1) < 2:
         mask_pos[random.sample(range(mask_pos.size), 2)] = 1
 
     shuffled_vec = vector[mask_pos]
-    np.random.shuffle(shuffled_vec)
+    RAND_GEN.shuffle(shuffled_vec)
     vector[mask_pos] = shuffled_vec
 
     return vector
@@ -297,7 +298,7 @@ def cross_mp(vector1, vector2):
     Performs a multipoint cross between two vectors.
     """
 
-    mask_pos = 1 * (np.random.rand(vector1.size) > 0.5)
+    mask_pos = 1 * (RAND_GEN.random(vector1.size) > 0.5)
     aux = np.copy(vector1)
     aux[mask_pos == 1] = vector2[mask_pos == 1]
     return aux
@@ -312,7 +313,7 @@ def multi_cross(vector, population, n_ind):
         n_ind = len(population)
 
     other_parents = random.sample(population, n_ind - 1)
-    mask_pos = np.random.randint(n_ind, size=vector.size) - 1
+    mask_pos = RAND_GEN.integers(n_ind, size=vector.size) - 1
     for i in range(0, n_ind - 1):
         vector[mask_pos == i] = other_parents[i].genotype[mask_pos == i]
     return vector
@@ -409,7 +410,7 @@ def blxalpha(vector1, vector2, alpha):
     Performs the BLX alpha crossing operator between two vectors.
     """
 
-    alpha *= np.random.random()
+    alpha *= RAND_GEN.random()
     return alpha * vector1 + (1 - alpha) * vector2
 
 
@@ -419,7 +420,7 @@ def sbx(vector1, vector2, strength):
     """
 
     beta = np.zeros(vector1.shape)
-    u = np.random.random(vector1.shape)
+    u = RAND_GEN.random(vector1.shape)
     for idx, val in enumerate(u):
         if val <= 0.5:
             beta[idx] = (2 * val)**(1 / (strength + 1))
@@ -439,7 +440,7 @@ def DE_rand1(vector, population, F, CR):
         r1, r2, r3 = random.sample(population, 3)
 
         v = r1.genotype + F * (r2.genotype - r3.genotype)
-        mask_pos = np.random.random(vector.shape) <= CR
+        mask_pos = RAND_GEN.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
 
@@ -455,7 +456,7 @@ def DE_best1(vector, population, F, CR):
         r1, r2 = random.sample(population, 2)
 
         v = best.genotype + F * (r1.genotype - r2.genotype)
-        mask_pos = np.random.random(vector.shape) <= CR
+        mask_pos = RAND_GEN.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
 
@@ -469,7 +470,7 @@ def DE_rand2(vector, population, F, CR):
         r1, r2, r3, r4, r5 = random.sample(population, 5)
 
         v = r1.genotype + F * (r2.genotype - r3.genotype) + F * (r4.genotype - r5.genotype)
-        mask_pos = np.random.random(vector.shape) <= CR
+        mask_pos = RAND_GEN.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
 
@@ -485,7 +486,7 @@ def DE_best2(vector, population, F, CR):
         r1, r2, r3, r4 = random.sample(population, 4)
 
         v = best.genotype + F * (r1.genotype - r2.genotype) + F * (r3.genotype - r4.genotype)
-        mask_pos = np.random.random(vector.shape) <= CR
+        mask_pos = RAND_GEN.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
 
@@ -498,8 +499,8 @@ def DE_current_to_rand1(vector, population, F, CR):
     if len(population) > 3:
         r1, r2, r3 = random.sample(population, 3)
 
-        v = vector + np.random.random() * (r1.genotype - vector) + F * (r2.genotype - r3.genotype)
-        mask_pos = np.random.random(vector.shape) <= CR
+        v = vector + RAND_GEN.random() * (r1.genotype - vector) + F * (r2.genotype - r3.genotype)
+        mask_pos = RAND_GEN.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
 
@@ -515,7 +516,7 @@ def DE_current_to_best1(vector, population, F, CR):
         r1, r2 = random.sample(population, 2)
 
         v = vector + F * (best.genotype - vector) + F * (r1.genotype - r2.genotype)
-        mask_pos = np.random.random(vector.shape) <= CR
+        mask_pos = RAND_GEN.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
 
@@ -533,7 +534,7 @@ def DE_current_to_pbest1(vector, population, F, CR, P):
         r1, r2 = random.sample(population, 2)
 
         v = vector + F * (pbest.genotype - vector) + F * (r1.genotype - r2.genotype)
-        mask_pos = np.random.random(vector.shape) <= CR
+        mask_pos = RAND_GEN.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
 
@@ -543,8 +544,8 @@ def pso_operator(indiv, population, global_best, w, c1, c2):
     Performs a step of the Particle Swarm algorithm
     """
 
-    c1 = c1 * np.random.random(indiv.genotype.shape)
-    c2 = c2 * np.random.random(indiv.genotype.shape)
+    c1 = c1 * RAND_GEN.random(indiv.genotype.shape)
+    c2 = c2 * RAND_GEN.random(indiv.genotype.shape)
 
     indiv.speed = w * indiv.speed + c1 * (indiv.best - indiv.genotype) + c2 * (global_best.genotype - indiv.genotype)
     return indiv.apply_speed()

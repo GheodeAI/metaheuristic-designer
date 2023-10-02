@@ -5,6 +5,8 @@ from metaheuristic_designer import Individual
 from metaheuristic_designer.Operators import OperatorMeta, meta_ops_map, OperatorReal
 from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
 from metaheuristic_designer.Initializers import UniformVectorInitializer
+import metaheuristic_designer as mhd
+mhd.reset_seed(0)
 
 pop_size = 100
 
