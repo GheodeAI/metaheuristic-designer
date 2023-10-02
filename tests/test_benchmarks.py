@@ -2,6 +2,9 @@ import pytest
 
 from metaheuristic_designer.Initializers import UniformVectorInitializer
 from metaheuristic_designer.benchmarks import *
+import metaheuristic_designer as mhd
+mhd.reset_seed(0)
+
 
 benchmark_functions = [
     MaxOnes,
@@ -24,6 +27,8 @@ benchmark_functions = [
     SumPowell,
     N4XinSheYang
 ]
+
+
 
 @pytest.mark.parametrize("vecsize", [2, 5, 10, 20, 30])
 @pytest.mark.parametrize("bench_class", benchmark_functions)

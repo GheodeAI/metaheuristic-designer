@@ -4,6 +4,7 @@ from .vector_operator_functions import *
 from copy import copy
 import enum
 from enum import Enum
+from ..utils import RAND_GEN
 
 
 class PermOpMethods(Enum):
@@ -90,7 +91,7 @@ class OperatorPerm(Operator):
         params = copy(self.params)
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(np.random.random(indiv.genotype.size) < params["Cr"])
+            params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
 
         if "N" in params:
             params["N"] = round(params["N"])

@@ -1,6 +1,7 @@
 import numpy as np
 # from numba import jit
 from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..utils import RAND_GEN
 
 
 class MaxOnes(ObjectiveVectorFunc):
@@ -195,12 +196,12 @@ class SumPowell(ObjectiveVectorFunc):
         if parent:
             mask_inf = (solution < self.lim_min) 
             mask_sup = (solution > self.lim_max)
-            solution[mask_inf] = parent[mask_inf] + np.random.random() * (self.lim_min - parent[mask_inf])
-            solution[mask_sup] = parent[mask_sup] + np.random.random() * (parent[mask_sup] - self.lim_max)
+            solution[mask_inf] = parent[mask_inf] + RAND_GEN.random() * (self.lim_min - parent[mask_inf])
+            solution[mask_sup] = parent[mask_sup] + RAND_GEN.random() * (parent[mask_sup] - self.lim_max)
         # random in range
         else:
             mask = (solution < self.lim_min) | (solution > self.lim_max)
-            solution[mask] = np.random.random(len(mask[mask==True])) * (self.lim_max - self.lim_min) - self.lim_min
+            solution[mask] = RAND_GEN.random(len(mask[mask==True])) * (self.lim_max - self.lim_min) - self.lim_min
         return solution
 
 
@@ -222,12 +223,12 @@ class N4XinSheYang(ObjectiveVectorFunc):
         if parent:
             mask_inf = (solution < self.lim_min) 
             mask_sup = (solution > self.lim_max)
-            solution[mask_inf] = parent[mask_inf] + np.random.random() * (self.lim_min - parent[mask_inf])
-            solution[mask_sup] = parent[mask_sup] + np.random.random() * (parent[mask_sup] - self.lim_max)
+            solution[mask_inf] = parent[mask_inf] + RAND_GEN.random() * (self.lim_min - parent[mask_inf])
+            solution[mask_sup] = parent[mask_sup] + RAND_GEN.random() * (parent[mask_sup] - self.lim_max)
         # random in range
         else:
             mask = (solution < self.lim_min) | (solution > self.lim_max)
-            solution[mask] = np.random.random(len(mask[mask==True])) * (self.lim_max - self.lim_min) - self.lim_min
+            solution[mask] = RAND_GEN.random(len(mask[mask==True])) * (self.lim_max - self.lim_min) - self.lim_min
         return solution
 
 

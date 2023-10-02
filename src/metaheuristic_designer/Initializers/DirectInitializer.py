@@ -4,7 +4,6 @@ import random
 from ..Initializer import Initializer
 from ..Individual import Individual
 
-
 class DirectInitializer(Initializer):
     """
     Initializer that uses a predefined population to generate the first generation.

@@ -3,6 +3,7 @@ import numpy as np
 import random
 from ..Initializer import Initializer
 from ..Individual import Individual
+from ..utils import RAND_GEN
 
 
 class PermInitializer(Initializer):
@@ -24,6 +25,6 @@ class PermInitializer(Initializer):
     
     def generate_random(self, objfunc):
         rang_vec = np.arange(self.genotype_size)
-        np.random.shuffle(rang_vec)
+        RAND_GEN.shuffle(rang_vec)
         return Individual(objfunc, rang_vec)
 

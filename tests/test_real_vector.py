@@ -9,9 +9,10 @@ from metaheuristic_designer.SearchMethods import GeneralSearch, MemeticSearch
 from metaheuristic_designer.Operators import OperatorReal
 from metaheuristic_designer.Initializers import UniformVectorInitializer
 from metaheuristic_designer.Algorithms import *
-
 from metaheuristic_designer.benchmarks import Sphere
 
+import metaheuristic_designer as mhd
+mhd.reset_seed(0)
 
 test_params = {
     "stop_cond": "neval or cpu_time_limit",

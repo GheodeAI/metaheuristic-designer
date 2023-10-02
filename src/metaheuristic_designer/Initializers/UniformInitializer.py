@@ -3,6 +3,7 @@ import numpy as np
 import random
 from ..Initializer import Initializer
 from ..Individual import Individual
+from ..utils import RAND_GEN
 
 class UniformInitializer(Initializer):
     """
@@ -50,7 +51,7 @@ class UniformInitializer(Initializer):
 
 class UniformVectorInitializer(UniformInitializer):
     def generate_random(self, objfunc):
-        new_vector_float = np.random.uniform(self.low_lim, self.up_lim, size=self.genotype_size)
+        new_vector_float = RAND_GEN.uniform(self.low_lim, self.up_lim, size=self.genotype_size)
         if self.dtype is int:
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:
@@ -64,7 +65,7 @@ class UniformVectorInitializer(UniformInitializer):
 
 class UniformListInitializer(UniformInitializer):
     def generate_random(self, objfunc):
-        new_list = [np.random.uniform(low, up) for low, up in zip(self.low_lim, self.up_lim)]
+        new_list = [RAND_GEN.uniform(low, up) for low, up in zip(self.low_lim, self.up_lim)]
         return Individual(objfunc, new_list, encoding=self.encoding)
     
     def generate_individual(self, objfunc):

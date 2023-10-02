@@ -1,6 +1,8 @@
 import pytest
 import numpy as np
 from metaheuristic_designer import Individual, SurvivorSelection
+import metaheuristic_designer as mhd
+mhd.reset_seed(0)
 
 pop_size = 100
 

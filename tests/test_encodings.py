@@ -3,6 +3,8 @@ import pytest
 import numpy as np
 from metaheuristic_designer import Individual
 from metaheuristic_designer.Encodings import MatrixEncoding, ImageEncoding, DefaultEncoding, TypeCastEncoding
+import metaheuristic_designer as mhd
+mhd.reset_seed(0)
 
 @pytest.mark.parametrize(
     "genotype, phenotype", [

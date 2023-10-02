@@ -3,6 +3,7 @@ from copy import copy
 import numpy as np
 from numpy import ndarray
 from .Encodings import DefaultEncoding
+from .utils import RAND_GEN
 
 
 class Individual:
@@ -31,7 +32,7 @@ class Individual:
         self._genotype = genotype
         
         if speed is None and isinstance(genotype, np.ndarray):
-            speed = np.random.random(size=genotype.shape)
+            speed = RAND_GEN.random(size=genotype.shape)
         self.speed = speed
         
         self._fitness = 0
