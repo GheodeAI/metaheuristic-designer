@@ -14,9 +14,9 @@ class PSO(StaticPopulation):
 
     def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict] = {}, pso_op: Operator = None, name: str = "PSO"):
         if pso_op is None:
-            w = params["w"] if "w" in params else 0.7
-            c1 = params["c1"] if "c1" in params else 1.5
-            c2 = params["c2"] if "c2" in params else 1.5
+            w = params.get("w", 0.7)
+            c1 = params.get("c1", 1.5)
+            c2 = params.get("c2", 1.5)
             pso_op = OperatorReal("PSO", ParamScheduler("Linear", {"w": w, "c1": c1, "c2": c2}))
 
         selection_op = SurvivorSelection("Generational")

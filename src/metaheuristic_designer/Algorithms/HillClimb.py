@@ -15,7 +15,7 @@ class HillClimb(Algorithm):
 
     def __init__(self, pop_init: Initializer, perturb_op: Operator = None, selection_op: SurvivorSelection = None,
                  params: Union[ParamScheduler, dict] = {}, name: str = "HillClimb"):
-        self.iterations = params["iters"] if "iters" in params else 1
+        self.iterations = params.get("iters", 1)
 
         if perturb_op is None:
             perturb_op = OperatorReal("Nothing")

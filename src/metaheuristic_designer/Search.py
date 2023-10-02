@@ -37,22 +37,22 @@ class Search(ABC):
             params = {}
 
         # Verbose parameters
-        self.verbose = params["verbose"] if "verbose" in params else True
-        self.v_timer = params["v_timer"] if "v_timer" in params else 1
+        self.verbose = params.get("verbose", True)
+        self.v_timer = params.get("v_timer", 1)
 
         # Stopping conditions
-        self.stop_cond = params["stop_cond"] if "stop_cond" in params else "time_limit"
+        self.stop_cond = params.get("stop_cond", "time_limit")
         self.stop_cond_parsed = parse_stopping_cond(self.stop_cond)
 
-        self.progress_metric = params["progress_metric"] if "progress_metric" in params else self.stop_cond
+        self.progress_metric = params.get("progress_metric", self.stop_cond)
         self.progress_metric_parsed = parse_stopping_cond(self.progress_metric) if "progress_metric" in params else self.stop_cond_parsed
 
-        self.Ngen = params["ngen"] if "ngen" in params else 100
-        self.Neval = params["neval"] if "neval" in params else 1e5
-        self.time_limit = params["time_limit"] if "time_limit" in params else 10.0
-        self.cpu_time_limit = params["cpu_time_limit"] if "cpu_time_limit" in params else 10.0
-        self.fit_target = params["fit_target"] if "fit_target" in params else 0
-        self.max_patience = params["patience"] if "patience" in params else 1
+        self.Ngen = params.get("ngen", 100)
+        self.Neval = params.get("neval", 1e5)
+        self.time_limit = params.get("time_limit", 10.0)
+        self.cpu_time_limit = params.get("cpu_time_limit", 10.0)
+        self.fit_target = params.get("fit_target", 0)
+        self.max_patience = params.get("patience", 1)
         self.patience_left = self.max_patience
 
         # Metrics

@@ -23,7 +23,7 @@ def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Search
         Configured optimization algorithm.
     """
 
-    encoding_str = params["encoding"] if "encoding" in params else "real"
+    encoding_str = params.get("encoding", "real")
 
     if encoding_str.lower() == "real":
         alg = _differential_evolution_real_vec(objfunc, params)
@@ -42,10 +42,10 @@ def _differential_evolution_real_vec(objfunc, params):
     This objective function should accept real coded vectors.
     """
 
-    pop_size = params["pop_size"] if "pop_size" in params else 100
-    f = params["F"] if "F" in params else 0.8
-    cr = params["Cr"] if "Cr" in params else 0.9
-    de_type = params["DE_type"] if "DE_type" in params else "de/best/1"
+    pop_size = params.get("pop_size", 100)
+    f = params.get("F", 0.8)
+    cr = params.get("Cr", 0.9)
+    de_type = params.get("DE_type", "de/best/1")
 
     if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
         raise ValueError(f"Differential evolution strategy \"{de_type}\" does not exist.")
@@ -65,10 +65,10 @@ def _differential_evolution_int_vec(objfunc, params):
     This objective function should accept real coded vectors.
     """
 
-    pop_size = params["pop_size"] if "pop_size" in params else 100
-    f = params["F"] if "F" in params else 0.8
-    cr = params["Cr"] if "Cr" in params else 0.9
-    de_type = params["DE_type"] if "DE_type" in params else "de/best/1"
+    pop_size = params.get("pop_size", 100)
+    f = params.get("F", 0.8)
+    cr = params.get("Cr", 0.9)
+    de_type = params.get("DE_type", "de/best/1")
 
     if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
         raise ValueError(f"Differential evolution strategy \"{de_type}\" does not exist.")
@@ -90,10 +90,10 @@ def _differential_evolution_bin_vec(objfunc, params):
     This objective function should accept real coded vectors.
     """
 
-    pop_size = params["pop_size"] if "pop_size" in params else 100
-    f = params["F"] if "F" in params else 0.8
-    cr = params["Cr"] if "Cr" in params else 0.9
-    de_type = params["DE_type"] if "DE_type" in params else "de/best/1"
+    pop_size = params.get("pop_size", 100)
+    f = params.get("F", 0.8)
+    cr = params.get("Cr", 0.9)
+    de_type = params.get("DE_type", "de/best/1")
 
     if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
         raise ValueError(f"Differential evolution strategy \"{de_type}\" does not exist.")

@@ -16,7 +16,7 @@ class VNS(Algorithm):
 
     def __init__(self, pop_init: Initializer, op_list: List[Operator], local_search = Algorithm, selection_op: SurvivorSelection = None, params: Union[ParamScheduler, dict] = {}, name: str = "VNS"):
 
-        self.iterations = params["iters"] if "iters" in params else 100
+        self.iterations = params.get("iters", 100)
 
         self.op_list = op_list
         self.perturb_op = OperatorMeta("Pick", op_list, {"init_idx": 0})

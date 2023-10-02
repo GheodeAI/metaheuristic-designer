@@ -11,8 +11,8 @@ class GA(VariablePopulation):
 
     def __init__(self, pop_init: Initializer, mutation_op: Operator, cross_op: Operator, parent_sel_op: ParentSelection, 
                  selection_op: SurvivorSelection, params: Union[ParamScheduler, dict] = {}, name: str = "GA"):
-        self.pmut = params["pmut"] if "pmut" in params else 0.1
-        self.pcross = params["pcross"] if "pcross" in params else 0.9
+        self.pmut = params.get("pmut", 0.1)
+        self.pcross = params.get("pcross", 0.9)
 
         null_operator = OperatorReal("Nothing", {})
 

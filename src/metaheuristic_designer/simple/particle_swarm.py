@@ -21,7 +21,7 @@ def particle_swarm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         Configured optimization algorithm.
     """
 
-    encoding_str = params["encoding"] if "encoding" in params else "real"
+    encoding_str = params.get("encoding", "real")
 
     if encoding_str.lower() == "real":
         alg = _particle_swarm_real_vec(objfunc, params)
@@ -41,10 +41,10 @@ def _particle_swarm_real_vec(objfunc, params):
     This objective function should accept real coded vectors.
     """
 
-    pop_size = params["pop_size"] if "pop_size" in params else 100
-    w = params["w"] if "w" in params else 0.7
-    c1 = params["c1"] if "c1" in params else 1.5
-    c2 = params["c2"] if "c2" in params else 1.5
+    pop_size = params.get("pop_size", 100)
+    w = params.get("w", 0.7)
+    c1 = params.get("c1", 1.5)
+    c2 = params.get("c2", 1.5)
 
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float)
     
@@ -58,10 +58,10 @@ def _particle_swarm_int_vec(objfunc, params):
     This objective function should accept real coded vectors.
     """
 
-    pop_size = params["pop_size"] if "pop_size" in params else 100
-    w = params["w"] if "w" in params else 0.7
-    c1 = params["c1"] if "c1" in params else 1.5
-    c2 = params["c2"] if "c2" in params else 1.5
+    pop_size = params.get("pop_size", 100)
+    w = params.get("w", 0.7)
+    c1 = params.get("c1", 1.5)
+    c2 = params.get("c2", 1.5)
 
     encoding = TypeCastEncoding(float, int)
 
@@ -78,10 +78,10 @@ def _particle_swarm_bin_vec(objfunc, params):
     This objective function should accept real coded vectors.
     """
 
-    pop_size = params["pop_size"] if "pop_size" in params else 100
-    w = params["w"] if "w" in params else 0.7
-    c1 = params["c1"] if "c1" in params else 1.5
-    c2 = params["c2"] if "c2" in params else 1.5
+    pop_size = params.get("pop_size", 100)
+    w = params.get("w", 0.7)
+    c1 = params.get("c1", 1.5)
+    c2 = params.get("c2", 1.5)
 
     encoding = TypeCastEncoding(float, bool)
 

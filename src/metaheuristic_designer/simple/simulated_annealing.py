@@ -22,7 +22,7 @@ def simulated_annealing(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         Configured optimization algorithm.
     """
 
-    encoding_str = params["encoding"] if "encoding" in params else "bin"
+    encoding_str = params.get("encoding", "bin")
 
     if encoding_str.lower() == "bin":
         alg = _simulated_annealing_bin_vec(objfunc, params)
@@ -41,10 +41,10 @@ def _simulated_annealing_bin_vec(objfunc, params):
     This objective function should accept binary coded vectors.
     """
 
-    n_iter = params["iter"] if "iter" in params else 100
-    temp_init = params["temp_init"] if "temp_init" in params else 100
-    alpha = params["alpha"] if "alpha" in params else 0.99
-    mutstr = params["mutstr"] if "mutstr" in params else 1
+    n_iter = params.get("iter", 100)
+    temp_init = params.get("temp_init", 100)
+    alpha = params.get("alpha", 0.99)
+    mutstr = params.get("mutstr", 1)
 
     encoding = TypeCastEncoding(int, bool)
 
@@ -63,10 +63,10 @@ def _simulated_annealing_int_vec(objfunc, params):
     This objective function should accept integer coded vectors.
     """
 
-    n_iter = params["iter"] if "iter" in params else 100
-    temp_init = params["temp_init"] if "temp_init" in params else 100
-    alpha = params["alpha"] if "alpha" in params else 0.99
-    mutstr = params["mutstr"] if "mutstr" in params else 1
+    n_iter = params.get("iter", 100)
+    temp_init = params.get("temp_init", 100)
+    alpha = params.get("alpha", 0.99)
+    mutstr = params.get("mutstr", 1)
 
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int)
 
@@ -83,10 +83,10 @@ def _simulated_annealing_real_vec(objfunc, params):
     This objective function should accept real coded vectors.
     """
 
-    n_iter = params["iter"] if "iter" in params else 100
-    temp_init = params["temp_init"] if "temp_init" in params else 100
-    alpha = params["alpha"] if "alpha" in params else 0.99
-    mutstr = params["mutstr"] if "mutstr" in params else 1e-5 
+    n_iter = params.get("iter", 100)
+    temp_init = params.get("temp_init", 100)
+    alpha = params.get("alpha", 0.99)
+    mutstr = params.get("mutstr", 1e-5 )
 
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float)
 

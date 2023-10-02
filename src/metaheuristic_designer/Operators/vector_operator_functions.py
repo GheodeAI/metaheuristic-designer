@@ -44,9 +44,9 @@ def mutate_rand(vector, population, params):
     method = params["method"]
     n = round(params["N"])
 
-    low = params["Low"] if "Low" in params else -1
-    up = params["Up"] if "Low" in params else 1
-    strength = params["F"] if "F" in params else 1
+    low = params.get("Low", -1)
+    up = params.get("Up", 1)
+    strength = params.get("F", 1)
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
     np.random.shuffle(mask_pos)
@@ -65,9 +65,9 @@ def mutate_sample(vector, population, params):
     method = params["method"]
     n = round(params["N"])
 
-    low = params["Low"] if "Low" in params else -1
-    up = params["Up"] if "Low" in params else 1
-    strength = params["F"] if "F" in params else 1
+    low = params.get("Low", -1)
+    up = params.get("Up", 1)
+    strength = params.get("F", 1)
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
     np.random.shuffle(mask_pos)
@@ -88,9 +88,9 @@ def rand_sample(vector, population, params):
 
     method = params["method"]
 
-    low = params["Low"] if "Low" in params else -1
-    up = params["Up"] if "Low" in params else 1
-    strength = params["F"] if "F" in params else 1
+    low = params.get("Low", -1)
+    up = params.get("Up", 1)
+    strength = params.get("F", 1)
 
     popul_matrix = np.vstack([i.genotype for i in population])
     mean = popul_matrix.mean(axis=0)
@@ -108,9 +108,9 @@ def rand_noise(vector, params):
 
     method = params["method"]
 
-    low = params["Low"] if "Low" in params else -1
-    up = params["Up"] if "Low" in params else 1
-    strength = params["F"] if "F" in params else 1
+    low = params.get("Low", -1)
+    up = params.get("Up", 1)
+    strength = params.get("F", 1)
 
     noise = sample_distribution(method, vector.shape, 0, strength, low, up)
 
