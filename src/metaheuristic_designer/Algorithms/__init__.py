@@ -8,4 +8,4 @@ from .NoSearch import NoSearch
 
 from .Classic import *
 from .CRO import *
-from .Modern import *
+from .VNS import *
