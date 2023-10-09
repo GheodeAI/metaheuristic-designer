@@ -28,10 +28,10 @@ class StaticPopulation(Algorithm):
         super().__init__(pop_init, params=params, name=name)
     
 
-    def select_parents(self, population, progress=0, history=None):
+    def select_parents(self, population, **kwargs):
         return self.parent_sel_op(population)
     
-    def perturb(self, parent_list, objfunc, progress=0, history=None):
+    def perturb(self, parent_list, objfunc, **kwargs):
         offspring = []
         for indiv in parent_list:
 
@@ -50,10 +50,12 @@ class StaticPopulation(Algorithm):
 
         return offspring
 
-    def select_individuals(self, population, offspring, progress=0, history=None):
+    def select_individuals(self, population, offspring, **kwargs):
         return self.selection_op(population, offspring)
 
-    def update_params(self, progress=0):
+    def update_params(self, **kwargs):
+        progress = kwargs['progress']
+        
         if isinstance(self.operator, Operator):
             self.operator.step(progress)
         

@@ -10,7 +10,7 @@ class NoSearch(Algorithm):
     def __init__(self, pop_init: Initializer, name: str = "No search"):
         super().__init__(pop_init, params={}, name=name)
 
-    def perturb(self, parent_list, pop_init, objfunc, progress=0, history=None):
+    def perturb(self, parent_list, objfunc, **kwargs):
         return parent_list
 
 

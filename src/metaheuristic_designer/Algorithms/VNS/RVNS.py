@@ -35,7 +35,7 @@ class RVNS(Algorithm):
 
         super().__init__(pop_init, params=params, name=name)
 
-    def perturb(self, indiv_list, objfunc, progress=0, history=None):
+    def perturb(self, indiv_list, objfunc, **kwargs):
         offspring = []
         for indiv in indiv_list:
 
@@ -52,7 +52,7 @@ class RVNS(Algorithm):
         
         return offspring
 
-    def select_individuals(self, population, offspring, progress=0, history=None):
+    def select_individuals(self, population, offspring, **kwargs):
         new_population = self.selection_op(population, offspring)
 
         if new_population[0].id == population[0].id:
@@ -62,7 +62,9 @@ class RVNS(Algorithm):
         
         return new_population
 
-    def update_params(self, progress=0):
+    def update_params(self, **kwargs):
+        progress = kwargs['progress']
+        
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)
         

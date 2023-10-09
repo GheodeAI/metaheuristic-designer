@@ -115,7 +115,7 @@ class Algorithm(ABC):
 
         self.best = max(self.population, key=lambda x: x.fitness)
 
-    def select_parents(self, population: List[Individual], progress: float = 0, history: List[float] = None) -> Tuple[List[Individual], List[int]]:
+    def select_parents(self, population: List[Individual], **kwargs) -> Tuple[List[Individual], List[int]]:
         """
         Selects the individuals that will be perturbed in this generation to generate the offspring.
 
@@ -137,7 +137,7 @@ class Algorithm(ABC):
         return population
 
     @abstractmethod
-    def perturb(self, parent_list: List[Individual], progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Individual]:
+    def perturb(self, parent_list: List[Individual], objfunc: ObjectiveFunc, **kwargs) -> List[Individual]:
         """
         Applies operators to the population to get the next generation of individuals.
 
@@ -158,7 +158,7 @@ class Algorithm(ABC):
             The list of individuals modified by the operators of the algorithm.
         """
 
-    def select_individuals(self, population: List[Individual], offspring: List[Individual], progress: float = 0, history: List[float] = None) -> List[Individual]:
+    def select_individuals(self, population: List[Individual], offspring: List[Individual], **kwargs) -> List[Individual]:
         """
         Selects the individuals that will pass to the next generation.
 
@@ -181,7 +181,7 @@ class Algorithm(ABC):
 
         return offspring
 
-    def update_params(self, progress: float = 0):
+    def update_params(self, **kwargs):
         """
         Updates the parameters of the algorithm and the operators.
 

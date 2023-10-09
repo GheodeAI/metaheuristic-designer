@@ -28,7 +28,7 @@ class LocalSearch(Algorithm):
 
         super().__init__(pop_init, params=params, name=name)
 
-    def perturb(self, indiv_list, objfunc, progress=0, history=None):
+    def perturb(self, indiv_list, objfunc, **kwargs):
         next_indiv_list = copy(indiv_list)
         for i in range(self.iterations):
             
@@ -50,6 +50,8 @@ class LocalSearch(Algorithm):
         
         return next_indiv_list
 
-    def update_params(self, progress=0):
+    def update_params(self, **kwargs):
+        progress = kwargs['progress']
+        
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)

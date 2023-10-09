@@ -39,7 +39,7 @@ class VNS(Algorithm):
         super().initialize(objfunc)
         self.local_search.initialize(objfunc)
 
-    def perturb(self, indiv_list, objfunc, progress=0, history=None):   
+    def perturb(self, indiv_list, objfunc, **kwargs):   
         offspring = []
         for indiv in indiv_list:
 
@@ -70,14 +70,16 @@ class VNS(Algorithm):
         
         return offspring
     
-    def select_individuals(self, population, offspring, progress=0, history=None):
+    def select_individuals(self, population, offspring, **kwargs):
         new_population = self.selection_op(population, offspring)
         
         self.perturb_op.chosen_idx = next_neighborhood(offspring[0], population[0], self.perturb_op.chosen_idx, self.nchange)
         
         return new_population
 
-    def update_params(self, progress=0):
+    def update_params(self, **kwargs):
+        progress = kwargs['progress']
+        
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)
         

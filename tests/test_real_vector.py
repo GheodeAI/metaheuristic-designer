@@ -4,7 +4,8 @@ import os
 
 import numpy as np
 
-from metaheuristic_designer import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
+from metaheuristic_designer import ObjectiveFunc, ParamScheduler
+from metaheuristic_designer.SelectionMethods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.SearchMethods import GeneralSearch, MemeticSearch
 from metaheuristic_designer.Operators import OperatorReal
 from metaheuristic_designer.Initializers import UniformVectorInitializer

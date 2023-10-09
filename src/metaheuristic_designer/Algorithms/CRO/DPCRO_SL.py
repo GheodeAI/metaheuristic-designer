@@ -48,7 +48,7 @@ class DPCRO_SL(CRO_SL):
         self.operator_metric = [0]*len(operator_list)
         self.operator_history = []
     
-    def perturb(self, parent_list, objfunc, progress, history):
+    def perturb(self, parent_list, objfunc, **kwargs):
         offspring = []
 
 
@@ -86,7 +86,7 @@ class DPCRO_SL(CRO_SL):
 
         return offspring
     
-    def select_individuals(self, population, offspring, progress=0, history=None):
+    def select_individuals(self, population, offspring, **kwargs):
         offspring_ids = [i.id for i in offspring]
         new_population = self.selection_op(population, offspring)
         new_ids = [i.id for i in new_population]
@@ -101,9 +101,11 @@ class DPCRO_SL(CRO_SL):
         
         return new_population
 
-    def update_params(self, progress=0):
+    def update_params(self, **kwargs):
+        progress = kwargs['progress']
+        
         self._generate_substrates(progress)
-        super().update_params(progress)
+        super().update_params(progress=progress)
     
     def extra_step_info(self):
         print(f"\n\tSubstrate probability:")

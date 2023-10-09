@@ -24,7 +24,7 @@ class SA(Algorithm):
         super().__init__(pop_init, params=params, name=name)
     
 
-    def perturb(self, indiv_list, objfunc, progress=None, history=None):
+    def perturb(self, indiv_list, objfunc, **kwargs):
         indiv = indiv_list[0]
         for j in range(self.iter):
             new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
@@ -40,7 +40,9 @@ class SA(Algorithm):
 
         return [indiv]
 
-    def update_params(self, progress):
+    def update_params(self, **kwargs):
+        progress = kwargs['progress']
+        
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)
 

@@ -30,7 +30,7 @@ class CRO_SL(Algorithm):
 
         self.selection_op = SurvivorSelection("CRO", {"Fd": params["Fd"], "Pd": params["Pd"], "attempts": params["attempts"], "maxPopSize": pop_init.pop_size})
     
-    def perturb(self, parent_list, objfunc, progress, history):
+    def perturb(self, parent_list, objfunc, **kwargs):
         offspring = []
         for idx, indiv in enumerate(parent_list):
             
@@ -54,10 +54,12 @@ class CRO_SL(Algorithm):
 
         return offspring
     
-    def select_individuals(self, population, offspring, progress=0, history=None):
+    def select_individuals(self, population, offspring, **kwargs):
         return self.selection_op(population, offspring)
 
-    def update_params(self, progress=0):
+    def update_params(self, **kwargs):
+        progress = kwargs['progress']
+        
         self.pop_init.pop_size = len(self.population)
 
         for op in self.operator_list:
