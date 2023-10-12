@@ -1,9 +1,9 @@
 import numpy as np
 
 from metaheuristic_designer import ObjectiveFromLambda, ParamScheduler
-from metaheuristic_designer.SearchMethods import GeneralSearch
-from metaheuristic_designer.Operators import OperatorReal
-from metaheuristic_designer.Algorithms import *
+from metaheuristic_designer.searchMethods import GeneralSearch
+from metaheuristic_designer.operators import OperatorReal
+from metaheuristic_designer.algorithms import *
 
 
 def func(vector):

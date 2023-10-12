@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Union, List
-from ...Operators import OperatorReal, OperatorMeta
+from ...operators import OperatorReal, OperatorMeta
 from ..HillClimb import HillClimb
 
 

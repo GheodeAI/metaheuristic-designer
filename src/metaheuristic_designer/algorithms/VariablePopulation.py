@@ -1,13 +1,14 @@
 from __future__ import annotations
 from ..ParamScheduler import ParamScheduler
-from ..SelectionMethods import SurvivorSelection, ParentSelection
+from ..selectionMethods import SurvivorSelection, ParentSelection
 from ..Algorithm import Algorithm
 from ..Operator import Operator
+import random
 
 
-class StaticPopulation(Algorithm):
+class VariablePopulation(Algorithm):
     """
-    Population-based algorithm where each individual is iteratively evolved with a given operator
+    Population-based optimization algorithm where the number of individuals generated is different from the size of the population
     """
 
     def __init__(
@@ -16,11 +17,16 @@ class StaticPopulation(Algorithm):
         operator: Operator,
         parent_sel_op: ParentSelection = None,
         selection_op: SurvivorSelection = None,
+        n_offspring: int = None,
         params: Union[ParamScheduler, dict] = {},
-        name: str = "Static Population Evolution",
+        name: str = "Variable Population Evolution",
     ):
         self.params = params
         self.operator = operator
+
+        if n_offspring is None:
+            n_offspring = pop_init.pop_size
+        self.n_offspring = n_offspring
 
         if parent_sel_op is None:
             parent_sel_op = ParentSelection("Nothing")
@@ -39,8 +45,10 @@ class StaticPopulation(Algorithm):
 
     def perturb(self, parent_list, objfunc, **kwargs):
         offspring = []
-        for indiv in parent_list:
+
+        while len(offspring) < self.n_offspring:
             # Apply operator
+            indiv = random.choice(parent_list)
             new_indiv = self.operator(
                 indiv, parent_list, objfunc, self.best, self.pop_init
             )
@@ -66,7 +74,8 @@ class StaticPopulation(Algorithm):
         if isinstance(self.operator, Operator):
             self.operator.step(progress)
 
-        self.selection_op.step(progress)
+        if isinstance(self.operator, SurvivorSelection):
+            self.selection_op.step(progress)
 
         if self.param_scheduler:
             self.param_scheduler.step(progress)

@@ -4,7 +4,7 @@ import time
 import numpy as np
 import pyparsing as pp
 from .ObjectiveFunc import ObjectiveVectorFunc
-from .Initializers import UniformVectorInitializer
+from .initializers import UniformVectorInitializer
 
 import json
 from .utils import NumpyEncoder

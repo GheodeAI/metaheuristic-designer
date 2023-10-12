@@ -2,7 +2,7 @@ from __future__ import annotations
 from copy import copy
 import numpy as np
 from numpy import ndarray
-from .Encodings import DefaultEncoding
+from .encodings import DefaultEncoding
 from .utils import RAND_GEN
 
 

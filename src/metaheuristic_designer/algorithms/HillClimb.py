@@ -4,8 +4,8 @@ from copy import copy
 from ..ParamScheduler import ParamScheduler
 from ..Algorithm import Algorithm
 from ..Operator import Operator
-from ..Operators import OperatorReal
-from ..SelectionMethods import SurvivorSelection
+from ..operators import OperatorReal
+from ..selectionMethods import SurvivorSelection
 
 
 class HillClimb(Algorithm):

@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from .Individual import Individual
 from .ParamScheduler import ParamScheduler
-from .SelectionMethods import ParentSelection, SurvivorSelection
+from .selectionMethods import ParentSelection, SurvivorSelection
 from .Operator import Operator
 import time
 

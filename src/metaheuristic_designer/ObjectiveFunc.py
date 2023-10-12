@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 import numpy as np
 from numpy import ndarray
-from .Initializers import UniformVectorInitializer
+from .initializers import UniformVectorInitializer
 
 
 class ObjectiveFunc(ABC):

@@ -1,8 +1,8 @@
 from __future__ import annotations
-from ..Initializers import UniformVectorInitializer
-from ..Encodings import TypeCastEncoding
-from ..Algorithms import RandomSearch
-from ..SearchMethods import GeneralSearch
+from ..initializers import UniformVectorInitializer
+from ..encodings import TypeCastEncoding
+from ..algorithms import RandomSearch
+from ..searchMethods import GeneralSearch
 
 
 def random_search(objfunc: ObjectiveVectorFunc, params: dict) -> Search:

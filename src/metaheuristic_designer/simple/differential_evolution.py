@@ -1,10 +1,10 @@
 from __future__ import annotations
-from ..Initializers import UniformVectorInitializer
-from ..Operators import OperatorInt, OperatorReal, OperatorBinary
-from ..Encodings import TypeCastEncoding
-from ..SelectionMethods import SurvivorSelection, ParentSelection
-from ..Algorithms import DE
-from ..SearchMethods import GeneralSearch
+from ..initializers import UniformVectorInitializer
+from ..operators import OperatorInt, OperatorReal, OperatorBinary
+from ..encodings import TypeCastEncoding
+from ..selectionMethods import SurvivorSelection, ParentSelection
+from ..algorithms import DE
+from ..searchMethods import GeneralSearch
 
 
 def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Search:

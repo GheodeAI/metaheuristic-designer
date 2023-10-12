@@ -2,9 +2,9 @@ import pytest
 
 import numpy as np
 from metaheuristic_designer import Individual
-from metaheuristic_designer.Operators import OperatorPerm, perm_ops_map
+from metaheuristic_designer.operators import OperatorPerm, perm_ops_map
 from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
-from metaheuristic_designer.Initializers import PermInitializer
+from metaheuristic_designer.initializers import PermInitializer
 import metaheuristic_designer as mhd
 mhd.reset_seed(0)
 

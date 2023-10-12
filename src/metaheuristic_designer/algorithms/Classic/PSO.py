@@ -1,8 +1,8 @@
 from __future__ import annotations
 import numpy as np
 from typing import Union, List
-from ...Operators import OperatorReal
-from ...SelectionMethods import SurvivorSelection
+from ...operators import OperatorReal
+from ...selectionMethods import SurvivorSelection
 from ..StaticPopulation import StaticPopulation
 from ...ParamScheduler import ParamScheduler
 

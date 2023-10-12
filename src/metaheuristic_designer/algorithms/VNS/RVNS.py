@@ -5,8 +5,8 @@ import warnings
 from ...ParamScheduler import ParamScheduler
 from ...Algorithm import Algorithm
 from ...Operator import Operator
-from ...Operators import OperatorMeta
-from ...SelectionMethods import SurvivorSelection
+from ...operators import OperatorMeta
+from ...selectionMethods import SurvivorSelection
 import time
 
 

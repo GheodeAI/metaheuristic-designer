@@ -1,9 +1,9 @@
 from __future__ import annotations
-from ..Initializers import UniformVectorInitializer
-from ..Operators import OperatorInt, OperatorReal, OperatorBinary
-from ..Algorithms import HillClimb
-from ..Encodings import TypeCastEncoding
-from ..SearchMethods import GeneralSearch
+from ..initializers import UniformVectorInitializer
+from ..operators import OperatorInt, OperatorReal, OperatorBinary
+from ..algorithms import HillClimb
+from ..encodings import TypeCastEncoding
+from ..searchMethods import GeneralSearch
 
 
 def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Search:

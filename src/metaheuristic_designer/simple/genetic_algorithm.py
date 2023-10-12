@@ -1,10 +1,10 @@
 from __future__ import annotations
-from ..Initializers import UniformVectorInitializer
-from ..Operators import OperatorInt, OperatorReal, OperatorBinary
-from ..SelectionMethods import SurvivorSelection, ParentSelection
-from ..Encodings import TypeCastEncoding
-from ..Algorithms import GA
-from ..SearchMethods import GeneralSearch
+from ..initializers import UniformVectorInitializer
+from ..operators import OperatorInt, OperatorReal, OperatorBinary
+from ..selectionMethods import SurvivorSelection, ParentSelection
+from ..encodings import TypeCastEncoding
+from ..algorithms import GA
+from ..searchMethods import GeneralSearch
 
 
 def genetic_algorithm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:

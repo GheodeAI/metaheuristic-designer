@@ -1,10 +1,10 @@
 from __future__ import annotations
-from ..Initializers import UniformVectorInitializer
-from ..Operators import OperatorInt, OperatorReal, OperatorBinary
-from ..SelectionMethods import SurvivorSelection, ParentSelection
-from ..Encodings import TypeCastEncoding
-from ..Algorithms import ES
-from ..SearchMethods import GeneralSearch
+from ..initializers import UniformVectorInitializer
+from ..operators import OperatorInt, OperatorReal, OperatorBinary
+from ..selectionMethods import SurvivorSelection, ParentSelection
+from ..encodings import TypeCastEncoding
+from ..algorithms import ES
+from ..searchMethods import GeneralSearch
 
 
 def evolution_strategy(objfunc: ObjectiveVectorFunc, params: dict) -> Search:

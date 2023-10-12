@@ -1,5 +1,5 @@
 from ..ObjectiveFunc import ObjectiveVectorFunc
-from ..Encodings import ImageEncoding
+from ..encodings import ImageEncoding
 import numpy as np
 
 # from numba import jit

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from .Encodings import DefaultEncoding
+from .encodings import DefaultEncoding
 
 
 class Initializer(ABC):

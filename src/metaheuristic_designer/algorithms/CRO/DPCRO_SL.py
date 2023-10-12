@@ -4,8 +4,8 @@ import random
 from typing import Union, List
 from copy import copy, deepcopy
 from ...Individual import Individual
-from ...Operators import OperatorReal, OperatorMeta
-from ...SelectionMethods import SurvivorSelection, ParentSelection
+from ...operators import OperatorReal, OperatorMeta
+from ...selectionMethods import SurvivorSelection, ParentSelection
 from ..StaticPopulation import StaticPopulation
 from ...ParamScheduler import ParamScheduler
 from ...Algorithm import Algorithm

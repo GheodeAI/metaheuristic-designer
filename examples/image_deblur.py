@@ -5,11 +5,11 @@ from metaheuristic_designer import (
     ParamScheduler,
     Individual,
 )
-from metaheuristic_designer.SearchMethods import GeneralSearch, MemeticSearch
-from metaheuristic_designer.Operators import OperatorReal, OperatorInt, OperatorBinary
-from metaheuristic_designer.Algorithms import *
-from metaheuristic_designer.Initializers import *
-from metaheuristic_designer.Encodings import ImageEncoding
+from metaheuristic_designer.searchMethods import GeneralSearch, MemeticSearch
+from metaheuristic_designer.operators import OperatorReal, OperatorInt, OperatorBinary
+from metaheuristic_designer.algorithms import *
+from metaheuristic_designer.initializers import *
+from metaheuristic_designer.encodings import ImageEncoding
 from metaheuristic_designer.benchmarks import *
 
 import pygame

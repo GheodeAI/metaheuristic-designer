@@ -1,7 +1,7 @@
 import pytest
 
 from metaheuristic_designer import Individual
-from metaheuristic_designer.SelectionMethods import ParentSelection
+from metaheuristic_designer.selectionMethods import ParentSelection
 import metaheuristic_designer as mhd
 mhd.reset_seed(0)
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Union, List
-from ...Operators import OperatorReal, OperatorMeta
-from ...SelectionMethods import SurvivorSelection, ParentSelection
+from ...operators import OperatorReal, OperatorMeta
+from ...selectionMethods import SurvivorSelection, ParentSelection
 from ..VariablePopulation import VariablePopulation
 
 

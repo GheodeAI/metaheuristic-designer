@@ -1,8 +1,8 @@
 from __future__ import annotations
-from ..Initializers import UniformVectorInitializer
-from ..Encodings import TypeCastEncoding
-from ..Algorithms import PSO
-from ..SearchMethods import GeneralSearch
+from ..initializers import UniformVectorInitializer
+from ..encodings import TypeCastEncoding
+from ..algorithms import PSO
+from ..searchMethods import GeneralSearch
 
 
 def particle_swarm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
