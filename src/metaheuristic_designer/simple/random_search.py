@@ -4,6 +4,7 @@ from ..Encodings import TypeCastEncoding
 from ..Algorithms import RandomSearch
 from ..SearchMethods import GeneralSearch
 
+
 def random_search(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     """
     Instantiates a random search algorithm to optimize the given objective function.
@@ -30,9 +31,12 @@ def random_search(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     elif encoding_str.lower() == "real":
         alg = _random_search_real_vec(objfunc, params)
     else:
-        raise ValueError(f"The encoding \"{encoding_str}\" does not exist, try \"real\", \"int\" or \"bin\"")
-    
+        raise ValueError(
+            f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"'
+        )
+
     return alg
+
 
 def _random_search_bin_vec(objfunc, params):
     """
@@ -42,7 +46,9 @@ def _random_search_bin_vec(objfunc, params):
 
     encoding = TypeCastEncoding(int, bool)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding
+    )
 
     search_strat = RandomSearch(pop_initializer)
 
@@ -55,7 +61,9 @@ def _random_search_int_vec(objfunc, params):
     This objective function should accept integer coded vectors.
     """
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=int)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=int
+    )
 
     search_strat = RandomSearch(pop_initializer)
 
@@ -72,10 +80,12 @@ def _random_search_real_vec(objfunc, params):
     n_parents = params.get("n_parents", 20)
     pcross = params.get("pcross", 0.8)
     pmut = params.get("pmut", 0.1)
-    mutstr = params.get("mutstr", 1e-5 )
+    mutstr = params.get("mutstr", 1e-5)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float)
-    
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float
+    )
+
     search_strat = RandomSearch(pop_initializer)
 
     return GeneralSearch(objfunc, search_strat, params=params)

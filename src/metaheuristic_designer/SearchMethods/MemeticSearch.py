@@ -24,11 +24,13 @@ class MemeticSearch(Search):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def __init__(self, objfunc, search_strategy, local_search, improve_choice, params = None):
+    def __init__(
+        self, objfunc, search_strategy, local_search, improve_choice, params=None
+    ):
         """
         Constructor of the Metaheuristic class
         """
-        
+
         super().__init__(objfunc, search_strategy, params)
 
         self.local_search = local_search
@@ -60,13 +62,19 @@ class MemeticSearch(Search):
     def step(self, time_start=0, verbose=False):
         population = self.search_strategy.population
 
-        parents = self.search_strategy.select_parents(population, progress=self.progress, history=self.best_history)
+        parents = self.search_strategy.select_parents(
+            population, progress=self.progress, history=self.best_history
+        )
 
-        offspring = self.search_strategy.perturb(parents, self.objfunc, progress=self.progress, history=self.best_history)
+        offspring = self.search_strategy.perturb(
+            parents, self.objfunc, progress=self.progress, history=self.best_history
+        )
 
         offspring = self._do_local_search(offspring)
 
-        population = self.search_strategy.select_individuals(population, offspring, progress=self.progress, history=self.best_history)
+        population = self.search_strategy.select_individuals(
+            population, offspring, progress=self.progress, history=self.best_history
+        )
 
         self.search_strategy.population = population
 
@@ -86,10 +94,22 @@ class MemeticSearch(Search):
         self.update(self.steps, time_start)
 
         return (best_individual, best_fitness)
-    
-    def get_state(self, show_best_solution: bool = True, show_fit_history: bool = False, show_gen_history: bool = False,
-                  show_pop: bool = False, show_pop_details:bool = False):
-        data = super().get_state(show_best_solution, show_fit_history, show_gen_history, show_pop, show_pop_details)
+
+    def get_state(
+        self,
+        show_best_solution: bool = True,
+        show_fit_history: bool = False,
+        show_gen_history: bool = False,
+        show_pop: bool = False,
+        show_pop_details: bool = False,
+    ):
+        data = super().get_state(
+            show_best_solution,
+            show_fit_history,
+            show_gen_history,
+            show_pop,
+            show_pop_details,
+        )
 
         # Add parent selection method for local search
         data["improve_selection"] = self.improve_choice.get_state()
@@ -103,11 +123,13 @@ class MemeticSearch(Search):
         # push search strategy data to the bottom
         search_strat_data = data.pop("search_strat_state", None)
         data["search_strat_state"] = search_strat_data
-        
+
         return data
 
     def step_info(self, start_time):
-        print(f"Optimizing {self.objfunc.name} using {self.search_strategy.name}+{self.local_search.name}:")
+        print(
+            f"Optimizing {self.objfunc.name} using {self.search_strategy.name}+{self.local_search.name}:"
+        )
         print(f"\tReal time Spent: {round(time.time() - start_time,2)} s")
         print(f"\tCPU time Spent:  {round(time.time() - start_time,2)} s")
         print(f"\tGeneration: {self.steps}")
@@ -128,7 +150,6 @@ class MemeticSearch(Search):
         print("Best fitness:", best_fitness)
 
         if show_plots:
-
             # Plot fitness history
             plt.axhline(y=0, color="black", alpha=0.9)
             plt.axvline(x=0, color="black", alpha=0.9)

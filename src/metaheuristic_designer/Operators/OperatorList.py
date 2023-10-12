@@ -15,11 +15,10 @@ class ListOpMethods(Enum):
 
     @staticmethod
     def from_str(str_input):
-
         str_input = str_input.lower()
 
         if str_input not in list_ops_map:
-            raise ValueError(f"List operator \"{str_input}\" not defined")
+            raise ValueError(f'List operator "{str_input}" not defined')
 
         return list_ops_map[str_input]
 
@@ -45,7 +44,9 @@ class OperatorList(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(
+        self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None
+    ):
         """
         Constructor for the OperatorReal class
         """
@@ -63,8 +64,16 @@ class OperatorList(Operator):
         params = copy(self.params)
 
         if self.method == ListOpMethods.EXPAND:
-            nex_indiv.genotype = expand(new_indiv.genotype, params["N"], params["method"], params["maxlen"], params["generator"])
+            nex_indiv.genotype = expand(
+                new_indiv.genotype,
+                params["N"],
+                params["method"],
+                params["maxlen"],
+                params["generator"],
+            )
         elif self.method == ListOpMethods.SHRINK:
-            nex_indiv.genotype = shrink(new_indiv.genotype, params["N"], params["method"])
+            nex_indiv.genotype = shrink(
+                new_indiv.genotype, params["N"], params["method"]
+            )
 
         return new_indiv

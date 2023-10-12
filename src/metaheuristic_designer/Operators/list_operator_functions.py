@@ -6,7 +6,7 @@ def expand(input_list, n, method, maxlen, val_generator=None):
 
     if val_generator is None:
         val_generator = random.random
-    
+
     if len(input_list) < maxlen:
         if len(input_list) + n >= maxlen:
             n = maxlen - len(input_list)
@@ -24,7 +24,9 @@ def expand(input_list, n, method, maxlen, val_generator=None):
 def expand_rand(input_list, n, val_generator):
     for i in range(n):
         inject_idx = random.randrange(len(input_list))
-        input_list = input_list[:inject_idx] + [val_generator()] + input_list[inject_idx:]
+        input_list = (
+            input_list[:inject_idx] + [val_generator()] + input_list[inject_idx:]
+        )
 
     return input_list + new_values
 
@@ -53,7 +55,7 @@ def shrink(input_list, n, method):
 
 
 def shrink_rand(input_list, n):
-    n_idx_chosen = max(len(input_list)-n, 0)
+    n_idx_chosen = max(len(input_list) - n, 0)
 
     idxs = sorted(random.choices(range(len(input_list)), k=n_idx_chosen))
     result_list = [input_list[i] for i in idxs]

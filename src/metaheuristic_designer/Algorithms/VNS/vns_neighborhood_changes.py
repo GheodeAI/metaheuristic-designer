@@ -9,11 +9,10 @@ class NeighborhoodChange(Enum):
 
     @staticmethod
     def from_str(str_input):
-
         str_input = str_input.lower()
 
         if str_input not in neigh_change_map:
-            raise ValueError(f"Neighborhood change method \"{str_input}\" not defined")
+            raise ValueError(f'Neighborhood change method "{str_input}" not defined')
 
         return neigh_change_map[str_input]
 
@@ -39,7 +38,7 @@ def next_neighborhood(new_indiv, prev_indiv, chosen_idx, method):
         next_idx = cyclic_n_change(new_indiv, prev_indiv, chosen_idx)
     elif method == NeighborhoodChange.PIPE:
         next_idx = pipe_n_change(new_indiv, prev_indiv, chosen_idx)
-    
+
     return next_idx
 
 
@@ -50,11 +49,13 @@ def sequential_n_change(new_indiv, prev_indiv, chosen_idx):
         next_idx = 0
     else:
         next_idx = chosen_idx + 1
-    
+
     return next_idx
+
 
 def cyclic_n_change(new_indiv, prev_indiv, chosen_idx):
     return chosen_idx + 1
+
 
 def pipe_n_change(new_indiv, prev_indiv, chosen_idx):
     next_idx = None
@@ -63,8 +64,5 @@ def pipe_n_change(new_indiv, prev_indiv, chosen_idx):
         next_idx = chosen_idx
     else:
         next_idx = chosen_idx + 1
-    
+
     return next_idx
-
-
-

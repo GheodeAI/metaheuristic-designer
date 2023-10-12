@@ -22,13 +22,23 @@ class PCRO_SL(CRO_SL):
     Original implementation in https://github.com/jperezaracil/PyCROSL/
     """
 
-    def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = None, name: str = "PCRO-SL"):
+    def __init__(
+        self,
+        pop_init: Initializer,
+        operator_list: List[Operator],
+        params: Union[ParamScheduler, dict] = None,
+        name: str = "PCRO-SL",
+    ):
         super().__init__(pop_init, operator_list, params=params, name=name)
-        self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
+        self.operator_idx = random.choices(
+            range(len(self.operator_list)), k=self.maxpopsize
+        )
 
     def update_params(self, **kwargs):
-        progress = kwargs['progress']
-        
-        self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
+        progress = kwargs["progress"]
+
+        self.operator_idx = random.choices(
+            range(len(self.operator_list)), k=self.maxpopsize
+        )
 
         super().update_params(progress=progress)

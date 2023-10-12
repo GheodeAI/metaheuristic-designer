@@ -18,13 +18,12 @@ class PermInitializer(Initializer):
         Number of individuals to be generated.
     """
 
-    def __init__(self, genotype_size, pop_size = 1):
+    def __init__(self, genotype_size, pop_size=1):
         self.genotype_size = genotype_size
 
         super().__init__(pop_size, encoding=None)
-    
+
     def generate_random(self, objfunc):
         rang_vec = np.arange(self.genotype_size)
         RAND_GEN.shuffle(rang_vec)
         return Individual(objfunc, rang_vec)
-

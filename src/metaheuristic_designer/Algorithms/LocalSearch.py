@@ -13,9 +13,14 @@ class LocalSearch(Algorithm):
     Local search algorithm
     """
 
-    def __init__(self, pop_init: Initializer, perturb_op: Operator = None, selection_op: SurvivorSelection = None,
-                 params: Union[ParamScheduler, dict] = {}, name: str = "LocalSearch"):
-        
+    def __init__(
+        self,
+        pop_init: Initializer,
+        perturb_op: Operator = None,
+        selection_op: SurvivorSelection = None,
+        params: Union[ParamScheduler, dict] = {},
+        name: str = "LocalSearch",
+    ):
         self.iterations = params.get("iters", 100)
 
         if perturb_op is None:
@@ -31,12 +36,12 @@ class LocalSearch(Algorithm):
     def perturb(self, indiv_list, objfunc, **kwargs):
         next_indiv_list = copy(indiv_list)
         for i in range(self.iterations):
-            
             offspring = []
             for indiv in indiv_list:
-
                 # Perturb individual
-                new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
+                new_indiv = self.perturb_op(
+                    indiv, indiv_list, objfunc, self.best, self.pop_init
+                )
                 new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
                 offspring.append(new_indiv)
@@ -47,11 +52,11 @@ class LocalSearch(Algorithm):
                 self.best = current_best
 
             next_indiv_list = self.selection_op(next_indiv_list, offspring)
-        
+
         return next_indiv_list
 
     def update_params(self, **kwargs):
-        progress = kwargs['progress']
-        
+        progress = kwargs["progress"]
+
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)

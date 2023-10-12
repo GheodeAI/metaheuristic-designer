@@ -1,6 +1,7 @@
 from copy import copy
 import random
 
+
 def argsort(seq):
     """
     Implementation of argsort for python-style lists.
@@ -10,11 +11,11 @@ def argsort(seq):
     ----------
     seq: Iterable
         Iterable for which we want to obtain the order of.
-    
+
     Returns
     -------
     order: List
-        The positions of the original elements of the list in order. 
+        The positions of the original elements of the list in order.
     """
 
     return sorted(range(len(seq)), key=seq.__getitem__)
@@ -31,7 +32,7 @@ def one_to_one(popul, offspring):
         Original population of individuals before being operated on.
     offspring: List[Individual]
         Individuals resulting from an iteration of the algorithm.
-    
+
     Returns
     -------
     survivors: List[Individual]
@@ -54,7 +55,7 @@ def one_to_one(popul, offspring):
 
 def prob_one_to_one(popul, offspring, p):
     """
-    Compares each new individual with its parent and it replaces it with a 
+    Compares each new individual with its parent and it replaces it with a
     probability of p or if it has a better fitness.
 
     Parameters
@@ -65,7 +66,7 @@ def prob_one_to_one(popul, offspring, p):
         Individuals resulting from an iteration of the algorithm.
     p: float
         Probability that an individual will be replaced by its child even if it has a worse fitness.
-    
+
     Returns
     -------
     survivors: List[Individual]
@@ -99,13 +100,15 @@ def elitism(popul, offspring, amount):
         Individuals resulting from an iteration of the algorithm.
     amount: int
         Amount of parents from the original population that will be kept.
-    
+
     Returns
     -------
     survivors: List[Individual]
         The individuals selected for the next generation.
     """
-    selected_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[:len(popul) - amount]
+    selected_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[
+        : len(popul) - amount
+    ]
     best_parents = sorted(popul, reverse=True, key=lambda x: x.fitness)[:amount]
 
     return best_parents + selected_offspring
@@ -121,7 +124,7 @@ def cond_elitism(popul, offspring, amount):
         Individuals resulting from an iteration of the algorithm.
     amount: int
         Amount of parents from the original population that will be kept.
-    
+
     Returns
     -------
     survivors: List[Individual]
@@ -129,7 +132,9 @@ def cond_elitism(popul, offspring, amount):
     """
 
     best_parents = sorted(popul, reverse=True, key=lambda x: x.fitness)[:amount]
-    new_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[:len(popul)]
+    new_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[
+        : len(popul)
+    ]
     best_offspring = new_offspring[:amount]
 
     for idx, val in enumerate(best_parents):
@@ -151,7 +156,7 @@ def lamb_plus_mu(popul, offspring):
         Original population of individuals before being operated on.
     offspring: List[Individual]
         Individuals resulting from an iteration of the algorithm.
-    
+
     Returns
     -------
     survivors: List[Individual]
@@ -159,7 +164,7 @@ def lamb_plus_mu(popul, offspring):
     """
 
     population = popul + offspring
-    return sorted(population, reverse=True, key=lambda x: x.fitness)[:len(popul)]
+    return sorted(population, reverse=True, key=lambda x: x.fitness)[: len(popul)]
 
 
 def lamb_comma_mu(popul, offspring):
@@ -172,22 +177,22 @@ def lamb_comma_mu(popul, offspring):
         Original population of individuals before being operated on.
     offspring: List[Individual]
         Individuals resulting from an iteration of the algorithm.
-    
+
     Returns
     -------
     survivors: List[Individual]
         The individuals selected for the next generation.
     """
 
-    return sorted(offspring, reverse=True, key=lambda x: x.fitness)[:len(popul)]
+    return sorted(offspring, reverse=True, key=lambda x: x.fitness)[: len(popul)]
 
 
 def _cro_set_larvae(population, offspring, attempts, maxpopsize):
     """
     First step of the CRO selection function.
-    
-    Each individual in the offsring tries to settle down into the reef, 
-    if the spot they find is empty they are accepted, if there is already 
+
+    Each individual in the offsring tries to settle down into the reef,
+    if the spot they find is empty they are accepted, if there is already
     an individual in that spot, the one with the best fitness is kept.
     """
 
@@ -205,7 +210,7 @@ def _cro_set_larvae(population, offspring, attempts, maxpopsize):
                 new_population[idx] = larva
 
             attempts_left -= 1
-    
+
     return new_population
 
 
@@ -220,7 +225,7 @@ def _cro_depredation(population, Fd, Pd):
     kept.
     """
 
-    amount = int(len(population)*Fd)
+    amount = int(len(population) * Fd)
 
     fitness_values = [coral.fitness for coral in population]
     affected_corals = argsort(fitness_values)[:amount]
@@ -231,7 +236,7 @@ def _cro_depredation(population, Fd, Pd):
     for idx, val in enumerate(affected_corals):
         if alive_count <= 2:
             break
-        
+
         dies = random.random() <= Pd
         dead_list[idx] = dies
         if dies:
@@ -264,13 +269,13 @@ def cro_selection(popul, offspring, Fd, Pd, attempts, maxpopsize):
         position with an individual with a better fitness value.
     maxpopsize: int
         Maximum size of the population.
-    
+
     Returns
     -------
     survivors: List[Individual]
         The individuals selected for the next generation.
     """
-    
+
     setted_corals = _cro_set_larvae(popul, offspring, attempts, maxpopsize)
     reduced_population = _cro_depredation(setted_corals, Fd, Pd)
     return reduced_population

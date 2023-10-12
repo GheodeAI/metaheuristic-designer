@@ -24,7 +24,7 @@ class Initializer(ABC):
         if encoding is None:
             encoding = DefaultEncoding()
         self.encoding = encoding
-    
+
     @abstractmethod
     def generate_random(self, objfunc: ObjectiveFunc) -> Individual:
         """
@@ -34,22 +34,22 @@ class Initializer(ABC):
         ----------
         objfunc: ObjectiveFunc
             Objective function that will be propagated to the individual.
-        
+
         Returns
         -------
         new_individual: Individual
             Newly generated individual.
         """
-    
+
     def generate_individual(self, objfunc: ObjectiveFunc) -> Individual:
         """
         Define how an individual is initialized
-        
+
         Parameters
         ----------
         objfunc: ObjectiveFunc
             Objective function that will be propagated to the individual.
-        
+
         Returns
         -------
         new_individual: Individual
@@ -57,8 +57,10 @@ class Initializer(ABC):
         """
 
         return self.generate_random(objfunc)
-    
-    def generate_population(self, objfunc: ObjectiveFunc, n_indiv: int = None) -> List[Individual]:
+
+    def generate_population(
+        self, objfunc: ObjectiveFunc, n_indiv: int = None
+    ) -> List[Individual]:
         """
         Generate n_indiv Individuals using the generate_individual method.
 
@@ -68,14 +70,14 @@ class Initializer(ABC):
             Objective function that will be propagated to each individual.
         n_indiv: int, optional
             Number of individuals to generate
-        
+
         Returns
         -------
         generated_population: List[Individual]
             Newly generated population.
         """
-        
+
         if n_indiv is None:
             n_indiv = self.pop_size
-        
+
         return [self.generate_individual(objfunc) for i in range(n_indiv)]

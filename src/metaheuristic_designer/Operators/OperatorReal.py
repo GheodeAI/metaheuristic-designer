@@ -47,11 +47,10 @@ class RealOpMethods(Enum):
 
     @staticmethod
     def from_str(str_input):
-
         str_input = str_input.lower()
 
         if str_input not in real_ops_map:
-            raise ValueError(f"Real operator \"{str_input}\" not defined")
+            raise ValueError(f'Real operator "{str_input}" not defined')
 
         return real_ops_map[str_input]
 
@@ -109,7 +108,9 @@ class OperatorReal(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(
+        self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None
+    ):
         """
         Constructor for the OperatorReal class
         """
@@ -121,7 +122,12 @@ class OperatorReal(Operator):
 
         self.method = RealOpMethods.from_str(method)
 
-        if self.method in [RealOpMethods.MUTNOISE, RealOpMethods.MUTSAMPLE, RealOpMethods.RANDNOISE, RealOpMethods.RANDSAMPLE]:
+        if self.method in [
+            RealOpMethods.MUTNOISE,
+            RealOpMethods.MUTSAMPLE,
+            RealOpMethods.RANDNOISE,
+            RealOpMethods.RANDSAMPLE,
+        ]:
             self.params["method"] = ProbDist.from_str(self.params["method"])
 
     def evolve(self, indiv, population, objfunc, global_best, initializer):
@@ -134,7 +140,6 @@ class OperatorReal(Operator):
             indiv2 = indiv
         else:
             indiv2 = random.choice(others)
-            
 
         if global_best is None:
             global_best = indiv
@@ -142,7 +147,9 @@ class OperatorReal(Operator):
         params = copy(self.params)
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
+            params["N"] = np.count_nonzero(
+                RAND_GEN.random(indiv.genotype.size) < params["Cr"]
+            )
 
         if "N" in params:
             params["N"] = round(params["N"])
@@ -158,28 +165,47 @@ class OperatorReal(Operator):
             new_indiv.genotype = cross_mp(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == RealOpMethods.WEIGHTED_AVG:
-            new_indiv.genotype = weighted_average(new_indiv.genotype, indiv2.genotype.copy(), params["F"])
+            new_indiv.genotype = weighted_average(
+                new_indiv.genotype, indiv2.genotype.copy(), params["F"]
+            )
 
         elif self.method == RealOpMethods.BLXALPHA:
-            new_indiv.genotype = blxalpha(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
+            new_indiv.genotype = blxalpha(
+                new_indiv.genotype, indiv2.genotype.copy(), params["Cr"]
+            )
 
         elif self.method == RealOpMethods.SBX:
-            new_indiv.genotype = sbx(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
+            new_indiv.genotype = sbx(
+                new_indiv.genotype, indiv2.genotype.copy(), params["Cr"]
+            )
 
         elif self.method == RealOpMethods.MULTICROSS:
-            new_indiv.genotype = multi_cross(new_indiv.genotype, others, params["Nindiv"])
+            new_indiv.genotype = multi_cross(
+                new_indiv.genotype, others, params["Nindiv"]
+            )
 
         elif self.method == RealOpMethods.CROSSINTERAVG:
-            new_indiv.genotype = cross_inter_avg(new_indiv.genotype, others, params["N"])
+            new_indiv.genotype = cross_inter_avg(
+                new_indiv.genotype, others, params["N"]
+            )
 
         elif self.method == RealOpMethods.MUTATE1SIGMA:
-            new_indiv.genotype = mutate_1_sigma(new_indiv.genotype[0], params["epsilon"], params["tau"])
+            new_indiv.genotype = mutate_1_sigma(
+                new_indiv.genotype[0], params["epsilon"], params["tau"]
+            )
 
         elif self.method == RealOpMethods.MUTATENSIGMAS:
-            new_indiv.genotype = mutate_n_sigmas(new_indiv.genotype, params["epsilon"], params["tau"], params["tau_multiple"])
+            new_indiv.genotype = mutate_n_sigmas(
+                new_indiv.genotype,
+                params["epsilon"],
+                params["tau"],
+                params["tau_multiple"],
+            )
 
         elif self.method == RealOpMethods.SAMPLESIGMA:
-            new_indiv.genotype = sample_1_sigma(new_indiv.genotype, params["N"], params["epsilon"], params["tau"])
+            new_indiv.genotype = sample_1_sigma(
+                new_indiv.genotype, params["N"], params["epsilon"], params["tau"]
+            )
 
         elif self.method == RealOpMethods.PERM:
             new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
@@ -194,7 +220,9 @@ class OperatorReal(Operator):
             new_indiv.genotype = cauchy(new_indiv.genotype, params["F"])
 
         elif self.method == RealOpMethods.UNIFORM:
-            new_indiv.genotype = uniform(new_indiv.genotype, params["Low"], params["Up"])
+            new_indiv.genotype = uniform(
+                new_indiv.genotype, params["Low"], params["Up"]
+            )
 
         elif self.method == RealOpMethods.MUTNOISE:
             new_indiv.genotype = mutate_rand(new_indiv.genotype, others, params)
@@ -209,40 +237,68 @@ class OperatorReal(Operator):
             new_indiv.genotype = rand_sample(new_indiv.genotype, others, params)
 
         elif self.method == RealOpMethods.DE_RAND_1:
-            new_indiv.genotype = DE_rand1(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_rand1(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == RealOpMethods.DE_BEST_1:
-            new_indiv.genotype = DE_best1(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_best1(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == RealOpMethods.DE_RAND_2:
-            new_indiv.genotype = DE_rand2(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_rand2(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == RealOpMethods.DE_BEST_2:
-            new_indiv.genotype = DE_best2(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_best2(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == RealOpMethods.DE_CTRAND_1:
-            new_indiv.genotype = DE_current_to_rand1(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_current_to_rand1(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == RealOpMethods.DE_CTBEST_1:
-            new_indiv.genotype = DE_current_to_best1(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_current_to_best1(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == RealOpMethods.DE_CTPBEST_1:
-            new_indiv.genotype = DE_current_to_pbest1(new_indiv.genotype, others, params["F"], params["Cr"], params["P"])
+            new_indiv.genotype = DE_current_to_pbest1(
+                new_indiv.genotype, others, params["F"], params["Cr"], params["P"]
+            )
 
         elif self.method == RealOpMethods.PSO:
-            new_indiv = pso_operator(indiv, others, global_best, params["w"], params["c1"], params["c2"])
+            new_indiv = pso_operator(
+                indiv, others, global_best, params["w"], params["c1"], params["c2"]
+            )
 
         elif self.method == RealOpMethods.FIREFLY:
-            new_indiv.genotype = firefly(indiv, others, objfunc, params["a"], params["b"], params["d"], params["g"])
+            new_indiv.genotype = firefly(
+                indiv,
+                others,
+                objfunc,
+                params["a"],
+                params["b"],
+                params["d"],
+                params["g"],
+            )
 
         elif self.method == RealOpMethods.RANDOM:
             new_indiv = initializer.generate_random(objfunc)
 
         elif self.method == RealOpMethods.RANDOM_MASK:
-            mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
+            mask_pos = np.hstack(
+                [np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]
+            ).astype(bool)
             RAND_GEN.shuffle(mask_pos)
 
-            new_indiv.genotype[mask_pos] = initializer.generate_random(objfunc).genotype[mask_pos]
+            new_indiv.genotype[mask_pos] = initializer.generate_random(
+                objfunc
+            ).genotype[mask_pos]
 
         elif self.method == RealOpMethods.DUMMY:
             new_indiv.genotype = dummy_op(new_indiv.genotype, params["F"])

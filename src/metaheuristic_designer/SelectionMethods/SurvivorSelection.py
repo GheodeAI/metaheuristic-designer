@@ -18,11 +18,10 @@ class SurvSelMethod(Enum):
 
     @staticmethod
     def from_str(str_input):
-
         str_input = str_input.lower()
 
         if str_input not in surv_method_map:
-            raise ValueError(f"Parent selection method \"{str_input}\" not defined")
+            raise ValueError(f'Parent selection method "{str_input}" not defined')
 
         return surv_method_map[str_input]
 
@@ -40,7 +39,7 @@ surv_method_map = {
     "keepbest": SurvSelMethod.MU_PLUS_LAMBDA,
     "(m,n)": SurvSelMethod.MU_COMMA_LAMBDA,
     "keepoffsping": SurvSelMethod.MU_COMMA_LAMBDA,
-    "cro": SurvSelMethod.CRO
+    "cro": SurvSelMethod.CRO,
 }
 
 
@@ -60,19 +59,27 @@ class SurvivorSelection(SelectionMethod):
         The name that will be assigned to this selection method.
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, padding: bool = False, name: str = None):
+    def __init__(
+        self,
+        method: str,
+        params: Union[ParamScheduler, dict] = None,
+        padding: bool = False,
+        name: str = None,
+    ):
         """
         Constructor for the SurvivorSelection class
         """
 
         if name is None:
             name = method
-        
+
         super().__init__(params, padding, name)
 
         self.method = SurvSelMethod.from_str(method)
-    
-    def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:
+
+    def select(
+        self, popul: List[Individual], offspring: List[Individual]
+    ) -> List[Individual]:
         result = []
         if self.method == SurvSelMethod.ELITISM:
             result = elitism(popul, offspring, self.params["amount"])
@@ -94,8 +101,15 @@ class SurvivorSelection(SelectionMethod):
 
         elif self.method == SurvSelMethod.MU_COMMA_LAMBDA:
             result = lamb_comma_mu(popul, offspring)
-        
+
         elif self.method == SurvSelMethod.CRO:
-            result = cro_selection(popul, offspring, self.params["Fd"], self.params["Pd"], self.params["attempts"], self.params["maxPopSize"])
+            result = cro_selection(
+                popul,
+                offspring,
+                self.params["Fd"],
+                self.params["Pd"],
+                self.params["attempts"],
+                self.params["maxPopSize"],
+            )
 
         return result

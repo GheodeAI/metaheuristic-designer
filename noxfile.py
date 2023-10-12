@@ -1,10 +1,13 @@
 import nox
 
-nox.options.sessions = "test",
+nox.options.sessions = ("test",)
 locations = "noxfile.py"
+
 
 @nox.session
 def test(session):
-    session.install('.')
-    session.install('pytest', 'coverage')
-    session.run('coverage', 'run', '--data-file', '.coverage.nox', '--parallel', '-m', 'pytest')
+    session.install(".")
+    session.install("pytest", "coverage")
+    session.run(
+        "coverage", "run", "--data-file", ".coverage.nox", "--parallel", "-m", "pytest"
+    )

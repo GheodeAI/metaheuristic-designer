@@ -22,11 +22,10 @@ class PermOpMethods(Enum):
 
     @staticmethod
     def from_str(str_input):
-
         str_input = str_input.lower()
 
         if str_input not in perm_ops_map:
-            raise ValueError(f"Permutation operator \"{str_input}\" not defined")
+            raise ValueError(f'Permutation operator "{str_input}" not defined')
 
         return perm_ops_map[str_input]
 
@@ -61,7 +60,9 @@ class OperatorPerm(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(
+        self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None
+    ):
         """
         Constructor for the Operator class
         """
@@ -83,7 +84,6 @@ class OperatorPerm(Operator):
             indiv2 = indiv
         else:
             indiv2 = random.choice(others)
-            
 
         if global_best is None:
             global_best = indiv
@@ -91,7 +91,9 @@ class OperatorPerm(Operator):
         params = copy(self.params)
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
+            params["N"] = np.count_nonzero(
+                RAND_GEN.random(indiv.genotype.size) < params["Cr"]
+            )
 
         if "N" in params:
             params["N"] = round(params["N"])
@@ -102,22 +104,22 @@ class OperatorPerm(Operator):
 
         elif self.method == PermOpMethods.SCRAMBLE:
             new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
-        
+
         elif self.method == PermOpMethods.INSERT:
             new_indiv.genotype = roll(new_indiv.genotype, 1)
 
         elif self.method == PermOpMethods.ROLL:
             new_indiv.genotype = roll(new_indiv.genotype, params["N"])
-        
+
         elif self.method == PermOpMethods.INVERT:
             new_indiv.genotype = invert_mutation(new_indiv.genotype)
-        
+
         elif self.method == PermOpMethods.PMX:
             new_indiv.genotype = pmx(new_indiv.genotype, indiv2.genotype.copy())
-        
+
         elif self.method == PermOpMethods.ORDERCROSS:
             new_indiv.genotype = order_cross(new_indiv.genotype, indiv2.genotype.copy())
-        
+
         elif self.method == PermOpMethods.RANDOM:
             new_indiv = initializer.generate_random(objfunc)
 
@@ -127,5 +129,5 @@ class OperatorPerm(Operator):
         elif self.method == PermOpMethods.CUSTOM:
             fn = params["function"]
             new_indiv.genotype = fn(indiv, population, objfunc, params)
-        
+
         return new_indiv

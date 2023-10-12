@@ -12,21 +12,25 @@ class PSO(StaticPopulation):
     Particle swarm optimization
     """
 
-    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict] = {}, pso_op: Operator = None, name: str = "PSO"):
+    def __init__(
+        self,
+        pop_init: Initializer,
+        params: Union[ParamScheduler, dict] = {},
+        pso_op: Operator = None,
+        name: str = "PSO",
+    ):
         if pso_op is None:
             w = params.get("w", 0.7)
             c1 = params.get("c1", 1.5)
             c2 = params.get("c2", 1.5)
-            pso_op = OperatorReal("PSO", ParamScheduler("Linear", {"w": w, "c1": c1, "c2": c2}))
+            pso_op = OperatorReal(
+                "PSO", ParamScheduler("Linear", {"w": w, "c1": c1, "c2": c2})
+            )
 
         selection_op = SurvivorSelection("Generational")
 
         super().__init__(
-            pop_init,
-            pso_op,
-            selection_op=selection_op,
-            params=params,
-            name=name
+            pop_init, pso_op, selection_op=selection_op, params=params, name=name
         )
 
     def extra_step_info(self):

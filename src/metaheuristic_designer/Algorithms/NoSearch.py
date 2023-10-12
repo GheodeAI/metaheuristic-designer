@@ -12,5 +12,3 @@ class NoSearch(Algorithm):
 
     def perturb(self, parent_list, objfunc, **kwargs):
         return parent_list
-
-

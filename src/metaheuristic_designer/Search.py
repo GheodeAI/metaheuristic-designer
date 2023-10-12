@@ -9,6 +9,7 @@ from .Initializers import UniformVectorInitializer
 import json
 from .utils import NumpyEncoder
 
+
 class Search(ABC):
     """
     General framework for metaheuristic algorithms.
@@ -24,7 +25,12 @@ class Search(ABC):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, params: Union[ParamScheduler, dict] = None):
+    def __init__(
+        self,
+        objfunc: ObjectiveFunc,
+        search_strategy: Algorithm,
+        params: Union[ParamScheduler, dict] = None,
+    ):
         """
         Constructor of the Search class
         """
@@ -45,7 +51,11 @@ class Search(ABC):
         self.stop_cond_parsed = parse_stopping_cond(self.stop_cond)
 
         self.progress_metric = params.get("progress_metric", self.stop_cond)
-        self.progress_metric_parsed = parse_stopping_cond(self.progress_metric) if "progress_metric" in params else self.stop_cond_parsed
+        self.progress_metric_parsed = (
+            parse_stopping_cond(self.progress_metric)
+            if "progress_metric" in params
+            else self.stop_cond_parsed
+        )
 
         self.Ngen = params.get("ngen", 100)
         self.Neval = params.get("neval", 1e5)
@@ -92,7 +102,7 @@ class Search(ABC):
         """
 
         ind, fit = self.search_strategy.best_solution()
-        np.savetxt(file_name, ind.reshape([1, -1]), delimiter=',')
+        np.savetxt(file_name, ind.reshape([1, -1]), delimiter=",")
 
     def best_solution(self) -> Tuple[Individual, float]:
         """
@@ -105,9 +115,10 @@ class Search(ABC):
         """
 
         return self.search_strategy.best_solution()
-    
 
-    def stopping_condition(self, gen: int, real_time_start: float, cpu_time_start: float) -> bool:
+    def stopping_condition(
+        self, gen: int, real_time_start: float, cpu_time_start: float
+    ) -> bool:
         """
         Given the state of the algorithm, returns wether we have finished or not.
 
@@ -119,7 +130,7 @@ class Search(ABC):
             The time in seconds that passed since the algorithm was executed.
         cpu_time_start: float
             The time in seconds that the CPU has executed code in this algorithm.
-        
+
         Returns
         -------
         has_stopped: bool
@@ -141,9 +152,19 @@ class Search(ABC):
 
         patience_reached = self.patience_left < 0
 
-        return process_condition(self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_reached, patience_reached)
+        return process_condition(
+            self.stop_cond_parsed,
+            neval_reached,
+            ngen_reached,
+            real_time_reached,
+            cpu_time_reached,
+            target_reached,
+            patience_reached,
+        )
 
-    def get_progress(self, gen: int, real_time_start: float, cpu_time_start: float) -> float:
+    def get_progress(
+        self, gen: int, real_time_start: float, cpu_time_start: float
+    ) -> float:
         """
         Given the state of the algorithm, returns a number between 0 and 1 indicating
         how close to the end of the algorithm we are, 0 when starting and 1 when finished.
@@ -156,34 +177,44 @@ class Search(ABC):
             The time in seconds that passed since the algorithm was executed.
         cpu_time_start: float
             The time in seconds that the CPU has executed code in this algorithm.
-        
+
         Returns
         -------
         progress: float
             Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
         """
 
-        neval_reached = self.objfunc.counter/self.Neval
-        
-        ngen_reached = gen/self.Ngen
+        neval_reached = self.objfunc.counter / self.Neval
 
-        real_time_reached = (time.time() - real_time_start)/self.time_limit
+        ngen_reached = gen / self.Ngen
 
-        cpu_time_reached = (time.process_time() - cpu_time_start)/self.cpu_time_limit
+        real_time_reached = (time.time() - real_time_start) / self.time_limit
+
+        cpu_time_reached = (time.process_time() - cpu_time_start) / self.cpu_time_limit
 
         best_fitness = self.best_solution()[1]
         if self.objfunc.mode == "max":
-            target_reached = best_fitness/self.fit_target
+            target_reached = best_fitness / self.fit_target
         else:
             if best_fitness == 0:
                 best_fitness = 1e-40
-            target_reached = self.fit_target/best_fitness
-        
-        patience_prec = 1 - self.patience_left/self.max_patience
+            target_reached = self.fit_target / best_fitness
 
-        return process_progress(self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_reached, patience_prec)     
+        patience_prec = 1 - self.patience_left / self.max_patience
 
-    def update(self, real_time_start: float, cpu_time_start: float, pass_step:bool = True):
+        return process_progress(
+            self.stop_cond_parsed,
+            neval_reached,
+            ngen_reached,
+            real_time_reached,
+            cpu_time_reached,
+            target_reached,
+            patience_prec,
+        )
+
+    def update(
+        self, real_time_start: float, cpu_time_start: float, pass_step: bool = True
+    ):
         """
         Updates the attributes of the optimization algorithm.
         This function should be called once per iteration of the algorithm.
@@ -196,21 +227,23 @@ class Search(ABC):
             The time in seconds that the CPU has executed code in this algorithm.
         pass_step: bool
             Whether to increment the iteration counter or not.
-        """        
+        """
 
         if pass_step:
             self.steps += 1
-        
+
         if self.best_solution()[1] == self.prev_best_fitness:
             self.patience_left -= 1
         else:
             self.patience_left = self.max_patience
-        
+
         self.prev_best_fitness = self.best_solution()[1]
 
         self.progress = self.get_progress(self.steps, real_time_start, cpu_time_start)
 
-        self.ended = self.stopping_condition(self.steps, real_time_start, cpu_time_start)
+        self.ended = self.stopping_condition(
+            self.steps, real_time_start, cpu_time_start
+        )
 
     def initialize(self):
         """
@@ -221,7 +254,9 @@ class Search(ABC):
         self.search_strategy.initialize(self.objfunc)
 
     @abstractmethod
-    def step(self, time_start: float = 0, verbose: bool = False) -> Tuple[Individual, float]:
+    def step(
+        self, time_start: float = 0, verbose: bool = False
+    ) -> Tuple[Individual, float]:
         """
         Performs an iteration of the algorithm.
 
@@ -230,8 +265,8 @@ class Search(ABC):
         time_start: float, optional
             Indicates to the algorihm how much time has already passed.
         verbose: bool, optional
-            Indicates whether to show the status of the algorithm or not. 
-        
+            Indicates whether to show the status of the algorithm or not.
+
         Returns
         -------
         best_solution: Tuple[Individual, float]
@@ -241,7 +276,7 @@ class Search(ABC):
     def optimize(self) -> Tuple[Individual, float]:
         """
         Execute the algorithm to get the best solution possible along with its evaluation.
-        It will initialize the algorithm and repeat steps of the algorithm untill the 
+        It will initialize the algorithm and repeat steps of the algorithm untill the
         stopping condition is met.
 
         Returns
@@ -259,16 +294,16 @@ class Search(ABC):
         real_time_start = time.time()
         cpu_time_start = time.process_time()
         display_timer = time.time()
-        
+
         # Initizalize search strategy
         self.initialize()
 
         # Search untill the stopping condition is met
         self.update(real_time_start, cpu_time_start, pass_step=False)
-        
+
         if self.verbose:
             self.step_info(real_time_start)
-        
+
         while not self.ended:
             self.step(real_time_start)
 
@@ -278,7 +313,6 @@ class Search(ABC):
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(real_time_start)
                 display_timer = time.time()
-            
 
         # Store the time spent optimizing
         self.real_time_spent = time.time() - real_time_start
@@ -286,15 +320,21 @@ class Search(ABC):
 
         return self.best_solution()
 
-    def get_state(self, show_best_solution: bool = True, show_fit_history: bool = False, show_gen_history: bool = False,
-                  show_pop: bool = False, show_pop_details:bool = False) -> dict:
+    def get_state(
+        self,
+        show_best_solution: bool = True,
+        show_fit_history: bool = False,
+        show_gen_history: bool = False,
+        show_pop: bool = False,
+        show_pop_details: bool = False,
+    ) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
 
         Parameters
         ----------
         show_best_solution: bool, optional
-            Save the best solution found by the algorithm. 
+            Save the best solution found by the algorithm.
         show_fit_history: bool, optional
             Save the fitness of the best individual of each iteration.
         show_gen_history: bool, optional
@@ -309,7 +349,7 @@ class Search(ABC):
         state: dict
             The complete state of the algorithm.
         """
-        
+
         data = {
             "ended": self.ended,
             "progress": self.progress,
@@ -322,7 +362,9 @@ class Search(ABC):
 
         if show_best_solution:
             data["best_fitness"] = self.best_solution()[1]
-            data["best_individual"] = self.search_strategy.best.get_state(show_speed=False, show_best=False)
+            data["best_individual"] = self.search_strategy.best.get_state(
+                show_speed=False, show_best=False
+            )
 
         if show_fit_history:
             data["fit_history"] = self.fit_history
@@ -330,13 +372,22 @@ class Search(ABC):
         if show_gen_history:
             data["best_history"] = self.best_history
 
-        data["search_strat_state"] = self.search_strategy.get_state(show_pop, show_pop_details)
+        data["search_strat_state"] = self.search_strategy.get_state(
+            show_pop, show_pop_details
+        )
 
         return data
-    
-    def store_state(self, file_name: str = "dumped_state.json", readable: bool = False, show_best_solution: bool = True,
-                    show_fit_history: bool = False, show_gen_history: bool = False, show_pop: bool = False, 
-                    show_pop_details: bool = False):
+
+    def store_state(
+        self,
+        file_name: str = "dumped_state.json",
+        readable: bool = False,
+        show_best_solution: bool = True,
+        show_fit_history: bool = False,
+        show_gen_history: bool = False,
+        show_pop: bool = False,
+        show_pop_details: bool = False,
+    ):
         """
         Dumps the current state of the algorithm to a JSON file.
 
@@ -347,7 +398,7 @@ class Search(ABC):
         readable: bool, optional
             Indent the JSON file to make it human-readable (comes at the cost of a higher file size).
         show_best_solution: bool, optional
-            Save the best solution found by the algorithm. 
+            Save the best solution found by the algorithm.
         show_fit_history: bool, optional
             Save the fitness of the best individual of each iteration.
         show_gen_history: bool, optional
@@ -358,19 +409,30 @@ class Search(ABC):
             Save the detailed information of each individual.
         """
 
-        dumped = json.dumps(self.get_state(show_best_solution, show_fit_history,
-                                           show_gen_history, show_pop, show_pop_details), 
-                                           cls=NumpyEncoder, indent = 4 if readable else None)
+        dumped = json.dumps(
+            self.get_state(
+                show_best_solution,
+                show_fit_history,
+                show_gen_history,
+                show_pop,
+                show_pop_details,
+            ),
+            cls=NumpyEncoder,
+            indent=4 if readable else None,
+        )
 
         with open(file_name, "w") as fp:
             fp.write(dumped)
-    
+
     def init_info(self):
-        print(f"Initializing optimization of {self.objfunc.name} using {self.search_strategy.name}")
-        print(f"-----------------------------{'-'*len(self.objfunc.name)}-------{'-'*len(self.search_strategy.name)}")
+        print(
+            f"Initializing optimization of {self.objfunc.name} using {self.search_strategy.name}"
+        )
+        print(
+            f"-----------------------------{'-'*len(self.objfunc.name)}-------{'-'*len(self.search_strategy.name)}"
+        )
         print()
 
-    
     @abstractmethod
     def step_info(self, start_time: float = 0):
         """
@@ -403,7 +465,7 @@ def parse_stopping_cond(condition_str: str) -> List[str | List]:
     ----------
     condition_str: str
         The string to be parsed.
-    
+
     Returns
     -------
     token_list: List[str | List]
@@ -412,21 +474,26 @@ def parse_stopping_cond(condition_str: str) -> List[str | List]:
 
     orop = pp.Literal("and")
     andop = pp.Literal("or")
-    condition = pp.oneOf(["neval", "ngen", "time_limit", "cpu_time_limit", "fit_target", "convergence"])
+    condition = pp.oneOf(
+        ["neval", "ngen", "time_limit", "cpu_time_limit", "fit_target", "convergence"]
+    )
 
     expr = pp.infixNotation(
-        condition,
-        [
-            (orop, 2, pp.opAssoc.RIGHT),
-            (andop, 2, pp.opAssoc.RIGHT)
-        ]
+        condition, [(orop, 2, pp.opAssoc.RIGHT), (andop, 2, pp.opAssoc.RIGHT)]
     )
 
     return expr.parse_string(condition_str).as_list()
 
 
-def process_condition(cond_parsed: List[str | List], neval: int, ngen: int, real_time: float, 
-                      cpu_time: float, target: float, patience: int) -> bool:
+def process_condition(
+    cond_parsed: List[str | List],
+    neval: int,
+    ngen: int,
+    real_time: float,
+    cpu_time: float,
+    target: float,
+    patience: int,
+) -> bool:
     """
     This function recieves as an input an expression for the stopping condition
     and the truth variable of the possible stopping conditions and returns wether to stop or not.
@@ -447,7 +514,7 @@ def process_condition(cond_parsed: List[str | List], neval: int, ngen: int, real
         Fitness target.
     patience: int
         Number of time the algorithm has reached the same fitness value in a row.
-    
+
     Returns
     -------
     has_stopped: bool
@@ -458,8 +525,12 @@ def process_condition(cond_parsed: List[str | List], neval: int, ngen: int, real
 
     if isinstance(cond_parsed, list):
         if len(cond_parsed) == 3:
-            cond1 = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
-            cond2 = process_condition(cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience)
+            cond1 = process_condition(
+                cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience
+            )
+            cond2 = process_condition(
+                cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience
+            )
 
             if cond_parsed[1] == "or":
                 result = cond1 or cond2
@@ -467,7 +538,9 @@ def process_condition(cond_parsed: List[str | List], neval: int, ngen: int, real
                 result = cond1 and cond2
 
         elif len(cond_parsed) == 1:
-            result = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
+            result = process_condition(
+                cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience
+            )
 
     else:
         if cond_parsed == "neval":
@@ -482,14 +555,22 @@ def process_condition(cond_parsed: List[str | List], neval: int, ngen: int, real
             result = target
         elif cond_parsed == "convergence":
             result = patience
-    
+
     return result
 
-def process_progress(cond_parsed: List[str | List], neval: int, ngen: int, real_time: float, 
-                     cpu_time: float, target: float, patience: int) -> float:
+
+def process_progress(
+    cond_parsed: List[str | List],
+    neval: int,
+    ngen: int,
+    real_time: float,
+    cpu_time: float,
+    target: float,
+    patience: int,
+) -> float:
     """
-    This function recieves as an input an expression for the stopping condition 
-    and the truth variable of the possible stopping conditions and returns wether to stop or not. 
+    This function recieves as an input an expression for the stopping condition
+    and the truth variable of the possible stopping conditions and returns wether to stop or not.
 
     Parameters
     ----------
@@ -507,7 +588,7 @@ def process_progress(cond_parsed: List[str | List], neval: int, ngen: int, real_
         Fitness target.
     patience: int
         Number of time the algorithm has reached the same fitness value in a row.
-    
+
     Returns
     -------
     has_stopped: bool
@@ -515,20 +596,25 @@ def process_progress(cond_parsed: List[str | List], neval: int, ngen: int, real_
     """
 
     result = None
-    
+
     if isinstance(cond_parsed, list):
         if len(cond_parsed) == 3:
-            
-            progress1 = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
-            progress2 = process_progress(cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience)
+            progress1 = process_progress(
+                cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience
+            )
+            progress2 = process_progress(
+                cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience
+            )
 
             if cond_parsed[1] == "or":
                 result = max(progress1, progress2)
             elif cond_parsed[1] == "and":
                 result = min(progress1, progress2)
-            
+
         elif len(cond_parsed) == 1:
-            result = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
+            result = process_progress(
+                cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience
+            )
     else:
         if cond_parsed == "neval":
             result = neval

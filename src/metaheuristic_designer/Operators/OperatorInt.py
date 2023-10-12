@@ -45,11 +45,10 @@ class IntOpMethods(Enum):
 
     @staticmethod
     def from_str(str_input):
-
         str_input = str_input.lower()
 
         if str_input not in int_ops_map:
-            raise ValueError(f"Integer operator \"{str_input}\" not defined")
+            raise ValueError(f'Integer operator "{str_input}" not defined')
 
         return int_ops_map[str_input]
 
@@ -108,7 +107,9 @@ class OperatorInt(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(
+        self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None
+    ):
         """
         Constructor for the Operator class
         """
@@ -120,12 +121,17 @@ class OperatorInt(Operator):
 
         self.method = IntOpMethods.from_str(method)
 
-        if self.method in [IntOpMethods.MUTNOISE, IntOpMethods.MUTSAMPLE, IntOpMethods.RANDNOISE, IntOpMethods.RANDSAMPLE]:
+        if self.method in [
+            IntOpMethods.MUTNOISE,
+            IntOpMethods.MUTSAMPLE,
+            IntOpMethods.RANDNOISE,
+            IntOpMethods.RANDSAMPLE,
+        ]:
             self.params["method"] = ProbDist.from_str(self.params["method"])
 
         elif self.method == IntOpMethods.RANDRESET:
             self.params["method"] = ProbDist.UNIFORM
-            
+
             if "Low" not in self.params:
                 self.params["Low"] = 0
 
@@ -139,7 +145,6 @@ class OperatorInt(Operator):
             indiv2 = indiv
         else:
             indiv2 = random.choice(others)
-            
 
         if global_best is None:
             global_best = indiv
@@ -147,7 +152,9 @@ class OperatorInt(Operator):
         params = copy(self.params)
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
+            params["N"] = np.count_nonzero(
+                RAND_GEN.random(indiv.genotype.size) < params["Cr"]
+            )
 
         if "N" in params:
             params["N"] = round(params["N"])
@@ -163,13 +170,19 @@ class OperatorInt(Operator):
             new_indiv.genotype = cross_mp(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == IntOpMethods.WEIGHTED_AVG:
-            new_indiv.genotype = weighted_average(new_indiv.genotype, indiv2.genotype.copy(), params["F"])
+            new_indiv.genotype = weighted_average(
+                new_indiv.genotype, indiv2.genotype.copy(), params["F"]
+            )
 
         elif self.method == IntOpMethods.BLXALPHA:
-            new_indiv.genotype = blxalpha(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
+            new_indiv.genotype = blxalpha(
+                new_indiv.genotype, indiv2.genotype.copy(), params["Cr"]
+            )
 
         elif self.method == IntOpMethods.MULTICROSS:
-            new_indiv.genotype = multi_cross(new_indiv.genotype, others, params["Nindiv"])
+            new_indiv.genotype = multi_cross(
+                new_indiv.genotype, others, params["Nindiv"]
+            )
 
         elif self.method == IntOpMethods.XOR:
             new_indiv.genotype = xor_mask(new_indiv.genotype, params["N"])
@@ -178,7 +191,9 @@ class OperatorInt(Operator):
             new_indiv.genotype = xor_cross(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == IntOpMethods.CROSSINTERAVG:
-            new_indiv.genotype = cross_inter_avg(new_indiv.genotype, others, params["N"])
+            new_indiv.genotype = cross_inter_avg(
+                new_indiv.genotype, others, params["N"]
+            )
 
         elif self.method == IntOpMethods.PERM:
             new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
@@ -193,7 +208,9 @@ class OperatorInt(Operator):
             new_indiv.genotype = cauchy(new_indiv.genotype, params["F"])
 
         elif self.method == IntOpMethods.UNIFORM:
-            new_indiv.genotype = uniform(new_indiv.genotype, params["Low"], params["Up"])
+            new_indiv.genotype = uniform(
+                new_indiv.genotype, params["Low"], params["Up"]
+            )
 
         elif self.method == IntOpMethods.POISSON:
             new_indiv.genotype = poisson(new_indiv.genotype, params["F"])
@@ -209,45 +226,73 @@ class OperatorInt(Operator):
 
         elif self.method == IntOpMethods.RANDSAMPLE:
             new_indiv.genotype = rand_sample(new_indiv.genotype, others, params)
-        
+
         elif self.method == IntOpMethods.RANDRESET:
             new_indiv.genotype = mutate_sample(new_indiv.genotype, others, params)
 
         elif self.method == IntOpMethods.DE_RAND_1:
-            new_indiv.genotype = DE_rand1(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_rand1(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == IntOpMethods.DE_BEST_1:
-            new_indiv.genotype = DE_best1(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_best1(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == IntOpMethods.DE_RAND_2:
-            new_indiv.genotype = DE_rand2(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_rand2(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == IntOpMethods.DE_BEST_2:
-            new_indiv.genotype = DE_best2(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_best2(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == IntOpMethods.DE_CTRAND_1:
-            new_indiv.genotype = DE_current_to_rand1(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_current_to_rand1(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == IntOpMethods.DE_CTBEST_1:
-            new_indiv.genotype = DE_current_to_best1(new_indiv.genotype, others, params["F"], params["Cr"])
+            new_indiv.genotype = DE_current_to_best1(
+                new_indiv.genotype, others, params["F"], params["Cr"]
+            )
 
         elif self.method == IntOpMethods.DE_CTPBEST_1:
-            new_indiv.genotype = DE_current_to_pbest1(new_indiv.genotype, others, params["F"], params["Cr"], params["P"])
+            new_indiv.genotype = DE_current_to_pbest1(
+                new_indiv.genotype, others, params["F"], params["Cr"], params["P"]
+            )
 
         elif self.method == IntOpMethods.PSO:
-            new_indiv = pso_operator(indiv, others, global_best, params["w"], params["c1"], params["c2"])
+            new_indiv = pso_operator(
+                indiv, others, global_best, params["w"], params["c1"], params["c2"]
+            )
 
         elif self.method == IntOpMethods.FIREFLY:
-            new_indiv.genotype = firefly(indiv, others, objfunc, params["a"], params["b"], params["d"], params["g"])
-        
+            new_indiv.genotype = firefly(
+                indiv,
+                others,
+                objfunc,
+                params["a"],
+                params["b"],
+                params["d"],
+                params["g"],
+            )
+
         elif self.method == IntOpMethods.RANDOM:
             new_indiv = initializer.generate_random(objfunc)
 
         elif self.method == IntOpMethods.RANDOM_MASK:
-            mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
+            mask_pos = np.hstack(
+                [np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]
+            ).astype(bool)
             RAND_GEN.shuffle(mask_pos)
 
-            new_indiv.genotype[mask_pos] = initializer.generate_random(objfunc).genotype[mask_pos]
+            new_indiv.genotype[mask_pos] = initializer.generate_random(
+                objfunc
+            ).genotype[mask_pos]
 
         elif self.method == IntOpMethods.DUMMY:
             new_indiv.genotype = dummy_op(new_indiv.genotype, params["F"])

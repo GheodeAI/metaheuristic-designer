@@ -20,7 +20,12 @@ class GeneralSearch(Search):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, search_strategy: Algorithm, params: Union[ParamScheduler, dict] = None):
+    def __init__(
+        self,
+        objfunc: ObjectiveFunc,
+        search_strategy: Algorithm,
+        params: Union[ParamScheduler, dict] = None,
+    ):
         """
         Constructor of the Metaheuristic class
         """
@@ -30,11 +35,17 @@ class GeneralSearch(Search):
     def step(self, time_start=0, verbose=False):
         population = self.search_strategy.population
 
-        parents = self.search_strategy.select_parents(population, progress=self.progress, history=self.best_history)
+        parents = self.search_strategy.select_parents(
+            population, progress=self.progress, history=self.best_history
+        )
 
-        offspring = self.search_strategy.perturb(parents, self.objfunc, progress=self.progress, history=self.best_history)
+        offspring = self.search_strategy.perturb(
+            parents, self.objfunc, progress=self.progress, history=self.best_history
+        )
 
-        population = self.search_strategy.select_individuals(population, offspring, progress=self.progress, history=self.best_history)
+        population = self.search_strategy.select_individuals(
+            population, offspring, progress=self.progress, history=self.best_history
+        )
 
         self.search_strategy.population = population
 
@@ -63,7 +74,7 @@ class GeneralSearch(Search):
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
         print("CPU time spent: ", round(self.cpu_time_spent, 5), "s", sep="")
         print("Number of fitness evaluations:", self.objfunc.counter)
-        
+
         best_fitness = self.best_solution()[1]
         print("Best fitness:", best_fitness)
 

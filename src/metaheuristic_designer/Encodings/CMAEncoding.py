@@ -11,7 +11,7 @@ class CMAEncoding(Encoding):
 
     def __init__(self, nparams: int, pre_encoding: Encoding = None):
         self.nparams = nparams
-        
+
         if pre_encoding is None:
             pre_encoding = DefaultDecoder()
         self.pre_encoding = pre_encoding
@@ -23,5 +23,5 @@ class CMAEncoding(Encoding):
         return np.concatenate(encoded, param_vec)
 
     def decode(self, genotype: np.ndarray) -> np.ndarray:
-        decoded = genotype[:-self.nparams]
+        decoded = genotype[: -self.nparams]
         return self.pre_encoding.decode(decoded)

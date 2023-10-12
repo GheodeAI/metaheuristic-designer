@@ -30,7 +30,6 @@ class Operator(ABC):
         self.name = name
 
         if params is None:
-
             # Default parameters
             self.params = {}
         elif params == "default":
@@ -55,7 +54,7 @@ class Operator(ABC):
                 "w": 0.7,
                 "c1": 1.5,
                 "c2": 1.5,
-                "function": lambda x, y, z, w: x.genotype
+                "function": lambda x, y, z, w: x.genotype,
             }
         else:
             if "method" in params:
@@ -67,7 +66,14 @@ class Operator(ABC):
             else:
                 self.params = params
 
-    def __call__(self, solution: Individual, population: List[Individual], objfunc: ObjectiveFunc, global_best: Individual, initializer: Initializer) -> Individual:
+    def __call__(
+        self,
+        solution: Individual,
+        population: List[Individual],
+        objfunc: ObjectiveFunc,
+        global_best: Individual,
+        initializer: Initializer,
+    ) -> Individual:
         """
         A shorthand for calling the 'evolve' method.
         """
@@ -87,7 +93,7 @@ class Operator(ABC):
         if self.param_scheduler:
             self.param_scheduler.step(progress)
             self.params = self.param_scheduler.get_params()
-    
+
     def get_state(self) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
@@ -97,10 +103,8 @@ class Operator(ABC):
         state: dict
             The complete state of the operator.
         """
-        
-        data = {
-            "name": self.name
-        }
+
+        data = {"name": self.name}
 
         if self.param_scheduler:
             data["param_scheduler"] = self.param_scheduler.get_state()
@@ -109,11 +113,18 @@ class Operator(ABC):
         elif self.params:
             data["params"] = self.params
             data["params"].pop("function", None)
-        
+
         return data
 
     @abstractmethod
-    def evolve(self, indiv: Individual, population: List[Individual], objfunc: ObjectiveFunc, global_best: Individual, initializer: Initializer) -> Individual:
+    def evolve(
+        self,
+        indiv: Individual,
+        population: List[Individual],
+        objfunc: ObjectiveFunc,
+        global_best: Individual,
+        initializer: Initializer,
+    ) -> Individual:
         """
         Evolves an individual using a given strategy.
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 import numpy as np
-from numpy import ndarray 
+from numpy import ndarray
 from .Initializers import UniformVectorInitializer
 
 
@@ -29,11 +29,11 @@ class ObjectiveFunc(ABC):
         self.name = name
         self.counter = 0
         self.factor = 1
-        
+
         self.mode = mode
         if mode not in ["max", "min"]:
-            raise ValueError("Optimization objective (mode) must be \"min\" or \"max\".")
-        
+            raise ValueError('Optimization objective (mode) must be "min" or "max".')
+
         if self.mode == "min":
             self.factor = -1
 
@@ -101,7 +101,7 @@ class ObjectiveFunc(ABC):
         Returns
         -------
         repaired_solution: Any
-            A modified version of the solution passed that satisfies the restrictions of the problem.             
+            A modified version of the solution passed that satisfies the restrictions of the problem.
         """
 
         return vector
@@ -118,7 +118,7 @@ class ObjectiveFunc(ABC):
         Returns
         -------
         repaired_speed: ndarray
-            A modified version of the speed vector passed that satisfies the restrictions of the problem.   
+            A modified version of the speed vector passed that satisfies the restrictions of the problem.
         """
 
         result = None
@@ -137,7 +137,7 @@ class ObjectiveFunc(ABC):
         ----------
         solution: Any
             A solution that could be violating the restrictions of the problem.
-        
+
         Returns
         -------
         penalty: float
@@ -158,14 +158,21 @@ class ObjectiveVectorFunc(ObjectiveFunc):
     mode: str, optional
         Whether to maximize or minimize the function (using the string 'max' or 'min').
     low_lim: float, optional
-        Lower limit restriction for the vectors. 
+        Lower limit restriction for the vectors.
     up_lim: float, optional
         Upper limit restriction for the vectors.
     name: str, optional
         The name that will be displayed to represent this function.
     """
 
-    def __init__(self, vecsize: int, mode: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = "some function"):
+    def __init__(
+        self,
+        vecsize: int,
+        mode: str = "max",
+        low_lim: float = -100,
+        up_lim: float = 100,
+        name: str = "some function",
+    ):
         """
         Constructor for the ObjectiveVectorFunc class
         """
@@ -193,14 +200,22 @@ class ObjectiveFromLambda(ObjectiveVectorFunc):
     mode: str, optional
         Whether to maximize or minimize the function (using the string 'max' or 'min').
     low_lim: float, optional
-        Lower limit restriction for the vectors. 
+        Lower limit restriction for the vectors.
     up_lim: float, optional
         Upper limit restriction for the vectors.
     name: str, optional
         The name that will be displayed to represent this function.
     """
 
-    def __init__(self, obj_func: callable, vecsize: int, mode: str = "max", low_lim: float = -100, up_lim: float = 100, name: str = "some function"):
+    def __init__(
+        self,
+        obj_func: callable,
+        vecsize: int,
+        mode: str = "max",
+        low_lim: float = -100,
+        up_lim: float = 100,
+        name: str = "some function",
+    ):
         """
         Constructor for the ObjectiveFromLambda class
         """
@@ -211,9 +226,9 @@ class ObjectiveFromLambda(ObjectiveVectorFunc):
         super().__init__(vecsize, mode, low_lim, up_lim, name)
 
         self.obj_func = obj_func
-    
+
     def objective(self, vector):
         return self.obj_func(vector)
-    
+
     def repair_solution(self, vector):
         return np.clip(vector, self.low_lim, self.up_lim)

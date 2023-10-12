@@ -20,13 +20,15 @@ class LambdaInitializer(Initializer):
         Encoding that will be passed to each individual.
     """
 
-    def __init__(self, generator: callable, pop_size: int = 1, encoding: Encoding = None):
+    def __init__(
+        self, generator: callable, pop_size: int = 1, encoding: Encoding = None
+    ):
         self.pop_size = pop_size
         self.generator = generator
 
         if encoding is None:
             encoding = DefaultEncoding()
         self.encoding = encoding
-    
+
     def generate_random(self, objfunc: ObjectiveFunc) -> Individual:
         return Individual(objfunc, self.generator(), encoding=self.encoding)

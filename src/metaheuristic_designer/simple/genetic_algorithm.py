@@ -1,10 +1,11 @@
 from __future__ import annotations
 from ..Initializers import UniformVectorInitializer
 from ..Operators import OperatorInt, OperatorReal, OperatorBinary
-from ..SelectionMethods import  SurvivorSelection, ParentSelection
+from ..SelectionMethods import SurvivorSelection, ParentSelection
 from ..Encodings import TypeCastEncoding
 from ..Algorithms import GA
 from ..SearchMethods import GeneralSearch
+
 
 def genetic_algorithm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     """
@@ -32,8 +33,10 @@ def genetic_algorithm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     elif encoding_str.lower() == "real":
         alg = _genetic_algorithm_real_vec(objfunc, params)
     else:
-        raise ValueError(f"The encoding \"{encoding_str}\" does not exist, try \"real\", \"int\" or \"bin\"")
-    
+        raise ValueError(
+            f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"'
+        )
+
     return alg
 
 
@@ -52,15 +55,24 @@ def _genetic_algorithm_bin_vec(objfunc, params):
 
     encoding = TypeCastEncoding(int, bool)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding
+    )
 
     cross_op = OperatorBinary(cross_method)
-    mutation_op = OperatorBinary("Flip", {"N":mutstr})
+    mutation_op = OperatorBinary("Flip", {"N": mutstr})
 
     parent_sel_op = ParentSelection("Best", {"amount": n_parents})
     selection_op = SurvivorSelection("KeepBest")
-    
-    search_strat = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross":pcross, "pmut":pmut})
+
+    search_strat = GA(
+        pop_initializer,
+        mutation_op,
+        cross_op,
+        parent_sel_op,
+        selection_op,
+        {"pcross": pcross, "pmut": pmut},
+    )
 
     return GeneralSearch(objfunc, search_strat, params=params)
 
@@ -78,16 +90,32 @@ def _genetic_algorithm_int_vec(objfunc, params):
     pmut = params.get("pmut", 0.1)
     mutstr = params.get("mutstr", 1)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=int)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=int
+    )
 
     cross_op = OperatorInt(cross_method)
-    mutation_op = OperatorInt("MutRand", {"method":"Uniform", "Low":objfunc.low_lim, "Up":objfunc.up_lim, "N":mutstr})
+    mutation_op = OperatorInt(
+        "MutRand",
+        {
+            "method": "Uniform",
+            "Low": objfunc.low_lim,
+            "Up": objfunc.up_lim,
+            "N": mutstr,
+        },
+    )
 
     parent_sel_op = ParentSelection("Best", {"amount": n_parents})
     selection_op = SurvivorSelection("KeepBest")
 
-    
-    search_strat = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross":pcross, "pmut":pmut})
+    search_strat = GA(
+        pop_initializer,
+        mutation_op,
+        cross_op,
+        parent_sel_op,
+        selection_op,
+        {"pcross": pcross, "pmut": pmut},
+    )
 
     return GeneralSearch(objfunc, search_strat, params=params)
 
@@ -103,17 +131,25 @@ def _genetic_algorithm_real_vec(objfunc, params):
     cross_method = params.get("cross", "Multipoint")
     pcross = params.get("pcross", 0.8)
     pmut = params.get("pmut", 0.1)
-    mutstr = params.get("mutstr", 1e-5 )
+    mutstr = params.get("mutstr", 1e-5)
 
-
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float
+    )
 
     cross_op = OperatorReal(cross_method)
-    mutation_op = OperatorReal("RandNoise", {"method":"Gauss", "F":mutstr, "N":1})
+    mutation_op = OperatorReal("RandNoise", {"method": "Gauss", "F": mutstr, "N": 1})
 
     parent_sel_op = ParentSelection("Best", {"amount": n_parents})
     selection_op = SurvivorSelection("KeepBest")
-    
-    search_strat = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross":pcross, "pmut":pmut})
+
+    search_strat = GA(
+        pop_initializer,
+        mutation_op,
+        cross_op,
+        parent_sel_op,
+        selection_op,
+        {"pcross": pcross, "pmut": pmut},
+    )
 
     return GeneralSearch(objfunc, search_strat, params=params)

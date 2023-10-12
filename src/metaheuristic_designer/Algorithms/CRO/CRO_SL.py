@@ -17,7 +17,13 @@ class CRO_SL(Algorithm):
     Coral Reef Optimization with Substrate Layers
     """
 
-    def __init__(self, pop_init: Initializer, operator_list: List[Operator], params: Union[ParamScheduler, dict] = None, name: str = "CRO-SL"):
+    def __init__(
+        self,
+        pop_init: Initializer,
+        operator_list: List[Operator],
+        params: Union[ParamScheduler, dict] = None,
+        name: str = "CRO-SL",
+    ):
         pop_init = deepcopy(pop_init)
         pop_init.pop_size = round(pop_init.pop_size * params["rho"])
 
@@ -26,17 +32,24 @@ class CRO_SL(Algorithm):
         # Hyperparameters of the algorithm
         self.maxpopsize = pop_init.pop_size
         self.operator_list = operator_list
-        self.operator_idx = [i%len(operator_list) for i in range(pop_init.pop_size)]
+        self.operator_idx = [i % len(operator_list) for i in range(pop_init.pop_size)]
 
-        self.selection_op = SurvivorSelection("CRO", {"Fd": params["Fd"], "Pd": params["Pd"], "attempts": params["attempts"], "maxPopSize": pop_init.pop_size})
-    
+        self.selection_op = SurvivorSelection(
+            "CRO",
+            {
+                "Fd": params["Fd"],
+                "Pd": params["Pd"],
+                "attempts": params["attempts"],
+                "maxPopSize": pop_init.pop_size,
+            },
+        )
+
     def perturb(self, parent_list, objfunc, **kwargs):
         offspring = []
         for idx, indiv in enumerate(parent_list):
-            
             # Select operator
             op_idx = self.operator_idx[idx]
-            
+
             op = self.operator_list[op_idx]
 
             # Apply operator
@@ -53,13 +66,13 @@ class CRO_SL(Algorithm):
             self.best = current_best
 
         return offspring
-    
+
     def select_individuals(self, population, offspring, **kwargs):
         return self.selection_op(population, offspring)
 
     def update_params(self, **kwargs):
-        progress = kwargs['progress']
-        
+        progress = kwargs["progress"]
+
         self.pop_init.pop_size = len(self.population)
 
         for op in self.operator_list:

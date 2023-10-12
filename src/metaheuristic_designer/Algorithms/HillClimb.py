@@ -13,8 +13,14 @@ class HillClimb(Algorithm):
     Hill Climbing algorithm
     """
 
-    def __init__(self, pop_init: Initializer, perturb_op: Operator = None, selection_op: SurvivorSelection = None,
-                 params: Union[ParamScheduler, dict] = {}, name: str = "HillClimb"):
+    def __init__(
+        self,
+        pop_init: Initializer,
+        perturb_op: Operator = None,
+        selection_op: SurvivorSelection = None,
+        params: Union[ParamScheduler, dict] = {},
+        name: str = "HillClimb",
+    ):
         self.iterations = params.get("iters", 1)
 
         if perturb_op is None:
@@ -30,12 +36,12 @@ class HillClimb(Algorithm):
     def perturb(self, indiv_list, objfunc, **kwargs):
         next_indiv_list = copy(indiv_list)
         for i in range(self.iterations):
-            
             offspring = []
             for indiv in next_indiv_list:
-
                 # Perturb individual
-                new_indiv = self.perturb_op(indiv, next_indiv_list, objfunc, self.best, self.pop_init)
+                new_indiv = self.perturb_op(
+                    indiv, next_indiv_list, objfunc, self.best, self.pop_init
+                )
                 new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
                 offspring.append(new_indiv)
@@ -46,11 +52,11 @@ class HillClimb(Algorithm):
                 self.best = current_best
 
             next_indiv_list = self.selection_op(next_indiv_list, offspring)
-        
+
         return next_indiv_list
 
     def update_params(self, **kwargs):
-        progress = kwargs['progress']
-        
+        progress = kwargs["progress"]
+
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)
