@@ -23,7 +23,7 @@ class OperatorLambda(Operator):
     """
 
     def __init__(
-        self, func: callable, params: Union[ParamScheduler, dict] = None, name: str = None
+        self, fn: callable, params: Union[ParamScheduler, dict] = None, name: str = None
     ):
         """
         Constructor for the OperatorReal class
@@ -40,6 +40,6 @@ class OperatorLambda(Operator):
         new_indiv = copy(indiv)
         others = [i for i in population if i != indiv]
 
-        new_indiv.genotype = fn(indiv, others, objfunc, **self.params)
+        new_indiv.genotype = self.fn(indiv, others, objfunc, **self.params)
 
         return new_indiv
