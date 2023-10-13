@@ -21,7 +21,8 @@ def random_search(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         Configured optimization algorithm.
     """
 
-    encoding_str = params.get("encoding", "bin")
+    if "encoding" not in params:
+        raise ValueError(f"You must specify the encoding in the params structure, the options are \"real\", \"int\" and \"bin\"")
 
     if encoding_str.lower() == "bin":
         alg = _random_search_bin_vec(objfunc, params)

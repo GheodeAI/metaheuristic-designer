@@ -14,7 +14,7 @@ class GA(VariablePopulation):
         self.pmut = params.get("pmut", 0.1)
         self.pcross = params.get("pcross", 0.9)
 
-        null_operator = OperatorReal("Nothing", {})
+        null_operator = OperatorReal("Nothing")
 
         prob_mut_op = OperatorMeta("Branch", [mutation_op, null_operator], {"p": self.pmut})
         prob_cross_op = OperatorMeta("Branch", [cross_op, null_operator], {"p": self.pcross}) 

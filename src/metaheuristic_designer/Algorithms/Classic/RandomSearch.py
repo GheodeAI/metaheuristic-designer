@@ -10,7 +10,7 @@ class RandomSearch(HillClimb):
     """
 
     def __init__(self, pop_init, name="RandomSearch"):
-        random_op = OperatorReal("Random", {})
+        random_op = OperatorReal("Random")
         super().__init__(
             pop_init,
             random_op,

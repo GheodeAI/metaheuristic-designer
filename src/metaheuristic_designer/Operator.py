@@ -30,8 +30,6 @@ class Operator(ABC):
         self.name = name
 
         if params is None:
-
-            # Default parameters
             self.params = {}
         elif params == "default":
             self.params = {

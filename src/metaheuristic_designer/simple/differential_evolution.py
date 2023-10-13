@@ -23,7 +23,8 @@ def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Search
         Configured optimization algorithm.
     """
 
-    encoding_str = params.get("encoding", "real")
+    if "encoding" not in params:
+        raise ValueError(f"You must specify the encoding in the params structure, the options are \"real\", \"int\" and \"bin\"")
 
     if encoding_str.lower() == "real":
         alg = _differential_evolution_real_vec(objfunc, params)

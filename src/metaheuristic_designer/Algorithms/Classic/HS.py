@@ -13,7 +13,6 @@ class HS(VariablePopulation):
         parent_sel_op = ParentSelection("Nothing")
         selection_op = SurvivorSelection("(m+n)")
 
-
         HSM = pop_init.pop_size
         cross = OperatorReal("Multicross", {"Nindiv": HSM})
 

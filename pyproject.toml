@@ -26,18 +26,18 @@ Homepage = "https://github.com/eugenioLR/metaheuristic-designer"
 
 [project.optional-dependencies]
 dev = [
-    "pytest >=7.4.0",
-    "coverage >=7.3.1",
-    "pydata-sphinx-theme >=0.13.3",
-    "sphinx >=7.1.1",
-    "pygame >=2.5.0",    
-    "networkx >=3.1",
-    "opencv-python >= 4.8"
+    "pytest>=7.4.0",
+    "coverage>=7.3.1",
+    "pydata-sphinx-theme>=0.13.3",
+    "sphinx>=7.1.1",
+    "pygame>=2.5.0",    
+    "networkx>=3.1",
+    "opencv-python>=4.8"
 ]
 
 examples = [
-    "pygame >=2.5.0",    
-    "networkx >=3.1",
-    "opencv-python"
+    "pygame>=2.5.0",    
+    "networkx>=3.1",
+    "opencv-python>=4.8"
 ]
 

@@ -1,3 +1,1 @@
-from .RVNS import RVNS
-from .VND import VND
-from .VNS import VNS
+from .CMA_ES import CMA_ES

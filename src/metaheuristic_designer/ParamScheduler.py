@@ -1,3 +1,4 @@
+from __future__ import annotations
 import random
 import numpy as np
 import math
@@ -35,16 +36,16 @@ class ParamScheduler:
 
         self.reset()
 
-    def __getitem__(self, idx: str) -> type:
+    def __getitem__(self, idx: str) -> Any:
         """
-        Gets the current value of a parameter given it's name
+        Gets the current value of a parameter given its name
         """
 
         return self.current_params[idx]
 
-    def __setitem__(self, idx: str, value: type):
+    def __setitem__(self, idx: str, value: Any):
         """
-        Sets the current value of a parameter given it's name
+        Sets the current value of a parameter given its name
         """
 
         self.current_params[idx] = value
@@ -55,6 +56,13 @@ class ParamScheduler:
         """
 
         return value in self.current_params
+    
+    def get(key: str, def_value: Any = None) -> Any:
+        """
+        Gets the current value of a parameter given its name using a default value if it's missing
+        """
+
+        return self.current_params.get(key, def_value)
 
     def reset(self):
         """

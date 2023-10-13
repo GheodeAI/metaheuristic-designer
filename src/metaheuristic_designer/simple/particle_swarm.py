@@ -21,7 +21,8 @@ def particle_swarm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         Configured optimization algorithm.
     """
 
-    encoding_str = params.get("encoding", "real")
+    if "encoding" not in params:
+        raise ValueError(f"You must specify the encoding in the params structure, the options are \"real\", \"int\" and \"bin\"")
 
     if encoding_str.lower() == "real":
         alg = _particle_swarm_real_vec(objfunc, params)
