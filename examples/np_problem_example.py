@@ -1,9 +1,4 @@
-from metaheuristic_designer import (
-    ObjectiveFunc,
-    ParentSelection,
-    SurvivorSelection,
-    ParamScheduler,
-)
+from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.searchMethods import GeneralSearch, MemeticSearch
 from metaheuristic_designer.encodings import TypeCastEncoding
 from metaheuristic_designer.operators import (
@@ -17,7 +12,7 @@ from metaheuristic_designer.initializers import (
     PermInitializer,
 )
 from metaheuristic_designer.algorithms import *
-
+from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.benchmarks import *
 
 import argparse

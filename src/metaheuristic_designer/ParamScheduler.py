@@ -53,7 +53,7 @@ class ParamScheduler:
         """
 
         return value in self.current_params
-    
+
     def get(key: str, def_value: Any = None) -> Any:
         """
         Gets the current value of a parameter given its name using a default value if it's missing

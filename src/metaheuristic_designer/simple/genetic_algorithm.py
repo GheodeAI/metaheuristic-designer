@@ -25,7 +25,11 @@ def genetic_algorithm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     """
 
     if "encoding" not in params:
-        raise ValueError(f"You must specify the encoding in the params structure, the options are \"real\", \"int\" and \"bin\"")
+        raise ValueError(
+            f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
+        )
+    
+    encoding_str = params["encoding"]
 
     if encoding_str.lower() == "bin":
         alg = _genetic_algorithm_bin_vec(objfunc, params)

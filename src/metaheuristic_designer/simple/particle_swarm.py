@@ -23,7 +23,11 @@ def particle_swarm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     """
 
     if "encoding" not in params:
-        raise ValueError(f"You must specify the encoding in the params structure, the options are \"real\", \"int\" and \"bin\"")
+        raise ValueError(
+            f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
+        )
+    
+    encoding_str = params["encoding"]
 
     if encoding_str.lower() == "real":
         alg = _particle_swarm_real_vec(objfunc, params)

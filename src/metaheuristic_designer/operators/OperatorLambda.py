@@ -8,6 +8,7 @@ import enum
 from enum import Enum
 from ..utils import RAND_GEN
 
+
 class OperatorLambda(Operator):
     """
     Operator class that has mutation and cross methods for real coded vectors
