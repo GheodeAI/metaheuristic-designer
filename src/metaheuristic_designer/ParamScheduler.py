@@ -4,10 +4,7 @@ import numpy as np
 import math
 
 
-_par_sch_methods = [
-    "linear",
-    "exp"
-]
+_par_sch_methods = ["linear", "exp"]
 
 
 class ParamScheduler:
@@ -30,7 +27,7 @@ class ParamScheduler:
         self.strategy = strategy.lower()
 
         if strategy.lower() not in _par_sch_methods:
-            raise ValueError(f"Parameter scheduler strategy \"{self.name}\" not defined")
+            raise ValueError(f'Parameter scheduler strategy "{self.name}" not defined')
 
         self.param_schedule = param_schedule
 
@@ -86,7 +83,7 @@ class ParamScheduler:
         """
 
         return self.current_params
-    
+
     def get_state(self) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
@@ -96,10 +93,7 @@ class ParamScheduler:
         state: dict
         """
 
-        data = {
-            "strategy": self.strategy,
-            "param_schedule": self.param_schedule
-        }
+        data = {"strategy": self.strategy, "param_schedule": self.param_schedule}
 
         return data
 
@@ -113,12 +107,13 @@ class ParamScheduler:
         """
 
         if self.strategy == "linear":
-
             for key in self.param_schedule:
                 if type(self.param_schedule[key]) in (list, tuple):
                     start_param = self.param_schedule[key][0]
                     end_param = self.param_schedule[key][1]
-                    self.current_params[key] = (1 - progress) * start_param + progress * end_param
+                    self.current_params[key] = (
+                        1 - progress
+                    ) * start_param + progress * end_param
 
         elif self.strategy == "exp":
             # with f(x) = k·e^{a·x}+b,  f(0) = p[0],  f(1) = p[1]

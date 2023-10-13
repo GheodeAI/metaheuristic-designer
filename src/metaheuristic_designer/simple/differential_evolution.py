@@ -1,10 +1,11 @@
 from __future__ import annotations
-from ..Initializers import UniformVectorInitializer
-from ..Operators import OperatorInt, OperatorReal, OperatorBinary
-from ..Encodings import TypeCastEncoding
-from ..SelectionMethods import  SurvivorSelection, ParentSelection
-from ..Algorithms import DE
-from ..SearchMethods import GeneralSearch
+from ..initializers import UniformVectorInitializer
+from ..operators import OperatorInt, OperatorReal, OperatorBinary
+from ..encodings import TypeCastEncoding
+from ..selectionMethods import SurvivorSelection, ParentSelection
+from ..algorithms import DE
+from ..searchMethods import GeneralSearch
+
 
 def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     """
@@ -33,9 +34,12 @@ def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Search
     elif encoding_str.lower() == "bin":
         alg = _differential_evolution_bin_vec(objfunc, params)
     else:
-        raise ValueError(f"The encoding \"{encoding_str}\" does not exist, try \"real\", \"int\" or \"bin\"")
-    
+        raise ValueError(
+            f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"'
+        )
+
     return alg
+
 
 def _differential_evolution_real_vec(objfunc, params):
     """
@@ -48,13 +52,23 @@ def _differential_evolution_real_vec(objfunc, params):
     cr = params.get("Cr", 0.9)
     de_type = params.get("DE_type", "de/best/1")
 
-    if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
-        raise ValueError(f"Differential evolution strategy \"{de_type}\" does not exist.")
+    if de_type not in [
+        "de/rand/1",
+        "de/best/1",
+        "de/rand/2",
+        "de/best/2",
+        "de/current-to-rand/1",
+        "de/current-to-best/1",
+        "de/current-to-pbest/1",
+    ]:
+        raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float
+    )
 
-    de_op = OperatorReal(de_type, {"F":f, "Cr":cr})
-    
+    de_op = OperatorReal(de_type, {"F": f, "Cr": cr})
+
     search_strat = DE(pop_initializer, de_op)
 
     return GeneralSearch(objfunc, search_strat, params=params)
@@ -71,15 +85,30 @@ def _differential_evolution_int_vec(objfunc, params):
     cr = params.get("Cr", 0.9)
     de_type = params.get("DE_type", "de/best/1")
 
-    if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
-        raise ValueError(f"Differential evolution strategy \"{de_type}\" does not exist.")
+    if de_type not in [
+        "de/rand/1",
+        "de/best/1",
+        "de/rand/2",
+        "de/best/2",
+        "de/current-to-rand/1",
+        "de/current-to-best/1",
+        "de/current-to-pbest/1",
+    ]:
+        raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
 
     encoding = TypeCastEncoding(float, int)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float, encoding=encoding)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize,
+        objfunc.low_lim,
+        objfunc.up_lim,
+        pop_size=pop_size,
+        dtype=float,
+        encoding=encoding,
+    )
 
-    de_op = OperatorReal(de_type, {"F":f, "Cr":cr})
-    
+    de_op = OperatorReal(de_type, {"F": f, "Cr": cr})
+
     search_strat = DE(pop_initializer, de_op)
 
     return GeneralSearch(objfunc, search_strat, params=params)
@@ -96,15 +125,30 @@ def _differential_evolution_bin_vec(objfunc, params):
     cr = params.get("Cr", 0.9)
     de_type = params.get("DE_type", "de/best/1")
 
-    if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
-        raise ValueError(f"Differential evolution strategy \"{de_type}\" does not exist.")
+    if de_type not in [
+        "de/rand/1",
+        "de/best/1",
+        "de/rand/2",
+        "de/best/2",
+        "de/current-to-rand/1",
+        "de/current-to-best/1",
+        "de/current-to-pbest/1",
+    ]:
+        raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
 
     encoding = TypeCastEncoding(float, bool)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float, encoding=encoding)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize,
+        objfunc.low_lim,
+        objfunc.up_lim,
+        pop_size=pop_size,
+        dtype=float,
+        encoding=encoding,
+    )
 
-    de_op = OperatorReal(de_type, {"F":f, "Cr":cr})
-    
+    de_op = OperatorReal(de_type, {"F": f, "Cr": cr})
+
     search_strat = DE(pop_initializer, de_op)
 
     return GeneralSearch(objfunc, search_strat, params=params)

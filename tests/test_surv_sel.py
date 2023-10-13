@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
-from metaheuristic_designer import Individual, SurvivorSelection
+from metaheuristic_designer import Individual
+from metaheuristic_designer.selectionMethods import SurvivorSelection
 import metaheuristic_designer as mhd
 mhd.reset_seed(0)
 

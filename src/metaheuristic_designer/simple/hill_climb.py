@@ -1,9 +1,10 @@
 from __future__ import annotations
-from ..Initializers import UniformVectorInitializer
-from ..Operators import OperatorInt, OperatorReal, OperatorBinary
-from ..Algorithms import HillClimb
-from ..Encodings import TypeCastEncoding
-from ..SearchMethods import GeneralSearch
+from ..initializers import UniformVectorInitializer
+from ..operators import OperatorInt, OperatorReal, OperatorBinary
+from ..algorithms import HillClimb
+from ..encodings import TypeCastEncoding
+from ..searchMethods import GeneralSearch
+
 
 def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     """
@@ -32,9 +33,12 @@ def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     elif encoding_str.lower() == "real":
         alg = _hill_climb_real_vec(objfunc, params)
     else:
-        raise ValueError(f"The encoding \"{encoding_str}\" does not exist, try \"real\", \"int\" or \"bin\"")
-    
+        raise ValueError(
+            f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"'
+        )
+
     return alg
+
 
 def _hill_climb_bin_vec(objfunc, params):
     """
@@ -46,9 +50,11 @@ def _hill_climb_bin_vec(objfunc, params):
 
     encoding = TypeCastEncoding(int, bool)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding
+    )
 
-    mutation_op = OperatorBinary("Flip", {"N":mutstr})
+    mutation_op = OperatorBinary("Flip", {"N": mutstr})
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
@@ -63,9 +69,19 @@ def _hill_climb_int_vec(objfunc, params):
 
     mutstr = params.get("mutstr", 1)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int
+    )
 
-    mutation_op = OperatorInt("MutRand", {"method":"Uniform", "Low":objfunc.low_lim, "Up":objfunc.up_lim, "N":mutstr})
+    mutation_op = OperatorInt(
+        "MutRand",
+        {
+            "method": "Uniform",
+            "Low": objfunc.low_lim,
+            "Up": objfunc.up_lim,
+            "N": mutstr,
+        },
+    )
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
@@ -78,12 +94,14 @@ def _hill_climb_real_vec(objfunc, params):
     This objective function should accept real coded vectors.
     """
 
-    mutstr = params.get("mutstr", 1e-5 )
+    mutstr = params.get("mutstr", 1e-5)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float
+    )
 
-    mutation_op = OperatorReal("RandNoise", {"method":"Gauss", "F":mutstr})
-    
+    mutation_op = OperatorReal("RandNoise", {"method": "Gauss", "F": mutstr})
+
     search_strat = HillClimb(pop_initializer, mutation_op)
 
     return GeneralSearch(objfunc, search_strat, params=params)

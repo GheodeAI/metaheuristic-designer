@@ -1,6 +1,6 @@
 import pytest
 
-from metaheuristic_designer.Initializers import UniformVectorInitializer
+from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.benchmarks import *
 import metaheuristic_designer as mhd
 mhd.reset_seed(0)
