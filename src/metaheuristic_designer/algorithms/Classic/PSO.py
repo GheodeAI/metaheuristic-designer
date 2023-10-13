@@ -20,20 +20,11 @@ class PSO(StaticPopulation):
         name: str = "PSO",
     ):
         if pso_op is None:
-<<<<<<< HEAD:src/metaheuristic_designer/Algorithms/Classic/PSO.py
             pso_op = OperatorReal("PSO", ParamScheduler("Linear", {
                 "w": params.get("w", 0.7),
                 "c1": params.get("c1", 1.5),
                 "c2": params.get("c2", 1.5)
             }))
-=======
-            w = params.get("w", 0.7)
-            c1 = params.get("c1", 1.5)
-            c2 = params.get("c2", 1.5)
-            pso_op = OperatorReal(
-                "PSO", ParamScheduler("Linear", {"w": w, "c1": c1, "c2": c2})
-            )
->>>>>>> tutorials:src/metaheuristic_designer/algorithms/Classic/PSO.py
 
         selection_op = SurvivorSelection("Generational")
 
