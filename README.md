@@ -40,7 +40,8 @@ pip install metaheuristic-designer
             - PSO: simple particle swarm algorithm.
             - NoSearch: no search is done.
         - "-m" use a memetic search like structure, do local search after mutation.
-    - "examples/exec_basic.py": Evolve an image so that it matches the one given as an input. Recieves mostly the same parameters except for one for indicating the input image:
+    - "examples/exec_basic.py": Evolve an image so that it matches the one given as an input. 
+        - The same parameters as the previous script.
         - "-i \[Image path\]" read the image and evolve a random image into this one.
 
 It is recomended that you create a virtual environment to test the examples.
@@ -74,87 +75,174 @@ This package comes with some already made components that can be used in any alg
 
 ### Algorithms
 The algorithms implemented are:
-| Class name | Algorithm |Other info|
-|------------|-----------|----------|
-|RandomSearch| Random Search||
-|HillClimb|Hill climb ||
-|LocalSearch|Local seach ||
-|SA|Simulated annealing||
-|GA|Genetic algorithm||
-|ES|Evolution strategy||
-|HS|Harmony search||
-|PSO|Particle Swarm optimization||
-|DE|Differential evolution||
-|CRO|Coral Reef Optimization||
-|CRO_SL|Coral Reef Optimization with substrate layers||
-|PCRO_SL|probabilistic Coral Reef Optimization with substrate layers|
-|DPCRO_SL|Dynamic probabilistic Coral Reef Optimization with substrate layers|
-|VND| Variable neighborhood descent||
-|RVNS| Restricted variable neighborhood search|In progress|
-|VNS| Variable neighborhood search|In progress|
-|CMA_ES| Covariance matrix adaptation - Evolution strategy| Not implemented|
+| Class name | Algorithm | Params | Other info |
+|------------|-----------|--------|------------|
+|NoSearch|Do nothing||For debugging purposes||
+|RandomSearch|Random Search|||
+|HillClimb|Hill climb |||
+|LocalSearch|Local seach |**iters** (number of neighbors to test each time)||
+|SA|Simulated annealing|**iter** (iterations per temperature change), **temp_init** (initial temperature), **alpha** (exponent of the temperature change) ||
+|GA|Genetic algorithm|**pmut** (probability of mutation), **pcross** (probability of crossover)||
+|ES|Evolution strategy|**offspringSize** (number of indiviuals to generate each generation)||
+|HS|Harmony search|**HSM**, **HMCR**, **BW**, **PAR**||
+|PSO|Particle Swarm optimization|**w**,**c1**,**c2**||
+|DE|Differential evolution|||
+|CRO|Coral Reef Optimization|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
+|CRO_SL|Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
+|PCRO_SL|probabilistic Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
+|DPCRO_SL|Dynamic probabilistic Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**,**group_subs**,**dyn_method**,**dyn_steps**,**prob_amp**||
+|VND| Variable neighborhood descent|||
+|RVNS| Restricted variable neighborhood search||In progress|
+|VNS| Variable neighborhood search||In progress|
+|CMA_ES| Covariance matrix adaptation - Evolution strategy|| Not implemented yet|
 
 ### Survivor selection methods
 These are methods of selecting the individuals to use in future generations.
 
 The methods implemented are:
-| Method name | Algorithm |Other info|
-|-------------|-----------|----------|
-|"Elitism"|Elitism|
-|"CondElitism"|Conditional Elitism|
-|"nothing" or "generational"|Replace all the parents with their children| Needs the offspring size to be equal to the population size|
-|"One-to-one" or "HillClimb"|One to one (compare each parent with its child)|Needs the offspring size to be equal to the population size|
-|"Prob-one-to-one" or "ProbHillClimb"|Probabilitisc One to one (with a chance to always choose the child)|Needs the offspring size to be equal to the population size|
-|"(m+n)" or "keepbest"|(λ+μ), or choosing the λ best individuals taking parents and children||
-|"(m,n)" or "keepoffspring"|(λ,μ), or taking the best λ children|λ must be smaller than μ|
-|"CRO"|A 2 step survivor selection method used in the CRO algorithm. Each individual attempts to enter the population K times and then a percentage of the worse individuals will be eliminated from the population|Can return a population with a variable number of individuals|
+| Method name | Algorithm | Params | Other info |
+|-------------|-----------|--------|------------|
+|"Elitism"|Elitism|**amount**||
+|"CondElitism"|Conditional Elitism|**amount**||
+|"nothing" or "generational"|Replace all the parents with their children|| Needs the offspring size to be equal to the population size|
+|"One-to-one" or "HillClimb"|One to one (compare each parent with its child)||Needs the offspring size to be equal to the population size|
+|"Prob-one-to-one" or "ProbHillClimb"|Probabilitisc One to one (with a chance to always choose the child)|**p**|Needs the offspring size to be equal to the population size|
+|"(m+n)" or "keepbest"|(λ+μ), or choosing the λ best individuals taking parents and children|||
+|"(m,n)" or "keepoffspring"|(λ,μ), or taking the best λ children||λ must be smaller than μ|
+|"CRO"|A 2 step survivor selection method used in the CRO algorithm. Each individual attempts to enter the population K times and then a percentage of the worse individuals will be eliminated from the population|**Fd**,**Pd**,**attempts**,**maxPopSize**|Can return a population with a variable number of individuals|
 
 ### Parent selection methods
 These are methods of selecting the individuals that will be mutated/perturbed in each generation
 
 The methods implemented are:
-| Method name | Algorithm |Other info|
-|-------------|-----------|----------|
-|"Torunament"||
-|"Best"||
-|"Random"||
-|"Roulette"||
-|"SUS"||
-|"Nothing"||
+| Method name | Algorithm | Params | Other info |
+|-------------|-----------|--------|------------|
+|"Torunament"|Choose parents by tournament|**amount**, **p**||
+|"Best"| Select the n best individuals|**amount**||
+|"Random"| Take n individuals at random|**amount**||
+|"Roulette"| Perform a selection with the roullette method|**amount**, **method**, **F**||
+|"SUS"| Stochastic universal sampling|**amount**, **method**, **F**||
+|"Nothing"| Take all the individuals from the population||
 
 ### Operators
-| Class name | Domain |
-|------------|--------|
-|OperatorReal|Real valued vectors|
-|OperatorInt|Integer valued vectors|
-|OperatorBinary|Binary vectors|
-|OperatorPerm|Permutations|
-|OperatorList|Variable length lists|
-|OperatorMeta|Other operators|
 
-Additionaly there is a OperatorLambda that applies a user-defined function as the operator.
+| Class name | Domain | Other info|
+|------------|--------|----|
+|OperatorReal|Real valued vectors||
+|OperatorInt|Integer valued vectors||
+|OperatorBinary|Binary vectors||
+|OperatorPerm|Permutations||
+|OperatorList|Variable length lists||
+|OperatorMeta|Other operators||
+|OperatorLambda|Any|Lets you specify a function as an operator|
 
-
-| Method name | Algorithm | Domains |
-|-------------|-----------|---------|
-|"1point"| 1 point crossover|Real, Int, Bin|
-|"nothing"|||
-|"branch"||Operators(Meta)|
-|"sequence"||Operators(Meta)|
-|"split"||Operators(Meta)|
-|"pick"||Operators(Meta)|
+The Operators functions available in the operator classes are:
+| Method name | Algorithm | Params | Domains |
+|-------------|-----------|--------|---------|
+|"1point"|1 point crossover||Real, Int, Bin|
+|"2point"|2 point crossover||Real, Int, Bin|
+|"Multipoint"|multipoint crossover||Real, Int, Bin|
+|"WeightedAvg"|Weighted average crossover||Real, Int|
+|"BLXalpha"|BLX-alpha crossover||Real|
+|"Multicross"|multi-individual multipoint crossover||Real, Int, Bin|
+|"XOR"|Bytewise XOR with a random vector||Int|
+|"XORCross"|Bytewise XOR between 2 vectors component by component||Int|
+|"sbx"|SBX crossover||Real|
+|"Perm"|Permutate vector components||Real, Int, Bin, Perm|
+|"Gauss"|Add Gaussian noise||Real, Int|
+|"Laplace"|Add noise following a Laplace distribution||Real, Int|
+|"Cauchy"|Add noise following a Cauchy distribution||Real, Int|
+|"Poisson"|Add noise following a Cauchy distribution||Int|
+|"Uniform"|Add Uniform noise||Real, Int|
+|"MutRand" or "MutNoise"|Add random noise to a number of vector components||Real, Int|
+|"MutSample"|Take a sample from a probability distribution and put it on a number of vector components||Real, Int|
+|"RandNoise"|Add random noise||Real, Int|
+|"RandSample"|Sample from a probability distribution||Real, Int|
+|"DE/Rand/1"|Sample from a probability distribution||Real, Int|
+|"DE/Best/1"|Sample from a probability distribution||Real, Int|
+|"DE/Rand/2"|Sample from a probability distribution||Real, Int|
+|"DE/Best/2"|Sample from a probability distribution||Real, Int|
+|"DE/Current-to-rand/1"|Sample from a probability distribution||Real, Int|
+|"DE/Current-to-best/1"|Sample from a probability distribution||Real, Int|
+|"DE/Current-to-pbest/1"|Sample from a probability distribution||Real, Int|
+|"PSO"|Sample from a probability distribution||Real, Int|
+|"Firefly"|Sample from a probability distribution||Real, Int|
+|"Random"|Sample from a probability distribution||Real, Int, Bin, Perm|
+|"RandomMask"|||Real, Int||
+|"Swap"|||Perm||
+|"Insert"|||Perm||
+|"Scramble"|||Perm||
+|"Perm"|||Real, Int, Bin, Perm||
+|"Invert"|||Perm||
+|"Roll"|||Perm||
+|"PMX"|||Perm||
+|"OrderCross"|||Perm||
+|"branch"|||Operators|
+|"sequence"|||Operators|
+|"split"|||Operators|
+|"pick"|||Operators|
+|"Dummy"|Assing the vector to a predefined value||All|
+|"Custom"|||All|
+|"Nothing"|Do nothing||All|
 
 ### Initializers
+Initializers create the initial population that will be evolved in the optimization process.
 
-| Class name | Algorithm | Other info |
+Some of the implemente Initializers are:
+| Class name | Description | Other info |
 |------------|-----------|------------|
+|DirectInitializer|Initialize the population to a preset list of individuals||
+|SeedProbInitializer|Initializes the population with another initializer and inserts user-specified individuals with a probability||
+|SeedDetermInitializer|Initializes the population with another initializer and inserts a number of user-specified individuals into the population||
+|GaussianVectorInitializer|Initialize individuals with normally distributed vectors||
+|UniformVectorInitializer|Initialize individuals with uniformly random distributed vectors||
+|PermInitializer|Initialize individuals with random permuations||
+|LambdaInitializer|Initialize individuals with a user-defined function||
+
 
 ### Encodings
-| Class name | Algorithm | Other info |
-|------------|-----------|------------|
+Specifying the Encoding is optional but can be very helpful for some types of problems.
+
+An encoding will represent each solution differently in the optimization process and the evaluation of the fintess, since most algorithm work only with vectors, but we might need other types of datatypes for our optimization.
+
+Some of the implemented Encodings are:
+| Class name | Encoding | Decoding | Other info |
+|------------|----------|----------|------------|
+|DefaultEncoding|Makes no changes to the input|Makes no changes to the input|
+|TypeCastEncoding|Changes the datatype of the vector from **T1** to **T2**|Changes the datatype of the vectorfrom **T1** to **T2**||
+|MatrixEncoding|Converts a vector into a matrix of size **NxM**|Converts a matrix to a vector with the ```.flatten()``` method||
+|ImageEncoding|Converts a vector into a matrix of size **NxMx1** or **NxMx3**, each component is an unsigned 8bit number|Converts a matrix to a vector with the ```.flatten()``` method|
+|LambdaEncoding|Applies the user-defined ```encode``` function|Applies the user-defined ```decode``` function||
+
 
 ### Benchmark functions
-
+The benchmark functions you can use to test the algorithms are:
 | Class name | Function | Domain | Other info |
 |------------|----------|--------|------------|
+|MaxOnes|||
+|DiophantineEq|||
+|MaxOnesReal|||
+|Sphere|||
+|HighCondElliptic|||
+|BentCigar|||
+|Discus|||
+|Rosenbrock|||
+|Ackley|||
+|Weistrass|||
+|Griewank|||
+|Rastrigin|||
+|ModSchwefel|||
+|Katsuura|||
+|HappyCat|||
+|HGBat|||
+|SumPowell|||
+|N4XinSheYang|||
+|ThreeSAT|||
+|BinKnapsack|||
+|MaxClique|||
+|MaxOnes|||
+|TSP|||
+|ImgApprox|||
+|ImgStd|||
+|ImgEntropy|||
 

@@ -85,7 +85,7 @@ class ThreeSAT(ObjectiveVectorFunc):
         return n_satisfied / self.clauses.shape[0]
 
 
-class Bin_Knapsack_problem(ObjectiveVectorFunc):
+class BinKnapsack(ObjectiveVectorFunc):
     """
     This is the 0-1 Knapsack problem that consist in choosing from set of elements
     which have a certain cost and value to maximize the value without reaching a weight threshold.
