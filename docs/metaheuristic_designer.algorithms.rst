@@ -1,10 +1,10 @@
-metaheuristic_designer.Algorithms package
+metaheuristic_designer.algorithms package
 =========================================
 
 HillClimb
 ---------
 
-.. autoclass:: metaheuristic_designer.Algorithms.HillClimb
+.. autoclass:: metaheuristic_designer.algorithms.HillClimb
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ HillClimb
 LocalSearch
 -----------
 
-.. autoclass:: metaheuristic_designer.Algorithms.LocalSearch
+.. autoclass:: metaheuristic_designer.algorithms.LocalSearch
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ LocalSearch
 StaticPopulation
 ----------------
 
-.. autoclass:: metaheuristic_designer.Algorithms.StaticPopulation
+.. autoclass:: metaheuristic_designer.algorithms.StaticPopulation
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ StaticPopulation
 VariablePopulation
 ------------------
 
-.. autoclass:: metaheuristic_designer.Algorithms.VariablePopulation
+.. autoclass:: metaheuristic_designer.algorithms.VariablePopulation
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ VariablePopulation
 NoSearch
 --------
 
-.. autoclass:: metaheuristic_designer.Algorithms.NoSearch
+.. autoclass:: metaheuristic_designer.algorithms.NoSearch
    :members:
    :undoc-members:
    :show-inheritance:
@@ -47,6 +47,6 @@ Subpackages
 .. toctree::
    :maxdepth: 2
 
-   metaheuristic_designer.Algorithms.CRO
-   metaheuristic_designer.Algorithms.Classic
-   metaheuristic_designer.Algorithms.Modern
+   metaheuristic_designer.algorithms.CRO
+   metaheuristic_designer.algorithms.Classic
+   metaheuristic_designer.algorithms.VNS

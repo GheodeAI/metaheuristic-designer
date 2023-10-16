@@ -20,11 +20,17 @@ class PSO(StaticPopulation):
         name: str = "PSO",
     ):
         if pso_op is None:
-            pso_op = OperatorReal("PSO", ParamScheduler("Linear", {
-                "w": params.get("w", 0.7),
-                "c1": params.get("c1", 1.5),
-                "c2": params.get("c2", 1.5)
-            }))
+            pso_op = OperatorReal(
+                "PSO",
+                ParamScheduler(
+                    "Linear",
+                    {
+                        "w": params.get("w", 0.7),
+                        "c1": params.get("c1", 1.5),
+                        "c2": params.get("c2", 1.5),
+                    },
+                ),
+            )
 
         selection_op = SurvivorSelection("Generational")
 

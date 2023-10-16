@@ -1,10 +1,10 @@
-metaheuristic_designer.Initializers package
+metaheuristic_designer.initializers package
 ===========================================
 
 DirectInitializer
 ------------------------------------------------
 
-.. automodule:: metaheuristic_designer.Initializers.DirectInitializer
+.. automodule:: metaheuristic_designer.initializers.DirectInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ DirectInitializer
 GaussianInitializer
 --------------------------------------------------
 
-.. automodule:: metaheuristic_designer.Initializers.GaussianInitializer
+.. automodule:: metaheuristic_designer.initializers.GaussianInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ GaussianInitializer
 LambdaInitializer
 ------------------------------------------------
 
-.. automodule:: metaheuristic_designer.Initializers.LambdaInitializer
+.. automodule:: metaheuristic_designer.initializers.LambdaInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ LambdaInitializer
 SeedInitializer
 ----------------------------------------------
 
-.. automodule:: metaheuristic_designer.Initializers.SeedInitializer
+.. automodule:: metaheuristic_designer.initializers.SeedInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ SeedInitializer
 UniformInitializer
 -------------------------------------------------
 
-.. automodule:: metaheuristic_designer.Initializers.UniformInitializer
+.. automodule:: metaheuristic_designer.initializers.UniformInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,15 @@ UniformInitializer
 PermInitializer
 -------------------------------------------------
 
-.. automodule:: metaheuristic_designer.Initializers.PermInitializer
+.. automodule:: metaheuristic_designer.initializers.PermInitializer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+LambdaInitializer
+-------------------------------------------------
+
+.. automodule:: metaheuristic_designer.initializers.LambdaInitializer
    :members:
    :undoc-members:
    :show-inheritance:

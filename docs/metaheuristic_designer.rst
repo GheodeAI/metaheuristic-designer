@@ -11,12 +11,12 @@ These subpackages provide implementations of the interfaces needed to define an 
 
    metaheuristic_designer.simple
    metaheuristic_designer.benchmarks
-   metaheuristic_designer.SearchMethods
-   metaheuristic_designer.Algorithms
-   metaheuristic_designer.Operators
-   metaheuristic_designer.SelectionMethods
-   metaheuristic_designer.Initializers
-   metaheuristic_designer.Encodings
+   metaheuristic_designer.searchMethods
+   metaheuristic_designer.algorithms
+   metaheuristic_designer.operators
+   metaheuristic_designer.selectionMethods
+   metaheuristic_designer.initializers
+   metaheuristic_designer.encodings
 
 
 metaheuristic_designer.ObjectiveFunc module

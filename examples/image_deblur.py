@@ -1,7 +1,5 @@
 from metaheuristic_designer import (
     ObjectiveFunc,
-    ParentSelection,
-    SurvivorSelection,
     ParamScheduler,
     Individual,
 )
@@ -9,6 +7,7 @@ from metaheuristic_designer.searchMethods import GeneralSearch, MemeticSearch
 from metaheuristic_designer.operators import OperatorReal, OperatorInt, OperatorBinary
 from metaheuristic_designer.algorithms import *
 from metaheuristic_designer.initializers import *
+from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.encodings import ImageEncoding
 from metaheuristic_designer.benchmarks import *
 
@@ -82,6 +81,8 @@ def run_algorithm(alg_name, img_file_name, memetic):
     # objfunc = ImgEntropy(image_shape, 256)
     # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name)
 
+    objfunc.name = "Image debluring"
+
     deblured_encoding = ImageEncoding(image_shape, color=True)
     encoding = ImageBlurEncoding(image_shape, color=True)
     pop_initializer = UniformVectorInitializer(
@@ -105,7 +106,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         pop_initializer, init_population, encoding=encoding
     )
 
-    mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F": 4, "N": 6})
+    mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F": 4, "N": 2})
     cross_op = OperatorReal("Multicross", {"Nindiv": 4})
     parent_sel_op = ParentSelection("Best", {"amount": 15})
     selection_op = SurvivorSelection("Elitism", {"amount": 10})

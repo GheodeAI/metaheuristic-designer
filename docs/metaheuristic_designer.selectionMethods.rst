@@ -1,10 +1,10 @@
-metaheuristic_designer.SelectionMethods package
+metaheuristic_designer.selectionMethods package
 ===============================================
 
 ParentSelection
 --------------------------------------------------
 
-.. automodule:: metaheuristic_designer.SelectionMethods.ParentSelection
+.. automodule:: metaheuristic_designer.selectionMethods.ParentSelection
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ ParentSelection
 SurvivorSelection
 ----------------------------------------------------
 
-.. automodule:: metaheuristic_designer.SelectionMethods.SurvivorSelection
+.. automodule:: metaheuristic_designer.selectionMethods.SurvivorSelection
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ SurvivorSelection
 Parent selection functions
 ---------------------------------------------------------------
 
-.. automodule:: metaheuristic_designer.SelectionMethods.parent_selection_functions
+.. automodule:: metaheuristic_designer.selectionMethods.parent_selection_functions
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ Parent selection functions
 Survivor selection functions
 -----------------------------------------------------------------
 
-.. automodule:: metaheuristic_designer.SelectionMethods.survivor_selection_functions
+.. automodule:: metaheuristic_designer.selectionMethods.survivor_selection_functions
    :members:
    :undoc-members:
    :show-inheritance:

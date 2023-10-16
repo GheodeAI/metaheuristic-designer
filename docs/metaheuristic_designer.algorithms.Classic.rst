@@ -1,10 +1,10 @@
-metaheuristic_designer.Algorithms.Classic package
+metaheuristic_designer.algorithms.Classic package
 =====================================
 
 ES
 ---------------------------------------
 
-.. autoclass:: metaheuristic_designer.Algorithms.Classic.ES
+.. autoclass:: metaheuristic_designer.algorithms.Classic.ES
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ ES
 GA
 ---------------------------------------
 
-.. autoclass:: metaheuristic_designer.Algorithms.Classic.GA
+.. autoclass:: metaheuristic_designer.algorithms.Classic.GA
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ GA
 PSO
 ----------------------------------------
 
-.. autoclass:: metaheuristic_designer.Algorithms.Classic.PSO
+.. autoclass:: metaheuristic_designer.algorithms.Classic.PSO
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ PSO
 SA
 ---------------------------------------
 
-.. autoclass:: metaheuristic_designer.Algorithms.Classic.SA
+.. autoclass:: metaheuristic_designer.algorithms.Classic.SA
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ SA
 DE
 ---------------------------------------
 
-.. autoclass:: metaheuristic_designer.Algorithms.Classic.DE
+.. autoclass:: metaheuristic_designer.algorithms.Classic.DE
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,7 @@ DE
 HS
 ---------------------------------------
 
-.. autoclass:: metaheuristic_designer.Algorithms.Classic.HS
+.. autoclass:: metaheuristic_designer.algorithms.Classic.HS
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,7 +52,7 @@ HS
 RandomSearch
 -------------------------------------------------
 
-.. autoclass:: metaheuristic_designer.Algorithms.Classic.RandomSearch
+.. autoclass:: metaheuristic_designer.algorithms.Classic.RandomSearch
    :members:
    :undoc-members:
    :show-inheritance:

@@ -61,7 +61,7 @@ class Search(ABC):
         self.Neval = params.get("neval", 1e5)
         self.time_limit = params.get("time_limit", 10.0)
         self.cpu_time_limit = params.get("cpu_time_limit", 10.0)
-        self.fit_target = params.get("fit_target", 0)
+        self.fit_target = params.get("fit_target", 1e-10)
         self.max_patience = params.get("patience", 1)
         self.patience_left = self.max_patience
 
@@ -193,7 +193,7 @@ class Search(ABC):
         cpu_time_reached = (time.process_time() - cpu_time_start) / self.cpu_time_limit
 
         best_fitness = self.best_solution()[1]
-        if self.objfunc.mode == "max":
+        if self.objfunc.mode == "max":    
             target_reached = best_fitness / self.fit_target
         else:
             if best_fitness == 0:

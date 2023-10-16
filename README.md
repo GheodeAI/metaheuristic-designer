@@ -1,14 +1,20 @@
 # Metaheuristic-designer
-Python implementation of a general framework for the design and execution of metaheuristic algorithms.
+This is an object-oriented framework for the development, testing and analysis of metaheuristic optimization algorithms.
 
-Created with the purpose of creating the necesary tools for the analysis and design of metaheuristics
-in a more granular way, choosing algorithm components and adding them to a general search framework.
+It defines the components of a general evolutionary algorithm and offers some implementations of algorithms along with components
+that can be used directly. Those components will be explained below.
 
-Inspired by this article: 
-    Swan, Jerry, et al. "Metaheuristics “in the large”." European Journal of Operational Research 297.2 (2022): 393-406.
-   
-Mostly following the book: 
-    Eiben, Agoston E., and James E. Smith. Introduction to evolutionary computing. Springer-Verlag Berlin Heidelberg, 2015.
+It was inspired by the article [Metaheuristics “in the large”](https://doi.org/10.1016/j.ejor.2021.05.042) that 
+discusses some of the issues in the research on metaheuristic optimization, sugesting the development of libraries for the standarization
+of metaheuristic algorithms.
+
+Most of the design decisions are based on the book [Introduction to evolutionary computing by Eiben, Agoston E.,
+and James E. Smith](https://doi.org/10.1007/978-3-662-44874-8) which is very well expained and is highly recomended to anyone willing to learn about the topic.
+
+This framework doesn't claim to have a high performance, specially since the chosen language is Python and the code has not been 
+designed for speed. This shouldn't really be an issue since the highest amount of time spent in these kind of algorithms
+tends to be in the evaluation of the objective function. If you want to compare an algorithm made with this tool with another
+one that is available by other means, it is recomended to use the number of evaluations of the objective function as a metric instead of execution time.
 
 ## Instalation
 
@@ -34,7 +40,8 @@ pip install metaheuristic-designer
             - PSO: simple particle swarm algorithm.
             - NoSearch: no search is done.
         - "-m" use a memetic search like structure, do local search after mutation.
-    - "examples/exec_basic.py": Evolve an image so that it matches the one given as an input. Recieves mostly the same parameters except for one for indicating the input image:
+    - "examples/exec_basic.py": Evolve an image so that it matches the one given as an input. 
+        - The same parameters as the previous script.
         - "-i \[Image path\]" read the image and evolve a random image into this one.
 
 It is recomended that you create a virtual environment to test the examples.
@@ -63,69 +70,179 @@ To run the tests you need to install nox, to execute the tests use the command
 nox test
 ```
 
+## Implemented components
+This package comes with some already made components that can be used in any algorithm in this framework
 
-## General parameters
-- Stopping conditions:
-    - stop_cond: stopping condition, there are various options
-        - "neval": stop after a given number of evaluations of the fitness function
-        - "ngen": stop after a given number of generations
-        - "time": stop after a fixed amount of execution time (real time, not CPU time)
-        - "fit_target": stop after reaching a desired fitness, accounting for whether we have maximization and minimization
-        - All of the above can be combined with the logical operators 'or' or 'and' to make more complex stopping conditions,
-        an example can be "ngen or time" which will stop when the number of generations or the time limit is reached.
-    - Neval: number of evaluations of the fitness function
-    - Ngen: number of generations
-    - time_limit: execution time limit given in seconds
-    - fit_target: value of the fitness function we want to reach
-- Display options:
-    - verbose: shows a report of the state of the algorithm periodicaly
-    - v_timer: amount of time between each report
+### Algorithms
+The algorithms implemented are:
+| Class name | Algorithm | Params | Other info |
+|------------|-----------|--------|------------|
+|NoSearch|Do nothing||For debugging purposes||
+|RandomSearch|Random Search|||
+|HillClimb|Hill climb |||
+|LocalSearch|Local seach |**iters** (number of neighbors to test each time)||
+|SA|Simulated annealing|**iter** (iterations per temperature change), **temp_init** (initial temperature), **alpha** (exponent of the temperature change) ||
+|GA|Genetic algorithm|**pmut** (probability of mutation), **pcross** (probability of crossover)||
+|ES|Evolution strategy|**offspringSize** (number of indiviuals to generate each generation)||
+|HS|Harmony search|**HSM**, **HMCR**, **BW**, **PAR**||
+|PSO|Particle Swarm optimization|**w**,**c1**,**c2**||
+|DE|Differential evolution|||
+|CRO|Coral Reef Optimization|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
+|CRO_SL|Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
+|PCRO_SL|probabilistic Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
+|DPCRO_SL|Dynamic probabilistic Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**,**group_subs**,**dyn_method**,**dyn_steps**,**prob_amp**||
+|VND| Variable neighborhood descent|||
+|RVNS| Restricted variable neighborhood search||In progress|
+|VNS| Variable neighborhood search||In progress|
+|CMA_ES| Covariance matrix adaptation - Evolution strategy|| Not implemented yet|
 
-## Operators available
-- 1 point cross (1point)
-- 2 point cross (2point)
-- Multipoint cross (Multipoint)
-- Weighted average cross (WeightedAvg)
-- BLXalpha cross (BLXalpha)
-- SBX cross (SBX)
-- Multi-individual cross (Multicross)
-- Xor with random vector (Xor)
-- Cross two vectors with Xor (XorCross)
-- Permute of vector components (Perm)
-- Random mutation of vector components (MutRand/MutNoise)
-- Add noise following a prob. distribution (RandNoise)
-- Approximate population with a prob. distribution and sample on some vector components (MutSample)
-- Approximate population with a prob. distribution and sample (RandSample)
-- Mutation adding Gaussian noise (Gauss)
-- Mutation adding Cauchy noise (Cauchy)
-- Mutation adding Laplace noise (Laplace)
-- Mutation adding Uniform noise (Uniform)
-- Differential evolution operators (DE/best/1, DE/best/2, DE/rand/1, DE/rand/2, DE/current-to-rand/1, DE/current-to-best/1, DE/current-to-pbest/1)
-- Particle swarm algorithm step (PSO)
-- Firefly algorithm step (Firefly)
-- Place fixed vector into the population (Dummy) [only intended for debugging]
-- Generate a completely random solution (Random)
-- Replace some of the components with random values (RandomMask)
-- Apply a custom function (Custom) 
-- Return a copy of the individual (Nothing) 
+### Survivor selection methods
+These are methods of selecting the individuals to use in future generations.
 
-## Parent selection methods available
-- Tournament (Tournament)
-- Taking the n best parents (Best)
-- Roulette method (Roulette)
-- Stochastic Universal Sampling (SUS)
-- Take all parents (Nothing)
+The methods implemented are:
+| Method name | Algorithm | Params | Other info |
+|-------------|-----------|--------|------------|
+|"Elitism"|Elitism|**amount**||
+|"CondElitism"|Conditional Elitism|**amount**||
+|"nothing" or "generational"|Replace all the parents with their children|| Needs the offspring size to be equal to the population size|
+|"One-to-one" or "HillClimb"|One to one (compare each parent with its child)||Needs the offspring size to be equal to the population size|
+|"Prob-one-to-one" or "ProbHillClimb"|Probabilitisc One to one (with a chance to always choose the child)|**p**|Needs the offspring size to be equal to the population size|
+|"(m+n)" or "keepbest"|(λ+μ), or choosing the λ best individuals taking parents and children|||
+|"(m,n)" or "keepoffspring"|(λ,μ), or taking the best λ children||λ must be smaller than μ|
+|"CRO"|A 2 step survivor selection method used in the CRO algorithm. Each individual attempts to enter the population K times and then a percentage of the worse individuals will be eliminated from the population|**Fd**,**Pd**,**attempts**,**maxPopSize**|Can return a population with a variable number of individuals|
 
-## Survivor selection methods avaliable
-- Elitism (Elitism)
-- Conditional Elitism (CondElitism)
-- Generational (Generational)
-- Compare each parent with its child (One-to-one)
-- Compare each parent with its child, take the child with a probability (Prob-one-to-one)
-- (λ+μ) like method ( (m+n) )
-- (λ,μ) like method ( (m,n) )
-- Selection method in the Coral Reef optimization algorithm (CRO)
+### Parent selection methods
+These are methods of selecting the individuals that will be mutated/perturbed in each generation
+
+The methods implemented are:
+| Method name | Algorithm | Params | Other info |
+|-------------|-----------|--------|------------|
+|"Torunament"|Choose parents by tournament|**amount**, **p**||
+|"Best"| Select the n best individuals|**amount**||
+|"Random"| Take n individuals at random|**amount**||
+|"Roulette"| Perform a selection with the roullette method|**amount**, **method**, **F**||
+|"SUS"| Stochastic universal sampling|**amount**, **method**, **F**||
+|"Nothing"| Take all the individuals from the population||
+
+### Operators
+
+| Class name | Domain | Other info|
+|------------|--------|----|
+|OperatorReal|Real valued vectors||
+|OperatorInt|Integer valued vectors||
+|OperatorBinary|Binary vectors||
+|OperatorPerm|Permutations||
+|OperatorList|Variable length lists||
+|OperatorMeta|Other operators||
+|OperatorLambda|Any|Lets you specify a function as an operator|
+
+The Operators functions available in the operator classes are:
+| Method name | Algorithm | Params | Domains |
+|-------------|-----------|--------|---------|
+|"1point"|1 point crossover||Real, Int, Bin|
+|"2point"|2 point crossover||Real, Int, Bin|
+|"Multipoint"|multipoint crossover||Real, Int, Bin|
+|"WeightedAvg"|Weighted average crossover||Real, Int|
+|"BLXalpha"|BLX-alpha crossover||Real|
+|"Multicross"|multi-individual multipoint crossover||Real, Int, Bin|
+|"XOR"|Bytewise XOR with a random vector||Int|
+|"XORCross"|Bytewise XOR between 2 vectors component by component||Int|
+|"sbx"|SBX crossover||Real|
+|"Perm"|Permutate vector components||Real, Int, Bin, Perm|
+|"Gauss"|Add Gaussian noise||Real, Int|
+|"Laplace"|Add noise following a Laplace distribution||Real, Int|
+|"Cauchy"|Add noise following a Cauchy distribution||Real, Int|
+|"Poisson"|Add noise following a Cauchy distribution||Int|
+|"Uniform"|Add Uniform noise||Real, Int|
+|"MutRand" or "MutNoise"|Add random noise to a number of vector components||Real, Int|
+|"MutSample"|Take a sample from a probability distribution and put it on a number of vector components||Real, Int|
+|"RandNoise"|Add random noise||Real, Int|
+|"RandSample"|Sample from a probability distribution||Real, Int|
+|"DE/Rand/1"|Sample from a probability distribution||Real, Int|
+|"DE/Best/1"|Sample from a probability distribution||Real, Int|
+|"DE/Rand/2"|Sample from a probability distribution||Real, Int|
+|"DE/Best/2"|Sample from a probability distribution||Real, Int|
+|"DE/Current-to-rand/1"|Sample from a probability distribution||Real, Int|
+|"DE/Current-to-best/1"|Sample from a probability distribution||Real, Int|
+|"DE/Current-to-pbest/1"|Sample from a probability distribution||Real, Int|
+|"PSO"|Sample from a probability distribution||Real, Int|
+|"Firefly"|Sample from a probability distribution||Real, Int|
+|"Random"|Sample from a probability distribution||Real, Int, Bin, Perm|
+|"RandomMask"|||Real, Int||
+|"Swap"|||Perm||
+|"Insert"|||Perm||
+|"Scramble"|||Perm||
+|"Perm"|||Real, Int, Bin, Perm||
+|"Invert"|||Perm||
+|"Roll"|||Perm||
+|"PMX"|||Perm||
+|"OrderCross"|||Perm||
+|"branch"|||Operators|
+|"sequence"|||Operators|
+|"split"|||Operators|
+|"pick"|||Operators|
+|"Dummy"|Assing the vector to a predefined value||All|
+|"Custom"|||All|
+|"Nothing"|Do nothing||All|
+
+### Initializers
+Initializers create the initial population that will be evolved in the optimization process.
+
+Some of the implemente Initializers are:
+| Class name | Description | Other info |
+|------------|-----------|------------|
+|DirectInitializer|Initialize the population to a preset list of individuals||
+|SeedProbInitializer|Initializes the population with another initializer and inserts user-specified individuals with a probability||
+|SeedDetermInitializer|Initializes the population with another initializer and inserts a number of user-specified individuals into the population||
+|GaussianVectorInitializer|Initialize individuals with normally distributed vectors||
+|UniformVectorInitializer|Initialize individuals with uniformly random distributed vectors||
+|PermInitializer|Initialize individuals with random permuations||
+|LambdaInitializer|Initialize individuals with a user-defined function||
 
 
+### Encodings
+Specifying the Encoding is optional but can be very helpful for some types of problems.
 
+An encoding will represent each solution differently in the optimization process and the evaluation of the fintess, since most algorithm work only with vectors, but we might need other types of datatypes for our optimization.
+
+Some of the implemented Encodings are:
+| Class name | Encoding | Decoding | Other info |
+|------------|----------|----------|------------|
+|DefaultEncoding|Makes no changes to the input|Makes no changes to the input|
+|TypeCastEncoding|Changes the datatype of the vector from **T1** to **T2**|Changes the datatype of the vectorfrom **T1** to **T2**||
+|MatrixEncoding|Converts a vector into a matrix of size **NxM**|Converts a matrix to a vector with the ```.flatten()``` method||
+|ImageEncoding|Converts a vector into a matrix of size **NxMx1** or **NxMx3**, each component is an unsigned 8bit number|Converts a matrix to a vector with the ```.flatten()``` method|
+|LambdaEncoding|Applies the user-defined ```encode``` function|Applies the user-defined ```decode``` function||
+
+
+### Benchmark functions
+The benchmark functions you can use to test the algorithms are:
+| Class name | Function | Domain | Other info |
+|------------|----------|--------|------------|
+|MaxOnes|||
+|DiophantineEq|||
+|MaxOnesReal|||
+|Sphere|||
+|HighCondElliptic|||
+|BentCigar|||
+|Discus|||
+|Rosenbrock|||
+|Ackley|||
+|Weistrass|||
+|Griewank|||
+|Rastrigin|||
+|ModSchwefel|||
+|Katsuura|||
+|HappyCat|||
+|HGBat|||
+|SumPowell|||
+|N4XinSheYang|||
+|ThreeSAT|||
+|BinKnapsack|||
+|MaxClique|||
+|MaxOnes|||
+|TSP|||
+|ImgApprox|||
+|ImgStd|||
+|ImgEntropy|||
 

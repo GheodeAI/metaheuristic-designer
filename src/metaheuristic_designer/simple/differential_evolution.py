@@ -25,7 +25,11 @@ def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Search
     """
 
     if "encoding" not in params:
-        raise ValueError(f"You must specify the encoding in the params structure, the options are \"real\", \"int\" and \"bin\"")
+        raise ValueError(
+            f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
+        )
+    
+    encoding_str = params["encoding"]
 
     if encoding_str.lower() == "real":
         alg = _differential_evolution_real_vec(objfunc, params)

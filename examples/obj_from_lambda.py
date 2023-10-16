@@ -3,6 +3,7 @@ import numpy as np
 from metaheuristic_designer import ObjectiveFromLambda, ParamScheduler
 from metaheuristic_designer.searchMethods import GeneralSearch
 from metaheuristic_designer.operators import OperatorReal
+from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.algorithms import *
 
 
@@ -24,9 +25,13 @@ def run_algorithm():
 
     objfunc = ObjectiveFromLambda(func, 10, "min")
 
+    pop_init = UniformVectorInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1
+    )
+
     mutation_op = OperatorReal("RandNoise", {"method": "Cauchy", "F": 0.0001})
 
-    search_strat = HillClimb(mutation_op)
+    search_strat = HillClimb(pop_init, mutation_op)
 
     alg = GeneralSearch(objfunc, search_strat, params=params)
 
@@ -35,9 +40,5 @@ def run_algorithm():
     alg.display_report()
 
 
-def main():
-    run_algorithm()
-
-
 if __name__ == "__main__":
-    main()
+    run_algorithm()
