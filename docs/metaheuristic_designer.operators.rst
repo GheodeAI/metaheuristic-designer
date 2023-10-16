@@ -1,10 +1,10 @@
-metaheuristic_designer.Operators package
+metaheuristic_designer.operators package
 ========================================
 
 OperatorReal
 ----------------------------------------
 
-.. automodule:: metaheuristic_designer.Operators.OperatorReal
+.. automodule:: metaheuristic_designer.operators.OperatorReal
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ OperatorReal
 OperatorInt
 ---------------------------------------
 
-.. automodule:: metaheuristic_designer.Operators.OperatorInt
+.. automodule:: metaheuristic_designer.operators.OperatorInt
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ OperatorInt
 OperatorBinary
 ------------------------------------------
 
-.. automodule:: metaheuristic_designer.Operators.OperatorBinary
+.. automodule:: metaheuristic_designer.operators.OperatorBinary
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ OperatorBinary
 OperatorPerm
 ------------------------------------------
 
-.. automodule:: metaheuristic_designer.Operators.OperatorPerm
+.. automodule:: metaheuristic_designer.operators.OperatorPerm
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ OperatorPerm
 OperatorList
 ----------------------------------------
 
-.. automodule:: metaheuristic_designer.Operators.OperatorList
+.. automodule:: metaheuristic_designer.operators.OperatorList
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,15 @@ OperatorList
 OperatorMeta
 ----------------------------------------
 
-.. automodule:: metaheuristic_designer.Operators.OperatorMeta
+.. automodule:: metaheuristic_designer.operators.OperatorMeta
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+OperatorLambda
+----------------------------------------
+
+.. automodule:: metaheuristic_designer.operators.OperatorLambda
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,7 +60,7 @@ OperatorMeta
 List operator functions
 -----------------------------------------------------
 
-.. automodule:: metaheuristic_designer.Operators.list_operator_functions
+.. automodule:: metaheuristic_designer.operators.list_operator_functions
    :members:
    :undoc-members:
    :show-inheritance:
@@ -60,7 +68,7 @@ List operator functions
 Vector operator functions
 -------------------------------------------------------
 
-.. automodule:: metaheuristic_designer.Operators.vector_operator_functions
+.. automodule:: metaheuristic_designer.operators.vector_operator_functions
    :members:
    :undoc-members:
    :show-inheritance:
