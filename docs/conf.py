@@ -24,7 +24,7 @@ copyright = "2023, Eugenio Lorente-Ramos"
 author = "Eugenio Lorente-Ramos"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1.0"
+release = "0.1.3"
 
 
 # -- General configuration ---------------------------------------------------
