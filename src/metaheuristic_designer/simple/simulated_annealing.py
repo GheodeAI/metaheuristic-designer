@@ -1,9 +1,10 @@
 from __future__ import annotations
-from ..Initializers import UniformVectorInitializer
-from ..Operators import OperatorInt, OperatorReal, OperatorBinary
-from ..Algorithms import SA
-from ..Encodings import TypeCastEncoding
-from ..SearchMethods import GeneralSearch
+from ..initializers import UniformVectorInitializer
+from ..operators import OperatorInt, OperatorReal, OperatorBinary
+from ..algorithms import SA
+from ..encodings import TypeCastEncoding
+from ..searchMethods import GeneralSearch
+
 
 def simulated_annealing(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     """
@@ -22,7 +23,12 @@ def simulated_annealing(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         Configured optimization algorithm.
     """
 
-    encoding_str = params["encoding"] if "encoding" in params else "bin"
+    if "encoding" not in params:
+        raise ValueError(
+            f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
+        )
+    
+    encoding_str = params["encoding"]
 
     if encoding_str.lower() == "bin":
         alg = _simulated_annealing_bin_vec(objfunc, params)
@@ -31,9 +37,12 @@ def simulated_annealing(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
     elif encoding_str.lower() == "real":
         alg = _simulated_annealing_real_vec(objfunc, params)
     else:
-        raise ValueError(f"The encoding \"{encoding_str}\" does not exist, try \"real\", \"int\" or \"bin\"")
-    
+        raise ValueError(
+            f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"'
+        )
+
     return alg
+
 
 def _simulated_annealing_bin_vec(objfunc, params):
     """
@@ -41,18 +50,24 @@ def _simulated_annealing_bin_vec(objfunc, params):
     This objective function should accept binary coded vectors.
     """
 
-    n_iter = params["iter"] if "iter" in params else 100
-    temp_init = params["temp_init"] if "temp_init" in params else 100
-    alpha = params["alpha"] if "alpha" in params else 0.99
-    mutstr = params["mutstr"] if "mutstr" in params else 1
+    n_iter = params.get("iter", 100)
+    temp_init = params.get("temp_init", 100)
+    alpha = params.get("alpha", 0.99)
+    mutstr = params.get("mutstr", 1)
 
     encoding = TypeCastEncoding(int, bool)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding
+    )
 
-    mutation_op = OperatorBinary("Flip", {"N":mutstr})
+    mutation_op = OperatorBinary("Flip", {"N": mutstr})
 
-    search_strat = SA(pop_initializer, mutation_op, {"iter":n_iter, "temp_init":temp_init, "alpha":alpha})
+    search_strat = SA(
+        pop_initializer,
+        mutation_op,
+        {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
+    )
 
     return GeneralSearch(objfunc, search_strat, params=params)
 
@@ -63,16 +78,30 @@ def _simulated_annealing_int_vec(objfunc, params):
     This objective function should accept integer coded vectors.
     """
 
-    n_iter = params["iter"] if "iter" in params else 100
-    temp_init = params["temp_init"] if "temp_init" in params else 100
-    alpha = params["alpha"] if "alpha" in params else 0.99
-    mutstr = params["mutstr"] if "mutstr" in params else 1
+    n_iter = params.get("iter", 100)
+    temp_init = params.get("temp_init", 100)
+    alpha = params.get("alpha", 0.99)
+    mutstr = params.get("mutstr", 1)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int
+    )
 
-    mutation_op = OperatorInt("MutRand", {"method":"Uniform", "Low":objfunc.low_lim, "Up":objfunc.up_lim, "N":mutstr})
+    mutation_op = OperatorInt(
+        "MutRand",
+        {
+            "method": "Uniform",
+            "Low": objfunc.low_lim,
+            "Up": objfunc.up_lim,
+            "N": mutstr,
+        },
+    )
 
-    search_strat = SA(pop_initializer, mutation_op, {"iter":n_iter, "temp_init":temp_init, "alpha":alpha})
+    search_strat = SA(
+        pop_initializer,
+        mutation_op,
+        {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
+    )
 
     return GeneralSearch(objfunc, search_strat, params=params)
 
@@ -83,15 +112,21 @@ def _simulated_annealing_real_vec(objfunc, params):
     This objective function should accept real coded vectors.
     """
 
-    n_iter = params["iter"] if "iter" in params else 100
-    temp_init = params["temp_init"] if "temp_init" in params else 100
-    alpha = params["alpha"] if "alpha" in params else 0.99
-    mutstr = params["mutstr"] if "mutstr" in params else 1e-5 
+    n_iter = params.get("iter", 100)
+    temp_init = params.get("temp_init", 100)
+    alpha = params.get("alpha", 0.99)
+    mutstr = params.get("mutstr", 1e-5)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float)
+    pop_initializer = UniformVectorInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float
+    )
 
-    mutation_op = OperatorReal("RandNoise", {"method":"Gauss", "F":mutstr})
-    
-    search_strat = SA(pop_initializer, mutation_op, {"iter":n_iter, "temp_init":temp_init, "alpha":alpha})
+    mutation_op = OperatorReal("RandNoise", {"method": "Gauss", "F": mutstr})
+
+    search_strat = SA(
+        pop_initializer,
+        mutation_op,
+        {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
+    )
 
     return GeneralSearch(objfunc, search_strat, params=params)

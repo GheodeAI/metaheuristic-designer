@@ -2,9 +2,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from .Individual import Individual
 from .ParamScheduler import ParamScheduler
-from .SelectionMethods import ParentSelection, SurvivorSelection
+from .selectionMethods import ParentSelection, SurvivorSelection
 from .Operator import Operator
 import time
+
 
 class Algorithm(ABC):
     """
@@ -20,7 +21,12 @@ class Algorithm(ABC):
         The name that will be displayed for this algorithm in the reports.
     """
 
-    def __init__(self, pop_init: Initializer, params: Union[ParamScheduler, dict] = None, name: str = "some algorithm"):
+    def __init__(
+        self,
+        pop_init: Initializer,
+        params: Union[ParamScheduler, dict] = None,
+        name: str = "some algorithm",
+    ):
         """
         Constructor of the Algorithm class
         """
@@ -29,7 +35,7 @@ class Algorithm(ABC):
         self.pop_init = pop_init
 
         self.population = None
-        
+
         self.best = None
 
         self.param_scheduler = None
@@ -43,13 +49,12 @@ class Algorithm(ABC):
 
         self._find_operator_attributes()
 
-    
     def _find_operator_attributes(self):
         """
         Saves the attributes that represent operators or other relevant information
         about the algorithm.
         """
-        
+
         attr_dict = vars(self).copy()
 
         self.parent_sel = []
@@ -57,7 +62,6 @@ class Algorithm(ABC):
         self.surv_sel = []
 
         for var_key in attr_dict:
-            
             attr = attr_dict[var_key]
 
             if attr:
@@ -72,11 +76,11 @@ class Algorithm(ABC):
                 # We have a survivor selection method
                 if isinstance(attr, SurvivorSelection):
                     self.surv_sel.append(attr)
-                
+
                 # We have a list of operators
                 if isinstance(attr, list) and isinstance(attr[0], Operator):
                     self.operators += attr
-    
+
     @property
     def pop_size(self):
         """
@@ -110,12 +114,14 @@ class Algorithm(ABC):
         objfunc: ObjectiveFunc
             Objective function to be optimized.
         """
-        
+
         self.population = self.pop_init.generate_population(objfunc)
 
         self.best = max(self.population, key=lambda x: x.fitness)
 
-    def select_parents(self, population: List[Individual], progress: float = 0, history: List[float] = None) -> Tuple[List[Individual], List[int]]:
+    def select_parents(
+        self, population: List[Individual], **kwargs
+    ) -> Tuple[List[Individual], List[int]]:
         """
         Selects the individuals that will be perturbed in this generation to generate the offspring.
 
@@ -126,8 +132,8 @@ class Algorithm(ABC):
         progress: float, optional
             Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
         history: List[float], optional
-            The list of the best fitness value in each iteration. 
-        
+            The list of the best fitness value in each iteration.
+
         Returns
         -------
         parents: Tuple[List[Individual], List[int]]
@@ -137,7 +143,9 @@ class Algorithm(ABC):
         return population
 
     @abstractmethod
-    def perturb(self, parent_list: List[Individual], progress: float, objfunc: ObjectiveFunc, history: List[float]) -> List[Individual]:
+    def perturb(
+        self, parent_list: List[Individual], objfunc: ObjectiveFunc, **kwargs
+    ) -> List[Individual]:
         """
         Applies operators to the population to get the next generation of individuals.
 
@@ -150,15 +158,17 @@ class Algorithm(ABC):
         objfunc: ObjectiveFunc
             Objective function to be optimized.
         history: List[float], optional
-            The list of the best fitness value in each iteration. 
-        
+            The list of the best fitness value in each iteration.
+
         Returns
         -------
         offspring: List[Individual]
             The list of individuals modified by the operators of the algorithm.
         """
 
-    def select_individuals(self, population: List[Individual], offspring: List[Individual], progress: float = 0, history: List[float] = None) -> List[Individual]:
+    def select_individuals(
+        self, population: List[Individual], offspring: List[Individual], **kwargs
+    ) -> List[Individual]:
         """
         Selects the individuals that will pass to the next generation.
 
@@ -171,8 +181,8 @@ class Algorithm(ABC):
         progress: float, optional
             Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
         history: List[float], optional
-            The list of the best fitness value in each iteration. 
-        
+            The list of the best fitness value in each iteration.
+
         Returns
         -------
         offspring: List[Individual]
@@ -181,7 +191,7 @@ class Algorithm(ABC):
 
         return offspring
 
-    def update_params(self, progress: float = 0):
+    def update_params(self, **kwargs):
         """
         Updates the parameters of the algorithm and the operators.
 
@@ -221,15 +231,18 @@ class Algorithm(ABC):
 
         if self.parent_sel:
             data["parent_sel"] = [par.get_state() for par in self.parent_sel]
-        
+
         if self.operators:
             data["operators"] = [op.get_state() for op in self.operators]
-        
+
         if self.surv_sel:
             data["survivor_sel"] = [surv.get_state() for surv in self.surv_sel]
-        
+
         if show_pop:
-            data["population"] = [ind.get_state(show_speed=show_pop_details, show_best=show_pop_details) for ind in self.population]
+            data["population"] = [
+                ind.get_state(show_speed=show_pop_details, show_best=show_pop_details)
+                for ind in self.population
+            ]
 
         return data
 

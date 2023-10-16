@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from .ParamScheduler import ParamScheduler
 
+
 class SelectionMethod(ABC):
     """
     Survivor selection methods
@@ -16,7 +17,12 @@ class SelectionMethod(ABC):
         The name that will be assigned to this selection method.
     """
 
-    def __init__(self, params: Union[ParamScheduler, dict] = None, padding: bool = False, name: str = None):
+    def __init__(
+        self,
+        params: Union[ParamScheduler, dict] = None,
+        padding: bool = False,
+        name: str = None,
+    ):
         """
         Constructor for the SurvivorSelection class
         """
@@ -32,15 +38,19 @@ class SelectionMethod(ABC):
         else:
             self.params = params
 
-    def __call__(self, popul: List[Individual], offspring: List[Individual] = None) -> List[Individual]:
+    def __call__(
+        self, popul: List[Individual], offspring: List[Individual] = None
+    ) -> List[Individual]:
         """
         Shorthand for calling the 'select' method
         """
 
         return self.select(popul, offspring)
-    
+
     @abstractmethod
-    def select(self, population: List[Individual], offspring: List[Individual] = None) -> List[Individual]:     
+    def select(
+        self, population: List[Individual], offspring: List[Individual] = None
+    ) -> List[Individual]:
         """
         Takes a population with its offspring and returns the individuals that survive
         to produce the next generation.
@@ -51,7 +61,7 @@ class SelectionMethod(ABC):
             Population of individuals that will be selected.
         offspring: List[Individual]
             Newly generated individuals to be selected.
-        
+
         Returns
         -------
         selected: List[Individual]
@@ -69,7 +79,7 @@ class SelectionMethod(ABC):
 
             if "amount" in self.params:
                 self.params["amount"] = round(self.params["amount"])
-            
+
             if "maxPopSize" in self.params:
                 self.params["maxPopSize"] = round(self.params["maxPopSize"])
 
@@ -78,14 +88,12 @@ class SelectionMethod(ABC):
         Gets the current state of the algorithm as a dictionary.
         """
 
-        data = {
-            "name": self.name
-        }
+        data = {"name": self.name}
 
         if self.param_scheduler:
             data["param_scheduler"] = self.param_scheduler.get_state()
             data["params"] = self.param_scheduler.get_params()
         elif self.params:
             data["params"] = self.params
-        
+
         return data

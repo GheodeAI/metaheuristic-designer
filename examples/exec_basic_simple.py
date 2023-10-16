@@ -33,46 +33,37 @@ def run_algorithm(alg_name, memetic, save_state):
         "neval": 3e6,
         "fit_target": 1e-10,
         "patience": 200,
-
         "verbose": True,
         "v_timer": 0.5,
-
         # General
         "encoding": "real",
         "mutstr": 1e-3,
         # "encoding": "int",
         # "mutstr": 1,
-
         # Population based algorithms
         "pop_size": 100,
-        
         # GA
         "pcross": 0.8,
         "pmut": 0.1,
         "cross": "multipoint",
-
         # ES
         "offspring_size": 150,
-        
         # PSO
         "w": 0.7,
         "c1": 1.5,
         "c2": 1.5,
-
         # DE
         "F": 0.7,
         "Cr": 0.9,
-
         # SA
-        "iter":100,
-        "temp_init":1,
-        "alpha":0.997
+        "iter": 100,
+        "temp_init": 1,
+        "alpha": 0.997,
     }
-    
 
     objfunc = Sphere(30, "min")
     # objfunc = Rastrigin(10, "min")
-    # objfunc = Weierstrass(30, "min")    
+    # objfunc = Weierstrass(30, "min")
 
     if alg_name == "HillClimb":
         alg = hill_climb(objfunc, params=params)
@@ -89,9 +80,8 @@ def run_algorithm(alg_name, memetic, save_state):
     elif alg_name == "RandomSearch":
         alg = random_search(objfunc, params=params)
     else:
-        raise ValueError(f"Error: Algorithm \"{alg_name}\" doesn't exist.")
-    
-    
+        raise ValueError(f'Error: Algorithm "{alg_name}" doesn\'t exist.')
+
     ind, fit = alg.optimize()
     print(ind)
     alg.display_report(show_plots=True)
@@ -102,9 +92,21 @@ def run_algorithm(alg_name, memetic, save_state):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest='alg', help='Specify an algorithm')
-    parser.add_argument("-m", "--memetic", dest='mem', action="store_true", help='Does local search after mutation')
-    parser.add_argument("-s", "--save-state", dest='save_state', action="store_true", help='Saves the state of the search strategy')
+    parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
+    parser.add_argument(
+        "-m",
+        "--memetic",
+        dest="mem",
+        action="store_true",
+        help="Does local search after mutation",
+    )
+    parser.add_argument(
+        "-s",
+        "--save-state",
+        dest="save_state",
+        action="store_true",
+        help="Saves the state of the search strategy",
+    )
     args = parser.parse_args()
 
     algorithm_name = "ES"
@@ -113,14 +115,15 @@ def main():
 
     if args.alg:
         algorithm_name = args.alg
-    
+
     if args.mem:
         mem = True
-    
+
     if args.save_state:
         save_state = True
-   
-    run_algorithm(alg_name = algorithm_name, memetic=mem, save_state=save_state)
+
+    run_algorithm(alg_name=algorithm_name, memetic=mem, save_state=save_state)
+
 
 if __name__ == "__main__":
     main()

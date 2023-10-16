@@ -2,7 +2,8 @@ from __future__ import annotations
 from copy import copy
 import numpy as np
 from numpy import ndarray
-from .Encodings import DefaultEncoding
+from .encodings import DefaultEncoding
+from .utils import RAND_GEN
 
 
 class Individual:
@@ -19,7 +20,13 @@ class Individual:
 
     _last_id = 0
 
-    def __init__(self, objfunc: ObjectiveFunc, genotype: Any, speed: ndarray = None, encoding: Encoding = None):
+    def __init__(
+        self,
+        objfunc: ObjectiveFunc,
+        genotype: Any,
+        speed: ndarray = None,
+        encoding: Encoding = None,
+    ):
         """
         Constructor of the Individual class.
         """
@@ -29,16 +36,16 @@ class Individual:
 
         self.objfunc = objfunc
         self._genotype = genotype
-        
+
         if speed is None and isinstance(genotype, np.ndarray):
-            speed = np.random.random(size=genotype.shape)
+            speed = RAND_GEN.random(size=genotype.shape)
         self.speed = speed
-        
+
         self._fitness = 0
         self.best_fitness = None
         self.fitness_calculated = False
         self.best = genotype
-        
+
         if encoding is None:
             encoding = DefaultEncoding()
         self.encoding = encoding
@@ -48,7 +55,9 @@ class Individual:
         Returns a copy of the Individual.
         """
 
-        copied_ind = Individual(self.objfunc, copy(self._genotype), copy(self.speed), self.encoding)
+        copied_ind = Individual(
+            self.objfunc, copy(self._genotype), copy(self.speed), self.encoding
+        )
         copied_ind._fitness = self._fitness
         copied_ind.fitness_calculated = self.fitness_calculated
         copied_ind.best = copy(self.best)
@@ -81,7 +90,9 @@ class Individual:
             Individual with the speed applied.
         """
 
-        return Individual(self.objfunc, self._genotype + self.speed, self.speed, self.encoding)
+        return Individual(
+            self.objfunc, self._genotype + self.speed, self.speed, self.encoding
+        )
 
     @property
     def fitness(self) -> float:
@@ -102,10 +113,10 @@ class Individual:
         if self.best_fitness is None or self.best_fitness < fit:
             self.best_fitness = fit
             self.best = self.genotype
-        
+
         self._fitness = fit
         self.fitness_calculated = True
-    
+
     def get_state(self, show_speed: bool = True, show_best: bool = False) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
@@ -123,15 +134,12 @@ class Individual:
             The current state of this individual.
         """
 
-        data = {
-            "genotype": self._genotype,
-            "fitness": self._fitness
-        }
+        data = {"genotype": self._genotype, "fitness": self._fitness}
 
         if show_speed:
             data["speed"] = self.speed
-        
+
         if show_best:
-            data["best_genotype"] =  self.best
+            data["best_genotype"] = self.best
 
         return data

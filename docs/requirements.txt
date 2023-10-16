@@ -8,4 +8,4 @@ pygame>=2.5.0
 opencv-python>=4.8.0.74
 sphinx>=7.1.1
 networkx>=3.1
-sphinx_material
+sphinx_material>=0.0.36
