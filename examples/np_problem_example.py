@@ -148,7 +148,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
 
         capacity = 850
 
-        objfunc = Bin_Knapsack_problem(weights, values, capacity)
+        objfunc = BinKnapsack(weights, values, capacity)
 
         encoding = TypeCastEncoding(int, bool)
         pop_initializer = UniformVectorInitializer(

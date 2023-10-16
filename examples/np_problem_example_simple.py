@@ -1,9 +1,3 @@
-# from metaheuristic_designer import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
-# from metaheuristic_designer.SearchMethods import GeneralSearch, MemeticSearch
-# from metaheuristic_designer.Operators import OperatorReal, OperatorInt, OperatorBinary
-# from metaheuristic_designer.Initializers import UniformVectorInitializer
-# from metaheuristic_designer.Algorithms import *
-
 from metaheuristic_designer.simple import hill_climb
 from metaheuristic_designer.simple import genetic_algorithm
 from metaheuristic_designer.simple import evolution_strategy
@@ -169,7 +163,7 @@ def run_algorithm(alg_name, memetic, save_state):
 
     capacity = 850
 
-    objfunc = Bin_Knapsack_problem(weights, values, capacity)
+    objfunc = BinKnapsack(weights, values, capacity)
 
     if alg_name == "HillClimb":
         alg = hill_climb(objfunc, params=params)
