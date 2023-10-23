@@ -11,12 +11,12 @@ from ..utils import RAND_GEN
 
 class OperatorLambda(Operator):
     """
-    Operator class that has mutation and cross methods for real coded vectors
+    Operator class that applies a custom operator specified as a function.
 
     Parameters
     ----------
-    method: str
-        Type of operator that will be applied.
+    fn: callable
+        Function that will be applied when operating on an individual.
     params: ParamScheduler or dict, optional
         Dictionary of parameters to define the operator.
     name: str, optional
