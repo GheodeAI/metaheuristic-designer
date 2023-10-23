@@ -16,7 +16,7 @@ class Encoding(ABC):
         ----------
         phenotype: Any
             Information that should be encoded.
-        
+
         Returns
         -------
         genotype: Any
@@ -32,7 +32,7 @@ class Encoding(ABC):
         ----------
         genotype: Any
             Information that should be decoded.
-        
+
         Returns
         -------
         phenotype: Any

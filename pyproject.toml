@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "metaheuristic-designer"
-version = "0.1.2"
+version = "0.1.3"
 authors = [
     {name = "eugenioLR", email = "eugeniolorente0@gmail.com"}
 ]
@@ -14,11 +14,11 @@ requires-python = ">=3.10"
 keywords = ["optization", "genetic-algorithm", "evolutionary-algorithms", "metaheuristics"]
 license = {text = "LICENSE"}
 dependencies = [
-    "matplotlib >= 3.5",
-    "numpy >= 1.21",
-    "scipy >= 1.8",
-    "pyparsing >= 3.0",
-    "scikit-image >= 0.21",
+    "matplotlib>=3.5",
+    "numpy>=1.21",
+    "scipy>=1.8",
+    "pyparsing>=3.0",
+    "scikit-image>=0.21",
 ]
 
 [project.urls]
@@ -26,18 +26,19 @@ Homepage = "https://github.com/eugenioLR/metaheuristic-designer"
 
 [project.optional-dependencies]
 dev = [
-    "pytest >=7.4.0",
-    "coverage >=7.3.1",
-    "pydata-sphinx-theme >=0.13.3",
-    "sphinx >=7.1.1",
-    "pygame >=2.5.0",    
-    "networkx >=3.1"
-    "opencv-python >= 4.8"
+    "nox>=2023.4.22",
+    "pytest>=7.4.0",
+    "coverage>=7.3.1",
+    "sphinx_material>=0.0.36",
+    "sphinx>=7.1.1",
+    "pygame>=2.5.0",    
+    "networkx>=3.1",
+    "opencv-python>=4.8"
 ]
 
 examples = [
-    "pygame >=2.5.0",    
-    "networkx >=3.1",
-    "opencv-python"
+    "pygame>=2.5.0",    
+    "networkx>=3.1",
+    "opencv-python>=4.8"
 ]
 

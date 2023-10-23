@@ -23,13 +23,15 @@ class ThreeSAT(ObjectiveVectorFunc):
 
     def __init__(self, clauses):
         if not isinstance(clauses, np.ndarray) or clauses.shape[1] != 3:
-            raise ValueError("The caluses must be represented as an array of size (n_clauses, 3).")
-        
+            raise ValueError(
+                "The caluses must be represented as an array of size (n_clauses, 3)."
+            )
+
         self.clauses = clauses
         self.n_vars = np.abs(clauses).max()
 
         super().__init__(self.n_vars, name="3-SAT")
-    
+
     @staticmethod
     def from_cnf_file(path):
         n_vars = 0
@@ -41,18 +43,22 @@ class ThreeSAT(ObjectiveVectorFunc):
                 if line[0] == "p":
                     n_vars = int(line_splitted[2])
                     n_clauses = int(line_splitted[3])
-                    
+
                 elif line[0] != "c" and "%" not in line and len(line_splitted) >= 3:
                     clauses.append([int(i) for i in line_splitted[:3]])
-        
+
         clauses_arr = np.asarray(clauses)
-        
+
         if len(clauses) != n_clauses:
-            warnings.warn("The number of clauses in the file was incorrect.", stacklevel=2)
+            warnings.warn(
+                "The number of clauses in the file was incorrect.", stacklevel=2
+            )
 
         if np.abs(clauses_arr).max() != n_vars:
-            warnings.warn("The number of variables in the file was incorrect.", stacklevel=2)
-        
+            warnings.warn(
+                "The number of variables in the file was incorrect.", stacklevel=2
+            )
+
         return ThreeSAT(clauses_arr)
 
     def objective(self, solution):
@@ -63,7 +69,7 @@ class ThreeSAT(ObjectiveVectorFunc):
         ----------
         solution: ndarray
             A binary vector representing the value of each binary variable.
-        
+
         Returns
         -------
         perc_satisfied:
@@ -72,16 +78,16 @@ class ThreeSAT(ObjectiveVectorFunc):
 
         n_satisfied = 0
         for clause in self.clauses:
-            bool_vals = solution[np.abs(clause)-1].astype(bool)
-            satisfied = np.logical_xor(bool_vals, clause < 0) # Flip if negative
+            bool_vals = solution[np.abs(clause) - 1].astype(bool)
+            satisfied = np.logical_xor(bool_vals, clause < 0)  # Flip if negative
             n_satisfied += np.any(satisfied).astype(int)
-        
-        return n_satisfied/self.clauses.shape[0]
+
+        return n_satisfied / self.clauses.shape[0]
 
 
-class Bin_Knapsack_problem(ObjectiveVectorFunc):
+class BinKnapsack(ObjectiveVectorFunc):
     """
-    This is the 0-1 Knapsack problem that consist in choosing from set of elements 
+    This is the 0-1 Knapsack problem that consist in choosing from set of elements
     which have a certain cost and value to maximize the value without reaching a weight threshold.
 
     Parameters
@@ -98,8 +104,10 @@ class Bin_Knapsack_problem(ObjectiveVectorFunc):
         cost = np.asarray(cost)
         value = np.asarray(value)
         if cost.size != value.size:
-            raise ValueError("The value vector must have the same dimension as the cost vector.")
-        
+            raise ValueError(
+                "The value vector must have the same dimension as the cost vector."
+            )
+
         self.cost = cost
         self.value = value
         self.max_weight = max_weight
@@ -107,7 +115,7 @@ class Bin_Knapsack_problem(ObjectiveVectorFunc):
 
     def objective(self, solution):
         """
-        Calculates the total value of the selection of elements. If the weight is higher 
+        Calculates the total value of the selection of elements. If the weight is higher
         than the maxmimum weight, the value is replaced by the negative weight of the elements.
 
         Parameters
@@ -122,14 +130,14 @@ class Bin_Knapsack_problem(ObjectiveVectorFunc):
         """
 
         valid = np.inner(solution, self.cost) < self.max_weight
-        
+
         if valid:
             result = np.inner(solution, self.value)
         else:
             result = -np.inner(solution, self.cost)
-        
+
         return result
-    
+
     def repair_solution(self, solution):
         return (np.round(solution) != 0).astype(int)
 
@@ -156,9 +164,9 @@ class MaxClique(ObjectiveVectorFunc):
         solution: ndarray
             A sequence of nodes that will be read from left to right, starting from the
             first node that creates a clique of size 0, checking if adding a new node from
-            the sequence produces a clique of a larger size. If this is not the case the 
+            the sequence produces a clique of a larger size. If this is not the case the
             algorithm ends.
-        
+
         Returns
         -------
         clique_size: int
@@ -174,7 +182,7 @@ class MaxClique(ObjectiveVectorFunc):
                 idx_i = solution[i]
                 idx_j = solution[n_cliques]
                 is_clique = is_clique and self.adj_mat[idx_i, idx_j] != 0
-            
+
             if is_clique:
                 n_cliques += 1
 
@@ -189,9 +197,8 @@ class TSP(ObjectiveVectorFunc):
         """
         Not implemented.
         """
-    
+
     def repair_solution(self, solution):
         """
         Not implemented.
         """
-        

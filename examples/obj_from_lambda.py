@@ -1,9 +1,10 @@
 import numpy as np
 
 from metaheuristic_designer import ObjectiveFromLambda, ParamScheduler
-from metaheuristic_designer.SearchMethods import GeneralSearch
-from metaheuristic_designer.Operators import OperatorReal
-from metaheuristic_designer.Algorithms import *
+from metaheuristic_designer.searchMethods import GeneralSearch
+from metaheuristic_designer.operators import OperatorReal
+from metaheuristic_designer.initializers import UniformVectorInitializer
+from metaheuristic_designer.algorithms import *
 
 
 def func(vector):
@@ -18,26 +19,26 @@ def run_algorithm():
         "ngen": 1000,
         "neval": 6e5,
         "fit_target": 1e-30,
-
         "verbose": True,
-        "v_timer": 0.5
+        "v_timer": 0.5,
     }
 
     objfunc = ObjectiveFromLambda(func, 10, "min")
 
-    mutation_op = OperatorReal("RandNoise", {"method":"Cauchy", "F": 0.0001})
+    pop_init = UniformVectorInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1
+    )
 
-    search_strat = HillClimb(mutation_op)
-    
+    mutation_op = OperatorReal("RandNoise", {"method": "Cauchy", "F": 0.0001})
+
+    search_strat = HillClimb(pop_init, mutation_op)
+
     alg = GeneralSearch(objfunc, search_strat, params=params)
-    
+
     ind, fit = alg.optimize()
     print(ind)
     alg.display_report()
 
 
-def main():
-    run_algorithm()
-
 if __name__ == "__main__":
-    main()
+    run_algorithm()

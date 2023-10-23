@@ -12,18 +12,19 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../src/metaheuristic_designer'))
-sys.path.insert(0, os.path.abspath('./src/metaheuristic_designer'))
+
+sys.path.insert(0, os.path.abspath("../src/metaheuristic_designer"))
+sys.path.insert(0, os.path.abspath("./src/metaheuristic_designer"))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'metaheuristic-designer'
-copyright = '2023, Eugenio Lorente-Ramos'
-author = 'Eugenio Lorente-Ramos'
+project = "metaheuristic-designer"
+copyright = "2023, Eugenio Lorente-Ramos"
+author = "Eugenio Lorente-Ramos"
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = "0.1.3"
 
 
 # -- General configuration ---------------------------------------------------
@@ -35,29 +36,47 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
-    "sphinx.ext.napoleon"
+    "sphinx.ext.napoleon",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 add_module_names = False
 
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'pydata_sphinx_theme'
+html_theme = "sphinx_material"
+
+html_theme_options = {
+    "nav_title": "metaheuristic-designer docs",
+    "color_primary": "teal",
+    "color_accent": "green",
+    "globaltoc_collapse": True,
+    "globaltoc_includehidden": False,
+    "globaltoc_depth": 1,
+    "nav_links": [
+        {
+            "href": "metaheuristic_designer",
+            "title": "API reference",
+            "internal": "api_ref",
+        }
+    ],
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
+
+html_css_files = ["custom.css"]
