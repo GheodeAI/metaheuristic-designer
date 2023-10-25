@@ -17,14 +17,6 @@ GaussianInitializer
    :undoc-members:
    :show-inheritance:
 
-LambdaInitializer
-------------------------------------------------
-
-.. automodule:: metaheuristic_designer.initializers.LambdaInitializer
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 SeedInitializer
 ----------------------------------------------
 

@@ -1,9 +1,9 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
-from metaheuristic_designer.searchMethods import GeneralSearch, MemeticSearch
+from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import OperatorReal, OperatorInt, OperatorBinary
 from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
-from metaheuristic_designer.algorithms import *
+from metaheuristic_designer.strategies import *
 
 from metaheuristic_designer.benchmarks import *
 
@@ -171,11 +171,11 @@ def run_algorithm(alg_name, memetic, save_state):
         exit()
 
     if memetic:
-        alg = MemeticSearch(
+        alg = MemeticAlgorithm(
             objfunc, search_strat, local_search, mem_select, params=params
         )
     else:
-        alg = GeneralSearch(objfunc, search_strat, params=params)
+        alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 
     ind, fit = alg.optimize()
     print(ind)

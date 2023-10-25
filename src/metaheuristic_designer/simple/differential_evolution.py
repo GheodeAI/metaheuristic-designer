@@ -1,13 +1,12 @@
 from __future__ import annotations
 from ..initializers import UniformVectorInitializer
-from ..operators import OperatorInt, OperatorReal, OperatorBinary
+from ..operators import OperatorReal
 from ..encodings import TypeCastEncoding
-from ..selectionMethods import SurvivorSelection, ParentSelection
-from ..algorithms import DE
-from ..searchMethods import GeneralSearch
+from ..strategies import DE
+from ..algorithms import GeneralAlgorithm
 
 
-def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
+def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
     """
     Instantiates a differential evolution algorithm to optimize the given objective function.
 
@@ -20,7 +19,7 @@ def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Search
 
     Returns
     -------
-    algorithm: Search
+    algorithm: Algorithm
         Configured optimization algorithm.
     """
 
@@ -28,7 +27,7 @@ def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Search
         raise ValueError(
             f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
         )
-    
+
     encoding_str = params["encoding"]
 
     if encoding_str.lower() == "real":
@@ -75,7 +74,7 @@ def _differential_evolution_real_vec(objfunc, params):
 
     search_strat = DE(pop_initializer, de_op)
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _differential_evolution_int_vec(objfunc, params):
@@ -115,7 +114,7 @@ def _differential_evolution_int_vec(objfunc, params):
 
     search_strat = DE(pop_initializer, de_op)
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _differential_evolution_bin_vec(objfunc, params):
@@ -155,4 +154,4 @@ def _differential_evolution_bin_vec(objfunc, params):
 
     search_strat = DE(pop_initializer, de_op)
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)

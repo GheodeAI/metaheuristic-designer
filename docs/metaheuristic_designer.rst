@@ -11,8 +11,8 @@ These subpackages provide implementations of the interfaces needed to define an 
 
    metaheuristic_designer.simple
    metaheuristic_designer.benchmarks
-   metaheuristic_designer.searchMethods
    metaheuristic_designer.algorithms
+   metaheuristic_designer.strategies
    metaheuristic_designer.operators
    metaheuristic_designer.selectionMethods
    metaheuristic_designer.initializers
@@ -35,18 +35,18 @@ metaheuristic_designer.Individual module
    :undoc-members:
    :show-inheritance:
 
-metaheuristic_designer.Search module
-------------------------------------
-
-.. autoclass:: metaheuristic_designer.Search
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 metaheuristic_designer.Algorithm module
 ---------------------------------------
 
 .. autoclass:: metaheuristic_designer.Algorithm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+metaheuristic_designer.SearchStrategy module
+--------------------------------------------
+
+.. autoclass:: metaheuristic_designer.SearchStrategy
    :members:
    :undoc-members:
    :show-inheritance:

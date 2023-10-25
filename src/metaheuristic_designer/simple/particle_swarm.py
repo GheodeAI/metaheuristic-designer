@@ -1,11 +1,11 @@
 from __future__ import annotations
 from ..initializers import UniformVectorInitializer
 from ..encodings import TypeCastEncoding
-from ..algorithms import PSO
-from ..searchMethods import GeneralSearch
+from ..strategies import PSO
+from ..algorithms import GeneralAlgorithm
 
 
-def particle_swarm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
+def particle_swarm(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
     """
     Instantiates a particle swarm algorithm to optimize the given objective function.
 
@@ -18,7 +18,7 @@ def particle_swarm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
 
     Returns
     -------
-    algorithm: Search
+    algorithm: Algorithm
         Configured optimization algorithm.
     """
 
@@ -26,7 +26,7 @@ def particle_swarm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         raise ValueError(
             f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
         )
-    
+
     encoding_str = params["encoding"]
 
     if encoding_str.lower() == "real":
@@ -60,7 +60,7 @@ def _particle_swarm_real_vec(objfunc, params):
 
     search_strat = PSO(pop_initializer, {"w": w, "c1": c1, "c2": c2})
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _particle_swarm_int_vec(objfunc, params):
@@ -87,7 +87,7 @@ def _particle_swarm_int_vec(objfunc, params):
 
     search_strat = PSO(pop_initializer, {"w": w, "c1": c1, "c2": c2})
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _particle_swarm_bin_vec(objfunc, params):
@@ -114,4 +114,4 @@ def _particle_swarm_bin_vec(objfunc, params):
 
     search_strat = PSO(pop_initializer, {"w": w, "c1": c1, "c2": c2})
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)

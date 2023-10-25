@@ -1,7 +1,7 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
-from metaheuristic_designer.searchMethods import GeneralSearch, MemeticSearch
+from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import OperatorReal, OperatorInt, OperatorBinary
-from metaheuristic_designer.algorithms import *
+from metaheuristic_designer.strategies import *
 from metaheuristic_designer.initializers import *
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.encodings import ImageEncoding
@@ -112,6 +112,10 @@ def run_algorithm(alg_name, img_file_name, memetic):
     parent_sel_op = ParentSelection("Best", {"amount": 15})
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
 
+    mem_select = ParentSelection("Best", {"amount": 5})
+    neihbourhood_op = OperatorInt("MutRand", {"method": "Uniform", "Low": -3, "Up": -3, "N": 3})
+    local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
+
     if alg_name == "HillClimb":
         pop_initializer.pop_size = 1
         search_strat = HillClimb(pop_initializer, mutation_op)
@@ -207,19 +211,11 @@ def run_algorithm(alg_name, img_file_name, memetic):
         exit()
 
     if memetic:
-        local_search = LocalSearch(
-            OperatorInt("MutRand", {"method": "Uniform", "Low": -3, "Up": -3, "N": 3}),
-            {"iters": 10},
-        )
-        alg = MemeticSearch(
-            objfunc,
-            search_strat,
-            local_search,
-            ParentSelection("Best", {"amount": 10}),
-            params,
+        alg = MemeticAlgorithm(
+            objfunc, search_strat, local_search, mem_select, params=params
         )
     else:
-        alg = GeneralSearch(objfunc, search_strat, params)
+        alg = GeneralAlgorithm(objfunc, search_strat, params)
 
     # Optimize with display of image
     real_time_start = time.time()

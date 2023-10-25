@@ -1,12 +1,12 @@
 from __future__ import annotations
 from ..initializers import UniformVectorInitializer
 from ..operators import OperatorInt, OperatorReal, OperatorBinary
-from ..algorithms import SA
 from ..encodings import TypeCastEncoding
-from ..searchMethods import GeneralSearch
+from ..strategies import SA
+from ..algorithms import GeneralAlgorithm
 
 
-def simulated_annealing(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
+def simulated_annealing(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
     """
     Instantiates a simulated annealing algorithm to optimize the given objective function.
 
@@ -19,7 +19,7 @@ def simulated_annealing(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
 
     Returns
     -------
-    algorithm: Search
+    algorithm: Algorithm
         Configured optimization algorithm.
     """
 
@@ -27,7 +27,7 @@ def simulated_annealing(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         raise ValueError(
             f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
         )
-    
+
     encoding_str = params["encoding"]
 
     if encoding_str.lower() == "bin":
@@ -69,7 +69,7 @@ def _simulated_annealing_bin_vec(objfunc, params):
         {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
     )
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _simulated_annealing_int_vec(objfunc, params):
@@ -103,7 +103,7 @@ def _simulated_annealing_int_vec(objfunc, params):
         {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
     )
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _simulated_annealing_real_vec(objfunc, params):
@@ -129,4 +129,4 @@ def _simulated_annealing_real_vec(objfunc, params):
         {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
     )
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
