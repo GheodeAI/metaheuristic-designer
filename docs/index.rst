@@ -82,11 +82,11 @@ To perturb individuals we use operators are instances of the class :class:`Opera
 and returns a perturbed individual. This could represent a crossing operation, a mutation, generating a completely random individual or
 even a sequence of operators.
 
-We define an algorithm as the way of combining of the previous elements and specifies how each iteration or step is carried out and
-is implemented as as instance of the class :class:`Algorithm <metaheuristic_designer.Algorithm>`.
+We define a search strategy as the way of combining of the previous elements and specifies how each iteration or step is carried out and
+is implemented as as instance of the class :class:`SearchStrategy <metaheuristic_designer.SearchStrategy>`.
 
 The proper optimization is carried repeating steps until a stopping condition is reached, this is implemented as an instance of the class 
-:class:`Search <metaheuristic_designer.Search>` which also provides some information about the progress of the algorithm and is the interface that is
+:class:`Algorithm <metaheuristic_designer.Algorithm>` which also provides some information about the progress of the algorithm and is the interface that is
 used for the optimization.
 
 All of these components have working implementations in their respective subpackages except for individuals, which are already implemented since

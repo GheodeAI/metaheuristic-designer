@@ -75,9 +75,9 @@ nox test
 ## Implemented components
 This package comes with some already made components that can be used in any algorithm in this framework
 
-### Algorithms
+### Search strategies
 The algorithms implemented are:
-| Class name | Algorithm | Params | Other info |
+| Class name | Strategy | Params | Other info |
 |------------|-----------|--------|------------|
 |NoSearch|Do nothing||For debugging purposes||
 |RandomSearch|Random Search|||
