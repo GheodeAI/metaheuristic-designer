@@ -3,11 +3,11 @@ from ..initializers import UniformVectorInitializer
 from ..operators import OperatorInt, OperatorReal, OperatorBinary
 from ..selectionMethods import SurvivorSelection, ParentSelection
 from ..encodings import TypeCastEncoding
-from ..algorithms import ES
-from ..searchMethods import GeneralSearch
+from ..strategies import ES
+from ..algorithms import GeneralAlgorithm
 
 
-def evolution_strategy(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
+def evolution_strategy(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
     """
     Instantiates a evolution strategy to optimize the given objective function.
 
@@ -20,7 +20,7 @@ def evolution_strategy(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
 
     Returns
     -------
-    algorithm: Search
+    algorithm: Algorithm
         Configured optimization algorithm.
     """
 
@@ -28,7 +28,7 @@ def evolution_strategy(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         raise ValueError(
             f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
         )
-    
+
     encoding_str = params["encoding"]
 
     if encoding_str.lower() == "bin":
@@ -77,7 +77,7 @@ def _evolution_strategy_bin_vec(objfunc, params):
         {"offspringSize": offspring_size},
     )
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _evolution_strategy_int_vec(objfunc, params):
@@ -88,7 +88,6 @@ def _evolution_strategy_int_vec(objfunc, params):
 
     pop_size = params.get("pop_size", 100)
     offspring_size = params.get("offspring_size", 150)
-    n_parents = params.get("n_parents", 100)
     mutstr = params.get("mutstr", 1)
 
     pop_initializer = UniformVectorInitializer(
@@ -118,7 +117,7 @@ def _evolution_strategy_int_vec(objfunc, params):
         {"offspringSize": offspring_size},
     )
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _evolution_strategy_real_vec(objfunc, params):
@@ -129,7 +128,6 @@ def _evolution_strategy_real_vec(objfunc, params):
 
     pop_size = params.get("pop_size", 100)
     offspring_size = params.get("offspring_size", 150)
-    n_parents = params.get("n_parents", 100)
     mutstr = params.get("mutstr", 1e-5)
 
     pop_initializer = UniformVectorInitializer(
@@ -150,4 +148,4 @@ def _evolution_strategy_real_vec(objfunc, params):
         {"offspringSize": offspring_size},
     )
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)

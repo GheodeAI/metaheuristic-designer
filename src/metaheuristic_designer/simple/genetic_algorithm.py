@@ -3,11 +3,11 @@ from ..initializers import UniformVectorInitializer
 from ..operators import OperatorInt, OperatorReal, OperatorBinary
 from ..selectionMethods import SurvivorSelection, ParentSelection
 from ..encodings import TypeCastEncoding
-from ..algorithms import GA
-from ..searchMethods import GeneralSearch
+from ..strategies import GA
+from ..algorithms import GeneralAlgorithm
 
 
-def genetic_algorithm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
+def genetic_algorithm(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
     """
     Instantiates a genetic algorithm to optimize the given objective function.
 
@@ -20,7 +20,7 @@ def genetic_algorithm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
 
     Returns
     -------
-    algorithm: Search
+    algorithm: Algorithm
         Configured optimization algorithm.
     """
 
@@ -28,7 +28,7 @@ def genetic_algorithm(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         raise ValueError(
             f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
         )
-    
+
     encoding_str = params["encoding"]
 
     if encoding_str.lower() == "bin":
@@ -79,7 +79,7 @@ def _genetic_algorithm_bin_vec(objfunc, params):
         {"pcross": pcross, "pmut": pmut},
     )
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _genetic_algorithm_int_vec(objfunc, params):
@@ -122,7 +122,7 @@ def _genetic_algorithm_int_vec(objfunc, params):
         {"pcross": pcross, "pmut": pmut},
     )
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _genetic_algorithm_real_vec(objfunc, params):
@@ -157,4 +157,4 @@ def _genetic_algorithm_real_vec(objfunc, params):
         {"pcross": pcross, "pmut": pmut},
     )
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
