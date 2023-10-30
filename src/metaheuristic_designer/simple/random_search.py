@@ -1,11 +1,11 @@
 from __future__ import annotations
 from ..initializers import UniformVectorInitializer
 from ..encodings import TypeCastEncoding
-from ..algorithms import RandomSearch
-from ..searchMethods import GeneralSearch
+from ..strategies import RandomSearch
+from ..algorithms import GeneralAlgorithm
 
 
-def random_search(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
+def random_search(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
     """
     Instantiates a random search algorithm to optimize the given objective function.
 
@@ -18,7 +18,7 @@ def random_search(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
 
     Returns
     -------
-    algorithm: Search
+    algorithm: Algorithm
         Configured optimization algorithm.
     """
 
@@ -26,7 +26,7 @@ def random_search(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         raise ValueError(
             f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
         )
-    
+
     encoding_str = params["encoding"]
 
     if encoding_str.lower() == "bin":
@@ -57,7 +57,7 @@ def _random_search_bin_vec(objfunc, params):
 
     search_strat = RandomSearch(pop_initializer)
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _random_search_int_vec(objfunc, params):
@@ -72,7 +72,7 @@ def _random_search_int_vec(objfunc, params):
 
     search_strat = RandomSearch(pop_initializer)
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _random_search_real_vec(objfunc, params):
@@ -93,4 +93,4 @@ def _random_search_real_vec(objfunc, params):
 
     search_strat = RandomSearch(pop_initializer)
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)

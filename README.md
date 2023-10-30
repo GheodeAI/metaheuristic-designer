@@ -75,9 +75,9 @@ nox test
 ## Implemented components
 This package comes with some already made components that can be used in any algorithm in this framework
 
-### Algorithms
+### Search strategies
 The algorithms implemented are:
-| Class name | Algorithm | Params | Other info |
+| Class name | Strategy | Params | Other info |
 |------------|-----------|--------|------------|
 |NoSearch|Do nothing||For debugging purposes||
 |RandomSearch|Random Search|||
@@ -144,47 +144,46 @@ The Operators functions available in the operator classes are:
 |"1point"|1 point crossover||Real, Int, Bin|
 |"2point"|2 point crossover||Real, Int, Bin|
 |"Multipoint"|multipoint crossover||Real, Int, Bin|
-|"WeightedAvg"|Weighted average crossover||Real, Int|
-|"BLXalpha"|BLX-alpha crossover||Real|
-|"Multicross"|multi-individual multipoint crossover||Real, Int, Bin|
-|"XOR"|Bytewise XOR with a random vector||Int|
+|"WeightedAvg"|Weighted average crossover|**F**|Real, Int|
+|"BLXalpha"|BLX-alpha crossover|**Cr**|Real|
+|"Multicross"|multi-individual multipoint crossover|**Nindiv**|Real, Int, Bin|
+|"XOR"|Bytewise XOR with a random vector|**N**|Int|
 |"XORCross"|Bytewise XOR between 2 vectors component by component||Int|
-|"sbx"|SBX crossover||Real|
-|"Perm"|Permutate vector components||Real, Int, Bin, Perm|
-|"Gauss"|Add Gaussian noise||Real, Int|
-|"Laplace"|Add noise following a Laplace distribution||Real, Int|
-|"Cauchy"|Add noise following a Cauchy distribution||Real, Int|
-|"Poisson"|Add noise following a Cauchy distribution||Int|
-|"Uniform"|Add Uniform noise||Real, Int|
-|"MutRand" or "MutNoise"|Add random noise to a number of vector components||Real, Int|
-|"MutSample"|Take a sample from a probability distribution and put it on a number of vector components||Real, Int|
-|"RandNoise"|Add random noise||Real, Int|
-|"RandSample"|Sample from a probability distribution||Real, Int|
-|"DE/Rand/1"|Sample from a probability distribution||Real, Int|
-|"DE/Best/1"|Sample from a probability distribution||Real, Int|
-|"DE/Rand/2"|Sample from a probability distribution||Real, Int|
-|"DE/Best/2"|Sample from a probability distribution||Real, Int|
-|"DE/Current-to-rand/1"|Sample from a probability distribution||Real, Int|
-|"DE/Current-to-best/1"|Sample from a probability distribution||Real, Int|
-|"DE/Current-to-pbest/1"|Sample from a probability distribution||Real, Int|
-|"PSO"|Sample from a probability distribution||Real, Int|
-|"Firefly"|Sample from a probability distribution||Real, Int|
+|"sbx"|SBX crossover|**Cr**|Real|
+|"Perm"|Permutate vector components|**N**|Real, Int, Bin, Perm|
+|"Gauss"|Add Gaussian noise|**F**|Real, Int|
+|"Laplace"|Add noise following a Laplace distribution|**F**|Real, Int|
+|"Cauchy"|Add noise following a Cauchy distribution|**F**|Real, Int|
+|"Poisson"|Add noise following a Cauchy distribution|**F**|Int|
+|"Uniform"|Add Uniform noise|**Low**, **Up**|Real, Int|
+|"MutRand" or "MutNoise"|Add random noise to a number of vector components|**method**, **N**, optionaly: **Low**, **Up**, **F**|Real, Int|
+|"MutSample"|Take a sample from a probability distribution and put it on a number of vector components|**method**, **N**, optionaly: **Low**, **Up**, **F**|Real, Int|
+|"RandNoise"|Add random noise|**method**, optionaly: **Low**, **Up**, **F**|Real, Int|
+|"RandSample"|Sample from a probability distribution|**method**, optionaly: **Low**, **Up**, **F**|Real, Int|
+|"DE/Rand/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
+|"DE/Best/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
+|"DE/Rand/2"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
+|"DE/Best/2"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
+|"DE/Current-to-rand/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
+|"DE/Current-to-best/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
+|"DE/Current-to-pbest/1"|Sample from a probability distribution|**F**, **Cr**, **p**|Real, Int|
+|"PSO"|Sample from a probability distribution|**w**, **c1**, **c2**|Real, Int|
+|"Firefly"|Sample from a probability distribution|**a**,**b**,**c**,**g**|Real, Int|
 |"Random"|Sample from a probability distribution||Real, Int, Bin, Perm|
-|"RandomMask"|||Real, Int||
-|"Swap"|||Perm||
-|"Insert"|||Perm||
-|"Scramble"|||Perm||
-|"Perm"|||Real, Int, Bin, Perm||
-|"Invert"|||Perm||
-|"Roll"|||Perm||
-|"PMX"|||Perm||
-|"OrderCross"|||Perm||
-|"branch"|||Operators|
-|"sequence"|||Operators|
-|"split"|||Operators|
-|"pick"|||Operators|
+|"RandomMask"|Randomly sample a number of vector components|**N**|Real, Int||
+|"Swap"|Swap two components||Perm||
+|"Insert"|Insert a component and shift to the left||Perm||
+|"Scramble"|Scramble permutation order|**N**|Perm||
+|"Invert"|Reverse order of components||Perm||
+|"Roll"|Roll components to the right|**N**|Perm||
+|"PMX"|Partially mapped crossover||Perm||
+|"OrderCross"|Ordered crossover||Perm||
+|"branch"|Choose one of the provided operators randomly||Operators|
+|"sequence"|Apply all the provided operators in order||Operators|
+|"split"|Apply each operator to a subset of vector components following the mask provided||Operators|
+|"pick"|Manually pick one of the operators provided (setting the ```chosen_idx``` attribute)||Operators|
 |"Dummy"|Assing the vector to a predefined value||All|
-|"Custom"|||All|
+|"Custom"|Provide a lambda function to apply as an operator|**function**|All|
 |"Nothing"|Do nothing||All|
 
 ### Initializers
@@ -219,32 +218,31 @@ Some of the implemented Encodings are:
 
 ### Benchmark functions
 The benchmark functions you can use to test the algorithms are:
-| Class name | Function | Domain | Other info |
-|------------|----------|--------|------------|
-|MaxOnes|||
-|DiophantineEq|||
-|MaxOnesReal|||
-|Sphere|||
-|HighCondElliptic|||
-|BentCigar|||
-|Discus|||
-|Rosenbrock|||
-|Ackley|||
-|Weistrass|||
-|Griewank|||
-|Rastrigin|||
-|ModSchwefel|||
-|Katsuura|||
-|HappyCat|||
-|HGBat|||
-|SumPowell|||
-|N4XinSheYang|||
-|ThreeSAT|||
-|BinKnapsack|||
-|MaxClique|||
-|MaxOnes|||
-|TSP|||
-|ImgApprox|||
-|ImgStd|||
-|ImgEntropy|||
+| Class name | Domain | Other info |
+|------------|--------|------------|
+|MaxOnes||Integer||
+|DiophantineEq||Integer||
+|MaxOnesReal||Real||
+|Sphere||Real||
+|HighCondElliptic||Real||
+|BentCigar||Real||
+|Discus||Real||
+|Rosenbrock||Real||
+|Ackley||Real||
+|Weistrass||Real||
+|Griewank||Real||
+|Rastrigin||Real||
+|ModSchwefel||Real||
+|Katsuura||Real||
+|HappyCat||Real||
+|HGBat||Real||
+|SumPowell||Real||
+|N4XinSheYang||Real||
+|ThreeSAT||Real||
+|BinKnapsack||Binary||
+|MaxClique||Permutation||
+|TSP||Permutation||
+|ImgApprox||Integer||
+|ImgStd||Integer||
+|ImgEntropy||Integer||
 

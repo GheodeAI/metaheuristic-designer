@@ -1,12 +1,12 @@
 from __future__ import annotations
 from ..initializers import UniformVectorInitializer
 from ..operators import OperatorInt, OperatorReal, OperatorBinary
-from ..algorithms import HillClimb
 from ..encodings import TypeCastEncoding
-from ..searchMethods import GeneralSearch
+from ..strategies import HillClimb
+from ..algorithms import GeneralAlgorithm
 
 
-def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
+def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
 
@@ -19,7 +19,7 @@ def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
 
     Returns
     -------
-    algorithm: Search
+    algorithm: Algorithm
         Configured optimization algorithm.
     """
 
@@ -27,7 +27,7 @@ def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Search:
         raise ValueError(
             f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
         )
-    
+
     encoding_str = params["encoding"]
 
     if encoding_str.lower() == "bin":
@@ -62,7 +62,7 @@ def _hill_climb_bin_vec(objfunc, params):
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _hill_climb_int_vec(objfunc, params):
@@ -89,7 +89,7 @@ def _hill_climb_int_vec(objfunc, params):
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
 def _hill_climb_real_vec(objfunc, params):
@@ -108,4 +108,4 @@ def _hill_climb_real_vec(objfunc, params):
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
-    return GeneralSearch(objfunc, search_strat, params=params)
+    return GeneralAlgorithm(objfunc, search_strat, params=params)

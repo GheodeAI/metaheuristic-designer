@@ -1,10 +1,10 @@
 import numpy as np
 
 from metaheuristic_designer import ObjectiveFromLambda, ParamScheduler
-from metaheuristic_designer.searchMethods import GeneralSearch
+from metaheuristic_designer.algorithms import GeneralAlgorithm
 from metaheuristic_designer.operators import OperatorReal
 from metaheuristic_designer.initializers import UniformVectorInitializer
-from metaheuristic_designer.algorithms import *
+from metaheuristic_designer.strategies import *
 
 
 def func(vector):
@@ -33,7 +33,7 @@ def run_algorithm():
 
     search_strat = HillClimb(pop_init, mutation_op)
 
-    alg = GeneralSearch(objfunc, search_strat, params=params)
+    alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 
     ind, fit = alg.optimize()
     print(ind)
