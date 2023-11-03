@@ -5,7 +5,6 @@ import json
 import numpy as np
 import pyparsing as pp
 from .utils import NumpyEncoder
-import ray
 
 
 class Algorithm(ABC):
