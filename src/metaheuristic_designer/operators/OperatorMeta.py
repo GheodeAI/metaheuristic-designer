@@ -89,19 +89,12 @@ class OperatorMeta(Operator):
         self.mask = params.get("mask", 0)
 
         # If we have a branch with 2 operators and "p" is given as an input
-        if (
-            self.method == MetaOpMethods.BRANCH
-            and "weights" not in params
-            and "p" in params
-            and len(op_list) == 2
-        ):
+        if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
             params["weights"] = [params["p"], 1 - params["p"]]
 
     def evolve(self, indiv, population, objfunc, global_best, initializer=None):
         if self.method == MetaOpMethods.BRANCH:
-            self.chosen_idx = random.choices(
-                range(len(self.op_list)), k=1, weights=self.params["weights"]
-            )[0]
+            self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
             chosen_op = self.op_list[self.chosen_idx]
             result = chosen_op(indiv, population, objfunc, global_best, initializer)
 
@@ -124,16 +117,12 @@ class OperatorMeta(Operator):
             for idx_op, op in enumerate(self.op_list):
                 if np.any(self.mask == idx_op):
                     indiv_copy.genotype = indiv.genotype[self.mask == idx_op]
-                    global_best_copy.genotype = global_best.genotype[
-                        self.mask == idx_op
-                    ]
+                    global_best_copy.genotype = global_best.genotype[self.mask == idx_op]
 
                     for idx_pop, val in enumerate(population_copy):
                         val.genotype = population[idx_pop].genotype[self.mask == idx_op]
 
-                    aux_indiv = op(
-                        indiv_copy, population_copy, objfunc, global_best, initializer
-                    )
+                    aux_indiv = op(indiv_copy, population_copy, objfunc, global_best, initializer)
                     result.genotype[self.mask == idx_op] = aux_indiv.genotype
 
         return result

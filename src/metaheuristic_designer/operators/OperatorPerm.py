@@ -60,9 +60,7 @@ class OperatorPerm(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(
-        self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None
-    ):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
         Constructor for the Operator class
         """
@@ -91,9 +89,7 @@ class OperatorPerm(Operator):
         params = copy(self.params)
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(
-                RAND_GEN.random(indiv.genotype.size) < params["Cr"]
-            )
+            params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
 
         if "N" in params:
             params["N"] = round(params["N"])
@@ -129,5 +125,8 @@ class OperatorPerm(Operator):
         elif self.method == PermOpMethods.CUSTOM:
             fn = params["function"]
             new_indiv.genotype = fn(indiv, population, objfunc, params)
+
+        elif self.method == RealOpMethods.NOTHING:
+            new_indiv = indiv
 
         return new_indiv

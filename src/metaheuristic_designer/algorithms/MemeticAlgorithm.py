@@ -23,9 +23,7 @@ class MemeticAlgorithm(Algorithm):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def __init__(
-        self, objfunc, search_strategy, local_search, improve_choice, params=None
-    ):
+    def __init__(self, objfunc, search_strategy, local_search, improve_choice, params=None):
         """
         Constructor of the Metaheuristic class
         """
@@ -51,29 +49,24 @@ class MemeticAlgorithm(Algorithm):
 
         for idx, val in enumerate(off_idxs):
             offspring[val] = improved[idx]
-
-        current_best = max(improved, key=lambda x: x.fitness)
-        if self.search_strategy.best.fitness < current_best.fitness:
-            self.search_strategy.best = current_best
+        
+        offspring = self.search_strategy.evaluate_population(offspring, self.objfunc, self.parallel, self.threads)
 
         return offspring
 
     def step(self, time_start=0, verbose=False):
         population = self.search_strategy.population
 
-        parents = self.search_strategy.select_parents(
-            population, progress=self.progress, history=self.best_history
-        )
+        parents = self.search_strategy.select_parents(population, progress=self.progress, history=self.best_history)
 
-        offspring = self.search_strategy.perturb(
-            parents, self.objfunc, progress=self.progress, history=self.best_history
-        )
+        offspring = self.search_strategy.perturb(parents, self.objfunc, progress=self.progress, history=self.best_history)
+
+        # Get the fitness of the individuals
+        offspring = self.search_strategy.evaluate_population(offspring, self.objfunc, self.parallel, self.threads)
 
         offspring = self._do_local_search(offspring)
 
-        population = self.search_strategy.select_individuals(
-            population, offspring, progress=self.progress, history=self.best_history
-        )
+        population = self.search_strategy.select_individuals(population, offspring, progress=self.progress, history=self.best_history)
 
         self.search_strategy.population = population
 
@@ -126,9 +119,7 @@ class MemeticAlgorithm(Algorithm):
         return data
 
     def step_info(self, start_time=0):
-        print(
-            f"Optimizing {self.objfunc.name} using {self.search_strategy.name}+{self.local_search.name}:"
-        )
+        print(f"Optimizing {self.objfunc.name} using {self.search_strategy.name}+{self.local_search.name}:")
         print(f"\tReal time Spent: {round(time.time() - start_time,2)} s")
         print(f"\tCPU time Spent:  {round(time.time() - start_time,2)} s")
         print(f"\tGeneration: {self.steps}")

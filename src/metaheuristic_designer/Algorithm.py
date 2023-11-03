@@ -5,6 +5,7 @@ import json
 import numpy as np
 import pyparsing as pp
 from .utils import NumpyEncoder
+import ray
 
 
 class Algorithm(ABC):
@@ -48,11 +49,7 @@ class Algorithm(ABC):
         self.stop_cond_parsed = parse_stopping_cond(self.stop_cond)
 
         self.progress_metric = params.get("progress_metric", self.stop_cond)
-        self.progress_metric_parsed = (
-            parse_stopping_cond(self.progress_metric)
-            if "progress_metric" in params
-            else self.stop_cond_parsed
-        )
+        self.progress_metric_parsed = parse_stopping_cond(self.progress_metric) if "progress_metric" in params else self.stop_cond_parsed
 
         self.Ngen = params.get("ngen", 100)
         self.Neval = params.get("neval", 1e5)
@@ -61,6 +58,10 @@ class Algorithm(ABC):
         self.fit_target = params.get("fit_target", 1e-10)
         self.max_patience = params.get("patience", 1)
         self.patience_left = self.max_patience
+
+        # Parallel parameters
+        self.parallel = params.get("parallel", False)
+        self.threads = params.get("threads", 1)
 
         # Metrics
         self.fit_history = []
@@ -113,9 +114,7 @@ class Algorithm(ABC):
 
         return self.search_strategy.best_solution()
 
-    def stopping_condition(
-        self, gen: int, real_time_start: float, cpu_time_start: float
-    ) -> bool:
+    def stopping_condition(self, gen: int, real_time_start: float, cpu_time_start: float) -> bool:
         """
         Given the state of the algorithm, returns wether we have finished or not.
 
@@ -159,9 +158,7 @@ class Algorithm(ABC):
             patience_reached,
         )
 
-    def get_progress(
-        self, gen: int, real_time_start: float, cpu_time_start: float
-    ) -> float:
+    def get_progress(self, gen: int, real_time_start: float, cpu_time_start: float) -> float:
         """
         Given the state of the algorithm, returns a number between 0 and 1 indicating
         how close to the end of the algorithm we are, 0 when starting and 1 when finished.
@@ -209,9 +206,7 @@ class Algorithm(ABC):
             patience_prec,
         )
 
-    def update(
-        self, real_time_start: float, cpu_time_start: float, pass_step: bool = True
-    ):
+    def update(self, real_time_start: float, cpu_time_start: float, pass_step: bool = True):
         """
         Updates the attributes of the optimization algorithm.
         This function should be called once per iteration of the algorithm.
@@ -238,9 +233,7 @@ class Algorithm(ABC):
 
         self.progress = self.get_progress(self.steps, real_time_start, cpu_time_start)
 
-        self.ended = self.stopping_condition(
-            self.steps, real_time_start, cpu_time_start
-        )
+        self.ended = self.stopping_condition(self.steps, real_time_start, cpu_time_start)
 
     def initialize(self):
         """
@@ -248,12 +241,12 @@ class Algorithm(ABC):
         """
 
         self.restart()
-        self.search_strategy.initialize(self.objfunc)
+        initial_population = self.search_strategy.initialize(self.objfunc)
+        initial_population = self.search_strategy.evaluate_population(initial_population, self.objfunc, self.parallel, self.threads)
+        self.search_strategy.population = initial_population
 
     @abstractmethod
-    def step(
-        self, time_start: float = 0, verbose: bool = False
-    ) -> Tuple[Individual, float]:
+    def step(self, time_start: float = 0, verbose: bool = False) -> Tuple[Individual, float]:
         """
         Performs an iteration of the algorithm.
 
@@ -359,9 +352,7 @@ class Algorithm(ABC):
 
         if show_best_solution:
             data["best_fitness"] = self.best_solution()[1]
-            data["best_individual"] = self.search_strategy.best.get_state(
-                show_speed=False, show_best=False
-            )
+            data["best_individual"] = self.search_strategy.best.get_state(show_speed=False, show_best=False)
 
         if show_fit_history:
             data["fit_history"] = self.fit_history
@@ -369,9 +360,7 @@ class Algorithm(ABC):
         if show_gen_history:
             data["best_history"] = self.best_history
 
-        data["search_strat_state"] = self.search_strategy.get_state(
-            show_pop, show_pop_details
-        )
+        data["search_strat_state"] = self.search_strategy.get_state(show_pop, show_pop_details)
 
         return data
 
@@ -422,12 +411,8 @@ class Algorithm(ABC):
             fp.write(dumped)
 
     def init_info(self):
-        print(
-            f"Initializing optimization of {self.objfunc.name} using {self.search_strategy.name}"
-        )
-        print(
-            f"-----------------------------{'-'*len(self.objfunc.name)}-------{'-'*len(self.search_strategy.name)}"
-        )
+        print(f"Initializing optimization of {self.objfunc.name} using {self.search_strategy.name}")
+        print(f"-----------------------------{'-'*len(self.objfunc.name)}-------{'-'*len(self.search_strategy.name)}")
         print()
 
     @abstractmethod
@@ -471,13 +456,9 @@ def parse_stopping_cond(condition_str: str) -> List[str | List]:
 
     orop = pp.Literal("and")
     andop = pp.Literal("or")
-    condition = pp.oneOf(
-        ["neval", "ngen", "time_limit", "cpu_time_limit", "fit_target", "convergence"]
-    )
+    condition = pp.oneOf(["neval", "ngen", "time_limit", "cpu_time_limit", "fit_target", "convergence"])
 
-    expr = pp.infixNotation(
-        condition, [(orop, 2, pp.opAssoc.RIGHT), (andop, 2, pp.opAssoc.RIGHT)]
-    )
+    expr = pp.infixNotation(condition, [(orop, 2, pp.opAssoc.RIGHT), (andop, 2, pp.opAssoc.RIGHT)])
 
     return expr.parse_string(condition_str).as_list()
 
@@ -522,12 +503,8 @@ def process_condition(
 
     if isinstance(cond_parsed, list):
         if len(cond_parsed) == 3:
-            cond1 = process_condition(
-                cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience
-            )
-            cond2 = process_condition(
-                cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience
-            )
+            cond1 = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
+            cond2 = process_condition(cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience)
 
             if cond_parsed[1] == "or":
                 result = cond1 or cond2
@@ -535,9 +512,7 @@ def process_condition(
                 result = cond1 and cond2
 
         elif len(cond_parsed) == 1:
-            result = process_condition(
-                cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience
-            )
+            result = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
 
     else:
         if cond_parsed == "neval":
@@ -596,12 +571,8 @@ def process_progress(
 
     if isinstance(cond_parsed, list):
         if len(cond_parsed) == 3:
-            progress1 = process_progress(
-                cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience
-            )
-            progress2 = process_progress(
-                cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience
-            )
+            progress1 = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
+            progress2 = process_progress(cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience)
 
             if cond_parsed[1] == "or":
                 result = max(progress1, progress2)
@@ -609,9 +580,7 @@ def process_progress(
                 result = min(progress1, progress2)
 
         elif len(cond_parsed) == 1:
-            result = process_progress(
-                cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience
-            )
+            result = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
     else:
         if cond_parsed == "neval":
             result = neval

@@ -7,7 +7,7 @@ from skimage import metrics
 
 
 class ImgApprox(ObjectiveVectorFunc):
-    def __init__(self, img_dim, reference, opt="min", img_name=""):
+    def __init__(self, img_dim, reference, opt="min", img_name="", diff_func="sts"):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0] * img_dim[1] * 3
         self.reference = reference.resize((img_dim[0], img_dim[1]))
@@ -18,29 +18,28 @@ class ImgApprox(ObjectiveVectorFunc):
         else:
             name = f'Approximating "{img_name}"'
 
-        opt = "max"
+        self.diff_func = diff_func
+        if diff_func in ["mse"]:
+            opt = "min"
+        else:
+            opt = "max"
 
         super().__init__(self.size, opt, 0, 256, name=name)
 
     def objective(self, solution):
-        # return imgdistance(solution, self.reference)
-        return (
-            sum(
-                metrics.structural_similarity(
-                    solution[:, :, i], self.reference[:, :, i]
-                )
-                for i in range(3)
-            )
-            / 3
-        )
+        error = 0
+        if self.diff_func == "mse":
+            error = imgdistance_mse(solution, self.reference)
+        elif self.diff_func == "sts":
+            error = 0
+            for i in range(3):
+                error += metrics.structural_similarity(solution[:, :, i], self.reference[:, :, i])
+            error /= 3
+
+        return error
 
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255)
-
-
-# @jit(nopython=True)
-def imgdistance(img, reference):
-    return np.sum((img - reference) ** 2)
 
 
 class ImgStd(ObjectiveVectorFunc):
@@ -69,10 +68,7 @@ class ImgEntropy(ObjectiveVectorFunc):
 
     def objective(self, solution):
         solution_channels = solution.reshape([3, -1])
-        img_hists = [
-            np.histogram(solution_channels[i], bins=np.linspace(0, 256, self.nbins))[0]
-            for i in range(3)
-        ]
+        img_hists = [np.histogram(solution_channels[i], bins=np.linspace(0, 256, self.nbins))[0] for i in range(3)]
         img_hists = np.array(img_hists) / solution_channels.shape[1]
         img_hists_no_zeros = img_hists
         img_hists_no_zeros[img_hists == 0] = 1
@@ -86,14 +82,12 @@ class ImgExperimental(ObjectiveVectorFunc):
     def __init__(self, img_dim, reference, img_name, opt="min"):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0] * img_dim[1] * 3
-        self.reference = np.asarray(reference.resize([img_dim[0], img_dim[1]]))[
-            :, :, :3
-        ].astype(np.uint32)
+        self.reference = np.asarray(reference.resize([img_dim[0], img_dim[1]]))[:, :, :3].astype(np.uint32)
 
         super().__init__(self.size, opt, 0, 256, name="Image approx and std")
 
     def objective(self, solution):
-        dist = imgdistance(solution, self.reference)
+        dist = imgdistance_mse(solution, self.reference)
         dist_norm = dist / (np.sqrt(self.size) * 255)
 
         solution_rounded = solution // 75
@@ -112,3 +106,8 @@ class ImgExperimental(ObjectiveVectorFunc):
 
     def repair_speed(self, solution):
         return np.clip(solution, -255, 255)
+
+
+# @jit(nopython=True)
+def imgdistance_mse(img, reference):
+    return np.sum((img - reference) ** 2)

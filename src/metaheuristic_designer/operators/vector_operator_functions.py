@@ -74,9 +74,7 @@ def mutate_sample(vector, population, params):
     RAND_GEN.shuffle(mask_pos)
     popul_matrix = np.vstack([i.genotype for i in population])
     mean = popul_matrix.mean(axis=0)[mask_pos]
-    std = (
-        popul_matrix.std(axis=0)[mask_pos] + 1e-6
-    ) * strength  # ensure there will be some standard deviation
+    std = (popul_matrix.std(axis=0)[mask_pos] + 1e-6) * strength  # ensure there will be some standard deviation
 
     rand_vec = sample_distribution(method, n, mean, std, low, up)
 
@@ -97,9 +95,7 @@ def rand_sample(vector, population, params):
 
     popul_matrix = np.vstack([i.genotype for i in population])
     mean = popul_matrix.mean(axis=0)
-    std = (
-        popul_matrix.std(axis=0) + 1e-6
-    ) * strength  # ensure there will be some standard deviation
+    std = (popul_matrix.std(axis=0) + 1e-6) * strength  # ensure there will be some standard deviation
 
     rand_vec = sample_distribution(method, vector.shape, mean, std, low, up)
 
@@ -214,10 +210,7 @@ def mutate_n_sigmas(list_sigmas, epsilon, tau, tau_multiple):
     """
 
     base_tau = tau * RAND_GEN.normal()
-    new_sigmas = [
-        max(epsilon, sigma * np.exp(base_tau + tau_multiple * RAND_GEN.normal()))
-        for sigma in list_sigmas
-    ]
+    new_sigmas = [max(epsilon, sigma * np.exp(base_tau + tau_multiple * RAND_GEN.normal())) for sigma in list_sigmas]
     return new_sigmas
 
 
@@ -481,11 +474,7 @@ def DE_rand2(vector, population, F, CR):
     if len(population) > 5:
         r1, r2, r3, r4, r5 = random.sample(population, 5)
 
-        v = (
-            r1.genotype
-            + F * (r2.genotype - r3.genotype)
-            + F * (r4.genotype - r5.genotype)
-        )
+        v = r1.genotype + F * (r2.genotype - r3.genotype) + F * (r4.genotype - r5.genotype)
         mask_pos = RAND_GEN.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
@@ -501,11 +490,7 @@ def DE_best2(vector, population, F, CR):
         best = population[fitness.index(max(fitness))]
         r1, r2, r3, r4 = random.sample(population, 4)
 
-        v = (
-            best.genotype
-            + F * (r1.genotype - r2.genotype)
-            + F * (r3.genotype - r4.genotype)
-        )
+        v = best.genotype + F * (r1.genotype - r2.genotype) + F * (r3.genotype - r4.genotype)
         mask_pos = RAND_GEN.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
@@ -519,11 +504,7 @@ def DE_current_to_rand1(vector, population, F, CR):
     if len(population) > 3:
         r1, r2, r3 = random.sample(population, 3)
 
-        v = (
-            vector
-            + RAND_GEN.random() * (r1.genotype - vector)
-            + F * (r2.genotype - r3.genotype)
-        )
+        v = vector + RAND_GEN.random() * (r1.genotype - vector) + F * (r2.genotype - r3.genotype)
         mask_pos = RAND_GEN.random(vector.shape) <= CR
         vector[mask_pos] = v[mask_pos]
     return vector
@@ -571,11 +552,7 @@ def pso_operator(indiv, population, global_best, w, c1, c2):
     c1 = c1 * RAND_GEN.random(indiv.genotype.shape)
     c2 = c2 * RAND_GEN.random(indiv.genotype.shape)
 
-    indiv.speed = (
-        w * indiv.speed
-        + c1 * (indiv.best - indiv.genotype)
-        + c2 * (global_best.genotype - indiv.genotype)
-    )
+    indiv.speed = w * indiv.speed + c1 * (indiv.best - indiv.genotype) + c2 * (global_best.genotype - indiv.genotype)
     return indiv.apply_speed()
 
 
@@ -592,12 +569,7 @@ def firefly(solution, population, objfunc, alpha_0, beta_0, delta, gamma):
             r = np.linalg.norm(solution.genotype - ind.genotype)
             alpha = alpha_0 * delta**idx
             beta = beta_0 * np.exp(-gamma * (r / (sol_range * np.sqrt(n_dim))) ** 2)
-            new_vector = (
-                new_vector
-                + beta * (ind.genotype - new_vector)
-                + alpha * sol_range * random.random()
-                - 0.5
-            )
+            new_vector = new_vector + beta * (ind.genotype - new_vector) + alpha * sol_range * random.random() - 0.5
             new_vector = objfunc.repair_solution(new_vector)
 
     return new_vector

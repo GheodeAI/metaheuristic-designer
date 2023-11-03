@@ -77,9 +77,7 @@ class SurvivorSelection(SelectionMethod):
 
         self.method = SurvSelMethod.from_str(method)
 
-    def select(
-        self, popul: List[Individual], offspring: List[Individual]
-    ) -> List[Individual]:
+    def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:
         result = []
         if self.method == SurvSelMethod.ELITISM:
             result = elitism(popul, offspring, self.params["amount"])

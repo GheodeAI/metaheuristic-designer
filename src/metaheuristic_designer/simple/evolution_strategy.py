@@ -25,9 +25,7 @@ def evolution_strategy(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
     """
 
     if "encoding" not in params:
-        raise ValueError(
-            f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
-        )
+        raise ValueError(f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
 
     encoding_str = params["encoding"]
 
@@ -38,9 +36,7 @@ def evolution_strategy(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
     elif encoding_str.lower() == "real":
         alg = _evolution_strategy_real_vec(objfunc, params)
     else:
-        raise ValueError(
-            f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"'
-        )
+        raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"')
 
     return alg
 
@@ -58,9 +54,7 @@ def _evolution_strategy_bin_vec(objfunc, params):
 
     encoding = TypeCastEncoding(int, bool)
 
-    pop_initializer = UniformVectorInitializer(
-        objfunc.vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding
-    )
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
 
     cross_op = OperatorBinary("Nothing")
     mutation_op = OperatorBinary("Flip", {"N": mutstr})
@@ -90,9 +84,7 @@ def _evolution_strategy_int_vec(objfunc, params):
     offspring_size = params.get("offspring_size", 150)
     mutstr = params.get("mutstr", 1)
 
-    pop_initializer = UniformVectorInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=int
-    )
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=int)
 
     cross_op = OperatorInt("Nothing")
     mutation_op = OperatorInt(
@@ -130,9 +122,7 @@ def _evolution_strategy_real_vec(objfunc, params):
     offspring_size = params.get("offspring_size", 150)
     mutstr = params.get("mutstr", 1e-5)
 
-    pop_initializer = UniformVectorInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float
-    )
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float)
 
     cross_op = OperatorReal("Nothing")
     mutation_op = OperatorReal("RandNoise", {"method": "Gauss", "F": mutstr})

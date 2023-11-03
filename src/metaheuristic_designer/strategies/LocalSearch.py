@@ -28,32 +28,26 @@ class LocalSearch(SearchStrategy):
         self.perturb_op = perturb_op
 
         if selection_op is None:
-            selection_op = SurvivorSelection("One-to-One")
+            selection_op = SurvivorSelection("KeepBest", {"amount": 1})
         self.selection_op = selection_op
 
         super().__init__(pop_init, params=params, name=name)
 
     def perturb(self, indiv_list, objfunc, **kwargs):
-        next_indiv_list = copy(indiv_list)
-        for _ in range(self.iterations):
-            offspring = []
-            for indiv in indiv_list:
-                # Perturb individual
-                new_indiv = self.perturb_op(
-                    indiv, indiv_list, objfunc, self.best, self.pop_init
-                )
-                new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
+        offspring = []
+        indiv = indiv_list[0]
+        for i in range(self.iterations):
+            # Perturb individual
+            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
+            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
+            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 
-                offspring.append(new_indiv)
+            offspring.append(new_indiv)
 
-            # Keep best individual regardless of selection method
-            current_best = max(offspring, key=lambda x: x.fitness)
-            if self.best.fitness < current_best.fitness:
-                self.best = current_best
-
-            next_indiv_list = self.selection_op(next_indiv_list, offspring)
-
-        return next_indiv_list
+        return offspring
+    
+    def select_individuals(self, population, offspring, **kwargs):
+        return self.selection_op(population, offspring)
 
     def update_params(self, **kwargs):
         progress = kwargs["progress"]

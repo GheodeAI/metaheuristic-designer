@@ -31,9 +31,7 @@ class DPCRO_SL(CRO_SL):
         self.dyn_steps = params["dyn_steps"]
         self.prob_amp = params["prob_amp"]
 
-        self.operator_idx = random.choices(
-            range(len(self.operator_list)), k=self.maxpopsize
-        )
+        self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
         self.operator_weight = [1 / len(operator_list)] * len(operator_list)
 
         if self.dyn_method == "success":
@@ -64,9 +62,7 @@ class DPCRO_SL(CRO_SL):
 
             op = self.operator_list[op_idx]
 
-            new_parent_list = (
-                divided_population[op_idx] if self.group_subs else parent_list
-            )
+            new_parent_list = divided_population[op_idx] if self.group_subs else parent_list
 
             # Apply operator
             new_indiv = op(indiv, new_parent_list, objfunc, self.best, self.pop_init)
@@ -152,9 +148,7 @@ class DPCRO_SL(CRO_SL):
         # if there are numerical error default repeat with a default value
         if (amplified_vec == 0).any() or not np.isfinite(amplified_vec).all():
             if not self.prob_amp_warned:
-                print(
-                    "Warning: the probability amplification parameter is too small, defaulting to prob_amp = 1"
-                )
+                print("Warning: the probability amplification parameter is too small, defaulting to prob_amp = 1")
                 self.prob_amp_warned = True
             prob = exp_vec / exp_vec.sum()
         else:
@@ -172,9 +166,7 @@ class DPCRO_SL(CRO_SL):
 
         # take reference data for the calculation of the difference of the next evaluation
         if self.dyn_method == "diff":
-            full_data = [
-                data_point for op_data in self.operator_data for data_point in op_data
-            ]
+            full_data = [data_point for op_data in self.operator_data for data_point in op_data]
             metric = self._operator_metric(full_data)
 
         # calculate the value of each operator with the data gathered
@@ -197,9 +189,7 @@ class DPCRO_SL(CRO_SL):
                 # Calculate the difference of the fitness in this generation to the previous one and
                 # store the current value for the next evaluation
                 if self.dyn_method == "diff":
-                    self.operator_metric[idx] = (
-                        self.operator_metric[idx] - self.operator_metric_prev[idx]
-                    )
+                    self.operator_metric[idx] = self.operator_metric[idx] - self.operator_metric_prev[idx]
                     self.operator_metric_prev[idx] = metric
 
                 # Reset data for next iteration
@@ -217,9 +207,7 @@ class DPCRO_SL(CRO_SL):
         self.operator_w_history.append(self.operator_weight)
 
         # Choose each operator with the weights chosen
-        self.operator_idx = random.choices(
-            range(n_operators), weights=self.operator_weight, k=self.maxpopsize
-        )
+        self.operator_idx = random.choices(range(n_operators), weights=self.operator_weight, k=self.maxpopsize)
 
         # save the evaluation of each operator
         self.operator_history.append(np.array(self.operator_metric))

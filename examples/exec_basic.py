@@ -34,9 +34,7 @@ def run_algorithm(alg_name, memetic, save_state):
     # objfunc = Rastrigin(30, "min")
     objfunc = Rosenbrock(30, "min")
     # objfunc = Weierstrass(30, "min")
-    pop_initializer = UniformVectorInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100
-    )
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
     parent_params = ParamScheduler("Linear", {"amount": 20})
     # select_params = ParamScheduler("Linear")
@@ -54,10 +52,7 @@ def run_algorithm(alg_name, memetic, save_state):
         OperatorReal("DE/current-to-rand/1", DEparams),
     ]
 
-    neighborhood_structures = [
-        OperatorReal("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})")
-        for f in np.logspace(-6, 0, base=10, num=80)
-    ]
+    neighborhood_structures = [OperatorReal("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 0, base=10, num=80)]
 
     parent_sel_op = ParentSelection("Best", parent_params)
     selection_op = SurvivorSelection("(m+n)")
@@ -74,9 +69,7 @@ def run_algorithm(alg_name, memetic, save_state):
         search_strat = LocalSearch(pop_initializer, mutation_op, params={"iters": 20})
     elif alg_name == "SA":
         pop_initializer.pop_size = 1
-        search_strat = SA(
-            pop_initializer, mutation_op, {"iter": 100, "temp_init": 1, "alpha": 0.997}
-        )
+        search_strat = SA(pop_initializer, mutation_op, {"iter": 100, "temp_init": 1, "alpha": 0.997})
     elif alg_name == "ES":
         search_strat = ES(
             pop_initializer,
@@ -98,9 +91,7 @@ def run_algorithm(alg_name, memetic, save_state):
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, {"HMCR": 0.8, "BW": 0.5, "PAR": 0.2})
     elif alg_name == "DE":
-        search_strat = DE(
-            pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8})
-        )
+        search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5})
     elif alg_name == "CRO":
@@ -151,9 +142,7 @@ def run_algorithm(alg_name, memetic, save_state):
         # local_search = HillClimb(pop_initializer)
         # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
     elif alg_name == "GVNS":
-        local_search = VND(
-            pop_initializer, neighborhood_structures, params={"nchange": "cyclic"}
-        )
+        local_search = VND(pop_initializer, neighborhood_structures, params={"nchange": "cyclic"})
         search_strat = VNS(
             pop_initializer,
             neighborhood_structures,
@@ -171,9 +160,7 @@ def run_algorithm(alg_name, memetic, save_state):
         exit()
 
     if memetic:
-        alg = MemeticAlgorithm(
-            objfunc, search_strat, local_search, mem_select, params=params
-        )
+        alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=params)
     else:
         alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 

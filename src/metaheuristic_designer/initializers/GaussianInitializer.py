@@ -26,18 +26,14 @@ class GaussianInitializer(Initializer):
         Data type used in each of the components of the vector in the individual.
     """
 
-    def __init__(
-        self, genotype_size, g_mean, g_std, pop_size=1, encoding=None, dtype=float
-    ):
+    def __init__(self, genotype_size, g_mean, g_std, pop_size=1, encoding=None, dtype=float):
         super().__init__(pop_size, encoding)
 
         self.genotype_size = genotype_size
 
         if type(g_mean) in [list, tuple, np.ndarray]:
             if len(g_mean) != genotype_size:
-                raise ValueError(
-                    f"If g_mean is a sequence it must be of length {genotype_size}."
-                )
+                raise ValueError(f"If g_mean is a sequence it must be of length {genotype_size}.")
 
             self.g_mean = g_mean
         else:
@@ -45,9 +41,7 @@ class GaussianInitializer(Initializer):
 
         if type(g_std) in [list, tuple, np.ndarray]:
             if len(g_std) != genotype_size:
-                raise ValueError(
-                    f"If g_std is a sequence it must be of length {genotype_size}."
-                )
+                raise ValueError(f"If g_std is a sequence it must be of length {genotype_size}.")
 
             self.g_std = g_std
         else:
@@ -58,9 +52,7 @@ class GaussianInitializer(Initializer):
 
 class GaussianVectorInitializer(GaussianInitializer):
     def generate_random(self, objfunc):
-        new_vector_float = RAND_GEN.normal(
-            self.g_mean, self.g_std, size=self.genotype_size
-        )
+        new_vector_float = RAND_GEN.normal(self.g_mean, self.g_std, size=self.genotype_size)
         if self.dtype is int:
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:
