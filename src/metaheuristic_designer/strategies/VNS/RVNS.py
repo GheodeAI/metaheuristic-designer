@@ -46,9 +46,7 @@ class RVNS(SearchStrategy):
         offspring = []
         for indiv in indiv_list:
             # Perturb individual
-            new_indiv = self.perturb_op(
-                indiv, indiv_list, objfunc, self.best, self.pop_init
-            )
+            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             offspring.append(new_indiv)
@@ -76,15 +74,10 @@ class RVNS(SearchStrategy):
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)
 
-        if (
-            self.perturb_op.chosen_idx >= len(self.op_list)
-            or self.perturb_op.chosen_idx < 0
-        ):
+        if self.perturb_op.chosen_idx >= len(self.op_list) or self.perturb_op.chosen_idx < 0:
             self.perturb_op.chosen_idx = 0
 
     def extra_step_info(self):
         idx = self.perturb_op.chosen_idx
 
-        print(
-            f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}"
-        )
+        print(f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}")

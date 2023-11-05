@@ -28,11 +28,7 @@ class VNS(SearchStrategy):
         self.op_list = op_list
         self.perturb_op = OperatorMeta("Pick", op_list, {"init_idx": 0})
 
-        self.nchange = (
-            NeighborhoodChange.from_str(params["nchange"])
-            if "nchange" in params
-            else NeighborhoodChange.SEQ
-        )
+        self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 
         self.local_search = local_search
 
@@ -57,9 +53,7 @@ class VNS(SearchStrategy):
         offspring = []
         for indiv in indiv_list:
             # Perturb individual
-            new_indiv = self.perturb_op(
-                indiv, indiv_list, objfunc, self.best, self.pop_init
-            )
+            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             # Local search
@@ -70,9 +64,7 @@ class VNS(SearchStrategy):
 
                 offspring = self.local_search.perturb(parents, objfunc, kwargs)
 
-                population = self.local_search.select_individuals(
-                    population, offspring, kwargs
-                )
+                population = self.local_search.select_individuals(population, offspring, kwargs)
 
                 self.local_search.update_params()
 
@@ -90,9 +82,7 @@ class VNS(SearchStrategy):
     def select_individuals(self, population, offspring, **kwargs):
         new_population = self.selection_op(population, offspring)
 
-        self.perturb_op.chosen_idx = next_neighborhood(
-            offspring[0], population[0], self.perturb_op.chosen_idx, self.nchange
-        )
+        self.perturb_op.chosen_idx = next_neighborhood(offspring[0], population[0], self.perturb_op.chosen_idx, self.nchange)
 
         return new_population
 
@@ -102,15 +92,10 @@ class VNS(SearchStrategy):
         if isinstance(self.perturb_op, Operator):
             self.perturb_op.step(progress)
 
-        if (
-            self.perturb_op.chosen_idx >= len(self.op_list)
-            or self.perturb_op.chosen_idx < 0
-        ):
+        if self.perturb_op.chosen_idx >= len(self.op_list) or self.perturb_op.chosen_idx < 0:
             self.perturb_op.chosen_idx = 0
 
     def extra_step_info(self):
         idx = self.perturb_op.chosen_idx
 
-        print(
-            f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}"
-        )
+        print(f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}")

@@ -31,9 +31,7 @@ class SA(SearchStrategy):
     def perturb(self, indiv_list, objfunc, **kwargs):
         indiv = indiv_list[0]
         for _ in range(self.iter):
-            new_indiv = self.perturb_op(
-                indiv, indiv_list, objfunc, self.best, self.pop_init
-            )
+            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             # Accept the new solution even if it is worse with a probability

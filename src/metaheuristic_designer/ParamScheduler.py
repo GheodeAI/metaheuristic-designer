@@ -111,9 +111,7 @@ class ParamScheduler:
                 if type(self.param_schedule[key]) in (list, tuple):
                     start_param = self.param_schedule[key][0]
                     end_param = self.param_schedule[key][1]
-                    self.current_params[key] = (
-                        1 - progress
-                    ) * start_param + progress * end_param
+                    self.current_params[key] = (1 - progress) * start_param + progress * end_param
 
         elif self.strategy == "exp":
             # with f(x) = k·e^{a·x}+b,  f(0) = p[0],  f(1) = p[1]

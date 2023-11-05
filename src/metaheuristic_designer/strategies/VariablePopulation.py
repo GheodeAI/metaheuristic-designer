@@ -49,9 +49,7 @@ class VariablePopulation(SearchStrategy):
         while len(offspring) < self.n_offspring:
             # Apply operator
             indiv = random.choice(parent_list)
-            new_indiv = self.operator(
-                indiv, parent_list, objfunc, self.best, self.pop_init
-            )
+            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 

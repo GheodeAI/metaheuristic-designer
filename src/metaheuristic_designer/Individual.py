@@ -55,9 +55,7 @@ class Individual:
         Returns a copy of the Individual.
         """
 
-        copied_ind = Individual(
-            self.objfunc, copy(self._genotype), copy(self.speed), self.encoding
-        )
+        copied_ind = Individual(self.objfunc, copy(self._genotype), copy(self.speed), self.encoding)
         copied_ind._fitness = self._fitness
         copied_ind.fitness_calculated = self.fitness_calculated
         copied_ind.best = copy(self.best)
@@ -90,9 +88,7 @@ class Individual:
             Individual with the speed applied.
         """
 
-        return Individual(
-            self.objfunc, self._genotype + self.speed, self.speed, self.encoding
-        )
+        return Individual(self.objfunc, self._genotype + self.speed, self.speed, self.encoding)
 
     @property
     def fitness(self) -> float:

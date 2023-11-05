@@ -24,9 +24,7 @@ def expand(input_list, n, method, maxlen, val_generator=None):
 def expand_rand(input_list, n, val_generator):
     for i in range(n):
         inject_idx = random.randrange(len(input_list))
-        input_list = (
-            input_list[:inject_idx] + [val_generator()] + input_list[inject_idx:]
-        )
+        input_list = input_list[:inject_idx] + [val_generator()] + input_list[inject_idx:]
 
     return input_list + new_values
 

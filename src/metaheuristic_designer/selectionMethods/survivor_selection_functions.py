@@ -106,9 +106,7 @@ def elitism(popul, offspring, amount):
     survivors: List[Individual]
         The individuals selected for the next generation.
     """
-    selected_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[
-        : len(popul) - amount
-    ]
+    selected_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[: len(popul) - amount]
     best_parents = sorted(popul, reverse=True, key=lambda x: x.fitness)[:amount]
 
     return best_parents + selected_offspring
@@ -132,9 +130,7 @@ def cond_elitism(popul, offspring, amount):
     """
 
     best_parents = sorted(popul, reverse=True, key=lambda x: x.fitness)[:amount]
-    new_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[
-        : len(popul)
-    ]
+    new_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[: len(popul)]
     best_offspring = new_offspring[:amount]
 
     for idx, val in enumerate(best_parents):

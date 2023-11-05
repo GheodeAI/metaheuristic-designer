@@ -39,9 +39,7 @@ class LocalSearch(SearchStrategy):
             offspring = []
             for indiv in indiv_list:
                 # Perturb individual
-                new_indiv = self.perturb_op(
-                    indiv, indiv_list, objfunc, self.best, self.pop_init
-                )
+                new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
                 new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
                 offspring.append(new_indiv)

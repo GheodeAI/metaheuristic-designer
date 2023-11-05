@@ -41,9 +41,7 @@ class StaticPopulation(SearchStrategy):
         offspring = []
         for indiv in parent_list:
             # Apply operator
-            new_indiv = self.operator(
-                indiv, parent_list, objfunc, self.best, self.pop_init
-            )
+            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 

@@ -39,9 +39,7 @@ class HillClimb(SearchStrategy):
             offspring = []
             for indiv in next_indiv_list:
                 # Perturb individual
-                new_indiv = self.perturb_op(
-                    indiv, next_indiv_list, objfunc, self.best, self.pop_init
-                )
+                new_indiv = self.perturb_op(indiv, next_indiv_list, objfunc, self.best, self.pop_init)
                 new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
                 offspring.append(new_indiv)

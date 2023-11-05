@@ -23,9 +23,7 @@ class OperatorLambda(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(
-        self, fn: callable, params: Union[ParamScheduler, dict] = None, name: str = None
-    ):
+    def __init__(self, fn: callable, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
         Constructor for the OperatorReal class
         """
