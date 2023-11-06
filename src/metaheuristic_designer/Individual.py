@@ -94,6 +94,7 @@ class Individual:
         if not self.fitness_calculated:
             # This calls the setter function
             self.fitness = self.objfunc(self)
+        return self._fitness
 
     @property
     def fitness(self) -> float:
@@ -101,8 +102,7 @@ class Individual:
         The fitness of the individual, optimized to be calculated only once per individual.
         """
 
-        self.calculate_fitness()
-        return self._fitness
+        return self.calculate_fitness()
 
     @fitness.setter
     def fitness(self, fit: float):

@@ -49,7 +49,7 @@ class MemeticAlgorithm(Algorithm):
 
         for idx, val in enumerate(off_idxs):
             offspring[val] = improved[idx]
-        
+
         offspring = self.search_strategy.evaluate_population(offspring, self.objfunc, self.parallel, self.threads)
 
         return offspring

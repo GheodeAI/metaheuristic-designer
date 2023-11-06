@@ -125,7 +125,7 @@ class SearchStrategy(ABC):
 
         return self.population
 
-    def evaluate_population(self, population, objfunc, parallel=False, threads=1):
+    def evaluate_population(self, population, objfunc, parallel=False, threads=8):
         if parallel:
             with Pool(threads) as p:
                 result_pairs = p.map(evaluate_indiv, population)

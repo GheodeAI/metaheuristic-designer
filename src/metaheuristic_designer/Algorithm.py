@@ -60,7 +60,7 @@ class Algorithm(ABC):
 
         # Parallel parameters
         self.parallel = params.get("parallel", False)
-        self.threads = params.get("threads", 1)
+        self.threads = params.get("threads", 8)
 
         # Metrics
         self.fit_history = []

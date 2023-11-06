@@ -45,7 +45,7 @@ class LocalSearch(SearchStrategy):
             offspring.append(new_indiv)
 
         return offspring
-    
+
     def select_individuals(self, population, offspring, **kwargs):
         return self.selection_op(population, offspring)
 
