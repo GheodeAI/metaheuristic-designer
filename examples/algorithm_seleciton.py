@@ -1,4 +1,4 @@
-from metaheuristic_designer import ObjectiveFunc, ParamScheduler
+from metaheuristic_designer import ObjectiveFunc, ParamScheduler, simple
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm, AlgorithmSelection
 from metaheuristic_designer.operators import OperatorReal, OperatorInt, OperatorBinary
 from metaheuristic_designer.initializers import UniformVectorInitializer
@@ -17,105 +17,31 @@ import numpy as np
 def run_algorithm(save_report):
     params = {
         "stop_cond": "neval",
-        "progress_metric": "neval",
-        "neval": 3e5,
+        # "neval": 1e4,
+        "neval": 10,
+        "encoding": "real",
         "verbose": False,
     }
 
-    objfunc = Sphere(3, "min")
-
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
-    single_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1)
-
-    mutation_op = OperatorReal("RandNoise", {"method": "Cauchy", "F": 0.0001})
-    cross_op = OperatorReal("Multipoint")
-
-    parent_sel_op = ParentSelection("Best", {"amount": 50})
-    selection_op = SurvivorSelection("(m+n)")
-
-    mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorReal("RandNoise", {"method": "Cauchy", "F": 0.0002})
-    local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
+    objfunc = Rastrigin(3, "min")
 
     # Define algorithms to be tested
     algorithms = [
-        GeneralAlgorithm(objfunc, HillClimb(single_initializer, mutation_op), params=params),
-        GeneralAlgorithm(objfunc, LocalSearch(single_initializer, mutation_op), params=params),
-        GeneralAlgorithm(objfunc, SA(pop_initializer, mutation_op, {"iter": 100, "temp_init": 1, "alpha": 0.997}), params=params),
-        GeneralAlgorithm(
-            objfunc,
-            ES(
-                pop_initializer,
-                mutation_op,
-                OperatorReal("Nothing"),
-                parent_sel_op,
-                selection_op,
-                {"offspringSize": 150},
-            ),
-            params=params,
-        ),
-        GeneralAlgorithm(
-            objfunc,
-            GA(
-                pop_initializer,
-                mutation_op,
-                cross_op,
-                parent_sel_op,
-                selection_op,
-                {"pcross": 0.8, "pmut": 0.2},
-            ),
-            params=params,
-        ),
-        MemeticAlgorithm(
-            objfunc,
-            GA(
-                pop_initializer,
-                mutation_op,
-                cross_op,
-                parent_sel_op,
-                selection_op,
-                {"pcross": 0.8, "pmut": 0.2},
-            ),
-            local_search,
-            mem_select,
-            params=params,
-        ),
-        GeneralAlgorithm(
-            objfunc,
-            GA(
-                pop_initializer,
-                mutation_op,
-                cross_op,
-                parent_sel_op,
-                selection_op,
-                {"pcross": 0.8, "pmut": 0.1},
-            ),
-            params=params,
-        ),
-        MemeticAlgorithm(
-            objfunc,
-            GA(
-                pop_initializer,
-                mutation_op,
-                cross_op,
-                parent_sel_op,
-                selection_op,
-                {"pcross": 0.8, "pmut": 0.1},
-            ),
-            local_search,
-            mem_select,
-            params=params,
-        ),
-        GeneralAlgorithm(objfunc, PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5}), params=params),
-        MemeticAlgorithm(objfunc, PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5}), local_search, mem_select, params=params),
-        GeneralAlgorithm(objfunc, RandomSearch(pop_initializer), params=params),
+        simple.hill_climb(objfunc, params),
+        simple.simulated_annealing(objfunc, params),
+        simple.evolution_strategy(objfunc, params),
+        simple.differential_evolution(objfunc, params),
+        simple.genetic_algorithm(objfunc, params),
+        simple.particle_swarm(objfunc, params),
+        simple.random_search(objfunc, params)
     ]
 
-    alg = AlgorithmSelection(algorithms)
+    algorithm_search = AlgorithmSelection(algorithms)
 
-    report = alg.optimize()
+    solution, report = algorithm_search.optimize()
+    print(f"solution: {solution}")
     print(report)
-    # alg.display_report(show_plots=True)
+    
 
 
 def main():
