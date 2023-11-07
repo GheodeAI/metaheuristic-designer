@@ -27,10 +27,11 @@ class StrategySelection:
         self,
         objfunc: ObjectiveFunc,
         strategy_list: Iterable[SearchStrategy],
+        algorithm_params: Union[ParamScheduler, dict] = None,
         params: Union[ParamScheduler, dict] = None,
     ):
         self.strategy_list = strategy_list
-        algorithm_list = [GeneralAlgorithm(objfunc, strategy, params) for i in strategy_list]
+        algorithm_list = [GeneralAlgorithm(objfunc, strategy, algorithm_params) for strategy in strategy_list]
 
         self.algorithm_selection = AlgorithmSelection(algorithm_list, params)
 

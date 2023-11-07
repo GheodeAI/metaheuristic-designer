@@ -37,7 +37,7 @@ class MemeticAlgorithm(Algorithm):
     def name(self):
         backup_name = f"Memetic {self.search_strategy.name}"
         return self._name if self._name else backup_name
-    
+
     @name.setter
     def name(self, new_name: str):
         self._name = new_name

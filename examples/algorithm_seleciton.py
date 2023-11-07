@@ -17,13 +17,12 @@ import numpy as np
 def run_algorithm(save_report):
     params = {
         "stop_cond": "neval",
-        # "neval": 1e4,
-        "neval": 10,
+        "neval": 1e4,
         "encoding": "real",
         "verbose": False,
     }
 
-    objfunc = Rastrigin(3, "min")
+    objfunc = HappyCat(3, "min")
 
     # Define algorithms to be tested
     algorithms = [
@@ -33,15 +32,17 @@ def run_algorithm(save_report):
         simple.differential_evolution(objfunc, params),
         simple.genetic_algorithm(objfunc, params),
         simple.particle_swarm(objfunc, params),
-        simple.random_search(objfunc, params)
+        simple.random_search(objfunc, params),
     ]
 
     algorithm_search = AlgorithmSelection(algorithms)
 
-    solution, report = algorithm_search.optimize()
+    solution, best_fitness, report = algorithm_search.optimize()
     print(f"solution: {solution}")
+    print(f"with fitness: {best_fitness}")
     print(report)
-    
+    if save_report:
+        report.to_csv("./examples/results/algorithm_selection_report.csv")
 
 
 def main():

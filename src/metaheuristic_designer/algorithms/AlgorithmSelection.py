@@ -46,17 +46,17 @@ class AlgorithmSelection:
 
     def optimize(self):
         if self.verbose:
-            print(
-                f"Running {len(self.algorithm_list)} algorithms {self.repetitions} times each."
-            )
+            print(f"Running {len(self.algorithm_list)} algorithms {self.repetitions} times each.")
 
         best_solution = None
         best_fitness = 0
         report_raw = pd.DataFrame(columns=["name", "realtime", "cputime", "fitness"])
         for idx, algorithm in enumerate(self.algorithm_list):
             for rep in range(self.repetitions):
+                # Optimize using the algorithm
                 solution, fitness = algorithm.optimize()
 
+                # Get the dataframe row
                 report_raw.loc[len(report_raw.index)] = {
                     "name": algorithm.name,
                     "realtime": algorithm.real_time_spent,
@@ -67,21 +67,27 @@ class AlgorithmSelection:
                 if self.verbose:
                     print(f"{algorithm.name} repetition {rep+1}/{self.repetitions}.")
 
-                if best_solution is None or best_fitness > fitness:
+                # Save the solution if it improves the previous one
+                if (
+                    best_solution is None
+                    or (algorithm.objfunc.mode == "min" and best_fitness > fitness)
+                    or (algorithm.objfunc.mode == "max" and best_fitness < fitness)
+                ):
                     best_solution = solution
                     best_fitness = fitness
 
+                # Reset the algorithm data
                 algorithm.restart()
 
             if self.verbose:
                 print(f"{algorithm.name} finished. {idx+1}/{len(self.algorithm_list)}")
                 print()
 
+        # Obtain statistics about the executions
         report_gropued = report_raw.groupby("name", sort=False)
-        report = pd.DataFrame()
 
+        report = pd.DataFrame()
         for group_name, group in report_gropued:
-            print(group_name, group)
             report = pd.concat(
                 [
                     report,
@@ -105,4 +111,4 @@ class AlgorithmSelection:
                 ]
             )
 
-        return best_solution, report.reset_index(drop=True)
+        return best_solution, best_fitness, report.reset_index(drop=True)
