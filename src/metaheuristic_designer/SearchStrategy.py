@@ -136,6 +136,11 @@ class SearchStrategy(ABC):
 
         current_best = max(population, key=lambda x: x.fitness)
 
+        if not self.best or self.best.fitness < current_best.fitness:
+            self.best = current_best
+
+        return population
+
     def select_parents(
         self, population: List[Individual], **kwargs
     ) -> Tuple[List[Individual], List[int]]:

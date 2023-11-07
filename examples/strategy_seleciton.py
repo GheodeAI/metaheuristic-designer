@@ -15,7 +15,7 @@ import numpy as np
 
 
 def run_algorithm(save_report):
-    objfunc = HappyCat(3, "max")
+    objfunc = HappyCat(3, "min")
     single_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1)
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 

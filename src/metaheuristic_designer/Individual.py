@@ -90,6 +90,16 @@ class Individual:
 
         return Individual(self.objfunc, self._genotype + self.speed, self.speed, self.encoding)
 
+    def calculate_fitness(self) -> float:
+        """
+        Calculates the fitness of the individual if it has not been calculated before
+        """
+
+        if not self.fitness_calculated:
+            # This calls the setter function
+            self.fitness = self.objfunc(self)
+        return self._fitness
+
     @property
     def fitness(self) -> float:
         """
