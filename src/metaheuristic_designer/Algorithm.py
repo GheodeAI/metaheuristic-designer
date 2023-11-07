@@ -5,6 +5,9 @@ import json
 import numpy as np
 import pyparsing as pp
 from .utils import NumpyEncoder
+import matplotlib.pyplot as plt
+# import seaborn as sns
+# sns.set_style("white")
 
 
 class Algorithm(ABC):
@@ -27,6 +30,7 @@ class Algorithm(ABC):
         objfunc: ObjectiveFunc,
         search_strategy: SearchStrategy,
         params: Union[ParamScheduler, dict] = None,
+        name: str = None
     ):
         """
         Constructor of the Search class
@@ -35,6 +39,7 @@ class Algorithm(ABC):
         self.params = params
         self.search_strategy = search_strategy
         self.objfunc = objfunc
+        self._name = name
 
         if params is None:
             params = {}
@@ -50,11 +55,13 @@ class Algorithm(ABC):
         self.progress_metric = params.get("progress_metric", self.stop_cond)
         self.progress_metric_parsed = parse_stopping_cond(self.progress_metric) if "progress_metric" in params else self.stop_cond_parsed
 
-        self.Ngen = params.get("ngen", 100)
-        self.Neval = params.get("neval", 1e5)
+        self.ngen = params.get("ngen", 100)
+        self.neval = params.get("neval", 1e5)
         self.time_limit = params.get("time_limit", 10.0)
         self.cpu_time_limit = params.get("cpu_time_limit", 10.0)
         self.fit_target = params.get("fit_target", 1e-10)
+        if self.fit_target == 0:
+            self.fit_target = 1e-10
         self.max_patience = params.get("patience", 1)
         self.patience_left = self.max_patience
 
@@ -72,6 +79,14 @@ class Algorithm(ABC):
         self.cpu_time_spent = 0
         self.real_time_spent = 0
         self.converged_steps = 0
+
+    @property
+    def name(self):
+        return self._name if self._name else self.search_strategy.name
+    
+    @name.setter
+    def name(self, new_name: str):
+        self._name = new_name
 
     def restart(self):
         """
@@ -132,9 +147,9 @@ class Algorithm(ABC):
             Whether the algorithm has reached its end
         """
 
-        neval_reached = self.objfunc.counter >= self.Neval
+        neval_reached = self.objfunc.counter >= self.neval
 
-        ngen_reached = gen >= self.Ngen
+        ngen_reached = gen >= self.ngen
 
         real_time_reached = time.time() - real_time_start >= self.time_limit
 
@@ -177,21 +192,29 @@ class Algorithm(ABC):
             Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
         """
 
-        neval_reached = self.objfunc.counter / self.Neval
+        neval_reached = self.objfunc.counter / self.neval
 
-        ngen_reached = gen / self.Ngen
+        ngen_reached = gen / self.ngen
 
         real_time_reached = (time.time() - real_time_start) / self.time_limit
 
         cpu_time_reached = (time.process_time() - cpu_time_start) / self.cpu_time_limit
 
         best_fitness = self.best_solution()[1]
+        
+        # if self.objfunc.mode == "max":
+        #     if self.fit_target == 0:
+        #         self.fit_target = 1e-40
+        #     target_reached = (best_fitness / self.fit_target
+        # else:
+        #     if best_fitness == 0:
+        #         best_fitness = 1e-40
+        #     target_reached = self.fit_target / best_fitness
         if self.objfunc.mode == "max":
-            target_reached = best_fitness / self.fit_target
+            target_reached = 1 - (self.best_solution()[1] - self.fit_target)/self.fit_target
         else:
-            if best_fitness == 0:
-                best_fitness = 1e-40
-            target_reached = self.fit_target / best_fitness
+            target_reached = 1 - (self.fit_target - self.best_solution()[1])/self.fit_target
+
 
         patience_prec = 1 - self.patience_left / self.max_patience
 
@@ -414,7 +437,6 @@ class Algorithm(ABC):
         print(f"-----------------------------{'-'*len(self.objfunc.name)}-------{'-'*len(self.search_strategy.name)}")
         print()
 
-    @abstractmethod
     def step_info(self, start_time: float = 0):
         """
         Displays information about the current state of the algotithm.
@@ -425,7 +447,17 @@ class Algorithm(ABC):
             Indicates to the algorihm how much time has already passed.
         """
 
-    @abstractmethod
+        print(f"Optimizing {self.objfunc.name} using {self.name}:")
+        print(f"\tReal time Spent: {round(time.time() - start_time,2)} s")
+        print(f"\tCPU time Spent:  {round(time.time() - start_time,2)} s")
+        print(f"\tGeneration: {self.steps}")
+        best_fitness = self.best_solution()[1]
+        print(f"\tBest fitness: {best_fitness}")
+        print(f"\tEvaluations of fitness: {self.objfunc.counter}")
+        print()
+        self.search_strategy.extra_step_info()
+        print()
+
     def display_report(self, show_plots: bool = True):
         """
         Shows a summary of the execution of the algorithm.
@@ -435,6 +467,26 @@ class Algorithm(ABC):
         show_plots: bool, optional
             Whether to display plots about the algorithm or not.
         """
+
+        print("Number of generations:", len(self.fit_history))
+        print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
+        print("CPU time spent: ", round(self.cpu_time_spent, 5), "s", sep="")
+        print("Number of fitness evaluations:", self.objfunc.counter)
+
+        best_fitness = self.best_solution()[1]
+        print("Best fitness:", best_fitness)
+
+        if show_plots:
+            # Plot fitness history
+            plt.axhline(y=0, color="black", alpha=0.9)
+            plt.axvline(x=0, color="black", alpha=0.9)
+            plt.plot(self.fit_history, "blue")
+            plt.xlabel("generations")
+            plt.ylabel("fitness")
+            plt.title(f"{self.search_strategy.name} fitness")
+            plt.show()
+
+        self.search_strategy.extra_report(show_plots)
 
 
 def parse_stopping_cond(condition_str: str) -> List[str | List]:

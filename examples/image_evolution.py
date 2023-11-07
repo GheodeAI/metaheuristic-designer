@@ -79,7 +79,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         encoding=encoding,
     )
 
-    mutation_op = OperatorReal("MutNoisegit", {"method": "Gauss", "F": 10, "N": 15})
+    mutation_op = OperatorReal("MutRand", {"method": "Uniform", "Low": -20, "Up": 20, "N": 15})
     cross_op = OperatorReal("Multipoint")
 
     op_list = [

@@ -34,13 +34,13 @@ class LocalSearch(SearchStrategy):
         super().__init__(pop_init, params=params, name=name)
 
     def perturb(self, indiv_list, objfunc, **kwargs):
-        offspring = []
-        indiv = indiv_list[0]
-        for i in range(self.iterations):
-            # Perturb individual
-            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
+        next_indiv_list = copy(indiv_list)
+        for _ in range(self.iterations):
+            offspring = []
+            for indiv in indiv_list:
+                # Perturb individual
+                new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
+                new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             offspring.append(new_indiv)
 

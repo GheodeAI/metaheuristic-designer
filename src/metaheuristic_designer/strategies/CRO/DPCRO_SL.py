@@ -47,71 +47,7 @@ class DPCRO_SL(CRO_SL):
         self.op_steps = 0
         self.operator_metric = [0] * len(operator_list)
         self.operator_history = []
-
-    def perturb(self, parent_list, objfunc, **kwargs):
-        offspring = []
-
-        divided_population = [[] for i in self.operator_list]
-        for idx, indiv in enumerate(parent_list):
-            op_idx = self.operator_idx[idx]
-            divided_population[op_idx].append(indiv)
-
-        for idx, indiv in enumerate(parent_list):
-            # Select operator
-            op_idx = self.operator_idx[idx]
-
-            op = self.operator_list[op_idx]
-
-            new_parent_list = divided_population[op_idx] if self.group_subs else parent_list
-
-            # Apply operator
-            new_indiv = op(indiv, new_parent_list, objfunc, self.best, self.pop_init)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
-
-            # Collect data about each operator
-            if self.dyn_method == "fitness" or self.dyn_method == "diff":
-                self.operator_data[op_idx].append(new_indiv.fitness)
-
-            # Add to offspring list
-            offspring.append(new_indiv)
-
-        # Update best solution
-        current_best = max(offspring, key=lambda x: x.fitness)
-        if self.best.fitness < current_best.fitness:
-            self.best = current_best
-
-        return offspring
-
-    def select_individuals(self, population, offspring, **kwargs):
-        offspring_ids = [i.id for i in offspring]
-        new_population = self.selection_op(population, offspring)
-        new_ids = [i.id for i in new_population]
-
-        for idx, off_id in enumerate(offspring_ids):
-            op_idx = self.operator_idx[idx]
-
-            self.larva_count[op_idx] += 1
-
-            if off_id in new_ids:
-                self.operator_data[op_idx][0] += 1
-
-        return new_population
-
-    def update_params(self, **kwargs):
-        progress = kwargs["progress"]
-
-        self._generate_substrates(progress)
-        super().update_params(progress=progress)
-
-    def extra_step_info(self):
-        print("\n\tSubstrate probability:")
-        op_names = [i.name for i in self.operator_list]
-        weights = [round(i, 6) for i in self.operator_weight]
-        adjust = max([len(i) for i in op_names])
-        for idx, val in enumerate(op_names):
-            print(f"\t\t{val}:".ljust(adjust + 3, " ") + f"{weights[idx]}")
-
+    
     def _operator_metric(self, data):
         result = 0
 
@@ -211,3 +147,67 @@ class DPCRO_SL(CRO_SL):
 
         # save the evaluation of each operator
         self.operator_history.append(np.array(self.operator_metric))
+
+    def perturb(self, parent_list, objfunc, **kwargs):
+        offspring = []
+
+        divided_population = [[] for i in self.operator_list]
+        for idx, indiv in enumerate(parent_list):
+            op_idx = self.operator_idx[idx]
+            divided_population[op_idx].append(indiv)
+
+        for idx, indiv in enumerate(parent_list):
+            # Select operator
+            op_idx = self.operator_idx[idx]
+
+            op = self.operator_list[op_idx]
+
+            new_parent_list = divided_population[op_idx] if self.group_subs else parent_list
+
+            # Apply operator
+            new_indiv = op(indiv, new_parent_list, objfunc, self.best, self.pop_init)
+            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
+            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
+
+            # Collect data about each operator
+            if self.dyn_method == "fitness" or self.dyn_method == "diff":
+                self.operator_data[op_idx].append(new_indiv.fitness)
+
+            # Add to offspring list
+            offspring.append(new_indiv)
+
+        # Update best solution
+        current_best = max(offspring, key=lambda x: x.fitness)
+        if self.best.fitness < current_best.fitness:
+            self.best = current_best
+
+        return offspring
+
+    def select_individuals(self, population, offspring, **kwargs):
+        offspring_ids = [i.id for i in offspring]
+        new_population = self.selection_op(population, offspring)
+        new_ids = [i.id for i in new_population]
+
+        for idx, off_id in enumerate(offspring_ids):
+            op_idx = self.operator_idx[idx]
+
+            self.larva_count[op_idx] += 1
+
+            if off_id in new_ids:
+                self.operator_data[op_idx][0] += 1
+
+        return new_population
+
+    def update_params(self, **kwargs):
+        progress = kwargs["progress"]
+
+        self._generate_substrates(progress)
+        super().update_params(progress=progress)
+
+    def extra_step_info(self):
+        print("\n\tSubstrate probability:")
+        op_names = [i.name for i in self.operator_list]
+        weights = [round(i, 6) for i in self.operator_weight]
+        adjust = max([len(i) for i in op_names])
+        for idx, val in enumerate(op_names):
+            print(f"\t\t{val}:".ljust(adjust + 3, " ") + f"{weights[idx]}")
