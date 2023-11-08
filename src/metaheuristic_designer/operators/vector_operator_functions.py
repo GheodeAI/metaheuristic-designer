@@ -201,17 +201,15 @@ def mutate_1_sigma(sigma, epsilon, tau):
     Mutate a sigma value in base of tau param, where epsilon is de minimum value that a sigma can have.
     """
 
-    return max(epsilon, np.exp(tau * RAND_GEN.normal()))
+    return np.maximum(epsilon, np.exp(tau * RAND_GEN.normal()))
 
 
-def mutate_n_sigmas(list_sigmas, epsilon, tau, tau_multiple):
+def mutate_n_sigmas(sigmas, epsilon, tau, tau_multiple):
     """
     Mutate a list of sigmas values in base of tau and tau_multiple params, where epsilon is de minimum value that a sigma can have.
     """
 
-    base_tau = tau * RAND_GEN.normal()
-    new_sigmas = [max(epsilon, sigma * np.exp(base_tau + tau_multiple * RAND_GEN.normal())) for sigma in list_sigmas]
-    return new_sigmas
+    return np.maximum(epsilon, sigmas*np.exp(tau * RAND_GEN.normal() + tau_multiple*RAND_GEN.normal()))
 
 
 def xor_mask(vector, n, mode="byte"):

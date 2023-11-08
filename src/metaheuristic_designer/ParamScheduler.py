@@ -61,6 +61,9 @@ class ParamScheduler:
 
         return self.current_params.get(key, def_value)
 
+    def update(update_dict: dict):
+        self.current_params.update(update_dict)
+
     def reset(self):
         """
         Sets all the parameters to their initial values.
