@@ -8,8 +8,8 @@ class DefaultEncoding(Encoding):
     Default encoder that uses the input vector as from the individual as the solution
     """
 
-    def encode(self, phenotype: np.ndarray) -> np.ndarray:
+    def encode(self, phenotype: Any) -> Any:
         return phenotype
 
-    def decode(self, genotype: np.ndarray) -> np.ndarray:
+    def decode(self, genotype: Any) -> Any:
         return genotype

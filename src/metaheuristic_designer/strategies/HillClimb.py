@@ -4,7 +4,7 @@ from copy import copy
 from ..ParamScheduler import ParamScheduler
 from ..SearchStrategy import SearchStrategy
 from ..Operator import Operator
-from ..operators import OperatorReal
+from ..operators import OperatorNull
 from ..selectionMethods import SurvivorSelection
 
 

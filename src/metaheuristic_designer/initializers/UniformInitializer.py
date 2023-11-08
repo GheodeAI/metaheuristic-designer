@@ -3,6 +3,7 @@ import numpy as np
 import random
 from ..Initializer import Initializer
 from ..Individual import Individual
+from ..encodings import AdaptionEncoding
 from ..utils import RAND_GEN
 
 
@@ -30,6 +31,8 @@ class UniformInitializer(Initializer):
         super().__init__(pop_size, encoding)
 
         self.genotype_size = genotype_size
+        if isinstance(encoding, AdaptionEncoding):
+            self.genotype_size = encoding.vecsize + encoding.nparams
 
         if type(low_lim) in [list, tuple, np.ndarray]:
             if len(low_lim) != genotype_size:

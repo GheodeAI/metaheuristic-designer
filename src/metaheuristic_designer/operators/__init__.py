@@ -5,4 +5,5 @@ from .OperatorBinary import OperatorBinary, BinOpMethods, bin_ops_map
 from .OperatorMeta import OperatorMeta, MetaOpMethods, meta_ops_map
 from .OperatorLambda import OperatorLambda
 from .OperatorNull import OperatorNull
+from .OperatorAdaptative import OperatorAdaptative
 from .vector_operator_functions import *
