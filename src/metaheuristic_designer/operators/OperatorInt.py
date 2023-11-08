@@ -267,7 +267,7 @@ class OperatorInt(Operator):
             fn = params["function"]
             new_indiv.genotype = fn(indiv, population, objfunc, params)
 
-        elif self.method == RealOpMethods.NOTHING:
+        elif self.method == IntOpMethods.NOTHING:
             new_indiv = indiv
 
         new_indiv.genotype = np.round(new_indiv.genotype)

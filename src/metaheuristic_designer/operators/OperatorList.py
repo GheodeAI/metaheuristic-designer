@@ -73,7 +73,7 @@ class OperatorList(Operator):
         elif self.method == ListOpMethods.SHRINK:
             nex_indiv.genotype = shrink(new_indiv.genotype, params["N"], params["method"])
 
-        elif self.method == RealOpMethods.NOTHING:
+        elif self.method == ListOpMethods.NOTHING:
             new_indiv = indiv
 
         return new_indiv

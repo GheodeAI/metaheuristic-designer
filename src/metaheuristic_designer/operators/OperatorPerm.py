@@ -126,7 +126,7 @@ class OperatorPerm(Operator):
             fn = params["function"]
             new_indiv.genotype = fn(indiv, population, objfunc, params)
 
-        elif self.method == RealOpMethods.NOTHING:
+        elif self.method == PermOpMethods.NOTHING:
             new_indiv = indiv
 
         return new_indiv

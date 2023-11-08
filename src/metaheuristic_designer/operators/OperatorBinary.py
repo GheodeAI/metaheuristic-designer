@@ -150,7 +150,7 @@ class OperatorBinary(Operator):
             fn = params["function"]
             new_indiv.genotype = fn(indiv, population, objfunc, params)
 
-        elif self.method == RealOpMethods.NOTHING:
+        elif self.method == BinOpMethods.NOTHING:
             new_indiv = indiv
 
         new_indiv.genotype = (new_indiv.genotype != 0).astype(np.int32)
