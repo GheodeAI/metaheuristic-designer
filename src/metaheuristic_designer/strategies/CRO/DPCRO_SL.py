@@ -47,7 +47,7 @@ class DPCRO_SL(CRO_SL):
         self.op_steps = 0
         self.operator_metric = [0] * len(operator_list)
         self.operator_history = []
-    
+
     def _operator_metric(self, data):
         result = 0
 

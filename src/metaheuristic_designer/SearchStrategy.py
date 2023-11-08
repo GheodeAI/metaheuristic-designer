@@ -141,9 +141,7 @@ class SearchStrategy(ABC):
 
         return population
 
-    def select_parents(
-        self, population: List[Individual], **kwargs
-    ) -> Tuple[List[Individual], List[int]]:
+    def select_parents(self, population: List[Individual], **kwargs) -> Tuple[List[Individual], List[int]]:
         """
         Selects the individuals that will be perturbed in this generation to generate the offspring.
 

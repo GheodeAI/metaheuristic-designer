@@ -4,6 +4,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from ..Algorithm import Algorithm
 from collections import Counter
+import enlighten
 
 
 class AlgorithmSelection:
@@ -51,7 +52,17 @@ class AlgorithmSelection:
         best_solution = None
         best_fitness = 0
         report_raw = pd.DataFrame(columns=["name", "realtime", "cputime", "fitness"])
+
+        # Create progress bar manager and global progress bar
+        if self.verbose:
+            bar_manager = enlighten.get_manager()
+            algorithm_bar = bar_manager.counter(total=len(self.algorithm_list), desc="Launching algorithms", color="red")
+
         for idx, algorithm in enumerate(self.algorithm_list):
+            # Create new progress bar for the new algorithm
+            if self.verbose:
+                repetition_bar = bar_manager.counter(total=self.repetitions, desc=f"Evaluating {algorithm.name}", color="green", leave=False)
+
             for rep in range(self.repetitions):
                 # Optimize using the algorithm
                 solution, fitness = algorithm.optimize()
@@ -64,9 +75,6 @@ class AlgorithmSelection:
                     "fitness": fitness,
                 }
 
-                if self.verbose:
-                    print(f"{algorithm.name} repetition {rep+1}/{self.repetitions}.")
-
                 # Save the solution if it improves the previous one
                 if (
                     best_solution is None
@@ -76,16 +84,23 @@ class AlgorithmSelection:
                     best_solution = solution
                     best_fitness = fitness
 
+                # Update progress bar
+                if self.verbose:
+                    repetition_bar.update()
+
                 # Reset the algorithm data
                 algorithm.restart()
 
+            # Update progress bar
             if self.verbose:
-                print(f"{algorithm.name} finished. {idx+1}/{len(self.algorithm_list)}")
-                print()
+                algorithm_bar.update()
+
+        # Stop displaying progress bars
+        if self.verbose:
+            bar_manager.stop()
 
         # Obtain statistics about the executions
         report_gropued = report_raw.groupby("name", sort=False)
-
         report = pd.DataFrame()
         for group_name, group in report_gropued:
             report = pd.concat(

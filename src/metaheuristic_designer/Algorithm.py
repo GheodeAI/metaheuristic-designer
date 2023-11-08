@@ -6,8 +6,6 @@ import numpy as np
 import pyparsing as pp
 from .utils import NumpyEncoder
 import matplotlib.pyplot as plt
-# import seaborn as sns
-# sns.set_style("white")
 
 
 class Algorithm(ABC):
@@ -25,13 +23,7 @@ class Algorithm(ABC):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def __init__(
-        self,
-        objfunc: ObjectiveFunc,
-        search_strategy: SearchStrategy,
-        params: Union[ParamScheduler, dict] = None,
-        name: str = None
-    ):
+    def __init__(self, objfunc: ObjectiveFunc, search_strategy: SearchStrategy, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
         Constructor of the Search class
         """
@@ -83,7 +75,7 @@ class Algorithm(ABC):
     @property
     def name(self):
         return self._name if self._name else self.search_strategy.name
-    
+
     @name.setter
     def name(self, new_name: str):
         self._name = new_name
@@ -201,7 +193,7 @@ class Algorithm(ABC):
         cpu_time_reached = (time.process_time() - cpu_time_start) / self.cpu_time_limit
 
         best_fitness = self.best_solution()[1]
-        
+
         # if self.objfunc.mode == "max":
         #     if self.fit_target == 0:
         #         self.fit_target = 1e-40
@@ -211,10 +203,9 @@ class Algorithm(ABC):
         #         best_fitness = 1e-40
         #     target_reached = self.fit_target / best_fitness
         if self.objfunc.mode == "max":
-            target_reached = 1 - (self.best_solution()[1] - self.fit_target)/self.fit_target
+            target_reached = 1 - (self.best_solution()[1] - self.fit_target) / self.fit_target
         else:
-            target_reached = 1 - (self.fit_target - self.best_solution()[1])/self.fit_target
-
+            target_reached = 1 - (self.fit_target - self.best_solution()[1]) / self.fit_target
 
         patience_prec = 1 - self.patience_left / self.max_patience
 
