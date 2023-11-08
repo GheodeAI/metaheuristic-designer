@@ -24,7 +24,7 @@ class HillClimb(SearchStrategy):
         self.iterations = params.get("iters", 1)
 
         if perturb_op is None:
-            perturb_op = OperatorReal("Nothing")
+            perturb_op = OperatorNull()
         self.perturb_op = perturb_op
 
         if selection_op is None:

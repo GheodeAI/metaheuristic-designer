@@ -4,4 +4,5 @@ from .OperatorPerm import OperatorPerm, PermOpMethods, perm_ops_map
 from .OperatorBinary import OperatorBinary, BinOpMethods, bin_ops_map
 from .OperatorMeta import OperatorMeta, MetaOpMethods, meta_ops_map
 from .OperatorLambda import OperatorLambda
+from .OperatorNull import OperatorNull
 from .vector_operator_functions import *

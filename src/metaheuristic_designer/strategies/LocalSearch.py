@@ -4,7 +4,7 @@ from copy import copy
 from ..ParamScheduler import ParamScheduler
 from ..SearchStrategy import SearchStrategy
 from ..Operator import Operator
-from ..operators import OperatorReal
+from ..operators import OperatorNull
 from ..selectionMethods import SurvivorSelection
 
 
@@ -24,7 +24,7 @@ class LocalSearch(SearchStrategy):
         self.iterations = params.get("iters", 100)
 
         if perturb_op is None:
-            perturb_op = OperatorReal("Nothing")
+            perturb_op = OperatorNull()
         self.perturb_op = perturb_op
 
         if selection_op is None:
