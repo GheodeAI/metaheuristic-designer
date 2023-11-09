@@ -55,7 +55,7 @@ class OperatorMeta(Operator):
         name: str = None,
     ):
         """
-        Constructor for the Operator class
+        Constructor for the OperatorMeta class
         """
 
         self.op_list = op_list

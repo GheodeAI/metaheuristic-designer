@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 
 class Algorithm(ABC):
     """
-    General framework for metaheuristic algorithms.
+    Abstract Algorithm class.
+
+    This class defines the structure of all optimization algorithms.
 
     Parameters
     ----------

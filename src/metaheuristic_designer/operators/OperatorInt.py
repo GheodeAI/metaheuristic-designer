@@ -109,7 +109,7 @@ class OperatorInt(Operator):
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
-        Constructor for the Operator class
+        Constructor for the OperatorInt class
         """
 
         if name is None:

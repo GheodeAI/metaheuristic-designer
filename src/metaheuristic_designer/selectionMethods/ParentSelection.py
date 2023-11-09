@@ -38,6 +38,8 @@ class ParentSelection(SelectionMethod):
     """
     Parent selection methods.
 
+    Selects the individuals that will be perturbed in this generation.
+
     Parameters
     ----------
     method: str

@@ -4,7 +4,9 @@ from abc import ABC, abstractmethod
 
 class Encoding(ABC):
     """
-    Base class for transforming between phenotype and genotype.
+    Abstract Encoding class
+
+    This class transforms between phenotype and genotype.
     """
 
     def encode(self, phenotype) -> Any:

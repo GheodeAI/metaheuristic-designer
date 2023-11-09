@@ -11,7 +11,8 @@ from ..utils import RAND_GEN
 
 class OperatorNull(Operator):
     """
-    Operator class that applies a custom operator specified as a function.
+    Operator class that returns the individual without changes.
+    Surprisingly useful.
 
     Parameters
     ----------
@@ -25,7 +26,7 @@ class OperatorNull(Operator):
 
     def __init__(self, name: str = None):
         """
-        Constructor for the OperatorReal class
+        Constructor for the OperatorNull class
         """
 
         if name is None:

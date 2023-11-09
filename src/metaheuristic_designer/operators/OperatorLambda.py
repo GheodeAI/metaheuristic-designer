@@ -25,7 +25,7 @@ class OperatorLambda(Operator):
 
     def __init__(self, fn: callable, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
-        Constructor for the OperatorReal class
+        Constructor for the OperatorLambda class
         """
 
         self.fn = fn

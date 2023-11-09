@@ -5,7 +5,7 @@ from ..Encoding import Encoding
 
 class MatrixEncoding(Encoding):
     """
-    Decoder used to evolve matrices
+    Decoder used to evolve matrices.
     """
 
     def __init__(self, shape):

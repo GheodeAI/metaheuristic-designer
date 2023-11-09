@@ -15,6 +15,8 @@ def evaluate_indiv(indiv):
 
 class SearchStrategy(ABC):
     """
+    Abstract Search Strategy class.
+    
     This is the class that defines how the optimization will be carried out.
 
     Parameters

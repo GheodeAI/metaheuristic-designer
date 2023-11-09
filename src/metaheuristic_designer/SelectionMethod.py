@@ -5,7 +5,9 @@ from .ParamScheduler import ParamScheduler
 
 class SelectionMethod(ABC):
     """
-    Survivor selection methods
+    Abstract Selection Method class.
+
+    This class defines the structure for individual selection methods.
 
     Parameters
     ----------

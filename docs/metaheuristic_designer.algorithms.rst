@@ -16,3 +16,19 @@ Memetic Algorithm
    :members:
    :undoc-members:
    :show-inheritance:
+
+Algorithm Selection
+---------------------------------------------
+
+.. autoclass:: metaheuristic_designer.algorithms.AlgorithmSelection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Strategy Selection
+---------------------------------------------
+
+.. autoclass:: metaheuristic_designer.algorithms.StrategySelection
+   :members:
+   :undoc-members:
+   :show-inheritance:

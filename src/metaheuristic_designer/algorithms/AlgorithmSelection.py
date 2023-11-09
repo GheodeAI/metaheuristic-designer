@@ -9,17 +9,15 @@ import enlighten
 
 class AlgorithmSelection:
     """
-    General framework for metaheuristic algorithms
+    Utility to evaluate and compare the performance of different algorithms.
 
     Parameters
     ----------
 
-    objfunc: ObjectiveFunc
-        Objective function to be optimized.
-    search_strategy: Algorithm
-        Search strategy that will iteratively optimize the function.
+    algorithm_list: Iterable[Algorithm]
+        List of algorithms to evaluate.
     params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the stopping condition and output of the algorithm.
+        Indicates whether to show progress bars with 'verbose' and the number of times to repeat each algorithm with 'repetitions'
     """
 
     def __init__(
@@ -45,7 +43,11 @@ class AlgorithmSelection:
         self.solutions = []
         self.verbose = params.get("verbose", True)
 
-    def optimize(self):
+    def optimize(self) -> Tuple[Any, float, pd.DataFrame]:
+        """
+        Evaluates all the provided search strategies and returns the best overall solution
+        """
+
         if self.verbose:
             print(f"Running {len(self.algorithm_list)} algorithms {self.repetitions} times each.")
 

@@ -13,18 +13,20 @@ from enum import Enum
 
 class OperatorAdaptative(Operator):
     """
-    Operator class that utilizes a list of operators to modify individuals.
+    Operator class that allow algorithms to self-adapt by mutating the operator's parameters.
 
     Parameters
     ----------
-    method: str
-        Type of operator that will be applied.
-    op_list: List[Operator]
-        List of operators that will be used.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the operator.
-    name: str, optional
-        Name that is associated with the operator.
+        base_operator: Operator
+            Operator that will be applied to the solution we are evaluating.
+        param_operator: Operator
+            Operator that will be applied to the parameters of the base operator.
+        param_encoding: AdaptionEncoding
+            Encoding that divides the genotype into the solution and the operator's parameters.
+        params: Union[ParamScheduler, dict]
+            Optional parameters that are used by the operator.
+        name: str
+            Name of the operator.
     """
 
     def __init__(
@@ -36,7 +38,7 @@ class OperatorAdaptative(Operator):
         name: str = None,
     ):
         """
-        Constructor for the Operator class
+        Constructor for the OperatorAdaptative class
         """
 
         super().__init__(params, base_operator.name + "-Adaptative")

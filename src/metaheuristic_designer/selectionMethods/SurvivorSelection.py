@@ -45,7 +45,9 @@ surv_method_map = {
 
 class SurvivorSelection(SelectionMethod):
     """
-    Survivor selection methods
+    Survivor selection methods.
+
+    Selects the individuals that will remain for the next generation of our algorithm.
 
     Parameters
     ----------

@@ -8,7 +8,7 @@ from .DefaultEncoding import DefaultEncoding
 
 class CMAEncoding(AdaptionEncoding):
     """
-    Decoder used to implement the CMA-ES algorithm
+    Decoder used to implement the CMA-ES algorithm.
     """
 
     def decode_param(self, genotype: np.ndarray) -> np.ndarray:

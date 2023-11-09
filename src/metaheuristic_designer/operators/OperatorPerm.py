@@ -62,7 +62,7 @@ class OperatorPerm(Operator):
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
-        Constructor for the Operator class
+        Constructor for the OperatorPerm class
         """
 
         if name is None:

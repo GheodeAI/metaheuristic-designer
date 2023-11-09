@@ -46,7 +46,7 @@ class OperatorList(Operator):
 
     def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
-        Constructor for the OperatorReal class
+        Constructor for the OperatorList class
         """
 
         if name is None:

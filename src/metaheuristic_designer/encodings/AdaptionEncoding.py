@@ -6,7 +6,9 @@ from .DefaultEncoding import DefaultEncoding
 
 class AdaptionEncoding(Encoding):
     """
-    Base class for transforming between phenotype and genotype.
+    Abstract Adaption Encoding class.
+
+    This kind of encoding will represent solutions as a vector with the solution and some parameters for the operators of the algorithm.
     """
 
     def __init__(self, vecsize: int, nparams: int, base_encoding: Encoding = None):

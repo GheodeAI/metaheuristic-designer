@@ -10,17 +10,19 @@ from collections import Counter
 
 class StrategySelection:
     """
-    General framework for metaheuristic algorithms
+    Utility to evaluate and compare the performance of different search strategies.
 
     Parameters
     ----------
 
     objfunc: ObjectiveFunc
-        Objective function to be optimized.
-    search_strategy: Algorithm
-        Search strategy that will iteratively optimize the function.
+        Objective function to evaluate
+    strategy_list: Iterable[SearchStrategy]
+        List of algorithms to evaluate.
+    algorithm_params: ParamScheduler or dict, optional
+        Parameters shared by all the algorithms being run.
     params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the stopping condition and output of the algorithm.
+        Indicates whether to show progress bars with 'verbose' and the number of times to repeat each algorithm with 'repetitions'
     """
 
     def __init__(
@@ -35,5 +37,9 @@ class StrategySelection:
 
         self.algorithm_selection = AlgorithmSelection(algorithm_list, params)
 
-    def optimize(self):
+    def optimize(self) -> Tuple[Any, float, pd.DataFrame]:
+        """
+        Evaluates all the provided search strategies and returns the best overall solution
+        """
+
         return self.algorithm_selection.optimize()

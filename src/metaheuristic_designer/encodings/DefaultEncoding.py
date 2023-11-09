@@ -5,7 +5,7 @@ from ..Encoding import Encoding
 
 class DefaultEncoding(Encoding):
     """
-    Default encoder that uses the input vector as from the individual as the solution
+    Default encoder that uses the genotype directly as a solution.
     """
 
     def encode(self, phenotype: Any) -> Any:

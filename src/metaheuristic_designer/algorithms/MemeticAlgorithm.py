@@ -6,7 +6,7 @@ from ..Algorithm import Algorithm
 
 class MemeticAlgorithm(Algorithm):
     """
-    General framework for metaheuristic algorithms
+    Framework for algorithms that incorporate a combination of a main search strategy and a local search step.
 
     Parameters
     ----------
