@@ -34,9 +34,7 @@ class PSO(StaticPopulation):
 
         selection_op = SurvivorSelection("Generational")
 
-        super().__init__(
-            pop_init, pso_op, selection_op=selection_op, params=params, name=name
-        )
+        super().__init__(pop_init, pso_op, selection_op=selection_op, params=params, name=name)
 
     def extra_step_info(self):
         popul_matrix = np.array(list(map(lambda x: x.genotype, self.population)))

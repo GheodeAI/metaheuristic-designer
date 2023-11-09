@@ -4,10 +4,19 @@ from .Individual import Individual
 from .ParamScheduler import ParamScheduler
 from .selectionMethods import ParentSelection, SurvivorSelection
 from .Operator import Operator
+from multiprocessing import Pool
+
+
+def evaluate_indiv(indiv):
+    calculation_done = not indiv.fitness_calculated
+    indiv.calculate_fitness()
+    return indiv, calculation_done
 
 
 class SearchStrategy(ABC):
     """
+    Abstract Search Strategy class.
+    
     This is the class that defines how the optimization will be carried out.
 
     Parameters
@@ -116,11 +125,25 @@ class SearchStrategy(ABC):
 
         self.population = self.pop_init.generate_population(objfunc)
 
-        self.best = max(self.population, key=lambda x: x.fitness)
+        return self.population
 
-    def select_parents(
-        self, population: List[Individual], **kwargs
-    ) -> Tuple[List[Individual], List[int]]:
+    def evaluate_population(self, population, objfunc, parallel=False, threads=8):
+        if parallel:
+            with Pool(threads) as p:
+                result_pairs = p.map(evaluate_indiv, population)
+            population, calculated = map(list, zip(*result_pairs))
+            objfunc.counter += sum(calculated)
+        else:
+            [indiv.calculate_fitness() for indiv in population]
+
+        current_best = max(population, key=lambda x: x.fitness)
+
+        if not self.best or self.best.fitness < current_best.fitness:
+            self.best = current_best
+
+        return population
+
+    def select_parents(self, population: List[Individual], **kwargs) -> Tuple[List[Individual], List[int]]:
         """
         Selects the individuals that will be perturbed in this generation to generate the offspring.
 
@@ -138,9 +161,7 @@ class SearchStrategy(ABC):
         return population
 
     @abstractmethod
-    def perturb(
-        self, parent_list: List[Individual], objfunc: ObjectiveFunc, **kwargs
-    ) -> List[Individual]:
+    def perturb(self, parent_list: List[Individual], objfunc: ObjectiveFunc, **kwargs) -> List[Individual]:
         """
         Applies operators to the population to get the next generation of individuals.
 
@@ -157,9 +178,7 @@ class SearchStrategy(ABC):
             The list of individuals modified by the operators of the search strategy.
         """
 
-    def select_individuals(
-        self, population: List[Individual], offspring: List[Individual], **kwargs
-    ) -> List[Individual]:
+    def select_individuals(self, population: List[Individual], offspring: List[Individual], **kwargs) -> List[Individual]:
         """
         Selects the individuals that will pass to the next generation.
 
@@ -221,10 +240,7 @@ class SearchStrategy(ABC):
             data["survivor_sel"] = [surv.get_state() for surv in self.surv_sel]
 
         if show_pop:
-            data["population"] = [
-                ind.get_state(show_speed=show_pop_details, show_best=show_pop_details)
-                for ind in self.population
-            ]
+            data["population"] = [ind.get_state(show_speed=show_pop_details, show_best=show_pop_details) for ind in self.population]
 
         return data
 

@@ -5,7 +5,7 @@ from ..Encoding import Encoding
 
 class ImageEncoding(Encoding):
     """
-    Decoder used to evolve images
+    Decoder used to evolve images.
     """
 
     def __init__(self, shape, color=True):

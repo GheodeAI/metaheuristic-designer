@@ -38,6 +38,8 @@ class ParentSelection(SelectionMethod):
     """
     Parent selection methods.
 
+    Selects the individuals that will be perturbed in this generation.
+
     Parameters
     ----------
     method: str
@@ -73,16 +75,12 @@ class ParentSelection(SelectionMethod):
             if "F" not in self.params:
                 self.params["F"] = None
 
-    def select(
-        self, population: List[Individual], offsping: List[Individual] = None
-    ) -> List[Individual]:
+    def select(self, population: List[Individual], offsping: List[Individual] = None) -> List[Individual]:
         population = population.copy()
         parents = []
 
         if self.method == ParentSelMethod.TOURNAMENT:
-            parents = prob_tournament(
-                population, self.params["amount"], self.params["p"]
-            )
+            parents = prob_tournament(population, self.params["amount"], self.params["p"])
 
         elif self.method == ParentSelMethod.BEST:
             parents = select_best(population, self.params["amount"])

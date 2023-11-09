@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "metaheuristic-designer"
-version = "0.1.4"
+version = "0.1.5"
 authors = [
     {name = "eugenioLR", email = "eugeniolorente0@gmail.com"}
 ]
@@ -31,9 +31,11 @@ dev = [
     "coverage>=7.3.1",
     "sphinx_material>=0.0.36",
     "sphinx>=7.1.1",
+    "black[jupyter]>=23.10.1",
     "pygame>=2.5.0",    
     "networkx>=3.1",
-    "opencv-python>=4.8"
+    "opencv-python>=4.8",
+    "pandas>=2.1.2"
 ]
 
 examples = [

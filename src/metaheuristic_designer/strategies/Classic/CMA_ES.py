@@ -32,12 +32,8 @@ class CMA_ES(StaticPopulation):
 
         mutate = OperatorMeta("Sequence", [mutate1, rand1])
 
-        super().__init__(
-            pop_init, mutate, cross, parent_select, selection, params, name
-        )
+        super().__init__(pop_init, mutate, cross, parent_select, selection, params, name)
 
     def initialize(self, objfunc):
-        objfunc.encoding = CMAEncoding(
-            self.params["nparams"], pre_encoding=objfunc.encoding
-        )
+        objfunc.encoding = CMAEncoding(self.params["nparams"], pre_encoding=objfunc.encoding)
         super().initialize(objfunc)

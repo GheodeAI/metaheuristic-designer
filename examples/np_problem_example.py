@@ -151,9 +151,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         objfunc = BinKnapsack(weights, values, capacity)
 
         encoding = TypeCastEncoding(int, bool)
-        pop_initializer = UniformVectorInitializer(
-            objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding
-        )
+        pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding)
 
         parent_params = ParamScheduler("Linear", {"amount": 20})
         # select_params = ParamScheduler("Linear")
@@ -170,18 +168,13 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
             OperatorBinary("MutSample", {"method": "Bernoulli", "p": 0.2, "N": 2}),
         ]
 
-        neighborhood_structures = [
-            OperatorBinary("Flip", {"N": n}, name=f"Flip(n={n})")
-            for n in range(objfunc.vecsize)
-        ]
+        neighborhood_structures = [OperatorBinary("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
 
     elif problem_name == "3SAT":
         objfunc = ThreeSAT.from_cnf_file("./data/sat_examples/uf50-03.cnf")
 
         encoding = TypeCastEncoding(int, bool)
-        pop_initializer = UniformVectorInitializer(
-            objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding
-        )
+        pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding)
 
         parent_params = ParamScheduler("Linear", {"amount": 20})
         # select_params = ParamScheduler("Linear")
@@ -198,10 +191,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
             OperatorBinary("MutSample", {"method": "Bernoulli", "p": 0.2, "N": 2}),
         ]
 
-        neighborhood_structures = [
-            OperatorBinary("Flip", {"N": n}, name=f"Flip(n={n})")
-            for n in range(objfunc.vecsize)
-        ]
+        neighborhood_structures = [OperatorBinary("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
     elif problem_name == "MaxClique":
         g = nx.gnp_random_graph(100, 0.8)
         adj_mat = nx.adjacency_matrix(g).todense()
@@ -229,10 +219,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
             OperatorPerm("PMX"),
         ]
 
-        neighborhood_structures = [
-            OperatorPerm("Flip", {"N": n}, name=f"Flip(n={n})")
-            for n in range(objfunc.vecsize)
-        ]
+        neighborhood_structures = [OperatorPerm("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
     else:
         raise ValueError(f"The problem '{problem_name}' does not exist.")
 
@@ -277,9 +264,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, params={"HMCR": 0.8, "BW": 0.5, "PAR": 0.2})
     elif alg_name == "DE":
-        search_strat = DE(
-            pop_initializer, OperatorReal("DE/best/1", params={"F": 0.8, "Cr": 0.8})
-        )
+        search_strat = DE(pop_initializer, OperatorReal("DE/best/1", params={"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, params={"w": 0.7, "c1": 1.5, "c2": 1.5})
     elif alg_name == "CRO":
@@ -330,9 +315,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         # local_search = HillClimb(pop_initializer)
         # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
     elif alg_name == "GVNS":
-        local_search = VND(
-            pop_initializer, neighborhood_structures, params={"nchange": "cyclic"}
-        )
+        local_search = VND(pop_initializer, neighborhood_structures, params={"nchange": "cyclic"})
         search_strat = VNS(
             pop_initializer,
             neighborhood_structures,
@@ -348,9 +331,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         exit()
 
     if memetic:
-        alg = MemeticAlgorithm(
-            objfunc, search_strat, local_search, mem_select, params=params
-        )
+        alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=params)
     else:
         alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 
@@ -365,9 +346,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
-    parser.add_argument(
-        "-p", "--problem", dest="prob", help="Specify an problem to solve"
-    )
+    parser.add_argument("-p", "--problem", dest="prob", help="Specify an problem to solve")
     parser.add_argument(
         "-m",
         "--memetic",

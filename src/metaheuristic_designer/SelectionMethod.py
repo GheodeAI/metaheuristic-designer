@@ -5,7 +5,9 @@ from .ParamScheduler import ParamScheduler
 
 class SelectionMethod(ABC):
     """
-    Survivor selection methods
+    Abstract Selection Method class.
+
+    This class defines the structure for individual selection methods.
 
     Parameters
     ----------
@@ -38,9 +40,7 @@ class SelectionMethod(ABC):
         else:
             self.params = params
 
-    def __call__(
-        self, popul: List[Individual], offspring: List[Individual] = None
-    ) -> List[Individual]:
+    def __call__(self, popul: List[Individual], offspring: List[Individual] = None) -> List[Individual]:
         """
         Shorthand for calling the 'select' method
         """
@@ -48,9 +48,7 @@ class SelectionMethod(ABC):
         return self.select(popul, offspring)
 
     @abstractmethod
-    def select(
-        self, population: List[Individual], offspring: List[Individual] = None
-    ) -> List[Individual]:
+    def select(self, population: List[Individual], offspring: List[Individual] = None) -> List[Individual]:
         """
         Takes a population with its offspring and returns the individuals that survive
         to produce the next generation.
@@ -82,6 +80,9 @@ class SelectionMethod(ABC):
 
             if "maxPopSize" in self.params:
                 self.params["maxPopSize"] = round(self.params["maxPopSize"])
+
+    def set_param(self, **kwargs):
+        self.params.update(kwargs)
 
     def get_state(self):
         """

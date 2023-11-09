@@ -33,6 +33,14 @@ ImageEncoding
    :undoc-members:
    :show-inheritance:
 
+AdaptionEncoding
+----------------
+
+.. autoclass:: metaheuristic_designer.encodings.AdaptionEncoding
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 CMAEncoding
 -----------
 

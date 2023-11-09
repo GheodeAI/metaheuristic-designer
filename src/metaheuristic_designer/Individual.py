@@ -55,9 +55,7 @@ class Individual:
         Returns a copy of the Individual.
         """
 
-        copied_ind = Individual(
-            self.objfunc, copy(self._genotype), copy(self.speed), self.encoding
-        )
+        copied_ind = Individual(self.objfunc, copy(self._genotype), copy(self.speed), self.encoding)
         copied_ind._fitness = self._fitness
         copied_ind.fitness_calculated = self.fitness_calculated
         copied_ind.best = copy(self.best)
@@ -90,9 +88,17 @@ class Individual:
             Individual with the speed applied.
         """
 
-        return Individual(
-            self.objfunc, self._genotype + self.speed, self.speed, self.encoding
-        )
+        return Individual(self.objfunc, self._genotype + self.speed, self.speed, self.encoding)
+
+    def calculate_fitness(self) -> float:
+        """
+        Calculates the fitness of the individual if it has not been calculated before
+        """
+
+        if not self.fitness_calculated:
+            # This calls the setter function
+            self.fitness = self.objfunc(self)
+        return self._fitness
 
     @property
     def fitness(self) -> float:
@@ -100,9 +106,7 @@ class Individual:
         The fitness of the individual, optimized to be calculated only once per individual.
         """
 
-        if not self.fitness_calculated:
-            self.fitness = self.objfunc(self)
-        return self._fitness
+        return self.calculate_fitness()
 
     @fitness.setter
     def fitness(self, fit: float):

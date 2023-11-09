@@ -24,9 +24,7 @@ def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Algori
     """
 
     if "encoding" not in params:
-        raise ValueError(
-            f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"'
-        )
+        raise ValueError(f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
 
     encoding_str = params["encoding"]
 
@@ -37,9 +35,7 @@ def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Algori
     elif encoding_str.lower() == "bin":
         alg = _differential_evolution_bin_vec(objfunc, params)
     else:
-        raise ValueError(
-            f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"'
-        )
+        raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"')
 
     return alg
 
@@ -66,9 +62,7 @@ def _differential_evolution_real_vec(objfunc, params):
     ]:
         raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
 
-    pop_initializer = UniformVectorInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float
-    )
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float)
 
     de_op = OperatorReal(de_type, {"F": f, "Cr": cr})
 

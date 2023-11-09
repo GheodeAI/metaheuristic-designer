@@ -14,8 +14,8 @@ class SeedProbInitializer(Initializer):
     ----------
     default_init: Initializer
         Initializer used to generate random individuals.
-    solutions: List[Individual]
-        The predefined individuals that will be inserted into the population.
+    solutions: List[Any]
+        The predefined solutions that will be inserted into the population.
     insert_prob: float
         Probability of inserting one of the predefined solutions into the population.
     """
@@ -23,7 +23,7 @@ class SeedProbInitializer(Initializer):
     def __init__(
         self,
         default_init: Initializer,
-        solutions: List[Individual],
+        solutions: List[Any],
         insert_prob: float = 0.1,
     ):
         super().__init__(default_init.pop_size)
@@ -38,7 +38,8 @@ class SeedProbInitializer(Initializer):
     def generate_individual(self, objfunc):
         new_indiv = None
         if random.random() < self.insert_prob:
-            new_indiv = random.choice(self.solutions)
+            new_solution = random.choice(self.solutions)
+            new_indiv = Individual(objfunc, new_solution, encoding=self.default_init.encoding)
         else:
             new_indiv = self.default_init.generate_individual(objfunc)
         return new_indiv
@@ -53,8 +54,8 @@ class SeedDetermInitializer(Initializer):
     ----------
     default_init: Initializer
         Initializer used to generate random individuals.
-    solutions: List[Individual]
-        The predefined individuals that will be inserted into the population.
+    solutions: List[Any]
+        The predefined solutions that will be inserted into the population.
     n_to_insert: float
         Amount of predefined individuals to insert in the population.
     """
@@ -62,7 +63,7 @@ class SeedDetermInitializer(Initializer):
     def __init__(
         self,
         default_init: Initializer,
-        solutions: List[Individual],
+        solutions: List[Any],
         n_to_insert: int = None,
     ):
         super().__init__(default_init.pop_size)
@@ -82,7 +83,8 @@ class SeedDetermInitializer(Initializer):
     def generate_individual(self, objfunc):
         new_indiv = None
         if self.inserted < self.number_to_insert:
-            new_indiv = self.solutions[self.inserted % len(self.solutions)]
+            new_solution = self.solutions[self.inserted % len(self.solutions)]
+            new_indiv = Individual(objfunc, new_solution, encoding=self.default_init.encoding)
         else:
             new_indiv = self.default_init.generate_individual(objfunc)
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Union
 import numpy as np
-from ...operators import OperatorReal, OperatorMeta
+from ...operators import OperatorReal, OperatorMeta, OperatorNull
 from ..VariablePopulation import VariablePopulation
 
 
@@ -23,14 +23,10 @@ class GA(VariablePopulation):
         self.pmut = params.get("pmut", 0.1)
         self.pcross = params.get("pcross", 0.9)
 
-        null_operator = OperatorReal("Nothing")
+        null_operator = OperatorNull()
 
-        prob_mut_op = OperatorMeta(
-            "Branch", [mutation_op, null_operator], {"p": self.pmut}
-        )
-        prob_cross_op = OperatorMeta(
-            "Branch", [cross_op, null_operator], {"p": self.pcross}
-        )
+        prob_mut_op = OperatorMeta("Branch", [mutation_op, null_operator], {"p": self.pmut})
+        prob_cross_op = OperatorMeta("Branch", [cross_op, null_operator], {"p": self.pcross})
 
         evolve_op = OperatorMeta("Sequence", [prob_mut_op, prob_cross_op])
 

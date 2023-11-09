@@ -7,6 +7,8 @@ class Operator(ABC):
     """
     Abstract Operator class.
 
+    This class modifies the genotype of one individual in order to perform some optimization task.
+
     Parameters
     ----------
     params: ParamScheduler or dict, optional
