@@ -35,6 +35,4 @@ class CRO(StaticPopulation):
         pop_init = deepcopy(pop_init)
         pop_init.pop_size = round(pop_init.pop_size * params["rho"])
 
-        super().__init__(
-            pop_init, evolve_op, params=params, selection_op=selection_op, name=name
-        )
+        super().__init__(pop_init, evolve_op, params=params, selection_op=selection_op, name=name)

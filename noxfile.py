@@ -8,6 +8,4 @@ locations = "noxfile.py"
 def test(session):
     session.install(".")
     session.install("pytest", "coverage")
-    session.run(
-        "coverage", "run", "--data-file", ".coverage.nox", "--parallel", "-m", "pytest"
-    )
+    session.run("coverage", "run", "--data-file", ".coverage.nox", "--parallel", "-m", "pytest")

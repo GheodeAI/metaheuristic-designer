@@ -41,19 +41,12 @@ class StaticPopulation(SearchStrategy):
         offspring = []
         for indiv in parent_list:
             # Apply operator
-            new_indiv = self.operator(
-                indiv, parent_list, objfunc, self.best, self.pop_init
-            )
+            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, self.pop_init)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 
             # Add to offspring list
             offspring.append(new_indiv)
-
-        # Update best solution
-        current_best = max(offspring, key=lambda x: x.fitness)
-        if self.best.fitness < current_best.fitness:
-            self.best = current_best
 
         return offspring
 

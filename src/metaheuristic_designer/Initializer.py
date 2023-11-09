@@ -58,9 +58,7 @@ class Initializer(ABC):
 
         return self.generate_random(objfunc)
 
-    def generate_population(
-        self, objfunc: ObjectiveFunc, n_indiv: int = None
-    ) -> List[Individual]:
+    def generate_population(self, objfunc: ObjectiveFunc, n_indiv: int = None) -> List[Individual]:
         """
         Generate n_indiv Individuals using the generate_individual method.
 

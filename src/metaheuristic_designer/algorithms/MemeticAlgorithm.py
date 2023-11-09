@@ -6,7 +6,7 @@ from ..Algorithm import Algorithm
 
 class MemeticAlgorithm(Algorithm):
     """
-    General framework for metaheuristic algorithms
+    Framework for algorithms that incorporate a combination of a main search strategy and a local search step.
 
     Parameters
     ----------
@@ -23,17 +23,24 @@ class MemeticAlgorithm(Algorithm):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def __init__(
-        self, objfunc, search_strategy, local_search, improve_choice, params=None
-    ):
+    def __init__(self, objfunc, search_strategy, local_search, improve_choice, params=None, name=None):
         """
         Constructor of the Metaheuristic class
         """
 
-        super().__init__(objfunc, search_strategy, params)
+        super().__init__(objfunc, search_strategy, params, name)
 
         self.local_search = local_search
         self.improve_choice = improve_choice
+
+    @property
+    def name(self):
+        backup_name = f"Memetic {self.search_strategy.name}"
+        return self._name if self._name else backup_name
+
+    @name.setter
+    def name(self, new_name: str):
+        self._name = new_name
 
     def initialize(self):
         super().initialize()
@@ -52,34 +59,28 @@ class MemeticAlgorithm(Algorithm):
         for idx, val in enumerate(off_idxs):
             offspring[val] = improved[idx]
 
-        current_best = max(improved, key=lambda x: x.fitness)
-        if self.search_strategy.best.fitness < current_best.fitness:
-            self.search_strategy.best = current_best
+        offspring = self.search_strategy.evaluate_population(offspring, self.objfunc, self.parallel, self.threads)
 
         return offspring
 
     def step(self, time_start=0, verbose=False):
         population = self.search_strategy.population
 
-        parents = self.search_strategy.select_parents(
-            population, progress=self.progress, history=self.best_history
-        )
+        parents = self.search_strategy.select_parents(population, progress=self.progress, history=self.best_history)
 
-        offspring = self.search_strategy.perturb(
-            parents, self.objfunc, progress=self.progress, history=self.best_history
-        )
+        offspring = self.search_strategy.perturb(parents, self.objfunc, progress=self.progress, history=self.best_history)
+
+        # Get the fitness of the individuals
+        offspring = self.search_strategy.evaluate_population(offspring, self.objfunc, self.parallel, self.threads)
 
         offspring = self._do_local_search(offspring)
 
-        population = self.search_strategy.select_individuals(
-            population, offspring, progress=self.progress, history=self.best_history
-        )
+        population = self.search_strategy.select_individuals(population, offspring, progress=self.progress, history=self.best_history)
 
         self.search_strategy.population = population
 
         best_individual, best_fitness = self.search_strategy.best_solution()
         self.search_strategy.update_params(progress=self.progress)
-        self.steps += 1
 
         # Store information
         self.best_history.append(best_individual)
@@ -126,36 +127,6 @@ class MemeticAlgorithm(Algorithm):
         return data
 
     def step_info(self, start_time=0):
-        print(
-            f"Optimizing {self.objfunc.name} using {self.search_strategy.name}+{self.local_search.name}:"
-        )
-        print(f"\tReal time Spent: {round(time.time() - start_time,2)} s")
-        print(f"\tCPU time Spent:  {round(time.time() - start_time,2)} s")
-        print(f"\tGeneration: {self.steps}")
-        best_fitness = self.best_solution()[1]
-        print(f"\tBest fitness: {best_fitness}")
-        print(f"\tEvaluations of fitness: {self.objfunc.counter}")
-        self.search_strategy.extra_step_info()
+        super().step_info(start_time)
         self.local_search.extra_step_info()
         print()
-
-    def display_report(self, show_plots=True):
-        print("Number of generations:", len(self.fit_history))
-        print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
-        print("CPU time spent: ", round(self.cpu_time_spent, 5), "s", sep="")
-        print("Number of fitness evaluations:", self.objfunc.counter)
-
-        best_fitness = self.best_solution()[1]
-        print("Best fitness:", best_fitness)
-
-        if show_plots:
-            # Plot fitness history
-            plt.axhline(y=0, color="black", alpha=0.9)
-            plt.axvline(x=0, color="black", alpha=0.9)
-            plt.plot(self.fit_history, "blue")
-            plt.xlabel("generations")
-            plt.ylabel("fitness")
-            plt.title(f"{self.search_strategy.name} fitness")
-            plt.show()
-
-        self.search_strategy.extra_report(show_plots)

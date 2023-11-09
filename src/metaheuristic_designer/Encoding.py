@@ -4,10 +4,11 @@ from abc import ABC, abstractmethod
 
 class Encoding(ABC):
     """
-    Base class for transforming between phenotype and genotype.
+    Abstract Encoding class
+
+    This class transforms between phenotype and genotype.
     """
 
-    @abstractmethod
     def encode(self, phenotype) -> Any:
         """
         Encodes a viable solution to our problem to the encoding used in each individual of the algorithm.

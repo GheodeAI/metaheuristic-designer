@@ -23,9 +23,7 @@ class ThreeSAT(ObjectiveVectorFunc):
 
     def __init__(self, clauses):
         if not isinstance(clauses, np.ndarray) or clauses.shape[1] != 3:
-            raise ValueError(
-                "The caluses must be represented as an array of size (n_clauses, 3)."
-            )
+            raise ValueError("The caluses must be represented as an array of size (n_clauses, 3).")
 
         self.clauses = clauses
         self.n_vars = np.abs(clauses).max()
@@ -50,14 +48,10 @@ class ThreeSAT(ObjectiveVectorFunc):
         clauses_arr = np.asarray(clauses)
 
         if len(clauses) != n_clauses:
-            warnings.warn(
-                "The number of clauses in the file was incorrect.", stacklevel=2
-            )
+            warnings.warn("The number of clauses in the file was incorrect.", stacklevel=2)
 
         if np.abs(clauses_arr).max() != n_vars:
-            warnings.warn(
-                "The number of variables in the file was incorrect.", stacklevel=2
-            )
+            warnings.warn("The number of variables in the file was incorrect.", stacklevel=2)
 
         return ThreeSAT(clauses_arr)
 
@@ -104,9 +98,7 @@ class BinKnapsack(ObjectiveVectorFunc):
         cost = np.asarray(cost)
         value = np.asarray(value)
         if cost.size != value.size:
-            raise ValueError(
-                "The value vector must have the same dimension as the cost vector."
-            )
+            raise ValueError("The value vector must have the same dimension as the cost vector.")
 
         self.cost = cost
         self.value = value

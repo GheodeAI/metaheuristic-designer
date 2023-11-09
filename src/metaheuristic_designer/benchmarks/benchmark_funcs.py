@@ -3,6 +3,7 @@ import numpy as np
 # from numba import jit
 from ..ObjectiveFunc import ObjectiveVectorFunc
 from ..utils import RAND_GEN
+import time
 
 
 class MaxOnes(ObjectiveVectorFunc):
@@ -43,6 +44,18 @@ class MaxOnesReal(ObjectiveVectorFunc):
         return np.clip(solution.copy(), 0, 1)
 
 
+class SleepTest(ObjectiveVectorFunc):
+    def __init__(self, size, sleep_time=2, opt="min"):
+        self.size = size
+        self.sleep_time = sleep_time
+        super().__init__(self.size, opt, -100, 100, name="Sphere function")
+
+    def objective(self, solution):
+        time.sleep(self.sleep_time)
+        print("hello")
+        return _sphere(solution)
+
+
 ### Benchmark functions
 class Sphere(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
@@ -56,9 +69,7 @@ class Sphere(ObjectiveVectorFunc):
 class HighCondElliptic(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(
-            self.size, opt, -5.12, 5.12, name="High condition elliptic function"
-        )
+        super().__init__(self.size, opt, -5.12, 5.12, name="High condition elliptic function")
 
     def objective(self, solution):
         return _high_cond_elipt_f(solution)
@@ -166,9 +177,7 @@ class HGBat(ObjectiveVectorFunc):
 class ExpandedGriewankPlusRosenbrock(ObjectiveVectorFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(
-            self.size, opt, -100, 100, name="Expanded Griewank + Rosenbrock"
-        )
+        super().__init__(self.size, opt, -100, 100, name="Expanded Griewank + Rosenbrock")
 
     def objective(self, solution):
         return _exp_griewank_plus_rosenbrock(solution)
@@ -192,9 +201,7 @@ class SumPowell(ObjectiveVectorFunc):
         self.size = size
         self.lim_min = lim_min
         self.lim_max = lim_max
-        super().__init__(
-            self.size, opt, low_lim=lim_min, up_lim=lim_max, name="Sum Powell"
-        )
+        super().__init__(self.size, opt, low_lim=lim_min, up_lim=lim_max, name="Sum Powell")
 
     def objective(self, solution):
         return _sum_powell(solution)
@@ -204,19 +211,12 @@ class SumPowell(ObjectiveVectorFunc):
         if parent:
             mask_inf = solution < self.lim_min
             mask_sup = solution > self.lim_max
-            solution[mask_inf] = parent[mask_inf] + RAND_GEN.random() * (
-                self.lim_min - parent[mask_inf]
-            )
-            solution[mask_sup] = parent[mask_sup] + RAND_GEN.random() * (
-                parent[mask_sup] - self.lim_max
-            )
+            solution[mask_inf] = parent[mask_inf] + RAND_GEN.random() * (self.lim_min - parent[mask_inf])
+            solution[mask_sup] = parent[mask_sup] + RAND_GEN.random() * (parent[mask_sup] - self.lim_max)
         # random in range
         else:
             mask = (solution < self.lim_min) | (solution > self.lim_max)
-            solution[mask] = (
-                RAND_GEN.random(len(mask[mask == True])) * (self.lim_max - self.lim_min)
-                - self.lim_min
-            )
+            solution[mask] = RAND_GEN.random(len(mask[mask == True])) * (self.lim_max - self.lim_min) - self.lim_min
         return solution
 
 
@@ -229,9 +229,7 @@ class N4XinSheYang(ObjectiveVectorFunc):
         self.size = size
         self.lim_min = lim_min
         self.lim_max = lim_max
-        super().__init__(
-            self.size, opt, low_lim=lim_min, up_lim=lim_max, name="N4 Xin-She Yang"
-        )
+        super().__init__(self.size, opt, low_lim=lim_min, up_lim=lim_max, name="N4 Xin-She Yang")
 
     def objective(self, solution):
         return _n4xinshe_yang(solution)
@@ -241,19 +239,12 @@ class N4XinSheYang(ObjectiveVectorFunc):
         if parent:
             mask_inf = solution < self.lim_min
             mask_sup = solution > self.lim_max
-            solution[mask_inf] = parent[mask_inf] + RAND_GEN.random() * (
-                self.lim_min - parent[mask_inf]
-            )
-            solution[mask_sup] = parent[mask_sup] + RAND_GEN.random() * (
-                parent[mask_sup] - self.lim_max
-            )
+            solution[mask_inf] = parent[mask_inf] + RAND_GEN.random() * (self.lim_min - parent[mask_inf])
+            solution[mask_sup] = parent[mask_sup] + RAND_GEN.random() * (parent[mask_sup] - self.lim_max)
         # random in range
         else:
             mask = (solution < self.lim_min) | (solution > self.lim_max)
-            solution[mask] = (
-                RAND_GEN.random(len(mask[mask == True])) * (self.lim_max - self.lim_min)
-                - self.lim_min
-            )
+            solution[mask] = RAND_GEN.random(len(mask[mask == True])) * (self.lim_max - self.lim_min) - self.lim_min
         return solution
 
 
@@ -296,14 +287,7 @@ def _ackley(solution):
 
 # @jit(nopython=False)
 def _weierstrass(solution, iter=20):
-    return np.sum(
-        np.array(
-            [
-                0.5**k * np.cos(2 * np.pi * 3**k * (solution + 0.5))
-                for k in range(iter)
-            ]
-        )
-    )
+    return np.sum(np.array([0.5**k * np.cos(2 * np.pi * 3**k * (solution + 0.5)) for k in range(iter)]))
 
 
 # @jit(nopython=True)
@@ -345,10 +329,7 @@ def _katsuura(solution):
         + (i + 1)
         * np.sum(
             (
-                np.abs(
-                    2 ** (np.arange(1, 32 + 1)) * solution[i]
-                    - np.round(2 ** (np.arange(1, 32 + 1)) * solution[i])
-                )
+                np.abs(2 ** (np.arange(1, 32 + 1)) * solution[i] - np.round(2 ** (np.arange(1, 32 + 1)) * solution[i]))
                 * 2 ** (-np.arange(1, 32 + 1, dtype=float))
             )
             ** (10 / solution.size**1.2)
@@ -396,9 +377,7 @@ def _exp_shafferF6(solution):
     term2 = 1 + 0.001 * (solution[:-1] ** 2 + solution[1:] ** 2).sum()
     temp = 0.5 + term1 / term2
 
-    term1 = (
-        np.sin(np.sqrt(np.sum((solution.size - 1) ** 2 + solution[0] ** 2))) ** 2 - 0.5
-    )
+    term1 = np.sin(np.sqrt(np.sum((solution.size - 1) ** 2 + solution[0] ** 2))) ** 2 - 0.5
     term2 = 1 + 0.001 * ((solution.size - 1) ** 2 + solution[0] ** 2)
 
     return temp + 0.5 + term1 / term2

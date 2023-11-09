@@ -23,9 +23,7 @@ import argparse
 
 
 def render(image, display_dim, src):
-    texture = cv2.resize(
-        image.transpose([1, 0, 2]), display_dim, interpolation=cv2.INTER_NEAREST
-    )
+    texture = cv2.resize(image.transpose([1, 0, 2]), display_dim, interpolation=cv2.INTER_NEAREST)
     pygame.surfarray.blit_array(src, texture)
     pygame.display.flip()
 
@@ -50,6 +48,9 @@ def run_algorithm(alg_name, img_file_name, memetic):
         "patience": 200,
         "verbose": True,
         "v_timer": 0.5,
+        # Parallel
+        "parallel": False,
+        "threads": 8,
     }
 
     display = True
@@ -65,9 +66,9 @@ def run_algorithm(alg_name, img_file_name, memetic):
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
 
-    # objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
+    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
     # objfunc = ImgEntropy(image_shape, 256)
-    objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name)
+    # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name)
 
     encoding = ImageEncoding(image_shape, color=True)
     pop_initializer = UniformVectorInitializer(
@@ -78,16 +79,12 @@ def run_algorithm(alg_name, img_file_name, memetic):
         encoding=encoding,
     )
 
-    mutation_op = OperatorReal(
-        "MutRand", {"method": "Uniform", "Low": -20, "Up": 20, "N": 15}
-    )
+    mutation_op = OperatorReal("MutRand", {"method": "Uniform", "Low": -20, "Up": 20, "N": 15})
     cross_op = OperatorReal("Multipoint")
 
     op_list = [
         OperatorReal("Multipoint"),
-        OperatorReal(
-            "MutRand", {"method": "Cauchy", "F": 5, "N": 10}, name="MutCauchy"
-        ),
+        OperatorReal("MutRand", {"method": "Cauchy", "F": 5, "N": 10}, name="MutCauchy"),
         OperatorReal("MutRand", {"method": "Gauss", "F": 5, "N": 10}, name="MutGauss"),
         OperatorReal(
             "MutSample",
@@ -113,7 +110,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
 
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorInt("MutRand", {"method": "Uniform", "Low": -3, "Up": -3, "N": 3})
+    neihbourhood_op = OperatorInt("MutRand", {"method": "Uniform", "Low": -10, "Up": -10, "N": 3})
     local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
 
     if alg_name == "HillClimb":
@@ -121,12 +118,10 @@ def run_algorithm(alg_name, img_file_name, memetic):
         search_strat = HillClimb(pop_initializer, mutation_op)
     elif alg_name == "LocalSearch":
         pop_initializer.pop_size = 1
-        search_strat = LocalSearch(pop_initializer, mutation_op, params={"iters": 20})
+        search_strat = LocalSearch(pop_initializer, mutation_op, params={"iters": 40})
     elif alg_name == "SA":
         pop_initializer.pop_size = 1
-        search_strat = SA(
-            pop_initializer, mutation_op, {"iter": 100, "temp_init": 1, "alpha": 0.997}
-        )
+        search_strat = SA(pop_initializer, mutation_op, {"iter": 100, "temp_init": 1, "alpha": 0.997})
     elif alg_name == "ES":
         search_strat = ES(
             pop_initializer,
@@ -148,9 +143,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, {"HMCR": 0.8, "BW": 0.5, "PAR": 0.2})
     elif alg_name == "DE":
-        search_strat = DE(
-            pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8})
-        )
+        search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5})
     elif alg_name == "CRO":
@@ -211,9 +204,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         exit()
 
     if memetic:
-        alg = MemeticAlgorithm(
-            objfunc, search_strat, local_search, mem_select, params=params
-        )
+        alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=params)
     else:
         alg = GeneralAlgorithm(objfunc, search_strat, params)
 
@@ -258,12 +249,8 @@ def run_algorithm(alg_name, img_file_name, memetic):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
-    parser.add_argument(
-        "-i", "--image", dest="img", help="Specify an image as reference"
-    )
-    parser.add_argument(
-        "-m", "--memetic", dest="mem", action="store_true", help="Specify an algorithm"
-    )
+    parser.add_argument("-i", "--image", dest="img", help="Specify an image as reference")
+    parser.add_argument("-m", "--memetic", dest="mem", action="store_true", help="Specify an algorithm")
     args = parser.parse_args()
 
     algorithm_name = "SA"

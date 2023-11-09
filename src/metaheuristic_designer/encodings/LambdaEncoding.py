@@ -5,7 +5,7 @@ from ..Encoding import Encoding
 
 class LambdaEncoding(Encoding):
     """
-    Decoder that uses user specified functions
+    Decoder that uses user specified functions.
     """
 
     def __init__(self, encode_fn: callable, decode_fn: callable):

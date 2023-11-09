@@ -49,6 +49,23 @@ OperatorMeta
    :undoc-members:
    :show-inheritance:
 
+OperatorAdaptative
+----------------------------------------
+
+.. automodule:: metaheuristic_designer.operators.OperatorAdaptative
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+OperatorNull
+----------------------------------------
+
+.. automodule:: metaheuristic_designer.operators.OperatorNull
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 OperatorLambda
 ----------------------------------------
 

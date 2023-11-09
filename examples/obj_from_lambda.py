@@ -25,9 +25,7 @@ def run_algorithm():
 
     objfunc = ObjectiveFromLambda(func, 10, "min")
 
-    pop_init = UniformVectorInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1
-    )
+    pop_init = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1)
 
     mutation_op = OperatorReal("RandNoise", {"method": "Cauchy", "F": 0.0001})
 

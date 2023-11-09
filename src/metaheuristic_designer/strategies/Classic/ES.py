@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Union
-from ...operators import OperatorMeta
+from ...operators import OperatorMeta, OperatorReal
+from ...selectionMethods import ParentSelection
 from ..VariablePopulation import VariablePopulation
 
 
@@ -13,14 +14,18 @@ class ES(VariablePopulation):
         self,
         pop_init: Initializer,
         mutation_op: Operator,
-        cross_op: Operator,
-        parent_sel_op: ParentSelection,
-        selection_op: SurvivorSelection,
+        cross_op: Operator = None,
+        parent_sel_op: ParentSelection = None,
+        selection_op: SurvivorSelection = None,
         params: Union[ParamScheduler, dict] = {},
         name: str = "ES",
     ):
+        if cross_op is None:
+            evolve_op = mutation_op
+        else:
+            evolve_op = OperatorMeta("Sequence", [mutation_op, cross_op])
+
         offspring_size = params.get("offspringSize", pop_init.pop_size)
-        evolve_op = OperatorMeta("Sequence", [mutation_op, cross_op])
 
         super().__init__(
             pop_init,

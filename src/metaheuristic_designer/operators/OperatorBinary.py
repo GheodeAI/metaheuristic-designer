@@ -69,11 +69,9 @@ class OperatorBinary(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(
-        self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None
-    ):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
-        Constructor for the Operator class
+        Constructor for the OperatorBinary class
         """
 
         if name is None:
@@ -103,9 +101,7 @@ class OperatorBinary(Operator):
         params = copy(self.params)
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(
-                RAND_GEN.random(indiv.genotype.size) < params["Cr"]
-            )
+            params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
 
         if "N" in params:
             params["N"] = round(params["N"])
@@ -121,9 +117,7 @@ class OperatorBinary(Operator):
             new_indiv.genotype = cross_mp(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == BinOpMethods.MULTICROSS:
-            new_indiv.genotype = multi_cross(
-                new_indiv.genotype, others, params["Nindiv"]
-            )
+            new_indiv.genotype = multi_cross(new_indiv.genotype, others, params["Nindiv"])
 
         elif self.method == BinOpMethods.PERM:
             new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
@@ -144,14 +138,10 @@ class OperatorBinary(Operator):
             new_indiv = initializer.generate_random(objfunc)
 
         elif self.method == BinOpMethods.RANDOM_MASK:
-            mask_pos = np.hstack(
-                [np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]
-            ).astype(bool)
+            mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
             RAND_GEN.shuffle(mask_pos)
 
-            new_indiv.genotype[mask_pos] = initializer.generate_random(
-                objfunc
-            ).genotype[mask_pos]
+            new_indiv.genotype[mask_pos] = initializer.generate_random(objfunc).genotype[mask_pos]
 
         elif self.method == BinOpMethods.DUMMY:
             new_indiv.genotype = dummy_op(new_indiv.genotype, params["F"])
@@ -159,6 +149,9 @@ class OperatorBinary(Operator):
         elif self.method == BinOpMethods.CUSTOM:
             fn = params["function"]
             new_indiv.genotype = fn(indiv, population, objfunc, params)
+
+        elif self.method == BinOpMethods.NOTHING:
+            new_indiv = indiv
 
         new_indiv.genotype = (new_indiv.genotype != 0).astype(np.int32)
         return new_indiv

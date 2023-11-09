@@ -9,9 +9,10 @@ from enum import Enum
 from ..utils import RAND_GEN
 
 
-class OperatorLambda(Operator):
+class OperatorNull(Operator):
     """
-    Operator class that applies a custom operator specified as a function.
+    Operator class that returns the individual without changes.
+    Surprisingly useful.
 
     Parameters
     ----------
@@ -23,22 +24,15 @@ class OperatorLambda(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, fn: callable, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(self, name: str = None):
         """
-        Constructor for the OperatorLambda class
+        Constructor for the OperatorNull class
         """
-
-        self.fn = fn
 
         if name is None:
-            name = fn.__name__
+            name = "Nothing"
 
-        super().__init__(params, name)
+        super().__init__({}, name)
 
-    def evolve(self, indiv, population, objfunc, global_best, initializer):
-        new_indiv = copy(indiv)
-        others = [i for i in population if i != indiv]
-
-        new_indiv.genotype = self.fn(indiv, others, objfunc, **self.params)
-
-        return new_indiv
+    def evolve(self, indiv, *args):
+        return indiv

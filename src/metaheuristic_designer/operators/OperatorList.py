@@ -44,11 +44,9 @@ class OperatorList(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(
-        self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None
-    ):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
         """
-        Constructor for the OperatorReal class
+        Constructor for the OperatorList class
         """
 
         if name is None:
@@ -71,9 +69,11 @@ class OperatorList(Operator):
                 params["maxlen"],
                 params["generator"],
             )
+
         elif self.method == ListOpMethods.SHRINK:
-            nex_indiv.genotype = shrink(
-                new_indiv.genotype, params["N"], params["method"]
-            )
+            nex_indiv.genotype = shrink(new_indiv.genotype, params["N"], params["method"])
+
+        elif self.method == ListOpMethods.NOTHING:
+            new_indiv = indiv
 
         return new_indiv

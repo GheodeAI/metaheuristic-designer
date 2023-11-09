@@ -102,9 +102,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         )
         for i in range(100)
     ]
-    pop_initializer = DirectInitializer(
-        pop_initializer, init_population, encoding=encoding
-    )
+    pop_initializer = DirectInitializer(pop_initializer, init_population, encoding=encoding)
 
     mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F": 4, "N": 2})
     cross_op = OperatorReal("Multicross", {"Nindiv": 4})
@@ -123,9 +121,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         search_strat = LocalSearch(pop_initializer, mutation_op, {"iters": 20})
     elif alg_name == "SA":
         pop_initializer.pop_size = 1
-        search_strat = SA(
-            pop_initializer, mutation_op, {"iter": 100, "temp_init": 2, "alpha": 0.998}
-        )
+        search_strat = SA(pop_initializer, mutation_op, {"iter": 100, "temp_init": 2, "alpha": 0.998})
     elif alg_name == "ES":
         search_strat = ES(
             pop_initializer,
@@ -147,9 +143,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, {"HMCR": 0.8, "BW": 0.5, "PAR": 0.2})
     elif alg_name == "DE":
-        search_strat = DE(
-            pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8})
-        )
+        search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5})
     elif alg_name == "RandomSearch":
@@ -233,20 +227,14 @@ def run_algorithm(alg_name, img_file_name, memetic):
         # full_texture = image_blur
         render(full_texture, display_dim, src)
     alg.display_report(show_plots=True)
-    save_to_image(
-        image, f"{img_name}_{image_shape[0]}x{image_shape[1]}_deblured_{alg_name}.png"
-    )
+    save_to_image(image, f"{img_name}_{image_shape[0]}x{image_shape[1]}_deblured_{alg_name}.png")
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
-    parser.add_argument(
-        "-i", "--image", dest="img", help="Specify an image as reference"
-    )
-    parser.add_argument(
-        "-m", "--memetic", dest="mem", action="store_true", help="Specify an algorithm"
-    )
+    parser.add_argument("-i", "--image", dest="img", help="Specify an image as reference")
+    parser.add_argument("-m", "--memetic", dest="mem", action="store_true", help="Specify an algorithm")
     args = parser.parse_args()
 
     algorithm_name = "SA"
