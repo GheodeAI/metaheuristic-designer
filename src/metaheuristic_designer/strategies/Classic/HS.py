@@ -25,7 +25,7 @@ class HS(VariablePopulation):
         mutate1 = OperatorReal(
             "MutNoise",
             {
-                "method": "Gauss",
+                "distrib": "Gauss",
                 "F": params["BW"],
                 "Cr": params["HMCR"] * params["PAR"],
             },

@@ -27,7 +27,7 @@ def run_algorithm():
 
     pop_init = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1)
 
-    mutation_op = OperatorReal("RandNoise", {"method": "Cauchy", "F": 0.0001})
+    mutation_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0001})
 
     search_strat = HillClimb(pop_init, mutation_op)
 

@@ -24,7 +24,7 @@ test_params = {
     "v_timer": -1,
 }
 
-mut_params = ParamScheduler("Linear", {"method": "Gauss", "F": [0.001, 0.00001]})
+mut_params = ParamScheduler("Linear", {"distrib": "Gauss", "F": [0.001, 0.00001]})
 mutation_op = OperatorReal("RandNoise", mut_params)
 
 cross_op = OperatorReal("Multipoint")
@@ -219,7 +219,7 @@ def test_dpcro_sl(dyn_method, dyn_metric):
 def test_memetic():
     search_strat = GA(pop_init, mutation_op, cross_op, parent_sel_op, selection_op)
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorReal("RandNoise", {"method": "Cauchy", "F": 0.0002})
+    neihbourhood_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_init, neihbourhood_op, params={"iters": 10})
     alg = MemeticAlgorithm(
         objfunc, search_strat, local_search, mem_select, params=test_params
@@ -244,7 +244,7 @@ def test_reporting_memetic():
     test_params["verbose"] = True
     search_strat = GA(pop_init, mutation_op, cross_op, parent_sel_op, selection_op)
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorReal("RandNoise", {"method": "Cauchy", "F": 0.0002})
+    neihbourhood_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_init, neihbourhood_op, params={"iters": 10})
     alg = MemeticAlgorithm(
         objfunc, search_strat, local_search, mem_select, params=test_params

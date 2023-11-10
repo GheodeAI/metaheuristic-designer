@@ -42,8 +42,8 @@ def run_algorithm(alg_name, memetic, save_state):
     # objfunc = Weierstrass(30, "min")
     # objfunc = HappyCat(3, "min")
     
-    # mutation_op = OperatorReal("RandNoise", {"method": "Gauss"})
-    mutation_op = OperatorReal("MutNoise", {"method": "Gauss", "N": 1})
+    # mutation_op = OperatorReal("RandNoise", {"distrib": "Gauss"})
+    mutation_op = OperatorReal("MutNoise", {"distrib": "Gauss", "N": 1})
 
     param_op = OperatorReal("Mutate1Sigma", {"tau": 1/np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
     adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=1)

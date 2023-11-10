@@ -126,7 +126,7 @@ class OperatorReal(Operator):
             RealOpMethods.RANDNOISE,
             RealOpMethods.RANDSAMPLE,
         ]:
-            self.params["method"] = ProbDist.from_str(self.params["method"])
+            self.params["distrib"] = ProbDist.from_str(self.params["distrib"])
 
     def evolve(self, indiv, population, objfunc, global_best, initializer):
         new_indiv = copy(indiv)

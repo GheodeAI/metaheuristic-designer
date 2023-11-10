@@ -21,31 +21,31 @@ def run_algorithm(save_report):
 
     # Define algorithms to be tested
     strategies = [
-        HillClimb(single_initializer, OperatorReal("RandNoise", {"method": "Gauss", "F": 1e-4}), name="HillClimb-Gauss"),
-        HillClimb(single_initializer, OperatorReal("RandNoise", {"method": "Cauchy", "F": 1e-4}), name="HillClimb-Cauchy"),
-        LocalSearch(single_initializer, OperatorReal("RandNoise", {"method": "Cauchy", "F": 1e-4}), params={"iters": 20}, name="LocalSearch-Cauchy"),
-        LocalSearch(single_initializer, OperatorReal("RandNoise", {"method": "Gauss", "F": 1e-4}), params={"iters": 20}, name="LocalSearch-Gauss"),
+        HillClimb(single_initializer, OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}), name="HillClimb-Gauss"),
+        HillClimb(single_initializer, OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 1e-4}), name="HillClimb-Cauchy"),
+        LocalSearch(single_initializer, OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 1e-4}), params={"iters": 20}, name="LocalSearch-Cauchy"),
+        LocalSearch(single_initializer, OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}), params={"iters": 20}, name="LocalSearch-Gauss"),
         SA(
             single_initializer,
-            OperatorReal("RandNoise", {"method": "Gauss", "F": 1e-4}),
+            OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
             params={"iter": 100, "temp_init": 1, "alpha": 0.997},
             name="SA-Gauss",
         ),
         SA(
             single_initializer,
-            OperatorReal("RandNoise", {"method": "Cauchy", "F": 1e-4}),
+            OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 1e-4}),
             params={"iter": 100, "temp_init": 1, "alpha": 0.997},
             name="SA-Cauchy",
         ),
         SA(
             pop_initializer,
-            OperatorReal("RandNoise", {"method": "Gauss", "F": 1e-4}),
+            OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
             params={"iter": 100, "temp_init": 1, "alpha": 0.997},
             name="ParallelSA-Gauss",
         ),
         ES(
             pop_initializer,
-            OperatorReal("RandNoise", {"method": "Gauss", "F": 1e-4}),
+            OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
             OperatorReal("Nothing"),
             ParentSelection("Nothing"),
             SurvivorSelection("(m+n)"),
@@ -54,7 +54,7 @@ def run_algorithm(save_report):
         ),
         ES(
             pop_initializer,
-            OperatorReal("RandNoise", {"method": "Gauss", "F": 1e-4}),
+            OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
             OperatorReal("Nothing"),
             ParentSelection("Nothing"),
             SurvivorSelection("(m,n)"),
@@ -63,7 +63,7 @@ def run_algorithm(save_report):
         ),
         GA(
             pop_initializer,
-            OperatorReal("RandNoise", {"method": "Gauss", "F": 1e-4}),
+            OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
             OperatorReal("Multipoint"),
             ParentSelection("Tournament", {"amount": 60, "p": 0.1}),
             SurvivorSelection("Elitism", {"amount": 10}),

@@ -19,6 +19,8 @@ dependencies = [
     "scipy>=1.8",
     "pyparsing>=3.0",
     "scikit-image>=0.21",
+    "pandas>=2.1.2",
+    "enlighten>=1.12.2"
 ]
 
 [project.urls]
@@ -35,7 +37,6 @@ dev = [
     "pygame>=2.5.0",    
     "networkx>=3.1",
     "opencv-python>=4.8",
-    "pandas>=2.1.2"
 ]
 
 examples = [

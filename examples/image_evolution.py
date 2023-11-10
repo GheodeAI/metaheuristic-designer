@@ -79,16 +79,16 @@ def run_algorithm(alg_name, img_file_name, memetic):
         encoding=encoding,
     )
 
-    mutation_op = OperatorReal("MutRand", {"method": "Uniform", "Low": -20, "Up": 20, "N": 15})
+    mutation_op = OperatorReal("MutRand", {"distrib": "Uniform", "Low": -20, "Up": 20, "N": 15})
     cross_op = OperatorReal("Multipoint")
 
     op_list = [
         OperatorReal("Multipoint"),
-        OperatorReal("MutRand", {"method": "Cauchy", "F": 5, "N": 10}, name="MutCauchy"),
-        OperatorReal("MutRand", {"method": "Gauss", "F": 5, "N": 10}, name="MutGauss"),
+        OperatorReal("MutRand", {"distrib": "Cauchy", "F": 5, "N": 10}, name="MutCauchy"),
+        OperatorReal("MutRand", {"distrib": "Gauss", "F": 5, "N": 10}, name="MutGauss"),
         OperatorReal(
             "MutSample",
-            {"method": "Uniform", "Low": 0, "Up": 256, "N": 10},
+            {"distrib": "Uniform", "Low": 0, "Up": 256, "N": 10},
             name="MutUniform",
         ),
     ]
@@ -100,7 +100,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     neighborhood_structures = [
         OperatorReal(
             "MutNoise",
-            {"method": "Uniform", "Low": -10, "Up": 10, "N": n},
+            {"distrib": "Uniform", "Low": -10, "Up": 10, "N": n},
             name=f"UniformSample(N={n:0.0f})",
         )
         for n in n_list
@@ -110,7 +110,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
 
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorInt("MutRand", {"method": "Uniform", "Low": -10, "Up": -10, "N": 3})
+    neihbourhood_op = OperatorInt("MutRand", {"distrib": "Uniform", "Low": -10, "Up": -10, "N": 3})
     local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
 
     if alg_name == "HillClimb":

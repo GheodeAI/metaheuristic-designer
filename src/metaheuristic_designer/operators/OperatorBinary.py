@@ -82,7 +82,7 @@ class OperatorBinary(Operator):
         self.method = BinOpMethods.from_str(method)
 
         if self.method in [BinOpMethods.MUTSAMPLE, BinOpMethods.RANDSAMPLE]:
-            self.params["method"] = ProbDist.BERNOULLI
+            self.params["distrib"] = ProbDist.BERNOULLI
 
     def evolve(self, indiv, population, objfunc, global_best, initializer):
         new_indiv = copy(indiv)

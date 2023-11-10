@@ -125,10 +125,10 @@ class OperatorInt(Operator):
             IntOpMethods.RANDNOISE,
             IntOpMethods.RANDSAMPLE,
         ]:
-            self.params["method"] = ProbDist.from_str(self.params["method"])
+            self.params["distrib"] = ProbDist.from_str(self.params["distrib"])
 
         elif self.method == IntOpMethods.RANDRESET:
-            self.params["method"] = ProbDist.UNIFORM
+            self.params["distrib"] = ProbDist.UNIFORM
 
             if "Low" not in self.params:
                 self.params["Low"] = 0

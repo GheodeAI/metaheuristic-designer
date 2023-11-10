@@ -37,48 +37,62 @@ prob_dist_map = {
 }
 
 
-def mutate_rand(vector, population, params):
-    """
-    Adds random noise with a given probability distribution to 'n' components of the input vector.
-    """
-
-    method = params["method"]
-    n = round(params["N"])
-
-    low = params.get("Low", -1)
-    up = params.get("Up", 1)
-    strength = params.get("F", 1)
-
-    mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
-    RAND_GEN.shuffle(mask_pos)
-
-    rand_vec = sample_distribution(method, n, 0, strength, low, up)
-
-    vector[mask_pos] = vector[mask_pos] + rand_vec
-    return vector
-
-
 def mutate_sample(vector, population, params):
     """
     Replaces 'n' components of the input vector with a random value sampled from a given probability distribution.
     """
 
-    method = params["method"]
     n = round(params["N"])
+    distrib = params["distrib"]
 
-    low = params.get("Low", -1)
-    up = params.get("Up", 1)
+    loc = params.get("loc")
+    scale = params.get("scale")
+    if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
+        minim = params["min"]
+        maxim = params["max"]
+        loc = (minim+maxim)/2
+        scale = (maxim-minim)/2    
     strength = params.get("F", 1)
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
     RAND_GEN.shuffle(mask_pos)
-    popul_matrix = np.vstack([i.genotype for i in population])
-    mean = popul_matrix.mean(axis=0)[mask_pos]
-    std = (popul_matrix.std(axis=0)[mask_pos] + 1e-6) * strength  # ensure there will be some standard deviation
 
-    rand_vec = sample_distribution(method, n, mean, std, low, up)
+    popul_matrix = np.vstack([i.genotype for i in population])
+    if loc is None:
+        loc = popul_matrix.mean(axis=0)[mask_pos] 
+    if scale is None:
+        scale = popul_matrix.std(axis=0)[mask_pos]
+
+    print("distribution:", distrib)
+    rand_vec = sample_distribution(distrib, n, loc, scale, params)
 
     vector[mask_pos] = rand_vec
+    return vector
+
+
+def mutate_rand(vector, population, params):
+    """
+    Adds random noise with a given probability distribution to 'n' components of the input vector.
+    """
+
+    n = round(params["N"])
+    distrib = params["distrib"]
+
+    loc = params.get("loc")
+    scale = params.get("scale")
+    if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
+        minim = params["min"]
+        maxim = params["max"]
+        loc = (minim+maxim)/2
+        scale = (maxim-minim)/2    
+    strength = params.get("F", 1)
+
+    mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
+    RAND_GEN.shuffle(mask_pos)
+
+    rand_vec = sample_distribution(distrib, n, loc, scale, params)
+
+    vector[mask_pos] = vector[mask_pos] + strength * rand_vec
     return vector
 
 
@@ -87,17 +101,25 @@ def rand_sample(vector, population, params):
     Picks a vector with components sampled from a probability distribution.
     """
 
-    method = params["method"]
-
-    low = params.get("Low", -1)
-    up = params.get("Up", 1)
+    distrib = params["distrib"]
+ 
+    loc = params.get("loc")
+    scale = params.get("scale")
+    if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
+        minim = params["min"]
+        maxim = params["max"]
+        loc = (minim+maxim)/2
+        scale = (maxim-minim)/2    
     strength = params.get("F", 1)
 
     popul_matrix = np.vstack([i.genotype for i in population])
-    mean = popul_matrix.mean(axis=0)
-    std = (popul_matrix.std(axis=0) + 1e-6) * strength  # ensure there will be some standard deviation
+    if loc is None:
+        loc = popul_matrix.mean(axis=0)
+    if scale is None:
+        scale = popul_matrix.std(axis=0)
 
-    rand_vec = sample_distribution(method, vector.shape, mean, std, low, up)
+    print("distribution:", distrib)
+    rand_vec = sample_distribution(distrib, vector.shape, loc, scale, params)
 
     return rand_vec
 
@@ -107,37 +129,46 @@ def rand_noise(vector, params):
     Adds random noise with a given probability distribution to all components of the input vector.
     """
 
-    method = params["method"]
+    distrib = params["distrib"]
 
-    low = params.get("Low", -1)
-    up = params.get("Up", 1)
+    loc = params.get("loc")
+    scale = params.get("scale")
+    if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
+        minim = params["min"]
+        maxim = params["max"]
+        loc = (minim+maxim)/2
+        scale = (maxim-minim)/2    
     strength = params.get("F", 1)
 
-    noise = sample_distribution(method, vector.shape, 0, strength, low, up)
+    noise = sample_distribution(distrib, vector.shape, loc, scale, params)
 
-    return vector + noise
+    return vector + strength*noise
 
 
-def sample_distribution(method, n, mean=0, strength=0.01, low=0, up=1):
+def sample_distribution(distrib, n, loc=None, scale=None, params={}):
     """
     Takes 'n' samples from a given probablility distribution and returns them as a vector.
     """
 
-    sample = 0
-    if method == ProbDist.GAUSS:
-        sample = RAND_GEN.normal(mean, strength, size=n)
-    elif method == ProbDist.UNIFORM:
-        sample = RAND_GEN.uniform(low, up, size=n)
-    elif method == ProbDist.CAUCHY:
-        sample = sp.stats.cauchy.rvs(mean, strength, size=n)
-    elif method == ProbDist.LAPLACE:
-        sample = sp.stats.laplace.rvs(mean, strength, size=n)
-    elif method == ProbDist.POISSON:
-        sample = sp.stats.poisson.rvs(strength, size=n)
-    elif method == ProbDist.BERNOULLI:
-        sample = sp.stats.bernoulli.rvs(strength, size=n)
+    loc = 0 if loc is None else loc
+    scale = 1 if scale is None else scale
 
-    return sample
+    if distrib == ProbDist.GAUSS:
+        prob_distrib = sp.stats.norm(loc=loc, scale=scale)
+    elif distrib == ProbDist.UNIFORM:
+        prob_distrib = sp.stats.uniform(loc=loc, scale=scale)
+    elif distrib == ProbDist.CAUCHY:
+        prob_distrib = sp.stats.cauchy(loc=loc, scale=scale)
+    elif distrib == ProbDist.LAPLACE:
+        prob_distrib = sp.stats.laplace(loc=loc, scale=scale)
+    elif distrib == ProbDist.POISSON:
+        mu = 2 if 'mu' not in params else params['mu']
+        prob_distrib = sp.stats.poisson(mu, loc=loc)
+    elif distrib == ProbDist.BERNOULLI:
+        p = 0.5 if 'p' not in params else params['p']
+        prob_distrib = sp.stats.bernoulli(p, loc=loc)
+
+    return prob_distrib.rvs(size=n, random_state=RAND_GEN)
 
 
 def gaussian(vector, strength):
@@ -145,7 +176,7 @@ def gaussian(vector, strength):
     Adds random noise following a Gaussian distribution to the vector.
     """
 
-    return rand_noise(vector, {"method": ProbDist.GAUSS, "F": strength})
+    return rand_noise(vector, {"distrib": ProbDist.GAUSS, "F": strength})
 
 
 def cauchy(vector, strength):
@@ -153,7 +184,7 @@ def cauchy(vector, strength):
     Adds random noise following a Cauchy distribution to the vector.
     """
 
-    return rand_noise(vector, {"method": ProbDist.CAUCHY, "F": strength})
+    return rand_noise(vector, {"distrib": ProbDist.CAUCHY, "F": strength})
 
 
 def laplace(vector, strength):
@@ -161,15 +192,15 @@ def laplace(vector, strength):
     Adds random noise following a Laplace distribution to the vector.
     """
 
-    return rand_noise(vector, {"method": ProbDist.LAPLACE, "F": strength})
+    return rand_noise(vector, {"distrib": ProbDist.LAPLACE, "F": strength})
 
 
-def uniform(vector, low, up):
+def uniform(vector, minim, maxim):
     """
     Adds random noise following an Uniform distribution to the vector.
     """
 
-    return rand_noise(vector, {"method": ProbDist.UNIFORM, "Low": low, "Up": up})
+    return rand_noise(vector, {"distrib": ProbDist.UNIFORM, "min": minim, "max": maxim})
 
 
 def poisson(vector, mu):
@@ -177,7 +208,7 @@ def poisson(vector, mu):
     Adds random noise following a Poisson distribution to the vector.
     """
 
-    return rand_noise(vector, {"method": ProbDist.POISSON, "F": mu})
+    return rand_noise(vector, {"distrib": ProbDist.POISSON, "F": mu})
 
 
 def sample_1_sigma(vector, n, epsilon, tau):
@@ -185,7 +216,7 @@ def sample_1_sigma(vector, n, epsilon, tau):
     Replaces 'n' components of the input vector with a value sampled from the mutate 1 sigma function.
 
     In future, it should be integrated in mutate_sample and sample_distribution functions, considering
-    np.exp(tau * N(0,1)) as a distribution function with a min value of epsilon.
+    np.exp(tau * N(0,1)) as a distribution function with a minimum value of epsilon.
     """
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)

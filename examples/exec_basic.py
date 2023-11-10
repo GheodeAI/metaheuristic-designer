@@ -39,7 +39,7 @@ def run_algorithm(alg_name, memetic, save_state):
     parent_params = ParamScheduler("Linear", {"amount": 20})
     # select_params = ParamScheduler("Linear")
 
-    mut_params = ParamScheduler("Linear", {"method": "Cauchy", "F": [0.01, 0.00001]})
+    mut_params = ParamScheduler("Linear", {"distrib": "Cauchy", "F": [0.01, 0.00001]})
     mutation_op = OperatorReal("RandNoise", mut_params)
 
     cross_op = OperatorReal("Multipoint")
@@ -58,7 +58,7 @@ def run_algorithm(alg_name, memetic, save_state):
     selection_op = SurvivorSelection("(m+n)")
 
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorReal("RandNoise", {"method": "Cauchy", "F": 0.0002})
+    neihbourhood_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
 
     if alg_name == "HillClimb":
