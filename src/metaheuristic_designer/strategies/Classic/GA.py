@@ -12,7 +12,7 @@ class GA(VariablePopulation):
 
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer,
         mutation_op: Operator,
         cross_op: Operator,
         parent_sel_op: ParentSelection,
@@ -31,11 +31,11 @@ class GA(VariablePopulation):
         evolve_op = OperatorMeta("Sequence", [prob_mut_op, prob_cross_op])
 
         super().__init__(
-            pop_init,
+            initializer,
             evolve_op,
             parent_sel_op=parent_sel_op,
             selection_op=selection_op,
-            n_offspring=pop_init.pop_size,
+            n_offspring=initializer.pop_size,
             params=params,
             name=name,
         )

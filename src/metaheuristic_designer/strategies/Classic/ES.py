@@ -12,7 +12,7 @@ class ES(VariablePopulation):
 
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer,
         mutation_op: Operator,
         cross_op: Operator = None,
         parent_sel_op: ParentSelection = None,
@@ -25,10 +25,10 @@ class ES(VariablePopulation):
         else:
             evolve_op = OperatorMeta("Sequence", [mutation_op, cross_op])
 
-        offspring_size = params.get("offspringSize", pop_init.pop_size)
+        offspring_size = params.get("offspringSize", initializer.pop_size)
 
         super().__init__(
-            pop_init,
+            initializer,
             evolve_op,
             parent_sel_op=parent_sel_op,
             selection_op=selection_op,

@@ -31,7 +31,7 @@ class SearchStrategy(ABC):
 
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer = None,
         params: Union[ParamScheduler, dict] = None,
         name: str = "some strategy",
     ):
@@ -40,7 +40,7 @@ class SearchStrategy(ABC):
         """
 
         self.name = name
-        self.pop_init = pop_init
+        self._initializer = initializer
 
         self.population = None
 
@@ -95,7 +95,7 @@ class SearchStrategy(ABC):
         Gets the amount of inidividuals in the population.
         """
 
-        return self.pop_init.pop_size
+        return self._initializer.pop_size
 
     def best_solution(self) -> Tuple[Individual, float]:
         """
@@ -112,6 +112,14 @@ class SearchStrategy(ABC):
             best_fitness *= -1
 
         return self.best.genotype, best_fitness
+    
+    @property
+    def initializer(self):
+        return self._initializer
+    
+    @initializer.setter 
+    def initializer(self, new_initializer):
+        self._initializer = new_initializer
 
     def initialize(self, objfunc: ObjectiveFunc):
         """
@@ -123,7 +131,10 @@ class SearchStrategy(ABC):
             Objective function to be optimized.
         """
 
-        self.population = self.pop_init.generate_population(objfunc)
+        if self._initializer is None:
+            raise Exception("Initializer not indicated.")
+
+        self.population = self._initializer.generate_population(objfunc)
 
         return self.population
 

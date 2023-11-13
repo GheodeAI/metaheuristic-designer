@@ -16,7 +16,7 @@ class SA(HillClimb):
 
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer,
         perturb_op: Operator,
         params: Union[ParamScheduler, dict] = {},
         name: str = "SA",
@@ -29,7 +29,7 @@ class SA(HillClimb):
 
         selection_op = SurvivorSelection("ProbHillClimb", {"p": np.exp(-1 / self.temp_init)})
 
-        super().__init__(pop_init, perturb_op, selection_op, params=params, name=name)
+        super().__init__(initializer, perturb_op, selection_op, params=params, name=name)
 
     def update_params(self, **kwargs):
         progress = kwargs["progress"]

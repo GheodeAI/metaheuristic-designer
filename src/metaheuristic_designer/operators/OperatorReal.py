@@ -176,7 +176,7 @@ class OperatorReal(Operator):
             new_indiv.genotype = cross_inter_avg(new_indiv.genotype, others, params["N"])
 
         elif self.method == RealOpMethods.MUTATE1SIGMA:
-            new_indiv.genotype = mutate_1_sigma(new_indiv.genotype[0], params["epsilon"], params["tau"])
+            new_indiv.genotype = mutate_1_sigma(new_indiv.genotype, params["epsilon"], params["tau"])
 
         elif self.method == RealOpMethods.MUTATENSIGMAS:
             new_indiv.genotype = mutate_n_sigmas(
@@ -205,7 +205,7 @@ class OperatorReal(Operator):
             new_indiv.genotype = uniform(new_indiv.genotype, params["Low"], params["Up"])
 
         elif self.method == RealOpMethods.MUTNOISE:
-            new_indiv.genotype = mutate_rand(new_indiv.genotype, others, params)
+            new_indiv.genotype = mutate_noise(new_indiv.genotype, others, params)
 
         elif self.method == RealOpMethods.MUTSAMPLE:
             new_indiv.genotype = mutate_sample(new_indiv.genotype, others, params)

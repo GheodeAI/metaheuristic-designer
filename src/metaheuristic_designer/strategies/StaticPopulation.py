@@ -12,7 +12,7 @@ class StaticPopulation(SearchStrategy):
 
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer,
         operator: Operator,
         parent_sel_op: ParentSelection = None,
         selection_op: SurvivorSelection = None,
@@ -32,7 +32,7 @@ class StaticPopulation(SearchStrategy):
 
         self.best = None
 
-        super().__init__(pop_init, params=params, name=name)
+        super().__init__(initializer, params=params, name=name)
 
     def select_parents(self, population, **kwargs):
         return self.parent_sel_op(population)
@@ -41,7 +41,7 @@ class StaticPopulation(SearchStrategy):
         offspring = []
         for indiv in parent_list:
             # Apply operator
-            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, self.pop_init)
+            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, self.initializer)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 

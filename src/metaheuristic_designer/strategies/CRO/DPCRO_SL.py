@@ -18,12 +18,11 @@ class DPCRO_SL(CRO_SL):
 
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer,
         operator_list: List[Operator],
         params: Union[ParamScheduler, dict] = {},
         name: str = "DPCRO-SL",
     ):
-        super().__init__(pop_init, operator_list, params=params, name=name)
 
         self.group_subs = params["group_subs"]
         self.dyn_method = params["dyn_method"]
@@ -47,6 +46,8 @@ class DPCRO_SL(CRO_SL):
         self.op_steps = 0
         self.operator_metric = [0] * len(operator_list)
         self.operator_history = []
+        
+        super().__init__(initializer, operator_list, params=params, name=name)
 
     def _operator_metric(self, data):
         result = 0
@@ -165,7 +166,7 @@ class DPCRO_SL(CRO_SL):
             new_parent_list = divided_population[op_idx] if self.group_subs else parent_list
 
             # Apply operator
-            new_indiv = op(indiv, new_parent_list, objfunc, self.best, self.pop_init)
+            new_indiv = op(indiv, new_parent_list, objfunc, self.best, self.initializer)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 

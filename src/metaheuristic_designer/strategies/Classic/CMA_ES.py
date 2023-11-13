@@ -8,7 +8,7 @@ from ...Encodings import CMAEncoding
 class CMA_ES(StaticPopulation):
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer,
         mutation_op: Operator,
         cross_op: Operator,
         parent_sel_op: ParentSelection,
@@ -32,7 +32,7 @@ class CMA_ES(StaticPopulation):
 
         mutate = OperatorMeta("Sequence", [mutate1, rand1])
 
-        super().__init__(pop_init, mutate, cross, parent_select, selection, params, name)
+        super().__init__(initializer, mutate, cross, parent_select, selection, params, name)
 
     def initialize(self, objfunc):
         objfunc.encoding = CMAEncoding(self.params["nparams"], pre_encoding=objfunc.encoding)

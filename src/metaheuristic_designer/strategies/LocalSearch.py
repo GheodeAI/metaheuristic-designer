@@ -38,7 +38,7 @@ class LocalSearch(SearchStrategy):
         indiv = indiv_list[0]
         for i in range(self.iterations):
             # Perturb individual
-            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
+            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.initializer)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 

@@ -13,7 +13,7 @@ class VariablePopulation(SearchStrategy):
 
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer,
         operator: Operator,
         parent_sel_op: ParentSelection = None,
         selection_op: SurvivorSelection = None,
@@ -25,7 +25,7 @@ class VariablePopulation(SearchStrategy):
         self.operator = operator
 
         if n_offspring is None:
-            n_offspring = pop_init.pop_size
+            n_offspring = initializer.pop_size
         self.n_offspring = n_offspring
 
         if parent_sel_op is None:
@@ -38,7 +38,7 @@ class VariablePopulation(SearchStrategy):
 
         self.best = None
 
-        super().__init__(pop_init, params=params, name=name)
+        super().__init__(initializer, params=params, name=name)
 
     def select_parents(self, population, **kwargs):
         return self.parent_sel_op(population)
@@ -49,7 +49,7 @@ class VariablePopulation(SearchStrategy):
         while len(offspring) < self.n_offspring:
             # Apply operator
             indiv = random.choice(parent_list)
-            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, self.pop_init)
+            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, self.initializer)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 

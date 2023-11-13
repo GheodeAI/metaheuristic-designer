@@ -14,20 +14,18 @@ class CRO_SL(SearchStrategy):
 
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer,
         operator_list: List[Operator],
         params: Union[ParamScheduler, dict] = None,
         name: str = "CRO-SL",
     ):
-        pop_init = deepcopy(pop_init)
-        pop_init.pop_size = round(pop_init.pop_size * params["rho"])
-
-        super().__init__(pop_init, params=params, name=name)
+        initializer = deepcopy(initializer)
+        initializer.pop_size = round(initializer.pop_size * params["rho"])
 
         # Hyperparameters of the algorithm
-        self.maxpopsize = pop_init.pop_size
+        self.maxpopsize = initializer.pop_size
         self.operator_list = operator_list
-        self.operator_idx = [i % len(operator_list) for i in range(pop_init.pop_size)]
+        self.operator_idx = [i % len(operator_list) for i in range(initializer.pop_size)]
 
         self.selection_op = SurvivorSelection(
             "CRO",
@@ -35,9 +33,11 @@ class CRO_SL(SearchStrategy):
                 "Fd": params["Fd"],
                 "Pd": params["Pd"],
                 "attempts": params["attempts"],
-                "maxPopSize": pop_init.pop_size,
+                "maxPopSize": initializer.pop_size,
             },
         )
+        
+        super().__init__(initializer, params=params, name=name)
 
     def perturb(self, parent_list, objfunc, **kwargs):
         offspring = []
@@ -48,7 +48,7 @@ class CRO_SL(SearchStrategy):
             op = self.operator_list[op_idx]
 
             # Apply operator
-            new_indiv = op(indiv, parent_list, objfunc, self.best, self.pop_init)
+            new_indiv = op(indiv, parent_list, objfunc, self.best, self.initializer)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 
@@ -68,7 +68,7 @@ class CRO_SL(SearchStrategy):
     def update_params(self, **kwargs):
         progress = kwargs["progress"]
 
-        self.pop_init.pop_size = len(self.population)
+        self.initializer.pop_size = len(self.population)
 
         for op in self.operator_list:
             if isinstance(op, Operator):

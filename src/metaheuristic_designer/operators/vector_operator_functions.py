@@ -13,8 +13,12 @@ class ProbDist(Enum):
     GAUSS = enum.auto()
     CAUCHY = enum.auto()
     LAPLACE = enum.auto()
+    GAMMA = enum.auto() 
+    EXPON = enum.auto()
+    LEVYSTABLE = enum.auto()
     POISSON = enum.auto()
     BERNOULLI = enum.auto()
+    CUSTOM = enum.auto()
 
     @staticmethod
     def from_str(str_input):
@@ -32,8 +36,15 @@ prob_dist_map = {
     "normal": ProbDist.GAUSS,
     "cauchy": ProbDist.CAUCHY,
     "laplace": ProbDist.LAPLACE,
+    "gamma": ProbDist.GAMMA,
+    "exp": ProbDist.EXPON,
+    "expon": ProbDist.EXPON,
+    "exponential": ProbDist.EXPON,
+    "levystable": ProbDist.LEVYSTABLE,
+    "levy_stable": ProbDist.LEVYSTABLE,
     "poisson": ProbDist.POISSON,
     "bernoulli": ProbDist.BERNOULLI,
+    "custom": ProbDist.CUSTOM
 }
 
 
@@ -70,7 +81,7 @@ def mutate_sample(vector, population, params):
     return vector
 
 
-def mutate_rand(vector, population, params):
+def mutate_noise(vector, population, params):
     """
     Adds random noise with a given probability distribution to 'n' components of the input vector.
     """
@@ -161,12 +172,23 @@ def sample_distribution(distrib, n, loc=None, scale=None, params={}):
         prob_distrib = sp.stats.cauchy(loc=loc, scale=scale)
     elif distrib == ProbDist.LAPLACE:
         prob_distrib = sp.stats.laplace(loc=loc, scale=scale)
+    elif distrib == ProbDist.GAMMA:
+        a = 1 if 'a' not in params else params['a']
+        prob_distrib = sp.stats.gamma(a, loc=loc, scale=scale)
+    elif distrib == ProbDist.EXPON:
+        prob_distrib = sp.stats.expon(loc=loc, scale=scale)
+    elif distrib == ProbDist.LEVYSTABLE:
+        a = 2 if 'a' not in params else params['a']
+        b = 0 if 'b' not in params else params['b']
+        prob_distrib = sp.stats.levy_stable(a, b, loc=loc, scale=scale)
     elif distrib == ProbDist.POISSON:
         mu = 2 if 'mu' not in params else params['mu']
         prob_distrib = sp.stats.poisson(mu, loc=loc)
     elif distrib == ProbDist.BERNOULLI:
         p = 0.5 if 'p' not in params else params['p']
         prob_distrib = sp.stats.bernoulli(p, loc=loc)
+    elif distrib == ProbDist.CUSTOM:
+        prob_dist = params["distrib_class"]
 
     return prob_distrib.rvs(size=n, random_state=RAND_GEN)
 
