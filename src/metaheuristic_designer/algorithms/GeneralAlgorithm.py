@@ -8,7 +8,7 @@ class GeneralAlgorithm(Algorithm):
     """
     General framework for metaheuristic algorithms.
 
-    Performs a loop of parent selection, perturbation, and survivor selection until a stopping condition is reached. 
+    Performs a loop of parent selection, perturbation, and survivor selection until a stopping condition is reached.
 
     Parameters
     ----------

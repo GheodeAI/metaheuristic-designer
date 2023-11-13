@@ -35,7 +35,6 @@ class GA(VariablePopulation):
             evolve_op,
             parent_sel_op=parent_sel_op,
             selection_op=selection_op,
-            n_offspring=initializer.pop_size,
             params=params,
             name=name,
         )

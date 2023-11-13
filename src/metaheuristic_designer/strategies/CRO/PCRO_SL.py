@@ -26,6 +26,8 @@ class PCRO_SL(CRO_SL):
         self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
 
     def update_params(self, **kwargs):
+        super().update_params(**kwargs)
+
         progress = kwargs["progress"]
 
         self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)

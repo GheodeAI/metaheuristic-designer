@@ -23,6 +23,7 @@ class DPCRO_SL(CRO_SL):
         params: Union[ParamScheduler, dict] = {},
         name: str = "DPCRO-SL",
     ):
+        super().__init__(initializer, operator_list, params=params, name=name)
 
         self.group_subs = params["group_subs"]
         self.dyn_method = params["dyn_method"]
@@ -46,8 +47,6 @@ class DPCRO_SL(CRO_SL):
         self.op_steps = 0
         self.operator_metric = [0] * len(operator_list)
         self.operator_history = []
-        
-        super().__init__(initializer, operator_list, params=params, name=name)
 
     def _operator_metric(self, data):
         result = 0
@@ -200,6 +199,8 @@ class DPCRO_SL(CRO_SL):
         return new_population
 
     def update_params(self, **kwargs):
+        super().update_params(**kwargs)
+
         progress = kwargs["progress"]
 
         self._generate_substrates(progress)

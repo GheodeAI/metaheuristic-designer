@@ -24,7 +24,7 @@ class VariablePopulation(SearchStrategy):
         self.params = params
         self.operator = operator
 
-        if n_offspring is None:
+        if n_offspring is None and initializer is not None:
             n_offspring = initializer.pop_size
         self.n_offspring = n_offspring
 
@@ -39,6 +39,15 @@ class VariablePopulation(SearchStrategy):
         self.best = None
 
         super().__init__(initializer, params=params, name=name)
+
+    @property
+    def initializer(self):
+        return self._initializer
+
+    @initializer.setter
+    def initializer(self, new_initializer):
+        self.n_offspring = new_initializer.pop_size
+        self._initializer = new_initializer
 
     def select_parents(self, population, **kwargs):
         return self.parent_sel_op(population)
@@ -62,6 +71,8 @@ class VariablePopulation(SearchStrategy):
         return self.selection_op(population, offspring)
 
     def update_params(self, **kwargs):
+        super().update_params(**kwargs)
+
         progress = kwargs["progress"]
 
         if isinstance(self.operator, Operator):

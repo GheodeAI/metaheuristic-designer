@@ -78,6 +78,8 @@ class VND(SearchStrategy):
         return new_population
 
     def update_params(self, **kwargs):
+        super().update_params(**kwargs)
+
         progress = kwargs["progress"]
 
         if isinstance(self.perturb_op, Operator):

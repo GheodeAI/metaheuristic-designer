@@ -13,7 +13,7 @@ class ProbDist(Enum):
     GAUSS = enum.auto()
     CAUCHY = enum.auto()
     LAPLACE = enum.auto()
-    GAMMA = enum.auto() 
+    GAMMA = enum.auto()
     EXPON = enum.auto()
     LEVYSTABLE = enum.auto()
     POISSON = enum.auto()
@@ -44,7 +44,7 @@ prob_dist_map = {
     "levy_stable": ProbDist.LEVYSTABLE,
     "poisson": ProbDist.POISSON,
     "bernoulli": ProbDist.BERNOULLI,
-    "custom": ProbDist.CUSTOM
+    "custom": ProbDist.CUSTOM,
 }
 
 
@@ -61,8 +61,8 @@ def mutate_sample(vector, population, params):
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
-        loc = (minim+maxim)/2
-        scale = (maxim-minim)/2    
+        loc = minim
+        scale = maxim - minim
     strength = params.get("F", 1)
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
@@ -70,11 +70,10 @@ def mutate_sample(vector, population, params):
 
     popul_matrix = np.vstack([i.genotype for i in population])
     if loc is None:
-        loc = popul_matrix.mean(axis=0)[mask_pos] 
+        loc = popul_matrix.mean(axis=0)[mask_pos]
     if scale is None:
         scale = popul_matrix.std(axis=0)[mask_pos]
 
-    print("distribution:", distrib)
     rand_vec = sample_distribution(distrib, n, loc, scale, params)
 
     vector[mask_pos] = rand_vec
@@ -94,8 +93,8 @@ def mutate_noise(vector, population, params):
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
-        loc = (minim+maxim)/2
-        scale = (maxim-minim)/2    
+        loc = minim
+        scale = maxim - minim
     strength = params.get("F", 1)
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
@@ -113,14 +112,14 @@ def rand_sample(vector, population, params):
     """
 
     distrib = params["distrib"]
- 
+
     loc = params.get("loc")
     scale = params.get("scale")
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
-        loc = (minim+maxim)/2
-        scale = (maxim-minim)/2    
+        loc = minim
+        scale = maxim - minim
     strength = params.get("F", 1)
 
     popul_matrix = np.vstack([i.genotype for i in population])
@@ -129,7 +128,6 @@ def rand_sample(vector, population, params):
     if scale is None:
         scale = popul_matrix.std(axis=0)
 
-    print("distribution:", distrib)
     rand_vec = sample_distribution(distrib, vector.shape, loc, scale, params)
 
     return rand_vec
@@ -147,13 +145,13 @@ def rand_noise(vector, params):
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
-        loc = (minim+maxim)/2
-        scale = (maxim-minim)/2    
+        loc = minim
+        scale = maxim - minim
     strength = params.get("F", 1)
 
     noise = sample_distribution(distrib, vector.shape, loc, scale, params)
 
-    return vector + strength*noise
+    return vector + strength * noise
 
 
 def sample_distribution(distrib, n, loc=None, scale=None, params={}):
@@ -173,19 +171,19 @@ def sample_distribution(distrib, n, loc=None, scale=None, params={}):
     elif distrib == ProbDist.LAPLACE:
         prob_distrib = sp.stats.laplace(loc=loc, scale=scale)
     elif distrib == ProbDist.GAMMA:
-        a = 1 if 'a' not in params else params['a']
+        a = 1 if "a" not in params else params["a"]
         prob_distrib = sp.stats.gamma(a, loc=loc, scale=scale)
     elif distrib == ProbDist.EXPON:
         prob_distrib = sp.stats.expon(loc=loc, scale=scale)
     elif distrib == ProbDist.LEVYSTABLE:
-        a = 2 if 'a' not in params else params['a']
-        b = 0 if 'b' not in params else params['b']
+        a = 2 if "a" not in params else params["a"]
+        b = 0 if "b" not in params else params["b"]
         prob_distrib = sp.stats.levy_stable(a, b, loc=loc, scale=scale)
     elif distrib == ProbDist.POISSON:
-        mu = 2 if 'mu' not in params else params['mu']
+        mu = 2 if "mu" not in params else params["mu"]
         prob_distrib = sp.stats.poisson(mu, loc=loc)
     elif distrib == ProbDist.BERNOULLI:
-        p = 0.5 if 'p' not in params else params['p']
+        p = 0.5 if "p" not in params else params["p"]
         prob_distrib = sp.stats.bernoulli(p, loc=loc)
     elif distrib == ProbDist.CUSTOM:
         prob_dist = params["distrib_class"]
@@ -262,7 +260,7 @@ def mutate_n_sigmas(sigmas, epsilon, tau, tau_multiple):
     Mutate a list of sigmas values in base of tau and tau_multiple params, where epsilon is de minimum value that a sigma can have.
     """
 
-    return np.maximum(epsilon, sigmas*np.exp(tau * RAND_GEN.normal() + tau_multiple*RAND_GEN.normal()))
+    return np.maximum(epsilon, sigmas * np.exp(tau * RAND_GEN.normal() + tau_multiple * RAND_GEN.normal()))
 
 
 def xor_mask(vector, n, mode="byte"):

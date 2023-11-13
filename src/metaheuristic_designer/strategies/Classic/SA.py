@@ -32,6 +32,8 @@ class SA(HillClimb):
         super().__init__(initializer, perturb_op, selection_op, params=params, name=name)
 
     def update_params(self, **kwargs):
+        super().update_params(**kwargs)
+
         progress = kwargs["progress"]
 
         if isinstance(self.perturb_op, Operator):

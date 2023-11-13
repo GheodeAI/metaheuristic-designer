@@ -16,7 +16,7 @@ def evaluate_indiv(indiv):
 class SearchStrategy(ABC):
     """
     Abstract Search Strategy class.
-    
+
     This is the class that defines how the optimization will be carried out.
 
     Parameters
@@ -112,12 +112,12 @@ class SearchStrategy(ABC):
             best_fitness *= -1
 
         return self.best.genotype, best_fitness
-    
+
     @property
     def initializer(self):
         return self._initializer
-    
-    @initializer.setter 
+
+    @initializer.setter
     def initializer(self, new_initializer):
         self._initializer = new_initializer
 
@@ -212,6 +212,9 @@ class SearchStrategy(ABC):
         """
         Updates the parameters of the search strategy and the operators.
         """
+
+        for indiv in self.population:
+            indiv.age += 1
 
     def get_state(self, show_pop: bool = False, show_pop_details: bool = False) -> dict:
         """

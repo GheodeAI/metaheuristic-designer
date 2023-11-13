@@ -54,6 +54,8 @@ class StaticPopulation(SearchStrategy):
         return self.selection_op(population, offspring)
 
     def update_params(self, **kwargs):
+        super().update_params(**kwargs)
+
         progress = kwargs["progress"]
 
         if isinstance(self.operator, Operator):

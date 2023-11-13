@@ -82,6 +82,14 @@ class Algorithm(ABC):
     def name(self, new_name: str):
         self._name = new_name
 
+    @property
+    def initializer(self):
+        return self.search_strategy.initializer
+
+    @initializer.setter
+    def initializer(self, new_initializer):
+        self.search_strategy.initializer = new_initializer
+
     def restart(self):
         """
         Resets the internal values of the algorithm and the number of evaluations of the fitness function.

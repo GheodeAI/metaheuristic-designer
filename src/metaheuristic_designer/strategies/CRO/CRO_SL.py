@@ -22,6 +22,8 @@ class CRO_SL(SearchStrategy):
         initializer = deepcopy(initializer)
         initializer.pop_size = round(initializer.pop_size * params["rho"])
 
+        super().__init__(initializer, params=params, name=name)
+
         # Hyperparameters of the algorithm
         self.maxpopsize = initializer.pop_size
         self.operator_list = operator_list
@@ -36,8 +38,6 @@ class CRO_SL(SearchStrategy):
                 "maxPopSize": initializer.pop_size,
             },
         )
-        
-        super().__init__(initializer, params=params, name=name)
 
     def perturb(self, parent_list, objfunc, **kwargs):
         offspring = []
@@ -66,6 +66,8 @@ class CRO_SL(SearchStrategy):
         return self.selection_op(population, offspring)
 
     def update_params(self, **kwargs):
+        super().update_params(**kwargs)
+
         progress = kwargs["progress"]
 
         self.initializer.pop_size = len(self.population)

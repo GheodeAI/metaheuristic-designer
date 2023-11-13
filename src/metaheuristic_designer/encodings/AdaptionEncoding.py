@@ -23,10 +23,10 @@ class AdaptionEncoding(Encoding):
         return np.concatenate([phenotype_encoded, param_vec])
 
     def decode(self, genotype: np.ndarray) -> np.ndarray:
-        return self.base_encoding.decode(genotype[:self.vecsize])
+        return self.base_encoding.decode(genotype[: self.vecsize])
 
     def decode_param_vec(self, genotype):
-        return genotype[self.vecsize:]
+        return genotype[self.vecsize :]
 
     @abstractmethod
     def decode_param(self, genotype) -> dict:
