@@ -5,3 +5,4 @@ from .MatrixEncoding import MatrixEncoding
 from .TypeCastEncoding import TypeCastEncoding
 from .LambdaEncoding import LambdaEncoding
 from .AdaptionEncoding import AdaptionEncoding
+from .CompositeEncoding import CompositeEncoding
