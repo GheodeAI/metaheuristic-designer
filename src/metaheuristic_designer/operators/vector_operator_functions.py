@@ -171,21 +171,23 @@ def sample_distribution(distrib, n, loc=None, scale=None, params={}):
     elif distrib == ProbDist.LAPLACE:
         prob_distrib = sp.stats.laplace(loc=loc, scale=scale)
     elif distrib == ProbDist.GAMMA:
-        a = 1 if "a" not in params else params["a"]
+        a = params.get("a", 1)
         prob_distrib = sp.stats.gamma(a, loc=loc, scale=scale)
     elif distrib == ProbDist.EXPON:
         prob_distrib = sp.stats.expon(loc=loc, scale=scale)
     elif distrib == ProbDist.LEVYSTABLE:
-        a = 2 if "a" not in params else params["a"]
-        b = 0 if "b" not in params else params["b"]
+        a = params.get("a", 2)
+        b = params.get("b", 0)
         prob_distrib = sp.stats.levy_stable(a, b, loc=loc, scale=scale)
     elif distrib == ProbDist.POISSON:
-        mu = 2 if "mu" not in params else params["mu"]
+        mu = params.get("mu", 0)
         prob_distrib = sp.stats.poisson(mu, loc=loc)
     elif distrib == ProbDist.BERNOULLI:
-        p = 0.5 if "p" not in params else params["p"]
+        p = params.get("p", 0)
         prob_distrib = sp.stats.bernoulli(p, loc=loc)
     elif distrib == ProbDist.CUSTOM:
+        if "distrib_class" not in params:
+            raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.") 
         prob_dist = params["distrib_class"]
 
     return prob_distrib.rvs(size=n, random_state=RAND_GEN)
