@@ -23,7 +23,7 @@ class VND(SearchStrategy):
         initializer: Initializer,
         op_list: List[Operator],
         selection_op: SurvivorSelection = None,
-        params: Union[ParamScheduler, dict] = {},
+        params: ParamScheduler | dict = {},
         name: str = "VND",
     ):
         self.iterations = params.get("iters", 100)

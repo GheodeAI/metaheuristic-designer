@@ -19,7 +19,7 @@ class Operator(ABC):
 
     _last_id = 0
 
-    def __init__(self, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(self, params: ParamScheduler | dict = None, name: str = None):
         """
         Constructor for the Operator class.
         """

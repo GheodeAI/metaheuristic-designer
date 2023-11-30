@@ -67,10 +67,15 @@ html_theme_options = {
     "globaltoc_depth": 1,
     "nav_links": [
         {
-            "href": "metaheuristic_designer",
+            "href": "implementations",
             "title": "API reference",
             "internal": "api_ref",
-        }
+        },
+        {
+            "href": "metaheuristic_designer",
+            "title": "Documentation",
+            "internal": "docs",
+        },
     ],
 }
 

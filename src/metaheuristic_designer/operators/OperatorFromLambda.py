@@ -9,7 +9,7 @@ from enum import Enum
 from ..utils import RAND_GEN
 
 
-class OperatorLambda(Operator):
+class OperatorFromLambda(Operator):
     """
     Operator class that applies a custom operator specified as a function.
 

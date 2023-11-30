@@ -13,7 +13,7 @@ class CMA_ES(StaticPopulation):
         cross_op: Operator,
         parent_sel_op: ParentSelection,
         selection_op: SurvivorSelection,
-        params: Union[ParamScheduler, dict] = {},
+        params: ParamScheduler | dict = {},
         name: str = "ES",
     ):
         parent_select = ParentSelection("Nothing")

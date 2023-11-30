@@ -13,11 +13,10 @@ class HS(VariablePopulation):
     def __init__(
         self,
         initializer: Initializer,
-        params: Union[ParamScheduler, dict] = {},
+        params: ParamScheduler | dict = {},
         name: str = "HS",
     ):
-        parent_sel_op = ParentSelection("Nothing")
-        selection_op = SurvivorSelection("(m+n)")
+        survivor_sel = SurvivorSelection("(m+n)")
 
         HSM = initializer.pop_size
         cross = OperatorReal("Multicross", {"Nindiv": HSM})
@@ -39,8 +38,7 @@ class HS(VariablePopulation):
         super().__init__(
             initializer,
             evolve_op,
-            parent_sel_op=parent_sel_op,
-            selection_op=selection_op,
+            survivor_sel=survivor_sel,
             n_offspring=1,
             params=params,
             name=name,

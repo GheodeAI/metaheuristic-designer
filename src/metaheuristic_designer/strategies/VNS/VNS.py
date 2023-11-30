@@ -20,7 +20,7 @@ class VNS(SearchStrategy):
         op_list: List[Operator],
         local_search: Algorithm,
         selection_op: SurvivorSelection = None,
-        params: Union[ParamScheduler, dict] = {},
+        params: ParamScheduler | dict = {},
         name: str = "VNS",
     ):
         self.iterations = params.get("iters", 100)

@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from .Individual import Individual
 from .ParamScheduler import ParamScheduler
-from .selectionMethods import ParentSelection, SurvivorSelection
+from .selectionMethods import SurvivorSelection, ParentSelection, SurvivorSelectionNull, ParentSelectionNull 
 from .Operator import Operator
 from multiprocessing import Pool
 
@@ -32,7 +32,9 @@ class SearchStrategy(ABC):
     def __init__(
         self,
         initializer: Initializer = None,
-        params: Union[ParamScheduler, dict] = None,
+        parent_sel: ParentSelection = None,
+        survivor_sel: SurvivorSelection = None,
+        params: ParamScheduler | dict = None,
         name: str = "some strategy",
     ):
         """
@@ -41,6 +43,14 @@ class SearchStrategy(ABC):
 
         self.name = name
         self._initializer = initializer
+        
+        if parent_sel is None:
+            parent_sel = ParentSelectionNull()
+        self.parent_sel = parent_sel
+
+        if survivor_sel is None:
+            survivor_sel = SurvivorSelectionNull()
+        self.survivor_sel = survivor_sel
 
         self.population = None
 
@@ -65,9 +75,9 @@ class SearchStrategy(ABC):
 
         attr_dict = vars(self).copy()
 
-        self.parent_sel = []
-        self.operators = []
-        self.surv_sel = []
+        self.parent_sel_register = []
+        self.operator_register = []
+        self.survivor_sel_register = []
 
         for var_key in attr_dict:
             attr = attr_dict[var_key]
@@ -75,19 +85,19 @@ class SearchStrategy(ABC):
             if attr:
                 # We have a parent selection method
                 if isinstance(attr, ParentSelection):
-                    self.parent_sel.append(attr)
+                    self.parent_sel_register.append(attr)
 
                 # We have an operator
                 if isinstance(attr, Operator):
-                    self.operators.append(attr)
+                    self.operator_register.append(attr)
 
                 # We have a survivor selection method
                 if isinstance(attr, SurvivorSelection):
-                    self.surv_sel.append(attr)
+                    self.survivor_sel_register.append(attr)
 
                 # We have a list of operators
                 if isinstance(attr, list) and isinstance(attr[0], Operator):
-                    self.operators += attr
+                    self.operator_register += attr
 
     @property
     def pop_size(self):
@@ -169,7 +179,7 @@ class SearchStrategy(ABC):
             A pair of the list of individuals considered as parents and their position in the original population.
         """
 
-        return population
+        return self.parent_sel(population)
 
     @abstractmethod
     def perturb(self, parent_list: List[Individual], objfunc: ObjectiveFunc, **kwargs) -> List[Individual]:
@@ -206,7 +216,7 @@ class SearchStrategy(ABC):
             The list of individuals selected for the next generation.
         """
 
-        return offspring
+        return self.survivor_sel(population, offspring)
 
     def update_params(self, **kwargs):
         """
@@ -244,14 +254,14 @@ class SearchStrategy(ABC):
         elif self.params:
             data["params"] = self.params
 
-        if self.parent_sel:
-            data["parent_sel"] = [par.get_state() for par in self.parent_sel]
+        if self.parent_sel_register:
+            data["parent_sel"] = [par.get_state() for par in self.parent_sel_register]
 
-        if self.operators:
-            data["operators"] = [op.get_state() for op in self.operators]
+        if self.operator_register:
+            data["operators"] = [op.get_state() for op in self.operator_register]
 
-        if self.surv_sel:
-            data["survivor_sel"] = [surv.get_state() for surv in self.surv_sel]
+        if self.survivor_sel_register:
+            data["survivor_sel"] = [surv.get_state() for surv in self.survivor_sel_register]
 
         if show_pop:
             data["population"] = [ind.get_state(show_speed=show_pop_details, show_best=show_pop_details) for ind in self.population]

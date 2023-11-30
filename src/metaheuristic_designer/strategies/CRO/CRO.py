@@ -17,12 +17,12 @@ class CRO(StaticPopulation):
         initializer: Initializer,
         mutate: Operator,
         cross: Operator,
-        params: Union[ParamScheduler, dict] = {},
+        params: ParamScheduler | dict = {},
         name: str = "CRO",
     ):
         evolve_op = OperatorMeta("Branch", [cross, mutate], {"p": params["Fb"]})
 
-        selection_op = SurvivorSelection(
+        survivor_sel = SurvivorSelection(
             "CRO",
             {
                 "Fd": params["Fd"],
@@ -35,4 +35,4 @@ class CRO(StaticPopulation):
         pop_init = deepcopy(initializer)
         pop_init.pop_size = round(pop_init.pop_size * params["rho"])
 
-        super().__init__(pop_init, evolve_op, params=params, selection_op=selection_op, name=name)
+        super().__init__(pop_init, evolve_op, params=params, survivor_sel=survivor_sel, name=name)

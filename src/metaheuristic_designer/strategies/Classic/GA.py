@@ -15,9 +15,9 @@ class GA(VariablePopulation):
         initializer: Initializer,
         mutation_op: Operator,
         cross_op: Operator,
-        parent_sel_op: ParentSelection,
-        selection_op: SurvivorSelection,
-        params: Union[ParamScheduler, dict] = {},
+        parent_sel: ParentSelection,
+        survivor_sel: SurvivorSelection,
+        params: ParamScheduler | dict = {},
         name: str = "GA",
     ):
         self.pmut = params.get("pmut", 0.1)
@@ -33,8 +33,8 @@ class GA(VariablePopulation):
         super().__init__(
             initializer,
             evolve_op,
-            parent_sel_op=parent_sel_op,
-            selection_op=selection_op,
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
             params=params,
             name=name,
         )

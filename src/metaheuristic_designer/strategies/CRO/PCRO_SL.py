@@ -19,7 +19,7 @@ class PCRO_SL(CRO_SL):
         self,
         initializer: Initializer,
         operator_list: List[Operator],
-        params: Union[ParamScheduler, dict] = None,
+        params: ParamScheduler | dict = None,
         name: str = "PCRO-SL",
     ):
         super().__init__(initializer, operator_list, params=params, name=name)
@@ -28,8 +28,5 @@ class PCRO_SL(CRO_SL):
     def update_params(self, **kwargs):
         super().update_params(**kwargs)
 
-        progress = kwargs["progress"]
-
         self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
 
-        super().update_params(progress=progress)

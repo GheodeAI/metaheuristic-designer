@@ -21,7 +21,7 @@ class RVNS(SearchStrategy):
         initializer: Initializer,
         op_list: List[Operator],
         selection_op: SurvivorSelection = None,
-        params: Union[ParamScheduler, dict] = {},
+        params: ParamScheduler | dict = {},
         name: str = "RVNS",
     ):
         self.op_list = op_list

@@ -16,7 +16,7 @@ class CRO_SL(SearchStrategy):
         self,
         initializer: Initializer,
         operator_list: List[Operator],
-        params: Union[ParamScheduler, dict] = None,
+        params: ParamScheduler | dict = None,
         name: str = "CRO-SL",
     ):
         initializer = deepcopy(initializer)
@@ -29,7 +29,7 @@ class CRO_SL(SearchStrategy):
         self.operator_list = operator_list
         self.operator_idx = [i % len(operator_list) for i in range(initializer.pop_size)]
 
-        self.selection_op = SurvivorSelection(
+        self.survivor_sel = SurvivorSelection(
             "CRO",
             {
                 "Fd": params["Fd"],
@@ -63,7 +63,7 @@ class CRO_SL(SearchStrategy):
         return offspring
 
     def select_individuals(self, population, offspring, **kwargs):
-        return self.selection_op(population, offspring)
+        return self.survivor_sel(population, offspring)
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)

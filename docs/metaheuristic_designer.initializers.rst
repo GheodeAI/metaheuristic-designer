@@ -41,10 +41,10 @@ PermInitializer
    :undoc-members:
    :show-inheritance:
 
-LambdaInitializer
+InitializerFromLambda
 -------------------------------------------------
 
-.. automodule:: metaheuristic_designer.initializers.LambdaInitializer
+.. automodule:: metaheuristic_designer.initializers.InitializerFromLambda
    :members:
    :undoc-members:
    :show-inheritance:

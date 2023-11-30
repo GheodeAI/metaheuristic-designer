@@ -20,7 +20,7 @@ class DPCRO_SL(CRO_SL):
         self,
         initializer: Initializer,
         operator_list: List[Operator],
-        params: Union[ParamScheduler, dict] = {},
+        params: ParamScheduler | dict = {},
         name: str = "DPCRO-SL",
     ):
         super().__init__(initializer, operator_list, params=params, name=name)
@@ -185,7 +185,7 @@ class DPCRO_SL(CRO_SL):
 
     def select_individuals(self, population, offspring, **kwargs):
         offspring_ids = [i.id for i in offspring]
-        new_population = self.selection_op(population, offspring)
+        new_population = self.survivor_sel(population, offspring)
         new_ids = [i.id for i in new_population]
 
         for idx, off_id in enumerate(offspring_ids):

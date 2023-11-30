@@ -15,9 +15,9 @@ class ES(VariablePopulation):
         initializer: Initializer,
         mutation_op: Operator,
         cross_op: Operator = None,
-        parent_sel_op: ParentSelection = None,
-        selection_op: SurvivorSelection = None,
-        params: Union[ParamScheduler, dict] = {},
+        parent_sel: ParentSelection = None,
+        survivor_sel: SurvivorSelection = None,
+        params: ParamScheduler | dict = {},
         name: str = "ES",
     ):
         if cross_op is None:
@@ -30,8 +30,8 @@ class ES(VariablePopulation):
         super().__init__(
             initializer,
             evolve_op,
-            parent_sel_op=parent_sel_op,
-            selection_op=selection_op,
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
             n_offspring=offspring_size,
             params=params,
             name=name,

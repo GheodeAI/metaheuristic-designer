@@ -187,7 +187,7 @@ def sample_distribution(distrib, n, loc=None, scale=None, params={}):
         prob_distrib = sp.stats.bernoulli(p, loc=loc)
     elif distrib == ProbDist.CUSTOM:
         if "distrib_class" not in params:
-            raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.") 
+            raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")
         prob_dist = params["distrib_class"]
 
     return prob_distrib.rvs(size=n, random_state=RAND_GEN)

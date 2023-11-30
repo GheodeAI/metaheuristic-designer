@@ -279,7 +279,7 @@ def test_seed_determ_null_param_initializer(population):
 @pytest.mark.parametrize("pop_size", [1, 10, 100])
 def test_lambda_init(vec_size, pop_size):
     generator = lambda: np.zeros(vec_size)
-    pop_init = LambdaInitializer(generator, pop_size)
+    pop_init = InitializerFromLambda(generator, pop_size)
 
     for _ in range(30):
         rand_inidv = pop_init.generate_random(None)

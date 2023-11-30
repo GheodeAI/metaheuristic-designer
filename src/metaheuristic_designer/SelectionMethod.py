@@ -21,7 +21,7 @@ class SelectionMethod(ABC):
 
     def __init__(
         self,
-        params: Union[ParamScheduler, dict] = None,
+        params: ParamScheduler | dict = None,
         padding: bool = False,
         name: str = None,
     ):

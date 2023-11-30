@@ -66,10 +66,10 @@ OperatorNull
    :undoc-members:
    :show-inheritance:
 
-OperatorLambda
+OperatorFromLambda
 ----------------------------------------
 
-.. automodule:: metaheuristic_designer.operators.OperatorLambda
+.. automodule:: metaheuristic_designer.operators.OperatorFromLambda
    :members:
    :undoc-members:
    :show-inheritance:

@@ -16,28 +16,25 @@ class HillClimb(SearchStrategy):
     def __init__(
         self,
         initializer: Initializer,
-        perturb_op: Operator = None,
-        selection_op: SurvivorSelection = None,
-        params: Union[ParamScheduler, dict] = {},
+        operator: Operator = None,
+        survivor_sel: SurvivorSelection = None,
+        params: ParamScheduler | dict = {},
         name: str = "HillClimb",
     ):
-        self.iterations = params.get("iters", 1)
+        if operator is None:
+            operator = OperatorNull()
+        self.operator = operator
 
-        if perturb_op is None:
-            perturb_op = OperatorNull()
-        self.perturb_op = perturb_op
+        if survivor_sel is None:
+            survivor_sel = SurvivorSelection("HillClimb")
 
-        if selection_op is None:
-            selection_op = SurvivorSelection("HillClimb")
-        self.selection_op = selection_op
-
-        super().__init__(initializer, params=params, name=name)
+        super().__init__(initializer, survivor_sel=survivor_sel, params=params, name=name)
 
     def perturb(self, indiv_list, objfunc, **kwargs):
         offspring = []
         for indiv in indiv_list:
             # Perturb individual
-            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.initializer)
+            new_indiv = self.operator(indiv, indiv_list, objfunc, self.best, self.initializer)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 
@@ -46,12 +43,12 @@ class HillClimb(SearchStrategy):
         return offspring
 
     def select_individuals(self, population, offspring, **kwargs):
-        return self.selection_op(population, offspring)
+        return self.survivor_sel(population, offspring)
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)
 
         progress = kwargs["progress"]
 
-        if isinstance(self.perturb_op, Operator):
-            self.perturb_op.step(progress)
+        if isinstance(self.operator, Operator):
+            self.operator.step(progress)
