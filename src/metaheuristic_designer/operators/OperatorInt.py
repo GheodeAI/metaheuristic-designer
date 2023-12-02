@@ -72,9 +72,9 @@ int_ops_map = {
     "mutrand": IntOpMethods.MUTNOISE,
     "mutnoise": IntOpMethods.MUTNOISE,
     "mutsample": IntOpMethods.MUTSAMPLE,
+    "randreset": IntOpMethods.MUTSAMPLE,
     "randnoise": IntOpMethods.RANDNOISE,
     "randsample": IntOpMethods.RANDSAMPLE,
-    "randreset": IntOpMethods.RANDRESET,
     "randomreset": IntOpMethods.RANDRESET,
     "de/rand/1": IntOpMethods.DE_RAND_1,
     "de/best/1": IntOpMethods.DE_BEST_1,
@@ -212,9 +212,6 @@ class OperatorInt(Operator):
 
         elif self.method == IntOpMethods.RANDSAMPLE:
             new_indiv.genotype = rand_sample(new_indiv.genotype, others, params)
-
-        elif self.method == IntOpMethods.RANDRESET:
-            new_indiv.genotype = mutate_sample(new_indiv.genotype, others, params)
 
         elif self.method == IntOpMethods.DE_RAND_1:
             new_indiv.genotype = DE_rand1(new_indiv.genotype, others, params["F"], params["Cr"])

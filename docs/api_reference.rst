@@ -62,6 +62,13 @@ Encodings
 Individual Selection Methods
 ----------------------------
 
+The implemented operators for each datatype are listed in the following section 
+
+.. toctree::
+   :maxdepth: 1
+
+   api_reference.methods
+
 .. csv-table::
    :header: "Module name", "Description"
 
@@ -74,17 +81,24 @@ Individual Selection Methods
 Operators
 ----------------------------
 
-.. csv-table::
-   :header: "Module name", "Description"
+The implemented operators for each datatype are listed in the following section 
 
-   ":py:class:`operators.OperatorBinary<metaheuristic_designer.operators.OperatorBinary.OperatorBinary>`", "Operator for binary coded vectors."
-   ":py:class:`operators.OperatorInt<metaheuristic_designer.operators.OperatorInt.OperatorInt>`", "Operator for integer coded vectors."
-   ":py:class:`operators.OperatorReal<metaheuristic_designer.operators.OperatorReal.OperatorReal>`", "Operator for real coded vectors."
-   ":py:class:`operators.OperatorPerm<metaheuristic_designer.operators.OperatorPerm.OperatorPerm>`", "Operator for permutations."
-   ":py:class:`operators.OperatorList<metaheuristic_designer.operators.OperatorList.OperatorList>`", "Operator for variable-length collections."
-   ":py:class:`operators.OperatorAdaptative<metaheuristic_designer.operators.OperatorAdaptative.OperatorAdaptative>`", "Operator that uses part of the individual as parameters for the operator."
-   ":py:class:`operators.OperatorMeta<metaheuristic_designer.operators.OperatorMeta.OperatorMeta>`", "Operator that combines other operators."
-   ":py:class:`operators.OperatorNull<metaheuristic_designer.operators.OperatorNull.OperatorNull>`", "Operator that makes no changes to the individual."
+.. toctree::
+   :maxdepth: 1
+
+   api_reference.methods
+
+.. csv-table::
+   :header: "Module name", "Methods" ,"Description"
+
+   ":py:class:`operators.OperatorBinary<metaheuristic_designer.operators.OperatorBinary.OperatorBinary>`", ":ref:`implemented metods<Operator Binary Methods>`", "Operator for binary coded vectors."
+   ":py:class:`operators.OperatorInt<metaheuristic_designer.operators.OperatorInt.OperatorInt>`", "", "Operator for integer coded vectors."
+   ":py:class:`operators.OperatorReal<metaheuristic_designer.operators.OperatorReal.OperatorReal>`", "", "Operator for real coded vectors."
+   ":py:class:`operators.OperatorPerm<metaheuristic_designer.operators.OperatorPerm.OperatorPerm>`", "", "Operator for permutations."
+   ":py:class:`operators.OperatorList<metaheuristic_designer.operators.OperatorList.OperatorList>`", "", "Operator for variable-length collections."
+   ":py:class:`operators.OperatorAdaptative<metaheuristic_designer.operators.OperatorAdaptative.OperatorAdaptative>`", "", "Operator that uses part of the individual as parameters for the operator."
+   ":py:class:`operators.OperatorMeta<metaheuristic_designer.operators.OperatorMeta.OperatorMeta>`", "", "Operator that combines other operators."
+   ":py:class:`operators.OperatorNull<metaheuristic_designer.operators.OperatorNull.OperatorNull>`", "", "Operator that makes no changes to the individual."
 
 
 Search Strategies

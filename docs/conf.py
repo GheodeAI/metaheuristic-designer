@@ -37,6 +37,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
+    "sphinx.ext.autosectionlabel"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -67,7 +68,7 @@ html_theme_options = {
     "globaltoc_depth": 1,
     "nav_links": [
         {
-            "href": "implementations",
+            "href": "api_reference",
             "title": "API reference",
             "internal": "api_ref",
         },

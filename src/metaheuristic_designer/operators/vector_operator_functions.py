@@ -33,6 +33,7 @@ class ProbDist(Enum):
 prob_dist_map = {
     "uniform": ProbDist.UNIFORM,
     "gauss": ProbDist.GAUSS,
+    "gaussian": ProbDist.GAUSS,
     "normal": ProbDist.GAUSS,
     "cauchy": ProbDist.CAUCHY,
     "laplace": ProbDist.LAPLACE,
