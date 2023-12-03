@@ -2,8 +2,8 @@
 API reference, Implemented Operators
 ====================================
 
-Operators
-=========
+Implemented Operators
+=====================
 
 Operator Binary Methods
 -----------------------
@@ -53,10 +53,10 @@ It is case insensitive and the parameters are mandatory, but if extra ones are a
     "Cauchy", "F (float|ndarray)", "Add noise following a laplace distribution with center 0 and scaling of 1 multiplied by 'F'.",
     "Uniform", "min (int|ndarray), max (int|ndarray)", "Add noise following an uniform distribution between 'min' and 'max'.",
     "Poisson", "F (float)", "Add noise following a poisson distribution with lambda equal to 'F'.",
-    "MutNoise, MutRand", "N (int), F (float), distrib (str), [distrib params]", "Add random noise following a given distribution on 'N' vector components multiplied by 'F'.",
-    "MutSample, RandReset", "N (int), distrib (str), [distrib params]", "Replace 'N' vector component with samples from a given probability distribution.",
-    "RandNoise", "F (float), distrib (str), [distrib params]", "Add random noise following a given distribution multiplied by 'F'.",
-    "RandSample", "distrib (str), [distrib params]", "Replace the vector with a sample from a given probability distribution.",
+    "MutNoise, MutRand", "N (int), F (float), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Add random noise following a given distribution on 'N' vector components multiplied by 'F'.",
+    "MutSample, RandReset", "N (int), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace 'N' vector component with samples from a given probability distribution.",
+    "RandNoise", "F (float), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Add random noise following a given distribution multiplied by 'F'.",
+    "RandSample", "distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace the vector with a sample from a given probability distribution.",
     "DE/rand/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/1.",
     "DE/best/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Best/1.",
     "DE/rand/2", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/2.",
@@ -98,10 +98,10 @@ It is case insensitive and the parameters are mandatory, but if extra ones are a
     "Laplace", "F (float)", "Add noise following a laplace distribution with mean 0 and std 1 multiplied by 'F'.",
     "Cauchy", "F (float)", "Add noise following a laplace distribution with center 0 and scaling of 1 multiplied by 'F'.",
     "Uniform", "min (int), max (int)", "Add noise following an uniform distribution between 'min' and 'max'.",
-    "MutNoise, MutRand", "N (int), F (float), distrib (str), [distrib params]", "Add random noise following a given distribution on 'N' vector components multiplied by 'F'.",
-    "MutSample", "N (int), distrib (str), [distrib params]", "Replace 'N' vector component with samples from a given probability distribution.",
-    "RandNoise", "F (float), distrib (str), [distrib params]", "Add random noise following a given distribution multiplied by 'F'.",
-    "RandSample", "distrib (str), [distrib params]", "Replace the vector with a sample from a given probability distribution.",
+    "MutNoise, MutRand", "N (int), F (float), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Add random noise following a given distribution on 'N' vector components multiplied by 'F'.",
+    "MutSample", "N (int), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace 'N' vector component with samples from a given probability distribution.",
+    "RandNoise", "F (float), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Add random noise following a given distribution multiplied by 'F'.",
+    "RandSample", "distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace the vector with a sample from a given probability distribution.",
     "DE/rand/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/1.",
     "DE/best/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Best/1.",
     "DE/rand/2", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/2.",
@@ -155,26 +155,26 @@ The methods' names are case insensitive and the parameters are mandatory, but if
 
 Probability Distributions
 -------------------------
-The operators that use probability distributions have to use one of the listed distrbutions
-The names are case insensitive and their parameters are mandatory.
+The operators that use probability distributions have to use one of the listed distrbutions.
+The names are case insensitive and specified with the 'distrib' parameter.
 
 .. csv-table::
    :header: "Distribution name", "Params", "Description"
 
-   "Uniform", "max (float|ndarray), min (float|ndarray)", "`Uniform distribution<https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.uniform.html#scipy.stats.uniform>`_ in the interval [min, max]"
-   "Gauss, Gaussian, Normal", "loc (float), scale (float)", "`Normal distribution<https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html#scipy.stats.norm>`_ with mean 'loc' and std 'scale'"
-   "Cauchy", "loc (float|ndarray), scale (float|ndarray)", "`Cauchy distribution<https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cauchy.html#scipy.stats.cauchy>`_ with mean 'loc' and std 'scale'"
-   "Laplace", "loc (float|ndarray), scale (float|ndarray)", "`Laplace distribution<https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.laplace.html#scipy.stats.laplace>`_ with mean 'loc' and std 'scale'"
-   "Gamma", "a (float), loc (float|ndarray), scale (float|ndarray)", "`Gamma distribution<https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gamma.html#scipy.stats.gamma>`_ with mean 'loc' and std 'scale'"
-   "Exp, Expon, Exponential", "loc (float|ndarray), scale (float|ndarray)", "`Exponential distribution<https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.expon.html#scipy.stats.expon>`_ with mean 'loc' and std 'scale'"
-   "LevyStable, levy_stable", "a (float), b (float), loc (float|ndarray), scale (float|ndarray)", "`Levy-Stable distribution<https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.levy_stable.html#scipy.stats.levy_stable>`_ with mean 'loc' and std 'scale'"
-   "Poisson", "mu (int|ndarray), loc (float|ndarray)", "`Poisson distribution<https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.poisson.html#scipy.stats.poisson>`_ with mean 'loc' and std 'scale'"
-   "Bernoulli", "p (float|ndarray)", "`Bernoulli distribution<https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bernoulli.html#scipy.stats.bernoulli>`_ with mean 'loc' and std 'scale'"
+   "Uniform", "max (float|ndarray), min (float|ndarray)", "`Uniform distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.uniform.html#scipy.stats.uniform>`_ in the interval [min, max]"
+   "Gauss, Gaussian, Normal", "loc (float), scale (float)", "`Normal distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html#scipy.stats.norm>`_ with mean 'loc' and std 'scale'"
+   "Cauchy", "loc (float|ndarray), scale (float|ndarray)", "`Cauchy distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cauchy.html#scipy.stats.cauchy>`_ with mean 'loc' and std 'scale'"
+   "Laplace", "loc (float|ndarray), scale (float|ndarray)", "`Laplace distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.laplace.html#scipy.stats.laplace>`_ with mean 'loc' and std 'scale'"
+   "Gamma", "a (float), loc (float|ndarray), scale (float|ndarray)", "`Gamma distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gamma.html#scipy.stats.gamma>`_ with mean 'loc' and std 'scale'"
+   "Exp, Expon, Exponential", "loc (float|ndarray), scale (float|ndarray)", "`Exponential distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.expon.html#scipy.stats.expon>`_ with mean 'loc' and std 'scale'"
+   "LevyStable, levy_stable", "a (float), b (float), loc (float|ndarray), scale (float|ndarray)", "`Levy-Stable distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.levy_stable.html#scipy.stats.levy_stable>`_ with mean 'loc' and std 'scale'"
+   "Poisson", "mu (int|ndarray), loc (float|ndarray)", "`Poisson distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.poisson.html#scipy.stats.poisson>`_ with mean 'loc' and std 'scale'"
+   "Bernoulli", "p (float|ndarray)", "`Bernoulli distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bernoulli.html#scipy.stats.bernoulli>`_ with mean 'loc' and std 'scale'"
    "Custom", "distrib_class (scipy.stats.rv_generic), [distribution parameters]", "Predefined probability distribution. Any scipy probability distribution will work."
 
 
-Inidivual Selection
-===================
+Implemented Selection Methods
+=============================
 
 Parent Selection
 -----------------------

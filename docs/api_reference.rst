@@ -35,6 +35,8 @@ There are classes that allow the implementation of optimization modules with a l
 Initializers
 ------------
 
+The implemented initializers are listed below.
+
 .. csv-table::
    :header: "Module name", "Description"
 
@@ -47,6 +49,8 @@ Initializers
 
 Encodings
 ---------
+
+The implemented encodings are listed below.
 
 .. csv-table::
    :header: "Module name", "Description"
@@ -64,18 +68,13 @@ Individual Selection Methods
 
 The implemented operators for each datatype are listed in the following section 
 
-.. toctree::
-   :maxdepth: 1
-
-   api_reference.methods
-
 .. csv-table::
-   :header: "Module name", "Description"
+   :header: "Module name", "Methods", "Description"
 
-   ":py:class:`selectionMethods.ParentSelection<metaheuristic_designer.selectionMethods.ParentSelection.ParentSelection>`", "Selection methods for parent selection."
-   ":py:class:`selectionMethods.ParentSelectionNull<metaheuristic_designer.selectionMethods.ParentSelectionNull>`", "Selection methods for parent selection that returns the original population."
-   ":py:class:`selectionMethods.SurvivorSelection<metaheuristic_designer.selectionMethods.SurvivorSelection.SurvivorSelection>`", "Selection methods for survivor selection."
-   ":py:class:`selectionMethods.SurvivorSelectionNull<metaheuristic_designer.selectionMethods.SurvivorSelectionNull>`", "Selection methods for survivor selection that returns the offspring."
+   ":py:class:`selectionMethods.ParentSelection<metaheuristic_designer.selectionMethods.ParentSelection.ParentSelection>`", ":ref:`implemented metods<Operator Binary Methods>`","Selection methods for parent selection."
+   ":py:class:`selectionMethods.SurvivorSelection<metaheuristic_designer.selectionMethods.SurvivorSelection.SurvivorSelection>`", ":ref:`implemented metods<Operator Binary Methods>`", "Selection methods for survivor selection."
+   ":py:class:`selectionMethods.ParentSelectionNull<metaheuristic_designer.selectionMethods.ParentSelectionNull>`", "", "Selection methods for parent selection that returns the original population."
+   ":py:class:`selectionMethods.SurvivorSelectionNull<metaheuristic_designer.selectionMethods.SurvivorSelectionNull>`", "", "Selection methods for survivor selection that returns the offspring."
 
 
 Operators
@@ -92,17 +91,18 @@ The implemented operators for each datatype are listed in the following section
    :header: "Module name", "Methods" ,"Description"
 
    ":py:class:`operators.OperatorBinary<metaheuristic_designer.operators.OperatorBinary.OperatorBinary>`", ":ref:`implemented metods<Operator Binary Methods>`", "Operator for binary coded vectors."
-   ":py:class:`operators.OperatorInt<metaheuristic_designer.operators.OperatorInt.OperatorInt>`", "", "Operator for integer coded vectors."
-   ":py:class:`operators.OperatorReal<metaheuristic_designer.operators.OperatorReal.OperatorReal>`", "", "Operator for real coded vectors."
-   ":py:class:`operators.OperatorPerm<metaheuristic_designer.operators.OperatorPerm.OperatorPerm>`", "", "Operator for permutations."
+   ":py:class:`operators.OperatorInt<metaheuristic_designer.operators.OperatorInt.OperatorInt>`", ":ref:`implemented metods<Operator Integer Methods>`", "Operator for integer coded vectors."
+   ":py:class:`operators.OperatorReal<metaheuristic_designer.operators.OperatorReal.OperatorReal>`", ":ref:`implemented metods<Operator Real Methods>`", "Operator for real coded vectors."
+   ":py:class:`operators.OperatorPerm<metaheuristic_designer.operators.OperatorPerm.OperatorPerm>`", ":ref:`implemented metods<Operator Perm Methods>`", "Operator for permutations."
    ":py:class:`operators.OperatorList<metaheuristic_designer.operators.OperatorList.OperatorList>`", "", "Operator for variable-length collections."
    ":py:class:`operators.OperatorAdaptative<metaheuristic_designer.operators.OperatorAdaptative.OperatorAdaptative>`", "", "Operator that uses part of the individual as parameters for the operator."
-   ":py:class:`operators.OperatorMeta<metaheuristic_designer.operators.OperatorMeta.OperatorMeta>`", "", "Operator that combines other operators."
+   ":py:class:`operators.OperatorMeta<metaheuristic_designer.operators.OperatorMeta.OperatorMeta>`", ":ref:`implemented metods<Operator Meta Methods>`", "Operator that combines other operators."
    ":py:class:`operators.OperatorNull<metaheuristic_designer.operators.OperatorNull.OperatorNull>`", "", "Operator that makes no changes to the individual."
 
 
 Search Strategies
 -----------------
+The implemented search strategies are listed below.
 
 .. csv-table::
    :header: "Module name", "Description"
@@ -130,6 +130,7 @@ Search Strategies
 
 Algorithms
 ----------
+These are classes that implement optimization algorithms using a specified search strategy.
 
 .. csv-table::
    :header: "Module name", "Description"
@@ -139,7 +140,48 @@ Algorithms
    ":py:class:`algorithms.AlgorithmSelection<metaheuristic_designer.algorithms.AlgorithmSelection>`", "Algorithm that evaluates a given set of optimization algorithms."
    ":py:class:`algorithms.StrategySelection<metaheuristic_designer.algorithms.StrategySelection>`", "Algorithm that evaluates a given set of search strategies."
 
+The stopping condition for any of the algorithms is specified as one of the following values:
 
-   
+.. csv-table::
+   :header: "Stopping condition", "Description"
+
+   "neval", "Number of objective function evaluations."
+   "ngen", "Number of generations or iterations of the algorithm."
+   "time_limit", "Maximum amount of time allowed to spent." 
+   "cpu_time_limit", "Maximum amount of CPU time allowed to spent." 
+   "fit_target", "Value of the objective function after which we stop optimizing." 
+   "convergence", "Maximum amount of iterations we allow the algorithm to pass without any improvement to the objective function. This amount is specified as 'patience'" 
+
+They can also be combined with logical operations, this way "ngen or time_limit" is a valid stopping condition. The "and", "or" and "not" operators are available and parenthesis are allowed.
 
 
+Prepackaged algorithms
+----------------------
+Here we list full algorithms that should work out of the box providing an objective function and a set of parameters. It is assumed that individuals will be represented by vectors.
+
+All parameters are optional except for the encoding which is specified as 'encoding' having as possible values 'bin', 'int' or 'real'.
+
+In case an objective function is not specified, the 'vecsize', 'max' and 'min' arguments must be specified for the size of the vectors and their upper and lower limit respectively. In the case of binary encoding the 'max' and 'min' parameters are not necessary.
+
+.. csv-table::
+   :header: "Algorithm name", "Parameters", "Description"
+
+   ":py:class:`simple.random_search<metaheuristic_designer.simple.random_search>`", " ", "Random search algorithm."
+   ":py:class:`simple.hill_climb<metaheuristic_designer.simple.hill_climb>`", "mut_str (float | int | ndarray)", "| Hill climb algorithm. 
+   | - binary mutation: Bit flip of 'mut_str' components. 
+   | - integer mutation: Sample 'mut_str' component from an uniform distribution. 
+   | - real mutation: Add random gaussian noise with std 'mut_str'"
+   ":py:class:`simple.simulated_annealing<metaheuristic_designer.simple.simulated_annealing>`", "mut_str (float | int | ndarray)", "| Simulated annealing algorithm. 
+   | - binary mutation: Bit flip of 'mut_str' components. 
+   | - integer mutation: Sample 'mut_str' component from an uniform distribution. 
+   | - real mutation: Add random gaussian noise with std 'mut_str'"
+   ":py:class:`simple.evolution_strategy<metaheuristic_designer.simple.evolution_strategy>`", "pop_size (int), offspring_size (int), mut_str (float | int | ndarray)", "| Evolution strategy algorithm.
+   | - binary mutation: Bit flip of 'mut_str' components. 
+   | - integer mutation: Sample 'mut_str' component from an uniform distribution. 
+   | - real mutation: Add random gaussian noise with std 'mut_str'"
+   ":py:class:`simple.genetic_algorithm<metaheuristic_designer.simple.genetic_algorithm>`", "pop_size (int), n_parents (int), pmut (float), pcross (float), mut_str (float | int | ndarray)", "| Genetic algorithm.
+   | - binary mutation: Bit flip of 'mut_str' components. 
+   | - integer mutation: Sample 'mut_str' component from an uniform distribution. 
+   | - real mutation: Add random gaussian noise with std 'mut_str'"
+   ":py:class:`simple.differential_evolution<metaheuristic_designer.simple.differential_evolution>`", "pop_size (int), F (float), Cr (float), DE_type (str)", "Differential evolution algorithm. The algorithm works internaly with floating point solutions, but uses an encoding to transform to the specified datatype."
+   ":py:class:`simple.particle_swarm<metaheuristic_designer.simple.particle_swarm>`", "pop_size (int), w (float), c1 (float), c2 (float)", "Particle Swarm Optimization algorithm. The algorithm works internaly with floating point solutions, but uses an encoding to transform to the specified datatype."

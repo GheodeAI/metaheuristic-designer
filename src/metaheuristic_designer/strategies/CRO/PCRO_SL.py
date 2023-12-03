@@ -29,4 +29,3 @@ class PCRO_SL(CRO_SL):
         super().update_params(**kwargs)
 
         self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
-
