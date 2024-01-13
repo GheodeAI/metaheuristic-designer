@@ -18,6 +18,7 @@ class ProbDist(Enum):
     LEVYSTABLE = enum.auto()
     POISSON = enum.auto()
     BERNOULLI = enum.auto()
+    CATEGORICAL = enum.auto()
     CUSTOM = enum.auto()
 
     @staticmethod
@@ -45,8 +46,27 @@ prob_dist_map = {
     "levy_stable": ProbDist.LEVYSTABLE,
     "poisson": ProbDist.POISSON,
     "bernoulli": ProbDist.BERNOULLI,
+    "categorical": ProbDist.CATEGORICAL,
     "custom": ProbDist.CUSTOM,
 }
+
+
+class multicategorical:
+    def __init__(categories, weight_matrix):
+        self.categories = categories
+        weight_matrix = weight_matrix / weight_matrix.sum(axis=1, keepdims=True)
+        self.cumsum_matrix = weight_matrix.cumsum(axis=1)
+        self.sample_fn = np.vectorize(np.searchsorted, signature="(n),()->()", cache=True)
+
+    def rvs(size=None, random_state=None):
+        if size is None:
+            size = len(self.cumsum_matrix.shape[0])
+
+        if random_state is None:
+            random_state = np.random.default_rng()
+
+        index_rnd = random_state.uniform(0, 1, size=n)
+        return self.sample_fn(self.cumsum_matrix, index_rnd)
 
 
 def mutate_sample(vector, population, params):
@@ -64,7 +84,6 @@ def mutate_sample(vector, population, params):
         maxim = params["max"]
         loc = minim
         scale = maxim - minim
-    strength = params.get("F", 1)
 
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
     RAND_GEN.shuffle(mask_pos)
@@ -121,7 +140,6 @@ def rand_sample(vector, population, params):
         maxim = params["max"]
         loc = minim
         scale = maxim - minim
-    strength = params.get("F", 1)
 
     popul_matrix = np.vstack([i.genotype for i in population])
     if loc is None:
@@ -184,12 +202,20 @@ def sample_distribution(distrib, n, loc=None, scale=None, params={}):
         mu = params.get("mu", 0)
         prob_distrib = sp.stats.poisson(mu, loc=loc)
     elif distrib == ProbDist.BERNOULLI:
-        p = params.get("p", 0)
+        p = params.get("p", 0.5)
         prob_distrib = sp.stats.bernoulli(p, loc=loc)
+    elif distrib == ProbDist.CATEGORICAL:
+        p = params["p"]
+        prob_distrib = sp.stats.rv_discrete(name="categorical", values=(np.arange(p.size), p / np.sum(p)))
+    elif distrib == ProbDist.MULTICATEGORICAL:
+        p = params["p"]
+        prob_distrib = mulitcategorial(np.arange(), weight_matrix=p)
     elif distrib == ProbDist.CUSTOM:
         if "distrib_class" not in params:
             raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")
-        prob_dist = params["distrib_class"]
+        prob_distrib = params["distrib_class"]
+    else:
+        raise ValueError("Invalid probability distribution")
 
     return prob_distrib.rvs(size=n, random_state=RAND_GEN)
 

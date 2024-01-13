@@ -9,3 +9,4 @@ from .NoSearch import NoSearch
 from .Classic import *
 from .CRO import *
 from .VNS import *
+from .EDA import *
