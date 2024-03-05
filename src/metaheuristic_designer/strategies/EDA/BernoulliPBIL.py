@@ -9,7 +9,8 @@ from ...ParamScheduler import ParamScheduler
 from ..VariablePopulation import VariablePopulation
 from ...utils import RAND_GEN
 
-class BernoulliUMDA(VariablePopulation):
+
+class BernoulliPBIL(VariablePopulation):
     """
     Estimation of distribution algorithm for binary vectors.
     https://doi.org/10.1016/j.swevo.2011.08.003
@@ -23,7 +24,7 @@ class BernoulliUMDA(VariablePopulation):
         params: ParamScheduler | dict = {},
         name: str = "ES",
     ):
-        self.distrib_params = 0.5
+        self.distrib_params = params.get("p", 0.5)
 
         evolve_op = OperatorReal("RandSample", {"distrib": "bernoulli", "p": self.distrib_params})
         self.prob_vec_mutate = prob_vec_mutate
@@ -51,11 +52,10 @@ class BernoulliUMDA(VariablePopulation):
 
     def perturb(self, parent_list, objfunc, **kwargs):
         new_params = self._batch_fit(parent_list)
-        self.distrib_params = (1-self.lr)*self.distrib_params + self.lr*new_parms
-        self.distrib_params += RAND_GEN.normal(0, self.noise, size=self.distrib_params.shape)
+        self.distrib_params = (1 - self.lr) * self.distrib_params + self.lr * new_parms
+        self.distrib_params += RAND_GEN.normal(0, self.prob_noise, size=self.distrib_params.shape)
         self.distrib_params = np.clip(self.distrib_params, 0, 1)
 
         self.operator = OperatorReal("RandSample", {"distrib": "bernoulli", "p": self.distrib_params})
 
         return super().perturb(parent_list, objfunc, **kwargs)
-

@@ -7,6 +7,7 @@ from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
 from ..VariablePopulation import VariablePopulation
 
+
 class BernoulliUMDA(VariablePopulation):
     """
     Estimation of distribution algorithm for binary vectors.
@@ -21,7 +22,7 @@ class BernoulliUMDA(VariablePopulation):
         params: ParamScheduler | dict = {},
         name: str = "ES",
     ):
-        self.distrib_params = 0.5
+        self.distrib_params = params.get("p", 0.5)
 
         evolve_op = OperatorReal("RandSample", {"distrib": "bernoulli", "p": self.distrib_params})
 
@@ -50,4 +51,3 @@ class BernoulliUMDA(VariablePopulation):
         self.operator = OperatorReal("RandSample", {"distrib": "bernoulli", "p": self.distrib_params})
 
         return super().perturb(parent_list, objfunc, **kwargs)
-
