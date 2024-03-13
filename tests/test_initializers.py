@@ -9,15 +9,9 @@ mhd.reset_seed(0)
 
 pop_size = 100
 
-example_populaton1 = [
-    Individual(None, np.random.uniform(-100, 100, 3)) for i in range(100)
-]
-example_populaton2 = [
-    Individual(None, np.random.uniform(-100, 100, 20)) for i in range(100)
-]
-example_populaton3 = [
-    Individual(None, np.random.uniform(-100, 100, 100)) for i in range(100)
-]
+example_populaton1 = [Individual(None, np.random.uniform(-100, 100, 3)) for i in range(100)]
+example_populaton2 = [Individual(None, np.random.uniform(-100, 100, 20)) for i in range(100)]
+example_populaton3 = [Individual(None, np.random.uniform(-100, 100, 100)) for i in range(100)]
 
 
 @pytest.mark.parametrize("vec_size", [1, 2, 10, 100])
@@ -208,9 +202,7 @@ def test_gaussian_err_vec_init():
         GaussianVectorInitializer(10, np.zeros(9), np.ones(10))
 
 
-@pytest.mark.parametrize(
-    "population", [example_populaton1, example_populaton2, example_populaton3]
-)
+@pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 def test_direct_initializer(population):
     default_pop_init = GaussianVectorInitializer(population[0].genotype.size, -100, 100)
     pop_init = DirectInitializer(default_pop_init, population)
@@ -231,9 +223,7 @@ def test_direct_initializer(population):
         assert indiv.id in ids_in_pop
 
 
-@pytest.mark.parametrize(
-    "population", [example_populaton1, example_populaton2, example_populaton3]
-)
+@pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 def test_seed_prob_initializer(population):
     default_pop_init = GaussianVectorInitializer(population[0].genotype.size, -100, 100)
     pop_init = SeedProbInitializer(default_pop_init, population)
@@ -249,9 +239,7 @@ def test_seed_prob_initializer(population):
     rand_pop = pop_init.generate_population(None)
 
 
-@pytest.mark.parametrize(
-    "population", [example_populaton1, example_populaton2, example_populaton3]
-)
+@pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 def test_seed_determ_initializer(population):
     default_pop_init = GaussianVectorInitializer(population[0].genotype.size, -100, 100)
     pop_init = SeedDetermInitializer(default_pop_init, population, 4)
@@ -267,9 +255,7 @@ def test_seed_determ_initializer(population):
     rand_pop = pop_init.generate_population(None)
 
 
-@pytest.mark.parametrize(
-    "population", [example_populaton1, example_populaton2, example_populaton3]
-)
+@pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 def test_seed_determ_null_param_initializer(population):
     default_pop_init = GaussianVectorInitializer(population[0].genotype.size, -100, 100)
     pop_init = SeedDetermInitializer(default_pop_init, population)

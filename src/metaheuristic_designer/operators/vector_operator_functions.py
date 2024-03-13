@@ -65,7 +65,7 @@ class multicategorical:
         if random_state is None:
             random_state = np.random.default_rng()
 
-        index_rnd = random_state.uniform(0, 1, size=n)
+        index_rnd = random_state.uniform(0, 1, size=size)
         return self.sample_fn(self.cumsum_matrix, index_rnd)
 
 
@@ -209,7 +209,7 @@ def sample_distribution(distrib, n, loc=None, scale=None, params={}):
         prob_distrib = sp.stats.rv_discrete(name="categorical", values=(np.arange(p.size), p / np.sum(p)))
     elif distrib == ProbDist.MULTICATEGORICAL:
         p = params["p"]
-        prob_distrib = mulitcategorial(np.arange(), weight_matrix=p)
+        prob_distrib = mulitcategorial(np.arange(p.shape[0]), weight_matrix=p)
     elif distrib == ProbDist.CUSTOM:
         if "distrib_class" not in params:
             raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")

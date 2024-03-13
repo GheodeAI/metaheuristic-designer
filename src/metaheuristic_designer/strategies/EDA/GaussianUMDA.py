@@ -9,7 +9,7 @@ from ..VariablePopulation import VariablePopulation
 from ...utils import RAND_GEN
 
 
-class BernoulliUMDA(VariablePopulation):
+class GaussianUMDA(VariablePopulation):
     """
     Estimation of distribution algorithm for binary vectors.
     https://doi.org/10.1016/j.swevo.2011.08.003
@@ -21,11 +21,12 @@ class BernoulliUMDA(VariablePopulation):
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
         params: ParamScheduler | dict = {},
-        name: str = "BernoulliUMDA",
+        name: str = "GaussianUMDA",
     ):
-        self.p = params.get("p", 0.5)
+        self.loc = params.get("loc", 0)
+        self.scale = params.get("scale", 1)
 
-        evolve_op = OperatorBinary("RandSample", {"distrib": "Bernoulli", "p": self.p})
+        evolve_op = OperatorReal("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
 
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
@@ -43,15 +44,14 @@ class BernoulliUMDA(VariablePopulation):
 
     def _batch_fit(self, parent_list):
         population_matrix = np.asarray([i.genotype for i in parent_list])
-        p_hat = population_matrix.mean(axis=0)
+        loc_hat = population_matrix.mean(axis=0)
 
-        return p_hat
+        return loc_hat
 
     def perturb(self, parent_list, objfunc, **kwargs):
-        self.p = self._batch_fit(parent_list)
-        self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
-        self.p = np.clip(self.p, 0, 1)
+        self.loc = self._batch_fit(parent_list)
+        self.loc += RAND_GEN.normal(0, self.noise, size=self.loc.shape)
 
-        self.operator = OperatorBinary("RandSample", {"distrib": "Bernoulli", "p": self.p})
+        self.operator = OperatorReal("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
 
         return super().perturb(parent_list, objfunc, **kwargs)

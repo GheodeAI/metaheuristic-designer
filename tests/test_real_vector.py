@@ -39,9 +39,7 @@ selection_op = SurvivorSelection("(m+n)")
 
 objfunc = Sphere(10, "min")
 
-pop_init_single = UniformVectorInitializer(
-    10, objfunc.low_lim, objfunc.up_lim, pop_size=1
-)
+pop_init_single = UniformVectorInitializer(10, objfunc.low_lim, objfunc.up_lim, pop_size=1)
 pop_init = UniformVectorInitializer(10, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
 
@@ -101,9 +99,7 @@ def test_staticpop():
 
 
 def test_varpop():
-    search_strat = VariablePopulation(
-        pop_init, mutation_op, parent_sel_op, selection_op, 200
-    )
+    search_strat = VariablePopulation(pop_init, mutation_op, parent_sel_op, selection_op, 200)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
     ind, fit = alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
@@ -151,6 +147,22 @@ def test_de():
 
 def test_pso():
     search_strat = PSO(pop_init, {"w": 0.7, "c1": 1.5, "c2": 1.5})
+    alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
+    ind, fit = alg.optimize()
+    assert alg.fit_history[0] > alg.fit_history[-1]
+    assert search_strat.pop_size == pop_init.pop_size
+
+
+def test_gumda():
+    search_strat = GaussianUMDA(pop_init, parent_sel_op, selection_op, params={"noise": 1e-3})
+    alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
+    ind, fit = alg.optimize()
+    assert alg.fit_history[0] > alg.fit_history[-1]
+    assert search_strat.pop_size == pop_init.pop_size
+
+
+def test_gpbil():
+    search_strat = GaussianPBIL(pop_init, parent_sel_op, selection_op, params={"lr": 0.2, "noise": 1e-3})
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
     ind, fit = alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
@@ -221,9 +233,7 @@ def test_memetic():
     mem_select = ParentSelection("Best", {"amount": 5})
     neihbourhood_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_init, neihbourhood_op, params={"iters": 10})
-    alg = MemeticAlgorithm(
-        objfunc, search_strat, local_search, mem_select, params=test_params
-    )
+    alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=test_params)
     ind, fit = alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size <= pop_init.pop_size
@@ -246,9 +256,7 @@ def test_reporting_memetic():
     mem_select = ParentSelection("Best", {"amount": 5})
     neihbourhood_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_init, neihbourhood_op, params={"iters": 10})
-    alg = MemeticAlgorithm(
-        objfunc, search_strat, local_search, mem_select, params=test_params
-    )
+    alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=test_params)
     ind, fit = alg.optimize()
     test_params["verbose"] = False
 

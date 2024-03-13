@@ -267,6 +267,10 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         search_strat = DE(pop_initializer, OperatorReal("DE/best/1", params={"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, params={"w": 0.7, "c1": 1.5, "c2": 1.5})
+    elif alg_name == "BernoulliUMDA":
+        search_strat = BernoulliUMDA(pop_initializer, parent_sel_op, selection_op, params={"p": 0.1, "noise": 5e-3})
+    elif alg_name == "BernoulliPBIL":
+        search_strat = BernoulliPBIL(pop_initializer, parent_sel_op, selection_op, params={"p": 0.1, "lr": 0.25, "noise": 5e-3})
     elif alg_name == "CRO":
         search_strat = CRO(
             pop_initializer,

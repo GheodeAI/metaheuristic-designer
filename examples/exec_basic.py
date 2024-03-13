@@ -94,6 +94,10 @@ def run_algorithm(alg_name, memetic, save_state):
         search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5})
+    elif alg_name == "GaussianUMDA":
+        search_strat = GaussianUMDA(pop_initializer, parent_sel_op, selection_op, params={"scale": 0.1, "noise": 1e-3})
+    elif alg_name == "GaussianPBIL":
+        search_strat = GaussianPBIL(pop_initializer, parent_sel_op, selection_op, params={"scale": 0.01, "lr": 0.1, "noise": 1e-3})
     elif alg_name == "CRO":
         search_strat = CRO(
             pop_initializer,

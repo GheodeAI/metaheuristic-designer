@@ -34,9 +34,7 @@ benchmark_functions = [
 @pytest.mark.parametrize("bench_class", benchmark_functions)
 def test_real_benchmarks(vecsize, bench_class):
     objfunc = bench_class(vecsize)
-    pop_init = UniformVectorInitializer(
-        vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100
-    )
+    pop_init = UniformVectorInitializer(vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
     population = pop_init.generate_population(objfunc)
     for indiv in population:

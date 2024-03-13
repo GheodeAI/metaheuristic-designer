@@ -56,7 +56,7 @@ def test_default(genotype, phenotype):
         ),
         (
             np.array([1, 2, 6, 4, 6], dtype=int),
-            np.array([2.0, 2.0, 6.0, 4.0, 6.0], dtype=float),
+            np.array([1.0, 2.0, 6.0, 4.0, 6.0], dtype=float),
             int,
             float,
         ),
@@ -79,6 +79,7 @@ def test_typecast(genotype, phenotype, type_in, type_out):
 
     assert encoding.decode(genotype).dtype is np.dtype(type_out)
     assert encoding.encode(phenotype).dtype is np.dtype(type_in)
+    np.testing.assert_array_equal(encoding.decode(genotype), phenotype)
 
 
 example = np.random.random([30, 40])
@@ -104,16 +105,16 @@ example_img1 = np.random.randint(0, 256, [30, 40, 1])
 
 
 @pytest.mark.parametrize(
-    "genotype, phenotype",
+    "genotype, phenotype, shape",
     [
-        (np.array([1, 2, 3, 4]), np.array([[[1], [2]], [[3], [4]]])),
-        (np.ones([100]), np.ones([10, 10, 1])),
-        (np.ones([200]), np.ones([10, 20, 1])),
-        (example_img1.flatten(), example_img1),
+        (np.array([1, 2, 3, 4]), np.array([[[1], [2]], [[3], [4]]]), (2, 2)),
+        (np.ones([100]), np.ones([10, 10, 1]), (10, 10)),
+        (np.ones([200]), np.ones([10, 20, 1]), (10, 20)),
+        (example_img1.flatten(), example_img1, example_img1.shape),
     ],
 )
-def test_gray_img(genotype, phenotype):
-    encoding = ImageEncoding(phenotype.shape[:2], color=False)
+def test_gray_img(genotype, phenotype, shape):
+    encoding = ImageEncoding(shape, color=False)
 
     np.testing.assert_array_equal(encoding.decode(genotype), phenotype)
     np.testing.assert_array_equal(encoding.encode(phenotype), genotype)
@@ -123,19 +124,20 @@ example_img2 = np.random.randint(0, 256, [30, 40, 3])
 
 
 @pytest.mark.parametrize(
-    "genotype, phenotype",
+    "genotype, phenotype, shape",
     [
         (
             np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
             np.array([[[1, 2, 3], [4, 5, 6]], [[7, 8, 9], [10, 11, 12]]]),
+            (2,2)
         ),
-        (np.ones([300]), np.ones([10, 10, 3])),
-        (np.ones([600]), np.ones([10, 20, 3])),
-        (example_img2.flatten(), example_img2),
+        (np.ones([300]), np.ones([10, 10, 3]), (10, 10)),
+        (np.ones([600]), np.ones([10, 20, 3]), (10, 20)),
+        (example_img2.flatten(), example_img2, example_img2.shape[:2]),
     ],
 )
-def test_rgb_img(genotype, phenotype):
-    encoding = ImageEncoding(phenotype.shape[:2], color=True)
+def test_rgb_img(genotype, phenotype, shape):
+    encoding = ImageEncoding(shape, color=True)
 
     np.testing.assert_array_equal(encoding.decode(genotype), phenotype)
     np.testing.assert_array_equal(encoding.encode(phenotype), genotype)

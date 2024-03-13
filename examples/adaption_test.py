@@ -19,7 +19,7 @@ class STDAdaptEncoding(AdaptionEncoding):
     def decode_param(self, genotype):
         # print(genotype)
         return {"F": np.maximum(1e-7, self.decode_param_vec(genotype))}
-        
+
 
 def run_algorithm(alg_name, memetic, save_state):
     params = {
@@ -41,33 +41,25 @@ def run_algorithm(alg_name, memetic, save_state):
     # objfunc = Ackley(30, "min")
     # objfunc = Weierstrass(30, "min")
     # objfunc = HappyCat(3, "min")
-    
+
     # mutation_op = OperatorReal("RandNoise", {"distrib": "Gauss"})
     mutation_op = OperatorReal("MutNoise", {"distrib": "Gauss", "N": 1})
 
-    param_op = OperatorReal("Mutate1Sigma", {"tau": 1/np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
+    param_op = OperatorReal("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
     adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=1)
     # param_op = OperatorReal("MutateNSigmas", {"tau": 1/np.sqrt(2+objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
     # adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=objfunc.vecsize)
 
     ada_mutation_op = OperatorAdaptative(mutation_op, param_op, adaption_encoding)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding)    
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding)
 
     cross_op = OperatorReal("Multipoint")
 
     parent_sel_op = ParentSelection("Nothing")
     selection_op = SurvivorSelection("(m+n)")
 
-    search_strat = ES(
-        pop_initializer,
-        ada_mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"offspringSize": 700},
-        name="Adaptative-ES"
-    )
+    search_strat = ES(pop_initializer, ada_mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": 700}, name="Adaptative-ES")
 
     alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 

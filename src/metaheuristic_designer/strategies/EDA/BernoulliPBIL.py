@@ -22,17 +22,17 @@ class BernoulliPBIL(VariablePopulation):
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
         params: ParamScheduler | dict = {},
-        name: str = "ES",
+        name: str = "BernoulliPBIL",
     ):
-        self.distrib_params = params.get("p", 0.5)
+        self.p = params.get("p", None)
 
-        evolve_op = OperatorReal("RandSample", {"distrib": "bernoulli", "p": self.distrib_params})
-        self.prob_vec_mutate = prob_vec_mutate
+        evolve_op = OperatorReal("RandSample", {"distrib": "bernoulli", "p": self.p})
+        self.prob_vec_mutate = evolve_op
 
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
         self.lr = params.get("lr")
-        self.prob_noise = params.get("noise", 0.01)
+        self.noise = params.get("noise", 0)
 
         super().__init__(
             initializer,
@@ -51,11 +51,14 @@ class BernoulliPBIL(VariablePopulation):
         return p_hat
 
     def perturb(self, parent_list, objfunc, **kwargs):
-        new_params = self._batch_fit(parent_list)
-        self.distrib_params = (1 - self.lr) * self.distrib_params + self.lr * new_parms
-        self.distrib_params += RAND_GEN.normal(0, self.prob_noise, size=self.distrib_params.shape)
-        self.distrib_params = np.clip(self.distrib_params, 0, 1)
+        new_p = self._batch_fit(parent_list)
+        if self.p is not None:
+            self.p = (1 - self.lr) * self.p + self.lr * new_p
+            self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
+            self.p = np.clip(self.p, 0, 1)
+        else:
+            self.p = new_p
 
-        self.operator = OperatorReal("RandSample", {"distrib": "bernoulli", "p": self.distrib_params})
+        self.operator = OperatorReal("RandSample", {"distrib": "bernoulli", "p": self.p})
 
         return super().perturb(parent_list, objfunc, **kwargs)

@@ -49,4 +49,5 @@ Subpackages
 
    metaheuristic_designer.strategies.CRO
    metaheuristic_designer.strategies.Classic
+   metaheuristic_designer.strategies.EDA
    metaheuristic_designer.strategies.VNS

@@ -119,6 +119,10 @@ The implemented search strategies are listed below.
    ":py:class:`strategies.HS<metaheuristic_designer.strategies.Classic.HS>`", "Harmony Search strategy."
    ":py:class:`strategies.PSO<metaheuristic_designer.strategies.Classic.PSO>`", "Particle Swarm Optimization strategy."
    ":py:class:`strategies.DE<metaheuristic_designer.strategies.Classic.DE>`", "Differential Evolution strategy."
+   ":py:class:`strategies.BernoulliPBIL<metaheuristic_designer.strategies.EDA.BernoulliPBIL>`", "| Bernoulli distributed Population-based Incremental Learning.
+   | Estimation of Distribution Algorithm."
+   ":py:class:`strategies.BernoulliUMDA<metaheuristic_designer.strategies.EDA.BernoulliUMDA>`", "| Bernoulli distributed Univariate Marginal Distribution Algorithm.
+   | Estimation of Distribution Algorithm."
    ":py:class:`strategies.CRO<metaheuristic_designer.strategies.CRO.CRO>`", "Coral Reef Optimization strategy."
    ":py:class:`strategies.CRO_SL<metaheuristic_designer.strategies.CRO.CRO_SL>`", "Coral Reef Optimization with Subtrate Layers strategy."
    ":py:class:`strategies.PCRO_SL<metaheuristic_designer.strategies.CRO.PCRO_SL>`", "Probabilistic Coral Reef Optimization with Subtrate Layers strategy."
