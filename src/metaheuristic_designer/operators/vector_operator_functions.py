@@ -100,7 +100,7 @@ def mutate_sample(vector, population, params):
     return vector
 
 
-def mutate_noise(vector, population, params):
+def mutate_noise(vector, params):
     """
     Adds random noise with a given probability distribution to 'n' components of the input vector.
     """
@@ -258,6 +258,26 @@ def poisson(vector, mu):
     """
 
     return rand_noise(vector, {"distrib": ProbDist.POISSON, "F": mu})
+
+
+def generate_statistic(vector, population, params):
+    stat_name = params["statistic"]
+
+    popul_matrix = np.vstack([i.genotype for i in population])
+    
+    new_vector = None
+    if stat_name == "mean":
+        new_vector = np.mean(popul_matrix, axis=0)
+    elif stat_name == "average":
+        weights = params.get("weights", np.ones(popul_matrix.shape[1]))
+        new_vector = np.average(popul_matrix, weights=weights, axis=0)
+    elif stat_name == "median":
+        new_vector = np.median(popul_matrix, axis=0)
+    elif stat_name == "std":
+        new_vector = np.std(popul_matrix, axis=0)
+    
+    return new_vector
+        
 
 
 def sample_1_sigma(vector, n, epsilon, tau):
@@ -660,4 +680,4 @@ def dummy_op(vector, scale=1000):
     Only for testing, not useful for real applications
     """
 
-    return np.ones(vector.shape) * scale
+    return np.full(scale, vector.shape)

@@ -202,7 +202,7 @@ class OperatorInt(Operator):
             new_indiv.genotype = poisson(new_indiv.genotype, params["F"])
 
         elif self.method == IntOpMethods.MUTNOISE:
-            new_indiv.genotype = mutate_noise(new_indiv.genotype, others, params)
+            new_indiv.genotype = mutate_noise(new_indiv.genotype, params)
 
         elif self.method == IntOpMethods.MUTSAMPLE:
             new_indiv.genotype = mutate_sample(new_indiv.genotype, others, params)

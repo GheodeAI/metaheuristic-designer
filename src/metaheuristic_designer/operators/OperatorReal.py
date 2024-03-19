@@ -30,6 +30,7 @@ class RealOpMethods(Enum):
     MUTSAMPLE = enum.auto()
     RANDNOISE = enum.auto()
     RANDSAMPLE = enum.auto()
+    GENERATE = enum.auto()
     DE_RAND_1 = enum.auto()
     DE_BEST_1 = enum.auto()
     DE_RAND_2 = enum.auto()
@@ -77,6 +78,7 @@ real_ops_map = {
     "mutsample": RealOpMethods.MUTSAMPLE,
     "randnoise": RealOpMethods.RANDNOISE,
     "randsample": RealOpMethods.RANDSAMPLE,
+    "generate": RealOpMethods.GENERATE,
     "de/rand/1": RealOpMethods.DE_RAND_1,
     "de/best/1": RealOpMethods.DE_BEST_1,
     "de/rand/2": RealOpMethods.DE_RAND_2,
@@ -205,7 +207,7 @@ class OperatorReal(Operator):
             new_indiv.genotype = uniform(new_indiv.genotype, params["Low"], params["Up"])
 
         elif self.method == RealOpMethods.MUTNOISE:
-            new_indiv.genotype = mutate_noise(new_indiv.genotype, others, params)
+            new_indiv.genotype = mutate_noise(new_indiv.genotype, params)
 
         elif self.method == RealOpMethods.MUTSAMPLE:
             new_indiv.genotype = mutate_sample(new_indiv.genotype, others, params)
@@ -215,6 +217,9 @@ class OperatorReal(Operator):
 
         elif self.method == RealOpMethods.RANDSAMPLE:
             new_indiv.genotype = rand_sample(new_indiv.genotype, others, params)
+
+        elif self.method == RealOpMethods.GENERATE:
+            new_indiv.genotype = generate_statistic(new_indiv.genotype, others, params)
 
         elif self.method == RealOpMethods.DE_RAND_1:
             new_indiv.genotype = DE_rand1(new_indiv.genotype, others, params["F"], params["Cr"])

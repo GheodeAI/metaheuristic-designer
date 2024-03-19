@@ -67,7 +67,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
 
-    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
+    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, diff_func="sts")
     # objfunc = ImgEntropy(image_shape, 256)
     # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name)
 
