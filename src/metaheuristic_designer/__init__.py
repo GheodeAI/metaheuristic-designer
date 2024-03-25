@@ -2,6 +2,9 @@ from .utils import RAND_GEN, reset_seed
 
 from .ObjectiveFunc import ObjectiveFunc, ObjectiveVectorFunc, ObjectiveFromLambda
 
+from .multiObjfunc import MultiObjectiveFunc, CombinedMultiObjectiveFunc, WeightedMultiObjectiveFunc
+from . import multiObjfunc
+
 from .Algorithm import Algorithm
 from . import algorithms
 from .algorithms import GeneralAlgorithm, MemeticAlgorithm
