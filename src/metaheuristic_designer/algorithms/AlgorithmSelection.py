@@ -63,7 +63,12 @@ class AlgorithmSelection:
         for idx, algorithm in enumerate(self.algorithm_list):
             # Create new progress bar for the new algorithm
             if self.verbose:
-                repetition_bar = bar_manager.counter(total=self.repetitions, desc=f"Evaluating {algorithm.name}", color="green", leave=False)
+                repetition_bar = bar_manager.counter(
+                    total=self.repetitions,
+                    desc=f"Evaluating {algorithm.name}",
+                    color="green",
+                    leave=False,
+                )
 
             for rep in range(self.repetitions):
                 # Optimize using the algorithm

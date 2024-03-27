@@ -27,7 +27,7 @@ class BinomialUMDA(VariablePopulation):
 
         if "n" not in params:
             raise Exception("A parameter 'n' must be specified which indicates the maximum value.")
-        
+
         self.n = params["n"]
 
         evolve_op = OperatorInt("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})

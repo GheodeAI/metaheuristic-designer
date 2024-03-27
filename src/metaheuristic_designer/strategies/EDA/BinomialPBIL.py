@@ -27,7 +27,7 @@ class BinomialPBIL(VariablePopulation):
         self.p = params.get("p", None)
         if "n" not in params:
             raise Exception("A parameter 'n' must be specified which indicates the maximum value.")
-        
+
         self.n = params["n"]
 
         evolve_op = OperatorInt("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
@@ -53,7 +53,6 @@ class BinomialPBIL(VariablePopulation):
         p_hat = population_matrix.sum(axis=0) / (self.n * population_matrix.shape[0])
 
         return p_hat
-
 
     def perturb(self, parent_list, objfunc, **kwargs):
         new_p = self._batch_fit(parent_list)
