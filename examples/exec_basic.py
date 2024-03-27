@@ -97,7 +97,10 @@ def run_algorithm(alg_name, memetic, save_state):
     elif alg_name == "GaussianUMDA":
         search_strat = GaussianUMDA(pop_initializer, parent_sel_op, selection_op, params={"scale": 0.1, "noise": 1e-3})
     elif alg_name == "GaussianPBIL":
-        search_strat = GaussianPBIL(pop_initializer, parent_sel_op, selection_op, params={"scale": 0.01, "lr": 0.1, "noise": 1e-3})
+        search_strat = GaussianPBIL(pop_initializer, parent_sel_op, selection_op, params={"scale": 0.1, "lr": 0.3, "noise": 1e-3})
+    elif alg_name == "CrossEntropy":
+        pop_initializer.pop_size = 1000
+        search_strat = CrossEntropyMethod(pop_initializer)
     elif alg_name == "CRO":
         search_strat = CRO(
             pop_initializer,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
 import scipy as sp
-from ...operators import OperatorReal, OperatorBinary
+from ...operators import OperatorBinary
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
