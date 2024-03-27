@@ -172,6 +172,7 @@ The names are case insensitive and specified with the 'distrib' parameter.
    "LevyStable, levy_stable", "a (float), b (float), loc (float|ndarray), scale (float|ndarray)", "`Levy-Stable distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.levy_stable.html#scipy.stats.levy_stable>`_ with mean 'loc' and std 'scale'"
    "Poisson", "mu (int|ndarray), loc (float|ndarray)", "`Poisson distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.poisson.html#scipy.stats.poisson>`_ with mean 'loc' and std 'scale'"
    "Bernoulli", "p (float|ndarray)", "`Bernoulli distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bernoulli.html#scipy.stats.bernoulli>`_ with mean 'loc' and std 'scale'"
+   "Binomial", "p (float|ndarray), n (int)", "Binomial distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html#scipy.stats.binom>`_ with mean 'loc'"
    "Custom", "distrib_class (scipy.stats.rv_generic), [distribution parameters]", "Predefined probability distribution. Any scipy probability distribution will work."
 
 
