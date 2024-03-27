@@ -267,7 +267,7 @@ def poisson(vector, mu):
 
 
 def generate_statistic(vector, population, params):
-    stat_name = params["statistic"]
+    stat_name = params.get("statistic", "mean")
 
     popul_matrix = np.vstack([i.genotype for i in population])
     
@@ -686,4 +686,4 @@ def dummy_op(vector, scale=1000):
     Only for testing, not useful for real applications
     """
 
-    return np.full(scale, vector.shape)
+    return np.full(vector.shape, scale)
