@@ -19,7 +19,7 @@ class Operator(ABC):
 
     _last_id = 0
 
-    def __init__(self, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(self, params: ParamScheduler | dict = None, name: str = None):
         """
         Constructor for the Operator class.
         """
@@ -40,11 +40,13 @@ class Operator(ABC):
                 "N": 5,
                 "Nindiv": 5,
                 "P": 0.1,
-                "method": "gauss",
+                "distrib": "gauss",
                 "temp_ch": 10,
                 "iter": 20,
                 "Low": -10,
                 "Up": 10,
+                "p": 0.5,
+                "mu": 2,
                 "epsilon": 0.1,
                 "tau": 0.1,
                 "tau_multiple": 0.1,

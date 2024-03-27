@@ -33,6 +33,14 @@ ImageEncoding
    :undoc-members:
    :show-inheritance:
 
+CompositeEncoding
+-----------------
+
+.. autoclass:: metaheuristic_designer.encodings.CompositeEncoding
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 AdaptionEncoding
 ----------------
 
@@ -49,10 +57,10 @@ CMAEncoding
    :undoc-members:
    :show-inheritance:
 
-LambdaEncoding
---------------
+EncodingFromLambda
+------------------
 
-.. autoclass:: metaheuristic_designer.encodings.LambdaEncoding
+.. autoclass:: metaheuristic_designer.encodings.EncodingFromLambda
    :members:
    :undoc-members:
    :show-inheritance:

@@ -6,7 +6,7 @@ from ..strategies import HillClimb
 from ..algorithms import GeneralAlgorithm
 
 
-def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
+def hill_climb(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
 
@@ -29,28 +29,32 @@ def hill_climb(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
     encoding_str = params["encoding"]
 
     if encoding_str.lower() == "bin":
-        alg = _hill_climb_bin_vec(objfunc, params)
+        alg = _hill_climb_bin_vec(params, objfunc)
     elif encoding_str.lower() == "int":
-        alg = _hill_climb_int_vec(objfunc, params)
+        alg = _hill_climb_int_vec(params, objfunc)
     elif encoding_str.lower() == "real":
-        alg = _hill_climb_real_vec(objfunc, params)
+        alg = _hill_climb_real_vec(params, objfunc)
     else:
         raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"')
 
     return alg
 
 
-def _hill_climb_bin_vec(objfunc, params):
+def _hill_climb_bin_vec(params, objfunc):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept binary coded vectors.
     """
 
     mutstr = params.get("mutstr", 1)
+    if objfunc is None:
+        vecsize = params["vecsize"]
+    else:
+        vecsize = objfunc.vecsize
 
     encoding = TypeCastEncoding(int, bool)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
+    pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
 
     mutation_op = OperatorBinary("Flip", {"N": mutstr})
 
@@ -59,15 +63,21 @@ def _hill_climb_bin_vec(objfunc, params):
     return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
-def _hill_climb_int_vec(objfunc, params):
+def _hill_climb_int_vec(params, objfunc):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept integer coded vectors.
     """
 
     mutstr = params.get("mutstr", 1)
+    if objfunc is None:
+        vecsize = params["vecsize"]
+    else:
+        vecsize = objfunc.vecsize
+    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
+    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int)
+    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=int)
 
     mutation_op = OperatorInt(
         "MutRand",
@@ -84,15 +94,21 @@ def _hill_climb_int_vec(objfunc, params):
     return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
-def _hill_climb_real_vec(objfunc, params):
+def _hill_climb_real_vec(params, objfunc):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept real coded vectors.
     """
 
     mutstr = params.get("mutstr", 1e-5)
+    if objfunc is None:
+        vecsize = params["vecsize"]
+    else:
+        vecsize = objfunc.vecsize
+    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
+    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float)
+    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=float)
 
     mutation_op = OperatorReal("RandNoise", {"method": "Gauss", "F": mutstr})
 

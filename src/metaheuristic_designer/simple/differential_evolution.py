@@ -6,7 +6,7 @@ from ..strategies import DE
 from ..algorithms import GeneralAlgorithm
 
 
-def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Algorithm:
+def differential_evolution(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
     """
     Instantiates a differential evolution algorithm to optimize the given objective function.
 
@@ -29,18 +29,18 @@ def differential_evolution(objfunc: ObjectiveVectorFunc, params: dict) -> Algori
     encoding_str = params["encoding"]
 
     if encoding_str.lower() == "real":
-        alg = _differential_evolution_real_vec(objfunc, params)
+        alg = _differential_evolution_real_vec(params, objfunc)
     elif encoding_str.lower() == "int":
-        alg = _differential_evolution_int_vec(objfunc, params)
+        alg = _differential_evolution_int_vec(params, objfunc)
     elif encoding_str.lower() == "bin":
-        alg = _differential_evolution_bin_vec(objfunc, params)
+        alg = _differential_evolution_bin_vec(params, objfunc)
     else:
         raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"')
 
     return alg
 
 
-def _differential_evolution_real_vec(objfunc, params):
+def _differential_evolution_real_vec(params, objfunc):
     """
     Instantiates a differential evolution algorithm to optimize the given objective function.
     This objective function should accept real coded vectors.
@@ -50,6 +50,12 @@ def _differential_evolution_real_vec(objfunc, params):
     f = params.get("F", 0.8)
     cr = params.get("Cr", 0.9)
     de_type = params.get("DE_type", "de/best/1")
+    if objfunc is None:
+        vecsize = params["vecsize"]
+    else:
+        vecsize = objfunc.vecsize
+    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
+    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
     if de_type not in [
         "de/rand/1",
@@ -62,7 +68,7 @@ def _differential_evolution_real_vec(objfunc, params):
     ]:
         raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, dtype=float)
+    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
     de_op = OperatorReal(de_type, {"F": f, "Cr": cr})
 
@@ -71,7 +77,7 @@ def _differential_evolution_real_vec(objfunc, params):
     return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
-def _differential_evolution_int_vec(objfunc, params):
+def _differential_evolution_int_vec(params, objfunc):
     """
     Instantiates a differential evolution algorithm to optimize the given objective function.
     This objective function should accept real coded vectors.
@@ -81,6 +87,12 @@ def _differential_evolution_int_vec(objfunc, params):
     f = params.get("F", 0.8)
     cr = params.get("Cr", 0.9)
     de_type = params.get("DE_type", "de/best/1")
+    if objfunc is None:
+        vecsize = params["vecsize"]
+    else:
+        vecsize = objfunc.vecsize
+    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
+    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
     if de_type not in [
         "de/rand/1",
@@ -96,9 +108,9 @@ def _differential_evolution_int_vec(objfunc, params):
     encoding = TypeCastEncoding(float, int)
 
     pop_initializer = UniformVectorInitializer(
-        objfunc.vecsize,
-        objfunc.low_lim,
-        objfunc.up_lim,
+        vecsize,
+        min_val,
+        max_val,
         pop_size=pop_size,
         dtype=float,
         encoding=encoding,
@@ -111,7 +123,7 @@ def _differential_evolution_int_vec(objfunc, params):
     return GeneralAlgorithm(objfunc, search_strat, params=params)
 
 
-def _differential_evolution_bin_vec(objfunc, params):
+def _differential_evolution_bin_vec(params, objfunc):
     """
     Instantiates a differential evolution algorithm to optimize the given objective function.
     This objective function should accept real coded vectors.
@@ -121,6 +133,10 @@ def _differential_evolution_bin_vec(objfunc, params):
     f = params.get("F", 0.8)
     cr = params.get("Cr", 0.9)
     de_type = params.get("DE_type", "de/best/1")
+    if objfunc is None:
+        vecsize = params["vecsize"]
+    else:
+        vecsize = objfunc.vecsize
 
     if de_type not in [
         "de/rand/1",
@@ -136,9 +152,9 @@ def _differential_evolution_bin_vec(objfunc, params):
     encoding = TypeCastEncoding(float, bool)
 
     pop_initializer = UniformVectorInitializer(
-        objfunc.vecsize,
-        objfunc.low_lim,
-        objfunc.up_lim,
+        vecsize,
+        0,
+        1,
         pop_size=pop_size,
         dtype=float,
         encoding=encoding,

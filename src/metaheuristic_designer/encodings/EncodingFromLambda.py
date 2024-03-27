@@ -3,7 +3,7 @@ import numpy as np
 from ..Encoding import Encoding
 
 
-class LambdaEncoding(Encoding):
+class EncodingFromLambda(Encoding):
     """
     Decoder that uses user specified functions.
     """

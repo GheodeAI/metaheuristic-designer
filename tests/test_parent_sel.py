@@ -74,15 +74,11 @@ def test_random(population, amount):
 
 @pytest.mark.parametrize("population", [example_populaton1, example_populaton2])
 @pytest.mark.parametrize("amount", [1, 5, 20])
-@pytest.mark.parametrize(
-    "method", ["FitnessProp", "SigmaScaling", "LinRank", "ExpRank"]
-)
+@pytest.mark.parametrize("method", ["FitnessProp", "SigmaScaling", "LinRank", "ExpRank"])
 @pytest.mark.parametrize("f", [0, 0.5, 1, 1.5, 2])
 @pytest.mark.parametrize("dummy_var", range(5))  # makes the test repeat 5 times
 def test_roullete(population, amount, method, f, dummy_var):
-    parent_sel = ParentSelection(
-        "Roulette", {"amount": amount, "method": method, "f": f}
-    )
+    parent_sel = ParentSelection("Roulette", {"amount": amount, "method": method, "f": f})
     parents = parent_sel.select(population)
     id_list = [i.id for i in population]
 
@@ -92,9 +88,7 @@ def test_roullete(population, amount, method, f, dummy_var):
 
 @pytest.mark.parametrize("population", [example_populaton1, example_populaton2])
 @pytest.mark.parametrize("amount", [1, 5, 20])
-@pytest.mark.parametrize(
-    "method", ["FitnessProp", "SigmaScaling", "LinRank", "ExpRank"]
-)
+@pytest.mark.parametrize("method", ["FitnessProp", "SigmaScaling", "LinRank", "ExpRank"])
 @pytest.mark.parametrize("f", [0, 0.5, 1, 1.5, 2])
 @pytest.mark.parametrize("dummy_var", range(5))  # makes the test repeat 5 times
 def test_sus(population, amount, method, f, dummy_var):

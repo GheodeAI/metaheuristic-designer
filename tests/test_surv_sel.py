@@ -32,9 +32,7 @@ def test_error():
 
 
 @pytest.mark.parametrize("population", [example_populaton])
-@pytest.mark.parametrize(
-    "offspring", [example_offspring, example_offspring_small, example_offspring_big]
-)
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
 @pytest.mark.parametrize("keep_amount", [1, 5, 20])
 def test_elitism(population, offspring, keep_amount):
     surv_selection = SurvivorSelection("Elitism", {"amount": keep_amount})
@@ -47,9 +45,7 @@ def test_elitism(population, offspring, keep_amount):
 
 
 @pytest.mark.parametrize("population", [example_populaton])
-@pytest.mark.parametrize(
-    "offspring", [example_offspring, example_offspring_small, example_offspring_big]
-)
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
 @pytest.mark.parametrize("keep_amount", [1, 5, 20])
 def test_condelitism(population, offspring, keep_amount):
     surv_selection = SurvivorSelection("CondElitism", {"amount": keep_amount})
@@ -61,9 +57,7 @@ def test_condelitism(population, offspring, keep_amount):
 
 
 @pytest.mark.parametrize("population", [example_populaton])
-@pytest.mark.parametrize(
-    "offspring", [example_offspring, example_offspring_small, example_offspring_big]
-)
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
 def test_one_to_one(population, offspring):
     surv_selection = SurvivorSelection("One-to-one")
     survivors = surv_selection.select(population, offspring)
@@ -75,9 +69,7 @@ def test_one_to_one(population, offspring):
 
 
 @pytest.mark.parametrize("population", [example_populaton])
-@pytest.mark.parametrize(
-    "offspring", [example_offspring, example_offspring_small, example_offspring_big]
-)
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
 @pytest.mark.parametrize("p", [0, 0.1, 0.25, 0.5, 0.75, 1])
 def test_prob_one_to_one(population, offspring, p):
     surv_selection = SurvivorSelection("Prob-One-to-one", {"p": p})
@@ -90,9 +82,7 @@ def test_prob_one_to_one(population, offspring, p):
 
 
 @pytest.mark.parametrize("population", [example_populaton])
-@pytest.mark.parametrize(
-    "offspring", [example_offspring, example_offspring_small, example_offspring_big]
-)
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
 def test_generational(population, offspring):
     surv_selection = SurvivorSelection("Generational")
     survivors = surv_selection.select(population, offspring)
@@ -100,9 +90,7 @@ def test_generational(population, offspring):
 
 
 @pytest.mark.parametrize("population", [example_populaton])
-@pytest.mark.parametrize(
-    "offspring", [example_offspring, example_offspring_small, example_offspring_big]
-)
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
 def test_m_plus_n(population, offspring):
     surv_selection = SurvivorSelection("(m+n)")
     survivors = surv_selection.select(population, offspring)
@@ -114,9 +102,7 @@ def test_m_plus_n(population, offspring):
 
 
 @pytest.mark.parametrize("population", [example_populaton])
-@pytest.mark.parametrize(
-    "offspring", [example_offspring, example_offspring_small, example_offspring_big]
-)
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
 def test_m_comma_n(population, offspring):
     surv_selection = SurvivorSelection("(m,n)")
     survivors = surv_selection.select(population, offspring)
@@ -131,9 +117,7 @@ def test_m_comma_n(population, offspring):
 
 
 @pytest.mark.parametrize("population", [example_populaton])
-@pytest.mark.parametrize(
-    "offspring", [example_offspring, example_offspring_small, example_offspring_big]
-)
+@pytest.mark.parametrize("offspring", [example_offspring, example_offspring_small, example_offspring_big])
 @pytest.mark.parametrize("fd", np.linspace(0, 1, 10))
 @pytest.mark.parametrize("pd", np.linspace(0, 1, 10))
 @pytest.mark.parametrize("attempts", [1, 3, 5, 10])

@@ -11,15 +11,9 @@ mhd.reset_seed(0)
 
 pop_size = 100
 
-example_populaton1 = [
-    Individual(MaxOnes(3), np.random.random(3) > 0.5) for i in range(pop_size)
-]
-example_populaton2 = [
-    Individual(MaxOnes(20), np.random.random(20) > 0.5) for i in range(pop_size)
-]
-example_populaton3 = [
-    Individual(MaxOnes(100), np.random.random(100) > 0.5) for i in range(pop_size)
-]
+example_populaton1 = [Individual(MaxOnes(3), np.random.random(3) > 0.5) for i in range(pop_size)]
+example_populaton2 = [Individual(MaxOnes(20), np.random.random(20) > 0.5) for i in range(pop_size)]
+example_populaton3 = [Individual(MaxOnes(100), np.random.random(100) > 0.5) for i in range(pop_size)]
 
 
 def test_errors():
@@ -27,9 +21,7 @@ def test_errors():
         operator = OperatorBinary("not_a_method")
 
 
-@pytest.mark.parametrize(
-    "population", [example_populaton1, example_populaton2, example_populaton3]
-)
+@pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 @pytest.mark.parametrize("op_method", bin_ops_map.keys())
 def test_basic_working(population, op_method):
     pop_init = UniformVectorInitializer(population[0].genotype.size, 0, 1, pop_size)

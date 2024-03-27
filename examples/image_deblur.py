@@ -104,13 +104,13 @@ def run_algorithm(alg_name, img_file_name, memetic):
     ]
     pop_initializer = DirectInitializer(pop_initializer, init_population, encoding=encoding)
 
-    mutation_op = OperatorReal("MutRand", {"method": "Cauchy", "F": 4, "N": 2})
+    mutation_op = OperatorReal("MutRand", {"distrib": "Cauchy", "F": 4, "N": 2})
     cross_op = OperatorReal("Multicross", {"Nindiv": 4})
     parent_sel_op = ParentSelection("Best", {"amount": 15})
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
 
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorReal("RandNoise", {"method": "Cauchy", "F": 0.0002})
+    neihbourhood_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
 
     if alg_name == "HillClimb":
@@ -166,7 +166,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         )
         local_search = LocalSearch(
             ls_pop_init,
-            OperatorInt("MutRand", {"method": "Uniform", "Low": -3, "Up": -3, "N": 3}),
+            OperatorInt("MutRand", {"distrib": "Uniform", "Low": -3, "Up": -3, "N": 3}),
             params={"iters": 10},
         )
         alg = MemeticAlgorithm(

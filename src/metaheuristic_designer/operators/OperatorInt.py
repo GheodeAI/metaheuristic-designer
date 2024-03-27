@@ -27,6 +27,7 @@ class IntOpMethods(Enum):
     MUTSAMPLE = enum.auto()
     RANDNOISE = enum.auto()
     RANDSAMPLE = enum.auto()
+    GENERATE = enum.auto()
     DE_RAND_1 = enum.auto()
     DE_BEST_1 = enum.auto()
     DE_RAND_2 = enum.auto()
@@ -72,10 +73,11 @@ int_ops_map = {
     "mutrand": IntOpMethods.MUTNOISE,
     "mutnoise": IntOpMethods.MUTNOISE,
     "mutsample": IntOpMethods.MUTSAMPLE,
+    "randreset": IntOpMethods.MUTSAMPLE,
     "randnoise": IntOpMethods.RANDNOISE,
     "randsample": IntOpMethods.RANDSAMPLE,
-    "randreset": IntOpMethods.RANDRESET,
     "randomreset": IntOpMethods.RANDRESET,
+    "generate": IntOpMethods.GENERATE,
     "de/rand/1": IntOpMethods.DE_RAND_1,
     "de/best/1": IntOpMethods.DE_BEST_1,
     "de/rand/2": IntOpMethods.DE_RAND_2,
@@ -125,10 +127,10 @@ class OperatorInt(Operator):
             IntOpMethods.RANDNOISE,
             IntOpMethods.RANDSAMPLE,
         ]:
-            self.params["method"] = ProbDist.from_str(self.params["method"])
+            self.params["distrib"] = ProbDist.from_str(self.params["distrib"])
 
         elif self.method == IntOpMethods.RANDRESET:
-            self.params["method"] = ProbDist.UNIFORM
+            self.params["distrib"] = ProbDist.UNIFORM
 
             if "Low" not in self.params:
                 self.params["Low"] = 0
@@ -202,7 +204,7 @@ class OperatorInt(Operator):
             new_indiv.genotype = poisson(new_indiv.genotype, params["F"])
 
         elif self.method == IntOpMethods.MUTNOISE:
-            new_indiv.genotype = mutate_rand(new_indiv.genotype, others, params)
+            new_indiv.genotype = mutate_noise(new_indiv.genotype, params)
 
         elif self.method == IntOpMethods.MUTSAMPLE:
             new_indiv.genotype = mutate_sample(new_indiv.genotype, others, params)
@@ -213,8 +215,8 @@ class OperatorInt(Operator):
         elif self.method == IntOpMethods.RANDSAMPLE:
             new_indiv.genotype = rand_sample(new_indiv.genotype, others, params)
 
-        elif self.method == IntOpMethods.RANDRESET:
-            new_indiv.genotype = mutate_sample(new_indiv.genotype, others, params)
+        elif self.method == IntOpMethods.GENERATE:
+            new_indiv.genotype = generate_statistic(new_indiv.genotype, others, params)
 
         elif self.method == IntOpMethods.DE_RAND_1:
             new_indiv.genotype = DE_rand1(new_indiv.genotype, others, params["F"], params["Cr"])

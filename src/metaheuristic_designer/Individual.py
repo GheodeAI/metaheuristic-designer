@@ -25,6 +25,7 @@ class Individual:
         objfunc: ObjectiveFunc,
         genotype: Any,
         speed: ndarray = None,
+        age: int = 0,
         encoding: Encoding = None,
     ):
         """
@@ -33,6 +34,8 @@ class Individual:
 
         self.id = Individual._last_id
         Individual._last_id += 1
+
+        self.age = age
 
         self.objfunc = objfunc
         self._genotype = genotype
@@ -55,7 +58,7 @@ class Individual:
         Returns a copy of the Individual.
         """
 
-        copied_ind = Individual(self.objfunc, copy(self._genotype), copy(self.speed), self.encoding)
+        copied_ind = Individual(self.objfunc, copy(self._genotype), copy(self.speed), encoding=self.encoding)
         copied_ind._fitness = self._fitness
         copied_ind.fitness_calculated = self.fitness_calculated
         copied_ind.best = copy(self.best)
@@ -88,7 +91,13 @@ class Individual:
             Individual with the speed applied.
         """
 
-        return Individual(self.objfunc, self._genotype + self.speed, self.speed, self.encoding)
+        return Individual(
+            self.objfunc,
+            self._genotype + self.speed,
+            self.speed,
+            age=self.age,
+            encoding=self.encoding,
+        )
 
     def calculate_fitness(self) -> float:
         """

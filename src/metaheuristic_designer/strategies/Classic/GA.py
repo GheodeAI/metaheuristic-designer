@@ -12,12 +12,12 @@ class GA(VariablePopulation):
 
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer,
         mutation_op: Operator,
         cross_op: Operator,
-        parent_sel_op: ParentSelection,
-        selection_op: SurvivorSelection,
-        params: Union[ParamScheduler, dict] = {},
+        parent_sel: ParentSelection,
+        survivor_sel: SurvivorSelection,
+        params: ParamScheduler | dict = {},
         name: str = "GA",
     ):
         self.pmut = params.get("pmut", 0.1)
@@ -31,11 +31,10 @@ class GA(VariablePopulation):
         evolve_op = OperatorMeta("Sequence", [prob_mut_op, prob_cross_op])
 
         super().__init__(
-            pop_init,
+            initializer,
             evolve_op,
-            parent_sel_op=parent_sel_op,
-            selection_op=selection_op,
-            n_offspring=pop_init.pop_size,
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
             params=params,
             name=name,
         )
