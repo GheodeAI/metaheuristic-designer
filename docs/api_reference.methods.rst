@@ -57,6 +57,7 @@ It is case insensitive and the parameters are mandatory, but if extra ones are a
     "MutSample, RandReset", "N (int), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace 'N' vector component with samples from a given probability distribution.",
     "RandNoise", "F (float), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Add random noise following a given distribution multiplied by 'F'.",
     "RandSample", "distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace the vector with a sample from a given probability distribution.",
+    "Generate", "statistic (str)", "Returns an individual which has as components the selected statistic of the parents."
     "DE/rand/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/1.",
     "DE/best/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Best/1.",
     "DE/rand/2", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/2.",
@@ -102,6 +103,7 @@ It is case insensitive and the parameters are mandatory, but if extra ones are a
     "MutSample", "N (int), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace 'N' vector component with samples from a given probability distribution.",
     "RandNoise", "F (float), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Add random noise following a given distribution multiplied by 'F'.",
     "RandSample", "distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace the vector with a sample from a given probability distribution.",
+    "Generate", "statistic (str)", "Returns an individual which has as components the selected statistic of the parents."
     "DE/rand/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/1.",
     "DE/best/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Best/1.",
     "DE/rand/2", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/2.",
