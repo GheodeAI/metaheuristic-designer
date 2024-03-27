@@ -8,6 +8,6 @@ class RandomSearch(HillClimb):
     Random search
     """
 
-    def __init__(self, pop_init, name="RandomSearch"):
+    def __init__(self, initializer, name="RandomSearch"):
         random_op = OperatorReal("Random")
-        super().__init__(pop_init, random_op, name=name)
+        super().__init__(initializer, random_op, name=name)

@@ -18,12 +18,12 @@ class DPCRO_SL(CRO_SL):
 
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer,
         operator_list: List[Operator],
-        params: Union[ParamScheduler, dict] = {},
+        params: ParamScheduler | dict = {},
         name: str = "DPCRO-SL",
     ):
-        super().__init__(pop_init, operator_list, params=params, name=name)
+        super().__init__(initializer, operator_list, params=params, name=name)
 
         self.group_subs = params["group_subs"]
         self.dyn_method = params["dyn_method"]
@@ -165,7 +165,7 @@ class DPCRO_SL(CRO_SL):
             new_parent_list = divided_population[op_idx] if self.group_subs else parent_list
 
             # Apply operator
-            new_indiv = op(indiv, new_parent_list, objfunc, self.best, self.pop_init)
+            new_indiv = op(indiv, new_parent_list, objfunc, self.best, self.initializer)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 
@@ -185,7 +185,7 @@ class DPCRO_SL(CRO_SL):
 
     def select_individuals(self, population, offspring, **kwargs):
         offspring_ids = [i.id for i in offspring]
-        new_population = self.selection_op(population, offspring)
+        new_population = self.survivor_sel(population, offspring)
         new_ids = [i.id for i in new_population]
 
         for idx, off_id in enumerate(offspring_ids):
@@ -199,6 +199,8 @@ class DPCRO_SL(CRO_SL):
         return new_population
 
     def update_params(self, **kwargs):
+        super().update_params(**kwargs)
+
         progress = kwargs["progress"]
 
         self._generate_substrates(progress)

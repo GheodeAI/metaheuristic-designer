@@ -6,7 +6,7 @@ from ..Individual import Individual
 from ..encodings import DefaultEncoding
 
 
-class LambdaInitializer(Initializer):
+class InitializerFromLambda(Initializer):
     """
     Initializer that generates individuals with vectors following an user-defined distribution.
 

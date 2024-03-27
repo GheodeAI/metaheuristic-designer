@@ -16,11 +16,11 @@ class VNS(SearchStrategy):
 
     def __init__(
         self,
-        pop_init: Initializer,
+        initializer: Initializer,
         op_list: List[Operator],
         local_search: Algorithm,
         selection_op: SurvivorSelection = None,
-        params: Union[ParamScheduler, dict] = {},
+        params: ParamScheduler | dict = {},
         name: str = "VNS",
     ):
         self.iterations = params.get("iters", 100)
@@ -36,14 +36,14 @@ class VNS(SearchStrategy):
             selection_op = SurvivorSelection("One-to-One")
         self.selection_op = selection_op
 
-        if pop_init.pop_size > 1:
-            pop_init.pop_size = 1
+        if initializer.pop_size > 1:
+            initializer.pop_size = 1
             warnings.warn(
                 "The VNS algorithm work on a single individual. The population size has been set to 1.",
                 stacklevel=2,
             )
 
-        super().__init__(pop_init, params=params, name=name)
+        super().__init__(initializer, params=params, name=name)
 
     def initialize(self, objfunc):
         super().initialize(objfunc)
@@ -53,7 +53,7 @@ class VNS(SearchStrategy):
         offspring = []
         for indiv in indiv_list:
             # Perturb individual
-            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.pop_init)
+            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.initializer)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
 
             # Local search
@@ -87,6 +87,8 @@ class VNS(SearchStrategy):
         return new_population
 
     def update_params(self, **kwargs):
+        super().update_params(**kwargs)
+
         progress = kwargs["progress"]
 
         if isinstance(self.perturb_op, Operator):

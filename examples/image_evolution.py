@@ -45,6 +45,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
         "ngen": 1000,
         "neval": 3e5,
         "fit_target": 0,
+        # "patience": 50,
         "patience": 200,
         "verbose": True,
         "v_timer": 0.5,
@@ -66,7 +67,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     img_name = img_file_name.split("/")[-1]
     img_name = img_name.split(".")[0]
 
-    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name)
+    objfunc = ImgApprox(image_shape, reference_img, img_name=img_name, diff_func="sts")
     # objfunc = ImgEntropy(image_shape, 256)
     # objfunc = ImgExperimental(image_shape, reference_img, img_name=img_name)
 
@@ -79,16 +80,16 @@ def run_algorithm(alg_name, img_file_name, memetic):
         encoding=encoding,
     )
 
-    mutation_op = OperatorReal("MutRand", {"method": "Uniform", "Low": -20, "Up": 20, "N": 15})
+    mutation_op = OperatorReal("MutNoise", {"distrib": "Uniform", "min": -20, "max": 20, "N": 15})
     cross_op = OperatorReal("Multipoint")
 
     op_list = [
         OperatorReal("Multipoint"),
-        OperatorReal("MutRand", {"method": "Cauchy", "F": 5, "N": 10}, name="MutCauchy"),
-        OperatorReal("MutRand", {"method": "Gauss", "F": 5, "N": 10}, name="MutGauss"),
+        OperatorReal("MutRand", {"distrib": "Cauchy", "F": 5, "N": 10}, name="MutCauchy"),
+        OperatorReal("MutRand", {"distrib": "Gauss", "F": 5, "N": 10}, name="MutGauss"),
         OperatorReal(
             "MutSample",
-            {"method": "Uniform", "Low": 0, "Up": 256, "N": 10},
+            {"distrib": "Uniform", "min": 0, "max": 256, "N": 10},
             name="MutUniform",
         ),
     ]
@@ -100,7 +101,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     neighborhood_structures = [
         OperatorReal(
             "MutNoise",
-            {"method": "Uniform", "Low": -10, "Up": 10, "N": n},
+            {"distrib": "Uniform", "min": -10, "max": 10, "N": n},
             name=f"UniformSample(N={n:0.0f})",
         )
         for n in n_list
@@ -110,7 +111,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
 
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorInt("MutRand", {"method": "Uniform", "Low": -10, "Up": -10, "N": 3})
+    neihbourhood_op = OperatorInt("MutRand", {"distrib": "Uniform", "min": -10, "max": -10, "N": 3})
     local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
 
     if alg_name == "HillClimb":
@@ -138,14 +139,24 @@ def run_algorithm(alg_name, img_file_name, memetic):
             cross_op,
             parent_sel_op,
             selection_op,
-            {"pcross": 0.8, "pmut": 0.4},
+            {"pcross": 0.8, "pmut": 0.1},
         )
     elif alg_name == "HS":
-        search_strat = HS(pop_initializer, {"HMCR": 0.8, "BW": 0.5, "PAR": 0.2})
+        search_strat = HS(pop_initializer, {"HMCR": 0.9, "BW": 5, "PAR": 0.8})
     elif alg_name == "DE":
         search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5})
+    elif alg_name == "BinomialUMDA":
+        search_strat = BinomialUMDA(pop_initializer, parent_sel_op, selection_op, params={"n": 256, "noise": 0})
+    elif alg_name == "BinomialPBIL":
+        search_strat = BinomialPBIL(pop_initializer, parent_sel_op, selection_op, params={"n": 256, "lr": 0.5, "noise": 0})
+    elif alg_name == "GaussianUMDA":
+        search_strat = GaussianUMDA(pop_initializer, parent_sel_op, selection_op, params={"scale": 7, "noise": 1})
+    elif alg_name == "GaussianPBIL":
+        search_strat = GaussianPBIL(pop_initializer, parent_sel_op, selection_op, params={"scale": 5, "lr": 0.5, "noise": 0.75})
+    elif alg_name == "CrossEntropy":
+        search_strat = CrossEntropyMethod(pop_initializer)
     elif alg_name == "CRO":
         search_strat = CRO(
             pop_initializer,

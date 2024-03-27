@@ -105,4 +105,5 @@ Indices and tables
    :maxdepth: 1
    :caption: Contents:
    
-    API reference <metaheuristic_designer>
+    API reference <api_reference>
+    Documentation <metaheuristic_designer>

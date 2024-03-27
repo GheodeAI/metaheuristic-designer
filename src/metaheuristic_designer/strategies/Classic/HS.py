@@ -12,20 +12,19 @@ class HS(VariablePopulation):
 
     def __init__(
         self,
-        pop_init: Initializer,
-        params: Union[ParamScheduler, dict] = {},
+        initializer: Initializer,
+        params: ParamScheduler | dict = {},
         name: str = "HS",
     ):
-        parent_sel_op = ParentSelection("Nothing")
-        selection_op = SurvivorSelection("(m+n)")
+        survivor_sel = SurvivorSelection("(m+n)")
 
-        HSM = pop_init.pop_size
+        HSM = initializer.pop_size
         cross = OperatorReal("Multicross", {"Nindiv": HSM})
 
         mutate1 = OperatorReal(
             "MutNoise",
             {
-                "method": "Gauss",
+                "distrib": "Gauss",
                 "F": params["BW"],
                 "Cr": params["HMCR"] * params["PAR"],
             },
@@ -37,10 +36,9 @@ class HS(VariablePopulation):
         evolve_op = OperatorMeta("Sequence", [cross, mutate])
 
         super().__init__(
-            pop_init,
+            initializer,
             evolve_op,
-            parent_sel_op=parent_sel_op,
-            selection_op=selection_op,
+            survivor_sel=survivor_sel,
             n_offspring=1,
             params=params,
             name=name,

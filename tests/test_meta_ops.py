@@ -45,9 +45,7 @@ def test_errors():
 def test_branch_op(indiv, op_list, args):
     operator = OperatorMeta("branch", op_list, args)
 
-    new_indiv = operator.evolve(
-        example_individual, [example_individual], None, example_individual, pop_init
-    )
+    new_indiv = operator.evolve(example_individual, [example_individual], None, example_individual, pop_init)
     assert type(new_indiv.genotype) == np.ndarray
     assert np.all(new_indiv.genotype == new_indiv.genotype[0])
     assert new_indiv.genotype[0] != 0
@@ -72,9 +70,7 @@ def test_branch_op(indiv, op_list, args):
 def test_sequence_op(indiv, op_list, expected_val):
     operator = OperatorMeta("sequence", op_list)
 
-    new_indiv = operator.evolve(
-        example_individual, [example_individual], None, example_individual, pop_init
-    )
+    new_indiv = operator.evolve(example_individual, [example_individual], None, example_individual, pop_init)
     assert type(new_indiv.genotype) == np.ndarray
     assert np.all(new_indiv.genotype == new_indiv.genotype[0])
     assert new_indiv.genotype[0] == expected_val
@@ -100,9 +96,7 @@ def test_pick_op(indiv, op_list, values):
     operator = OperatorMeta("pick", op_list, {})
     for i, _ in enumerate(op_list):
         operator.chosen_idx = i
-        new_indiv = operator.evolve(
-            example_individual, [example_individual], None, example_individual, pop_init
-        )
+        new_indiv = operator.evolve(example_individual, [example_individual], None, example_individual, pop_init)
         assert type(new_indiv.genotype) == np.ndarray
         assert np.all(new_indiv.genotype == values[i])
 
@@ -123,15 +117,11 @@ def test_pick_op(indiv, op_list, values):
         ),
     ],
 )
-@pytest.mark.parametrize(
-    "mask", [np.zeros(100), np.ones(100), (np.arange(100) > 50).astype(int)]
-)
+@pytest.mark.parametrize("mask", [np.zeros(100), np.ones(100), (np.arange(100) > 50).astype(int)])
 def test_split_op(indiv, op_list, values, mask):
     operator = OperatorMeta("split", op_list, {"mask": mask})
 
-    new_indiv = operator.evolve(
-        example_individual, [example_individual], None, example_individual, pop_init
-    )
+    new_indiv = operator.evolve(example_individual, [example_individual], None, example_individual, pop_init)
     assert type(new_indiv.genotype) == np.ndarray
 
     for idx, val in enumerate(values):

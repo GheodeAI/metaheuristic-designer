@@ -18,9 +18,7 @@ example_populaton2 = [Individual(Sphere(20), np.arange(20)) for i in range(pop_s
 example_populaton3 = [Individual(Sphere(100), np.arange(100)) for i in range(pop_size)]
 
 
-@pytest.mark.parametrize(
-    "population", [example_populaton1, example_populaton2, example_populaton3]
-)
+@pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 @pytest.mark.parametrize("op_method", perm_ops)
 def test_basic_working(population, op_method):
     pop_init = PermInitializer(population[0].genotype.size, pop_size)

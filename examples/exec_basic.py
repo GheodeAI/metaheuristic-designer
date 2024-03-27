@@ -39,7 +39,7 @@ def run_algorithm(alg_name, memetic, save_state):
     parent_params = ParamScheduler("Linear", {"amount": 20})
     # select_params = ParamScheduler("Linear")
 
-    mut_params = ParamScheduler("Linear", {"method": "Cauchy", "F": [0.01, 0.00001]})
+    mut_params = ParamScheduler("Linear", {"distrib": "Cauchy", "F": [0.01, 0.00001]})
     mutation_op = OperatorReal("RandNoise", mut_params)
 
     cross_op = OperatorReal("Multipoint")
@@ -58,7 +58,7 @@ def run_algorithm(alg_name, memetic, save_state):
     selection_op = SurvivorSelection("(m+n)")
 
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorReal("RandNoise", {"method": "Cauchy", "F": 0.0002})
+    neihbourhood_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
 
     if alg_name == "HillClimb":
@@ -94,6 +94,13 @@ def run_algorithm(alg_name, memetic, save_state):
         search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5})
+    elif alg_name == "GaussianUMDA":
+        search_strat = GaussianUMDA(pop_initializer, parent_sel_op, selection_op, params={"scale": 0.1, "noise": 1e-3})
+    elif alg_name == "GaussianPBIL":
+        search_strat = GaussianPBIL(pop_initializer, parent_sel_op, selection_op, params={"scale": 0.1, "lr": 0.3, "noise": 1e-3})
+    elif alg_name == "CrossEntropy":
+        pop_initializer.pop_size = 1000
+        search_strat = CrossEntropyMethod(pop_initializer)
     elif alg_name == "CRO":
         search_strat = CRO(
             pop_initializer,

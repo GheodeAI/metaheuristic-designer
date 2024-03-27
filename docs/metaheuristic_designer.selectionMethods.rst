@@ -9,10 +9,34 @@ ParentSelection
    :undoc-members:
    :show-inheritance:
 
+ParentSelectionNull
+--------------------------------------------------
+
+.. automodule:: metaheuristic_designer.selectionMethods.ParentSelectionNull
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+SurvivorSelectionNull
+----------------------------------------------------
+
+.. automodule:: metaheuristic_designer.selectionMethods.SurvivorSelectionNull
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 SurvivorSelection
 ----------------------------------------------------
 
 .. automodule:: metaheuristic_designer.selectionMethods.SurvivorSelection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+SelectionFromLambda
+----------------------------------------------------
+
+.. automodule:: metaheuristic_designer.selectionMethods.SelectionFromLambda
    :members:
    :undoc-members:
    :show-inheritance:

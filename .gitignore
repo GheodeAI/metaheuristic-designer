@@ -1,11 +1,7 @@
 __pycache__/
-__pycache__/*
 */__pycache__
-*/__pycache__/*
 stats/
-stats/*
-benchmarks/results
-benchmarks/results/*
+benchmarks/results/
 .nox/
 .pytest_cache/
 .coverage
@@ -14,7 +10,7 @@ htmlcov/
 dist/
 dist/*
 examples/results/
-examples/results/*
+examples/quick_tests/
 docs/_build/
 venv/
 build/

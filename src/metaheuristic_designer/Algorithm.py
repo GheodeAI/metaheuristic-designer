@@ -25,7 +25,13 @@ class Algorithm(ABC):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, search_strategy: SearchStrategy, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(
+        self,
+        objfunc: ObjectiveFunc,
+        search_strategy: SearchStrategy,
+        params: ParamScheduler | dict = None,
+        name: str = None,
+    ):
         """
         Constructor of the Search class
         """
@@ -81,6 +87,14 @@ class Algorithm(ABC):
     @name.setter
     def name(self, new_name: str):
         self._name = new_name
+
+    @property
+    def initializer(self):
+        return self.search_strategy.initializer
+
+    @initializer.setter
+    def initializer(self, new_initializer):
+        self.search_strategy.initializer = new_initializer
 
     def restart(self):
         """
