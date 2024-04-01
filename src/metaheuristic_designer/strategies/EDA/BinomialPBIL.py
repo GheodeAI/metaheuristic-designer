@@ -2,7 +2,7 @@ from __future__ import annotations
 import numpy as np
 import scipy as sp
 from ...Individual import Individual
-from ...operators import OperatorBinary
+from ...operators import OperatorReal, OperatorInt
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
@@ -10,7 +10,7 @@ from ..VariablePopulation import VariablePopulation
 from ...utils import RAND_GEN
 
 
-class BernoulliPBIL(VariablePopulation):
+class BinomialPBIL(VariablePopulation):
     """
     Estimation of distribution algorithm for binary vectors.
     https://doi.org/10.1016/j.swevo.2011.08.003
@@ -25,8 +25,12 @@ class BernoulliPBIL(VariablePopulation):
         name: str = "BernoulliPBIL",
     ):
         self.p = params.get("p", None)
+        if "n" not in params:
+            raise Exception("A parameter 'n' must be specified which indicates the maximum value.")
 
-        evolve_op = OperatorBinary("RandSample", {"distrib": "bernoulli", "p": self.p})
+        self.n = params["n"]
+
+        evolve_op = OperatorInt("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
         self.prob_vec_mutate = evolve_op
 
         offspring_size = params.get("offspringSize", initializer.pop_size)
@@ -46,7 +50,7 @@ class BernoulliPBIL(VariablePopulation):
 
     def _batch_fit(self, parent_list):
         population_matrix = np.asarray([i.genotype for i in parent_list])
-        p_hat = population_matrix.mean(axis=0)
+        p_hat = population_matrix.sum(axis=0) / (self.n * population_matrix.shape[0])
 
         return p_hat
 
@@ -59,6 +63,6 @@ class BernoulliPBIL(VariablePopulation):
         else:
             self.p = new_p
 
-        self.operator = OperatorBinary("RandSample", {"distrib": "bernoulli", "p": self.p})
+        self.operator = OperatorInt("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
 
         return super().perturb(parent_list, objfunc, **kwargs)

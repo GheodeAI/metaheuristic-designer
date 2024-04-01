@@ -126,11 +126,7 @@ example_img2 = np.random.randint(0, 256, [30, 40, 3])
 @pytest.mark.parametrize(
     "genotype, phenotype, shape",
     [
-        (
-            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
-            np.array([[[1, 2, 3], [4, 5, 6]], [[7, 8, 9], [10, 11, 12]]]),
-            (2,2)
-        ),
+        (np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), np.array([[[1, 2, 3], [4, 5, 6]], [[7, 8, 9], [10, 11, 12]]]), (2, 2)),
         (np.ones([300]), np.ones([10, 10, 3]), (10, 10)),
         (np.ones([600]), np.ones([10, 20, 3]), (10, 20)),
         (example_img2.flatten(), example_img2, example_img2.shape[:2]),

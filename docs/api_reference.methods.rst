@@ -57,6 +57,7 @@ It is case insensitive and the parameters are mandatory, but if extra ones are a
     "MutSample, RandReset", "N (int), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace 'N' vector component with samples from a given probability distribution.",
     "RandNoise", "F (float), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Add random noise following a given distribution multiplied by 'F'.",
     "RandSample", "distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace the vector with a sample from a given probability distribution.",
+    "Generate", "statistic (str)", "Returns an individual which has as components the selected statistic of the parents."
     "DE/rand/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/1.",
     "DE/best/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Best/1.",
     "DE/rand/2", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/2.",
@@ -102,6 +103,7 @@ It is case insensitive and the parameters are mandatory, but if extra ones are a
     "MutSample", "N (int), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace 'N' vector component with samples from a given probability distribution.",
     "RandNoise", "F (float), distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Add random noise following a given distribution multiplied by 'F'.",
     "RandSample", "distrib (str), :ref:`\[distrib params\]<Probability Distributions>`", "Replace the vector with a sample from a given probability distribution.",
+    "Generate", "statistic (str)", "Returns an individual which has as components the selected statistic of the parents."
     "DE/rand/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/1.",
     "DE/best/1", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Best/1.",
     "DE/rand/2", "F (float), Cr (float)", "DE (Differential Evolution) operator DE/Rand/2.",
@@ -170,6 +172,7 @@ The names are case insensitive and specified with the 'distrib' parameter.
    "LevyStable, levy_stable", "a (float), b (float), loc (float|ndarray), scale (float|ndarray)", "`Levy-Stable distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.levy_stable.html#scipy.stats.levy_stable>`_ with mean 'loc' and std 'scale'"
    "Poisson", "mu (int|ndarray), loc (float|ndarray)", "`Poisson distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.poisson.html#scipy.stats.poisson>`_ with mean 'loc' and std 'scale'"
    "Bernoulli", "p (float|ndarray)", "`Bernoulli distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bernoulli.html#scipy.stats.bernoulli>`_ with mean 'loc' and std 'scale'"
+   "Binomial", "p (float|ndarray), n (int)", "Binomial distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html#scipy.stats.binom>`_ with mean 'loc'"
    "Custom", "distrib_class (scipy.stats.rv_generic), [distribution parameters]", "Predefined probability distribution. Any scipy probability distribution will work."
 
 

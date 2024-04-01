@@ -1,7 +1,12 @@
 from __future__ import annotations
 import random
 from ..ParamScheduler import ParamScheduler
-from ..selectionMethods import SurvivorSelection, ParentSelection, SurvivorSelectionNull, ParentSelectionNull
+from ..selectionMethods import (
+    SurvivorSelection,
+    ParentSelection,
+    SurvivorSelectionNull,
+    ParentSelectionNull,
+)
 from ..SearchStrategy import SearchStrategy
 from ..Operator import Operator
 
@@ -30,7 +35,13 @@ class VariablePopulation(SearchStrategy):
 
         self.best = None
 
-        super().__init__(initializer, parent_sel=parent_sel, survivor_sel=survivor_sel, params=params, name=name)
+        super().__init__(
+            initializer,
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
+            params=params,
+            name=name,
+        )
 
     @property
     def initializer(self):

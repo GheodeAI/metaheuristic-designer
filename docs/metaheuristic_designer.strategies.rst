@@ -41,8 +41,8 @@ NoSearch
    :undoc-members:
    :show-inheritance:
 
-Subpackages
------------
+Strategies Subpackages
+----------------------
 
 .. toctree::
    :maxdepth: 2

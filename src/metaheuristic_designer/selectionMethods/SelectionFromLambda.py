@@ -4,7 +4,13 @@ from ..SelectionMethod import SelectionMethod
 
 
 class SelectionFromLambda(SelectionMethod):
-    def __init__(self, select_fn: callable, params: ParamScheduler | dict, padding: bool = False, name: str = None):
+    def __init__(
+        self,
+        select_fn: callable,
+        params: ParamScheduler | dict,
+        padding: bool = False,
+        name: str = None,
+    ):
         if name is None:
             name = select_fn.__name__
 

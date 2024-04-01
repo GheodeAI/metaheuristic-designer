@@ -23,7 +23,15 @@ class MemeticAlgorithm(Algorithm):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def __init__(self, objfunc, search_strategy, local_search, improve_choice, params=None, name=None):
+    def __init__(
+        self,
+        objfunc,
+        search_strategy,
+        local_search,
+        improve_choice,
+        params=None,
+        name=None,
+    ):
         """
         Constructor of the Metaheuristic class
         """

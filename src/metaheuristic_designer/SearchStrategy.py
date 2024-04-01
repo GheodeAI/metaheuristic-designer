@@ -2,7 +2,12 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from .Individual import Individual
 from .ParamScheduler import ParamScheduler
-from .selectionMethods import SurvivorSelection, ParentSelection, SurvivorSelectionNull, ParentSelectionNull
+from .selectionMethods import (
+    SurvivorSelection,
+    ParentSelection,
+    SurvivorSelectionNull,
+    ParentSelectionNull,
+)
 from .Operator import Operator
 from multiprocessing import Pool
 

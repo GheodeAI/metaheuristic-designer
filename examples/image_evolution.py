@@ -170,10 +170,16 @@ def run_algorithm(alg_name, img_file_name, memetic, init_img_file=None):
         search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5})
+    elif alg_name == "BinomialUMDA":
+        search_strat = BinomialUMDA(pop_initializer, parent_sel_op, selection_op, params={"n": 256, "noise": 0})
+    elif alg_name == "BinomialPBIL":
+        search_strat = BinomialPBIL(pop_initializer, parent_sel_op, selection_op, params={"n": 256, "lr": 0.5, "noise": 0})
     elif alg_name == "GaussianUMDA":
         search_strat = GaussianUMDA(pop_initializer, parent_sel_op, selection_op, params={"scale": 7, "noise": 1})
     elif alg_name == "GaussianPBIL":
         search_strat = GaussianPBIL(pop_initializer, parent_sel_op, selection_op, params={"scale": 5, "lr": 0.5, "noise": 0.75})
+    elif alg_name == "CrossEntropy":
+        search_strat = CrossEntropyMethod(pop_initializer)
     elif alg_name == "CRO":
         search_strat = CRO(
             pop_initializer,

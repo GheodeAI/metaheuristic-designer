@@ -1,6 +1,11 @@
 from __future__ import annotations
 from ..ParamScheduler import ParamScheduler
-from ..selectionMethods import SurvivorSelection, ParentSelection, SurvivorSelectionNull, ParentSelectionNull
+from ..selectionMethods import (
+    SurvivorSelection,
+    ParentSelection,
+    SurvivorSelectionNull,
+    ParentSelectionNull,
+)
 from ..SearchStrategy import SearchStrategy
 from ..Operator import Operator
 
@@ -21,7 +26,13 @@ class StaticPopulation(SearchStrategy):
     ):
         self.operator = operator
 
-        super().__init__(initializer, parent_sel=parent_sel, survivor_sel=survivor_sel, params=params, name=name)
+        super().__init__(
+            initializer,
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
+            params=params,
+            name=name,
+        )
 
     def perturb(self, parent_list, objfunc, **kwargs):
         offspring = []
