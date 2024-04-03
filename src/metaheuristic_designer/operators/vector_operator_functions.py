@@ -18,6 +18,7 @@ class ProbDist(Enum):
     LEVYSTABLE = enum.auto()
     POISSON = enum.auto()
     BERNOULLI = enum.auto()
+    BINOMIAL = enum.auto()
     CATEGORICAL = enum.auto()
     CUSTOM = enum.auto()
 
@@ -46,6 +47,7 @@ prob_dist_map = {
     "levy_stable": ProbDist.LEVYSTABLE,
     "poisson": ProbDist.POISSON,
     "bernoulli": ProbDist.BERNOULLI,
+    "binomial": ProbDist.BINOMIAL,
     "categorical": ProbDist.CATEGORICAL,
     "custom": ProbDist.CUSTOM,
 }
@@ -89,9 +91,9 @@ def mutate_sample(vector, population, params):
     RAND_GEN.shuffle(mask_pos)
 
     popul_matrix = np.vstack([i.genotype for i in population])
-    if loc is None:
+    if loc is None or (type(loc) is str and loc == "calculated"):
         loc = popul_matrix.mean(axis=0)[mask_pos]
-    if scale is None:
+    if scale is None or (type(scale) is str and scale == "calculated"):
         scale = popul_matrix.std(axis=0)[mask_pos]
 
     rand_vec = sample_distribution(distrib, n, loc, scale, params)
@@ -142,9 +144,9 @@ def rand_sample(vector, population, params):
         scale = maxim - minim
 
     popul_matrix = np.vstack([i.genotype for i in population])
-    if loc is None:
+    if loc is None or (type(loc) is str and loc == "calculated"):
         loc = popul_matrix.mean(axis=0)
-    if scale is None:
+    if scale is None or (type(scale) is str and scale == "calculated"):
         scale = popul_matrix.std(axis=0)
 
     rand_vec = sample_distribution(distrib, vector.shape, loc, scale, params)
@@ -204,6 +206,10 @@ def sample_distribution(distrib, n, loc=None, scale=None, params={}):
     elif distrib == ProbDist.BERNOULLI:
         p = params.get("p", 0.5)
         prob_distrib = sp.stats.bernoulli(p, loc=loc)
+    elif distrib == ProbDist.BINOMIAL:
+        n = params["n"]
+        p = params.get("p", 0.5)
+        prob_distrib = sp.stats.binomial(n, p, loc=loc)
     elif distrib == ProbDist.CATEGORICAL:
         p = params["p"]
         prob_distrib = sp.stats.rv_discrete(name="categorical", values=(np.arange(p.size), p / np.sum(p)))
@@ -261,10 +267,10 @@ def poisson(vector, mu):
 
 
 def generate_statistic(vector, population, params):
-    stat_name = params["statistic"]
+    stat_name = params.get("statistic", "mean")
 
     popul_matrix = np.vstack([i.genotype for i in population])
-    
+
     new_vector = None
     if stat_name == "mean":
         new_vector = np.mean(popul_matrix, axis=0)
@@ -275,9 +281,8 @@ def generate_statistic(vector, population, params):
         new_vector = np.median(popul_matrix, axis=0)
     elif stat_name == "std":
         new_vector = np.std(popul_matrix, axis=0)
-    
+
     return new_vector
-        
 
 
 def sample_1_sigma(vector, n, epsilon, tau):
@@ -309,7 +314,10 @@ def mutate_n_sigmas(sigmas, epsilon, tau, tau_multiple):
     Mutate a list of sigmas values in base of tau and tau_multiple params, where epsilon is de minimum value that a sigma can have.
     """
 
-    return np.maximum(epsilon, sigmas * np.exp(tau * RAND_GEN.normal() + tau_multiple * RAND_GEN.normal()))
+    return np.maximum(
+        epsilon,
+        sigmas * np.exp(tau * RAND_GEN.normal() + tau_multiple * RAND_GEN.normal()),
+    )
 
 
 def xor_mask(vector, n, mode="byte"):
@@ -680,4 +688,4 @@ def dummy_op(vector, scale=1000):
     Only for testing, not useful for real applications
     """
 
-    return np.full(scale, vector.shape)
+    return np.full(vector.shape, scale)

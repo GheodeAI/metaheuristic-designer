@@ -27,6 +27,7 @@ class IntOpMethods(Enum):
     MUTSAMPLE = enum.auto()
     RANDNOISE = enum.auto()
     RANDSAMPLE = enum.auto()
+    GENERATE = enum.auto()
     DE_RAND_1 = enum.auto()
     DE_BEST_1 = enum.auto()
     DE_RAND_2 = enum.auto()
@@ -76,6 +77,7 @@ int_ops_map = {
     "randnoise": IntOpMethods.RANDNOISE,
     "randsample": IntOpMethods.RANDSAMPLE,
     "randomreset": IntOpMethods.RANDRESET,
+    "generate": IntOpMethods.GENERATE,
     "de/rand/1": IntOpMethods.DE_RAND_1,
     "de/best/1": IntOpMethods.DE_BEST_1,
     "de/rand/2": IntOpMethods.DE_RAND_2,
@@ -212,6 +214,9 @@ class OperatorInt(Operator):
 
         elif self.method == IntOpMethods.RANDSAMPLE:
             new_indiv.genotype = rand_sample(new_indiv.genotype, others, params)
+
+        elif self.method == IntOpMethods.GENERATE:
+            new_indiv.genotype = generate_statistic(new_indiv.genotype, others, params)
 
         elif self.method == IntOpMethods.DE_RAND_1:
             new_indiv.genotype = DE_rand1(new_indiv.genotype, others, params["F"], params["Cr"])

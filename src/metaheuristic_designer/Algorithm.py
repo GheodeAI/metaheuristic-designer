@@ -25,7 +25,13 @@ class Algorithm(ABC):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, search_strategy: SearchStrategy, params: ParamScheduler | dict = None, name: str = None):
+    def __init__(
+        self,
+        objfunc: ObjectiveFunc,
+        search_strategy: SearchStrategy,
+        params: ParamScheduler | dict = None,
+        name: str = None,
+    ):
         """
         Constructor of the Search class
         """

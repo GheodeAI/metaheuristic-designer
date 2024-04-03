@@ -6,7 +6,6 @@ def dominates(indiv1, indiv2):
     fit_vec2 = indiv2.fitness
     return np.all(fit_vec1 >= fit_vec2) and np.any(fit_vec1 > fit_vec2)
 
-
 def dominates_equals(indiv1, indiv2):
     fit_vec1 = indiv1.fitness
     fit_vec2 = indiv2.fitness

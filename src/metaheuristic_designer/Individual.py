@@ -91,7 +91,13 @@ class Individual:
             Individual with the speed applied.
         """
 
-        return Individual(self.objfunc, self._genotype + self.speed, self.speed, age=self.age, encoding=self.encoding)
+        return Individual(
+            self.objfunc,
+            self._genotype + self.speed,
+            self.speed,
+            age=self.age,
+            encoding=self.encoding,
+        )
 
     def calculate_fitness(self) -> float:
         """
