@@ -1,10 +1,13 @@
 from copy import copy
+import numpy as np
 import random
+
 
 def dominates(indiv1, indiv2):
     fit_vec1 = indiv1.fitness
     fit_vec2 = indiv2.fitness
     return np.all(fit_vec1 >= fit_vec2) and np.any(fit_vec1 > fit_vec2)
+
 
 def dominates_equals(indiv1, indiv2):
     fit_vec1 = indiv1.fitness
@@ -14,18 +17,20 @@ def dominates_equals(indiv1, indiv2):
 
 def non_dominated_ranking(indiv_list):
     if len(indiv_list) > 0:
+        best_ranked = []
         not_ranked_idx = []
         for idx_curr, indiv_curr in enumerate(indiv_list):
-            is_dominant = True
-            for idx_pop, indiv_pop in indiv_list:
-                is_dominant = is_dominant and dominates_equals(indiv_curr, indiv_pop)
-                if not is_dominant:
+            is_dominated = False
+            remaining_pop = indiv_list[:idx_curr] + indiv_list[idx_curr + 1:]
+            for indiv_pop in remaining_pop:
+                is_dominated = is_dominated or dominates(indiv_pop, indiv_curr)
+                if is_dominated:
                     break
             
-            if is_dominant:
-                best_ranked.append(indiv_curr)
-            else:
+            if is_dominated:
                 not_ranked_idx.append(idx_curr)
+            else:
+                best_ranked.append(indiv_curr)
         
         not_ranked = [indiv_list[i] for i in not_ranked_idx]
         return [best_ranked] + non_dominated_ranking(not_ranked)
