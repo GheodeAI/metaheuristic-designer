@@ -10,20 +10,27 @@ class MultiObjectiveFunc(ObjectiveFunc):
     def __init__(
         self,
         n_objectives: int,
+        modes: Iterable[str] = None,
         name: str = "Weighted average of functions",
     ):
         super().__init__(name=name)
 
         self.n_objectives = n_objectives
+        self.modes = modes
+        self.factors = np.ones(n_objectives)
+        if modes is not None:
+            if isinstance(modes, str) and modes == "min":
+                self.factors *= -1
+            else:
+                self.factors[[i != "max" for i in modes]] = -1
 
-    @abstractmethod
-    def fitness(self, indiv: Individual, adjusted=True) -> ndarray:
+    def fitness(self, indiv: Individual, adjusted: bool = True) -> ndarray:
         self.counter += 1
         solution = indiv.encoding.decode(indiv.genotype)
         value = self.objective(solution)
 
         if adjusted:
-            value = value - self.penalize(solution)
+            value = self.factors * value - self.penalize(solution)
 
         return value
 
@@ -50,3 +57,24 @@ class MultiObjectiveFunc(ObjectiveFunc):
         """
 
         return np.zeros(self.n_objectives)
+
+
+class MultiObjectiveVectorFunc(MultiObjectiveFunc):
+    def __init__(
+        self,
+        n_objectives: int,
+        vecsize: int,
+        low_lim: float = -100,
+        up_lim: float = 100,
+        modes: Iterable[str] = None,
+        name: str = "Weighted average of functions",
+    ):
+        super().__init__(n_objectives=n_objectives, modes=modes, name=name)
+
+        self.n_objectives = n_objectives
+        self.vecsize = vecsize
+        self.low_lim = low_lim
+        self.up_lim = up_lim
+
+    def repair_solution(self, vector: ndarray) -> ndarray:
+        return np.clip(vector, self.low_lim, self.up_lim)

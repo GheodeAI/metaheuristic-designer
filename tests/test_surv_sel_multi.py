@@ -3,25 +3,15 @@ import numpy as np
 import metaheuristic_designer as mhd
 
 from metaheuristic_designer import ObjectiveFromLambda, Individual
+from metaheuristic_designer.benchmarks import *
 from metaheuristic_designer.multiObjfunc import CombinedMultiObjectiveFunc
 from metaheuristic_designer.selectionMethods.survivor_selection_multi_functions import (
     non_dominated_ranking,
     crowding_distance_selection,
     non_dominated_sorting
 )
-# from metaheuristic_designer.benchmarks import Sphere
-# from metaheuristic_designer
 
-def func1(x):
-    return (x**2).sum()
-
-def func2(x):
-    return ((x-2)**2).sum()
-
-
-objfunc1_single = ObjectiveFromLambda(func1, vecsize=1, mode="min")
-objfunc2_single = ObjectiveFromLambda(func2, vecsize=1, mode="min")
-objfunc = CombinedMultiObjectiveFunc([objfunc1_single, objfunc2_single])
+objfunc = Shaffer1()
 
 test_population_arr1 = np.array([
     [-1], # id=0

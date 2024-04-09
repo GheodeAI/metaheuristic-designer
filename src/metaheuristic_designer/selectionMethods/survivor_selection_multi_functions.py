@@ -38,16 +38,19 @@ def non_dominated_ranking(indiv_list):
         return []
 
 
-def crowding_distance_selection(ranks):
+def crowding_distance_selection(ranks, amount):
     sorted_ranks = []
-    k = len(ranks[0])
+    k = amount
     for rank in ranks:
+        if k < 1:
+            break
+
         if len(rank) > 1:
             fitness_mat = np.array([indiv.fitness for indiv in rank])
-            n_obj = fitness_list[0].size
+            n_obj = fitness_mat.shape[1]
 
             distances = np.zeros((len(rank), n_obj))
-            for idx_indiv, fit in enumerate(fitness_list):
+            for idx_indiv, fit in enumerate(fitness_mat):
                 other_fit = np.delete(fitness_mat, idx_indiv, axis = 0)
 
                 other_fit_low = other_fit.copy()
@@ -59,14 +62,16 @@ def crowding_distance_selection(ranks):
                 upper = other_fit_up.min(axis=0)
 
                 dist = upper - lower
-                dist[~np.isnan(dist)] = 0
+                dist[np.isnan(dist)] = 0
                 distances[idx_indiv, :] = dist
 
-            indiv_order = argsort(distances.mean(axis=1))
+            indiv_order = np.argsort(distances.mean(axis=1))
             rank_sorted = [rank[i] for i in indiv_order]
             sorted_ranks.append(rank_sorted[:k])
         else:
             sorted_ranks.append(rank)
+        
+        k -= len(rank)
     
     return sum(sorted_ranks, [])
 
