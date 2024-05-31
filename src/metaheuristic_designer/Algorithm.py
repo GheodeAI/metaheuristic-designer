@@ -51,9 +51,25 @@ class Algorithm(ABC):
         # Stopping conditions
         self.stop_cond = params.get("stop_cond", "time_limit")
         self.stop_cond_parsed = parse_stopping_cond(self.stop_cond)
+        self.stop_cond_used = {
+            "ngen": "ngen" in self.stop_cond,
+            "neval": "neval" in self.stop_cond,
+            "time_limit": "time_limit" in self.stop_cond,
+            "cpu_time_limit": "cpu_time_limit" in self.stop_cond,
+            "fit_target": "fit_target" in self.stop_cond,
+            "convergence": "convergence" in self.stop_cond,
+        }
 
         self.progress_metric = params.get("progress_metric", self.stop_cond)
         self.progress_metric_parsed = parse_stopping_cond(self.progress_metric) if "progress_metric" in params else self.stop_cond_parsed
+        self.progress_metric_used = {
+            "ngen": "ngen" in self.stop_cond,
+            "neval": "neval" in self.stop_cond,
+            "time_limit": "time_limit" in self.stop_cond,
+            "cpu_time_limit": "cpu_time_limit" in self.stop_cond,
+            "fit_target": "fit_target" in self.stop_cond,
+            "convergence": "convergence" in self.stop_cond,
+        }
 
         self.ngen = params.get("ngen", 100)
         self.neval = params.get("neval", 1e5)
@@ -135,6 +151,11 @@ class Algorithm(ABC):
         """
 
         return self.search_strategy.best_solution()
+    
+    def result(self) -> Individual:
+        best_solution_genotype, _ = self.best_solution()
+        return solution_genotype
+
 
     def stopping_condition(self, gen: int, real_time_start: float, cpu_time_start: float) -> bool:
         """
@@ -155,20 +176,38 @@ class Algorithm(ABC):
             Whether the algorithm has reached its end
         """
 
-        neval_reached = self.objfunc.counter >= self.neval
-
-        ngen_reached = gen >= self.ngen
-
-        real_time_reached = time.time() - real_time_start >= self.time_limit
-
-        cpu_time_reached = time.process_time() - cpu_time_start >= self.cpu_time_limit
-
-        if self.objfunc.mode == "max":
-            target_reached = self.best_solution()[1] >= self.fit_target
+        if self.stop_cond_used["neval"]:
+            neval_reached = self.objfunc.counter >= self.neval
         else:
-            target_reached = self.best_solution()[1] <= self.fit_target
+            neval_reached = False
 
-        patience_reached = self.patience_left < 0
+        if self.stop_cond_used["ngen"]:
+            ngen_reached = gen >= self.ngen
+        else:
+            ngen_reached = False
+        
+        if self.stop_cond_used["time_limit"]:
+            real_time_reached = time.time() - real_time_start >= self.time_limit
+        else:
+            real_time_reached = False
+
+        if self.stop_cond_used["cpu_time_limit"]:
+            cpu_time_reached = time.process_time() - cpu_time_start >= self.cpu_time_limit
+        else:
+            cpu_time_reached = False
+
+        if self.stop_cond_used["fit_target"]:
+            if self.objfunc.mode == "max":
+                target_reached = self.best_solution()[1] >= self.fit_target
+            else:
+                target_reached = self.best_solution()[1] <= self.fit_target
+        else:
+            target_reached = False
+
+        if self.stop_cond_used["convergence"]:
+            patience_reached = self.patience_left < 0
+        else:
+            patience_reached = False
 
         return process_condition(
             self.stop_cond_parsed,
@@ -200,30 +239,48 @@ class Algorithm(ABC):
             Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
         """
 
-        neval_reached = self.objfunc.counter / self.neval
-
-        ngen_reached = gen / self.ngen
-
-        real_time_reached = (time.time() - real_time_start) / self.time_limit
-
-        cpu_time_reached = (time.process_time() - cpu_time_start) / self.cpu_time_limit
-
-        best_fitness = self.best_solution()[1]
-
-        # if self.objfunc.mode == "max":
-        #     if self.fit_target == 0:
-        #         self.fit_target = 1e-40
-        #     target_reached = (best_fitness / self.fit_target
-        # else:
-        #     if best_fitness == 0:
-        #         best_fitness = 1e-40
-        #     target_reached = self.fit_target / best_fitness
-        if self.objfunc.mode == "max":
-            target_reached = 1 - (self.best_solution()[1] - self.fit_target) / self.fit_target
+        if self.progress_metric_used["neval"]:
+            neval_reached = self.objfunc.counter / self.neval
         else:
-            target_reached = 1 - (self.fit_target - self.best_solution()[1]) / self.fit_target
+            neval_reached = 0
 
-        patience_prec = 1 - self.patience_left / self.max_patience
+        if self.progress_metric_used["ngen"]:
+            ngen_reached = gen / self.ngen
+        else:
+            ngen_reached = 0
+        
+        if self.progress_metric_used["time_limit"]:
+            real_time_reached = (time.time() - real_time_start) / self.time_limit
+        else:
+            real_time_reached = 0
+
+        if self.progress_metric_used["cpu_time_limit"]:
+            cpu_time_reached = (time.process_time() - cpu_time_start) / self.cpu_time_limit
+        else:
+            cpu_time_reached = 0
+
+        if self.progress_metric_used["fit_target"]:
+            best_fitness = self.best_solution()[1]
+            # if self.objfunc.mode == "max":
+            #     if self.fit_target == 0:
+            #         self.fit_target = 1e-40
+            #     target_reached = (best_fitness / self.fit_target
+            # else:
+            #     if best_fitness == 0:
+            #         best_fitness = 1e-40
+            #     target_reached = self.fit_target / best_fitness
+
+            if self.objfunc.mode == "max":
+                target_reached = 1 - (self.best_solution()[1] - self.fit_target) / self.fit_target
+            else:
+                target_reached = 1 - (self.fit_target - self.best_solution()[1]) / self.fit_target
+        else:
+            target_reached = 0
+
+        if self.progress_metric_used["convergence"]:
+            patience_prec = 1 - self.patience_left / self.max_patience
+        else:
+            patience_reached = 0
 
         return process_progress(
             self.stop_cond_parsed,
@@ -337,7 +394,7 @@ class Algorithm(ABC):
         self.real_time_spent = time.time() - real_time_start
         self.cpu_time_spent = time.process_time() - cpu_time_start
 
-        return self.best_solution()
+        return self.result()
 
     def get_state(
         self,

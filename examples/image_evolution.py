@@ -1,4 +1,4 @@
-from metaheuristic_designer import ObjectiveFunc, ParamScheduler
+from metaheuristic_designer import ObjectiveFunc, ParamScheduler, Individual
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import OperatorReal, OperatorInt, OperatorBinary
 from metaheuristic_designer.strategies import *
@@ -35,18 +35,19 @@ def save_to_image(image, img_name="result.png"):
     Image.fromarray(image.astype(np.uint8)).save(filename)
 
 
-def run_algorithm(alg_name, img_file_name, memetic):
+def run_algorithm(alg_name, img_file_name, memetic, init_img_file=None):
     params = {
         # General
-        "stop_cond": "convergence or time_limit",
+        # "stop_cond": "convergence or time_limit",
+        "stop_cond": "time_limit",
         "progress_metric": "time_limit",
-        "time_limit": 500.0,
+        "time_limit": 100.0,
         "cpu_time_limit": 120.0,
         "ngen": 1000,
         "neval": 3e5,
         "fit_target": 0,
         # "patience": 50,
-        "patience": 200,
+        # "patience": 200,
         "verbose": True,
         "v_timer": 0.5,
         # Parallel
@@ -55,8 +56,12 @@ def run_algorithm(alg_name, img_file_name, memetic):
     }
 
     display = True
-    display_dim = [600, 600]
-    image_shape = [64, 64]
+
+    # display_dim = [600, 600]
+    # image_shape = [64, 64]
+
+    display_dim = [300, 300]
+    image_shape = [24, 24]
 
     if display:
         pygame.init()
@@ -79,6 +84,24 @@ def run_algorithm(alg_name, img_file_name, memetic):
         pop_size=100,
         encoding=encoding,
     )
+
+    init_img_file = "./data/images/dog2.jpg"
+    
+
+    if init_img_file is not None:
+        init_img = Image.open(init_img_file)
+        init_img = init_img.resize(image_shape)
+        init_img = np.asarray(init_img)[:, :, :3].astype(np.uint8)
+        init_population = [
+            Individual(
+                objfunc,
+                encoding.encode(np.asarray(init_img)[:, :, :3])
+                + np.random.normal(0, 2, np.asarray(init_img)[:, :, :3].size),
+                encoding=encoding,
+            )
+            for i in range(100)
+        ]
+        pop_initializer = DirectInitializer(pop_initializer, init_population, encoding=encoding)
 
     mutation_op = OperatorReal("MutNoise", {"distrib": "Uniform", "min": -20, "max": 20, "N": 15})
     cross_op = OperatorReal("Multipoint")

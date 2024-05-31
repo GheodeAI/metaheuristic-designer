@@ -16,6 +16,7 @@ class Individual:
     genotype: Any
     speed: ndarray, optional
     encoding: Encoding, optional
+    individual_id: Encoding, optional
     """
 
     _last_id = 0
@@ -27,12 +28,15 @@ class Individual:
         speed: ndarray = None,
         age: int = 0,
         encoding: Encoding = None,
+        individual_id: int = None, 
     ):
         """
         Constructor of the Individual class.
         """
 
-        self.id = Individual._last_id
+        if individual_id is None:
+            individual_id = Individual._last_id
+        self.id = individual_id
         Individual._last_id += 1
 
         self.age = age
