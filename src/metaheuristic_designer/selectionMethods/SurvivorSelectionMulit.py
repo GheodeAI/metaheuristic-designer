@@ -6,15 +6,9 @@ from ..SelectionMethod import SelectionMethod
 from .survivor_selection_functions import *
 
 
-class SurvSelMethod(Enum):
-    ELITISM = enum.auto()
-    COND_ELITISM = enum.auto()
+class SurvSelMultiMethod(Enum):
     GENERATIONAL = enum.auto()
-    ONE_TO_ONE = enum.auto()
-    PROB_ONE_TO_ONE = enum.auto()
-    MU_PLUS_LAMBDA = enum.auto()
-    MU_COMMA_LAMBDA = enum.auto()
-    CRO = enum.auto()
+    NONDOMSORT = enum.auto()
 
     @staticmethod
     def from_str(str_input):
@@ -27,23 +21,14 @@ class SurvSelMethod(Enum):
 
 
 surv_method_map = {
-    "elitism": SurvSelMethod.ELITISM,
-    "condelitism": SurvSelMethod.COND_ELITISM,
-    "generational": SurvSelMethod.GENERATIONAL,
-    "nothing": SurvSelMethod.GENERATIONAL,
-    "one-to-one": SurvSelMethod.ONE_TO_ONE,
-    "hillclimb": SurvSelMethod.ONE_TO_ONE,
-    "prob-one-to-one": SurvSelMethod.PROB_ONE_TO_ONE,
-    "probhillclimb": SurvSelMethod.PROB_ONE_TO_ONE,
-    "(m+n)": SurvSelMethod.MU_PLUS_LAMBDA,
-    "keepbest": SurvSelMethod.MU_PLUS_LAMBDA,
-    "(m,n)": SurvSelMethod.MU_COMMA_LAMBDA,
-    "keepoffsping": SurvSelMethod.MU_COMMA_LAMBDA,
-    "cro": SurvSelMethod.CRO,
+    "generational": SurvSelMultiMethod.GENERATIONAL,
+    "nothing": SurvSelMultiMethod.GENERATIONAL,
+    "nondom": SurvSelMultiMethod.NONDOMSORT,
+    "non-dominated-sorting": SurvSelMultiMethod.NONDOMSORT,
 }
 
 
-class SurvivorSelection(SelectionMethod):
+class SurvivorSelectionMulti(SelectionMethod):
     """
     Survivor selection methods.
 
@@ -81,36 +66,11 @@ class SurvivorSelection(SelectionMethod):
 
     def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:
         result = []
-        if self.method == SurvSelMethod.ELITISM:
-            result = elitism(popul, offspring, self.params["amount"])
-
-        elif self.method == SurvSelMethod.COND_ELITISM:
-            result = cond_elitism(popul, offspring, self.params["amount"])
-
-        elif self.method == SurvSelMethod.GENERATIONAL:
+        if self.method == SurvSelMethod.GENERATIONAL:
             result = offspring
 
-        elif self.method == SurvSelMethod.ONE_TO_ONE:
-            result = one_to_one(popul, offspring)
-
-        elif self.method == SurvSelMethod.PROB_ONE_TO_ONE:
-            result = prob_one_to_one(popul, offspring, self.params["p"])
-
-        elif self.method == SurvSelMethod.MU_PLUS_LAMBDA:
-            result = lamb_plus_mu(popul, offspring)
-
-        elif self.method == SurvSelMethod.MU_COMMA_LAMBDA:
-            result = lamb_comma_mu(popul, offspring)
-
-        elif self.method == SurvSelMethod.CRO:
-            result = cro_selection(
-                popul,
-                offspring,
-                self.params["Fd"],
-                self.params["Pd"],
-                self.params["attempts"],
-                self.params["maxPopSize"],
-            )
-
+        if self.method == SurvSelMethod.NONDOMSORT:
+            result = non_dominated_sorting(popul, offspring)
+        
         return result
 
