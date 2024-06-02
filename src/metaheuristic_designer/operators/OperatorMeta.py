@@ -106,7 +106,7 @@ class OperatorMeta(Operator):
         elif self.method == MetaOpMethods.SEQUENCE:
             result = population
             for op in self.op_list:
-                result = op(result, population, objfunc, global_best, initializer)
+                result = op(result, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.SPLIT:
             population_copy = deepcopy(population)
@@ -124,7 +124,7 @@ class OperatorMeta(Operator):
 
         return result
     
-    @static
+    @staticmethod
     def _filter_indiv(indiv, mask):
         indiv_copy = copy(indiv)
         indiv_copy.genotype = indiv.genotype[self.mask == idx_op]

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..initializers import UniformVectorInitializer
-from ..operators import OperatorInt, OperatorReal, OperatorBinary
+from ..operators import OperatorVector
 from ..encodings import TypeCastEncoding
 from ..strategies import SA
 from ..algorithms import GeneralAlgorithm
@@ -59,7 +59,7 @@ def _simulated_annealing_bin_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
 
-    mutation_op = OperatorBinary("Flip", {"N": mutstr})
+    mutation_op = OperatorVector("Flip", {"N": mutstr})
 
     search_strat = SA(
         pop_initializer,
@@ -89,7 +89,7 @@ def _simulated_annealing_int_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=int)
 
-    mutation_op = OperatorInt(
+    mutation_op = OperatorVector(
         "MutRand",
         {
             "method": "Uniform",
@@ -127,7 +127,7 @@ def _simulated_annealing_real_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=float)
 
-    mutation_op = OperatorReal("RandNoise", {"method": "Gauss", "F": mutstr})
+    mutation_op = OperatorVector("RandNoise", {"method": "Gauss", "F": mutstr})
 
     search_strat = SA(
         pop_initializer,

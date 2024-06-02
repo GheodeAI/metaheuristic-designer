@@ -24,28 +24,14 @@ class StaticPopulation(SearchStrategy):
         params: ParamScheduler | dict = {},
         name: str = "Static Population Evolution",
     ):
-        self.operator = operator
-
         super().__init__(
             initializer,
+            operator=operator,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             params=params,
             name=name,
         )
-
-    def perturb(self, parent_list, objfunc, **kwargs):
-        offspring = []
-        for indiv in parent_list:
-            # Apply operator
-            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, self.initializer)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
-
-            # Add to offspring list
-            offspring.append(new_indiv)
-
-        return offspring
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)

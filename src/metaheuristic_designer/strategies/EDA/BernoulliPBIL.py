@@ -2,7 +2,7 @@ from __future__ import annotations
 import numpy as np
 import scipy as sp
 from ...Individual import Individual
-from ...operators import OperatorBinary
+from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
@@ -26,7 +26,7 @@ class BernoulliPBIL(VariablePopulation):
     ):
         self.p = params.get("p", None)
 
-        evolve_op = OperatorBinary("RandSample", {"distrib": "bernoulli", "p": self.p})
+        evolve_op = OperatorVector("RandSample", {"distrib": "bernoulli", "p": self.p})
         self.prob_vec_mutate = evolve_op
 
         offspring_size = params.get("offspringSize", initializer.pop_size)
@@ -59,6 +59,6 @@ class BernoulliPBIL(VariablePopulation):
         else:
             self.p = new_p
 
-        self.operator = OperatorBinary("RandSample", {"distrib": "bernoulli", "p": self.p})
+        self.operator = OperatorVector("RandSample", {"distrib": "bernoulli", "p": self.p})
 
         return super().perturb(parent_list, objfunc, **kwargs)

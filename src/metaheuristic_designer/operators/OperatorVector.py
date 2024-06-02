@@ -62,10 +62,10 @@ class VectorOpMethods(Enum):
     def from_str(str_input):
         str_input = str_input.lower()
 
-        if str_input not in real_ops_map:
+        if str_input not in vector_ops_map:
             raise ValueError(f'Vector operator "{str_input}" not defined')
 
-        return real_ops_map[str_input]
+        return vector_ops_map[str_input]
 
 
 vector_ops_map = {
@@ -154,7 +154,7 @@ class OperatorVector(Operator):
                 self.params["Low"] = 0
 
     def evolve(self, population, objfunc, global_best, initializer):
-        new_population = [self.evolve_single(indiv, population, objfunc, global_best, intializer) for indiv in population]
+        new_population = [self.evolve_single(indiv, population, objfunc, global_best, initializer) for indiv in population]
 
         return new_population
 
@@ -309,6 +309,6 @@ class OperatorVector(Operator):
         elif self.method == VectorOpMethods.NOTHING:
             new_indiv = indiv
         
-        new_inidiv.genotype = self.encoding.encode(new_inidiv.genotype)
+        new_indiv.genotype = self.encoding.encode(new_indiv.genotype)
 
         return new_indiv
