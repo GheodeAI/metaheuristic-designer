@@ -1,7 +1,7 @@
 from __future__ import annotations
 import random
 from ..Operator import Operator
-from copy import copy
+from copy import copy, deepcopy
 import numpy as np
 import enum
 from enum import Enum
@@ -92,40 +92,43 @@ class OperatorMeta(Operator):
         if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
             params["weights"] = [params["p"], 1 - params["p"]]
 
-    def evolve(self, indiv, population, objfunc, global_best, initializer=None):
+    def evolve(self, population, objfunc, global_best, initializer):
         if self.method == MetaOpMethods.BRANCH:
             self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
             chosen_op = self.op_list[self.chosen_idx]
-            result = chosen_op(indiv, population, objfunc, global_best, initializer)
+            result = chosen_op(population, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.PICK:
             # the chosen index is assumed to be changed by the user
             chosen_op = self.op_list[self.chosen_idx]
-            result = chosen_op(indiv, population, objfunc, global_best, initializer)
+            result = chosen_op(population, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.SEQUENCE:
-            result = indiv
+            result = population
             for op in self.op_list:
                 result = op(result, population, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.SPLIT:
-            result = copy(indiv)
-            indiv_copy = copy(indiv)
-            global_best_copy = copy(global_best)
-            population_copy = [copy(i) for i in population]
+            population_copy = deepcopy(population)
 
             for idx_op, op in enumerate(self.op_list):
-                if np.any(self.mask == idx_op):
-                    indiv_copy.genotype = indiv.genotype[self.mask == idx_op]
-                    global_best_copy.genotype = global_best.genotype[self.mask == idx_op]
+                idx_mask = self.mask == idx_op
+                if np.any(idx_mask):
+                    filtered_population = [self._filter_indiv(indiv, idx_mask) for indiv in population]
+                    filtered_global_best = self._filter_indiv(global_best, idx_mask)
 
-                    for idx_pop, val in enumerate(population_copy):
-                        val.genotype = population[idx_pop].genotype[self.mask == idx_op]
+                    new_population = op(filtered_population, objfunc, filtered_global_best, initializer)
 
-                    aux_indiv = op(indiv_copy, population_copy, objfunc, global_best, initializer)
-                    result.genotype[self.mask == idx_op] = aux_indiv.genotype
+                    for indiv, new_indiv in zip(population_copy, new_population):
+                        indiv.genotype[idx_mask] = new_indiv.genotype
 
         return result
+    
+    @static
+    def _filter_indiv(indiv, mask):
+        indiv_copy = copy(indiv)
+        indiv_copy.genotype = indiv.genotype[self.mask == idx_op]
+        return indiv_copy
 
     def step(self, progress: float):
         super().step(progress)

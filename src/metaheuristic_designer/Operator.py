@@ -1,5 +1,6 @@
 from __future__ import annotations
 from .ParamScheduler import ParamScheduler
+from .encodings import DefaultEncoding
 from abc import ABC, abstractmethod
 
 
@@ -15,11 +16,13 @@ class Operator(ABC):
         Dictionary of parameters to define the operator.
     name: str, optional
         Name that is associated with the operator.
+    encoding: Encoding, optional
+        Postprocessing to the operator output.
     """
 
     _last_id = 0
 
-    def __init__(self, params: ParamScheduler | dict = None, name: str = None):
+    def __init__(self, params: ParamScheduler | dict = None, name: str = None, encoding: Encoding = None):
         """
         Constructor for the Operator class.
         """
@@ -30,6 +33,10 @@ class Operator(ABC):
         self.param_scheduler = None
 
         self.name = name
+
+        if encoding is None:
+            encoding = DefaultEncoding()
+        self.encoding = encoding
 
         if params is None:
             self.params = {}
@@ -71,17 +78,16 @@ class Operator(ABC):
 
     def __call__(
         self,
-        solution: Individual,
         population: List[Individual],
         objfunc: ObjectiveFunc,
         global_best: Individual,
         initializer: Initializer,
-    ) -> Individual:
+    ) -> List[Individual]:
         """
         A shorthand for calling the 'evolve' method.
         """
 
-        return self.evolve(solution, population, objfunc, global_best, initializer)
+        return self.evolve(population, objfunc, global_best, initializer)
 
     def step(self, progress: float):
         """
@@ -122,12 +128,11 @@ class Operator(ABC):
     @abstractmethod
     def evolve(
         self,
-        indiv: Individual,
         population: List[Individual],
         objfunc: ObjectiveFunc,
         global_best: Individual,
         initializer: Initializer,
-    ) -> Individual:
+    ) -> List[Individual]:
         """
         Evolves an individual using a given strategy.
 

@@ -34,5 +34,5 @@ class OperatorNull(Operator):
 
         super().__init__({}, name)
 
-    def evolve(self, indiv, *args):
-        return indiv
+    def evolve(self, population, *args):
+        return population
