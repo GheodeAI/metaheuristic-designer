@@ -29,6 +29,8 @@ class CRO_SL(SearchStrategy):
         self.operator_list = operator_list
         self.operator_idx = [i % len(operator_list) for i in range(initializer.pop_size)]
 
+        self.operator = OperatorMeta("Branch", operator_list)
+
         self.survivor_sel = SurvivorSelection(
             "CRO",
             {
@@ -48,7 +50,7 @@ class CRO_SL(SearchStrategy):
             op = self.operator_list[op_idx]
 
             # Apply operator
-            new_indiv = op(indiv, parent_list, objfunc, self.best, self.initializer)
+            new_indiv = op.evolve_single(indiv, parent_list, objfunc, self.best, self.initializer)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 

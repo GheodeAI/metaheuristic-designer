@@ -32,9 +32,7 @@ class LocalSearch(SearchStrategy):
         offspring = indiv_list
         for i in range(self.iterations):
             offspring = self.operator(offspring, objfunc, self.best, self.initializer)
-            for indiv in offspring:
-                indiv.genotype = objfunc.repair_solution(indiv.genotype)
-                indiv.speed = objfunc.repair_speed(indiv.speed)
+            offspring = self.repair_population(offspring, objfunc)
 
         return offspring
 

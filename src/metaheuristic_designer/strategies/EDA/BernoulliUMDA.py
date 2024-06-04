@@ -26,7 +26,6 @@ class BernoulliUMDA(VariablePopulation):
         self.p = params.get("p", 0.5)
 
         evolve_op = OperatorVector("RandSample", {"distrib": "Bernoulli", "p": self.p})
-
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
         self.noise = params.get("noise", 0)

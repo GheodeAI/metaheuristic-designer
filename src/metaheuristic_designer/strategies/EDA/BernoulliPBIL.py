@@ -27,8 +27,6 @@ class BernoulliPBIL(VariablePopulation):
         self.p = params.get("p", None)
 
         evolve_op = OperatorVector("RandSample", {"distrib": "bernoulli", "p": self.p})
-        self.prob_vec_mutate = evolve_op
-
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
         self.lr = params.get("lr")

@@ -210,11 +210,17 @@ class SearchStrategy(ABC):
         """
 
         offspring = self.operator(parent_list, objfunc, self.best, self.initializer)
+        offsprint = self.repair_population(offspring, objfunc)
+        
+        return offspring
+    
+    def repair_population(self, population: List[Individual], objfunc: ObjectiveFunc) -> List[Individual]:
         for indiv in offspring:
             indiv.genotype = objfunc.repair_solution(indiv.genotype)
             indiv.speed = objfunc.repair_speed(indiv.speed)
         
-        return offspring
+
+
 
     def select_individuals(self, population: List[Individual], offspring: List[Individual], **kwargs) -> List[Individual]:
         """

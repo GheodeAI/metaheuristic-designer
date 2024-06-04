@@ -134,6 +134,36 @@ class Operator(ABC):
         initializer: Initializer,
     ) -> List[Individual]:
         """
+        Evolves an population using a given strategy.
+
+        Parameters
+        ----------
+        indiv: Individual
+            Individual to be operated on.
+        population: List[Individual]
+            The population that will be used in crossing operations.
+        objfunc: ObjectiveFunc
+            The objective function being optimized.
+        global_best: Individual
+            The best individual found during the optimization of the algorithm
+        initializer: Initializer
+            The population initializer of the algorithm (used for randomly generating individuals).
+
+        Returns
+        -------
+        new_individual: Individual
+            The modified individual.
+        """
+    
+    def evolve_single(
+        self,
+        indiv: Individual,
+        population: List[Individual],
+        objfunc: ObjectiveFunc,
+        global_best: Individual,
+        initializer: Initializer,
+    ) -> Individual:
+        """
         Evolves an individual using a given strategy.
 
         Parameters

@@ -42,17 +42,6 @@ class RVNS(SearchStrategy):
 
         super().__init__(initializer, params=params, name=name)
 
-    def perturb(self, indiv_list, objfunc, **kwargs):
-        offspring = []
-        for indiv in indiv_list:
-            # Perturb individual
-            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.initializer)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-
-            offspring.append(new_indiv)
-
-        return offspring
-
     def select_individuals(self, population, offspring, **kwargs):
         new_population = self.selection_op(population, offspring)
 

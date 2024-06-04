@@ -28,8 +28,6 @@ class GaussianPBIL(VariablePopulation):
         self.scale = params.get("scale", 1)
 
         evolve_op = OperatorVector("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
-        self.prob_vec_mutate = evolve_op
-
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
         self.lr = params.get("lr")
