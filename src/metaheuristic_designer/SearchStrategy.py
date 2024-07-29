@@ -209,18 +209,16 @@ class SearchStrategy(ABC):
             The list of individuals modified by the operators of the search strategy.
         """
 
-        offspring = self.operator(parent_list, objfunc, self.best, self.initializer)
-        offsprint = self.repair_population(offspring, objfunc)
+        offspring = self.operator.evolve(parent_list, objfunc, self.best, self.initializer)
+        offspring = self.repair_population(offspring, objfunc)
         
         return offspring
     
     def repair_population(self, population: List[Individual], objfunc: ObjectiveFunc) -> List[Individual]:
-        for indiv in offspring:
+        for indiv in population:
             indiv.genotype = objfunc.repair_solution(indiv.genotype)
             indiv.speed = objfunc.repair_speed(indiv.speed)
-        
-
-
+        return population
 
     def select_individuals(self, population: List[Individual], offspring: List[Individual], **kwargs) -> List[Individual]:
         """

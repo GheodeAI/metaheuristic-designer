@@ -30,17 +30,19 @@ def run_algorithm(alg_name, memetic, save_state):
         "v_timer": 0.5,
     }
 
-    # objfunc = Sphere(30, "min")
+    objfunc = Sphere(30, "min")
     # objfunc = Rastrigin(30, "min")
-    objfunc = Rosenbrock(30, "min")
+    # objfunc = Rosenbrock(2, "min")
     # objfunc = Weierstrass(30, "min")
+
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
     parent_params = ParamScheduler("Linear", {"amount": 20})
     # select_params = ParamScheduler("Linear")
 
-    mut_params = ParamScheduler("Linear", {"distrib": "Cauchy", "F": [0.01, 0.00001]})
-    mutation_op = OperatorVector("RandNoise", mut_params)
+    # mut_params = ParamScheduler("Linear", {"distrib": "Cauchy", "F": [0.01, 0.00001]})
+    # mutation_op = OperatorVector("RandNoise", mut_params)
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "F": 1e-3, "N": 1})
 
     cross_op = OperatorVector("Multipoint")
 
@@ -135,20 +137,23 @@ def run_algorithm(alg_name, memetic, save_state):
         }
         search_strat = DPCRO_SL(pop_initializer, op_list, search_strat_params)
     elif alg_name == "RVNS":
+        pop_initializer.pop_size = 1
         search_strat = RVNS(pop_initializer, neighborhood_structures)
     elif alg_name == "VND":
+        pop_initializer.pop_size = 1
         search_strat = VND(pop_initializer, neighborhood_structures)
     elif alg_name == "VNS":
+        pop_initializer.pop_size = 1
         local_search = LocalSearch(pop_initializer, params={"iters": 100})
+        # local_search = HillClimb(pop_initializer)
         search_strat = VNS(
-            pop_initializer,
-            neighborhood_structures,
-            local_search,
+            initializer=pop_initializer,
+            op_list=neighborhood_structures,
+            local_search=local_search,
             params={"iters": 100, "nchange": "seq"},
         )
-        # local_search = HillClimb(pop_initializer)
-        # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
     elif alg_name == "GVNS":
+        pop_initializer.pop_size = 1
         local_search = VND(pop_initializer, neighborhood_structures, params={"nchange": "cyclic"})
         search_strat = VNS(
             pop_initializer,
@@ -156,8 +161,6 @@ def run_algorithm(alg_name, memetic, save_state):
             local_search,
             params={"iters": 100, "nchange": "seq"},
         )
-        # local_search = HillClimb(pop_initializer)
-        # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
     elif alg_name == "RandomSearch":
         search_strat = RandomSearch(pop_initializer)
     elif alg_name == "NoSearch":
@@ -181,7 +184,7 @@ def run_algorithm(alg_name, memetic, save_state):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
+    parser.add_argument("-a", "--algorithm", dest="algorithm", help="Specify an algorithm", default="ES")
     parser.add_argument(
         "-m",
         "--memetic",
@@ -198,20 +201,7 @@ def main():
     )
     args = parser.parse_args()
 
-    algorithm_name = "ES"
-    mem = False
-    save_state = False
-
-    if args.alg:
-        algorithm_name = args.alg
-
-    if args.mem:
-        mem = True
-
-    if args.save_state:
-        save_state = True
-
-    run_algorithm(alg_name=algorithm_name, memetic=mem, save_state=save_state)
+    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state)
 
 
 if __name__ == "__main__":

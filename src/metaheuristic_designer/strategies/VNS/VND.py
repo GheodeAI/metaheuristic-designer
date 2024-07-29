@@ -53,13 +53,8 @@ class VND(SearchStrategy):
     def perturb(self, indiv_list, objfunc, **kwargs):
         next_indiv_list = copy(indiv_list)
         for _ in range(self.iterations):
-            offspring = []
-            for indiv in indiv_list:
-                # Perturb individual
-                new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.initializer)
-                new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-
-                offspring.append(new_indiv)
+            offspring = self.perturb_op(indiv_list, objfunc, self.best, self.initializer)
+            offspring = self.repair_population(offspring, objfunc)
 
             # Keep best individual regardless of selection method
             current_best = max(offspring, key=lambda x: x.fitness)

@@ -36,3 +36,6 @@ class OperatorNull(Operator):
 
     def evolve(self, population, *args):
         return population
+    
+    def evolve_single(self, individual, *args):
+        return individual

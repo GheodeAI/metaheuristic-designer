@@ -100,7 +100,7 @@ def _evolution_strategy_int_vec(params, objfunc):
     mutation_op = OperatorVector(
         "MutRand",
         {
-            "method": "Uniform",
+            "distrib": "Uniform",
             "Low": objfunc.low_lim,
             "Up": objfunc.up_lim,
             "N": mutstr,
@@ -141,7 +141,7 @@ def _evolution_strategy_real_vec(params, objfunc):
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
     cross_op = OperatorVector("Nothing")
-    mutation_op = OperatorVector("RandNoise", {"method": "Gauss", "F": mutstr})
+    mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss", "F": mutstr})
     parent_sel_op = ParentSelection("Nothing")
     selection_op = SurvivorSelection("(m+n)")
 

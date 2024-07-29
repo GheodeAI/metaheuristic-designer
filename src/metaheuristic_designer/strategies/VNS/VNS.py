@@ -5,7 +5,7 @@ from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
 from ...operators import OperatorMeta
-from ...selectionMethods import SurvivorSelection
+from ...selectionMethods import SurvivorSelection, ParentSelectionNull
 from .vns_neighborhood_changes import *
 
 
@@ -19,22 +19,20 @@ class VNS(SearchStrategy):
         initializer: Initializer,
         op_list: List[Operator],
         local_search: Algorithm,
-        selection_op: SurvivorSelection = None,
+        survivor_sel: SurvivorSelection = None,
         params: ParamScheduler | dict = {},
+        inner_loop_params: ParamScheduler | dict = {},
         name: str = "VNS",
     ):
         self.iterations = params.get("iters", 100)
 
         self.op_list = op_list
-        self.perturb_op = OperatorMeta("Pick", op_list, {"init_idx": 0})
+        operator = OperatorMeta("Pick", op_list, {"init_idx": 0})
 
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 
         self.local_search = local_search
-
-        if selection_op is None:
-            selection_op = SurvivorSelection("One-to-One")
-        self.selection_op = selection_op
+        self.local_search.population = []
 
         if initializer.pop_size > 1:
             initializer.pop_size = 1
@@ -43,61 +41,60 @@ class VNS(SearchStrategy):
                 stacklevel=2,
             )
 
-        super().__init__(initializer, params=params, name=name)
+        super().__init__(
+            initializer=initializer,
+            operator=operator,
+            survivor_sel=survivor_sel,
+            params=params,
+            name=name
+        )
 
     def initialize(self, objfunc):
-        super().initialize(objfunc)
+        initial_population = super().initialize(objfunc)
         self.local_search.initialize(objfunc)
 
+        return initial_population
+
     def perturb(self, indiv_list, objfunc, **kwargs):
-        offspring = []
-        for indiv in indiv_list:
-            # Perturb individual
-            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.initializer)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
+        new_population = self.operator(indiv_list, objfunc, self.best, self.initializer)
+        new_population = self.repair_population(new_population, objfunc)
 
-            # Local search
-            population = [new_indiv]
-            self.local_search.perturb_op = self.perturb_op
-            for _ in range(self.iterations):
-                parents, _ = self.local_search.select_parents(population, kwargs)
+        # Local search
+        self.local_search.operator = self.operator
+        for _ in range(self.iterations):
+            parents = self.local_search.select_parents(new_population)
 
-                offspring = self.local_search.perturb(parents, objfunc, kwargs)
+            offspring = self.local_search.perturb(parents, objfunc)
 
-                population = self.local_search.select_individuals(population, offspring, kwargs)
+            new_population = self.local_search.select_individuals(new_population, offspring)
 
-                self.local_search.update_params()
-
-            new_indiv = self.local_search.population[0]
-
-            offspring.append(new_indiv)
-
-        # Keep best individual regardless of selection method
-        current_best = max(offspring, key=lambda x: x.fitness)
-        if self.best.fitness < current_best.fitness:
-            self.best = current_best
+            self.local_search.update_params(**kwargs)
+        
+        offspring = self.local_search.population
+        # print(indiv_list[0].genotype)
+        # print(offspring[0].genotype)
 
         return offspring
 
     def select_individuals(self, population, offspring, **kwargs):
-        new_population = self.selection_op(population, offspring)
+        next_population = super().select_individuals(population, offspring, **kwargs)
 
-        self.perturb_op.chosen_idx = next_neighborhood(offspring[0], population[0], self.perturb_op.chosen_idx, self.nchange)
+        self.operator.chosen_idx = next_neighborhood(offspring[0], population[0], self.operator.chosen_idx, self.nchange)
 
-        return new_population
+        return next_population
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)
 
         progress = kwargs["progress"]
 
-        if isinstance(self.perturb_op, Operator):
-            self.perturb_op.step(progress)
+        if isinstance(self.operator, Operator):
+            self.operator.step(progress)
 
-        if self.perturb_op.chosen_idx >= len(self.op_list) or self.perturb_op.chosen_idx < 0:
-            self.perturb_op.chosen_idx = 0
+        if self.operator.chosen_idx >= len(self.op_list) or self.operator.chosen_idx < 0:
+            self.operator.chosen_idx = 0
 
     def extra_step_info(self):
-        idx = self.perturb_op.chosen_idx
+        idx = self.operator.chosen_idx
 
         print(f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}")

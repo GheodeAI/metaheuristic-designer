@@ -82,7 +82,7 @@ def _hill_climb_int_vec(params, objfunc):
     mutation_op = OperatorVector(
         "MutRand",
         {
-            "method": "Uniform",
+            "distrib": "Uniform",
             "Low": objfunc.low_lim,
             "Up": objfunc.up_lim,
             "N": mutstr,
@@ -110,7 +110,7 @@ def _hill_climb_real_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=float)
 
-    mutation_op = OperatorVector("RandNoise", {"method": "Gauss", "F": mutstr})
+    mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss", "F": mutstr})
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 

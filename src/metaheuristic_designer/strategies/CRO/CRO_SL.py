@@ -5,6 +5,7 @@ from ...selectionMethods import SurvivorSelection
 from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
+from ...operators import OperatorMeta
 
 
 class CRO_SL(SearchStrategy):

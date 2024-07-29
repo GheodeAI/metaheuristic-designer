@@ -149,7 +149,7 @@ def _genetic_algorithm_real_vec(params, objfunc):
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
     cross_op = OperatorVector(cross_method)
-    mutation_op = OperatorVector("RandNoise", {"method": "Gauss", "F": mutstr, "N": 1})
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "F": mutstr, "N": 1})
 
     parent_sel_op = ParentSelection("Best", {"amount": n_parents})
     selection_op = SurvivorSelection("KeepBest")

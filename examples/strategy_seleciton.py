@@ -1,8 +1,8 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler, simple
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm, StrategySelection
-from metaheuristic_designer.operators import OperatorReal, OperatorInt, OperatorBinary
+from metaheuristic_designer.operators import OperatorVector, OperatorNull
 from metaheuristic_designer.initializers import UniformVectorInitializer
-from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
+from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection, ParentSelectionNull
 from metaheuristic_designer.strategies import *
 
 from metaheuristic_designer.benchmarks import *
@@ -21,59 +21,59 @@ def run_algorithm(save_report):
 
     # Define algorithms to be tested
     strategies = [
-        HillClimb(single_initializer, OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}), name="HillClimb-Gauss"),
-        HillClimb(single_initializer, OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 1e-4}), name="HillClimb-Cauchy"),
-        LocalSearch(single_initializer, OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 1e-4}), params={"iters": 20}, name="LocalSearch-Cauchy"),
-        LocalSearch(single_initializer, OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}), params={"iters": 20}, name="LocalSearch-Gauss"),
+        HillClimb(single_initializer, OperatorVector("RandNoise", {"distrib": "Gauss", "F": 1e-4}), name="HillClimb-Gauss"),
+        HillClimb(single_initializer, OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 1e-4}), name="HillClimb-Cauchy"),
+        LocalSearch(single_initializer, OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 1e-4}), params={"iters": 20}, name="LocalSearch-Cauchy"),
+        LocalSearch(single_initializer, OperatorVector("RandNoise", {"distrib": "Gauss", "F": 1e-4}), params={"iters": 20}, name="LocalSearch-Gauss"),
         SA(
             single_initializer,
-            OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
+            OperatorVector("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
             params={"iter": 100, "temp_init": 1, "alpha": 0.997},
             name="SA-Gauss",
         ),
         SA(
             single_initializer,
-            OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 1e-4}),
+            OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 1e-4}),
             params={"iter": 100, "temp_init": 1, "alpha": 0.997},
             name="SA-Cauchy",
         ),
         SA(
             pop_initializer,
-            OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
+            OperatorVector("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
             params={"iter": 100, "temp_init": 1, "alpha": 0.997},
             name="ParallelSA-Gauss",
         ),
         ES(
             pop_initializer,
-            OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
-            OperatorReal("Nothing"),
-            ParentSelection("Nothing"),
+            OperatorVector("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
+            OperatorNull(),
+            ParentSelectionNull(),
             SurvivorSelection("(m+n)"),
             params={"offspringSize": 150},
             name="ES-(100+150)",
         ),
         ES(
             pop_initializer,
-            OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
-            OperatorReal("Nothing"),
-            ParentSelection("Nothing"),
+            OperatorVector("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
+            OperatorNull(),
+            ParentSelectionNull(),
             SurvivorSelection("(m,n)"),
             params={"offspringSize": 400},
             name="ES-(100,400)",
         ),
         GA(
             pop_initializer,
-            OperatorReal("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
-            OperatorReal("Multipoint"),
+            OperatorVector("RandNoise", {"distrib": "Gauss", "F": 1e-4}),
+            OperatorVector("Multipoint"),
             ParentSelection("Tournament", {"amount": 60, "p": 0.1}),
             SurvivorSelection("Elitism", {"amount": 10}),
             params={"pcross": 0.8, "pmut": 0.1},
             name="GA",
         ),
         PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5}, name="PSO"),
-        DE(pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8}), name="DE/best/1"),
-        DE(pop_initializer, OperatorReal("DE/rand/1", {"F": 0.8, "Cr": 0.8}), name="DE/rand/1"),
-        DE(pop_initializer, OperatorReal("DE/current-to-best/1", {"F": 0.8, "Cr": 0.8}), name="DE/current-to-best/1"),
+        DE(pop_initializer, OperatorVector("DE/best/1", {"F": 0.8, "Cr": 0.8}), name="DE/best/1"),
+        DE(pop_initializer, OperatorVector("DE/rand/1", {"F": 0.8, "Cr": 0.8}), name="DE/rand/1"),
+        DE(pop_initializer, OperatorVector("DE/current-to-best/1", {"F": 0.8, "Cr": 0.8}), name="DE/current-to-best/1"),
         RandomSearch(pop_initializer),
     ]
 
@@ -85,7 +85,7 @@ def run_algorithm(save_report):
             "neval": 1e4,
             "verbose": False,
         },
-        params={"verbose": False, "repetitions": 10},
+        params={"verbose": True, "repetitions": 10},
     )
 
     solution, best_fitness, report = algorithm_search.optimize()
