@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..initializers import UniformVectorInitializer
-from ..operators import OperatorInt, OperatorReal, OperatorBinary
+from ..operators import OperatorVector
 from ..selectionMethods import SurvivorSelection, ParentSelection
 from ..encodings import TypeCastEncoding
 from ..strategies import GA
@@ -62,8 +62,8 @@ def _genetic_algorithm_bin_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
 
-    cross_op = OperatorBinary(cross_method)
-    mutation_op = OperatorBinary("Flip", {"N": mutstr})
+    cross_op = OperatorVector(cross_method)
+    mutation_op = OperatorVector("Flip", {"N": mutstr})
 
     parent_sel_op = ParentSelection("Best", {"amount": n_parents})
     selection_op = SurvivorSelection("KeepBest")
@@ -101,8 +101,8 @@ def _genetic_algorithm_int_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=int)
 
-    cross_op = OperatorInt(cross_method)
-    mutation_op = OperatorInt(
+    cross_op = OperatorVector(cross_method)
+    mutation_op = OperatorVector(
         "MutRand",
         {
             "distrib": "Uniform",
@@ -148,8 +148,8 @@ def _genetic_algorithm_real_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
-    cross_op = OperatorReal(cross_method)
-    mutation_op = OperatorReal("RandNoise", {"method": "Gauss", "F": mutstr, "N": 1})
+    cross_op = OperatorVector(cross_method)
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "F": mutstr, "N": 1})
 
     parent_sel_op = ParentSelection("Best", {"amount": n_parents})
     selection_op = SurvivorSelection("KeepBest")

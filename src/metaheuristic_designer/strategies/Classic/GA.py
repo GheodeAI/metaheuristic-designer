@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Union
 import numpy as np
-from ...operators import OperatorReal, OperatorMeta, OperatorNull
+from ...operators import OperatorMeta, OperatorNull
 from ..VariablePopulation import VariablePopulation
 
 

@@ -9,6 +9,7 @@ from .selectionMethods import (
     ParentSelectionNull,
 )
 from .Operator import Operator
+from .operators import OperatorNull
 from multiprocessing import Pool
 
 
@@ -37,6 +38,7 @@ class SearchStrategy(ABC):
     def __init__(
         self,
         initializer: Initializer = None,
+        operator: Operator = None,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
         params: ParamScheduler | dict = None,
@@ -48,6 +50,10 @@ class SearchStrategy(ABC):
 
         self.name = name
         self._initializer = initializer
+
+        if operator is None:
+            operator = OperatorNull()
+        self.operator = operator
 
         if parent_sel is None:
             parent_sel = ParentSelectionNull()
@@ -186,7 +192,6 @@ class SearchStrategy(ABC):
 
         return self.parent_sel(population)
 
-    @abstractmethod
     def perturb(self, parent_list: List[Individual], objfunc: ObjectiveFunc, **kwargs) -> List[Individual]:
         """
         Applies operators to the population to get the next generation of individuals.
@@ -203,6 +208,17 @@ class SearchStrategy(ABC):
         offspring: List[Individual]
             The list of individuals modified by the operators of the search strategy.
         """
+
+        offspring = self.operator.evolve(parent_list, objfunc, self.best, self.initializer)
+        offspring = self.repair_population(offspring, objfunc)
+        
+        return offspring
+    
+    def repair_population(self, population: List[Individual], objfunc: ObjectiveFunc) -> List[Individual]:
+        for indiv in population:
+            indiv.genotype = objfunc.repair_solution(indiv.genotype)
+            indiv.speed = objfunc.repair_speed(indiv.speed)
+        return population
 
     def select_individuals(self, population: List[Individual], offspring: List[Individual], **kwargs) -> List[Individual]:
         """

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ...operators import OperatorReal
+from ...operators import OperatorVector
 from ..HillClimb import HillClimb
 
 
@@ -9,5 +9,5 @@ class RandomSearch(HillClimb):
     """
 
     def __init__(self, initializer, name="RandomSearch"):
-        random_op = OperatorReal("Random")
+        random_op = OperatorVector("Random")
         super().__init__(initializer, random_op, name=name)
