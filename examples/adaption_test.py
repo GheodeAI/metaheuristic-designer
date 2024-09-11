@@ -1,6 +1,6 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import OperatorReal, OperatorAdaptative
+from metaheuristic_designer.operators import OperatorVector, OperatorAdaptative
 from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.encodings import AdaptionEncoding
@@ -42,19 +42,19 @@ def run_algorithm(alg_name, memetic, save_state):
     # objfunc = Weierstrass(30, "min")
     # objfunc = HappyCat(3, "min")
 
-    # mutation_op = OperatorReal("RandNoise", {"distrib": "Gauss"})
-    mutation_op = OperatorReal("MutNoise", {"distrib": "Gauss", "N": 1})
+    # mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss"})
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "N": 1})
 
-    param_op = OperatorReal("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
+    param_op = OperatorVector("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
     adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=1)
-    # param_op = OperatorReal("MutateNSigmas", {"tau": 1/np.sqrt(2+objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
+    # param_op = OperatorVector("MutateNSigmas", {"tau": 1/np.sqrt(2+objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
     # adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=objfunc.vecsize)
 
     ada_mutation_op = OperatorAdaptative(mutation_op, param_op, adaption_encoding)
 
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding)
 
-    cross_op = OperatorReal("Multipoint")
+    cross_op = OperatorVector("Multipoint")
 
     parent_sel_op = ParentSelection("Nothing")
     selection_op = SurvivorSelection("(m+n)")
@@ -75,7 +75,7 @@ def run_algorithm(alg_name, memetic, save_state):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
+    parser.add_argument("-a", "--algorithm", dest="algorithm", help="Specify an algorithm", default="ES")
     parser.add_argument(
         "-m",
         "--memetic",
@@ -92,20 +92,7 @@ def main():
     )
     args = parser.parse_args()
 
-    algorithm_name = "ES"
-    mem = False
-    save_state = False
-
-    if args.alg:
-        algorithm_name = args.alg
-
-    if args.mem:
-        mem = True
-
-    if args.save_state:
-        save_state = True
-
-    run_algorithm(alg_name=algorithm_name, memetic=mem, save_state=save_state)
+    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state)
 
 
 if __name__ == "__main__":

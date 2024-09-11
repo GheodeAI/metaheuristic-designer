@@ -5,13 +5,13 @@ from ...selectionMethods import (
     SurvivorSelection,
     SurvivorSelectionNull,
 )
-from ...operators import OperatorReal
+from ...operators import OperatorVector
 from ..StaticPopulation import StaticPopulation
 
 
 class CrossEntropyMethod(StaticPopulation):
     def __init__(self, initializer, params={}, name="CrossEntropyMethod"):
-        operator = OperatorReal(
+        operator = OperatorVector(
             "RandSample",
             {"distrib": "Normal", "loc": "calculated", "scale": "calculated"},
         )

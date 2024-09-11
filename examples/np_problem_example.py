@@ -2,9 +2,7 @@ from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.encodings import TypeCastEncoding
 from metaheuristic_designer.operators import (
-    OperatorReal,
-    OperatorInt,
-    OperatorBinary,
+    OperatorVector,
     OperatorPerm,
 )
 from metaheuristic_designer.initializers import (
@@ -157,18 +155,18 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         # select_params = ParamScheduler("Linear")
 
         mut_params = ParamScheduler("Linear", {"N": [10, 1]})
-        mutation_op = OperatorBinary("Flip", mut_params)
+        mutation_op = OperatorVector("Flip", mut_params)
 
-        cross_op = OperatorBinary("Multipoint")
+        cross_op = OperatorVector("Multipoint")
 
         op_list = [
-            OperatorBinary("Flip", {"N": 2}),
-            OperatorBinary("1point"),
-            OperatorBinary("Multipoint"),
-            OperatorBinary("MutSample", {"distrib": "Bernoulli", "p": 0.2, "N": 2}),
+            OperatorVector("Flip", {"N": 2}),
+            OperatorVector("1point"),
+            OperatorVector("Multipoint"),
+            OperatorVector("MutSample", {"distrib": "Bernoulli", "p": 0.2, "N": 2}),
         ]
 
-        neighborhood_structures = [OperatorBinary("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
+        neighborhood_structures = [OperatorVector("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
 
     elif problem_name == "3SAT":
         objfunc = ThreeSAT.from_cnf_file("./data/sat_examples/uf50-03.cnf")
@@ -180,18 +178,18 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         # select_params = ParamScheduler("Linear")
 
         mut_params = ParamScheduler("Linear", {"N": [10, 1]})
-        mutation_op = OperatorBinary("Flip", mut_params)
+        mutation_op = OperatorVector("Flip", mut_params)
 
-        cross_op = OperatorBinary("Multipoint")
+        cross_op = OperatorVector("Multipoint")
 
         op_list = [
-            OperatorBinary("Flip", {"N": 2}),
-            OperatorBinary("1point"),
-            OperatorBinary("Multipoint"),
-            OperatorBinary("MutSample", {"distrib": "Bernoulli", "p": 0.2, "N": 2}),
+            OperatorVector("Flip", {"N": 2}),
+            OperatorVector("1point"),
+            OperatorVector("Multipoint"),
+            OperatorVector("MutSample", {"distrib": "Bernoulli", "p": 0.2, "N": 2}),
         ]
 
-        neighborhood_structures = [OperatorBinary("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
+        neighborhood_structures = [OperatorVector("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
     elif problem_name == "MaxClique":
         g = nx.gnp_random_graph(100, 0.8)
         adj_mat = nx.adjacency_matrix(g).todense()
@@ -227,7 +225,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
     selection_op = SurvivorSelection("(m+n)")
 
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorBinary("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
+    neihbourhood_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
 
     if alg_name == "HillClimb":
@@ -245,26 +243,26 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         )
     elif alg_name == "ES":
         search_strat = ES(
-            pop_initializer,
-            mutation_op,
-            cross_op,
-            parent_sel_op,
-            selection_op,
+            initializer=pop_initializer,
+            mutation_op=mutation_op,
+            cross_op=cross_op,
+            parent_sel=parent_sel_op,
+            survivor_sel=selection_op,
             params={"offspringSize": 150},
         )
     elif alg_name == "GA":
         search_strat = GA(
-            pop_initializer,
-            mutation_op,
-            cross_op,
-            parent_sel_op,
-            selection_op,
+            initializer=pop_initializer,
+            mutation_op=mutation_op,
+            cross_op=cross_op,
+            parent_sel=parent_sel_op,
+            survivor_sel=selection_op,
             params={"pcross": 0.8, "pmut": 0.2},
         )
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, params={"HMCR": 0.8, "BW": 0.5, "PAR": 0.2})
     elif alg_name == "DE":
-        search_strat = DE(pop_initializer, OperatorReal("DE/best/1", params={"F": 0.8, "Cr": 0.8}))
+        search_strat = DE(pop_initializer, OperatorVector("DE/best/1", params={"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, params={"w": 0.7, "c1": 1.5, "c2": 1.5})
     elif alg_name == "BernoulliUMDA":

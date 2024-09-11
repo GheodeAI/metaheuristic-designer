@@ -72,7 +72,12 @@ class OperatorPerm(Operator):
 
         self.method = PermOpMethods.from_str(method)
 
-    def evolve(self, indiv, population, objfunc, global_best, initializer):
+    def evolve(self, population, objfunc, global_best, initializer):
+        new_population = [self.evolve_single(indiv, population, objfunc, global_best, intializer) for indiv in population]
+
+        return new_population
+
+    def evolve_single(self, indiv, population, objfunc, global_best, initializer):
         new_indiv = copy(indiv)
         others = [i for i in population if i != indiv]
         if len(others) == 0:
