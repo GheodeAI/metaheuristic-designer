@@ -6,6 +6,7 @@ from ..SearchStrategy import SearchStrategy
 from ..Operator import Operator
 from ..operators import OperatorNull
 from ..selectionMethods import SurvivorSelection
+import collections
 
 
 class HillClimb(SearchStrategy):
@@ -21,29 +22,10 @@ class HillClimb(SearchStrategy):
         params: ParamScheduler | dict = {},
         name: str = "HillClimb",
     ):
-        if operator is None:
-            operator = OperatorNull()
-        self.operator = operator
-
         if survivor_sel is None:
             survivor_sel = SurvivorSelection("HillClimb")
 
-        super().__init__(initializer, survivor_sel=survivor_sel, params=params, name=name)
-
-    def perturb(self, indiv_list, objfunc, **kwargs):
-        offspring = []
-        for indiv in indiv_list:
-            # Perturb individual
-            new_indiv = self.operator(indiv, indiv_list, objfunc, self.best, self.initializer)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
-
-            offspring.append(new_indiv)
-
-        return offspring
-
-    def select_individuals(self, population, offspring, **kwargs):
-        return self.survivor_sel(population, offspring)
+        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name)
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)

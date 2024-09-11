@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
 import scipy as sp
-from ...operators import OperatorReal, OperatorBinary
+from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
@@ -26,8 +26,7 @@ class GaussianUMDA(VariablePopulation):
         self.loc = params.get("loc", 0)
         self.scale = params.get("scale", 1)
 
-        evolve_op = OperatorReal("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
-
+        evolve_op = OperatorVector("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
         self.noise = params.get("noise", 0)
@@ -52,6 +51,6 @@ class GaussianUMDA(VariablePopulation):
         self.loc = self._batch_fit(parent_list)
         self.loc += RAND_GEN.normal(0, self.noise, size=self.loc.shape)
 
-        self.operator = OperatorReal("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
+        self.operator = OperatorVector("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
 
         return super().perturb(parent_list, objfunc, **kwargs)

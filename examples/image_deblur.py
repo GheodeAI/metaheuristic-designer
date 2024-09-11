@@ -232,25 +232,12 @@ def run_algorithm(alg_name, img_file_name, memetic):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
-    parser.add_argument("-i", "--image", dest="img", help="Specify an image as reference")
+    parser.add_argument("-a", "--algorithm", dest="algorithm", help="Specify an algorithm", default="SA")
+    parser.add_argument("-i", "--image", dest="img", help="Specify an image as reference", default="data/images/cat.png")
     parser.add_argument("-m", "--memetic", dest="mem", action="store_true", help="Specify an algorithm")
     args = parser.parse_args()
 
-    algorithm_name = "SA"
-    img_file_name = "data/images/cat_blurry.png"
-    mem = False
-
-    if args.alg:
-        algorithm_name = args.alg
-
-    if args.img:
-        img_file_name = args.img
-
-    if args.mem:
-        mem = True
-
-    run_algorithm(alg_name=algorithm_name, img_file_name=img_file_name, memetic=mem)
+    run_algorithm(alg_name=args.algorithm, img_file_name=args.img, memetic=args.mem)
 
 
 if __name__ == "__main__":

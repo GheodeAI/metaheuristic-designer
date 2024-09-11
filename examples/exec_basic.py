@@ -1,6 +1,6 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import OperatorReal, OperatorInt, OperatorBinary
+from metaheuristic_designer.operators import OperatorVector
 from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.strategies import *
@@ -19,46 +19,54 @@ def run_algorithm(alg_name, memetic, save_state):
         # "stop_cond": "neval or time_limit or fit_target",
         # "stop_cond": "neval or time_limit",
         "stop_cond": "convergence or time_limit",
+        # "stop_cond": "time_limit",
         "progress_metric": "time_limit",
-        "time_limit": 100.0,
+        # "time_limit": 100.0,
+        # "time_limit": 20.0,
+        "time_limit": 2000.0,
         "cpu_time_limit": 100.0,
         "ngen": 1000,
         "neval": 3e6,
         "fit_target": 1e-10,
-        "patience": 200,
+        "patience": 500,
         "verbose": True,
-        "v_timer": 0.5,
+        # "v_timer": 0.5,
+        "v_timer": 0.05,
     }
 
     # objfunc = Sphere(30, "min")
-    # objfunc = Rastrigin(30, "min")
-    objfunc = Rosenbrock(30, "min")
+    objfunc = Rastrigin(3, "min")
+    # objfunc = Rosenbrock(2, "min")
     # objfunc = Weierstrass(30, "min")
+
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
     parent_params = ParamScheduler("Linear", {"amount": 20})
     # select_params = ParamScheduler("Linear")
 
-    mut_params = ParamScheduler("Linear", {"distrib": "Cauchy", "F": [0.01, 0.00001]})
-    mutation_op = OperatorReal("RandNoise", mut_params)
+    # mut_params = ParamScheduler("Linear", {"distrib": "Cauchy", "F": [0.01, 0.00001]})
+    # mutation_op = OperatorVector("RandNoise", mut_params)
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "F": 1e-3, "N": 1})
 
-    cross_op = OperatorReal("Multipoint")
+    cross_op = OperatorVector("Multipoint")
 
     DEparams = {"F": 0.7, "Cr": 0.8}
     op_list = [
-        OperatorReal("DE/rand/1", DEparams),
-        OperatorReal("DE/best/2", DEparams),
-        OperatorReal("DE/current-to-best/1", DEparams),
-        OperatorReal("DE/current-to-rand/1", DEparams),
+        OperatorVector("DE/rand/1", DEparams),
+        OperatorVector("DE/best/2", DEparams),
+        OperatorVector("DE/current-to-best/1", DEparams),
+        OperatorVector("DE/current-to-rand/1", DEparams),
     ]
 
-    neighborhood_structures = [OperatorReal("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 0, base=10, num=80)]
+    # neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 0, base=10, num=80)]
+    neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-5, 0, base=10, num=80)]
+    # neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-4, 1, base=10, num=80)]
 
     parent_sel_op = ParentSelection("Best", parent_params)
     selection_op = SurvivorSelection("(m+n)")
 
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
+    neihbourhood_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
 
     if alg_name == "HillClimb":
@@ -91,7 +99,7 @@ def run_algorithm(alg_name, memetic, save_state):
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, {"HMCR": 0.8, "BW": 0.5, "PAR": 0.2})
     elif alg_name == "DE":
-        search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8}))
+        search_strat = DE(pop_initializer, OperatorVector("DE/best/1", {"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5})
     elif alg_name == "GaussianUMDA":
@@ -135,29 +143,42 @@ def run_algorithm(alg_name, memetic, save_state):
         }
         search_strat = DPCRO_SL(pop_initializer, op_list, search_strat_params)
     elif alg_name == "RVNS":
+        pop_initializer.pop_size = 1
         search_strat = RVNS(pop_initializer, neighborhood_structures)
     elif alg_name == "VND":
+        pop_initializer.pop_size = 1
         search_strat = VND(pop_initializer, neighborhood_structures)
     elif alg_name == "VNS":
-        local_search = LocalSearch(pop_initializer, params={"iters": 100})
-        search_strat = VNS(
-            pop_initializer,
-            neighborhood_structures,
-            local_search,
-            params={"iters": 100, "nchange": "seq"},
-        )
+        pop_initializer.pop_size = 1
+        local_search = LocalSearch(pop_initializer, mutation_op, params={"iters": 200})
         # local_search = HillClimb(pop_initializer)
-        # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
+        search_strat = VNS(
+            initializer=pop_initializer,
+            op_list=neighborhood_structures,
+            local_search_strategy=local_search,
+            params={"nchange": "seq"},
+            inner_loop_params={
+                "stop_cond": "convergence",
+                "patience": 3,
+                "verbose": params['verbose'],
+                "v_timer": params['v_timer'],
+            },
+        )
+        params['patience'] = 80
     elif alg_name == "GVNS":
-        local_search = VND(pop_initializer, neighborhood_structures, params={"nchange": "cyclic"})
+        pop_initializer.pop_size = 1
         search_strat = VNS(
-            pop_initializer,
-            neighborhood_structures,
-            local_search,
-            params={"iters": 100, "nchange": "seq"},
+            initializer=pop_initializer,
+            op_list=neighborhood_structures,
+            params={"nchange": "pipe"},
+            inner_loop_params={
+                "stop_cond": "convergence",
+                "patience": 500,
+                "verbose": params['verbose'],
+                "v_timer": params['v_timer'],
+            },
         )
-        # local_search = HillClimb(pop_initializer)
-        # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
+        params['patience'] = 10
     elif alg_name == "RandomSearch":
         search_strat = RandomSearch(pop_initializer)
     elif alg_name == "NoSearch":
@@ -181,7 +202,7 @@ def run_algorithm(alg_name, memetic, save_state):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
+    parser.add_argument("-a", "--algorithm", dest="algorithm", help="Specify an algorithm", default="ES")
     parser.add_argument(
         "-m",
         "--memetic",
@@ -198,20 +219,7 @@ def main():
     )
     args = parser.parse_args()
 
-    algorithm_name = "ES"
-    mem = False
-    save_state = False
-
-    if args.alg:
-        algorithm_name = args.alg
-
-    if args.mem:
-        mem = True
-
-    if args.save_state:
-        save_state = True
-
-    run_algorithm(alg_name=algorithm_name, memetic=mem, save_state=save_state)
+    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state)
 
 
 if __name__ == "__main__":

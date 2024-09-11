@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
 from typing import Union
-from ...operators import OperatorReal
+from ...operators import OperatorVector
 from ...selectionMethods import SurvivorSelection
 from ..StaticPopulation import StaticPopulation
 from ...ParamScheduler import ParamScheduler
@@ -20,7 +20,7 @@ class PSO(StaticPopulation):
         name: str = "PSO",
     ):
         if pso_op is None:
-            pso_op = OperatorReal(
+            pso_op = OperatorVector(
                 "PSO",
                 ParamScheduler(
                     "Linear",

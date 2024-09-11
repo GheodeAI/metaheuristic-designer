@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
 import scipy as sp
-from ...operators import OperatorReal, OperatorBinary, OperatorInt
+from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
@@ -30,7 +30,7 @@ class BinomialUMDA(VariablePopulation):
 
         self.n = params["n"]
 
-        evolve_op = OperatorInt("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
+        evolve_op = OperatorVector("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
 
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
@@ -57,6 +57,6 @@ class BinomialUMDA(VariablePopulation):
         self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
         self.p = np.clip(self.p, 0, 1)
 
-        self.operator = OperatorInt("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
+        self.operator = OperatorVector("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
 
         return super().perturb(parent_list, objfunc, **kwargs)

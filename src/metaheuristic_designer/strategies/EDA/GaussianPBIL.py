@@ -2,7 +2,7 @@ from __future__ import annotations
 import numpy as np
 import scipy as sp
 from ...Individual import Individual
-from ...operators import OperatorReal
+from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
@@ -27,9 +27,7 @@ class GaussianPBIL(VariablePopulation):
         self.loc = params.get("loc", None)
         self.scale = params.get("scale", 1)
 
-        evolve_op = OperatorReal("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
-        self.prob_vec_mutate = evolve_op
-
+        evolve_op = OperatorVector("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
         self.lr = params.get("lr")
@@ -59,6 +57,6 @@ class GaussianPBIL(VariablePopulation):
         else:
             self.loc = new_loc
 
-        self.operator = OperatorReal("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
+        self.operator = OperatorVector("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
 
         return super().perturb(parent_list, objfunc, **kwargs)

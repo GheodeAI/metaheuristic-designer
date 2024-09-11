@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..initializers import UniformVectorInitializer
-from ..operators import OperatorReal
+from ..operators import OperatorVector
 from ..encodings import TypeCastEncoding
 from ..strategies import DE
 from ..algorithms import GeneralAlgorithm
@@ -70,7 +70,7 @@ def _differential_evolution_real_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
-    de_op = OperatorReal(de_type, {"F": f, "Cr": cr})
+    de_op = OperatorVector(de_type, {"F": f, "Cr": cr})
 
     search_strat = DE(pop_initializer, de_op)
 
@@ -116,7 +116,7 @@ def _differential_evolution_int_vec(params, objfunc):
         encoding=encoding,
     )
 
-    de_op = OperatorReal(de_type, {"F": f, "Cr": cr})
+    de_op = OperatorVector(de_type, {"F": f, "Cr": cr})
 
     search_strat = DE(pop_initializer, de_op)
 
@@ -160,7 +160,7 @@ def _differential_evolution_bin_vec(params, objfunc):
         encoding=encoding,
     )
 
-    de_op = OperatorReal(de_type, {"F": f, "Cr": cr})
+    de_op = OperatorVector(de_type, {"F": f, "Cr": cr})
 
     search_strat = DE(pop_initializer, de_op)
 
