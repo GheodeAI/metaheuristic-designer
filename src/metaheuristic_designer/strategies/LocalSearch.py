@@ -23,25 +23,15 @@ class LocalSearch(SearchStrategy):
     ):
         self.iterations = params.get("iters", 100)
 
-        if operator is None:
-            operator = OperatorNull()
-        self.operator = operator
-
         if survivor_sel is None:
             survivor_sel = SurvivorSelection("KeepBest", {"amount": 1})
 
-        super().__init__(initializer, survivor_sel=survivor_sel, params=params, name=name)
+        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name)
 
     def perturb(self, indiv_list, objfunc, **kwargs):
-        offspring = []
-        indiv = indiv_list[0]
-        for i in range(self.iterations):
-            # Perturb individual
-            new_indiv = self.operator(indiv, indiv_list, objfunc, self.best, self.initializer)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
-
-            offspring.append(new_indiv)
+        offspring = indiv_list*self.iterations
+        offspring = self.operator(offspring, objfunc, self.best, self.initializer)
+        offspring = self.repair_population(offspring, objfunc)
 
         return offspring
 

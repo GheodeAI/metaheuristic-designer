@@ -1,7 +1,7 @@
 from __future__ import annotations
 import random
 from ..Operator import Operator
-from copy import copy
+from copy import copy, deepcopy
 import numpy as np
 import enum
 from enum import Enum
@@ -92,21 +92,26 @@ class OperatorMeta(Operator):
         if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
             params["weights"] = [params["p"], 1 - params["p"]]
 
-    def evolve(self, indiv, population, objfunc, global_best, initializer=None):
+    def evolve(self, population, objfunc, global_best, initializer):
+        new_population = [self.evolve_single(indiv, population, objfunc, global_best, initializer) for indiv in population]
+
+        return new_population
+
+    def evolve_single(self, indiv, population, objfunc, global_best, initializer):
         if self.method == MetaOpMethods.BRANCH:
             self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
             chosen_op = self.op_list[self.chosen_idx]
-            result = chosen_op(indiv, population, objfunc, global_best, initializer)
+            result = chosen_op.evolve_single(indiv, population, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.PICK:
             # the chosen index is assumed to be changed by the user
             chosen_op = self.op_list[self.chosen_idx]
-            result = chosen_op(indiv, population, objfunc, global_best, initializer)
+            result = chosen_op.evolve_single(indiv, population, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.SEQUENCE:
             result = indiv
             for op in self.op_list:
-                result = op(result, population, objfunc, global_best, initializer)
+                result = op.evolve_single(result, population, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.SPLIT:
             result = copy(indiv)
@@ -122,10 +127,16 @@ class OperatorMeta(Operator):
                     for idx_pop, val in enumerate(population_copy):
                         val.genotype = population[idx_pop].genotype[self.mask == idx_op]
 
-                    aux_indiv = op(indiv_copy, population_copy, objfunc, global_best, initializer)
+                    aux_indiv = op.evolve_single(indiv_copy, population_copy, objfunc, global_best, initializer)
                     result.genotype[self.mask == idx_op] = aux_indiv.genotype
 
         return result
+    
+    @staticmethod
+    def _filter_indiv(indiv, mask):
+        indiv_copy = copy(indiv)
+        indiv_copy.genotype = indiv.genotype[self.mask == idx_op]
+        return indiv_copy
 
     def step(self, progress: float):
         super().step(progress)

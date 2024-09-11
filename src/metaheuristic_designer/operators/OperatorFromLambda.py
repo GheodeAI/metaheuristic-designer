@@ -23,7 +23,7 @@ class OperatorFromLambda(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, fn: callable, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(self, fn: callable, params: Union[ParamScheduler, dict] = None, name: str = None, vectorized: bool = True):
         """
         Constructor for the OperatorLambda class
         """
@@ -35,7 +35,15 @@ class OperatorFromLambda(Operator):
 
         super().__init__(params, name)
 
-    def evolve(self, indiv, population, objfunc, global_best, initializer):
+    def evolve(self, population, objfunc, global_best, initializer):
+        if not self.vectorized:
+            new_population = [self.evolve_single(indiv, population, objfunc, global_best, intializer) for indiv in population]
+        else:
+            new_population = self.fn(population, objfunc, **self.params)
+
+        return new_population
+
+    def evolve_single(self, indiv, population, objfunc, global_best, initializer):
         new_indiv = copy(indiv)
         others = [i for i in population if i != indiv]
 

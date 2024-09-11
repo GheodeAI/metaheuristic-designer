@@ -45,5 +45,3 @@ class CMA_ES(StaticPopulation):
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)
-
-        pass
