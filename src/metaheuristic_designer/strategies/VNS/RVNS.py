@@ -29,6 +29,8 @@ class RVNS(SearchStrategy):
 
         self.current_op = 0
 
+        self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
+
         if selection_op is None:
             selection_op = SurvivorSelection("One-to-One")
         self.selection_op = selection_op
@@ -45,10 +47,7 @@ class RVNS(SearchStrategy):
     def select_individuals(self, population, offspring, **kwargs):
         new_population = self.selection_op(population, offspring)
 
-        if new_population[0].id == population[0].id:
-            self.perturb_op.chosen_idx += 1
-        else:
-            self.perturb_op.chosen_idx = 0
+        self.perturb_op.chosen_idx = next_neighborhood(offspring[0], population[0], self.perturb_op.chosen_idx, self.nchange)
 
         return new_population
 

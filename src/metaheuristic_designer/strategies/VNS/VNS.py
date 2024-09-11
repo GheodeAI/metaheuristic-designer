@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Union
+import time
 import warnings
 from ...algorithms import GeneralAlgorithm
 from ...ParamScheduler import ParamScheduler
@@ -7,6 +8,7 @@ from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
 from ...operators import OperatorMeta
 from ...selectionMethods import SurvivorSelection, ParentSelectionNull
+from .VND import VND
 from .vns_neighborhood_changes import *
 
 
@@ -19,18 +21,22 @@ class VNS(SearchStrategy):
         self,
         initializer: Initializer,
         op_list: List[Operator],
-        local_search_strategy: SearchStrategy,
+        local_search_strategy: SearchStrategy = None,
         survivor_sel: SurvivorSelection = None,
         params: ParamScheduler | dict = {},
         inner_loop_params: ParamScheduler | dict = {},
         name: str = "VNS",
     ):
-        self.iterations = params.get("iters", 100)
-
         self.op_list = op_list
         operator = OperatorMeta("Pick", op_list, {"init_idx": 0})
 
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
+
+        if local_search_strategy is None:
+            local_search_strategy = VND(initializer=initializer, op_list=op_list, one_shot=True)
+        local_search_strategy.name = f"VNS ({local_search_strategy.name})"
+
+        inner_loop_params['init_info'] = False
 
         self.local_search = GeneralAlgorithm(
             objfunc=None,
@@ -39,9 +45,8 @@ class VNS(SearchStrategy):
             name=local_search_strategy.name
         )
 
-        if selection_op is None:
-            selection_op = SurvivorSelection("One-to-One")
-        self.selection_op = selection_op
+        if survivor_sel is None:
+            survivor_sel = SurvivorSelection("One-to-One")
 
         if initializer.pop_size > 1:
             initializer.pop_size = 1
@@ -71,19 +76,11 @@ class VNS(SearchStrategy):
         new_population = self.repair_population(new_population, objfunc)
 
         # Local search
-
-        self.local_search.search_strategy.operator = self.operator
-        self.local_search.restart()
-        self.local_search.optimize()
-        
-        # for _ in range(self.iterations):
-        #     parents = self.local_search.select_parents(new_population)
-
-        #     offspring = self.local_search.perturb(parents, objfunc)
-
-        #     new_population = self.local_search.select_individuals(new_population, offspring)
-
-        #     self.local_search.update_params(**kwargs)
+        self.local_search.search_strategy.finish = False
+        self.local_search.restart(reset_objfunc=False)
+        self.local_search.search_strategy.population = new_population
+        self.local_search.search_strategy.best = new_population[0]
+        self.local_search.optimize(initialize=False)
         
         offspring = self.local_search.search_strategy.population
 

@@ -1,6 +1,6 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import OperatorReal, OperatorInt, OperatorBinary
+from metaheuristic_designer.operators import OperatorVector
 from metaheuristic_designer.strategies import *
 from metaheuristic_designer.initializers import *
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
@@ -56,7 +56,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
 
     display = True
     display_dim = [600, 600]
-    image_shape = [64, 64]
+    image_shape = [32, 32]
 
     if display:
         pygame.init()
@@ -80,14 +80,14 @@ def run_algorithm(alg_name, img_file_name, memetic):
         encoding=encoding,
     )
 
-    mutation_op = OperatorReal("MutNoise", {"distrib": "Uniform", "min": -20, "max": 20, "N": 15})
-    cross_op = OperatorReal("Multipoint")
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Uniform", "min": -20, "max": 20, "N": 15})
+    cross_op = OperatorVector("Multipoint")
 
     op_list = [
-        OperatorReal("Multipoint"),
-        OperatorReal("MutRand", {"distrib": "Cauchy", "F": 5, "N": 10}, name="MutCauchy"),
-        OperatorReal("MutRand", {"distrib": "Gauss", "F": 5, "N": 10}, name="MutGauss"),
-        OperatorReal(
+        OperatorVector("Multipoint"),
+        OperatorVector("MutRand", {"distrib": "Cauchy", "F": 5, "N": 10}, name="MutCauchy"),
+        OperatorVector("MutRand", {"distrib": "Gauss", "F": 5, "N": 10}, name="MutGauss"),
+        OperatorVector(
             "MutSample",
             {"distrib": "Uniform", "min": 0, "max": 256, "N": 10},
             name="MutUniform",
@@ -99,7 +99,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     n_list = np.logspace(5, 12, base=2, num=200)
 
     neighborhood_structures = [
-        OperatorReal(
+        OperatorVector(
             "MutNoise",
             {"distrib": "Uniform", "min": -10, "max": 10, "N": n},
             name=f"UniformSample(N={n:0.0f})",
@@ -111,7 +111,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
 
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorInt("MutRand", {"distrib": "Uniform", "min": -10, "max": -10, "N": 3})
+    neihbourhood_op = OperatorVector("MutRand", {"distrib": "Uniform", "min": -10, "max": -10, "N": 3})
     local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
 
     if alg_name == "HillClimb":
@@ -144,7 +144,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, {"HMCR": 0.9, "BW": 5, "PAR": 0.8})
     elif alg_name == "DE":
-        search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8}))
+        search_strat = DE(pop_initializer, OperatorVector("DE/best/1", {"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5})
     elif alg_name == "BinomialUMDA":
@@ -195,15 +195,33 @@ def run_algorithm(alg_name, img_file_name, memetic):
     elif alg_name == "VND":
         search_strat = VND(pop_initializer, neighborhood_structures)
     elif alg_name == "VNS":
-        local_search = LocalSearch(pop_initializer, params={"iters": 10})
+        pop_initializer.pop_size = 1
+        local_search = LocalSearch(pop_initializer, mutation_op, params={"iters": 200})
         search_strat = VNS(
-            pop_initializer,
-            neighborhood_structures,
-            local_search,
-            params={"iters": 200, "nchange": "pipe"},
+            initializer=pop_initializer,
+            op_list=neighborhood_structures,
+            local_search_strategy=local_search,
+            params={"nchange": "seq"},
+            inner_loop_params={
+                "stop_cond": "convergence",
+                "patience": 100,
+                "verbose": params['verbose'],
+                "v_timer": params['v_timer'],
+            },
         )
-        # local_search = HillClimb(pop_initializer)
-        # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
+    elif alg_name == "GVNS":
+        pop_initializer.pop_size = 1
+        search_strat = VNS(
+            initializer=pop_initializer,
+            op_list=neighborhood_structures,
+            params={"nchange": "pipe"},
+            inner_loop_params={
+                "stop_cond": "convergence",
+                "patience": 500,
+                "verbose": params['verbose'],
+                "v_timer": params['v_timer'],
+            },
+        )
     elif alg_name == "RandomSearch":
         pop_initializer.pop_size = 1
         search_strat = RandomSearch(pop_initializer)
