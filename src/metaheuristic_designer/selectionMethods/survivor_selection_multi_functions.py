@@ -76,7 +76,7 @@ def crowding_distance_selection(ranks, amount):
     return sum(sorted_ranks, [])
 
 
-def non_dominated_sorting(popul, offsping, amount):
+def non_dominated_sorting(popul, offspring, amount):
     indiv_list = popul + offspring
     ranks = non_dominated_ranking(indiv_list)
     return crowding_distance_selection(ranks, amount)

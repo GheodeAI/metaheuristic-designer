@@ -282,7 +282,7 @@ class Algorithm(ABC):
         if self.progress_metric_used["convergence"]:
             patience_prec = 1 - self.patience_left / self.max_patience
         else:
-            patience_reached = 0
+            patience_prec = 0
 
         return process_progress(
             self.stop_cond_parsed,

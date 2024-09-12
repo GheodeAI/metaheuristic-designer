@@ -122,12 +122,12 @@ class Individual:
         return self.calculate_fitness()
 
     @fitness.setter
-    def fitness(self, fit: float):
+    def fitness(self, fit: float | np.ndarray):
         """
         Manually sets a fitness to the individual.
         """
 
-        if self.best_fitness is None or self.best_fitness < fit:
+        if (not isinstance(fit, np.ndarray)) and (self.best_fitness is None or self.best_fitness < fit):
             self.best_fitness = fit
             self.best = self.genotype
 

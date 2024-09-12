@@ -1,4 +1,5 @@
 from .GeneralAlgorithm import GeneralAlgorithm
+from .GeneralAlgorithmMulti import GeneralAlgorithmMulti
 from .MemeticAlgorithm import MemeticAlgorithm
 from .AlgorithmSelection import AlgorithmSelection
 from .StrategySelection import StrategySelection

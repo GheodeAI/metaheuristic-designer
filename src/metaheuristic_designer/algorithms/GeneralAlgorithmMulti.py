@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from ..Algorithm import Algorithm, process_condition
 
 
-class GeneralAlgorithm(Algorithm):
+class GeneralAlgorithmMulti(Algorithm):
     """
     General framework for metaheuristic algorithms.
 
@@ -68,14 +68,15 @@ class GeneralAlgorithm(Algorithm):
         self.search_strategy.population = population
 
         # Get information about the algorithm to track it's progress
-        best_individual, best_fitness = self.search_strategy.best_solution()
+        # best_individual, best_fitness = self.search_strategy.best_solution()
         self.search_strategy.update_params(progress=self.progress)
 
         # Store information
         # self.best_history.append(best_individual)
         # self.fit_history.append(best_fitness)
 
-        return (best_individual, best_fitness)
+        # return (best_individual, best_fitness)
+        return self.search_strategy.population
 
     def update(self, real_time_start, cpu_time_start, pass_step=True):
         if pass_step:
@@ -84,4 +85,23 @@ class GeneralAlgorithm(Algorithm):
         self.progress = self.get_progress(self.steps, real_time_start, cpu_time_start)
 
         self.ended = self.stopping_condition(self.steps, real_time_start, cpu_time_start)
+
+    def step_info(self, start_time: float = 0):
+        """
+        Displays information about the current state of the algotithm.
+
+        Parameters
+        ----------
+        time_start: float, optional
+            Indicates to the algorihm how much time has already passed.
+        """
+
+        print(f"Optimizing {self.objfunc.name} using {self.name}:")
+        print(f"\tReal time Spent: {round(time.time() - start_time,2)} s")
+        print(f"\tCPU time Spent:  {round(time.time() - start_time,2)} s")
+        print(f"\tGeneration: {self.steps}")
+        print(f"\tEvaluations of fitness: {self.objfunc.counter}")
+        print()
+        self.search_strategy.extra_step_info()
+        print()
 

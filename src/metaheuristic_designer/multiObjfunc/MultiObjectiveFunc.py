@@ -30,7 +30,7 @@ class MultiObjectiveFunc(ObjectiveFunc):
         value = self.objective(solution)
 
         if adjusted:
-            value = self.factors * value - self.penalize(solution)
+            value = self.factors * (value - self.penalize(solution))
 
         return value
 

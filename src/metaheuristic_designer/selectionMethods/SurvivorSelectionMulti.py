@@ -3,7 +3,7 @@ import enum
 from enum import Enum
 from ..ParamScheduler import ParamScheduler
 from ..SelectionMethod import SelectionMethod
-from .survivor_selection_functions import *
+from .survivor_selection_multi_functions import *
 
 
 class SurvSelMultiMethod(Enum):
@@ -62,15 +62,15 @@ class SurvivorSelectionMulti(SelectionMethod):
 
         super().__init__(params, padding, name)
 
-        self.method = SurvSelMethod.from_str(method)
+        self.method = SurvSelMultiMethod.from_str(method)
 
     def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:
         result = []
-        if self.method == SurvSelMethod.GENERATIONAL:
+        if self.method == SurvSelMultiMethod.GENERATIONAL:
             result = offspring
 
-        if self.method == SurvSelMethod.NONDOMSORT:
-            result = non_dominated_sorting(popul, offspring)
+        if self.method == SurvSelMultiMethod.NONDOMSORT:
+            result = non_dominated_sorting(popul, offspring, self.params["amount"])
         
         return result
 
