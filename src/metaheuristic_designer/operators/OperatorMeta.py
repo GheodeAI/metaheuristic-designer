@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections.abc import Iterable
 import random
 from ..Operator import Operator
 from copy import copy, deepcopy
@@ -93,11 +94,11 @@ class OperatorMeta(Operator):
             params["weights"] = [params["p"], 1 - params["p"]]
 
     def evolve(self, population, objfunc, global_best, initializer):
-        new_population = [self.evolve_single(indiv, population, objfunc, global_best, initializer) for indiv in population]
+        new_population = [self.evolve_single(indiv, population, objfunc, global_best, initializer, idx) for idx, indiv in enumerate(population)]
 
         return new_population
 
-    def evolve_single(self, indiv, population, objfunc, global_best, initializer):
+    def evolve_single(self, indiv, population, objfunc, global_best, initializer, indiv_idx):
         if self.method == MetaOpMethods.BRANCH:
             self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
             chosen_op = self.op_list[self.chosen_idx]
@@ -105,7 +106,10 @@ class OperatorMeta(Operator):
 
         elif self.method == MetaOpMethods.PICK:
             # the chosen index is assumed to be changed by the user
-            chosen_op = self.op_list[self.chosen_idx]
+            if not isinstance(self.chosen_idx):
+                chosen_op = self.op_list[self.chosen_idx]
+            else:
+                chosen_op = self.op_list[self.chosen_idx[indiv_idx]]
             result = chosen_op.evolve_single(indiv, population, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.SEQUENCE:
