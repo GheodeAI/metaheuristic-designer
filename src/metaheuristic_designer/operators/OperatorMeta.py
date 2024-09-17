@@ -98,7 +98,7 @@ class OperatorMeta(Operator):
 
         return new_population
 
-    def evolve_single(self, indiv, population, objfunc, global_best, initializer, indiv_idx):
+    def evolve_single(self, indiv, population, objfunc, global_best, initializer, indiv_idx=0):
         if self.method == MetaOpMethods.BRANCH:
             self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
             chosen_op = self.op_list[self.chosen_idx]

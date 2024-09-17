@@ -17,7 +17,6 @@ import numpy as np
 
 class STDAdaptEncoding(AdaptionEncoding):
     def decode_param(self, genotype):
-        # print(genotype)
         return {"F": np.maximum(1e-7, self.decode_param_vec(genotype))}
 
 

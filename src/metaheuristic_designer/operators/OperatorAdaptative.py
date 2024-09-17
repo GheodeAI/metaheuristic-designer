@@ -59,14 +59,14 @@ class OperatorAdaptative(Operator):
     
     def evolve_single(self, indiv, population, objfunc, global_best, initializer=None):
         # Evolve only parameters
-        indiv_conf_param = self.param_operator_split.evolve(indiv, population, objfunc, global_best, initializer)
+        indiv_conf_param = self.param_operator_split.evolve_single(indiv, population, objfunc, global_best, initializer)
 
         # Apply parameters to operator
         indiv_params = self.param_encoding.decode_param(indiv_conf_param.genotype)
         self.base_operator.params.update(indiv_params)
 
         # Evolve solution
-        new_indiv = self.base_operator_split.evolve(indiv_conf_param, population, objfunc, global_best, initializer)
+        new_indiv = self.base_operator_split.evolve_single(indiv_conf_param, population, objfunc, global_best, initializer)
         return new_indiv
 
     def step(self, progress: float):
