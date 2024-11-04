@@ -71,7 +71,7 @@ class multicategorical:
         return self.sample_fn(self.cumsum_matrix, index_rnd)
 
 
-def mutate_sample(vector, population, params):
+def mutate_sample(population, params):
     """
     Replaces 'n' components of the input vector with a random value sampled from a given probability distribution.
     """
@@ -87,22 +87,21 @@ def mutate_sample(vector, population, params):
         loc = minim
         scale = maxim - minim
 
-    mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
+    mask_pos = np.tile(np.hstack([np.ones(n), np.zeros(vector.size - n)]), population.shape[0]).astype(bool).reshape((population.shape[0], n))
     RAND_GEN.shuffle(mask_pos)
 
-    popul_matrix = np.vstack([i.genotype for i in population])
     if loc is None or (type(loc) is str and loc == "calculated"):
-        loc = popul_matrix.mean(axis=0)[mask_pos]
+        loc = population.mean(axis=0)[mask_pos]
     if scale is None or (type(scale) is str and scale == "calculated"):
-        scale = popul_matrix.std(axis=0)[mask_pos]
+        scale = population.std(axis=0)[mask_pos]
 
-    rand_vec = sample_distribution(distrib, n, loc, scale, params)
+    rand_vec = sample_distribution(distrib, (population.shape[0], n), loc, scale, params)
 
-    vector[mask_pos] = rand_vec
-    return vector
+    population[mask_pos] = population
+    return population
 
 
-def mutate_noise(vector, params):
+def mutate_noise(population, params):
     """
     Adds random noise with a given probability distribution to 'n' components of the input vector.
     """
@@ -119,16 +118,16 @@ def mutate_noise(vector, params):
         scale = maxim - minim
     strength = params.get("F", 1)
 
-    mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
+    mask_pos = np.tile(np.hstack([np.ones(n), np.zeros(population.shape[1] - n)]).astype(bool), population.shape[0]).reshape((population.shape[0], n))
     RAND_GEN.shuffle(mask_pos)
 
-    rand_vec = sample_distribution(distrib, n, loc, scale, params)
+    rand_vec = sample_distribution(distrib, (population.shape[0], n), loc, scale, params)
 
-    vector[mask_pos] = vector[mask_pos] + strength * rand_vec
+    population[mask_pos] = population[mask_pos] + strength * rand_vec
     return vector
 
 
-def rand_sample(vector, population, params):
+def rand_sample(population, params):
     """
     Picks a vector with components sampled from a probability distribution.
     """
@@ -143,18 +142,18 @@ def rand_sample(vector, population, params):
         loc = minim
         scale = maxim - minim
 
-    popul_matrix = np.vstack([i.genotype for i in population])
+    # popul_matrix = np.vstack([i.genotype for i in population])
     if loc is None or (type(loc) is str and loc == "calculated"):
-        loc = popul_matrix.mean(axis=0)
+        loc = population.mean(axis=0)
     if scale is None or (type(scale) is str and scale == "calculated"):
-        scale = popul_matrix.std(axis=0)
+        scale = population.std(axis=0)
 
-    rand_vec = sample_distribution(distrib, vector.shape, loc, scale, params)
+    rand_population = sample_distribution(distrib, popuplation.shape, loc, scale, params)
 
-    return rand_vec
+    return rand_population
 
 
-def rand_noise(vector, params):
+def rand_noise(population, params):
     """
     Adds random noise with a given probability distribution to all components of the input vector.
     """
@@ -170,9 +169,9 @@ def rand_noise(vector, params):
         scale = maxim - minim
     strength = params.get("F", 1)
 
-    noise = sample_distribution(distrib, vector.shape, loc, scale, params)
+    noise = sample_distribution(distrib, population.shape, loc, scale, params)
 
-    return vector + strength * noise
+    return population + strength * noise
 
 
 def sample_distribution(distrib, n, loc=None, scale=None, params={}):
@@ -226,63 +225,61 @@ def sample_distribution(distrib, n, loc=None, scale=None, params={}):
     return prob_distrib.rvs(size=n, random_state=RAND_GEN)
 
 
-def gaussian(vector, strength):
+def gaussian(population, strength):
     """
     Adds random noise following a Gaussian distribution to the vector.
     """
 
-    return rand_noise(vector, {"distrib": ProbDist.GAUSS, "F": strength})
+    return rand_noise(population, {"distrib": ProbDist.GAUSS, "F": strength})
 
 
-def cauchy(vector, strength):
+def cauchy(population, strength):
     """
     Adds random noise following a Cauchy distribution to the vector.
     """
 
-    return rand_noise(vector, {"distrib": ProbDist.CAUCHY, "F": strength})
+    return rand_noise(population, {"distrib": ProbDist.CAUCHY, "F": strength})
 
 
-def laplace(vector, strength):
+def laplace(population, strength):
     """
     Adds random noise following a Laplace distribution to the vector.
     """
 
-    return rand_noise(vector, {"distrib": ProbDist.LAPLACE, "F": strength})
+    return rand_noise(population, {"distrib": ProbDist.LAPLACE, "F": strength})
 
 
-def uniform(vector, minim, maxim):
+def uniform(population, minim, maxim):
     """
     Adds random noise following an Uniform distribution to the vector.
     """
 
-    return rand_noise(vector, {"distrib": ProbDist.UNIFORM, "min": minim, "max": maxim})
+    return rand_noise(population, {"distrib": ProbDist.UNIFORM, "min": minim, "max": maxim})
 
 
-def poisson(vector, mu):
+def poisson(population, mu):
     """
     Adds random noise following a Poisson distribution to the vector.
     """
 
-    return rand_noise(vector, {"distrib": ProbDist.POISSON, "F": mu})
+    return rand_noise(population, {"distrib": ProbDist.POISSON, "F": mu})
 
 
-def generate_statistic(vector, population, params):
+def generate_statistic(population, params):
     stat_name = params.get("statistic", "mean")
 
-    popul_matrix = np.vstack([i.genotype for i in population])
-
-    new_vector = None
+    new_population = None
     if stat_name == "mean":
-        new_vector = np.mean(popul_matrix, axis=0)
+        new_population = np.mean(population, axis=0)
     elif stat_name == "average":
-        weights = params.get("weights", np.ones(popul_matrix.shape[1]))
-        new_vector = np.average(popul_matrix, weights=weights, axis=0)
+        weights = params.get("weights", np.ones(population.shape[1]))
+        new_population = np.average(population, weights=weights, axis=0)
     elif stat_name == "median":
-        new_vector = np.median(popul_matrix, axis=0)
+        new_population = np.median(population, axis=0)
     elif stat_name == "std":
-        new_vector = np.std(popul_matrix, axis=0)
+        new_population = np.std(population, axis=0)
 
-    return new_vector
+    return new_population
 
 
 def sample_1_sigma(vector, n, epsilon, tau):
@@ -320,20 +317,20 @@ def mutate_n_sigmas(sigmas, epsilon, tau, tau_multiple):
     )
 
 
-def xor_mask(vector, n, mode="byte"):
+def xor_mask(population, n, mode="byte"):
     """
     Applies an XOR operation between a random number and the input vector.
     """
 
-    mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
+    mask_pos = np.tile(np.hstack([np.ones(n), np.zeros(population.shape[1] - n)]).astype(bool), population.shape[0]).reshape(population.shape)
     RAND_GEN.shuffle(mask_pos)
 
     if mode == "bin":
         mask = mask_pos
     elif mode == "byte":
-        mask = RAND_GEN.integers(1, 0xFF, size=vector.shape) * mask_pos
+        mask = RAND_GEN.integers(1, 0xFF, size=population.shape) * mask_pos
     elif mode == "int":
-        mask = RAND_GEN.integers(1, 0xFFFF, size=vector.shape) * mask_pos
+        mask = RAND_GEN.integers(1, 0xFFFF, size=population.shape) * mask_pos
 
     return vector ^ mask
 
@@ -380,40 +377,57 @@ def invert_mutation(vector):
     return vector
 
 
-def cross_1p(vector1, vector2):
+def cross_1p(population):
     """
     Performs a 1 point cross between two vectors.
     """
 
-    cross_point = random.randrange(0, vector1.size)
-    return np.hstack([vector1[:cross_point], vector2[cross_point:]])
+    parents1 = population[:math.ceil(population.shape[0]/2)]
+    parents2 = population[math.floor(population.shape[0]/2):]
+
+    cross_points = np.random.randint(1, population.shape[1]-1)
+    cross_mask = np.tile(np.arange(population.shape[1]), parents1.shape[0]).reshape(parents1.shape) > cross_points
+
+    offspring1 = np.where(cross_mask, parents1, parents2)
+    offspring2 = np.where(cross_mask, parents2, parents1)
+
+    return np.concatenate((offspring1, offspring2))[:population.shape[0]]
 
 
-def cross_2p(vector1, vector2):
+def cross_2p(population):
     """
     Performs a 2 point cross between two vectors.
     """
 
-    cross_point1 = random.randrange(0, vector1.size - 2)
-    cross_point2 = random.randrange(cross_point1, vector1.size)
-    return np.hstack(
-        [
-            vector1[:cross_point1],
-            vector2[cross_point1:cross_point2],
-            vector1[cross_point2:],
-        ]
-    )
+    parents1 = population[:math.ceil(population.shape[0]/2)]
+    parents2 = population[math.floor(population.shape[0]/2):]
+
+    cross_points1 = RAND_GEN.randint(1, population.shape[1]-2)
+    cross_points2 = RAND_GEN.randint(cross_points1+1, parents1.shape[1]-1)
+    slice1 = np.tile(np.arange(population.shape[1]-1), parents1.shape[0]).reshape(parents1.shape) > cross_points1
+    slice2 = np.tile(np.arange(population.shape[1]-1), parents1.shape[0]).reshape(parents1.shape) < cross_points2
+    cross_mask = slice1 & slice2
+
+    offspring1 = np.where(cross_mask, parents1, parents2)
+    offspring2 = np.where(cross_mask, parents2, parents1)
+
+    return np.concatenate((offspring1, offspring2))[:population.shape[0]]
 
 
-def cross_mp(vector1, vector2):
+def cross_mp(population):
     """
     Performs a multipoint cross between two vectors.
     """
 
-    mask_pos = 1 * (RAND_GEN.random(vector1.size) > 0.5)
-    aux = np.copy(vector1)
-    aux[mask_pos == 1] = vector2[mask_pos == 1]
-    return aux
+    parents1 = population[:math.ceil(population.shape[0]/2)]
+    parents2 = population[math.floor(population.shape[0]/2):]
+
+    cross_mask = RAND_GEN.uniform(0, 1, parents1.shape) > 0.5
+
+    offspring1 = np.where(cross_mask, parents1, parents2)
+    offspring2 = np.where(cross_mask, parents2, parents1)
+
+    return np.concatenate((offspring1, offspring2))[:population.shape[0]]
 
 
 def multi_cross(vector, population, n_ind):
@@ -423,20 +437,20 @@ def multi_cross(vector, population, n_ind):
 
     if n_ind >= len(population):
         n_ind = len(population)
+    
+    selection_mask = RAND_GEN.randint(0, n_indiv, population.shape)
 
-    other_parents = random.sample(population, n_ind - 1)
-    mask_pos = RAND_GEN.integers(n_ind, size=vector.size) - 1
-    for i in range(0, n_ind - 1):
-        vector[mask_pos == i] = other_parents[i].genotype[mask_pos == i]
-    return vector
+    return population[selection_mask, np.arange(population.shape[1])]
 
 
-def xor_cross(vector1, vector2):
+def xor_cross(population):
     """
     Applies the XOR operation between each component of the input vectors.
     """
 
-    return vector1 ^ vector2
+    population_shuffled = population[RAND_GEN.permutation(population.shape[0])]
+
+    return population ^ population_shuffled
 
 
 def pmx(vector1, vector2):
@@ -681,11 +695,11 @@ def firefly(solution, population, objfunc, alpha_0, beta_0, delta, gamma):
     return new_vector
 
 
-def dummy_op(vector, scale=1000):
+def dummy_op(population, scale=1000):
     """
     Replaces the vector with one consisting of all the same value
 
     Only for testing, not useful for real applications
     """
 
-    return np.full(vector.shape, scale)
+    return np.full(population.shape, scale)
