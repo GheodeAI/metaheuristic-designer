@@ -179,40 +179,40 @@ class OperatorVector(Operator):
             params["N"] = min(params["N"], new_indiv.genotype.size)
 
         if self.method == VectorOpMethods.ONE_POINT:
-            new_indiv.genotype = cross_1p(new_indiv.genotype, indiv2.genotype.copy())
+            population_matrix = cross_1p(population_matrix)
 
         elif self.method == VectorOpMethods.TWO_POINT:
-            new_indiv.genotype = cross_2p(new_indiv.genotype, indiv2.genotype.copy())
+            population_matrix = cross_2p(population_matrix)
 
         elif self.method == VectorOpMethods.MULTIPOINT:
-            new_indiv.genotype = cross_mp(new_indiv.genotype, indiv2.genotype.copy())
+            population_matrix = cross_mp(population_matrix)
 
         elif self.method == VectorOpMethods.WEIGHTED_AVG:
-            new_indiv.genotype = weighted_average(new_indiv.genotype, indiv2.genotype.copy(), params["F"])
+            population_matrix = weighted_average(new_indiv.genotype, indiv2.genotype.copy(), params["F"])
 
         elif self.method == VectorOpMethods.BLXALPHA:
-            new_indiv.genotype = blxalpha(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
+            population_matrix = blxalpha(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
 
         elif self.method == VectorOpMethods.SBX:
-            new_indiv.genotype = sbx(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
+            population_matrix = sbx(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
 
         elif self.method == VectorOpMethods.MULTICROSS:
-            new_indiv.genotype = multi_cross(new_indiv.genotype, others, params["Nindiv"])
+            population_matrix = multi_cross(population_matrix, params["Nindiv"])
 
         elif self.method == VectorOpMethods.XOR:
-            new_indiv.genotype = xor_mask(new_indiv.genotype, params["N"])
+            population_matrix = xor_mask(population_matrix.genotype, params["N"])
 
         elif self.method == VectorOpMethods.XOR_CROSS:
-            new_indiv.genotype = xor_cross(new_indiv.genotype, indiv2.genotype.copy())
+            population_matrix = xor_cross(new_indiv.genotype, indiv2.genotype.copy())
 
         elif self.method == VectorOpMethods.CROSSINTERAVG:
-            new_indiv.genotype = cross_inter_avg(new_indiv.genotype, others, params["N"])
+            population_matrix = cross_inter_avg(new_indiv.genotype, others, params["N"])
 
         elif self.method == VectorOpMethods.MUTATE1SIGMA:
-            new_indiv.genotype = mutate_1_sigma(new_indiv.genotype, params["epsilon"], params["tau"])
+            population_matrix = mutate_1_sigma(new_indiv.genotype, params["epsilon"], params["tau"])
 
         elif self.method == VectorOpMethods.MUTATENSIGMAS:
-            new_indiv.genotype = mutate_n_sigmas(
+            population_matrix = mutate_n_sigmas(
                 new_indiv.genotype,
                 params["epsilon"],
                 params["tau"],
