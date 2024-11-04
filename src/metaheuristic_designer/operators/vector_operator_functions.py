@@ -430,7 +430,7 @@ def cross_mp(population):
     return np.concatenate((offspring1, offspring2))[:population.shape[0]]
 
 
-def multi_cross(vector, population, n_ind):
+def multi_cross(population, n_indiv):
     """
     Performs a multipoint cross between the vector and 'n-1' individuals of the population
     """
