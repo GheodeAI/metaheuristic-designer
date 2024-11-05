@@ -93,12 +93,12 @@ class OperatorMeta(Operator):
         if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
             params["weights"] = [params["p"], 1 - params["p"]]
 
-    def evolve(self, population, objfunc, global_best, initializer):
-        new_population = [self.evolve_single(indiv, population, objfunc, global_best, initializer, idx) for idx, indiv in enumerate(population)]
+    def evolve(self, population, objfunc, initializer=None, global_best=None):
+        new_population = [self.evolve_single(indiv, population, objfunc, initializer, global_best, idx) for idx, indiv in enumerate(population)]
 
         return new_population
 
-    def evolve_single(self, indiv, population, objfunc, global_best, initializer, indiv_idx=0):
+    def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None, indiv_idx=0):
         if self.method == MetaOpMethods.BRANCH:
             self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
             chosen_op = self.op_list[self.chosen_idx]
@@ -106,10 +106,10 @@ class OperatorMeta(Operator):
 
         elif self.method == MetaOpMethods.PICK:
             # the chosen index is assumed to be changed by the user
-            if not isinstance(self.chosen_idx):
-                chosen_op = self.op_list[self.chosen_idx]
-            else:
+            if not isinstance(self.chosen_idx, Iterable):
                 chosen_op = self.op_list[self.chosen_idx[indiv_idx]]
+            else:
+                chosen_op = self.op_list[self.chosen_idx]
             result = chosen_op.evolve_single(indiv, population, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.SEQUENCE:

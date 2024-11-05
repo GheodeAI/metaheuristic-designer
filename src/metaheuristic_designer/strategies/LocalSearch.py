@@ -29,11 +29,8 @@ class LocalSearch(SearchStrategy):
         super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name)
 
     def perturb(self, indiv_list, objfunc, **kwargs):
-        offspring = indiv_list*self.iterations
-        offspring = self.operator(offspring, objfunc, self.best, self.initializer)
-        offspring = self.repair_population(offspring, objfunc)
-
-        return offspring
+        new_indiv_list = indiv_list*self.iterations
+        return super().perturb(new_indiv_list, objfunc, **kwargs)
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)

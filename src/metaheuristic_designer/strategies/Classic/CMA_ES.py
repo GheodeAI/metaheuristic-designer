@@ -17,15 +17,6 @@ class CMA_ES(StaticPopulation):
         parent_select = ParentSelection("Nothing")
         selection = SurvivorSelection("(m+n)")
 
-        # mutate1 = OperatorReal(
-        #     "MutNoise",
-        #     {
-        #         "method": "Gauss",
-        #         "F": params["BW"],
-        #         "Cr": params["HMCR"] * params["PAR"],
-        #     },
-        # )
-
         self.step = params.get("step", 1)
 
         self.generate_average = OperatorReal("Generate", {"statistic": "average"})

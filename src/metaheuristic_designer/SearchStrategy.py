@@ -209,7 +209,7 @@ class SearchStrategy(ABC):
             The list of individuals modified by the operators of the search strategy.
         """
 
-        offspring = self.operator.evolve(parent_list, objfunc, self.best, self.initializer)
+        offspring = self.operator.evolve(parent_list, objfunc, self.initializer, self.best)
         offspring = self.repair_population(offspring, objfunc)
         
         return offspring

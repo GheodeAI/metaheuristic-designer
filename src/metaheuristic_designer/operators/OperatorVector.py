@@ -153,12 +153,11 @@ class OperatorVector(Operator):
             if "Low" not in self.params:
                 self.params["Low"] = 0
 
-    def evolve(self, population, objfunc, global_best, initializer):
-        new_population = [self.evolve_single(indiv, population, objfunc, global_best, initializer) for indiv in population]
-
+    def evolve(self, population, objfunc, initializer=None, global_best=None):
+        new_population = [self.evolve_single(indiv, population, objfunc, initializer, global_best) for indiv in population]
         return new_population
 
-    def evolve_single(self, indiv, population, objfunc, global_best, initializer):
+    def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None):
         new_indiv = copy(indiv)
         others = [i for i in population if i != indiv]
         if len(others) == 0:

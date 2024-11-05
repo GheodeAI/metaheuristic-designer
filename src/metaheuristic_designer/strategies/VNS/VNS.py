@@ -56,7 +56,7 @@ class VNS(SearchStrategy):
         return initial_population
 
     def perturb(self, indiv_list, objfunc, **kwargs):
-        new_population = self.operator(indiv_list, objfunc, self.best, self.initializer)
+        new_population = self.operator.evolve(indiv_list, objfunc, self.best, self.initializer)
         new_population = self.repair_population(new_population, objfunc)
 
         # Local search
@@ -71,8 +71,6 @@ class VNS(SearchStrategy):
             self.local_search.update_params(**kwargs)
         
         offspring = self.local_search.population
-        # print(indiv_list[0].genotype)
-        # print(offspring[0].genotype)
 
         return offspring
 

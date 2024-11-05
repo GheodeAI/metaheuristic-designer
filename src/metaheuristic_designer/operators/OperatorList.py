@@ -56,7 +56,12 @@ class OperatorList(Operator):
 
         self.method = ListOpMethods.from_str(method)
 
-    def evolve(self, indiv, population, objfunc, global_best, initializer):
+    def evolve(self, population, objfunc, initializer=None, global_best=None):
+        new_population = [self.evolve_single(indiv, population, objfunc, initializer, global_best) for indiv in population]
+
+        return new_population
+
+    def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None):
         new_indiv = copy(indiv)
 
         params = copy(self.params)

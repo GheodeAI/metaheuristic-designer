@@ -29,21 +29,22 @@ class OperatorFromLambda(Operator):
         """
 
         self.fn = fn
+        self.vectorized = vectorized
 
         if name is None:
             name = fn.__name__
 
         super().__init__(params, name)
 
-    def evolve(self, population, objfunc, global_best, initializer):
-        if not self.vectorized:
-            new_population = [self.evolve_single(indiv, population, objfunc, global_best, intializer) for indiv in population]
-        else:
+    def evolve(self, population, objfunc, initializer=None, global_best=None):
+        if self.vectorized:
             new_population = self.fn(population, objfunc, **self.params)
+        else:
+            new_population = [self.evolve_single(indiv, population, objfunc, intializer, global_best) for indiv in population]
 
         return new_population
 
-    def evolve_single(self, indiv, population, objfunc, global_best, initializer):
+    def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None):
         new_indiv = copy(indiv)
         others = [i for i in population if i != indiv]
 

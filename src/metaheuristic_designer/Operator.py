@@ -130,29 +130,27 @@ class Operator(ABC):
         self,
         population: List[Individual],
         objfunc: ObjectiveFunc,
-        global_best: Individual,
-        initializer: Initializer,
+        initializer: Initializer = None,
+        global_best: Individual = None,
     ) -> List[Individual]:
         """
         Evolves an population using a given strategy.
 
         Parameters
         ----------
-        indiv: Individual
-            Individual to be operated on.
         population: List[Individual]
             The population that will be used in crossing operations.
         objfunc: ObjectiveFunc
             The objective function being optimized.
-        global_best: Individual
-            The best individual found during the optimization of the algorithm
         initializer: Initializer
             The population initializer of the algorithm (used for randomly generating individuals).
+        global_best: Individual
+            The best individual found during the optimization of the algorithm
 
         Returns
         -------
-        new_individual: Individual
-            The modified individual.
+        new_population: List[Individual]
+            The modified population.
         """
     
     def evolve_single(
@@ -160,8 +158,8 @@ class Operator(ABC):
         indiv: Individual,
         population: List[Individual],
         objfunc: ObjectiveFunc,
-        global_best: Individual,
-        initializer: Initializer,
+        initializer: Initializer = None,
+        global_best: Individual = None,
     ) -> Individual:
         """
         Evolves an individual using a given strategy.
@@ -174,10 +172,10 @@ class Operator(ABC):
             The population that will be used in crossing operations.
         objfunc: ObjectiveFunc
             The objective function being optimized.
-        global_best: Individual
-            The best individual found during the optimization of the algorithm
         initializer: Initializer
             The population initializer of the algorithm (used for randomly generating individuals).
+        global_best: Individual
+            The best individual found during the optimization of the algorithm
 
         Returns
         -------
