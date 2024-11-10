@@ -6,6 +6,7 @@ from copy import copy, deepcopy
 import numpy as np
 import enum
 from enum import Enum
+from ..utils import RAND_GEN
 
 
 class MetaOpMethods(Enum):
@@ -92,11 +93,52 @@ class OperatorMeta(Operator):
         # If we have a branch with 2 operators and "p" is given as an input
         if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
             params["weights"] = [params["p"], 1 - params["p"]]
-
+    
     def evolve(self, population, objfunc, initializer=None, global_best=None):
-        new_population = [self.evolve_single(indiv, population, objfunc, initializer, global_best, idx) for idx, indiv in enumerate(population)]
+        if self.method == MetaOpMethods.BRANCH:
+            self.chosen_idx = RAND_GEN.choice(np.arange(len(self.op_list)), size=len(population), p=self.params["weights"])
+            population_numpy = np.asarray(population)
+            for idx, op in enumerate(self.op_list):
+                population_numpy[self.chosen_idx == idx] = op.evolve(population_numpy[self.chosen_idx == idx], objfunc, global_best, initializer)
+            result = list(population_numpy)
 
-        return new_population
+
+        elif self.method == MetaOpMethods.PICK:
+            # the chosen index is assumed to be changed by the user
+            population_numpy = np.asarray(population)
+            for idx, op in enumerate(self.op_list):
+                population_numpy[self.chosen_idx == idx] = op.evolve(population_numpy[self.chosen_idx == idx], objfunc, global_best, initializer)
+            result = list(population_numpy)
+
+        elif self.method == MetaOpMethods.SEQUENCE:
+            result = population
+            for op in self.op_list:
+                result = op.evolve(result, objfunc, global_best, initializer)
+
+        elif self.method == MetaOpMethods.SPLIT:
+            result = copy(indiv)
+            indiv_copy = copy(indiv)
+            global_best_copy = copy(global_best)
+            population_copy = [copy(i) for i in population]
+
+            for idx_op, op in enumerate(self.op_list):
+                if np.any(self.mask == idx_op):
+                    indiv_copy.genotype = indiv.genotype[self.mask == idx_op]
+                    global_best_copy.genotype = global_best.genotype[self.mask == idx_op]
+
+                    for idx_pop, val in enumerate(population_copy):
+                        val.genotype = population[idx_pop].genotype[self.mask == idx_op]
+
+                    aux_indiv = op.evolve_single(indiv_copy, population_copy, objfunc, global_best, initializer)
+                    result.genotype[self.mask == idx_op] = aux_indiv.genotype
+
+        return result
+
+
+    # def evolve(self, population, objfunc, initializer=None, global_best=None):
+    #     new_population = [self.evolve_single(indiv, population, objfunc, initializer, global_best, idx) for idx, indiv in enumerate(population)]
+
+    #     return new_population
 
     def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None, indiv_idx=0):
         if self.method == MetaOpMethods.BRANCH:

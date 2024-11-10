@@ -1,6 +1,7 @@
 from __future__ import annotations
 from ..Operator import Operator
-from .vector_operator_functions import *
+from .mutation import *
+from .permutation_mutation import *
 from copy import copy
 import enum
 from enum import Enum

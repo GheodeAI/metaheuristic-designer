@@ -1,7 +1,13 @@
 from __future__ import annotations
 import numpy as np
 from ..Operator import Operator
-from .vector_operator_functions import *
+
+from .crossover import *
+from .mutation import *
+from .permutation_mutation import *
+from .differential_evolution import *
+from .swarm import *
+
 from ..ParamScheduler import ParamScheduler
 from ..Encoding import Encoding
 from copy import copy
@@ -128,7 +134,7 @@ class OperatorVector(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, name: str = None, encoding: Encoding = None, **params):
+    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None, encoding: Encoding = None):
         """
         Constructor for the OperatorPerm class
         """
@@ -167,7 +173,7 @@ class OperatorVector(Operator):
 
         if "N" in params:
             params["N"] = round(params["N"])
-            params["N"] = min(params["N"], new_indiv.genotype.size)
+            params["N"] = min(params["N"], population_matrix.shape[1])
 
         # Perform one of the methods (switch-case like structure)
 

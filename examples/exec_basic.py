@@ -41,8 +41,10 @@ def run_algorithm(alg_name, memetic, save_state):
     # select_params = ParamScheduler("Linear")
 
     # mut_params = ParamScheduler("Linear", {"distrib": "Cauchy", "F": [0.01, 0.00001]})
+    # mut_params = ParamScheduler("Linear", {"distrib": "Gauss", "F": [0.01, 0.00001]})
     # mutation_op = OperatorVector("RandNoise", mut_params)
-    mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "F": 1e-3, "N": 1})
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "F": 1e-3, "N": 1})
+    # mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "F": 1e-3, "N": 1})
 
     cross_op = OperatorVector("Multipoint")
 
