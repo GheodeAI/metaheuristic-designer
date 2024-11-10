@@ -58,11 +58,18 @@ class Individual:
         Returns a copy of the Individual.
         """
 
-        copied_ind = Individual(self.objfunc, copy(self._genotype), copy(self.speed), encoding=self.encoding)
+        copied_ind = Individual(self.objfunc, copy(self._genotype), copy(self.speed), age=self.age, encoding=self.encoding)
         copied_ind._fitness = self._fitness
         copied_ind.fitness_calculated = self.fitness_calculated
+        copied_ind.best_fitness = copy(self.best_fitness)
         copied_ind.best = copy(self.best)
         return copied_ind
+    
+    def change_genotype(self, new_genotype: Any, speed=None):
+        new_individual = self.__copy__()
+        new_individual.genotype = new_genotype
+        new_individual.speed = speed
+        return new_individual
 
     @property
     def genotype(self) -> ndarray:
@@ -73,31 +80,16 @@ class Individual:
         return self._genotype
 
     @genotype.setter
-    def genotype(self, vector: ndarray):
+    def genotype(self, value: Any):
         """
         Sets the value of the vector.
         """
 
-        self.fitness_calculated = False
-        self._genotype = vector
+        if (isinstance(value, np.ndarray) and np.any(value != self._genotype)) or (not isinstance(value, np.ndarray) and value != self._genotype):
+            self.fitness_calculated = False
+            self._genotype = value
+            self.age = 0
 
-    def apply_speed(self) -> Individual:
-        """
-        Apply the speed to obtain an individual with a new position.
-
-        Returns
-        -------
-        modified_individual: Individual
-            Individual with the speed applied.
-        """
-
-        return Individual(
-            self.objfunc,
-            self._genotype + self.speed,
-            self.speed,
-            age=self.age,
-            encoding=self.encoding,
-        )
 
     def calculate_fitness(self) -> float:
         """
