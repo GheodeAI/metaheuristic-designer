@@ -51,7 +51,8 @@ class VNS(SearchStrategy):
 
     def initialize(self, objfunc):
         initial_population = super().initialize(objfunc)
-        self.local_search.initialize(objfunc)
+        initial_pop = self.local_search.initialize(objfunc)
+        self.local_search.evaluate_population(initial_pop, objfunc)
 
         return initial_population
 

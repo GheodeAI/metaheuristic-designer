@@ -104,10 +104,15 @@ class OperatorMeta(Operator):
 
 
         elif self.method == MetaOpMethods.PICK:
+            if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
+                chosen_idx = self.chosen_idx
+            else:
+                chosen_idx = np.asarray([self.chosen_idx]*len(population))
+
             # the chosen index is assumed to be changed by the user
             population_numpy = np.asarray(population)
             for idx, op in enumerate(self.op_list):
-                population_numpy[self.chosen_idx == idx] = op.evolve(population_numpy[self.chosen_idx == idx], objfunc, global_best, initializer)
+                population_numpy[chosen_idx == idx] = op.evolve(list(population_numpy[chosen_idx == idx]), objfunc, global_best, initializer)
             result = list(population_numpy)
 
         elif self.method == MetaOpMethods.SEQUENCE:
@@ -116,29 +121,16 @@ class OperatorMeta(Operator):
                 result = op.evolve(result, objfunc, global_best, initializer)
 
         elif self.method == MetaOpMethods.SPLIT:
-            result = copy(indiv)
-            indiv_copy = copy(indiv)
-            global_best_copy = copy(global_best)
-            population_copy = [copy(i) for i in population]
 
             for idx_op, op in enumerate(self.op_list):
-                if np.any(self.mask == idx_op):
-                    indiv_copy.genotype = indiv.genotype[self.mask == idx_op]
-                    global_best_copy.genotype = global_best.genotype[self.mask == idx_op]
-
-                    for idx_pop, val in enumerate(population_copy):
-                        val.genotype = population[idx_pop].genotype[self.mask == idx_op]
-
-                    aux_indiv = op.evolve_single(indiv_copy, population_copy, objfunc, global_best, initializer)
-                    result.genotype[self.mask == idx_op] = aux_indiv.genotype
+                curr_mask = self.mask == idx_op 
+                if np.any(curr_mask):
+                    filtered_best = self._filter_indiv(global_best, curr_mask)
+                    split_population = [self._filter_indiv(indiv, curr_mask) for indiv in population]
+                    split_population = op.evolve(population, objfunc, filtered_best, initializer)
+                    population = [self._undo_filter_indiv(indiv, filtered_indiv, curr_mask) for indiv, filtered_indiv in zip(population, split_population)]
 
         return result
-
-
-    # def evolve(self, population, objfunc, initializer=None, global_best=None):
-    #     new_population = [self.evolve_single(indiv, population, objfunc, initializer, global_best, idx) for idx, indiv in enumerate(population)]
-
-    #     return new_population
 
     def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None, indiv_idx=0):
         if self.method == MetaOpMethods.BRANCH:
@@ -181,8 +173,18 @@ class OperatorMeta(Operator):
     @staticmethod
     def _filter_indiv(indiv, mask):
         indiv_copy = copy(indiv)
-        indiv_copy.genotype = indiv.genotype[self.mask == idx_op]
+        if indiv is not None:
+            indiv_copy.genotype = indiv.genotype[mask]
+            indiv_copy.best = indiv.best[mask]
+            indiv_copy.speed = indiv.speed[mask]
         return indiv_copy
+    
+    @staticmethod
+    def _undo_filter_indiv(indiv, filtered_indiv, mask):
+        if indiv is not None:
+            indiv.genotype[mask] = filtered_indiv.genotype
+            indiv.speed[mask] = filtered_indiv.speed
+        return indiv
 
     def step(self, progress: float):
         super().step(progress)

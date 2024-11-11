@@ -109,6 +109,13 @@ def poisson_mutation(population, strength, mu):
 
     return rand_noise(population, distrib=ProbDist.POISSON, F=strength, mu=mu)
 
+def bernoulli_mutation(population, p):
+    """
+    Adds random noise following a Poisson distribution to the vector.
+    """
+
+    return rand_sample(population, distrib=ProbDist.BERNOULLI, p=p, loc=0, scale=1)
+
 
 def mutate_sample(population, **params):
     """
@@ -120,13 +127,18 @@ def mutate_sample(population, **params):
 
     loc = params.get("loc")
     scale = params.get("scale")
+    if "loc" in params:
+        del params["loc"]
+    if "scale" in params:
+        del params["scale"]
+
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
         loc = minim
         scale = maxim - minim
 
-    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape((population.shape[0], n))
+    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape(population.shape)
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
     if loc is None or (type(loc) is str and loc == "calculated"):
@@ -134,9 +146,10 @@ def mutate_sample(population, **params):
     if scale is None or (type(scale) is str and scale == "calculated"):
         scale = population[mask_pos].std(axis=0)
 
-    rand_vec = sample_distribution((population.shape[0], n), loc, scale, params)
+    rand_vec = sample_distribution(population.shape, loc, scale, **params)
 
-    population[mask_pos] = population
+    population[mask_pos] = rand_vec[mask_pos]
+
     return population
 
 
@@ -150,6 +163,12 @@ def mutate_noise(population, **params):
 
     loc = params.get("loc")
     scale = params.get("scale")
+
+    if "loc" in params:
+        del params["loc"]
+    if "scale" in params:
+        del params["scale"]
+
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
@@ -161,6 +180,9 @@ def mutate_noise(population, **params):
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
     rand_vec = sample_distribution(population.shape, loc, scale, **params)
+    print(population.shape)
+    print(population.shape[0] * n)
+    print(rand_vec.shape)
 
     population[mask_pos] = population[mask_pos] + strength * rand_vec[mask_pos]
     return population
@@ -175,18 +197,25 @@ def rand_sample(population, **params):
 
     loc = params.get("loc")
     scale = params.get("scale")
+
+    if "loc" in params:
+        del params["loc"]
+    if "scale" in params:
+        del params["scale"]
+
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
         loc = minim
         scale = maxim - minim
+        
 
     if loc is None or (type(loc) is str and loc == "calculated"):
         loc = population.mean(axis=0)
     if scale is None or (type(scale) is str and scale == "calculated"):
         scale = population.std(axis=0)
 
-    rand_population = sample_distribution(popuplation.shape, loc, scale, params)
+    rand_population = sample_distribution(population.shape, loc, scale, **params)
 
     return rand_population
 
@@ -200,6 +229,11 @@ def rand_noise(population, **params):
 
     loc = params.get("loc")
     scale = params.get("scale")
+    if "loc" in params:
+        del params["loc"]
+    if "scale" in params:
+        del params["scale"]
+
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
@@ -251,9 +285,9 @@ def sample_distribution(shape, loc=None, scale=None, **params):
     elif distrib == ProbDist.CATEGORICAL:
         p = params["p"]
         prob_distrib = sp.stats.rv_discrete(name="categorical", values=(np.arange(p.size), p / np.sum(p)))
-    elif distrib == ProbDist.MULTICATEGORICAL:
-        p = params["p"]
-        prob_distrib = mulitcategorial(np.arange(p.shape[0]), weight_matrix=p)
+    # elif distrib == ProbDist.MULTICATEGORICAL:
+    #     p = params["p"]
+    #     prob_distrib = mulitcategorial(np.arange(p.shape[0]), weight_matrix=p)
     elif distrib == ProbDist.CUSTOM:
         if "distrib_class" not in params:
             raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")

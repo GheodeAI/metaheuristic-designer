@@ -72,7 +72,7 @@ def DE_best2(population, fitness, F, CR):
     return population
 
 
-def DE_current_to_rand1(vector, population, F, CR):
+def DE_current_to_rand1(population, F, CR):
     """
     Performs the differential evolution operator DE/current-to-rand/1
     """
@@ -88,7 +88,7 @@ def DE_current_to_rand1(vector, population, F, CR):
     return population
 
 
-def DE_current_to_best1(vector, population, F, CR):
+def DE_current_to_best1(population, fitness, F, CR):
     """
     Performs the differential evolution operator DE/current-to-best/1
     """
@@ -103,20 +103,22 @@ def DE_current_to_best1(vector, population, F, CR):
     return population
 
 
-def DE_current_to_pbest1(vector, population, F, CR, P):
+def DE_current_to_pbest1(population, fitness, F, CR, P):
     """
     Performs the differential evolution operator DE/current-to-pbest/1
     """
 
-    n_best_max_idx = np.ceil(population.shape[0] * P)
+    n_best_max_idx = np.ceil(population.shape[0] * P).astype(int)
     n_best_idx = np.argsort(fitness)[::-1][:n_best_max_idx]
-    chosen_idx = np.choice(n_best_idx, replace=True, size=population.shape[0])
+    chosen_idx = RAND_GEN.choice(n_best_idx, replace=True, size=population.shape[0])
 
-    r_best = population[chosen_idx][None, :]
+    r_best = population[chosen_idx]
     r1 = population[RAND_GEN.permutation(population.shape[0])]
     r2 = population[RAND_GEN.permutation(population.shape[0])]
 
     v = population + RAND_GEN.uniform(0, 1) * (r_best - population) + F * (r1 - r2)
     mask_pos = RAND_GEN.uniform(0, 1, population.shape) <= CR
+
     population[mask_pos] = v[mask_pos]
+
     return population

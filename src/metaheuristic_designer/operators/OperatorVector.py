@@ -163,13 +163,15 @@ class OperatorVector(Operator):
         raise Exception("LMAO what?")
 
     def evolve(self, population, objfunc, initializer=None, global_best=None):
+        new_population = None
         population_matrix = np.array([indiv.genotype for indiv in population])
+        fitness_array = np.array([indiv.fitness for indiv in population])
         speed = None
 
         params = copy(self.params)
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
+            params["N"] = np.count_nonzero(RAND_GEN.random(population_matrix.shape[1]) < params["Cr"])
 
         if "N" in params:
             params["N"] = round(params["N"])
@@ -197,21 +199,21 @@ class OperatorVector(Operator):
             population_matrix = sbx(population_matrix, params["Cr"])
 
         elif self.method == VectorOpMethods.XOR_CROSS:
-            population_matrix = xor_cross(new_indiv.genotype, indiv2.genotype.copy())
+            population_matrix = xor_cross(population_matrix)
 
         elif self.method == VectorOpMethods.MULTICROSS:
             population_matrix = multi_cross(population_matrix, params["Nindiv"])
 
         elif self.method == VectorOpMethods.CROSSINTERAVG:
-            population_matrix = cross_inter_avg(new_indiv.genotype, others, params["N"])
+            population_matrix = cross_inter_avg(population_matrix, params["N"])
 
         ## Adaptative mutations
         elif self.method == VectorOpMethods.MUTATE1SIGMA:
-            population_matrix = mutate_1_sigma(new_indiv.genotype, params["epsilon"], params["tau"])
+            population_matrix = mutate_1_sigma(population_matrix, params["epsilon"], params["tau"])
 
         elif self.method == VectorOpMethods.MUTATENSIGMAS:
             population_matrix = mutate_n_sigmas(
-                new_indiv.genotype,
+                population_matrix,
                 params["epsilon"],
                 params["tau"],
                 params["tau_multiple"],
@@ -222,7 +224,7 @@ class OperatorVector(Operator):
 
         ## Mutation operators
         elif self.method == VectorOpMethods.XOR:
-            population_matrix = xor_mask(population_matrix.genotype, params["N"], params.get("BinRep"))
+            population_matrix = xor_mask(population_matrix, params["N"], params.get("BinRep"))
 
         elif self.method == VectorOpMethods.PERM:
             population_matrix = permutation(population_matrix, params["N"])
@@ -259,25 +261,25 @@ class OperatorVector(Operator):
 
         ## Differential evolution operators
         elif self.method == VectorOpMethods.DE_RAND_1:
-            population_matrix = DE_rand1(population_matrix, others, params["F"], params["Cr"])
+            population_matrix = DE_rand1(population_matrix, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_BEST_1:
-            population_matrix = DE_best1(population_matrix, others, params["F"], params["Cr"])
+            population_matrix = DE_best1(population_matrix, fitness_array,  params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_RAND_2:
-            population_matrix = DE_rand2(population_matrix, others, params["F"], params["Cr"])
+            population_matrix = DE_rand2(population_matrix, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_BEST_2:
-            population_matrix = DE_best2(population_matrix, others, params["F"], params["Cr"])
+            population_matrix = DE_best2(population_matrix, fitness_array, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_CTRAND_1:
-            population_matrix = DE_current_to_rand1(population_matrix, others, params["F"], params["Cr"])
+            population_matrix = DE_current_to_rand1(population_matrix, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_CTBEST_1:
-            population_matrix = DE_current_to_best1(population_matrix, others, params["F"], params["Cr"])
+            population_matrix = DE_current_to_best1(population_matrix, fitness_array, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_CTPBEST_1:
-            population_matrix = DE_current_to_pbest1(population_matrix, others, params["F"], params["Cr"], params["P"])
+            population_matrix = DE_current_to_pbest1(population_matrix, fitness_array, params["F"], params["Cr"], params["P"])
 
         ## Swarm based algorithms
         elif self.method == VectorOpMethods.PSO:
@@ -298,27 +300,31 @@ class OperatorVector(Operator):
 
         ## Other operators
         elif self.method == VectorOpMethods.RANDOM:
-            new_indiv = initializer.generate_random(objfunc)
+            new_population = initializer.generate_population(objfunc, len(population))
 
         elif self.method == VectorOpMethods.RANDOM_MASK:
-            mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
-            RAND_GEN.shuffle(mask_pos)
+            mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape(population.shape)
+            mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
-            population_matrix[mask_pos] = initializer.generate_random(objfunc).genotype[mask_pos]
+            random_population = initializer.generate_population(objfunc, len(population))
+            random_population_matrix = np.array([indiv.genotype for indiv in random_population])
+
+            population_matrix[mask_pos] = random_population_matrix[mask_pos]
 
         elif self.method == VectorOpMethods.DUMMY:
             population_matrix = dummy_op(population_matrix, params["F"])
 
         elif self.method == VectorOpMethods.CUSTOM:
             fn = params["function"]
-            population_matrix = fn(indiv, population, objfunc, params)
+            population_matrix = fn(population, objfunc, params)
 
         elif self.method == VectorOpMethods.NOTHING:
             population_matrix = population_matrix
         
-        if speed is None:
-            new_population = [indiv.change_genotype(self.encoding.encode(population_matrix[idx, :])) for idx, indiv in enumerate(population)]
-        else:
-            new_population = [indiv.change_genotype(self.encoding.encode(population_matrix[idx, :]), speed[idx, :]) for idx, indiv in enumerate(population)]
+        if new_population is None:
+            if speed is None:
+                new_population = [indiv.change_genotype(self.encoding.encode(population_matrix[idx, :])) for idx, indiv in enumerate(population)]
+            else:
+                new_population = [indiv.change_genotype(self.encoding.encode(population_matrix[idx, :]), speed[idx, :]) for idx, indiv in enumerate(population)]
         
         return new_population

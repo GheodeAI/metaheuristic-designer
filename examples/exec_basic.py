@@ -18,7 +18,8 @@ def run_algorithm(alg_name, memetic, save_state):
     params = {
         # "stop_cond": "neval or time_limit or fit_target",
         # "stop_cond": "neval or time_limit",
-        "stop_cond": "convergence or time_limit",
+        # "stop_cond": "convergence or time_limit",
+        "stop_cond": "time_limit",
         "progress_metric": "time_limit",
         "time_limit": 100.0,
         "cpu_time_limit": 100.0,
@@ -56,7 +57,8 @@ def run_algorithm(alg_name, memetic, save_state):
         OperatorVector("DE/current-to-rand/1", DEparams),
     ]
 
-    neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 0, base=10, num=80)]
+    # neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 0, base=10, num=80)]
+    neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 0, base=10, num=20)]
 
     parent_sel_op = ParentSelection("Best", parent_params)
     selection_op = SurvivorSelection("(m+n)")
