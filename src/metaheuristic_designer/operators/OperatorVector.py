@@ -224,10 +224,10 @@ class OperatorVector(Operator):
 
         ## Mutation operators
         elif self.method == VectorOpMethods.XOR:
-            population_matrix = xor_mask(population_matrix, params["N"], params.get("BinRep"))
+            population_matrix = xor_mask(population_matrix, params["N"], params.get("BinRep", "byte"))
 
         elif self.method == VectorOpMethods.PERM:
-            population_matrix = permutation(population_matrix, params["N"])
+            population_matrix = permute_mutation(population_matrix, params["N"])
 
         elif self.method == VectorOpMethods.GAUSS:
             population_matrix = gaussian_mutation(population_matrix, params["F"])
@@ -248,16 +248,17 @@ class OperatorVector(Operator):
             population_matrix = mutate_noise(population_matrix, **params)
 
         elif self.method == VectorOpMethods.MUTSAMPLE:
-            population_matrix = mutate_sample(population_matrix, others, **params)
+            population_matrix = mutate_sample(population_matrix, **params)
 
         elif self.method == VectorOpMethods.RANDNOISE:
             population_matrix = rand_noise(population_matrix, **params)
 
         elif self.method == VectorOpMethods.RANDSAMPLE:
-            population_matrix = rand_sample(population_matrix, others, **params)
+            population_matrix = rand_sample(population_matrix, **params)
 
         elif self.method == VectorOpMethods.GENERATE:
-            population_matrix = generate_statistic(population_matrix, others, **params)
+            population_row = generate_statistic(population_matrix, **params)
+            population_matrix = np.tile(population_row, population_matrix.shape[0]).reshape(population_matrix.shape)
 
         ## Differential evolution operators
         elif self.method == VectorOpMethods.DE_RAND_1:
@@ -303,7 +304,7 @@ class OperatorVector(Operator):
             new_population = initializer.generate_population(objfunc, len(population))
 
         elif self.method == VectorOpMethods.RANDOM_MASK:
-            mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape(population.shape)
+            mask_pos = np.tile(np.arange(population_matrix.shape[1]) < params["N"], population_matrix.shape[0]).reshape(population_matrix.shape)
             mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
             random_population = initializer.generate_population(objfunc, len(population))

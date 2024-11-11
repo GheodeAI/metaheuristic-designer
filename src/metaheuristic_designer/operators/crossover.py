@@ -106,7 +106,7 @@ def sbx(population, strength):
 
     beta[u <= 0.5] = _val1[u <= 0.5]
     beta[u > 0.5] = _val2[u > 0.5]
-    sign = RAND_GEN.choice([-1, 1], size=population.shape[0])
+    sign = RAND_GEN.choice([-1, 1], size=(population.shape[0], 1))
 
     return 0.5 * (population + population_shuffled) + sign * 0.5 * beta * (population - population_shuffled)
 
