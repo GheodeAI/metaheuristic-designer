@@ -118,7 +118,7 @@ class SearchStrategy(ABC):
 
         return self._initializer.pop_size
 
-    def best_solution(self) -> Tuple[Individual, float]:
+    def best_solution(self) -> Tuple[Any, float]:
         """
         Returns the best solution found by the search strategy and its fitness.
 
@@ -159,81 +159,69 @@ class SearchStrategy(ABC):
 
         return self.population
 
-    def evaluate_population(self, population, objfunc, parallel=False, threads=8):
-        if parallel:
-            with Pool(threads) as p:
-                result_pairs = p.map(evaluate_indiv, population)
-            population, calculated = map(list, zip(*result_pairs))
-            objfunc.counter += sum(calculated)
-        else:
-            [indiv.calculate_fitness() for indiv in population]
-
-        current_best = max(population, key=lambda x: x.fitness)
-
-        if not self.best or self.best.fitness < current_best.fitness:
-            self.best = current_best
+    def evaluate_population(self, population, parallel=False, threads=8):
+        population.calculate_fitness(parallel=parallel, threads=threads)
 
         return population
 
-    def select_parents(self, population: List[Individual], **kwargs) -> Tuple[List[Individual], List[int]]:
+    def select_parents(self, population: Population, **kwargs) -> Population:
         """
         Selects the individuals that will be perturbed in this generation to generate the offspring.
 
         Parameters
         ----------
-        population: List[Individual]
+        population: Population
             The current population of the search strategy.
 
         Returns
         -------
-        parents: Tuple[List[Individual], List[int]]
+        parents: Population
             A pair of the list of individuals considered as parents and their position in the original population.
         """
 
         return self.parent_sel(population)
 
-    def perturb(self, parent_list: List[Individual], objfunc: ObjectiveFunc, **kwargs) -> List[Individual]:
+    def perturb(self, parents: Population, **kwargs) -> Population:
         """
         Applies operators to the population to get the next generation of individuals.
 
         Parameters
         ----------
-        parent_list: List[Individual]
+        parent_list: Population
             The current parents that will be used in the search strategy.
-        objfunc: ObjectiveFunc
-            Objective function to be optimized.
 
         Returns
         -------
-        offspring: List[Individual]
+        offspring: Population
             The list of individuals modified by the operators of the search strategy.
         """
 
-        offspring = self.operator.evolve(parent_list, objfunc, self.initializer, self.best)
+        offspring = self.operator.evolve(parents, self.initializer, self.best)
         offspring = self.repair_population(offspring, objfunc)
         
         return offspring
     
-    def repair_population(self, population: List[Individual], objfunc: ObjectiveFunc) -> List[Individual]:
-        for indiv in population:
-            indiv.genotype = objfunc.repair_solution(indiv.genotype)
-            indiv.speed = objfunc.repair_speed(indiv.speed)
+    def repair_population(self, population: Population) -> Population:
+        population.repair_solutions()
+        # for indiv in population:
+        #     indiv.genotype = objfunc.repair_solution(indiv.genotype)
+        #     indiv.speed = objfunc.repair_speed(indiv.speed)
         return population
 
-    def select_individuals(self, population: List[Individual], offspring: List[Individual], **kwargs) -> List[Individual]:
+    def select_individuals(self, population: Population, offspring: Population, **kwargs) -> Population:
         """
         Selects the individuals that will pass to the next generation.
 
         Parameters
         ----------
-        population: List[Individual]
+        population: Population
             The current population of the search strategy.
-        offspring: List[Individual]
+        offspring: Population
             The list of individuals modified by the operators of the search strategy.
 
         Returns
         -------
-        offspring: List[Individual]
+        offspring: Population
             The list of individuals selected for the next generation.
         """
 

@@ -5,6 +5,10 @@ from numpy import ndarray
 from .encodings import DefaultEncoding
 from .utils import RAND_GEN
 
+def evaluate_indiv(indiv):
+    calculation_done = not indiv.fitness_calculated
+    indiv.calculate_fitness()
+    return indiv, calculation_done
 
 class Population:
     """
@@ -82,10 +86,19 @@ class Population:
         self.ages[self.fitness_calculated] = 0
         self.calculate_fitness()
 
-    def calculate_fitness(self) -> float:
+    def calculate_fitness(self, parallel=False, threads=8) -> float:
         """
         Calculates the fitness of the individual if it has not been calculated before
         """
+
+        # if parallel:
+        #     with Pool(threads) as p:
+        #         result_pairs = p.map(evaluate_indiv, population)
+        #     population, calculated = map(list, zip(*result_pairs))
+        #     objfunc.counter += sum(calculated)
+        # else:
+        #     # [population.calculate_fitness() for indiv in population]
+        #     population.calculate_fitness()
 
         for idx, genotype in enumerate(self.genotype_set):
             if not self.fitness_calculated[idx]:
@@ -97,6 +110,18 @@ class Population:
             self.best_fitness = self.fitness[best_idx]
         
         return self.fitness
+    
+    def repair_solutions(self):
+        """
+        Repairs the solutions in the population
+        """
+
+        # for indiv in population:
+        #     indiv.genotype = objfunc.repair_solution(indiv.genotype)
+        #     indiv.speed = objfunc.repair_speed(indiv.speed)
+
+        for idx, indiv in self.genotype_set:
+            self.genotype_set[idx] = self.objfunc.repair_solution(indiv)
 
     def get_state(self, show_speed: bool = True, show_best: bool = False) -> dict:
         """
