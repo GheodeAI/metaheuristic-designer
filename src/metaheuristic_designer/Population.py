@@ -58,7 +58,6 @@ class Population:
         if encoding is None:
             encoding = DefaultEncoding()
         self.encoding = encoding
-
     
     def __len__(self):
         return len(self.genotype_set)

@@ -79,33 +79,35 @@ class SurvivorSelection(SelectionMethod):
 
         self.method = SurvSelMethod.from_str(method)
 
-    def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:
+    def select(self, population: Population, offspring: Population) -> Population:
         result = []
+        population_set = population.genotype_set
+        offspring_set = offspring.genotype_set
         if self.method == SurvSelMethod.ELITISM:
-            result = elitism(popul, offspring, self.params["amount"])
+            result = elitism(population_set, offspring_set, self.params["amount"])
 
         elif self.method == SurvSelMethod.COND_ELITISM:
-            result = cond_elitism(popul, offspring, self.params["amount"])
+            result = cond_elitism(population_set, offspring_set, self.params["amount"])
 
         elif self.method == SurvSelMethod.GENERATIONAL:
             result = offspring
 
         elif self.method == SurvSelMethod.ONE_TO_ONE:
-            result = one_to_one(popul, offspring)
+            result = one_to_one(population_set, offspring_set)
 
         elif self.method == SurvSelMethod.PROB_ONE_TO_ONE:
-            result = prob_one_to_one(popul, offspring, self.params["p"])
+            result = prob_one_to_one(population_set, offspring_set, self.params["p"])
 
         elif self.method == SurvSelMethod.MU_PLUS_LAMBDA:
-            result = lamb_plus_mu(popul, offspring)
+            result = lamb_plus_mu(population_set, offspring_set)
 
         elif self.method == SurvSelMethod.MU_COMMA_LAMBDA:
-            result = lamb_comma_mu(popul, offspring)
+            result = lamb_comma_mu(population_set, offspring_set)
 
         elif self.method == SurvSelMethod.CRO:
             result = cro_selection(
-                popul,
-                offspring,
+                population_set,
+                offspring_set,
                 self.params["Fd"],
                 self.params["Pd"],
                 self.params["attempts"],

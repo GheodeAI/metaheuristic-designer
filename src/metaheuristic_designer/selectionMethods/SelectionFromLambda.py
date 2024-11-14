@@ -16,5 +16,5 @@ class SelectionFromLambda(SelectionMethod):
 
         super().__init__(params, padding, name)
 
-    def select(self, popul: List[Individual], offspring: List[Individual] = None) -> List[Individual]:
+    def select(self, popul: Population, offspring: Population = None) -> Population:
         return select_fn(popul, offspring, **self.params)

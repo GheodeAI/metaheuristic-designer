@@ -39,5 +39,5 @@ class ParentSelectionNull(SelectionMethod):
 
         super().__init__(params, padding, name)
 
-    def select(self, population: List[Individual], offsping: List[Individual] = None) -> List[Individual]:
+    def select(self, population: Population, offsping: Population = None) -> Population:
         return population

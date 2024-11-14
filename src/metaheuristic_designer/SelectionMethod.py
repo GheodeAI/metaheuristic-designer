@@ -40,29 +40,29 @@ class SelectionMethod(ABC):
         else:
             self.params = params
 
-    def __call__(self, popul: List[Individual], offspring: List[Individual] = None) -> List[Individual]:
+    def __call__(self, population: Population, offspring: Population = None) -> Population:
         """
         Shorthand for calling the 'select' method
         """
 
-        return self.select(popul, offspring)
+        return self.select(population, offspring)
 
     @abstractmethod
-    def select(self, population: List[Individual], offspring: List[Individual] = None) -> List[Individual]:
+    def select(self, population: Population, offspring: Population = None) -> Population:
         """
         Takes a population with its offspring and returns the individuals that survive
         to produce the next generation.
 
         Parameters
         ----------
-        population: List[Individual]
+        population: Population
             Population of individuals that will be selected.
-        offspring: List[Individual]
+        offspring: Population
             Newly generated individuals to be selected.
 
         Returns
         -------
-        selected: List[Individual]
+        selected: Population
             List of selected individuals.
         """
 

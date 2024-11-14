@@ -39,5 +39,5 @@ class SurvivorSelectionNull(SelectionMethod):
 
         super().__init__(params, padding, name)
 
-    def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:
+    def select(self, popul: Population, offspring: Population) -> Population:
         return offspring

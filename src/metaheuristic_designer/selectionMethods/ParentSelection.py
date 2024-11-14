@@ -75,22 +75,23 @@ class ParentSelection(SelectionMethod):
             if "F" not in self.params:
                 self.params["F"] = None
 
-    def select(self, population: List[Individual], offsping: List[Individual] = None) -> List[Individual]:
+    def select(self, population: Population, offsping: Population = None) -> Population:
         population = population.copy()
         parents = []
+        population_set = population.genotype_set
 
         if self.method == ParentSelMethod.TOURNAMENT:
-            parents = prob_tournament(population, self.params["amount"], self.params["p"])
+            parents = prob_tournament(population_set, self.params["amount"], self.params["p"])
 
         elif self.method == ParentSelMethod.BEST:
-            parents = select_best(population, self.params["amount"])
+            parents = select_best(population_set, self.params["amount"])
 
         elif self.method == ParentSelMethod.RANDOM:
-            parents = uniform_selection(population, self.params["amount"])
+            parents = uniform_selection(population_set, self.params["amount"])
 
         elif self.method == ParentSelMethod.ROULETTE:
             parents = roulette(
-                population,
+                population_set,
                 self.params["amount"],
                 self.params["method"],
                 self.params["F"],
@@ -98,13 +99,13 @@ class ParentSelection(SelectionMethod):
 
         elif self.method == ParentSelMethod.SUS:
             parents = sus(
-                population,
+                population_set,
                 self.params["amount"],
                 self.params["method"],
                 self.params["F"],
             )
 
         elif self.method == ParentSelMethod.NOTHING:
-            parents = population
+            parents = population_set
 
         return parents
