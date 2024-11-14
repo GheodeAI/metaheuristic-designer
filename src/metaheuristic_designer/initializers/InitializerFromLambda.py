@@ -28,5 +28,5 @@ class InitializerFromLambda(Initializer):
             encoding = DefaultEncoding()
         self.encoding = encoding
 
-    def generate_random(self, objfunc: ObjectiveFunc) -> Individual:
-        return Individual(objfunc, self.generator(), encoding=self.encoding)
+    def generate_random(self) -> Any:
+        return self.generator()

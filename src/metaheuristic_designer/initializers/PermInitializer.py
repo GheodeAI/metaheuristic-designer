@@ -23,7 +23,6 @@ class PermInitializer(Initializer):
 
         super().__init__(pop_size, encoding=None)
 
-    def generate_random(self, objfunc):
+    def generate_random(self):
         rang_vec = np.arange(self.genotype_size)
-        RAND_GEN.shuffle(rang_vec)
-        return Individual(objfunc, rang_vec)
+        return RAND_GEN.permuted(rang_vec)

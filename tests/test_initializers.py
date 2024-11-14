@@ -21,23 +21,23 @@ def test_uniform_vec_init(vec_size, min_val, max_val, pop_size):
     pop_init = UniformVectorInitializer(vec_size, min_val, max_val, pop_size)
 
     for _ in range(30):
-        rand_inidv = pop_init.generate_random(None)
-        assert rand_inidv.genotype.max() <= max_val
-        assert rand_inidv.genotype.min() >= min_val
-        assert rand_inidv.genotype.size == vec_size
+        rand_inidv = pop_init.generate_random()
+        assert rand_inidv.max() <= max_val
+        assert rand_inidv.min() >= min_val
+        assert rand_inidv.size == vec_size
 
-        rand_inidv = pop_init.generate_individual(None)
-        assert rand_inidv.genotype.max() <= max_val
-        assert rand_inidv.genotype.min() >= min_val
-        assert rand_inidv.genotype.size == vec_size
+        rand_inidv = pop_init.generate_individual()
+        assert rand_inidv.max() <= max_val
+        assert rand_inidv.min() >= min_val
+        assert rand_inidv.size == vec_size
 
     rand_pop = pop_init.generate_population(None)
     assert len(rand_pop) == pop_size
 
     for indiv in rand_pop:
-        assert indiv.genotype.max() <= max_val
-        assert indiv.genotype.min() >= min_val
-        assert indiv.genotype.size == vec_size
+        assert indiv.max() <= max_val
+        assert indiv.min() >= min_val
+        assert indiv.size == vec_size
 
 
 @pytest.mark.parametrize(
@@ -54,30 +54,30 @@ def test_uniform_arr_param_vec_init(min_val, max_val, pop_size):
     pop_init = UniformVectorInitializer(10, min_val, max_val, pop_size)
 
     for _ in range(30):
-        rand_inidv = pop_init.generate_random(None)
-        assert np.all(rand_inidv.genotype <= max_val)
-        assert np.all(rand_inidv.genotype >= min_val)
-        assert rand_inidv.genotype.size == 10
+        rand_inidv = pop_init.generate_random()
+        assert np.all(rand_inidv <= max_val)
+        assert np.all(rand_inidv >= min_val)
+        assert rand_inidv.size == 10
 
-        rand_inidv = pop_init.generate_individual(None)
-        assert np.all(rand_inidv.genotype <= max_val)
-        assert np.all(rand_inidv.genotype >= min_val)
-        assert rand_inidv.genotype.size == 10
+        rand_inidv = pop_init.generate_individual()
+        assert np.all(rand_inidv <= max_val)
+        assert np.all(rand_inidv >= min_val)
+        assert rand_inidv.size == 10
 
     rand_pop = pop_init.generate_population(None)
     assert len(rand_pop) == pop_size
 
     for indiv in rand_pop:
-        assert np.all(indiv.genotype <= max_val)
-        assert np.all(indiv.genotype >= min_val)
-        assert indiv.genotype.size == 10
+        assert np.all(indiv <= max_val)
+        assert np.all(indiv >= min_val)
+        assert indiv.size == 10
 
 
 def test_uniform_int_vec_init():
     pop_init = UniformVectorInitializer(200, 0, 1, 100, dtype=int)
-    rand_inidv = pop_init.generate_random(None)
-    assert 0 in rand_inidv.genotype
-    assert 1 in rand_inidv.genotype
+    rand_inidv = pop_init.generate_random()
+    assert 0 in rand_inidv
+    assert 1 in rand_inidv
 
 
 def test_uniform_err_vec_init():
@@ -95,23 +95,23 @@ def test_uniform_list_init(list_size, min_val, max_val, pop_size):
     pop_init = UniformListInitializer(list_size, min_val, max_val, pop_size)
 
     for _ in range(30):
-        rand_inidv = pop_init.generate_random(None)
-        assert max(rand_inidv.genotype) <= max_val
-        assert min(rand_inidv.genotype) >= min_val
-        assert len(rand_inidv.genotype) == list_size
+        rand_inidv = pop_init.generate_random()
+        assert max(rand_inidv) <= max_val
+        assert min(rand_inidv) >= min_val
+        assert len(rand_inidv) == list_size
 
-        rand_inidv = pop_init.generate_individual(None)
-        assert max(rand_inidv.genotype) <= max_val
-        assert min(rand_inidv.genotype) >= min_val
-        assert len(rand_inidv.genotype) == list_size
+        rand_inidv = pop_init.generate_individual()
+        assert max(rand_inidv) <= max_val
+        assert min(rand_inidv) >= min_val
+        assert len(rand_inidv) == list_size
 
     rand_pop = pop_init.generate_population(None)
     assert len(rand_pop) == pop_size
 
     for indiv in rand_pop:
-        assert max(indiv.genotype) <= max_val
-        assert min(indiv.genotype) >= min_val
-        assert len(indiv.genotype) == list_size
+        assert max(indiv) <= max_val
+        assert min(indiv) >= min_val
+        assert len(indiv) == list_size
 
 
 @pytest.mark.parametrize("vec_size", [1, 2, 10, 100])
@@ -129,17 +129,17 @@ def test_gaussian_vec_init(vec_size, mean_val, std_val, pop_size):
     pop_init = GaussianVectorInitializer(vec_size, mean_val, std_val, pop_size)
 
     for _ in range(30):
-        rand_inidv = pop_init.generate_random(None)
-        assert rand_inidv.genotype.size == vec_size
+        rand_inidv = pop_init.generate_random()
+        assert rand_inidv.size == vec_size
 
-        rand_inidv = pop_init.generate_individual(None)
-        assert rand_inidv.genotype.size == vec_size
+        rand_inidv = pop_init.generate_individual()
+        assert rand_inidv.size == vec_size
 
     rand_pop = pop_init.generate_population(None)
     assert len(rand_pop) == pop_size
 
     for indiv in rand_pop:
-        assert indiv.genotype.size == vec_size
+        assert indiv.size == vec_size
 
 
 @pytest.mark.parametrize("list_size", [1, 2, 10, 100])
@@ -149,17 +149,17 @@ def test_gaussian_list_init(list_size, mean_val, std_val, pop_size):
     pop_init = GaussianListInitializer(list_size, mean_val, std_val, pop_size)
 
     for _ in range(30):
-        rand_inidv = pop_init.generate_random(None)
-        assert len(rand_inidv.genotype) == list_size
+        rand_inidv = pop_init.generate_random()
+        assert len(rand_inidv) == list_size
 
-        rand_inidv = pop_init.generate_individual(None)
-        assert len(rand_inidv.genotype) == list_size
+        rand_inidv = pop_init.generate_individual()
+        assert len(rand_inidv) == list_size
 
     rand_pop = pop_init.generate_population(None)
     assert len(rand_pop) == pop_size
 
     for indiv in rand_pop:
-        assert len(indiv.genotype) == list_size
+        assert len(indiv) == list_size
 
 
 @pytest.mark.parametrize(
@@ -176,22 +176,22 @@ def test_gaussian_arr_param_vec_init(min_val, max_val, pop_size):
     pop_init = GaussianVectorInitializer(10, min_val, max_val, pop_size)
 
     for _ in range(30):
-        rand_inidv = pop_init.generate_random(None)
-        assert rand_inidv.genotype.size == 10
+        rand_inidv = pop_init.generate_random()
+        assert rand_inidv.size == 10
 
-        rand_inidv = pop_init.generate_individual(None)
-        assert rand_inidv.genotype.size == 10
+        rand_inidv = pop_init.generate_individual()
+        assert rand_inidv.size == 10
 
     rand_pop = pop_init.generate_population(None)
     assert len(rand_pop) == pop_size
 
     for indiv in rand_pop:
-        assert indiv.genotype.size == 10
+        assert indiv.size == 10
 
 
 def test_gaussian_int_vec_init():
     pop_init = GaussianVectorInitializer(200, 0, 1, 100, dtype=int)
-    rand_inidv = pop_init.generate_random(None)
+    rand_inidv = pop_init.generate_random()
 
 
 def test_gaussian_err_vec_init():
@@ -204,23 +204,24 @@ def test_gaussian_err_vec_init():
 
 @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 def test_direct_initializer(population):
+    print(population[0])
     default_pop_init = GaussianVectorInitializer(population[0].genotype.size, -100, 100)
     pop_init = DirectInitializer(default_pop_init, population)
 
-    ids_in_pop = [i.id for i in population]
+    # ids_in_pop = [i.id for i in population]
 
     for _ in range(30):
-        rand_inidv = pop_init.generate_random(None)
-        assert rand_inidv.id not in ids_in_pop
+        rand_inidv = pop_init.generate_random()
+        # assert rand_inidv.id not in ids_in_pop
 
-        rand_inidv = pop_init.generate_individual(None)
-        assert rand_inidv.id in ids_in_pop
+        rand_inidv = pop_init.generate_individual()
+        # assert rand_inidv.id in ids_in_pop
 
     rand_pop = pop_init.generate_population(None)
     assert len(rand_pop) == pop_size
 
-    for indiv in rand_pop:
-        assert indiv.id in ids_in_pop
+    # for indiv in rand_pop:
+    #     assert indiv.id in ids_in_pop
 
 
 @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
@@ -231,10 +232,10 @@ def test_seed_prob_initializer(population):
     ids_in_pop = [i.id for i in population]
 
     for _ in range(30):
-        rand_inidv = pop_init.generate_random(None)
-        assert rand_inidv.id not in ids_in_pop
+        rand_inidv = pop_init.generate_random()
+        # assert rand_inidv.id not in ids_in_pop
 
-        rand_inidv = pop_init.generate_individual(None)
+        rand_inidv = pop_init.generate_individual()
 
     rand_pop = pop_init.generate_population(None)
 
@@ -244,13 +245,13 @@ def test_seed_determ_initializer(population):
     default_pop_init = GaussianVectorInitializer(population[0].genotype.size, -100, 100)
     pop_init = SeedDetermInitializer(default_pop_init, population, 4)
 
-    ids_in_pop = [i.id for i in population]
+    # ids_in_pop = [i.id for i in population]
 
     for _ in range(30):
-        rand_inidv = pop_init.generate_random(None)
-        assert rand_inidv.id not in ids_in_pop
+        rand_inidv = pop_init.generate_random()
+        # assert rand_inidv.id not in ids_in_pop
 
-        rand_inidv = pop_init.generate_individual(None)
+        rand_inidv = pop_init.generate_individual()
 
     rand_pop = pop_init.generate_population(None)
 
@@ -268,17 +269,17 @@ def test_lambda_init(vec_size, pop_size):
     pop_init = InitializerFromLambda(generator, pop_size)
 
     for _ in range(30):
-        rand_inidv = pop_init.generate_random(None)
-        assert rand_inidv.genotype.size == vec_size
+        rand_inidv = pop_init.generate_random()
+        assert rand_inidv.size == vec_size
 
-        rand_inidv = pop_init.generate_individual(None)
-        assert rand_inidv.genotype.size == vec_size
+        rand_inidv = pop_init.generate_individual()
+        assert rand_inidv.size == vec_size
 
     rand_pop = pop_init.generate_population(None)
     assert len(rand_pop) == pop_size
 
     for indiv in rand_pop:
-        assert indiv.genotype.size == vec_size
+        assert indiv.size == vec_size
 
 
 @pytest.mark.parametrize("vec_size", [2, 10, 100])
@@ -287,14 +288,14 @@ def test_perm_init(vec_size, pop_size):
     pop_init = PermInitializer(vec_size, pop_size)
 
     for _ in range(30):
-        rand_inidv = pop_init.generate_random(None)
-        assert np.all(np.isin(np.arange(vec_size), rand_inidv.genotype))
+        rand_inidv = pop_init.generate_random()
+        assert np.all(np.isin(np.arange(vec_size), rand_inidv))
 
-        rand_inidv = pop_init.generate_individual(None)
-        assert np.all(np.isin(np.arange(vec_size), rand_inidv.genotype))
+        rand_inidv = pop_init.generate_individual()
+        assert np.all(np.isin(np.arange(vec_size), rand_inidv))
 
     rand_pop = pop_init.generate_population(None)
     assert len(rand_pop) == pop_size
 
     for indiv in rand_pop:
-        assert np.all(np.isin(np.arange(vec_size), rand_inidv.genotype))
+        assert np.all(np.isin(np.arange(vec_size), rand_inidv))

@@ -1,5 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+import numpy as np
+from .Population import Population
 from .encodings import DefaultEncoding
 
 
@@ -26,7 +28,7 @@ class Initializer(ABC):
         self.encoding = encoding
 
     @abstractmethod
-    def generate_random(self, objfunc: ObjectiveFunc) -> Individual:
+    def generate_random(self) -> Any:
         """
         Generates a random individual.
 
@@ -41,7 +43,7 @@ class Initializer(ABC):
             Newly generated individual.
         """
 
-    def generate_individual(self, objfunc: ObjectiveFunc) -> Individual:
+    def generate_individual(self) -> Any:
         """
         Define how an individual is initialized
 
@@ -56,9 +58,9 @@ class Initializer(ABC):
             Newly generated individual.
         """
 
-        return self.generate_random(objfunc)
+        return self.generate_random()
 
-    def generate_population(self, objfunc: ObjectiveFunc, n_indiv: int = None) -> List[Individual]:
+    def generate_population(self, objfunc: ObjectiveFunc, n_indiv: int = None) -> Population:
         """
         Generate n_indiv Individuals using the generate_individual method.
 
@@ -77,5 +79,9 @@ class Initializer(ABC):
 
         if n_indiv is None:
             n_indiv = self.pop_size
+        
+        population_set = [self.generate_individual() for _ in range(n_indiv)]
+        if isinstance(population_set[0], np.ndarray):
+            population_set = np.asarray(population_set)
 
-        return [self.generate_individual(objfunc) for i in range(n_indiv)]
+        return Population(objfunc, genotype_set=population_set, encoding=self.encoding)

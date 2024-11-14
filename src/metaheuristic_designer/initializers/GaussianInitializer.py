@@ -51,23 +51,23 @@ class GaussianInitializer(Initializer):
 
 
 class GaussianVectorInitializer(GaussianInitializer):
-    def generate_random(self, objfunc):
+    def generate_random(self):
         new_vector_float = RAND_GEN.normal(self.g_mean, self.g_std, size=self.genotype_size)
         if self.dtype is int:
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:
             new_vector = new_vector_float.astype(self.dtype)
 
-        return Individual(objfunc, new_vector, encoding=self.encoding)
+        return new_vector
 
-    def generate_individual(self, objfunc):
-        return self.generate_random(objfunc)
+    def generate_individual(self):
+        return self.generate_random()
 
 
 class GaussianListInitializer(GaussianInitializer):
-    def generate_random(self, objfunc):
+    def generate_random(self):
         new_list = [RAND_GEN.normal(m, s) for m, s in zip(self.g_mean, self.g_std)]
-        return Individual(objfunc, new_list, encoding=self.encoding)
+        return new_list
 
-    def generate_individual(self, objfunc):
-        return self.generate_random(objfunc)
+    def generate_individual(self):
+        return self.generate_random()
