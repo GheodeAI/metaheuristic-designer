@@ -1,7 +1,6 @@
 from __future__ import annotations
 import numpy as np
 from ..Operator import Operator
-from .vector_operator_functions import *
 from ..ParamScheduler import ParamScheduler
 from copy import copy
 import enum
@@ -38,9 +37,9 @@ class OperatorFromLambda(Operator):
 
     def evolve(self, population, objfunc, initializer=None, global_best=None):
         if self.vectorized:
-            new_population = self.fn(population, objfunc, **self.params)
+            new_population = self.fn(population.genotype_set, **self.params)
         else:
-            new_population = [self.evolve_single(indiv, population, objfunc, intializer, global_best) for indiv in population]
+            new_population = [self.evolve_single(indiv, population, intializer, global_best) for indiv in population]
 
         return new_population
 

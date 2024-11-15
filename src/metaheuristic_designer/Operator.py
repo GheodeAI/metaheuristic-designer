@@ -64,7 +64,7 @@ class Operator(ABC):
                 "w": 0.7,
                 "c1": 1.5,
                 "c2": 1.5,
-                "function": lambda x, y, z, w: x.genotype,
+                "function": lambda x, y, z: x,
             }
         else:
             if "method" in params:
@@ -78,11 +78,11 @@ class Operator(ABC):
 
     def __call__(
         self,
-        population: List[Individual],
+        population: Population,
         objfunc: ObjectiveFunc,
-        global_best: Individual,
+        global_best: Any,
         initializer: Initializer,
-    ) -> List[Individual]:
+    ) -> Population:
         """
         A shorthand for calling the 'evolve' method.
         """
@@ -128,11 +128,10 @@ class Operator(ABC):
     @abstractmethod
     def evolve(
         self,
-        population: List[Individual],
-        objfunc: ObjectiveFunc,
+        population: Population,
         initializer: Initializer = None,
-        global_best: Individual = None,
-    ) -> List[Individual]:
+        global_best: Any = None,
+    ) -> Population:
         """
         Evolves an population using a given strategy.
 
@@ -155,12 +154,11 @@ class Operator(ABC):
     
     def evolve_single(
         self,
-        indiv: Individual,
-        population: List[Individual],
-        objfunc: ObjectiveFunc,
+        indiv: Any,
+        population: Population,
         initializer: Initializer = None,
-        global_best: Individual = None,
-    ) -> Individual:
+        global_best: Any = None,
+    ) -> Any:
         """
         Evolves an individual using a given strategy.
 

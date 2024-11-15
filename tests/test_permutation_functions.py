@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 import scipy as sp
 from metaheuristic_designer import Individual
-from metaheuristic_designer.operators.permutation_mutation import *
+from metaheuristic_designer.operators.operator_functions.permutation import *
 import metaheuristic_designer as mhd
 
 rng = mhd.reset_seed(1)

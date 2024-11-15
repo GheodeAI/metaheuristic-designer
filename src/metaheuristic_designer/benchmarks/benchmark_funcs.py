@@ -52,7 +52,6 @@ class SleepTest(ObjectiveVectorFunc):
 
     def objective(self, solution):
         time.sleep(self.sleep_time)
-        print("hello")
         return _sphere(solution)
 
 

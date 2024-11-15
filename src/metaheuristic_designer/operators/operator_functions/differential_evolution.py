@@ -5,7 +5,7 @@ import scipy as sp
 import scipy.stats
 import enum
 from enum import Enum
-from ..utils import RAND_GEN
+from ...utils import RAND_GEN
 
 
 def DE_rand1(population, F, CR):

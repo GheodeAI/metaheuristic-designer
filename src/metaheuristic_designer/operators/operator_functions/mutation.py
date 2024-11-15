@@ -5,7 +5,7 @@ import scipy as sp
 import scipy.stats
 import enum
 from enum import Enum
-from ..utils import RAND_GEN
+from ...utils import RAND_GEN
 
 
 class ProbDist(Enum):
@@ -70,24 +70,6 @@ class multicategorical:
         index_rnd = random_state.uniform(0, 1, size=size)
         return self.sample_fn(self.cumsum_matrix, index_rnd)
 
-def xor_mask(population, n, mode="byte"):
-    """
-    Applies an XOR operation between a random number and the input vector.
-    """
-
-    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape(population.shape)
-    mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
-
-    if mode == "bin":
-        mask = mask_pos
-    elif mode == "byte":
-        mask = RAND_GEN.integers(1, 0xFF, size=population.shape) * mask_pos
-    elif mode == "int":
-        mask = RAND_GEN.integers(1, 0xFFFF, size=population.shape) * mask_pos
-
-    return population ^ mask
-
-
 def gaussian_mutation(population, strength):
     """
     Adds random noise following a Gaussian distribution to the vector.
@@ -127,6 +109,13 @@ def poisson_mutation(population, strength, mu):
 
     return rand_noise(population, distrib=ProbDist.POISSON, F=strength, mu=mu)
 
+def bernoulli_mutation(population, p):
+    """
+    Adds random noise following a Poisson distribution to the vector.
+    """
+
+    return rand_sample(population, distrib=ProbDist.BERNOULLI, p=p, loc=0, scale=1)
+
 
 def mutate_sample(population, **params):
     """
@@ -138,13 +127,18 @@ def mutate_sample(population, **params):
 
     loc = params.get("loc")
     scale = params.get("scale")
+    if "loc" in params:
+        del params["loc"]
+    if "scale" in params:
+        del params["scale"]
+
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
         loc = minim
         scale = maxim - minim
 
-    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape((population.shape[0], n))
+    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape(population.shape)
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
     if loc is None or (type(loc) is str and loc == "calculated"):
@@ -152,9 +146,10 @@ def mutate_sample(population, **params):
     if scale is None or (type(scale) is str and scale == "calculated"):
         scale = population[mask_pos].std(axis=0)
 
-    rand_vec = sample_distribution((population.shape[0], n), loc, scale, params)
+    rand_vec = sample_distribution(population.shape, loc, scale, **params)
 
-    population[mask_pos] = population
+    population[mask_pos] = rand_vec[mask_pos]
+
     return population
 
 
@@ -168,6 +163,12 @@ def mutate_noise(population, **params):
 
     loc = params.get("loc")
     scale = params.get("scale")
+
+    if "loc" in params:
+        del params["loc"]
+    if "scale" in params:
+        del params["scale"]
+
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
@@ -175,12 +176,12 @@ def mutate_noise(population, **params):
         scale = maxim - minim
     strength = params.get("F", 1)
 
-    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape((population.shape[0], n))
+    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape(population.shape)
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
-    rand_vec = sample_distribution((population.shape[0], n), loc, scale, params)
+    rand_vec = sample_distribution(population.shape, loc, scale, **params)
 
-    population[mask_pos] = population[mask_pos] + strength * rand_vec
+    population[mask_pos] = population[mask_pos] + strength * rand_vec[mask_pos]
     return population
 
 
@@ -193,18 +194,25 @@ def rand_sample(population, **params):
 
     loc = params.get("loc")
     scale = params.get("scale")
+
+    if "loc" in params:
+        del params["loc"]
+    if "scale" in params:
+        del params["scale"]
+
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
         loc = minim
         scale = maxim - minim
+        
 
     if loc is None or (type(loc) is str and loc == "calculated"):
         loc = population.mean(axis=0)
     if scale is None or (type(scale) is str and scale == "calculated"):
         scale = population.std(axis=0)
 
-    rand_population = sample_distribution(popuplation.shape, loc, scale, params)
+    rand_population = sample_distribution(population.shape, loc, scale, **params)
 
     return rand_population
 
@@ -218,6 +226,11 @@ def rand_noise(population, **params):
 
     loc = params.get("loc")
     scale = params.get("scale")
+    if "loc" in params:
+        del params["loc"]
+    if "scale" in params:
+        del params["scale"]
+
     if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
         minim = params["min"]
         maxim = params["max"]
@@ -230,9 +243,9 @@ def rand_noise(population, **params):
     return population + strength * noise
 
 
-def sample_distribution(n, loc=None, scale=None, **params):
+def sample_distribution(shape, loc=None, scale=None, **params):
     """
-    Takes 'n' samples from a given probablility distribution and returns them as a vector.
+    Takes samples as a matrix with shape 'shape' from a given probablility distribution and returns them as a vector.
     """
 
     distrib = params["distrib"]
@@ -269,9 +282,9 @@ def sample_distribution(n, loc=None, scale=None, **params):
     elif distrib == ProbDist.CATEGORICAL:
         p = params["p"]
         prob_distrib = sp.stats.rv_discrete(name="categorical", values=(np.arange(p.size), p / np.sum(p)))
-    elif distrib == ProbDist.MULTICATEGORICAL:
-        p = params["p"]
-        prob_distrib = mulitcategorial(np.arange(p.shape[0]), weight_matrix=p)
+    # elif distrib == ProbDist.MULTICATEGORICAL:
+    #     p = params["p"]
+    #     prob_distrib = mulitcategorial(np.arange(p.shape[0]), weight_matrix=p)
     elif distrib == ProbDist.CUSTOM:
         if "distrib_class" not in params:
             raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")
@@ -279,7 +292,7 @@ def sample_distribution(n, loc=None, scale=None, **params):
     else:
         raise ValueError("Invalid probability distribution")
 
-    return prob_distrib.rvs(size=n, random_state=RAND_GEN)
+    return prob_distrib.rvs(size=shape, random_state=RAND_GEN)
 
 
 def generate_statistic(population, **params):
@@ -334,38 +347,22 @@ def mutate_n_sigmas(population, epsilon, tau, tau_multiple):
     )
 
 
-def pso_operator(population, population_speed, historical_best, global_best, w, c1, c2):
+def xor_mask(population, n, mode="byte"):
     """
-    Performs a step of the Particle Swarm algorithm
-    """
-
-    global_best = global_best[None, :]
-
-    c1 = c1 * RAND_GEN.uniform(0, 1, population.shape)
-    c2 = c2 * RAND_GEN.uniform(0, 1, population.shape)
-
-    speed = w * population_speed + c1 * (historical_best - population) + c2 * (global_best - population)
-
-    return population + speed, speed
-
-
-def firefly(solution, population, objfunc, alpha_0, beta_0, delta, gamma):
-    """
-    Performs a step of the Firefly algorithm
+    Applies an XOR operation between a random number and the input vector.
     """
 
-    sol_range = objfunc.up_lim - objfunc.low_lim
-    n_dim = solution.genotype.size
-    new_vector = solution.genotype.copy()
-    for idx, ind in enumerate(population):
-        if solution.fitness < ind.fitness:
-            r = np.linalg.norm(solution.genotype - ind.genotype)
-            alpha = alpha_0 * delta**idx
-            beta = beta_0 * np.exp(-gamma * (r / (sol_range * np.sqrt(n_dim))) ** 2)
-            new_vector = new_vector + beta * (ind.genotype - new_vector) + alpha * sol_range * RAND_GEN.uniform(0, 1) - 0.5
-            new_vector = objfunc.repair_solution(new_vector)
+    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape(population.shape)
+    mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
-    return new_vector
+    if mode == "bin":
+        mask = mask_pos
+    elif mode == "byte":
+        mask = RAND_GEN.integers(1, 0xFF, size=population.shape) * mask_pos
+    elif mode == "int":
+        mask = RAND_GEN.integers(1, 0xFFFF, size=population.shape) * mask_pos
+
+    return population ^ mask
 
 
 def dummy_op(population, scale=1000):

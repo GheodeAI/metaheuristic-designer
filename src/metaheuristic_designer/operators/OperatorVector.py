@@ -2,11 +2,11 @@ from __future__ import annotations
 import numpy as np
 from ..Operator import Operator
 
-from .crossover import *
-from .mutation import *
-from .permutation_mutation import *
-from .differential_evolution import *
-from .swarm import *
+from .operator_functions.mutation import *
+from .operator_functions.crossover import *
+from .operator_functions.permutation import *
+from .operator_functions.differential_evolution import *
+from .operator_functions.swarm import *
 
 from ..ParamScheduler import ParamScheduler
 from ..Encoding import Encoding
@@ -159,13 +159,13 @@ class OperatorVector(Operator):
             if "Low" not in self.params:
                 self.params["Low"] = 0
 
-    def evolve_single(self, indiv, population, objfunc, global_best, initializer):
+    def evolve_single(self, indiv, population, global_best, initializer):
         raise Exception("LMAO what?")
 
-    def evolve(self, population, objfunc, initializer=None, global_best=None):
+    def evolve(self, population, initializer=None, global_best=None):
         new_population = None
-        population_matrix = np.array([indiv.genotype for indiv in population])
-        fitness_array = np.array([indiv.fitness for indiv in population])
+        population_matrix = population.genotype_set
+        fitness_array = population.fitness
         speed = None
 
         params = copy(self.params)
@@ -284,15 +284,17 @@ class OperatorVector(Operator):
 
         ## Swarm based algorithms
         elif self.method == VectorOpMethods.PSO:
-            population_speed = np.array([indiv.speed for indiv in population])
-            historical_best = np.array([indiv.best for indiv in population])
+            # population_speed = np.array([indiv.speed for indiv in population])
+            # historical_best = np.array([indiv.best for indiv in population])
+            population_speed = population.speed_set
+            historical_best = population.historical_best_set
             population_matrix, speed = pso_operator(population_matrix, population_speed, historical_best, global_best.genotype, params["w"], params["c1"], params["c2"])
 
         elif self.method == VectorOpMethods.FIREFLY:
             population_matrix = firefly(
-                indiv,
-                others,
-                objfunc,
+                population_matrix,
+                fitness_array,
+                population.objfunc,
                 params["a"],
                 params["b"],
                 params["d"],
@@ -301,31 +303,27 @@ class OperatorVector(Operator):
 
         ## Other operators
         elif self.method == VectorOpMethods.RANDOM:
-            new_population = initializer.generate_population(objfunc, len(population))
+            new_population = initializer.generate_population(population.objfunc, len(population))
 
         elif self.method == VectorOpMethods.RANDOM_MASK:
             mask_pos = np.tile(np.arange(population_matrix.shape[1]) < params["N"], population_matrix.shape[0]).reshape(population_matrix.shape)
             mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
-            random_population = initializer.generate_population(objfunc, len(population))
-            random_population_matrix = np.array([indiv.genotype for indiv in random_population])
+            random_population = initializer.generate_population(population.objfunc, len(population))
 
-            population_matrix[mask_pos] = random_population_matrix[mask_pos]
+            population_matrix[mask_pos] = random_population.genotype_set[mask_pos]
 
         elif self.method == VectorOpMethods.DUMMY:
             population_matrix = dummy_op(population_matrix, params["F"])
 
         elif self.method == VectorOpMethods.CUSTOM:
             fn = params["function"]
-            population_matrix = fn(population, objfunc, params)
+            population_matrix = fn(population_matrix, population.objfunc, params)
 
         elif self.method == VectorOpMethods.NOTHING:
             population_matrix = population_matrix
         
         if new_population is None:
-            if speed is None:
-                new_population = [indiv.change_genotype(self.encoding.encode(population_matrix[idx, :])) for idx, indiv in enumerate(population)]
-            else:
-                new_population = [indiv.change_genotype(self.encoding.encode(population_matrix[idx, :]), speed[idx, :]) for idx, indiv in enumerate(population)]
+            new_population = population.update_genotype_set(population_matrix, speed)
         
         return new_population

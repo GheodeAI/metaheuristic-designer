@@ -37,6 +37,7 @@ class Population:
         self.objfunc = objfunc
 
         self.genotype_set = genotype_set
+        self.historical_best_set = genotype_set
         if isinstance(genotype_set, ndarray):
             assert genotype_set.ndim == 2
             self.pop_size = genotype_set.shape[0]
@@ -76,7 +77,7 @@ class Population:
             return self.genotype_set[self.index-1]
         raise StopIteration
     
-    def update_genotype_set(self, genotype_set):
+    def update_genotype_set(self, genotype_set, speed_set=None):
         if isinstance(genotype_set, ndarray):
             self.fitness_calculated = np.any(genotype_set != self.genotype_set, axis=1)
         else:
@@ -85,6 +86,11 @@ class Population:
         self.ages += 1
         self.ages[self.fitness_calculated] = 0
         self.calculate_fitness()
+        self.genotype_set = genotype_set
+        # TODO: update historical best set
+        if speed_set is not None:
+            self.speed_set = speed_set
+        return self
 
     def calculate_fitness(self, parallel=False, threads=8) -> float:
         """

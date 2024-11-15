@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 import scipy as sp
 from metaheuristic_designer import Individual
-from metaheuristic_designer.operators.mutation import *
+from metaheuristic_designer.operators.operator_functions.mutation import *
 import metaheuristic_designer as mhd
 
 # n_indiv = 100

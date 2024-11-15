@@ -1,12 +1,7 @@
 from __future__ import annotations
 import numpy as np
 from ..Operator import Operator
-from .vector_operator_functions import *
-from ..ParamScheduler import ParamScheduler
 from copy import copy
-import enum
-from enum import Enum
-from ..utils import RAND_GEN
 
 
 class OperatorNull(Operator):

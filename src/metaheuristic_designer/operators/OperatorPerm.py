@@ -1,7 +1,6 @@
 from __future__ import annotations
 from ..Operator import Operator
-from .mutation import *
-from .permutation_mutation import *
+from .operator_functions.permutation import *
 from copy import copy
 import enum
 from enum import Enum
@@ -73,18 +72,17 @@ class OperatorPerm(Operator):
 
         self.method = PermOpMethods.from_str(method)
     
-    def evolve(self, population, objfunc, initializer=None, global_best=None):
-        population_matrix = np.array([indiv.genotype for indiv in population])
-        speed = None
+    def evolve(self, population, initializer=None, global_best=None):
+        population_matrix = population.genotype_set
 
         params = copy(self.params)
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
+            params["N"] = np.count_nonzero(RAND_GEN.random(population_matrix.shape[1]) < params["Cr"])
 
         if "N" in params:
             params["N"] = round(params["N"])
-            params["N"] = min(params["N"], new_indiv.genotype.size)
+            params["N"] = min(params["N"], population_matrix.shape[1])
 
         # Perform one of the methods (switch-case like structure)
         if self.method == PermOpMethods.SWAP:
@@ -103,93 +101,26 @@ class OperatorPerm(Operator):
             population_matrix = invert_mutation(population_matrix)
 
         elif self.method == PermOpMethods.PMX:
-            population_matrix = pmx(population_matrix, indiv2.genotype.copy())
+            population_matrix = pmx(population_matrix)
 
         elif self.method == PermOpMethods.ORDERCROSS:
-            population_matrix = order_cross(population_matrix, indiv2.genotype.copy())
+            population_matrix = order_cross(population_matrix)
 
         elif self.method == PermOpMethods.RANDOM:
-            new_indiv = initializer.generate_random(objfunc)
+            new_indiv = initializer.generate_random(population.objfunc)
 
         elif self.method == PermOpMethods.DUMMY:
             population_matrix = np.repeat(np.arange(population_matrix.shape[1]), population.shape[0]).reshape(population.shape)
 
         elif self.method == PermOpMethods.CUSTOM:
             fn = params["function"]
-            population_matrix = fn(indiv, population, objfunc, params)
+            population_matrix = fn(population_matrix, population.objfunc, params)
 
         elif self.method == PermOpMethods.NOTHING:
             population_matrix = population_matrix
 
         
-        new_population = copy(population)
-        for idx, indiv_vector in enumerate(population_matrix):
-            population[idx].genotype = self.encoding.encode(indiv_vector)
-            if speed is not None:
-                indiv.speed = speed[idx, :]
+        if new_population is None:
+            new_population = population.update_genotype_set(population_matrix, speed)
         
         return new_population
-
-    # def evolve(self, population, objfunc, initializer=None, global_best=None):
-    #     new_population = [self.evolve_single(indiv, population, objfunc, intializer, global_best) for indiv in population]
-
-    #     return new_population
-
-    # def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None):
-    #     new_indiv = copy(indiv)
-    #     others = [i for i in population if i != indiv]
-    #     if len(others) == 0:
-    #         indiv2 = indiv
-    #         others = [indiv]
-    #     elif len(others) == 1:
-    #         indiv2 = indiv
-    #     else:
-    #         indiv2 = random.choice(others)
-
-    #     if global_best is None:
-    #         global_best = indiv
-
-    #     params = copy(self.params)
-
-    #     if "Cr" in params and "N" not in params:
-    #         params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
-
-    #     if "N" in params:
-    #         params["N"] = round(params["N"])
-    #         params["N"] = min(params["N"], population_matrix.size)
-
-    #     if self.method == PermOpMethods.SWAP:
-    #         new_indiv.genotype = permutation(new_indiv.genotype, 2)
-
-    #     elif self.method == PermOpMethods.SCRAMBLE:
-    #         new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
-
-    #     elif self.method == PermOpMethods.INSERT:
-    #         new_indiv.genotype = roll(new_indiv.genotype, 1)
-
-    #     elif self.method == PermOpMethods.ROLL:
-    #         new_indiv.genotype = roll(new_indiv.genotype, params["N"])
-
-    #     elif self.method == PermOpMethods.INVERT:
-    #         new_indiv.genotype = invert_mutation(new_indiv.genotype)
-
-    #     elif self.method == PermOpMethods.PMX:
-    #         new_indiv.genotype = pmx(new_indiv.genotype, indiv2.genotype.copy())
-
-    #     elif self.method == PermOpMethods.ORDERCROSS:
-    #         new_indiv.genotype = order_cross(new_indiv.genotype, indiv2.genotype.copy())
-
-    #     elif self.method == PermOpMethods.RANDOM:
-    #         new_indiv = initializer.generate_random(objfunc)
-
-    #     elif self.method == PermOpMethods.DUMMY:
-    #         new_indiv.genotype = np.arange(indiv.genotype.size)
-
-    #     elif self.method == PermOpMethods.CUSTOM:
-    #         fn = params["function"]
-    #         new_indiv.genotype = fn(indiv, population, objfunc, params)
-
-    #     elif self.method == PermOpMethods.NOTHING:
-    #         new_indiv = indiv
-
-    #     return new_indiv
