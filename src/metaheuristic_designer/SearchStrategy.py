@@ -128,11 +128,7 @@ class SearchStrategy(ABC):
             A pair of the best individual with its fitness.
         """
 
-        best_fitness = self.best.fitness
-        if self.best.objfunc.mode == "min":
-            best_fitness *= -1
-
-        return self.best.genotype, best_fitness
+        return self.population.best_solution()
 
     @property
     def initializer(self):

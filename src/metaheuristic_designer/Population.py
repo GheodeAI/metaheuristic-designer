@@ -35,7 +35,6 @@ class Population:
         """
 
         self.objfunc = objfunc
-        print(genotype_set)
 
         self.genotype_set = genotype_set
         self.historical_best_set = genotype_set
@@ -92,6 +91,13 @@ class Population:
 
         return copied_pop
     
+    def best_solution(self) -> Tuple[Any, float]:
+        best_fitness = self.best_fitness
+        if self.objfunc.mode == "min":
+            best_fitness *= -1
+
+        return self.best, best_fitness
+    
     def update_genotype_set(self, genotype_set, speed_set=None):
         if speed_set is None:
             speed_set = copy(self.speed_set)
@@ -106,15 +112,11 @@ class Population:
             new_population.fitness_calculated = np.asarray([new_genotype != genotype] for new_genotype, genotype in zip(genotype_set, new_population.genotype_set))
         new_population.calculate_fitness()
 
-        # print(new_population.ages)
-        # print(genotype_set)
-        # print(new_population.fitness_calculated)
-
         return new_population
     
     def increase_age(self):
         self.ages += 1
-        self.ages[new_population.fitness_calculated == 1] = 0
+        self.ages[self.fitness_calculated == 1] = 0
     
     def repeat(self, amount=2):
         if isinstance(self.genotype_set, ndarray):
@@ -164,8 +166,10 @@ class Population:
         #     indiv.genotype = objfunc.repair_solution(indiv.genotype)
         #     indiv.speed = objfunc.repair_speed(indiv.speed)
 
-        for idx, indiv in self.genotype_set:
+        for idx, indiv in enumerate(self.genotype_set):
             self.genotype_set[idx] = self.objfunc.repair_solution(indiv)
+        
+        return self
 
     def get_state(self, show_speed: bool = True, show_best: bool = False) -> dict:
         """

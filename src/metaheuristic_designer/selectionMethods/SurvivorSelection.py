@@ -80,9 +80,16 @@ class SurvivorSelection(SelectionMethod):
         self.method = SurvSelMethod.from_str(method)
 
     def select(self, population: Population, offspring: Population) -> Population:
-        result = []
+        population = copy(population)
         population_set = population.genotype_set
+        population_fitness = population.fitness
+
+        offspring = copy(offspring)
         offspring_set = offspring.genotype_set
+        offspring_fitness = offspring.fitness
+
+        result = None
+
         if self.method == SurvSelMethod.ELITISM:
             result = elitism(population_set, offspring_set, self.params["amount"])
 
@@ -93,13 +100,13 @@ class SurvivorSelection(SelectionMethod):
             result = offspring
 
         elif self.method == SurvSelMethod.ONE_TO_ONE:
-            result = one_to_one(population_set, offspring_set)
+            result = one_to_one(population_set, offspring_set, population_fitness, offspring_fitness)
 
         elif self.method == SurvSelMethod.PROB_ONE_TO_ONE:
-            result = prob_one_to_one(population_set, offspring_set, self.params["p"])
+            result = prob_one_to_one(population_set, offspring_set, population_fitness, offspring_fitness, self.params["p"])
 
         elif self.method == SurvSelMethod.MU_PLUS_LAMBDA:
-            result = lamb_plus_mu(population_set, offspring_set)
+            result = lamb_plus_mu(population_set, offspring_set, population_fitness, offspring_fitness)
 
         elif self.method == SurvSelMethod.MU_COMMA_LAMBDA:
             result = lamb_comma_mu(population_set, offspring_set)
@@ -114,4 +121,6 @@ class SurvivorSelection(SelectionMethod):
                 self.params["maxPopSize"],
             )
 
-        return result
+        new_population = population.update_genotype_set(result)
+
+        return new_population

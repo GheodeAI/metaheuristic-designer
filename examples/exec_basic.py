@@ -18,8 +18,8 @@ def run_algorithm(alg_name, memetic, save_state):
     params = {
         # "stop_cond": "neval or time_limit or fit_target",
         # "stop_cond": "neval or time_limit",
-        # "stop_cond": "convergence or time_limit",
-        "stop_cond": "time_limit",
+        "stop_cond": "convergence or time_limit",
+        # "stop_cond": "time_limit",
         "progress_metric": "time_limit",
         "time_limit": 100.0,
         "cpu_time_limit": 100.0,
@@ -31,7 +31,7 @@ def run_algorithm(alg_name, memetic, save_state):
         "v_timer": 0.5,
     }
 
-    objfunc = Sphere(30, "min")
+    objfunc = Sphere(3, "min")
     # objfunc = Rastrigin(30, "min")
     # objfunc = Rosenbrock(2, "min")
     # objfunc = Weierstrass(30, "min")

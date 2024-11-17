@@ -3,6 +3,7 @@ import random
 import warnings
 import enum
 from enum import Enum
+from ..utils import RAND_GEN
 
 
 class SelectionDist(Enum):
@@ -29,7 +30,7 @@ select_dist_map = {
 }
 
 
-def select_best(population, amount):
+def select_best(population, fitness, amount):
     """
     Selects the best parent of the population as parents.
 
@@ -46,16 +47,12 @@ def select_best(population, amount):
         List of individuals chosen as parents.
     """
 
-    # Get the fitness of all the individuals
-    fitness_list = np.fromiter(map(lambda x: x.fitness, population), dtype=float)
-
     # Get the index of the individuals sorted by fitness
-    order = np.argsort(fitness_list)[::-1][:amount]
+    order = np.argsort(fitness)[::-1][:amount]
 
     # Select the 'amount' best individuals
-    parents = [population[i] for i in order]
+    parents = population[order]
 
-    # return parents, order
     return parents
 
 
@@ -119,11 +116,11 @@ def uniform_selection(population, amount):
         List of individuals chosen as parents.
     """
 
-    order = random.choices(range(len(population)), k=amount)
-    parents = [population[i] for i in order]
+    # order = random.choices(range(len(population)), k=amount)
+    # parents = [population[i] for i in order]
 
     # return parents, order
-    return parents
+    return RAND_GEN.permuted(population, axis=0)[:amount]
 
 
 def selection_distribution(population, method, f=2):

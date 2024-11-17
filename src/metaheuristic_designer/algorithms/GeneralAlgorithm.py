@@ -42,10 +42,10 @@ class GeneralAlgorithm(Algorithm):
         parents = self.search_strategy.select_parents(population, progress=self.progress, history=self.best_history)
 
         # Evolve the selected parents
-        offspring = self.search_strategy.perturb(parents, self.objfunc, progress=self.progress, history=self.best_history)
+        offspring = self.search_strategy.perturb(parents, progress=self.progress, history=self.best_history)
 
         # Get the fitness of the individuals
-        offspring = self.search_strategy.evaluate_population(offspring, self.objfunc, self.parallel, self.threads)
+        offspring = self.search_strategy.evaluate_population(offspring, self.parallel, self.threads)
 
         # Select the individuals that remain for the next generation
         population = self.search_strategy.select_individuals(population, offspring, progress=self.progress, history=self.best_history)

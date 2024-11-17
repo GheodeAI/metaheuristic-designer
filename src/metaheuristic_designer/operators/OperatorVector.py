@@ -163,6 +163,7 @@ class OperatorVector(Operator):
         raise Exception("LMAO what?")
 
     def evolve(self, population, initializer=None, global_best=None):
+        population = copy(population)
         new_population = None
         population_matrix = population.genotype_set
         fitness_array = population.fitness

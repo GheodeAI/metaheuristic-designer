@@ -1,6 +1,7 @@
 from __future__ import annotations
 import enum
 from enum import Enum
+from copy import copy
 from ..ParamScheduler import ParamScheduler
 from ..SelectionMethod import SelectionMethod
 from .parent_selection_functions import *
@@ -76,15 +77,17 @@ class ParentSelection(SelectionMethod):
                 self.params["F"] = None
 
     def select(self, population: Population, offsping: Population = None) -> Population:
-        population = population.copy()
-        parents = []
+        population = copy(population)
+        new_population = None
+        parents = None
         population_set = population.genotype_set
+        fitness_array = population.fitness
 
         if self.method == ParentSelMethod.TOURNAMENT:
-            parents = prob_tournament(population_set, self.params["amount"], self.params["p"])
+            parents = prob_tournament(population_set, fitness_array, self.params["amount"], self.params["p"])
 
         elif self.method == ParentSelMethod.BEST:
-            parents = select_best(population_set, self.params["amount"])
+            parents = select_best(population_set, fitness_array, self.params["amount"])
 
         elif self.method == ParentSelMethod.RANDOM:
             parents = uniform_selection(population_set, self.params["amount"])
@@ -108,4 +111,6 @@ class ParentSelection(SelectionMethod):
         elif self.method == ParentSelMethod.NOTHING:
             parents = population_set
 
-        return parents
+        new_population = population.update_genotype_set(parents)
+
+        return new_population

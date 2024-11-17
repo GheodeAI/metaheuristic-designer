@@ -124,7 +124,7 @@ class Algorithm(ABC):
         ind, fit = self.search_strategy.best_solution()
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=",")
 
-    def best_solution(self) -> Tuple[Individual, float]:
+    def best_solution(self) -> Tuple[Any, float]:
         """
         Returns the best solution so far in the population.
 
@@ -271,7 +271,7 @@ class Algorithm(ABC):
 
         self.restart()
         initial_population = self.search_strategy.initialize(self.objfunc)
-        initial_population = self.search_strategy.evaluate_population(initial_population, self.objfunc, self.parallel, self.threads)
+        initial_population = self.search_strategy.evaluate_population(initial_population, self.parallel, self.threads)
         self.search_strategy.population = initial_population
 
     @abstractmethod
@@ -458,7 +458,7 @@ class Algorithm(ABC):
         print(f"\tReal time Spent: {round(time.time() - start_time,2)} s")
         print(f"\tCPU time Spent:  {round(time.time() - start_time,2)} s")
         print(f"\tGeneration: {self.steps}")
-        best_fitness = self.best_solution()[1]
+        _, best_fitness = self.best_solution()
         print(f"\tBest fitness: {best_fitness}")
         print(f"\tEvaluations of fitness: {self.objfunc.counter}")
         print()
