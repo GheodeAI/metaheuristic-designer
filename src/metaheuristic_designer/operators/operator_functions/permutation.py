@@ -15,7 +15,7 @@ def permute_mutation(population, n):
 
     n = np.clip(n, 2, population.shape[0])
 
-    mask_pos = np.tile(np.arange(population.shape[1]), population.shape[0]).reshape(population.shape)
+    mask_pos = np.tile(np.arange(population.shape[1]), (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)[:, :n]
 
     if n == 2:
@@ -39,9 +39,6 @@ def roll_mutation(population, n):
     def roll_individual(indiv, start, end, n):
         indiv_copy = indiv.copy()
         indiv_copy[start:end] = np.roll(indiv[start:end], n)
-        print(indiv)
-        print(indiv_copy)
-        print()
         return indiv_copy
 
     roll_vec = np.vectorize(roll_individual, signature="(m),(),(),()->(m)")

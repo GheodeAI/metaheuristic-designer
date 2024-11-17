@@ -27,7 +27,7 @@ class Population:
         objfunc: ObjectiveFunc,
         genotype_set: Any,
         speed_set: ndarray = None,
-        ages: ndarray = 0,
+        ages: ndarray = None,
         encoding: Encoding = None,
     ):
         """
@@ -35,11 +35,12 @@ class Population:
         """
 
         self.objfunc = objfunc
+        print(genotype_set)
 
         self.genotype_set = genotype_set
         self.historical_best_set = genotype_set
         if isinstance(genotype_set, ndarray):
-            assert genotype_set.ndim == 2
+            # assert genotype_set.ndim == 2
             self.pop_size = genotype_set.shape[0]
             self.vec_size = genotype_set.shape[1]
 
@@ -76,21 +77,42 @@ class Population:
         if self.index <= len(self):
             return self.genotype_set[self.index-1]
         raise StopIteration
+
+    def __copy__(self) -> Population:
+        """
+        Returns a copy of the Individual.
+        """
+
+        copied_pop = Population(self.objfunc, copy(self.genotype_set), copy(self.speed_set), ages=copy(self.ages), encoding=self.encoding)
+        copied_pop.historical_best_set = copy(self.historical_best_set)
+        copied_pop.best_fitness = copy(self.best_fitness)
+        copied_pop.fitness_calculated = copy(self.fitness_calculated)
+        copied_pop.fitness = copy(self.fitness)
+        copied_pop.best = copy(self.best)
+
+        return copied_pop
     
     def update_genotype_set(self, genotype_set, speed_set=None):
-        if isinstance(genotype_set, ndarray):
-            self.fitness_calculated = np.any(genotype_set != self.genotype_set, axis=1)
+        if speed_set is None:
+            speed_set = copy(self.speed_set)
+        
+        new_population = Population(self.objfunc, genotype_set, speed_set, ages=copy(self.ages), encoding=self.encoding)
+        if len(genotype_set) != len(self.genotype_set):
+            new_population.ages = np.zeros(len(genotype_set))
+            new_population.fitness_calculated = np.zeros(len(genotype_set))
+        elif isinstance(genotype_set, ndarray):
+            new_population.fitness_calculated = np.any(genotype_set != new_population.genotype_set, axis=1)
         else:
-            self.fitness_calculated = np.asarray([new_genotype != genotype] for new_genotype, genotype in zip(genotype_set, self.genotype_set))
+            new_population.fitness_calculated = np.asarray([new_genotype != genotype] for new_genotype, genotype in zip(genotype_set, new_population.genotype_set))
+        new_population.calculate_fitness()
 
-        self.ages += 1
-        self.ages[self.fitness_calculated] = 0
-        self.calculate_fitness()
-        self.genotype_set = genotype_set
-        # TODO: update historical best set
-        if speed_set is not None:
-            self.speed_set = speed_set
-        return self
+        # print(new_population.ages)
+        # print(genotype_set)
+        # print(new_population.fitness_calculated)
+        new_population.ages += 1
+        new_population.ages[new_population.fitness_calculated == 1] = 0
+
+        return new_population
 
     def calculate_fitness(self, parallel=False, threads=8) -> float:
         """
@@ -106,14 +128,17 @@ class Population:
         #     # [population.calculate_fitness() for indiv in population]
         #     population.calculate_fitness()
 
-        for idx, genotype in enumerate(self.genotype_set):
-            if not self.fitness_calculated[idx]:
-                self.fitness[idx] = self.objfunc(self)
+        # for idx, genotype in enumerate(self.genotype_set):
+        #     if not self.fitness_calculated[idx]:
+        #         self.fitness[idx] = self.objfunc(self)
+        self.fitness = self.objfunc(self)
         
-        if np.any(self.fitness > best_fitness):
+        if self.best_fitness is None or np.any(self.fitness > self.best_fitness):
             best_idx = np.argmax(self.fitness)
-            self.best = self.genotype[best_idx]
+            self.best = self.genotype_set[best_idx]
             self.best_fitness = self.fitness[best_idx]
+
+        #TODO: Update historical best set
         
         return self.fitness
     

@@ -94,14 +94,24 @@ class OperatorMeta(Operator):
         if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
             params["weights"] = [params["p"], 1 - params["p"]]
     
-    def evolve(self, population, objfunc, initializer=None, global_best=None):
-        if self.method == MetaOpMethods.BRANCH:
-            self.chosen_idx = RAND_GEN.choice(np.arange(len(self.op_list)), size=len(population), p=self.params["weights"])
-            population_numpy = np.asarray(population)
-            for idx, op in enumerate(self.op_list):
-                population_numpy[self.chosen_idx == idx] = op.evolve(population_numpy[self.chosen_idx == idx], objfunc, global_best, initializer)
-            result = list(population_numpy)
+    def evolve(self, population, initializer=None, global_best=None):
+        new_population = None
+        population_matrix = copy(population.genotype_set)
+        fitness_array = population.fitness
 
+        if self.method == MetaOpMethods.BRANCH:
+            self.chosen_idx = RAND_GEN.choice(np.arange(len(self.op_list)), size=len(population.genotype_set), p=self.params["weights"])
+            population_matrix = population.genotype_set
+            speed = population.speed_set
+            for idx, op in enumerate(self.op_list):
+                split_mask = self.chosen_idx == idx
+
+                if np.any(split_mask):
+                    split_population = population.update_genotype_set(population_matrix[split_mask], speed[split_mask]) 
+                    split_population = op.evolve(split_population, global_best, initializer)
+
+                    population_matrix[split_mask, :] = split_population.genotype_set
+                    speed[split_mask, :] = split_population.speed_set
 
         elif self.method == MetaOpMethods.PICK:
             if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
@@ -110,27 +120,50 @@ class OperatorMeta(Operator):
                 chosen_idx = np.asarray([self.chosen_idx]*len(population))
 
             # the chosen index is assumed to be changed by the user
-            population_numpy = np.asarray(population)
+            population_matrix = population.genotype_set
+            speed = population.speed_set
             for idx, op in enumerate(self.op_list):
-                population_numpy[chosen_idx == idx] = op.evolve(list(population_numpy[chosen_idx == idx]), objfunc, global_best, initializer)
-            result = list(population_numpy)
+                split_mask = chosen_idx == idx
+
+                if np.any(split_mask):
+                    split_population = population.update_genotype_set(population_matrix[split_mask], speed[split_mask]) 
+                    split_population = op.evolve(split_population, global_best, initializer)
+
+                    population_matrix[split_mask, :] = split_population.genotype_set
+                    speed[split_mask, :] = split_population.speed_set
 
         elif self.method == MetaOpMethods.SEQUENCE:
-            result = population
+            new_population = copy(population)
             for op in self.op_list:
-                result = op.evolve(result, objfunc, global_best, initializer)
+                new_population = op.evolve(new_population, global_best, initializer)
 
         elif self.method == MetaOpMethods.SPLIT:
 
+            # for idx_op, op in enumerate(self.op_list):
+            #     curr_mask = self.mask == idx_op 
+            #     if np.any(curr_mask):
+            #         filtered_best = self._filter_indiv(global_best, curr_mask)
+            #         split_population = [self._filter_indiv(indiv, curr_mask) for indiv in population]
+            #         split_population = op.evolve(population, objfunc, filtered_best, initializer)
+            #         population = [self._undo_filter_indiv(indiv, filtered_indiv, curr_mask) for indiv, filtered_indiv in zip(population, split_population)]
+            
+            population_matrix = population.genotype_set
+            speed = population.speed_set
             for idx_op, op in enumerate(self.op_list):
-                curr_mask = self.mask == idx_op 
-                if np.any(curr_mask):
-                    filtered_best = self._filter_indiv(global_best, curr_mask)
-                    split_population = [self._filter_indiv(indiv, curr_mask) for indiv in population]
-                    split_population = op.evolve(population, objfunc, filtered_best, initializer)
-                    population = [self._undo_filter_indiv(indiv, filtered_indiv, curr_mask) for indiv, filtered_indiv in zip(population, split_population)]
+                split_mask = self.mask == idx_op 
 
-        return result
+                if np.any(split_mask):
+                    split_population = population.update_genotype_set(population_matrix[:, split_mask], speed[:, split_mask]) 
+                    split_population = op.evolve(split_population, global_best, initializer)
+
+                    population_matrix[:, split_mask] = split_population.genotype_set
+                    speed[:, split_mask] = split_population.speed_set
+
+
+        if new_population is None:
+            new_population = population.update_genotype_set(population_matrix, speed)
+        
+        return new_population
 
     def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None, indiv_idx=0):
         if self.method == MetaOpMethods.BRANCH:

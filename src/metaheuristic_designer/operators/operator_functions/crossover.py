@@ -18,7 +18,7 @@ def cross_1p(population):
     parents2 = population[math.floor(half_size) :]
 
     cross_points = RAND_GEN.integers(1, population.shape[1], (parents1.shape[0], 1))
-    idx_matrix = np.tile(np.arange(population.shape[1]), parents1.shape[0]).reshape(parents1.shape)
+    idx_matrix = np.tile(np.arange(population.shape[1]), (parents1.shape[0], 1))
     cross_mask = idx_matrix < cross_points
 
     offspring1 = np.where(cross_mask, parents1, parents2)
@@ -39,7 +39,7 @@ def cross_2p(population):
     cross_points1 = RAND_GEN.integers(1, population.shape[1] - 1, (parents1.shape[0], 1))
     cross_points2 = RAND_GEN.integers(cross_points1 + 1, parents1.shape[1], (parents1.shape[0], 1))
 
-    idx_matrix = np.tile(np.arange(population.shape[1]), parents1.shape[0]).reshape(parents1.shape)
+    idx_matrix = np.tile(np.arange(population.shape[1]), (parents1.shape[0], 1))
     slice_mask1 = idx_matrix < cross_points1
     slice_mask2 = idx_matrix >= cross_points2
     cross_mask = slice_mask1 | slice_mask2
@@ -129,7 +129,7 @@ def multi_cross(population, n_indiv):
 
     n_indiv = np.minimum(n_indiv, population.shape[0])
 
-    indiv_chosen = np.tile(np.arange(population.shape[0]), n_indiv).reshape((n_indiv, population.shape[0]))
+    indiv_chosen = np.tile(np.arange(population.shape[0]), (n_indiv, 1))
     indiv_chosen = RAND_GEN.permuted(indiv_chosen, axis=1).T
 
     selection_mask = RAND_GEN.integers(0, n_indiv, population.shape)

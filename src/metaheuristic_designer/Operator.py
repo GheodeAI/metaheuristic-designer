@@ -141,7 +141,7 @@ class Operator(ABC):
             The population that will be used in crossing operations.
         objfunc: ObjectiveFunc
             The objective function being optimized.
-        initializer: Initializer
+        initializer: Initialize, params["longitude_max"]r
             The population initializer of the algorithm (used for randomly generating individuals).
         global_best: Individual
             The best individual found during the optimization of the algorithm

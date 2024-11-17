@@ -21,7 +21,7 @@ class ObjectiveFunc(ABC):
         The name that will be displayed to represent this function.
     """
 
-    def __init__(self, mode: str = "max", name: str = "some function"):
+    def __init__(self, mode: str = "max", name: str = "some function", vectorized: bool = False):
         """
         Constructor for the ObjectiveFunc class
         """
@@ -29,6 +29,7 @@ class ObjectiveFunc(ABC):
         self.name = name
         self.counter = 0
         self.factor = 1
+        self.vectorized = False
 
         self.mode = mode
         if mode not in ["max", "min"]:
@@ -37,14 +38,14 @@ class ObjectiveFunc(ABC):
         if self.mode == "min":
             self.factor = -1
 
-    def __call__(self, indiv: Individual, adjusted: bool = True) -> float:
+    def __call__(self, population: Population, adjusted: bool = True) -> float:
         """
         Shorthand for executing the objective function on a vector.
         """
 
-        return self.fitness(indiv, adjusted)
+        return self.fitness(population, adjusted)
 
-    def fitness(self, indiv: Individual, adjusted: bool = True) -> float:
+    def fitness(self, population: Population, adjusted: bool = True, parallel: bool = False, threads: int = 8) -> float:
         """
         Returns the value of the objective function given an individual.
         If the fitness is adjusted, the sign will be switched for minimization problems
@@ -63,17 +64,36 @@ class ObjectiveFunc(ABC):
             Fitness value of the individual.
         """
 
-        self.counter += 1
-        solution = indiv.encoding.decode(indiv.genotype)
-        value = self.objective(solution)
+        fitness = np.empty(population.pop_size)
+        if self.vectorized:
+            #TODO: implement for vectorized fitness functions
+            pass
+        else:
+            for idx, individual in enumerate(population.genotype_set):
+                solution = population.encoding.decode(individual)
+                value = self.objective(solution)
 
-        if adjusted:
-            value = self.factor * (value - self.penalize(solution))
+                if adjusted:
+                    value = self.factor * (value - self.penalize(solution))
+                
+                fitness[idx] = value
+        return fitness
 
-        return value
+
+        
+        
+
+        # self.counter += 1
+        # solution = indiv.encoding.decode(indiv.genotype)
+        # value = self.objective(solution)
+
+        # if adjusted:
+        #     value = self.factor * (value - self.penalize(solution))
+
+        # return value
 
     @abstractmethod
-    def objective(self, solution: Any) -> float:
+    def objective(self, solution: Any) -> float | np.ndarray:
         """
         Implementation of the objective function.
 
@@ -105,26 +125,6 @@ class ObjectiveFunc(ABC):
         """
 
         return vector
-
-    def repair_speed(self, speed: ndarray) -> ndarray:
-        """
-        Transforms an invalid vector into one that satisfies the restrictions of the problem.
-
-        Parameters
-        ----------
-        speed: ndarray
-            A speed vector that could be violating the restrictions of the problem.
-
-        Returns
-        -------
-        repaired_speed: ndarray
-            A modified version of the speed vector passed that satisfies the restrictions of the problem.
-        """
-
-        result = None
-        if speed is not None:
-            result = self.repair_solution(speed)
-        return result
 
     def penalize(self, solution: Any) -> float:
         """
@@ -185,6 +185,26 @@ class ObjectiveVectorFunc(ObjectiveFunc):
 
     def repair_solution(self, vector: ndarray) -> ndarray:
         return np.clip(vector, self.low_lim, self.up_lim)
+
+    def repair_speed(self, speed: ndarray) -> ndarray:
+        """
+        Transforms an invalid vector into one that satisfies the restrictions of the problem.
+
+        Parameters
+        ----------
+        speed: ndarray
+            A speed vector that could be violating the restrictions of the problem.
+
+        Returns
+        -------
+        repaired_speed: ndarray
+            A modified version of the speed vector passed that satisfies the restrictions of the problem.
+        """
+
+        result = None
+        if speed is not None:
+            result = self.repair_solution(speed)
+        return result
 
 
 class ObjectiveFromLambda(ObjectiveVectorFunc):

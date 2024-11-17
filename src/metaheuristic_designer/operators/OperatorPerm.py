@@ -73,6 +73,7 @@ class OperatorPerm(Operator):
         self.method = PermOpMethods.from_str(method)
     
     def evolve(self, population, initializer=None, global_best=None):
+        new_population = None
         population_matrix = population.genotype_set
 
         params = copy(self.params)
@@ -86,16 +87,16 @@ class OperatorPerm(Operator):
 
         # Perform one of the methods (switch-case like structure)
         if self.method == PermOpMethods.SWAP:
-            population_matrix = permutation(population_matrix, 2)
+            population_matrix = permute_mutation(population_matrix, 2)
 
         elif self.method == PermOpMethods.SCRAMBLE:
-            population_matrix = permutation(population_matrix, params["N"])
+            population_matrix = permute_mutation(population_matrix, params["N"])
 
         elif self.method == PermOpMethods.INSERT:
-            population_matrix = roll(population_matrix, 1)
+            population_matrix = roll_mutation(population_matrix, 1)
 
         elif self.method == PermOpMethods.ROLL:
-            population_matrix = roll(population_matrix, params["N"])
+            population_matrix = roll_mutation(population_matrix, params["N"])
 
         elif self.method == PermOpMethods.INVERT:
             population_matrix = invert_mutation(population_matrix)
@@ -107,10 +108,10 @@ class OperatorPerm(Operator):
             population_matrix = order_cross(population_matrix)
 
         elif self.method == PermOpMethods.RANDOM:
-            new_indiv = initializer.generate_random(population.objfunc)
+            new_indiv = initializer.generate_population(population.objfunc)
 
         elif self.method == PermOpMethods.DUMMY:
-            population_matrix = np.repeat(np.arange(population_matrix.shape[1]), population.shape[0]).reshape(population.shape)
+            population_matrix = np.tile(np.arange(population_matrix.shape[1]), (population_matrix.shape[0], 1))
 
         elif self.method == PermOpMethods.CUSTOM:
             fn = params["function"]
@@ -121,6 +122,6 @@ class OperatorPerm(Operator):
 
         
         if new_population is None:
-            new_population = population.update_genotype_set(population_matrix, speed)
+            new_population = population.update_genotype_set(population_matrix)
         
         return new_population

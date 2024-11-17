@@ -56,19 +56,18 @@ class OperatorList(Operator):
 
         self.method = ListOpMethods.from_str(method)
 
-    def evolve(self, population, objfunc, initializer=None, global_best=None):
-        new_population = [self.evolve_single(indiv, population, objfunc, initializer, global_best) for indiv in population]
-
-        return new_population
-
-    def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None):
-        new_indiv = copy(indiv)
+    def evolve(self, population, initializer=None, global_best=None):
+        new_population = None
+        population_list = population.genotype_set
+        fitness_array = population.fitness
+        speed = None
 
         params = copy(self.params)
 
+        # Perform one of the methods (switch-case like structure)
         if self.method == ListOpMethods.EXPAND:
-            nex_indiv.genotype = expand(
-                new_indiv.genotype,
+            population_list = expand(
+                population_list,
                 params["N"],
                 params["method"],
                 params["maxlen"],
@@ -76,9 +75,39 @@ class OperatorList(Operator):
             )
 
         elif self.method == ListOpMethods.SHRINK:
-            nex_indiv.genotype = shrink(new_indiv.genotype, params["N"], params["method"])
+            population_list = shrink(population_list, params["N"], params["method"])
 
         elif self.method == ListOpMethods.NOTHING:
-            new_indiv = indiv
+            new_population = copy(population)
 
-        return new_indiv
+        if new_population is None:
+            new_population = population.update_genotype_set(population_matrix, speed)
+        
+        return new_population
+
+    # def evolve(self, population, objfunc, initializer=None, global_best=None):
+    #     new_population = [self.evolve_single(indiv, population, objfunc, initializer, global_best) for indiv in population]
+
+    #     return new_population
+
+    # def evolve_single(self, population, objfunc, initializer=None, global_best=None):
+    #     new_indiv = copy(indiv)
+
+    #     params = copy(self.params)
+
+    #     if self.method == ListOpMethods.EXPAND:
+    #         nex_indiv.genotype = expand(
+    #             new_indiv.genotype,
+    #             params["N"],
+    #             params["method"],
+    #             params["maxlen"],
+    #             params["generator"],
+    #         )
+
+    #     elif self.method == ListOpMethods.SHRINK:
+    #         nex_indiv.genotype = shrink(new_indiv.genotype, params["N"], params["method"])
+
+    #     elif self.method == ListOpMethods.NOTHING:
+    #         new_indiv = indiv
+
+    #     return new_indiv

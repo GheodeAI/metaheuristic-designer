@@ -138,7 +138,7 @@ def mutate_sample(population, **params):
         loc = minim
         scale = maxim - minim
 
-    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape(population.shape)
+    mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
     if loc is None or (type(loc) is str and loc == "calculated"):
@@ -176,7 +176,7 @@ def mutate_noise(population, **params):
         scale = maxim - minim
     strength = params.get("F", 1)
 
-    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape(population.shape)
+    mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
     rand_vec = sample_distribution(population.shape, loc, scale, **params)
@@ -320,7 +320,7 @@ def sample_1_sigma(population, n, epsilon, tau):
     np.exp(tau * N(0,1)) as a distribution function with a minimum value of epsilon.
     """
 
-    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape((population.shape[0], n))
+    mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
     sampled = np.maximum(epsilon, population * np.exp(tau * RAND_GEN.normal(0, 1, sigma.shape[0])))
@@ -352,7 +352,7 @@ def xor_mask(population, n, mode="byte"):
     Applies an XOR operation between a random number and the input vector.
     """
 
-    mask_pos = np.tile(np.arange(population.shape[1]) < n, population.shape[0]).reshape(population.shape)
+    mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
     if mode == "bin":
@@ -372,4 +372,4 @@ def dummy_op(population, scale=1000):
     Only for testing, not useful for real applications
     """
 
-    return np.full(population.shape, scale)
+    return np.full_like(population, scale)

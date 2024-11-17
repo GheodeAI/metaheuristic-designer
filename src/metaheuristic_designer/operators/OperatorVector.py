@@ -288,7 +288,7 @@ class OperatorVector(Operator):
             # historical_best = np.array([indiv.best for indiv in population])
             population_speed = population.speed_set
             historical_best = population.historical_best_set
-            population_matrix, speed = pso_operator(population_matrix, population_speed, historical_best, global_best.genotype, params["w"], params["c1"], params["c2"])
+            population_matrix, speed = pso_operator(population_matrix, population_speed, historical_best, global_best, params["w"], params["c1"], params["c2"])
 
         elif self.method == VectorOpMethods.FIREFLY:
             population_matrix = firefly(
@@ -321,7 +321,7 @@ class OperatorVector(Operator):
             population_matrix = fn(population_matrix, population.objfunc, params)
 
         elif self.method == VectorOpMethods.NOTHING:
-            population_matrix = population_matrix
+            new_population = copy(population)
         
         if new_population is None:
             new_population = population.update_genotype_set(population_matrix, speed)
