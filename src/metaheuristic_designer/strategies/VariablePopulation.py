@@ -50,9 +50,10 @@ class VariablePopulation(SearchStrategy):
     @initializer.setter
     def initializer(self, new_initializer):
         self.n_offspring = new_initializer.pop_size
+        self.population_shuffler = ParentSelection("Random", {"amount": self.n_offspring})
         self._initializer = new_initializer
     
-    def select_parents(self, population: List[Individual], **kwargs) -> Tuple[List[Individual], List[int]]:
+    def select_parents(self, population: Population, **kwargs) -> Population:
         next_population = self.parent_sel(population)
         next_population = self.population_shuffler(next_population)
         return next_population 

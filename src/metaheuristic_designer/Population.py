@@ -109,10 +109,23 @@ class Population:
         # print(new_population.ages)
         # print(genotype_set)
         # print(new_population.fitness_calculated)
-        new_population.ages += 1
-        new_population.ages[new_population.fitness_calculated == 1] = 0
 
         return new_population
+    
+    def increase_age(self):
+        self.ages += 1
+        self.ages[new_population.fitness_calculated == 1] = 0
+    
+    def repeat(self, amount=2):
+        if isinstance(self.genotype_set, ndarray):
+            genotype_set = np.tile(self.genotype_set, (amount, 1))
+            speed_set = np.tile(self.speed_set, (amount, 1))
+        else:
+            genotype_set = self.genotype_set*amount
+            speed_set = None
+        ages = np.tile(self.ages, amount)
+        return Population(self.objfunc, genotype_set, speed_set, ages=ages, encoding=self.encoding)
+
 
     def calculate_fitness(self, parallel=False, threads=8) -> float:
         """

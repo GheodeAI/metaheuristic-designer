@@ -197,16 +197,12 @@ class SearchStrategy(ABC):
         """
 
         offspring = self.operator.evolve(parents, self.initializer, self.best)
-        offspring = self.repair_population(offspring, objfunc)
+        offspring = self.repair_population(offspring)
         
         return offspring
     
     def repair_population(self, population: Population) -> Population:
-        population.repair_solutions()
-        # for indiv in population:
-        #     indiv.genotype = objfunc.repair_solution(indiv.genotype)
-        #     indiv.speed = objfunc.repair_speed(indiv.speed)
-        return population
+        return population.repair_solutions()
 
     def select_individuals(self, population: Population, offspring: Population, **kwargs) -> Population:
         """
@@ -232,8 +228,7 @@ class SearchStrategy(ABC):
         Updates the parameters of the search strategy and the operators.
         """
 
-        for indiv in self.population:
-            indiv.age += 1
+        self.population.increase_age()
 
     def get_state(self, show_pop: bool = False, show_pop_details: bool = False) -> dict:
         """
