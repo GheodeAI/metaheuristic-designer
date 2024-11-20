@@ -10,5 +10,5 @@ class NoSearch(SearchStrategy):
     def __init__(self, initializer: Initializer, name: str = "No search"):
         super().__init__(initializer, params={}, name=name)
 
-    def perturb(self, parent_list, objfunc, **kwargs):
+    def perturb(self, parent_list, **kwargs):
         return parent_list

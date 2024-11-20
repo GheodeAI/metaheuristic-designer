@@ -115,6 +115,8 @@ class SurvivorSelection(SelectionMethod):
             result = cro_selection(
                 population_set,
                 offspring_set,
+                population_fitness,
+                offspring_fitness,
                 self.params["Fd"],
                 self.params["Pd"],
                 self.params["attempts"],

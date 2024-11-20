@@ -2,7 +2,6 @@ from __future__ import annotations
 import numpy as np
 import random
 from ..Initializer import Initializer
-from ..Individual import Individual
 from ..encodings import DefaultEncoding
 
 

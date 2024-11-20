@@ -1,7 +1,6 @@
 from __future__ import annotations
 import numpy as np
 import scipy as sp
-from ...Individual import Individual
 from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
@@ -48,14 +47,14 @@ class BinomialPBIL(VariablePopulation):
             name=name,
         )
 
-    def _batch_fit(self, parent_list):
-        population_matrix = np.asarray([i.genotype for i in parent_list])
+    def _batch_fit(self, population):
+        population_matrix = population.genotype_set
         p_hat = population_matrix.sum(axis=0) / (self.n * population_matrix.shape[0])
 
         return p_hat
 
-    def perturb(self, parent_list, objfunc, **kwargs):
-        new_p = self._batch_fit(parent_list)
+    def perturb(self, parents, objfunc, **kwargs):
+        new_p = self._batch_fit(parents)
         if self.p is not None:
             self.p = (1 - self.lr) * self.p + self.lr * new_p
             self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
@@ -65,4 +64,4 @@ class BinomialPBIL(VariablePopulation):
 
         self.operator = OperatorVector("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
 
-        return super().perturb(parent_list, objfunc, **kwargs)
+        return super().perturb(parents, **kwargs)

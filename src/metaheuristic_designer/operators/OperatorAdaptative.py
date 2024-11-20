@@ -52,11 +52,11 @@ class OperatorAdaptative(Operator):
         self.param_operator_split = OperatorMeta("Split", [null_op, param_operator], {"mask": vecmask})
         self.param_encoding = param_encoding
 
-    def evolve(self, population, objfunc, initializer=None, global_best=None):
+    def evolve(self, population, initializer=None):
         new_population = [self.evolve_single(indiv, population, objfunc, initializer, global_best) for idx, indiv in enumerate(population)]
         return new_population
     
-    def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None):
+    def evolve_single(self, indiv, population, initializer=None):
         # Evolve only parameters
         indiv_conf_param = self.param_operator_split.evolve_single(indiv, population, objfunc, global_best, initializer)
 

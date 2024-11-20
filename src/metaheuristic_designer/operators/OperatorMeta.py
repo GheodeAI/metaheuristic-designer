@@ -94,7 +94,7 @@ class OperatorMeta(Operator):
         if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
             params["weights"] = [params["p"], 1 - params["p"]]
     
-    def evolve(self, population, initializer=None, global_best=None):
+    def evolve(self, population, initializer=None):
         new_population = None
         population_matrix = copy(population.genotype_set)
         fitness_array = population.fitness
@@ -108,7 +108,7 @@ class OperatorMeta(Operator):
 
                 if np.any(split_mask):
                     split_population = population.update_genotype_set(population_matrix[split_mask], speed[split_mask]) 
-                    split_population = op.evolve(split_population, global_best, initializer)
+                    split_population = op.evolve(split_population, initializer)
 
                     population_matrix[split_mask, :] = split_population.genotype_set
                     speed[split_mask, :] = split_population.speed_set
@@ -127,7 +127,7 @@ class OperatorMeta(Operator):
 
                 if np.any(split_mask):
                     split_population = population.update_genotype_set(population_matrix[split_mask], speed[split_mask]) 
-                    split_population = op.evolve(split_population, global_best, initializer)
+                    split_population = op.evolve(split_population, initializer)
 
                     population_matrix[split_mask, :] = split_population.genotype_set
                     speed[split_mask, :] = split_population.speed_set
@@ -135,18 +135,9 @@ class OperatorMeta(Operator):
         elif self.method == MetaOpMethods.SEQUENCE:
             new_population = copy(population)
             for op in self.op_list:
-                new_population = op.evolve(new_population, global_best, initializer)
+                new_population = op.evolve(new_population, initializer)
 
         elif self.method == MetaOpMethods.SPLIT:
-
-            # for idx_op, op in enumerate(self.op_list):
-            #     curr_mask = self.mask == idx_op 
-            #     if np.any(curr_mask):
-            #         filtered_best = self._filter_indiv(global_best, curr_mask)
-            #         split_population = [self._filter_indiv(indiv, curr_mask) for indiv in population]
-            #         split_population = op.evolve(population, objfunc, filtered_best, initializer)
-            #         population = [self._undo_filter_indiv(indiv, filtered_indiv, curr_mask) for indiv, filtered_indiv in zip(population, split_population)]
-            
             population_matrix = population.genotype_set
             speed = population.speed_set
             for idx_op, op in enumerate(self.op_list):
@@ -154,7 +145,7 @@ class OperatorMeta(Operator):
 
                 if np.any(split_mask):
                     split_population = population.update_genotype_set(population_matrix[:, split_mask], speed[:, split_mask]) 
-                    split_population = op.evolve(split_population, global_best, initializer)
+                    split_population = op.evolve(split_population, initializer)
 
                     population_matrix[:, split_mask] = split_population.genotype_set
                     speed[:, split_mask] = split_population.speed_set

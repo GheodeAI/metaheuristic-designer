@@ -40,17 +40,17 @@ class BernoulliUMDA(VariablePopulation):
             name=name,
         )
 
-    def _batch_fit(self, parent_list):
-        population_matrix = np.asarray([i.genotype for i in parent_list])
+    def _batch_fit(self, population):
+        population_matrix = population.genotype_set
         p_hat = population_matrix.mean(axis=0)
 
         return p_hat
 
-    def perturb(self, parent_list, objfunc, **kwargs):
-        self.p = self._batch_fit(parent_list)
+    def perturb(self, parents, **kwargs):
+        self.p = self._batch_fit(parents)
         self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
         self.p = np.clip(self.p, 0, 1)
 
         self.operator = OperatorVector("RandSample", {"distrib": "Bernoulli", "p": self.p})
 
-        return super().perturb(parent_list, objfunc, **kwargs)
+        return super().perturb(parents, **kwargs)

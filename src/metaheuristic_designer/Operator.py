@@ -80,14 +80,13 @@ class Operator(ABC):
         self,
         population: Population,
         objfunc: ObjectiveFunc,
-        global_best: Any,
         initializer: Initializer,
     ) -> Population:
         """
         A shorthand for calling the 'evolve' method.
         """
 
-        return self.evolve(population, objfunc, global_best, initializer)
+        return self.evolve(population, objfunc, initializer)
 
     def step(self, progress: float):
         """
@@ -130,7 +129,6 @@ class Operator(ABC):
         self,
         population: Population,
         initializer: Initializer = None,
-        global_best: Any = None,
     ) -> Population:
         """
         Evolves an population using a given strategy.
@@ -157,7 +155,6 @@ class Operator(ABC):
         indiv: Any,
         population: Population,
         initializer: Initializer = None,
-        global_best: Any = None,
     ) -> Any:
         """
         Evolves an individual using a given strategy.

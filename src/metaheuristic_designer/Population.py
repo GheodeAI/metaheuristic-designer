@@ -39,7 +39,6 @@ class Population:
         self.genotype_set = genotype_set
         self.historical_best_set = genotype_set
         if isinstance(genotype_set, ndarray):
-            # assert genotype_set.ndim == 2
             self.pop_size = genotype_set.shape[0]
             self.vec_size = genotype_set.shape[1]
 
@@ -53,6 +52,7 @@ class Population:
         self.best_fitness = None
         self.fitness_calculated = np.zeros(self.pop_size)
         self.fitness = np.empty(self.pop_size)
+        self.historical_fitness = np.empty(self.pop_size)
 
         if ages is None:
             ages = np.zeros(self.pop_size)
@@ -99,10 +99,13 @@ class Population:
         return self.best, best_fitness
     
     def update_genotype_set(self, genotype_set, speed_set=None):
-        if speed_set is None:
+        if speed_set is None and len(genotype_set) == len(self.genotype_set):
             speed_set = copy(self.speed_set)
         
+        # Create copy of the population
         new_population = Population(self.objfunc, genotype_set, speed_set, ages=copy(self.ages), encoding=self.encoding)
+
+        # Check which individuals have been changed
         if len(genotype_set) != len(self.genotype_set):
             new_population.ages = np.zeros(len(genotype_set))
             new_population.fitness_calculated = np.zeros(len(genotype_set))
@@ -110,7 +113,19 @@ class Population:
             new_population.fitness_calculated = np.any(genotype_set != new_population.genotype_set, axis=1)
         else:
             new_population.fitness_calculated = np.asarray([new_genotype != genotype] for new_genotype, genotype in zip(genotype_set, new_population.genotype_set))
-        new_population.calculate_fitness()
+
+        # Calculate the fitness of the new individuals
+        old_fitness = self.fitness
+        new_fitness = new_population.calculate_fitness()
+
+        # Update the historical best individuals
+        if len(genotype_set) != len(self.genotype_set):
+            new_population.historical_best_fitness = new_fitness
+        elif isinstance(genotype_set, ndarray):
+            new_population.historical_best = np.where((new_fitness < old_fitness)[:, None], new_population.genotype_set, genotype_set)
+            new_population.historical_best_fitness = np.maximum(old_fitness, new_fitness)
+        else:
+            new_population.historical_best_fitness = np.maximum(old_fitness, new_fitness)
 
         return new_population
     
@@ -152,8 +167,6 @@ class Population:
             best_idx = np.argmax(self.fitness)
             self.best = self.genotype_set[best_idx]
             self.best_fitness = self.fitness[best_idx]
-
-        #TODO: Update historical best set
         
         return self.fitness
     
@@ -168,6 +181,8 @@ class Population:
 
         for idx, indiv in enumerate(self.genotype_set):
             self.genotype_set[idx] = self.objfunc.repair_solution(indiv)
+            if self.speed_set is not None:
+                self.speed_set[idx] = self.objfunc.repair_speed(self.speed_set[idx])
         
         return self
 

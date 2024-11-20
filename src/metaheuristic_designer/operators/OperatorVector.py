@@ -159,10 +159,10 @@ class OperatorVector(Operator):
             if "Low" not in self.params:
                 self.params["Low"] = 0
 
-    def evolve_single(self, indiv, population, global_best, initializer):
+    def evolve_single(self, indiv, population, initializer):
         raise Exception("LMAO what?")
 
-    def evolve(self, population, initializer=None, global_best=None):
+    def evolve(self, population, initializer=None):
         population = copy(population)
         new_population = None
         population_matrix = population.genotype_set
@@ -285,9 +285,8 @@ class OperatorVector(Operator):
 
         ## Swarm based algorithms
         elif self.method == VectorOpMethods.PSO:
-            # population_speed = np.array([indiv.speed for indiv in population])
-            # historical_best = np.array([indiv.best for indiv in population])
             population_speed = population.speed_set
+            global_best = population.best
             historical_best = population.historical_best_set
             population_matrix, speed = pso_operator(population_matrix, population_speed, historical_best, global_best, params["w"], params["c1"], params["c2"])
 

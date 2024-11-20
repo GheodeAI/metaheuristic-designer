@@ -1,6 +1,5 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from .Individual import Individual
 from .ParamScheduler import ParamScheduler
 from .selectionMethods import (
     SurvivorSelection,
@@ -192,7 +191,7 @@ class SearchStrategy(ABC):
             The list of individuals modified by the operators of the search strategy.
         """
 
-        offspring = self.operator.evolve(parents, self.initializer, self.best)
+        offspring = self.operator.evolve(parents, self.initializer)
         offspring = self.repair_population(offspring)
         
         return offspring

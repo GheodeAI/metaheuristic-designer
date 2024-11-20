@@ -35,7 +35,7 @@ class OperatorFromLambda(Operator):
 
         super().__init__(params, name)
 
-    def evolve(self, population, objfunc, initializer=None, global_best=None):
+    def evolve(self, population, initializer=None):
         if self.vectorized:
             new_population = self.fn(population.genotype_set, **self.params)
         else:

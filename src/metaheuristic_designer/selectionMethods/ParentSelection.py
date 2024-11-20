@@ -73,8 +73,6 @@ class ParentSelection(SelectionMethod):
 
         if self.method in [ParentSelMethod.ROULETTE, ParentSelMethod.SUS]:
             self.params["method"] = SelectionDist.from_str(self.params["method"])
-            if "F" not in self.params:
-                self.params["F"] = None
 
     def select(self, population: Population, offsping: Population = None) -> Population:
         population = copy(population)
@@ -97,7 +95,7 @@ class ParentSelection(SelectionMethod):
                 population_set,
                 self.params["amount"],
                 self.params["method"],
-                self.params["F"],
+                self.params.get("F"),
             )
 
         elif self.method == ParentSelMethod.SUS:
@@ -105,7 +103,7 @@ class ParentSelection(SelectionMethod):
                 population_set,
                 self.params["amount"],
                 self.params["method"],
-                self.params["F"],
+                self.params.get("F"),
             )
 
         elif self.method == ParentSelMethod.NOTHING:

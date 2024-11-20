@@ -72,7 +72,7 @@ class OperatorPerm(Operator):
 
         self.method = PermOpMethods.from_str(method)
     
-    def evolve(self, population, initializer=None, global_best=None):
+    def evolve(self, population, initializer=None):
         new_population = None
         population_matrix = population.genotype_set
 

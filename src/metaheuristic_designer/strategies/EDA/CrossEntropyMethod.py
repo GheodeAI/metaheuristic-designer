@@ -1,5 +1,3 @@
-import math
-from .GaussianUMDA import GaussianUMDA
 from ...selectionMethods import (
     ParentSelection,
     SurvivorSelection,

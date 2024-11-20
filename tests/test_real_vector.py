@@ -7,7 +7,7 @@ import numpy as np
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import OperatorReal
+from metaheuristic_designer.operators import OperatorVector
 from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.strategies import *
 from metaheuristic_designer.benchmarks import Sphere
@@ -25,12 +25,12 @@ test_params = {
 }
 
 mut_params = ParamScheduler("Linear", {"distrib": "Gauss", "F": [0.001, 0.00001]})
-mutation_op = OperatorReal("RandNoise", mut_params)
+mutation_op = OperatorVector("RandNoise", mut_params)
 
-cross_op = OperatorReal("Multipoint")
+cross_op = OperatorVector("Multipoint")
 
 de_params = ParamScheduler("Linear", {"F": [0.8, 0.9], "Cr": [0.8, 0.5]})
-de_op = OperatorReal("DE/best/1", de_params)
+de_op = OperatorVector("DE/best/1", de_params)
 
 parent_params = ParamScheduler("Linear", {"amount": [30, 15]})
 parent_sel_op = ParentSelection("Best", parent_params)
@@ -231,7 +231,7 @@ def test_dpcro_sl(dyn_method, dyn_metric):
 def test_memetic():
     search_strat = GA(pop_init, mutation_op, cross_op, parent_sel_op, selection_op)
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
+    neihbourhood_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_init, neihbourhood_op, params={"iters": 10})
     alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=test_params)
     ind, fit = alg.optimize()
@@ -254,7 +254,7 @@ def test_reporting_memetic():
     test_params["verbose"] = True
     search_strat = GA(pop_init, mutation_op, cross_op, parent_sel_op, selection_op)
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
+    neihbourhood_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_init, neihbourhood_op, params={"iters": 10})
     alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=test_params)
     ind, fit = alg.optimize()

@@ -1,7 +1,6 @@
 from __future__ import annotations
 import numpy as np
 import scipy as sp
-from ...Individual import Individual
 from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
@@ -43,14 +42,14 @@ class GaussianPBIL(VariablePopulation):
             name=name,
         )
 
-    def _batch_fit(self, parent_list):
-        population_matrix = np.asarray([i.genotype for i in parent_list])
+    def _batch_fit(self, population):
+        population_matrix = population.genotype_set
         loc_hat = population_matrix.mean(axis=0)
 
         return loc_hat
 
-    def perturb(self, parent_list, objfunc, **kwargs):
-        new_loc = self._batch_fit(parent_list)
+    def perturb(self, parents, **kwargs):
+        new_loc = self._batch_fit(parents)
         if self.loc is not None:
             self.loc = (1 - self.lr) * self.loc + self.lr * new_loc
             self.loc += RAND_GEN.normal(0, self.noise, size=self.loc.shape)
@@ -59,4 +58,4 @@ class GaussianPBIL(VariablePopulation):
 
         self.operator = OperatorVector("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
 
-        return super().perturb(parent_list, objfunc, **kwargs)
+        return super().perturb(parents, **kwargs)
