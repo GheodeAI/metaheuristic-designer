@@ -1,7 +1,12 @@
 from __future__ import annotations
+from typing import Any
 from .ParamScheduler import ParamScheduler
 from .encodings import DefaultEncoding
 from abc import ABC, abstractmethod
+from .Encoding import Encoding
+from .ObjectiveFunc import ObjectiveFunc
+from .Population import Population
+from .Initializer import Initializer
 
 
 class Operator(ABC):
@@ -86,7 +91,7 @@ class Operator(ABC):
         A shorthand for calling the 'evolve' method.
         """
 
-        return self.evolve(population, objfunc, initializer)
+        return self.evolve(population, initializer)
 
     def step(self, progress: float):
         """
@@ -149,7 +154,7 @@ class Operator(ABC):
         new_population: List[Individual]
             The modified population.
         """
-    
+
     def evolve_single(
         self,
         indiv: Any,

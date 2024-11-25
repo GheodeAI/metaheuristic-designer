@@ -1,4 +1,6 @@
 from __future__ import annotations
+from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer
 from ..operators import OperatorVector
 from ..encodings import TypeCastEncoding

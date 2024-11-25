@@ -1,10 +1,7 @@
-import math
-import random
-import numpy as np
-import scipy as sp
-import scipy.stats
 import enum
 from enum import Enum
+import numpy as np
+import scipy as sp
 from ...utils import RAND_GEN
 
 
@@ -54,21 +51,22 @@ prob_dist_map = {
 
 
 class multicategorical:
-    def __init__(categories, weight_matrix):
+    def __init__(self, categories, weight_matrix):
         self.categories = categories
         weight_matrix = weight_matrix / weight_matrix.sum(axis=1, keepdims=True)
         self.cumsum_matrix = weight_matrix.cumsum(axis=1)
         self.sample_fn = np.vectorize(np.searchsorted, signature="(n),()->()", cache=True)
 
-    def rvs(size=None, random_state=None):
+    def rvs(self, size=None, random_state=None):
         if size is None:
             size = len(self.cumsum_matrix.shape[0])
 
         if random_state is None:
             random_state = np.random.default_rng()
 
-        index_rnd = random_state.uniform(0, 1, size=size)
+        index_rnd = random_state.random(size=size)
         return self.sample_fn(self.cumsum_matrix, index_rnd)
+
 
 def gaussian_mutation(population, strength):
     """
@@ -108,6 +106,7 @@ def poisson_mutation(population, strength, mu):
     """
 
     return rand_noise(population, distrib=ProbDist.POISSON, F=strength, mu=mu)
+
 
 def bernoulli_mutation(population, p):
     """
@@ -205,7 +204,6 @@ def rand_sample(population, **params):
         maxim = params["max"]
         loc = minim
         scale = maxim - minim
-        
 
     if loc is None or (type(loc) is str and loc == "calculated"):
         loc = population.mean(axis=0)
@@ -361,6 +359,8 @@ def xor_mask(population, n, mode="byte"):
         mask = RAND_GEN.integers(1, 0xFF, size=population.shape) * mask_pos
     elif mode == "int":
         mask = RAND_GEN.integers(1, 0xFFFF, size=population.shape) * mask_pos
+    else:
+        mask = 0
 
     return population ^ mask
 

@@ -1,6 +1,4 @@
 from __future__ import annotations
-import numpy as np
-import scipy as sp
 from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
@@ -20,9 +18,12 @@ class GaussianUMDA(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "GaussianUMDA",
     ):
+        if params is None:
+            params = {}
+
         self.loc = params.get("loc", 0)
         self.scale = params.get("scale", 1)
 

@@ -1,9 +1,9 @@
 from __future__ import annotations
-from ..Operator import Operator
-from .operator_functions.permutation import *
 from copy import copy
 import enum
 from enum import Enum
+from ..Operator import Operator
+from .operator_functions.permutation import *
 from ..utils import RAND_GEN
 
 
@@ -71,7 +71,7 @@ class OperatorPerm(Operator):
         super().__init__(params, name)
 
         self.method = PermOpMethods.from_str(method)
-    
+
     def evolve(self, population, initializer=None):
         new_population = None
         population_matrix = population.genotype_set
@@ -120,8 +120,7 @@ class OperatorPerm(Operator):
         elif self.method == PermOpMethods.NOTHING:
             population_matrix = population_matrix
 
-        
         if new_population is None:
             new_population = population.update_genotype_set(population_matrix)
-        
+
         return new_population

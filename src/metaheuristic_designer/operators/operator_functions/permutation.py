@@ -1,10 +1,6 @@
 import math
-import random
 import numpy as np
 import scipy as sp
-import scipy.stats
-import enum
-from enum import Enum
 from ...utils import RAND_GEN
 
 
@@ -66,8 +62,6 @@ def invert_mutation(population):
 
 def pmx(population):
     half_size = population.shape[0] / 2
-    parents1 = population[: math.ceil(half_size)]
-    parents2 = population[math.floor(half_size) :]
 
     new_population = np.empty((2 * np.ceil(half_size).astype(int), population.shape[1]), dtype=int)
     for i in range(math.ceil(half_size)):

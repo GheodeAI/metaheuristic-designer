@@ -1,6 +1,7 @@
 from __future__ import annotations
+from ...Initializer import Initializer
 from ..StaticPopulation import StaticPopulation
-from ...Operators import OperatorReal, OperatorMeta, OperatorNull
+from ...operators import OperatorVector, OperatorMeta, OperatorNull
 from ...SelectionMethods import SurvivorSelection, ParentSelection
 from ...Encodings import CMAEncoding
 
@@ -19,8 +20,8 @@ class CMA_ES(StaticPopulation):
 
         self.step = params.get("step", 1)
 
-        self.generate_average = OperatorReal("Generate", {"statistic": "average"})
-        self.sample_op = OperatorReal(
+        self.generate_average = OperatorVector("Generate", {"statistic": "average"})
+        self.sample_op = OperatorVector(
             "RandNoise",
             {"distrib": "MultiNormal", "mean": 0, "cov": [1], "F": self.step},
         )
@@ -34,5 +35,5 @@ class CMA_ES(StaticPopulation):
         objfunc.encoding = CMAEncoding(objfunc.vecsize**2, pre_encoding=objfunc.encoding)
         super().initialize(objfunc)
 
-    def update_params(self, **kwargs):
-        super().update_params(**kwargs)
+    # def update_params(self, **kwargs):
+    #     super().update_params(**kwargs)

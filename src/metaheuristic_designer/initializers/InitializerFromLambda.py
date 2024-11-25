@@ -1,8 +1,7 @@
 from __future__ import annotations
-import numpy as np
-import random
+from typing import Any
 from ..Initializer import Initializer
-from ..encodings import DefaultEncoding
+from ..Encoding import Encoding
 
 
 class InitializerFromLambda(Initializer):
@@ -20,12 +19,9 @@ class InitializerFromLambda(Initializer):
     """
 
     def __init__(self, generator: callable, pop_size: int = 1, encoding: Encoding = None):
-        self.pop_size = pop_size
         self.generator = generator
 
-        if encoding is None:
-            encoding = DefaultEncoding()
-        self.encoding = encoding
+        super().__init__(pop_size, encoding)
 
     def generate_random(self) -> Any:
         return self.generator()

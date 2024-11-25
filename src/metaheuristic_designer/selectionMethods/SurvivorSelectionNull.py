@@ -1,6 +1,5 @@
 from __future__ import annotations
-import enum
-from enum import Enum
+from ..Population import Population
 from ..ParamScheduler import ParamScheduler
 from ..SelectionMethod import SelectionMethod
 from .survivor_selection_functions import *
@@ -26,7 +25,7 @@ class SurvivorSelectionNull(SelectionMethod):
 
     def __init__(
         self,
-        params: Union[ParamScheduler, dict] = None,
+        params: ParamScheduler | dict = None,
         padding: bool = False,
         name: str = None,
     ):
@@ -39,5 +38,6 @@ class SurvivorSelectionNull(SelectionMethod):
 
         super().__init__(params, padding, name)
 
-    def select(self, popul: Population, offspring: Population) -> Population:
+    def select(self, population: Population, offspring: Population) -> Population:
+        offspring = offspring.update_best_from_parents(population)
         return offspring

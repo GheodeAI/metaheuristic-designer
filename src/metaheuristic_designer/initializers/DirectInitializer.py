@@ -1,8 +1,11 @@
 from __future__ import annotations
-import numpy as np
+from typing import List
 import random
+import numpy as np
 from ..Initializer import Initializer
 from ..Population import Population
+from ..Encoding import Encoding
+from ..utils import RAND_GEN
 
 
 class DirectInitializer(Initializer):

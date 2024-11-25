@@ -1,4 +1,6 @@
 from __future__ import annotations
+from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer
 from ..encodings import TypeCastEncoding
 from ..strategies import RandomSearch
@@ -45,6 +47,8 @@ def _random_search_bin_vec(params, objfunc):
     This objective function should accept binary coded vectors.
     """
 
+    pop_size = params.get("pop_size", 100)
+
     if objfunc is None:
         vecsize = params["vecsize"]
     else:
@@ -52,7 +56,7 @@ def _random_search_bin_vec(params, objfunc):
 
     encoding = TypeCastEncoding(int, bool)
 
-    pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
+    pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
 
     search_strat = RandomSearch(pop_initializer)
 
@@ -64,6 +68,8 @@ def _random_search_int_vec(params, objfunc):
     Instantiates a random search algorithm to optimize the given objective function.
     This objective function should accept integer coded vectors.
     """
+
+    pop_size = params.get("pop_size", 100)
 
     if objfunc is None:
         vecsize = params["vecsize"]
@@ -84,6 +90,8 @@ def _random_search_real_vec(params, objfunc):
     Instantiates a random search algorithm to optimize the given objective function.
     This objective function should accept real coded vectors.
     """
+
+    pop_size = params.get("pop_size", 100)
 
     if objfunc is None:
         vecsize = params["vecsize"]

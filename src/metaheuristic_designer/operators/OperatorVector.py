@@ -1,18 +1,17 @@
 from __future__ import annotations
+from copy import copy
+import enum
+from enum import Enum
 import numpy as np
-from ..Operator import Operator
 
 from .operator_functions.mutation import *
 from .operator_functions.crossover import *
 from .operator_functions.permutation import *
 from .operator_functions.differential_evolution import *
 from .operator_functions.swarm import *
-
+from ..Operator import Operator
 from ..ParamScheduler import ParamScheduler
 from ..Encoding import Encoding
-from copy import copy
-import enum
-from enum import Enum
 from ..utils import RAND_GEN
 
 
@@ -134,7 +133,7 @@ class OperatorVector(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None, encoding: Encoding = None):
+    def __init__(self, method: str, params: ParamScheduler | dict = None, name: str = None, encoding: Encoding = None):
         """
         Constructor for the OperatorPerm class
         """
@@ -159,15 +158,16 @@ class OperatorVector(Operator):
             if "Low" not in self.params:
                 self.params["Low"] = 0
 
-    def evolve_single(self, indiv, population, initializer):
+    def evolve_single(self, indiv, population, initializer=None):
         raise Exception("LMAO what?")
 
     def evolve(self, population, initializer=None):
-        population = copy(population)
         new_population = None
-        population_matrix = population.genotype_set
-        fitness_array = population.fitness
-        speed = None
+        population_matrix = copy(population.genotype_set)
+        fitness_array = copy(population.fitness)
+        speed = copy(population.speed_set)
+        global_best = population.best
+        historical_best = population.historical_best_set
 
         params = copy(self.params)
 
@@ -266,7 +266,7 @@ class OperatorVector(Operator):
             population_matrix = DE_rand1(population_matrix, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_BEST_1:
-            population_matrix = DE_best1(population_matrix, fitness_array,  params["F"], params["Cr"])
+            population_matrix = DE_best1(population_matrix, fitness_array, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_RAND_2:
             population_matrix = DE_rand2(population_matrix, params["F"], params["Cr"])
@@ -285,10 +285,7 @@ class OperatorVector(Operator):
 
         ## Swarm based algorithms
         elif self.method == VectorOpMethods.PSO:
-            population_speed = population.speed_set
-            global_best = population.best
-            historical_best = population.historical_best_set
-            population_matrix, speed = pso_operator(population_matrix, population_speed, historical_best, global_best, params["w"], params["c1"], params["c2"])
+            population_matrix, speed = pso_operator(population_matrix, speed, historical_best, global_best, params["w"], params["c1"], params["c2"])
 
         elif self.method == VectorOpMethods.FIREFLY:
             population_matrix = firefly(
@@ -322,8 +319,8 @@ class OperatorVector(Operator):
 
         elif self.method == VectorOpMethods.NOTHING:
             new_population = copy(population)
-        
+
         if new_population is None:
             new_population = population.update_genotype_set(population_matrix, speed)
-        
+
         return new_population

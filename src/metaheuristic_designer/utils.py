@@ -1,6 +1,7 @@
-from enum import Enum
-import numpy as np
 import json
+from enum import Enum
+
+import numpy as np
 
 
 class NumpyEncoder(json.JSONEncoder):

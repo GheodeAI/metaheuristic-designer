@@ -1,5 +1,6 @@
 from __future__ import annotations
 import numpy as np
+from numpy import ndarray
 from ..Encoding import Encoding
 
 
@@ -18,8 +19,8 @@ class ImageEncoding(Encoding):
 
         self.shape = shape
 
-    def encode(self, phenotype: np.ndarray) -> np.ndarray:
-        return np.ndarray.flatten(phenotype)
+    def encode(self, phenotype: ndarray) -> ndarray:
+        return phenotype.flatten()
 
-    def decode(self, genotype: np.ndarray) -> np.ndarray:
+    def decode(self, genotype: ndarray) -> ndarray:
         return np.reshape(genotype, self.shape).astype(np.uint8)

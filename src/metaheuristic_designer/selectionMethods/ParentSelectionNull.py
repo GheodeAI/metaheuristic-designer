@@ -1,9 +1,7 @@
 from __future__ import annotations
-import enum
-from enum import Enum
+from ..Population import Population
 from ..ParamScheduler import ParamScheduler
 from ..SelectionMethod import SelectionMethod
-from .parent_selection_functions import *
 
 
 class ParentSelectionNull(SelectionMethod):
@@ -26,7 +24,7 @@ class ParentSelectionNull(SelectionMethod):
 
     def __init__(
         self,
-        params: Union[ParamScheduler, dict] = None,
+        params: ParamScheduler | dict = None,
         padding: bool = False,
         name: str = None,
     ):
@@ -39,5 +37,5 @@ class ParentSelectionNull(SelectionMethod):
 
         super().__init__(params, padding, name)
 
-    def select(self, population: Population, offsping: Population = None) -> Population:
+    def select(self, population: Population, offspring: Population = None) -> Population:
         return population

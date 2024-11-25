@@ -1,9 +1,9 @@
 from __future__ import annotations
 import enum
 from enum import Enum
-from copy import copy
 from ..ParamScheduler import ParamScheduler
 from ..SelectionMethod import SelectionMethod
+from ..Population import Population
 from .parent_selection_functions import *
 
 
@@ -56,7 +56,7 @@ class ParentSelection(SelectionMethod):
     def __init__(
         self,
         method: str,
-        params: Union[ParamScheduler, dict] = None,
+        params: ParamScheduler | dict = None,
         padding: bool = False,
         name: str = None,
     ):
@@ -74,41 +74,40 @@ class ParentSelection(SelectionMethod):
         if self.method in [ParentSelMethod.ROULETTE, ParentSelMethod.SUS]:
             self.params["method"] = SelectionDist.from_str(self.params["method"])
 
-    def select(self, population: Population, offsping: Population = None) -> Population:
-        population = copy(population)
+    def select(self, population: Population, offspring: Population = None) -> Population:
         new_population = None
-        parents = None
-        population_set = population.genotype_set
+        parent_idx = None
         fitness_array = population.fitness
 
         if self.method == ParentSelMethod.TOURNAMENT:
-            parents = prob_tournament(population_set, fitness_array, self.params["amount"], self.params["p"])
+            parent_idx = prob_tournament(fitness_array, self.params["amount"], self.params["p"])
 
         elif self.method == ParentSelMethod.BEST:
-            parents = select_best(population_set, fitness_array, self.params["amount"])
+            parent_idx = select_best(fitness_array, self.params["amount"])
 
         elif self.method == ParentSelMethod.RANDOM:
-            parents = uniform_selection(population_set, self.params["amount"])
+            parent_idx = uniform_selection(fitness_array, self.params["amount"])
 
         elif self.method == ParentSelMethod.ROULETTE:
-            parents = roulette(
-                population_set,
+            parent_idx = roulette(
+                fitness_array,
                 self.params["amount"],
                 self.params["method"],
                 self.params.get("F"),
             )
 
         elif self.method == ParentSelMethod.SUS:
-            parents = sus(
-                population_set,
+            parent_idx = sus(
+                fitness_array,
                 self.params["amount"],
                 self.params["method"],
                 self.params.get("F"),
             )
 
         elif self.method == ParentSelMethod.NOTHING:
-            parents = population_set
+            new_population = population
 
-        new_population = population.update_genotype_set(parents)
+        if new_population is None:
+            new_population = population.take_selection(parent_idx)
 
         return new_population

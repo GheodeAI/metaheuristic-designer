@@ -1,11 +1,10 @@
 from __future__ import annotations
-from ..Operator import Operator
-from .OperatorReal import OperatorReal, real_ops_map
-from .list_operator_functions import *
-from .vector_operator_functions import *
 from copy import copy
 import enum
 from enum import Enum
+from .operator_functions.list_mutation import *
+from ..Operator import Operator
+from ..ParamScheduler import ParamScheduler
 
 
 class ListOpMethods(Enum):
@@ -44,7 +43,7 @@ class OperatorList(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(self, method: str, params: ParamScheduler | dict = None, name: str = None):
         """
         Constructor for the OperatorList class
         """
@@ -82,7 +81,7 @@ class OperatorList(Operator):
 
         if new_population is None:
             new_population = population.update_genotype_set(population_matrix, speed)
-        
+
         return new_population
 
     # def evolve(self, population, objfunc, initializer=None, global_best=None):

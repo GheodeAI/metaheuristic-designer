@@ -1,6 +1,5 @@
 from __future__ import annotations
 import numpy as np
-import scipy as sp
 from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
@@ -20,9 +19,12 @@ class BernoulliUMDA(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "BernoulliUMDA",
     ):
+        if params is None:
+            params = {}
+
         self.p = params.get("p", 0.5)
 
         evolve_op = OperatorVector("RandSample", {"distrib": "Bernoulli", "p": self.p})

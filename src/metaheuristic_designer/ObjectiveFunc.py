@@ -1,8 +1,8 @@
 from __future__ import annotations
+from typing import Any
 from abc import ABC, abstractmethod
 import numpy as np
 from numpy import ndarray
-from .initializers import UniformVectorInitializer
 
 
 class ObjectiveFunc(ABC):
@@ -21,7 +21,7 @@ class ObjectiveFunc(ABC):
         The name that will be displayed to represent this function.
     """
 
-    def __init__(self, mode: str = "max", name: str = "some function", vectorized: bool = False):
+    def __init__(self, mode: str = "max", name: str = "some function", vectorized: bool = False, recalculate: bool = False):
         """
         Constructor for the ObjectiveFunc class
         """
@@ -30,6 +30,7 @@ class ObjectiveFunc(ABC):
         self.counter = 0
         self.factor = 1
         self.vectorized = False
+        self.recalculate = False
 
         self.mode = mode
         if mode not in ["max", "min"]:
@@ -38,7 +39,7 @@ class ObjectiveFunc(ABC):
         if self.mode == "min":
             self.factor = -1
 
-    def __call__(self, population: Population, adjusted: bool = True) -> float:
+    def __call__(self, population: Population, adjusted: bool = True, parallel: bool = False, threads: int = 8) -> float:
         """
         Shorthand for executing the objective function on a vector.
         """
@@ -64,33 +65,36 @@ class ObjectiveFunc(ABC):
             Fitness value of the individual.
         """
 
-        fitness = np.empty(population.pop_size)
+        fitness = population.fitness
         if self.vectorized:
-            #TODO: implement for vectorized fitness functions
-            pass
+            population_matrix = population.genotype_set
+            population_matrix = population.encoding.decode(population_matrix)
+            if not self.recalculate:
+                fitness = self.objective(population_matrix)
+            else:
+                population_matrix = population_matrix[~population.fitness_calculated]
+                fitness_partial = self.objective(population_matrix)
+                fitness[~population.fitness_calculated] = fitness_partial
+
         else:
-            for idx, individual in enumerate(population.genotype_set):
-                solution = population.encoding.decode(individual)
-                value = self.objective(solution)
+            for idx, (individual, already_calculated) in enumerate(zip(population.genotype_set, population.fitness_calculated)):
+                if self.recalculate or not already_calculated:
+                    solution = population.encoding.decode(individual)
+                    value = self.objective(solution)
 
-                if adjusted:
-                    value = self.factor * (value - self.penalize(solution))
-                
-                fitness[idx] = value
+                    if adjusted:
+                        value = self.factor * (value - self.penalize(solution))
+
+                    fitness[idx] = value
+
+        if self.recalculate:
+            self.counter += int(population.pop_size)
+        else:
+            self.counter += int(population.pop_size - population.fitness_calculated.sum())
+
+        population.fitness_calculated = np.ones_like(population.fitness_calculated)
+
         return fitness
-
-
-        
-        
-
-        # self.counter += 1
-        # solution = indiv.encoding.decode(indiv.genotype)
-        # value = self.objective(solution)
-
-        # if adjusted:
-        #     value = self.factor * (value - self.penalize(solution))
-
-        # return value
 
     @abstractmethod
     def objective(self, solution: Any) -> float | np.ndarray:
@@ -124,9 +128,9 @@ class ObjectiveFunc(ABC):
             A modified version of the solution passed that satisfies the restrictions of the problem.
         """
 
-        return vector
+        return solution
 
-    def penalize(self, solution: Any) -> float:
+    def penalize(self, _: Any) -> float:
         """
         Gives a penalization to the fitness value of an individual if it violates any constraints propotional
         to how far it is to a viable solution.

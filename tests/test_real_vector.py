@@ -1,8 +1,8 @@
 import pytest
 
-import os
-
 import numpy as np
+
+import os
 
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
@@ -50,7 +50,7 @@ def test_hillclimb_empty():
 def test_hillclimb():
     search_strat = HillClimb(pop_init_single, mutation_op)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == 1
 
@@ -62,7 +62,7 @@ def test_localseach_empty():
 def test_localseach():
     search_strat = LocalSearch(pop_init_single, mutation_op)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == 1
 
@@ -70,7 +70,7 @@ def test_localseach():
 def test_sa():
     search_strat = SA(pop_init_single, mutation_op)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == 1
 
@@ -78,7 +78,7 @@ def test_sa():
 def test_random():
     search_strat = RandomSearch(pop_init)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == pop_init.pop_size
 
@@ -86,14 +86,14 @@ def test_random():
 def test_nosearch():
     search_strat = NoSearch(pop_init)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert search_strat.pop_size == pop_init.pop_size
 
 
 def test_staticpop():
     search_strat = StaticPopulation(pop_init, mutation_op, parent_sel_op, selection_op)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == pop_init.pop_size
 
@@ -101,7 +101,7 @@ def test_staticpop():
 def test_varpop():
     search_strat = VariablePopulation(pop_init, mutation_op, parent_sel_op, selection_op, 200)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == pop_init.pop_size
 
@@ -116,7 +116,7 @@ def test_es():
         {"offspringSize": 200},
     )
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == pop_init.pop_size
 
@@ -124,7 +124,7 @@ def test_es():
 def test_ga():
     search_strat = GA(pop_init, mutation_op, cross_op, parent_sel_op, selection_op)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == pop_init.pop_size
 
@@ -132,7 +132,7 @@ def test_ga():
 def test_hs():
     search_strat = HS(pop_init, {"HMCR": 0.8, "BW": 0.5, "PAR": 0.2})
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == pop_init.pop_size
 
@@ -140,7 +140,7 @@ def test_hs():
 def test_de():
     search_strat = DE(pop_init, de_op)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == pop_init.pop_size
 
@@ -148,7 +148,7 @@ def test_de():
 def test_pso():
     search_strat = PSO(pop_init, {"w": 0.7, "c1": 1.5, "c2": 1.5})
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == pop_init.pop_size
 
@@ -156,7 +156,7 @@ def test_pso():
 def test_gumda():
     search_strat = GaussianUMDA(pop_init, parent_sel_op, selection_op, params={"noise": 1e-3})
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == pop_init.pop_size
 
@@ -164,7 +164,7 @@ def test_gumda():
 def test_gpbil():
     search_strat = GaussianPBIL(pop_init, parent_sel_op, selection_op, params={"lr": 0.2, "noise": 1e-3})
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == pop_init.pop_size
 
@@ -177,7 +177,7 @@ def test_cro():
         {"rho": 0.5, "Fb": 0.75, "Fd": 0.2, "Pd": 0.7, "attempts": 4},
     )
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size <= pop_init.pop_size
 
@@ -189,7 +189,7 @@ def test_cro_sl():
         {"rho": 0.5, "Fb": 0.75, "Fd": 0.2, "Pd": 0.7, "attempts": 4},
     )
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size <= pop_init.pop_size
 
@@ -201,7 +201,7 @@ def test_pcro_sl():
         {"rho": 0.5, "Fb": 0.75, "Fd": 0.2, "Pd": 0.7, "attempts": 4},
     )
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size <= pop_init.pop_size
 
@@ -223,7 +223,7 @@ def test_dpcro_sl(dyn_method, dyn_metric):
     }
     search_strat = DPCRO_SL(pop_init, [mutation_op, cross_op], search_strat_params)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size <= pop_init.pop_size
 
@@ -234,7 +234,7 @@ def test_memetic():
     neihbourhood_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_init, neihbourhood_op, params={"iters": 10})
     alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size <= pop_init.pop_size
 
@@ -243,7 +243,7 @@ def test_reporting():
     test_params["verbose"] = True
     search_strat = GA(pop_init, mutation_op, cross_op, parent_sel_op, selection_op)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     test_params["verbose"] = False
 
     alg.store_state("temp_pytest.json", True, True, True, True, True, True)
@@ -257,7 +257,7 @@ def test_reporting_memetic():
     neihbourhood_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_init, neihbourhood_op, params={"iters": 10})
     alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=test_params)
-    ind, fit = alg.optimize()
+    alg.optimize()
     test_params["verbose"] = False
 
     alg.store_state("temp_pytest.json", True, True, True, True, True, True)

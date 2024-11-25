@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import Union
-import numpy as np
+from ...Initializer import Initializer
+from ...Operator import Operator
+from ...selectionMethods import ParentSelection, SurvivorSelection
+from ...ParamScheduler import ParamScheduler
 from ...operators import OperatorMeta, OperatorNull
 from ..VariablePopulation import VariablePopulation
 
@@ -17,9 +19,12 @@ class GA(VariablePopulation):
         cross_op: Operator,
         parent_sel: ParentSelection,
         survivor_sel: SurvivorSelection,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "GA",
     ):
+        if params is None:
+            params = {}
+
         self.pmut = params.get("pmut", 0.1)
         self.pcross = params.get("pcross", 0.9)
 

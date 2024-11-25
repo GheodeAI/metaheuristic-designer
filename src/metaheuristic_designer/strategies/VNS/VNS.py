@@ -1,6 +1,9 @@
 from __future__ import annotations
-from typing import Union
+from typing import Iterable
 import warnings
+from ...Population import Population
+from ...Algorithm import Algorithm
+from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
@@ -17,13 +20,19 @@ class VNS(SearchStrategy):
     def __init__(
         self,
         initializer: Initializer,
-        op_list: List[Operator],
+        op_list: Iterable[Operator],
         local_search: Algorithm,
         survivor_sel: SurvivorSelection = None,
         params: ParamScheduler | dict = {},
         inner_loop_params: ParamScheduler | dict = {},
         name: str = "VNS",
     ):
+        if params is None:
+            params = {}
+
+        if inner_loop_params is None:
+            inner_loop_params = {}
+        
         self.iterations = params.get("iters", 100)
 
         self.op_list = op_list
@@ -32,7 +41,6 @@ class VNS(SearchStrategy):
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 
         self.local_search = local_search
-        self.local_search.population = []
 
         if initializer.pop_size > 1:
             initializer.pop_size = 1
@@ -52,35 +60,36 @@ class VNS(SearchStrategy):
     def initialize(self, objfunc):
         initial_population = super().initialize(objfunc)
         initial_pop = self.local_search.initialize(objfunc)
-        self.local_search.evaluate_population(initial_pop, objfunc)
+        self.local_search.evaluate_population(initial_pop)
 
         return initial_population
 
-    def perturb(self, indiv_list, objfunc, **kwargs):
-        new_population = self.operator.evolve(indiv_list, objfunc, self.best, self.initializer)
-        new_population = self.repair_population(new_population, objfunc)
+    def perturb(self, parents, **kwargs):
+        new_population = self.operator.evolve(parents, self.initializer)
+        new_population = self.repair_population(new_population)
 
         # Local search
         self.local_search.operator = self.operator
+        self.local_search.population = new_population
         for _ in range(self.iterations):
-            parents = self.local_search.select_parents(new_population)
+            parents_inner = self.local_search.select_parents(new_population)
 
-            offspring = self.local_search.perturb(parents, objfunc)
+            offspring_inner = self.local_search.perturb(parents_inner)
 
-            new_population = self.local_search.select_individuals(new_population, offspring)
+            new_population = self.local_search.select_individuals(new_population, offspring_inner)
+
+            self.population.update_best_from_parents(offspring_inner)
 
             self.local_search.update_params(**kwargs)
-        
-        offspring = self.local_search.population
 
-        return offspring
+        return new_population
 
     def select_individuals(self, population, offspring, **kwargs):
-        next_population = super().select_individuals(population, offspring, **kwargs)
+        new_population = super().select_individuals(population, offspring, **kwargs)
 
-        self.operator.chosen_idx = next_neighborhood(offspring[0], population[0], self.operator.chosen_idx, self.nchange)
+        self.operator.chosen_idx = next_neighborhood(offspring.fitness[0], population.fitness[0], self.operator.chosen_idx, self.nchange)
 
-        return next_population
+        return new_population
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)

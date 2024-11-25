@@ -1,4 +1,6 @@
 from __future__ import annotations
+from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer
 from ..operators import OperatorVector
 from ..selectionMethods import SurvivorSelection, ParentSelection
@@ -49,7 +51,6 @@ def _evolution_strategy_bin_vec(params, objfunc):
 
     pop_size = params.get("pop_size", 100)
     offspring_size = params.get("offspring_size", 150)
-    n_parents = params.get("n_parents", 100)
     mutstr = params.get("mutstr", 1)
     if objfunc is None:
         vecsize = params["vecsize"]

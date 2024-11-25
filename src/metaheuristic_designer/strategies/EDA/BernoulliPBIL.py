@@ -1,6 +1,5 @@
 from __future__ import annotations
 import numpy as np
-import scipy as sp
 from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
@@ -20,9 +19,12 @@ class BernoulliPBIL(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "BernoulliPBIL",
     ):
+        if params is None:
+            params = {}
+
         self.p = params.get("p", None)
 
         evolve_op = OperatorVector("RandSample", {"distrib": "bernoulli", "p": self.p})

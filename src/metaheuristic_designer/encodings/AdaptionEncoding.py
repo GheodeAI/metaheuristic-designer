@@ -1,6 +1,8 @@
 from __future__ import annotations
-from ..Encoding import Encoding
+from typing import Any
 from abc import abstractmethod
+import numpy as np
+from ..Encoding import Encoding
 from .DefaultEncoding import DefaultEncoding
 
 

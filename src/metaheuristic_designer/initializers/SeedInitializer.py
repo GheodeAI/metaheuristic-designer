@@ -1,6 +1,7 @@
 from __future__ import annotations
-import numpy as np
+from typing import List
 import random
+import numpy as np
 from ..Initializer import Initializer
 from ..utils import RAND_GEN
 
@@ -23,7 +24,7 @@ class SeedProbInitializer(Initializer):
     def __init__(
         self,
         default_init: Initializer,
-        solutions: List[Any] | np.ndarray,
+        solutions: List | np.ndarray,
         insert_prob: float = 0.1,
     ):
         super().__init__(default_init.pop_size)
@@ -64,7 +65,7 @@ class SeedDetermInitializer(Initializer):
     def __init__(
         self,
         default_init: Initializer,
-        solutions: List[Any],
+        solutions: List,
         n_to_insert: int = None,
     ):
         super().__init__(default_init.pop_size)

@@ -21,7 +21,7 @@ def run_algorithm(alg_name, memetic, save_state):
         # "stop_cond": "convergence or time_limit",
         "stop_cond": "time_limit",
         "progress_metric": "time_limit",
-        "time_limit": 20.0,
+        "time_limit": 5.0,
         "cpu_time_limit": 100.0,
         "ngen": 1000,
         "neval": 3e6,
@@ -32,8 +32,8 @@ def run_algorithm(alg_name, memetic, save_state):
         # "v_timer": -1,
     }
 
-    objfunc = Sphere(3, "min")
-    # objfunc = Sphere(30, "min")
+    # objfunc = Sphere(3, "min")
+    objfunc = Sphere(30, "min")
     # objfunc = Rastrigin(30, "min")
     # objfunc = Rosenbrock(2, "min")
     # objfunc = Weierstrass(30, "min")
@@ -46,10 +46,9 @@ def run_algorithm(alg_name, memetic, save_state):
     # mut_params = ParamScheduler("Linear", {"distrib": "Cauchy", "F": [0.01, 0.00001]})
     # mut_params = ParamScheduler("Linear", {"distrib": "Gauss", "F": [0.01, 0.00001]})
     # mutation_op = OperatorVector("RandNoise", mut_params)
-    mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "F": 1e-3, "N": 1})
-    # mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "F": 1, "N": 1})
+    # mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "F": 1e-3, "N": 1})
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "F": 1, "N": 1})
     # mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "F": 1e-3, "N": 1})
-    # mutation_op = OperatorVector("Gauss", {"F": 1})
 
     cross_op = OperatorVector("Multipoint")
 
@@ -63,7 +62,6 @@ def run_algorithm(alg_name, memetic, save_state):
 
     # neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 0, base=10, num=80)]
     neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 0, base=10, num=20)]
-    # neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 2, base=10, num=80)]
 
     parent_sel_op = ParentSelection("Best", parent_params)
     selection_op = SurvivorSelection("(m+n)")
@@ -77,7 +75,7 @@ def run_algorithm(alg_name, memetic, save_state):
         search_strat = HillClimb(pop_initializer, mutation_op)
     elif alg_name == "LocalSearch":
         pop_initializer.pop_size = 1
-        search_strat = LocalSearch(pop_initializer, mutation_op, params={"iters": 20})
+        search_strat = LocalSearch(pop_initializer, mutation_op, params={"iters": 100})
     elif alg_name == "SA":
         pop_initializer.pop_size = 1
         search_strat = SA(pop_initializer, mutation_op, {"iter": 100, "temp_init": 1, "alpha": 0.997})
@@ -186,10 +184,7 @@ def run_algorithm(alg_name, memetic, save_state):
 
     population = alg.optimize()
     print(population.best_solution()[0])
-    alg.display_report(show_plots=True)
-
-    if save_state:
-        alg.store_state("./examples/results/test.json", readable=True, show_pop=True)
+    alg.display_report(show_plots=False)
 
 
 def main():

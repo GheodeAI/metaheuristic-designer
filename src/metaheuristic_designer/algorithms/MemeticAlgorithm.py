@@ -1,5 +1,4 @@
 from __future__ import annotations
-import time
 from matplotlib import pyplot as plt
 from ..Algorithm import Algorithm
 
@@ -36,10 +35,10 @@ class MemeticAlgorithm(Algorithm):
         Constructor of the Metaheuristic class
         """
 
-        super().__init__(objfunc, search_strategy, params, name)
-
         self.local_search = local_search
         self.improve_choice = improve_choice
+
+        super().__init__(objfunc, search_strategy, params, name)
 
     @property
     def name(self):
@@ -76,10 +75,10 @@ class MemeticAlgorithm(Algorithm):
 
         parents = self.search_strategy.select_parents(population, progress=self.progress, history=self.best_history)
 
-        offspring = self.search_strategy.perturb(parents, self.objfunc, progress=self.progress, history=self.best_history)
+        offspring = self.search_strategy.perturb(parents, progress=self.progress, history=self.best_history)
 
         # Get the fitness of the individuals
-        offspring = self.search_strategy.evaluate_population(offspring, self.objfunc, self.parallel, self.threads)
+        offspring = self.search_strategy.evaluate_population(offspring, self.parallel, self.threads)
 
         offspring = self._do_local_search(offspring)
 
@@ -87,21 +86,14 @@ class MemeticAlgorithm(Algorithm):
 
         self.search_strategy.population = population
 
-        best_individual, best_fitness = self.search_strategy.best_solution()
         self.search_strategy.update_params(progress=self.progress)
 
         # Store information
+        best_individual, best_fitness = self.search_strategy.best_solution()
         self.best_history.append(best_individual)
         self.fit_history.append(best_fitness)
 
-        # Display information
-        if verbose:
-            self.step_info(time_start)
-
-        # Update internal state
-        self.update(self.steps, time_start)
-
-        return (best_individual, best_fitness)
+        return population
 
     def get_state(
         self,

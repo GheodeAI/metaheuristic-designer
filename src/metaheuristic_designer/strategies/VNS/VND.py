@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import Union
+from typing import Iterable
 from copy import copy
 import warnings
+from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
@@ -21,23 +22,25 @@ class VND(SearchStrategy):
     def __init__(
         self,
         initializer: Initializer,
-        op_list: List[Operator],
-        selection_op: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        op_list: Iterable[Operator],
+        survivor_sel: SurvivorSelection = None,
+        params: ParamScheduler | dict = None,
         name: str = "VND",
     ):
+        if params is None:
+            params = {}
+
         self.iterations = params.get("iters", 100)
 
         self.op_list = op_list
-        self.perturb_op = OperatorMeta("Pick", op_list, {"init_idx": 0})
+        operator = OperatorMeta("Pick", op_list, {"init_idx": 0})
 
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 
         self.current_op = 0
 
-        if selection_op is None:
-            selection_op = SurvivorSelection("One-to-One")
-        self.selection_op = selection_op
+        if survivor_sel is None:
+            survivor_sel = SurvivorSelection("One-to-One")
 
         self.inner_selection_op = SurvivorSelection("One-to-One")
 
@@ -48,27 +51,31 @@ class VND(SearchStrategy):
                 stacklevel=2,
             )
 
-        super().__init__(initializer, params=params, name=name)
+        super().__init__(
+            initializer,
+            operator=operator,
+            survivor_sel=survivor_sel,
+            params=params,
+            name=name
+        )
 
-    def perturb(self, indiv_list, objfunc, **kwargs):
-        next_indiv_list = copy(indiv_list)
+    def perturb(self, parents, **kwargs):
+        next_parents = copy(parents)
         for _ in range(self.iterations):
-            offspring = self.perturb_op.evolve(indiv_list, objfunc, self.best, self.initializer)
-            offspring = self.repair_population(offspring, objfunc)
+            offspring = self.operator.evolve(parents, self.initializer)
+            offspring = self.repair_population(offspring)
 
             # Keep best individual regardless of selection method
-            current_best = max(offspring, key=lambda x: x.fitness)
-            if self.best.fitness < current_best.fitness:
-                self.best = current_best
+            self.population.update_best_from_parents(offspring)
 
-            next_indiv_list = self.inner_selection_op(next_indiv_list, offspring)
+            next_parents = self.inner_selection_op(next_parents, offspring)
 
-        return next_indiv_list
+        return next_parents
 
     def select_individuals(self, population, offspring, **kwargs):
-        new_population = self.selection_op(population, offspring)
+        new_population = super().select_individuals(population, offspring, **kwargs)
 
-        self.perturb_op.chosen_idx = next_neighborhood(offspring[0], population[0], self.perturb_op.chosen_idx, self.nchange)
+        self.operator.chosen_idx = next_neighborhood(offspring.fitness[0], population.fitness[0], self.operator.chosen_idx, self.nchange)
 
         return new_population
 
@@ -77,14 +84,14 @@ class VND(SearchStrategy):
 
         progress = kwargs["progress"]
 
-        if isinstance(self.perturb_op, Operator):
-            self.perturb_op.step(progress)
+        if isinstance(self.operator, Operator):
+            self.operator.step(progress)
 
-        if self.perturb_op.chosen_idx >= len(self.op_list) or self.perturb_op.chosen_idx < 0:
-            self.perturb_op.chosen_idx = 0
+        if self.operator.chosen_idx >= len(self.op_list) or self.operator.chosen_idx < 0:
+            self.operator.chosen_idx = 0
 
     def extra_step_info(self):
-        idx = self.perturb_op.chosen_idx
+        idx = self.operator.chosen_idx
 
         print(f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}")
         # time.sleep(0.25)

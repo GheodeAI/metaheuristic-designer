@@ -1,6 +1,5 @@
 from __future__ import annotations
 import numpy as np
-import scipy as sp
 from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
@@ -20,13 +19,16 @@ class BinomialUMDA(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "BinomialUMDA",
     ):
+        if params is None:
+            params = {}
+
         self.p = params.get("p", 0.5)
 
         if "n" not in params:
-            raise Exception("A parameter 'n' must be specified which indicates the maximum value.")
+            raise Exception("A parameter 'n' must be specified which indicates the maximum value of the Binomial distribution.")
 
         self.n = params["n"]
 
@@ -47,7 +49,7 @@ class BinomialUMDA(VariablePopulation):
         )
 
     def _batch_fit(self, population):
-        population_matrix = population.genotype_set 
+        population_matrix = population.genotype_set
         p_hat = population_matrix.sum(axis=0) / (self.n * population_matrix.shape[0])
 
         return p_hat

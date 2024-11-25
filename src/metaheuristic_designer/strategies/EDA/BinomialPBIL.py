@@ -1,6 +1,5 @@
 from __future__ import annotations
 import numpy as np
-import scipy as sp
 from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
@@ -20,12 +19,16 @@ class BinomialPBIL(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "BernoulliPBIL",
     ):
+        if params is None:
+            params = {}
+
         self.p = params.get("p", None)
+
         if "n" not in params:
-            raise Exception("A parameter 'n' must be specified which indicates the maximum value.")
+            raise Exception("A parameter 'n' must be specified which indicates the maximum value of the Binomial distribution.")
 
         self.n = params["n"]
 
@@ -53,7 +56,7 @@ class BinomialPBIL(VariablePopulation):
 
         return p_hat
 
-    def perturb(self, parents, objfunc, **kwargs):
+    def perturb(self, parents, **kwargs):
         new_p = self._batch_fit(parents)
         if self.p is not None:
             self.p = (1 - self.lr) * self.p + self.lr * new_p

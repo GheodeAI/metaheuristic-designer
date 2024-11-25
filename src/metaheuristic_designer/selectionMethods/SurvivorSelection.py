@@ -1,6 +1,7 @@
 from __future__ import annotations
 import enum
 from enum import Enum
+from ..Population import Population
 from ..ParamScheduler import ParamScheduler
 from ..SelectionMethod import SelectionMethod
 from .survivor_selection_functions import *
@@ -64,7 +65,7 @@ class SurvivorSelection(SelectionMethod):
     def __init__(
         self,
         method: str,
-        params: Union[ParamScheduler, dict] = None,
+        params: ParamScheduler | dict = None,
         padding: bool = False,
         name: str = None,
     ):
@@ -80,41 +81,42 @@ class SurvivorSelection(SelectionMethod):
         self.method = SurvSelMethod.from_str(method)
 
     def select(self, population: Population, offspring: Population) -> Population:
-        population = copy(population)
-        population_set = population.genotype_set
-        population_fitness = population.fitness
-
-        offspring = copy(offspring)
-        offspring_set = offspring.genotype_set
-        offspring_fitness = offspring.fitness
-
-        result = None
+        new_population = None
+        full_idx = None
+        population_fitness = copy(population.fitness)
+        offspring_fitness = copy(offspring.fitness)
 
         if self.method == SurvSelMethod.ELITISM:
-            result = elitism(population_set, offspring_set, self.params["amount"])
+            full_idx = elitism(population_fitness, offspring_fitness, self.params["amount"])
 
         elif self.method == SurvSelMethod.COND_ELITISM:
-            result = cond_elitism(population_set, offspring_set, self.params["amount"])
+            full_idx = cond_elitism(population_fitness, offspring_fitness, self.params["amount"])
 
         elif self.method == SurvSelMethod.GENERATIONAL:
-            result = offspring
+            new_population = offspring
 
         elif self.method == SurvSelMethod.ONE_TO_ONE:
-            result = one_to_one(population_set, offspring_set, population_fitness, offspring_fitness)
+            if population.pop_size == offspring.pop_size == 1:
+                choose_new_population = population_fitness < offspring_fitness
+                full_idx = np.array([int(choose_new_population)])
+            else:
+                full_idx = one_to_one(population_fitness, offspring_fitness)
 
         elif self.method == SurvSelMethod.PROB_ONE_TO_ONE:
-            result = prob_one_to_one(population_set, offspring_set, population_fitness, offspring_fitness, self.params["p"])
+            if population.pop_size == offspring.pop_size == 1:
+                choose_new_population = population_fitness < offspring_fitness or RAND_GEN.random() < self.params["p"]
+                full_idx = np.array([int(choose_new_population)])
+            else:
+                full_idx = prob_one_to_one(population_fitness, offspring_fitness, self.params["p"])
 
         elif self.method == SurvSelMethod.MU_PLUS_LAMBDA:
-            result = lamb_plus_mu(population_set, offspring_set, population_fitness, offspring_fitness)
+            full_idx = lamb_plus_mu(population_fitness, offspring_fitness)
 
         elif self.method == SurvSelMethod.MU_COMMA_LAMBDA:
-            result = lamb_comma_mu(population_set, offspring_set)
+            full_idx = lamb_comma_mu(population_fitness, offspring_fitness)
 
         elif self.method == SurvSelMethod.CRO:
-            result = cro_selection(
-                population_set,
-                offspring_set,
+            full_idx = cro_selection(
                 population_fitness,
                 offspring_fitness,
                 self.params["Fd"],
@@ -123,6 +125,7 @@ class SurvivorSelection(SelectionMethod):
                 self.params["maxPopSize"],
             )
 
-        new_population = population.update_genotype_set(result)
+        if new_population is None:
+            new_population = population.join(offspring).take_selection(full_idx)
 
         return new_population

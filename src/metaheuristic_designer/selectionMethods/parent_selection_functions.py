@@ -1,8 +1,7 @@
-import numpy as np
-import random
 import warnings
 import enum
 from enum import Enum
+import numpy as np
 from ..utils import RAND_GEN
 
 
@@ -30,7 +29,7 @@ select_dist_map = {
 }
 
 
-def select_best(population, fitness, amount):
+def select_best(fitness, amount):
     """
     Selects the best parent of the population as parents.
 
@@ -47,16 +46,13 @@ def select_best(population, fitness, amount):
         List of individuals chosen as parents.
     """
 
-    # Select the best indices of the best 'n' individuals 
+    # Select the best indices of the best 'n' individuals
     order = np.argsort(fitness)[::-1][:amount]
 
-    # Choose the best individuals using the indices
-    parents = population[order]
-
-    return parents
+    return order
 
 
-def prob_tournament(population, fitness, tourn_size, prob):
+def prob_tournament(fitness, tourn_size, prob):
     """
     Selects the parents for the next generation by tournament.
 
@@ -76,25 +72,23 @@ def prob_tournament(population, fitness, tourn_size, prob):
     """
 
     # Generate the participants of each tournament
-    tournament_idx = RAND_GEN.integers(0, population.shape[0], size=(population.shape[0], tourn_size))
-    torunament_fit = fitness[tournament_idx]
+    tournament_idx = RAND_GEN.integers(0, fitness.shape[0], size=(fitness.shape[0], tourn_size))
+    tournament_fit = fitness[tournament_idx]
 
     # Choose the best individual of each tournament
     best_idx = np.argmax(tournament_fit, axis=1)
 
     # Choose a random individual on each torunament
-    random_idx = RAND_GEN.integers(0, tourn_size, size=population.shape[0])
+    random_idx = RAND_GEN.integers(0, tourn_size, size=fitness.shape[0])
 
     # Choose the final winner of the tournament
-    chosen_idx = np.where(random_idx < RAND_GEN.uniform(0, 1, population.shape[0]), best_idx, random_idx)
-    selected_idx = tournament_idx[np.arange(population.shape[0]), chosen_idx]
+    chosen_idx = np.where(random_idx < RAND_GEN.random(fitness.shape[0]), best_idx, random_idx)
+    selected_idx = tournament_idx[np.arange(fitness.shape[0]), chosen_idx]
 
-    # Choose the individuals using the indices
-    parent_pool = population[selected_idx]
-    return parent_pool
+    return selected_idx
 
 
-def uniform_selection(population, amount):
+def uniform_selection(fitness, amount):
     """
     Chooses a number of individuals from the population at random.
 
@@ -112,10 +106,10 @@ def uniform_selection(population, amount):
     """
 
     # Take a random sample of individuals
-    return population[RAND_GEN.integers(0, population.shape[0], amount)]
+    return RAND_GEN.integers(0, fitness.shape[0], amount)
 
 
-def selection_distribution(population, fitness, method, f=None):
+def selection_distribution(fitness, method, f=None):
     """
     Gives the weights that will be applied to each individual in
     the selection process.
@@ -143,14 +137,16 @@ def selection_distribution(population, fitness, method, f=None):
     if method == SelectionDist.FIT_PROP:
         weights = fitness
     elif method == SelectionDist.SIGMA_SCALE:
-        weights = np.maximum(fit_list - (fit_list.mean() - f * fit_list.std()), 0)
+        weights = np.maximum(fitness - (fitness.mean() - f * fitness.std()), 0)
     elif method == SelectionDist.LIN_RANK:
         fit_order = np.argsort(fitness)
-        n_parents = population.shape[0]
+        n_parents = fitness.shape[0]
         weights = (2 - f) + (2 * fit_order * (f - 1)) / (n_parents - 1)
     elif method == SelectionDist.EXP_RANK:
         fit_order = np.argsort(fitness)
         weights = 1 - np.exp(-fit_order)
+    else:
+        weights = np.ones_like(fitness)
 
     weight_norm = weights.sum()
     if weight_norm == 0:
@@ -160,7 +156,7 @@ def selection_distribution(population, fitness, method, f=None):
     return weights / weight_norm
 
 
-def roulette(population, fitness, amount, method=None, f=None):
+def roulette(fitness, amount, method=None, f=None):
     """
     Fitness proportionate parent selection.
 
@@ -184,7 +180,7 @@ def roulette(population, fitness, amount, method=None, f=None):
     if method is None:
         method = "basic"
 
-    weights = selection_distribution(population, fitness, method, f)
+    weights = selection_distribution(fitness, method, f)
 
     if np.any(weights < 0):
         warnings.warn(
@@ -192,11 +188,10 @@ def roulette(population, fitness, amount, method=None, f=None):
             stacklevel=2,
         )
 
-    parents = RAND_GEN.choice(population, p=weights, axis=0)
-    return parents
+    return RAND_GEN.choice(np.arange(fitness.shape[0]), p=weights, axis=0)
 
 
-def sus(population, amount, method=None, f=None):
+def sus(fitness, amount, method=None, f=None):
     """
     Stochastic universal sampling parent selection method.
 
@@ -220,13 +215,11 @@ def sus(population, amount, method=None, f=None):
     if method is None:
         method = "basic"
 
-    weights = selection_distribution(population, method, f)
+    weights = selection_distribution(fitness, method, f)
 
     cum_weights = np.cumsum(weights)
-    random_offsets = RAND_GEN.uniform(0, 1, amount) / amount
-    positions = (np.arange(amount)/amount)[:, None] + random_offsets[:, None]
+    random_offsets = RAND_GEN.random(amount) / amount
+    positions = (np.arange(amount) / amount)[:, None] + random_offsets[:, None]
     order = np.searchsorted(cum_weights, positions.ravel())[:amount]
 
-    parents = population[order]
-
-    return parents
+    return order

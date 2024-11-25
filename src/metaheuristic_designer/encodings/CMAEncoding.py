@@ -1,9 +1,6 @@
 from __future__ import annotations
 import numpy as np
-
-# from ..Encoding import Encoding
 from .AdaptionEncoding import AdaptionEncoding
-from .DefaultEncoding import DefaultEncoding
 
 
 class CMAEncoding(AdaptionEncoding):

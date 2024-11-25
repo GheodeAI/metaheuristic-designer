@@ -1,6 +1,5 @@
 from __future__ import annotations
 import numpy as np
-import random
 from ..Initializer import Initializer
 from ..encodings import AdaptionEncoding
 from ..utils import RAND_GEN

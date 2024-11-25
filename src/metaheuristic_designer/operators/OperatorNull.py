@@ -1,7 +1,6 @@
 from __future__ import annotations
-import numpy as np
-from ..Operator import Operator
 from copy import copy
+from ..Operator import Operator
 
 
 class OperatorNull(Operator):
@@ -30,4 +29,4 @@ class OperatorNull(Operator):
         super().__init__({}, name)
 
     def evolve(self, population, *args):
-        return population
+        return copy(population)

@@ -1,5 +1,6 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
+from typing import Tuple, Any
+from abc import ABC
 from .ParamScheduler import ParamScheduler
 from .selectionMethods import (
     SurvivorSelection,
@@ -7,6 +8,9 @@ from .selectionMethods import (
     SurvivorSelectionNull,
     ParentSelectionNull,
 )
+from .Population import Population
+from .Initializer import Initializer
+from .ObjectiveFunc import ObjectiveFunc
 from .Operator import Operator
 from .operators import OperatorNull
 from multiprocessing import Pool
@@ -193,9 +197,11 @@ class SearchStrategy(ABC):
 
         offspring = self.operator.evolve(parents, self.initializer)
         offspring = self.repair_population(offspring)
-        
+        # print(parents.genotype_set)
+        # print(offspring.genotype_set)
+
         return offspring
-    
+
     def repair_population(self, population: Population) -> Population:
         return population.repair_solutions()
 

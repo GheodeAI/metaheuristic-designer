@@ -1,11 +1,16 @@
 from __future__ import annotations
+from typing import List, Tuple, Any
 from abc import ABC, abstractmethod
 import time
 import json
 import numpy as np
 import pyparsing as pp
-from .utils import NumpyEncoder
 import matplotlib.pyplot as plt
+from .utils import NumpyEncoder
+from .ObjectiveFunc import ObjectiveFunc
+from .SearchStrategy import SearchStrategy
+from .ParamScheduler import ParamScheduler
+from .Population import Population
 
 
 class Algorithm(ABC):
@@ -96,6 +101,21 @@ class Algorithm(ABC):
     def initializer(self, new_initializer):
         self.search_strategy.initializer = new_initializer
 
+    def population(self) -> Population:
+        return self.search_strategy.population
+
+    def best_solution(self) -> Tuple[Any, float]:
+        """
+        Returns the best solution so far in the population.
+
+        Returns
+        -------
+        best_solution: Tuple[Individual, float]
+            A pair of the best individual with its fitness.
+        """
+
+        return self.search_strategy.best_solution()
+
     def restart(self):
         """
         Resets the internal values of the algorithm and the number of evaluations of the fitness function.
@@ -123,18 +143,6 @@ class Algorithm(ABC):
 
         ind, fit = self.search_strategy.best_solution()
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=",")
-
-    def best_solution(self) -> Tuple[Any, float]:
-        """
-        Returns the best solution so far in the population.
-
-        Returns
-        -------
-        best_solution: Tuple[Individual, float]
-            A pair of the best individual with its fitness.
-        """
-
-        return self.search_strategy.best_solution()
 
     def stopping_condition(self, gen: int, real_time_start: float, cpu_time_start: float) -> bool:
         """
@@ -219,9 +227,9 @@ class Algorithm(ABC):
         #         best_fitness = 1e-40
         #     target_reached = self.fit_target / best_fitness
         if self.objfunc.mode == "max":
-            target_reached = 1 - (self.best_solution()[1] - self.fit_target) / self.fit_target
+            target_reached = 1 - (best_fitness - self.fit_target) / self.fit_target
         else:
-            target_reached = 1 - (self.fit_target - self.best_solution()[1]) / self.fit_target
+            target_reached = 1 - (self.fit_target - best_fitness) / self.fit_target
 
         patience_prec = 1 - self.patience_left / self.max_patience
 
@@ -274,8 +282,10 @@ class Algorithm(ABC):
         initial_population = self.search_strategy.evaluate_population(initial_population, self.parallel, self.threads)
         self.search_strategy.population = initial_population
 
+        return initial_population
+
     @abstractmethod
-    def step(self, time_start: float = 0, verbose: bool = False) -> Tuple[Individual, float]:
+    def step(self, time_start: float = 0, verbose: bool = False) -> Population:
         """
         Performs an iteration of the algorithm.
 
@@ -292,7 +302,7 @@ class Algorithm(ABC):
             A pair of the best individual with its fitness.
         """
 
-    def optimize(self) -> Tuple[Individual, float]:
+    def optimize(self) -> Population:
         """
         Execute the algorithm to get the best solution possible along with its evaluation.
         It will initialize the algorithm and repeat steps of the algorithm untill the
@@ -337,7 +347,7 @@ class Algorithm(ABC):
         self.real_time_spent = time.time() - real_time_start
         self.cpu_time_spent = time.process_time() - cpu_time_start
 
-        return self.best_solution()
+        return self.search_strategy.population
 
     def get_state(
         self,

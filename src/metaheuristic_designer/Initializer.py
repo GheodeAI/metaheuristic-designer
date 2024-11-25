@@ -1,8 +1,11 @@
 from __future__ import annotations
+from typing import Any
 from abc import ABC, abstractmethod
 import numpy as np
 from .Population import Population
+from .Encoding import Encoding
 from .encodings import DefaultEncoding
+from .ObjectiveFunc import ObjectiveFunc
 
 
 class Initializer(ABC):
@@ -79,7 +82,7 @@ class Initializer(ABC):
 
         if n_indiv is None:
             n_indiv = self.pop_size
-        
+
         population_set = [self.generate_individual() for _ in range(n_indiv)]
         if isinstance(population_set[0], np.ndarray):
             population_set = np.asarray(population_set)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from .ParamScheduler import ParamScheduler
+from .Population import Population
 
 
 class SelectionMethod(ABC):
@@ -48,7 +49,7 @@ class SelectionMethod(ABC):
         return self.select(population, offspring)
 
     @abstractmethod
-    def select(self, population: Population, offspring: Population = None) -> Population:
+    def select(self, population: Population, offspring: Population) -> Population:
         """
         Takes a population with its offspring and returns the individuals that survive
         to produce the next generation.
@@ -82,6 +83,7 @@ class SelectionMethod(ABC):
                 self.params["maxPopSize"] = round(self.params["maxPopSize"])
 
     def set_param(self, **kwargs):
+        """ """
         self.params.update(kwargs)
 
     def get_state(self):

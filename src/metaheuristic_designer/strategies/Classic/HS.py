@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import Union
+from ...ParamScheduler import ParamScheduler
+from ...Initializer import Initializer
 from ...operators import OperatorVector, OperatorMeta
-from ...selectionMethods import SurvivorSelection, ParentSelection
+from ...selectionMethods import SurvivorSelection
 from ..VariablePopulation import VariablePopulation
 
 
@@ -13,9 +14,12 @@ class HS(VariablePopulation):
     def __init__(
         self,
         initializer: Initializer,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "HS",
     ):
+        if params is None:
+            params = {}
+
         survivor_sel = SurvivorSelection("(m+n)")
 
         HSM = initializer.pop_size

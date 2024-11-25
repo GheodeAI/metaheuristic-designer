@@ -1,6 +1,4 @@
 import pytest
-
-import numpy as np
 from copy import copy 
 from metaheuristic_designer import Population
 from metaheuristic_designer.operators import OperatorVector, vector_ops_map
@@ -19,7 +17,7 @@ example_population3 = Population(Sphere(100), mhd.RAND_GEN.uniform(-100, 100, (p
 
 def test_errors():
     with pytest.raises(ValueError):
-        operator = OperatorVector("not_a_method")
+        OperatorVector("not_a_method")
 
 
 @pytest.mark.parametrize("population", [example_population1, example_population2, example_population3])

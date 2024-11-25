@@ -1,10 +1,5 @@
 import math
-import random
 import numpy as np
-import scipy as sp
-import scipy.stats
-import enum
-from enum import Enum
 from ...utils import RAND_GEN
 
 
@@ -59,7 +54,7 @@ def cross_mp(population):
     parents1 = population[: math.ceil(half_size)]
     parents2 = population[math.floor(half_size) :]
 
-    cross_mask = RAND_GEN.uniform(0, 1, parents1.shape) < 0.5
+    cross_mask = RAND_GEN.random(parents1.shape) < 0.5
 
     offspring1 = np.where(cross_mask, parents1, parents2)
     offspring2 = np.where(cross_mask, parents2, parents1)
@@ -88,7 +83,7 @@ def blxalpha(population, alpha, lower_bounds=None, upper_bounds=None):
     low = population - diff
     high = population + diff
 
-    return RAND_GEN.uniform(0, 1, population.shape) * (high - low) + low
+    return RAND_GEN.random(population.shape) * (high - low) + low
 
 
 def sbx(population, strength):
@@ -99,7 +94,7 @@ def sbx(population, strength):
     population_shuffled = population[RAND_GEN.permutation(population.shape[0])]
 
     beta = np.empty_like(population)
-    u = RAND_GEN.uniform(0, 1, population.shape)
+    u = RAND_GEN.random(population.shape)
 
     _val1 = (2 * u) ** (1 / (strength + 1))
     _val2 = (0.5 * (1 - u)) ** (1 / (strength + 1))

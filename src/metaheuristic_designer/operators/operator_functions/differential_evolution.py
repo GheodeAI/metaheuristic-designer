@@ -1,10 +1,4 @@
-import math
-import random
 import numpy as np
-import scipy as sp
-import scipy.stats
-import enum
-from enum import Enum
 from ...utils import RAND_GEN
 
 
@@ -18,7 +12,7 @@ def DE_rand1(population, F, CR):
     r3 = population[RAND_GEN.permutation(population.shape[0])]
 
     v = r1 + F * (r2 - r3)
-    mask_pos = RAND_GEN.uniform(0, 1, population.shape) <= CR
+    mask_pos = RAND_GEN.random(population.shape) <= CR
     population[mask_pos] = v[mask_pos]
     return population
 
@@ -33,7 +27,7 @@ def DE_best1(population, fitness, F, CR):
     r2 = population[RAND_GEN.permutation(population.shape[0])]
 
     v = r_best + F * (r1 - r2)
-    mask_pos = RAND_GEN.uniform(0, 1, population.shape) <= CR
+    mask_pos = RAND_GEN.random(population.shape) <= CR
     population[mask_pos] = v[mask_pos]
     return population
 
@@ -50,7 +44,7 @@ def DE_rand2(population, F, CR):
     r5 = population[RAND_GEN.permutation(population.shape[0])]
 
     v = r1 + F * (r2 - r3) + F * (r4 - r5)
-    mask_pos = RAND_GEN.uniform(0, 1, population.shape) <= CR
+    mask_pos = RAND_GEN.random(population.shape) <= CR
     population[mask_pos] = v[mask_pos]
     return population
 
@@ -67,7 +61,7 @@ def DE_best2(population, fitness, F, CR):
     r4 = population[RAND_GEN.permutation(population.shape[0])]
 
     v = r_best + F * (r1 - r2) + F * (r3 - r4)
-    mask_pos = RAND_GEN.uniform(0, 1, population.shape) <= CR
+    mask_pos = RAND_GEN.random(population.shape) <= CR
     population[mask_pos] = v[mask_pos]
     return population
 
@@ -82,8 +76,8 @@ def DE_current_to_rand1(population, F, CR):
     r3 = population[RAND_GEN.permutation(population.shape[0])]
     r4 = population[RAND_GEN.permutation(population.shape[0])]
 
-    v = population + RAND_GEN.uniform(0, 1) * (r1 - population) + F * (r2 - r3)
-    mask_pos = RAND_GEN.uniform(0, 1, population.shape) <= CR
+    v = population + RAND_GEN.random() * (r1 - population) + F * (r2 - r3)
+    mask_pos = RAND_GEN.random(population.shape) <= CR
     population[mask_pos] = v[mask_pos]
     return population
 
@@ -97,8 +91,8 @@ def DE_current_to_best1(population, fitness, F, CR):
     r1 = population[RAND_GEN.permutation(population.shape[0])]
     r2 = population[RAND_GEN.permutation(population.shape[0])]
 
-    v = population + RAND_GEN.uniform(0, 1) * (r_best - population) + F * (r1 - r2)
-    mask_pos = RAND_GEN.uniform(0, 1, population.shape) <= CR
+    v = population + RAND_GEN.random() * (r_best - population) + F * (r1 - r2)
+    mask_pos = RAND_GEN.random(population.shape) <= CR
     population[mask_pos] = v[mask_pos]
     return population
 
@@ -116,8 +110,8 @@ def DE_current_to_pbest1(population, fitness, F, CR, P):
     r1 = population[RAND_GEN.permutation(population.shape[0])]
     r2 = population[RAND_GEN.permutation(population.shape[0])]
 
-    v = population + RAND_GEN.uniform(0, 1) * (r_best - population) + F * (r1 - r2)
-    mask_pos = RAND_GEN.uniform(0, 1, population.shape) <= CR
+    v = population + RAND_GEN.random() * (r_best - population) + F * (r1 - r2)
+    mask_pos = RAND_GEN.random(population.shape) <= CR
 
     population[mask_pos] = v[mask_pos]
 

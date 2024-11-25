@@ -1,11 +1,12 @@
 from __future__ import annotations
-from collections.abc import Iterable
+from typing import Iterable
 import random
-from ..Operator import Operator
-from copy import copy, deepcopy
-import numpy as np
 import enum
 from enum import Enum
+from copy import copy
+import numpy as np
+from ..Operator import Operator
+from ..ParamScheduler import ParamScheduler
 from ..utils import RAND_GEN
 
 
@@ -52,8 +53,8 @@ class OperatorMeta(Operator):
     def __init__(
         self,
         method: str,
-        op_list: List[Operator],
-        params: Union[ParamScheduler, dict] = None,
+        op_list: Iterable[Operator],
+        params: ParamScheduler | dict = None,
         name: str = None,
     ):
         """
@@ -93,21 +94,19 @@ class OperatorMeta(Operator):
         # If we have a branch with 2 operators and "p" is given as an input
         if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
             params["weights"] = [params["p"], 1 - params["p"]]
-    
+
     def evolve(self, population, initializer=None):
         new_population = None
         population_matrix = copy(population.genotype_set)
-        fitness_array = population.fitness
+        speed = copy(population.speed_set)
 
         if self.method == MetaOpMethods.BRANCH:
             self.chosen_idx = RAND_GEN.choice(np.arange(len(self.op_list)), size=len(population.genotype_set), p=self.params["weights"])
-            population_matrix = population.genotype_set
-            speed = population.speed_set
             for idx, op in enumerate(self.op_list):
                 split_mask = self.chosen_idx == idx
 
                 if np.any(split_mask):
-                    split_population = population.update_genotype_set(population_matrix[split_mask], speed[split_mask]) 
+                    split_population = population.update_genotype_set(population_matrix[split_mask], speed[split_mask])
                     split_population = op.evolve(split_population, initializer)
 
                     population_matrix[split_mask, :] = split_population.genotype_set
@@ -117,16 +116,14 @@ class OperatorMeta(Operator):
             if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
                 chosen_idx = self.chosen_idx
             else:
-                chosen_idx = np.asarray([self.chosen_idx]*len(population))
+                chosen_idx = np.asarray([self.chosen_idx] * len(population))
 
             # the chosen index is assumed to be changed by the user
-            population_matrix = population.genotype_set
-            speed = population.speed_set
             for idx, op in enumerate(self.op_list):
                 split_mask = chosen_idx == idx
 
                 if np.any(split_mask):
-                    split_population = population.update_genotype_set(population_matrix[split_mask], speed[split_mask]) 
+                    split_population = population.update_genotype_set(population_matrix[split_mask], speed[split_mask])
                     split_population = op.evolve(split_population, initializer)
 
                     population_matrix[split_mask, :] = split_population.genotype_set
@@ -138,22 +135,19 @@ class OperatorMeta(Operator):
                 new_population = op.evolve(new_population, initializer)
 
         elif self.method == MetaOpMethods.SPLIT:
-            population_matrix = population.genotype_set
-            speed = population.speed_set
             for idx_op, op in enumerate(self.op_list):
-                split_mask = self.mask == idx_op 
+                split_mask = self.mask == idx_op
 
                 if np.any(split_mask):
-                    split_population = population.update_genotype_set(population_matrix[:, split_mask], speed[:, split_mask]) 
+                    split_population = population.update_genotype_set(population_matrix[:, split_mask], speed[:, split_mask])
                     split_population = op.evolve(split_population, initializer)
 
                     population_matrix[:, split_mask] = split_population.genotype_set
                     speed[:, split_mask] = split_population.speed_set
 
-
         if new_population is None:
             new_population = population.update_genotype_set(population_matrix, speed)
-        
+
         return new_population
 
     def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None, indiv_idx=0):
@@ -193,7 +187,7 @@ class OperatorMeta(Operator):
                     result.genotype[self.mask == idx_op] = aux_indiv.genotype
 
         return result
-    
+
     @staticmethod
     def _filter_indiv(indiv, mask):
         indiv_copy = copy(indiv)
@@ -202,7 +196,7 @@ class OperatorMeta(Operator):
             indiv_copy.best = indiv.best[mask]
             indiv_copy.speed = indiv.speed[mask]
         return indiv_copy
-    
+
     @staticmethod
     def _undo_filter_indiv(indiv, filtered_indiv, mask):
         if indiv is not None:

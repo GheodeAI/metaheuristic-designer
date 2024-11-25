@@ -38,9 +38,10 @@ def save_to_image(image, img_name="result.png"):
 def run_algorithm(alg_name, img_file_name, memetic):
     params = {
         # General
-        "stop_cond": "convergence or time_limit",
+        # "stop_cond": "convergence or time_limit",
+        "stop_cond": "time_limit",
         "progress_metric": "time_limit",
-        "time_limit": 500.0,
+        "time_limit": 50.0,
         "cpu_time_limit": 120.0,
         "ngen": 1000,
         "neval": 3e5,
@@ -206,6 +207,15 @@ def run_algorithm(alg_name, img_file_name, memetic):
         )
         # local_search = HillClimb(pop_initializer)
         # search_strat = VNS(pop_initializer, neighborhood_structures, local_search, params={"iters": 500})
+    elif alg_name == "GVNS":
+        pop_initializer.pop_size = 1
+        local_search = VND(pop_initializer, neighborhood_structures, params={"nchange": "cyclic"})
+        search_strat = VNS(
+            pop_initializer,
+            neighborhood_structures,
+            local_search,
+            params={"iters": 200, "nchange": "pipe"},
+        )
     elif alg_name == "RandomSearch":
         pop_initializer.pop_size = 1
         search_strat = RandomSearch(pop_initializer)
