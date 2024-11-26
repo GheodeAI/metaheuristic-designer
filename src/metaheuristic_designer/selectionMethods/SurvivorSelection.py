@@ -93,6 +93,7 @@ class SurvivorSelection(SelectionMethod):
             full_idx = cond_elitism(population_fitness, offspring_fitness, self.params["amount"])
 
         elif self.method == SurvSelMethod.GENERATIONAL:
+            self.last_selection_idx = range(len(population), len(offspring))
             new_population = offspring
 
         elif self.method == SurvSelMethod.ONE_TO_ONE:
@@ -126,6 +127,7 @@ class SurvivorSelection(SelectionMethod):
             )
 
         if new_population is None:
+            self.last_selection_idx = full_idx
             new_population = population.join(offspring).take_selection(full_idx)
 
         return new_population

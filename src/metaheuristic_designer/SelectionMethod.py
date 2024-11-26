@@ -40,6 +40,7 @@ class SelectionMethod(ABC):
             self.params = self.param_scheduler.get_params()
         else:
             self.params = params
+        self.last_selection_idx = None
 
     def __call__(self, population: Population, offspring: Population = None) -> Population:
         """

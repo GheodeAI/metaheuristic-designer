@@ -96,23 +96,39 @@ class OperatorMeta(Operator):
             params["weights"] = [params["p"], 1 - params["p"]]
 
     def evolve(self, population, initializer=None):
-        new_population = None
-        population_matrix = copy(population.genotype_set)
-        speed = copy(population.speed_set)
+        new_population = copy(population)
 
         if self.method == MetaOpMethods.BRANCH:
-            self.chosen_idx = RAND_GEN.choice(np.arange(len(self.op_list)), size=len(population.genotype_set), p=self.params["weights"])
+            # print("BRANCH")
+            self.chosen_idx = RAND_GEN.choice(np.arange(len(self.op_list)), size=population.pop_size, p=self.params["weights"])
+            # print()
+            # print(self.name)
+            # print(new_population)
+            # print(self.chosen_idx)
             for idx, op in enumerate(self.op_list):
                 split_mask = self.chosen_idx == idx
 
                 if np.any(split_mask):
-                    split_population = population.update_genotype_set(population_matrix[split_mask], speed[split_mask])
+                    # print()
+                    # print(op.name)
+
+                    split_population = population.take_selection(split_mask)
                     split_population = op.evolve(split_population, initializer)
 
-                    population_matrix[split_mask, :] = split_population.genotype_set
-                    speed[split_mask, :] = split_population.speed_set
+                    # print("Split population:", split_population.pop_size)
+                    # print(split_population.genotype_set)
+
+                    # print("Before branch:", new_population.pop_size)
+                    # print(new_population.genotype_set)
+
+                    new_population = new_population.apply_selection(split_population, split_mask)
+
+                    # print("After branch:", new_population.pop_size)
+                    # print(new_population.genotype_set)
+
 
         elif self.method == MetaOpMethods.PICK:
+            # print("PICK")
             if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
                 chosen_idx = self.chosen_idx
             else:
@@ -123,38 +139,41 @@ class OperatorMeta(Operator):
                 split_mask = chosen_idx == idx
 
                 if np.any(split_mask):
-                    split_population = population.update_genotype_set(population_matrix[split_mask], speed[split_mask])
+                    split_population = new_population.take_selection(split_mask)
                     split_population = op.evolve(split_population, initializer)
-
-                    population_matrix[split_mask, :] = split_population.genotype_set
-                    speed[split_mask, :] = split_population.speed_set
+                    new_population = new_population.apply_selection(split_population, split_mask)
 
         elif self.method == MetaOpMethods.SEQUENCE:
-            new_population = copy(population)
+            # print("SEQUENCE")
             for op in self.op_list:
+                # print()
+                # print(op.name)
+                
+                # print(new_population.genotype_set)
                 new_population = op.evolve(new_population, initializer)
-
+        
         elif self.method == MetaOpMethods.SPLIT:
+            # print("SPLIT")
             for idx_op, op in enumerate(self.op_list):
                 split_mask = self.mask == idx_op
 
                 if np.any(split_mask):
-                    split_population = population.update_genotype_set(population_matrix[:, split_mask], speed[:, split_mask])
+                    split_population = new_population.take_slice(split_mask)
                     split_population = op.evolve(split_population, initializer)
+                    new_population = new_population.apply_slice(split_population, split_mask)
 
-                    population_matrix[:, split_mask] = split_population.genotype_set
-                    speed[:, split_mask] = split_population.speed_set
-
-        if new_population is None:
-            new_population = population.update_genotype_set(population_matrix, speed)
+        # print(id(new_population) == id(population))
+        # print()
+        # print(self.method)
+        # print("Population changed", np.any(new_population.genotype_set != population.genotype_set))
 
         return new_population
 
-    def evolve_single(self, indiv, population, objfunc, initializer=None, global_best=None, indiv_idx=0):
+    def evolve_single(self, indiv, population, initializer=None, global_best=None, indiv_idx=0):
         if self.method == MetaOpMethods.BRANCH:
             self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
             chosen_op = self.op_list[self.chosen_idx]
-            result = chosen_op.evolve_single(indiv, population, objfunc, global_best, initializer)
+            result = chosen_op.evolve_single(indiv, population, global_best, initializer)
 
         elif self.method == MetaOpMethods.PICK:
             # the chosen index is assumed to be changed by the user
@@ -162,12 +181,12 @@ class OperatorMeta(Operator):
                 chosen_op = self.op_list[self.chosen_idx[indiv_idx]]
             else:
                 chosen_op = self.op_list[self.chosen_idx]
-            result = chosen_op.evolve_single(indiv, population, objfunc, global_best, initializer)
+            result = chosen_op.evolve_single(indiv, population, global_best, initializer)
 
         elif self.method == MetaOpMethods.SEQUENCE:
             result = indiv
             for op in self.op_list:
-                result = op.evolve_single(result, population, objfunc, global_best, initializer)
+                result = op.evolve_single(result, population, global_best, initializer)
 
         elif self.method == MetaOpMethods.SPLIT:
             result = copy(indiv)
@@ -183,7 +202,7 @@ class OperatorMeta(Operator):
                     for idx_pop, val in enumerate(population_copy):
                         val.genotype = population[idx_pop].genotype[self.mask == idx_op]
 
-                    aux_indiv = op.evolve_single(indiv_copy, population_copy, objfunc, global_best, initializer)
+                    aux_indiv = op.evolve_single(indiv_copy, population_copy, global_best, initializer)
                     result.genotype[self.mask == idx_op] = aux_indiv.genotype
 
         return result

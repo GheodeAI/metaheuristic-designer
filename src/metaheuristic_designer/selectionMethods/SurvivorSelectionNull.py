@@ -36,8 +36,10 @@ class SurvivorSelectionNull(SelectionMethod):
         if name is None:
             name = "Nothing"
 
+
         super().__init__(params, padding, name)
 
     def select(self, population: Population, offspring: Population) -> Population:
+        self.last_selection_idx = range(len(population), len(offspring))
         offspring = offspring.update_best_from_parents(population)
         return offspring

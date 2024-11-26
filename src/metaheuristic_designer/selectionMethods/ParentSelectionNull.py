@@ -38,4 +38,5 @@ class ParentSelectionNull(SelectionMethod):
         super().__init__(params, padding, name)
 
     def select(self, population: Population, offspring: Population = None) -> Population:
+        self.last_selection_idx = range(len(population))
         return population

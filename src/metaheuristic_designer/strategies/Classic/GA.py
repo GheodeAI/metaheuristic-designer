@@ -33,7 +33,7 @@ class GA(VariablePopulation):
         prob_mut_op = OperatorMeta("Branch", [mutation_op, null_operator], {"p": self.pmut})
         prob_cross_op = OperatorMeta("Branch", [cross_op, null_operator], {"p": self.pcross})
 
-        evolve_op = OperatorMeta("Sequence", [prob_mut_op, prob_cross_op])
+        evolve_op = OperatorMeta("Sequence", [prob_cross_op, prob_mut_op])
 
         super().__init__(
             initializer,

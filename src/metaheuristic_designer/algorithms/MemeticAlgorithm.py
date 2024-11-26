@@ -1,5 +1,4 @@
 from __future__ import annotations
-from matplotlib import pyplot as plt
 from ..Algorithm import Algorithm
 
 
@@ -54,38 +53,46 @@ class MemeticAlgorithm(Algorithm):
         self.local_search.initialize(self.objfunc)
 
     def _do_local_search(self, offspring):
-        offspring_ids = [indiv.id for indiv in offspring]
+        # Select individuals to improve
+        selected_to_improve = self.improve_choice(offspring)
+        chosen_idx = self.improve_choice.last_selection_idx
 
-        offspring_to_imp = self.improve_choice(offspring)
-        off_idxs = [offspring_ids.index(indiv.id) for indiv in offspring_to_imp]
+        # Apply mutation to individuals
+        mutated_offspring = self.local_search.perturb(selected_to_improve)
 
-        to_improve = [offspring[i] for i in off_idxs]
+        # Select the best individuals (ensure the population size is the same as the parents)
+        improved_offspring = self.local_search.select_individuals(selected_to_improve, mutated_offspring)
 
-        improved = self.local_search.perturb(to_improve, self.objfunc)
-
-        for idx, val in enumerate(off_idxs):
-            offspring[val] = improved[idx]
-
-        offspring = self.search_strategy.evaluate_population(offspring, self.objfunc, self.parallel, self.threads)
+        # Assign improved individuals to the population
+        offspring = offspring.apply_selection(improved_offspring, chosen_idx)
+        offspring = self.search_strategy.evaluate_population(offspring, self.parallel, self.threads)
 
         return offspring
 
     def step(self, time_start=0, verbose=False):
+        # Get the population of this generation
         population = self.search_strategy.population
+        population = population.sort_population()
 
+        # Generate their parents
         parents = self.search_strategy.select_parents(population, progress=self.progress, history=self.best_history)
 
+        # Evolve the selected parents
         offspring = self.search_strategy.perturb(parents, progress=self.progress, history=self.best_history)
 
         # Get the fitness of the individuals
         offspring = self.search_strategy.evaluate_population(offspring, self.parallel, self.threads)
 
+        # Perform a local search on the best individuals
         offspring = self._do_local_search(offspring)
 
-        population = self.search_strategy.select_individuals(population, offspring, progress=self.progress, history=self.best_history)
+        # Select the individuals that remain for the next generation
+        new_population = self.search_strategy.select_individuals(population, offspring, progress=self.progress, history=self.best_history)
 
-        self.search_strategy.population = population
+        # Assign the newly generated population
+        self.search_strategy.population = new_population
 
+        # Get information about the algorithm to track it's progress
         self.search_strategy.update_params(progress=self.progress)
 
         # Store information
@@ -93,7 +100,7 @@ class MemeticAlgorithm(Algorithm):
         self.best_history.append(best_individual)
         self.fit_history.append(best_fitness)
 
-        return population
+        return new_population
 
     def get_state(
         self,

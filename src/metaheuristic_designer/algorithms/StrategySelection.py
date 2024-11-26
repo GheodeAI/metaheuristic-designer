@@ -1,8 +1,6 @@
 from __future__ import annotations
 from typing import Tuple, Any, Iterable
-import time
 import pandas as pd
-from matplotlib import pyplot as plt
 from ..ParamScheduler import ParamScheduler
 from ..SearchStrategy import SearchStrategy
 from ..ObjectiveFunc import ObjectiveFunc

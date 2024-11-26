@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import Iterable, Tuple, Any
 from collections import Counter
 import pandas as pd
-from matplotlib import pyplot as plt
 import enlighten
 from ..Algorithm import Algorithm
 from ..ParamScheduler import ParamScheduler

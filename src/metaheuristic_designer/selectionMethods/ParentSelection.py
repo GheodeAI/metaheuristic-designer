@@ -105,9 +105,11 @@ class ParentSelection(SelectionMethod):
             )
 
         elif self.method == ParentSelMethod.NOTHING:
+            self.last_selection_idx = range(len(population))
             new_population = population
 
         if new_population is None:
+            self.last_selection_idx = parent_idx
             new_population = population.take_selection(parent_idx)
 
         return new_population
