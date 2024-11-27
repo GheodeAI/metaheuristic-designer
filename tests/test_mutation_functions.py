@@ -2,9 +2,10 @@ import pytest
 
 import numpy as np
 import scipy as sp
-from metaheuristic_designer import Individual
 from metaheuristic_designer.operators.operator_functions.mutation import *
 import metaheuristic_designer as mhd
+
+rng = mhd.reset_seed(0)
 
 # n_indiv = 100
 # n_components = 10

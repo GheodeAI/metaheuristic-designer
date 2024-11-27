@@ -23,7 +23,7 @@ def one_to_one(population_fitness, offspring_fitness):
     """
     n_parents = population_fitness.shape[0]
 
-    selection_mask = population_fitness < offspring_fitness
+    selection_mask = population_fitness <= offspring_fitness
     full_idx = np.arange(n_parents)
     full_idx[selection_mask] += n_parents
     return full_idx
@@ -76,6 +76,7 @@ def elitism(population_fitness, offspring_fitness, amount):
         The individuals selected for the next generation.
     """
     n_parents = population_fitness.shape[0]
+    amount = min(n_parents, amount)
 
     parent_order = np.argsort(population_fitness)[::-1][:amount]
     offspring_order = np.argsort(offspring_fitness)[::-1][: n_parents - amount]
@@ -165,7 +166,7 @@ def lamb_comma_mu(population_fitness, offspring_fitness):
     return fitness_order
 
 
-def _cro_set_larvae(population, offspring, attempts, maxpopsize):
+def _cro_set_larvae(population_fitness, offspring_fitness, attempts, maxpopsize):
     """
     First step of the CRO selection function.
 
@@ -174,22 +175,32 @@ def _cro_set_larvae(population, offspring, attempts, maxpopsize):
     an individual in that spot, the one with the best fitness is kept.
     """
 
-    new_population = copy(population)
-    for larva in offspring:
-        attempts_left = attempts
-        setted = False
+    # new_population = copy(population)
+    # for larva in offspring:
+    #     attempts_left = attempts
+    #     setted = False
 
-        while attempts_left > 0 and not setted:
-            idx = random.randrange(0, maxpopsize)
+    #     while attempts_left > 0 and not setted:
+    #         idx = random.randrange(0, maxpopsize)
 
-            if setted := (idx >= len(new_population)):
-                new_population.append(larva)
-            elif setted := (larva.fitness > new_population[idx].fitness):
-                new_population[idx] = larva
+    #         if setted := (idx >= len(new_population)):
+    #             new_population.append(larva)
+    #         elif setted := (larva.fitness > new_population[idx].fitness):
+    #             new_population[idx] = larva
 
-            attempts_left -= 1
+    #         attempts_left -= 1
 
-    return new_population
+    # return new_population
+
+    n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
+
+    idx_to_compare = RAND_GEN.integers(0, n_parents, size=(n_offspring, attempts))
+    spot_fitness = population_fitness[idx_to_compare]
+    new_fitness = np.tile(offspring_fitness, (attempts, 1)).T
+
+
+
 
 
 def _cro_depredation(population, Fd, Pd):
@@ -203,24 +214,25 @@ def _cro_depredation(population, Fd, Pd):
     kept.
     """
 
-    amount = int(len(population) * Fd)
+    # amount = int(len(population) * Fd)
 
-    fitness_values = [coral.fitness for coral in population]
-    affected_corals = np.argsort(fitness_values)[:amount]
+    # fitness_values = [coral.fitness for coral in population]
+    # affected_corals = np.argsort(fitness_values)[:amount]
 
-    alive_count = len(population)
-    dead_list = [False] * len(population)
+    # alive_count = len(population)
+    # dead_list = [False] * len(population)
 
-    for idx, val in enumerate(affected_corals):
-        if alive_count <= 2:
-            break
+    # for idx, val in enumerate(affected_corals):
+    #     if alive_count <= 2:
+    #         break
 
-        dies = random.random() <= Pd
-        dead_list[idx] = dies
-        if dies:
-            alive_count -= 1
+    #     dies = random.random() <= Pd
+    #     dead_list[idx] = dies
+    #     if dies:
+    #         alive_count -= 1
 
-    return [c for idx, c in enumerate(population) if not dead_list[idx]]
+    # return [c for idx, c in enumerate(population) if not dead_list[idx]]
+    return []
 
 
 def cro_selection(population_fitness, offspring_fitness, Fd, Pd, attempts, maxpopsize):

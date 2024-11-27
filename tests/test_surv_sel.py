@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from metaheuristic_designer import Individual
+from metaheuristic_designer import Population
 from metaheuristic_designer.selectionMethods import SurvivorSelection
 import metaheuristic_designer as mhd
 
@@ -8,10 +8,11 @@ mhd.reset_seed(0)
 
 pop_size = 100
 
-example_populaton = [Individual(None, None) for i in range(pop_size)]
-example_offspring = [Individual(None, None) for i in range(pop_size)]
-example_offspring_small = [Individual(None, None) for i in range(pop_size // 2)]
-example_offspring_big = [Individual(None, None) for i in range(pop_size * 2)]
+# example_populaton = [Individual(None, None) for i in range(pop_size)]
+# example_offspring = [Individual(None, None) for i in range(pop_size)]
+# example_offspring_small = [Individual(None, None) for i in range(pop_size // 2)]
+# example_offspring_big = [Individual(None, None) for i in range(pop_size * 2)]
+example_populaton
 
 for idx, ind in enumerate(example_populaton):
     example_populaton[idx].fitness = 10

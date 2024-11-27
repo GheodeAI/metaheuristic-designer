@@ -7,7 +7,7 @@ from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
 from metaheuristic_designer.initializers import UniformVectorInitializer
 import metaheuristic_designer as mhd
 
-# mhd.reset_seed(0)
+mhd.reset_seed(0)
 
 # pop_size = 100
 
@@ -17,8 +17,6 @@ import metaheuristic_designer as mhd
 # def test_errors():
 #     with pytest.raises(ValueError):
 #         operator = OperatorMeta("not_a_method", [])
-
-mhd.reset_seed(0)
 
 pop_size = 100
 example_population1 = Population(Sphere(3), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 3)))

@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 from copy import copy 
 from metaheuristic_designer import Population
 from metaheuristic_designer.operators import OperatorVector, vector_ops_map
@@ -8,7 +9,7 @@ import metaheuristic_designer as mhd
 
 mhd.reset_seed(0)
 
-vector_ops = [i for i in vector_ops_map.keys() if i not in ["mutate1sigma", "mutatensigmas", "samplesigma"]]
+vector_ops = [i for i in vector_ops_map if i not in ["mutate1sigma", "mutatensigmas", "samplesigma"]]
 
 pop_size = 100
 example_population1 = Population(Sphere(3), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 3)))
@@ -32,3 +33,5 @@ def test_basic_working(population, op_method):
 
     new_population = operator.evolve(population, pop_init)
     assert isinstance(new_population, Population)
+    assert id(new_population) != id(population)
+    assert np.any(new_population != population.genotype_set)

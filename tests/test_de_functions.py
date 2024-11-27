@@ -1,10 +1,7 @@
 import pytest
 
 import numpy as np
-import scipy as sp
-from metaheuristic_designer import Individual
 from metaheuristic_designer.operators.operator_functions.differential_evolution import *
-import metaheuristic_designer as mhd
 
 # n_indiv = 100
 # n_components = 10
