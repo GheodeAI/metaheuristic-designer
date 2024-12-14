@@ -104,7 +104,7 @@ class Algorithm(ABC):
     def population(self) -> Population:
         return self.search_strategy.population
 
-    def best_solution(self) -> Tuple[Any, float]:
+    def best_solution(self, decoded=False) -> Tuple[Any, float]:
         """
         Returns the best solution so far in the population.
 
@@ -114,7 +114,7 @@ class Algorithm(ABC):
             A pair of the best individual with its fitness.
         """
 
-        return self.search_strategy.best_solution()
+        return self.search_strategy.best_solution(decoded)
 
     def restart(self):
         """
@@ -495,12 +495,16 @@ class Algorithm(ABC):
 
         if show_plots:
             # Plot fitness history
-            plt.axhline(y=0, color="black", alpha=0.9)
-            plt.axvline(x=0, color="black", alpha=0.9)
-            plt.plot(self.fit_history, "blue")
-            plt.xlabel("generations")
-            plt.ylabel("fitness")
-            plt.title(f"{self.search_strategy.name} fitness")
+            fig, ax = plt.subplots()
+            ax.plot(self.fit_history, color="blue", zorder=3)
+            _xlim = ax.get_xlim()
+            _ylim = ax.get_ylim()
+            ax.axhline(y=0, color="black", alpha=0.9)
+            ax.axvline(x=0, color="black", alpha=0.9)
+            ax.set_xlim(_xlim)
+            ax.set_ylim(_ylim)
+            ax.set(xlabel="Generations", ylabel="Fitness", title=f"{self.search_strategy.name} fitness")
+            ax.grid()
             plt.show()
 
         self.search_strategy.extra_report(show_plots)

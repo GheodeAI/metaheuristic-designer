@@ -4,7 +4,7 @@ from ..Initializer import Initializer
 from ..utils import RAND_GEN
 
 
-class GaussianInitializer(Initializer):
+class GaussianVectorInitializer(Initializer):
     """
     Initializer that generates individuals with vectors following a normal distribution.
 
@@ -47,8 +47,6 @@ class GaussianInitializer(Initializer):
 
         self.dtype = dtype
 
-
-class GaussianVectorInitializer(GaussianInitializer):
     def generate_random(self):
         new_vector_float = RAND_GEN.normal(self.g_mean, self.g_std, size=self.genotype_size)
         if self.dtype is int:
@@ -57,15 +55,6 @@ class GaussianVectorInitializer(GaussianInitializer):
             new_vector = new_vector_float.astype(self.dtype)
 
         return new_vector
-
-    def generate_individual(self):
-        return self.generate_random()
-
-
-class GaussianListInitializer(GaussianInitializer):
-    def generate_random(self):
-        new_list = [RAND_GEN.normal(m, s) for m, s in zip(self.g_mean, self.g_std)]
-        return new_list
 
     def generate_individual(self):
         return self.generate_random()

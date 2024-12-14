@@ -11,14 +11,14 @@ class CompositeEncoding(Encoding):
     def __init__(self, encodings: Iterable[Encoding]):
         self.encodings = encodings
 
-    def encode(self, phenotype: Any) -> Any:
-        encoded = phenotype
+    def encode(self, phenotypes: Any) -> Any:
+        encoded = phenotypes
         for encoding in reversed(self.encodings):
             encoded = encoding.encode(encoded)
         return encoded
 
-    def decode(self, genotype: Any) -> Any:
-        decoded = genotype
+    def decode(self, genotypes: Any) -> Any:
+        decoded = genotypes
         for encoding in self.encodings:
             decoded = encoding.decode(decoded)
         return decoded

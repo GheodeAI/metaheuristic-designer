@@ -12,8 +12,8 @@ class EncodingFromLambda(Encoding):
         self.encode_fn = encode_fn
         self.decode_fn = decode_fn
 
-    def encode(self, phenotype: Any) -> Any:
-        return self.encode_fn(phenotype)
+    def encode(self, phenotypes: Any) -> Any:
+        return self.encode_fn(phenotypes)
 
-    def decode(self, genotype: Any) -> Any:
-        return self.encode_fn(genotype)
+    def decode(self, genotypes: Any) -> Any:
+        return self.encode_fn(genotypes)

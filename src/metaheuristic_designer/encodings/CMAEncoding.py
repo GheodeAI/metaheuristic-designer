@@ -8,5 +8,5 @@ class CMAEncoding(AdaptionEncoding):
     Decoder used to implement the CMA-ES algorithm.
     """
 
-    def decode_param(self, genotype: np.ndarray) -> np.ndarray:
-        return {"F": self.decode_param_vec(genotype)}
+    def decode_param(self, genotypes: np.ndarray) -> np.ndarray:
+        return {"F": self.decode_param_vec(genotypes)}

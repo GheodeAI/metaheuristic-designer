@@ -1,5 +1,4 @@
 from copy import copy
-import random
 import numpy as np
 from ..utils import RAND_GEN
 
@@ -22,6 +21,9 @@ def one_to_one(population_fitness, offspring_fitness):
         The individuals selected for the next generation.
     """
     n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
+
+    assert n_parents == n_offspring
 
     selection_mask = population_fitness <= offspring_fitness
     full_idx = np.arange(n_parents)
@@ -49,10 +51,94 @@ def prob_one_to_one(population_fitness, offspring_fitness, p):
         The individuals selected for the next generation.
     """
     n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
+
+    assert n_parents == n_offspring
 
     selection_mask = (population_fitness < offspring_fitness) | (RAND_GEN.random(n_parents) < p)
     full_idx = np.arange(n_parents)
     full_idx[selection_mask] += n_parents
+    return full_idx
+
+def many_to_one(population_fitness, offspring_fitness):
+    """
+    Compares each new individual with its parent and it replaces it if
+    it has a better fitness.
+
+    Parameters
+    ----------
+    popul: List[Individual]
+        Original population of individuals before being operated on.
+    offspring: List[Individual]
+        Individuals resulting from an iteration of the algorithm.
+
+    Returns
+    -------
+    survivors: List[Individual]
+        The individuals selected for the next generation.
+    """
+
+    n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
+    n_repetitions = n_offspring // n_parents
+
+    assert (n_offspring % n_parents) == 0
+
+    # Reorder fitness, compare each individual with it's offspring
+    reshaped_offspring_fitness = offspring_fitness.reshape((n_repetitions, n_parents))
+    fitness_matrix = np.concatenate([population_fitness[None, :], reshaped_offspring_fitness], axis=0)
+
+    # Get the best child or the parent for each individual
+    best_individual_idx = np.argmax(fitness_matrix, axis=0)
+
+    # Get indices to use.
+    full_idx = np.arange(n_parents)
+    full_idx += best_individual_idx*n_parents
+
+    return full_idx
+
+
+def prob_many_to_one(population_fitness, offspring_fitness, p):
+    """
+    Compares each new individual with its parent and it replaces it with a
+    probability of p or if it has a better fitness.
+
+    Parameters
+    ----------
+    popul: List[Individual]
+        Original population of individuals before being operated on.
+    offspring: List[Individual]
+        Individuals resulting from an iteration of the algorithm.
+    p: float
+        Probability that an individual will be replaced by its child even if it has a worse fitness.
+
+    Returns
+    -------
+    survivors: List[Individual]
+        The individuals selected for the next generation.
+    """
+    n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
+    n_repetitions = n_offspring // n_parents
+
+    assert (n_offspring % n_parents) == 0
+
+    # Reorder fitness, compare each individual with it's offspring.
+    reshaped_offspring_fitness = offspring_fitness.reshape((n_repetitions, n_parents))
+    fitness_matrix = np.concatenate([population_fitness[None, :], reshaped_offspring_fitness], axis=0)
+
+    # Get the best child or the parent for each individual
+    best_individual_idx = np.argmax(fitness_matrix, axis=0)
+
+    # Use random individual with probability 'p'.
+    random_individual_idx = RAND_GEN.integers(0, n_repetitions+1, n_parents)
+    ignore_mask = RAND_GEN.random(n_parents) < p
+    best_individual_idx[ignore_mask] = random_individual_idx[ignore_mask]
+
+    # Get indices to use.
+    full_idx = np.arange(n_parents)
+    full_idx += best_individual_idx*n_parents
+
     return full_idx
 
 

@@ -61,12 +61,12 @@ def invert_mutation(population):
 
 
 def pmx(population):
-    half_size = population.shape[0] / 2
+    half_size = np.ceil(population.shape[0] / 2).astype(int)
 
-    new_population = np.empty((2 * np.ceil(half_size).astype(int), population.shape[1]), dtype=int)
-    for i in range(math.ceil(half_size)):
+    new_population = np.empty((2 * half_size, population.shape[1]), dtype=int)
+    for i in range(half_size):
         new_population[i] = pmx_single(population[i], population[2 * i])
-        new_population[2 * i] = pmx_single(population[2 * i], population[i])
+        new_population[i + half_size] = pmx_single(population[2 * i], population[i])
 
     return new_population
 
@@ -118,7 +118,7 @@ def order_cross(population):
     new_population = np.empty((2 * np.ceil(half_size).astype(int), population.shape[1]), dtype=int)
     for i in range(math.ceil(half_size)):
         new_population[i] = order_cross_single(parents1[i], parents2[i])
-        new_population[2 * i] = order_cross_single(parents2[i], parents1[i])
+        new_population[i + math.ceil(half_size)] = order_cross_single(parents2[i], parents1[i])
 
     return new_population
 

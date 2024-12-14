@@ -5,7 +5,7 @@ from ..encodings import AdaptionEncoding
 from ..utils import RAND_GEN
 
 
-class UniformInitializer(Initializer):
+class UniformVectorInitializer(Initializer):
     """
     Initializer that generates individuals with vectors following an uniform distribution.
 
@@ -50,8 +50,6 @@ class UniformInitializer(Initializer):
 
         self.dtype = dtype
 
-
-class UniformVectorInitializer(UniformInitializer):
     def generate_random(self):
         new_vector_float = RAND_GEN.uniform(self.low_lim, self.up_lim, size=self.genotype_size)
         if self.dtype is int:
@@ -60,15 +58,6 @@ class UniformVectorInitializer(UniformInitializer):
             new_vector = new_vector_float.astype(self.dtype)
 
         return new_vector
-
-    def generate_individual(self):
-        return self.generate_random()
-
-
-class UniformListInitializer(UniformInitializer):
-    def generate_random(self):
-        new_list = [RAND_GEN.uniform(low, up) for low, up in zip(self.low_lim, self.up_lim)]
-        return new_list
 
     def generate_individual(self):
         return self.generate_random()

@@ -13,13 +13,6 @@ from .Initializer import Initializer
 from .ObjectiveFunc import ObjectiveFunc
 from .Operator import Operator
 from .operators import OperatorNull
-from multiprocessing import Pool
-
-
-def evaluate_indiv(indiv):
-    calculation_done = not indiv.fitness_calculated
-    indiv.calculate_fitness()
-    return indiv, calculation_done
 
 
 class SearchStrategy(ABC):
@@ -121,7 +114,7 @@ class SearchStrategy(ABC):
 
         return self._initializer.pop_size
 
-    def best_solution(self) -> Tuple[Any, float]:
+    def best_solution(self, decoded=False) -> Tuple[Any, float]:
         """
         Returns the best solution found by the search strategy and its fitness.
 
@@ -131,7 +124,7 @@ class SearchStrategy(ABC):
             A pair of the best individual with its fitness.
         """
 
-        return self.population.best_solution()
+        return self.population.best_solution(decoded)
 
     @property
     def initializer(self):
@@ -152,7 +145,7 @@ class SearchStrategy(ABC):
         """
 
         if self._initializer is None:
-            raise Exception("Initializer not indicated.")
+            raise ValueError("Initializer not indicated.")
 
         self.population = self._initializer.generate_population(objfunc)
 
@@ -197,8 +190,6 @@ class SearchStrategy(ABC):
 
         offspring = self.operator.evolve(parents, self.initializer)
         offspring = self.repair_population(offspring)
-        # print(parents.genotype_set)
-        # print(offspring.genotype_set)
 
         return offspring
 
@@ -229,9 +220,9 @@ class SearchStrategy(ABC):
         Updates the parameters of the search strategy and the operators.
         """
 
-        self.population.increase_age()
+        self.population.update(increase_age=True)
 
-    def get_state(self, show_pop: bool = False, show_pop_details: bool = False) -> dict:
+    def get_state(self, show_pop: bool = False) -> dict:
         """
         Gets the current state of the search strategy as a dictionary.
 
@@ -269,7 +260,7 @@ class SearchStrategy(ABC):
             data["survivor_sel"] = [surv.get_state() for surv in self.survivor_sel_register]
 
         if show_pop:
-            data["population"] = [ind.get_state(show_speed=show_pop_details, show_best=show_pop_details) for ind in self.population]
+            data["population"] = self.population.get_state()
 
         return data
 

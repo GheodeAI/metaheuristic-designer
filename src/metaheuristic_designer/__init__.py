@@ -29,3 +29,5 @@ from . import simple
 from . import benchmarks
 
 from .ParamScheduler import ParamScheduler
+
+__version__ = "0.2.0"

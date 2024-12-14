@@ -132,8 +132,6 @@ def selection_distribution(fitness, method, f=None):
     if f is None:
         f = 2
 
-    method = SelectionDist.from_str(method)
-
     if method == SelectionDist.FIT_PROP:
         weights = fitness
     elif method == SelectionDist.SIGMA_SCALE:
@@ -178,7 +176,7 @@ def roulette(fitness, amount, method=None, f=None):
     """
 
     if method is None:
-        method = "basic"
+        method = SelectionDist.FIT_PROP
 
     weights = selection_distribution(fitness, method, f)
 
@@ -188,7 +186,7 @@ def roulette(fitness, amount, method=None, f=None):
             stacklevel=2,
         )
 
-    return RAND_GEN.choice(np.arange(fitness.shape[0]), p=weights, axis=0)
+    return RAND_GEN.choice(np.arange(fitness.shape[0]), size=amount, p=weights, axis=0)
 
 
 def sus(fitness, amount, method=None, f=None):
@@ -213,7 +211,7 @@ def sus(fitness, amount, method=None, f=None):
     """
 
     if method is None:
-        method = "basic"
+        method = SelectionDist.FIT_PROP
 
     weights = selection_distribution(fitness, method, f)
 

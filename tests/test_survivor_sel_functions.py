@@ -10,6 +10,10 @@ offspring_fitness_better = np.array([-9, 10, 34, 2, 100, 2, 10, 100])
 offspring_fitness_worse = np.array([-20, -5, -2, -1, -10, -90, -100, -10.1])
 offspring_fitness_equal = example_fitness.copy()
 offspring_fitness_mixed = np.array([-9, -5, 34, -1, 100, 2, 100, -10.1])
+offspring_fitness_local_search = np.array([
+    -11,-3, 2,-1, 0, 0, 3, 10,
+     -9, 4, 1,-1, 0, 1, 4, 80,
+     -1,-5, 0,-1, 0, 0, 5, 80])
 
 @pytest.mark.parametrize("parent_fitness", [example_fitness])
 @pytest.mark.parametrize("offspring_fitness, expected", [
@@ -35,6 +39,26 @@ def test_one_to_one(parent_fitness, offspring_fitness, expected):
 @pytest.mark.parametrize("p", [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1])
 def test_prob_one_to_one(parent_fitness, offspring_fitness, p):
     result = prob_one_to_one(parent_fitness, offspring_fitness, p)
+    assert result.max() < len(parent_fitness) + len(offspring_fitness)
+    assert result.min() >= 0
+    assert len(result) == len(parent_fitness)
+
+@pytest.mark.parametrize("parent_fitness, offspring_fitness, expected", [
+    (example_fitness, offspring_fitness_local_search, np.arange(8) + 8*np.array([3,2,1,0,0,0,3,2])),
+])
+def test_many_to_one(parent_fitness, offspring_fitness, expected):
+    result = many_to_one(parent_fitness, offspring_fitness)
+    assert result.max() < len(parent_fitness) + len(offspring_fitness)
+    assert result.min() >= 0
+    assert len(result) == len(parent_fitness)
+    np.testing.assert_array_equal(result, expected)
+
+@pytest.mark.parametrize("parent_fitness, offspring_fitness", [
+    (example_fitness, offspring_fitness_local_search),
+])
+@pytest.mark.parametrize("p", [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1])
+def test_prob_many_to_one(parent_fitness, offspring_fitness, p):
+    result = prob_many_to_one(parent_fitness, offspring_fitness, p)
     assert result.max() < len(parent_fitness) + len(offspring_fitness)
     assert result.min() >= 0
     assert len(result) == len(parent_fitness)

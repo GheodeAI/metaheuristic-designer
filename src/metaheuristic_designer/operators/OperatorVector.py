@@ -242,7 +242,7 @@ class OperatorVector(Operator):
         elif self.method == VectorOpMethods.UNIFORM:
             population_matrix = uniform_mutation(population_matrix, params["F"])
 
-        elif self.method == VectorOpMethods.UNIFORM:
+        elif self.method == VectorOpMethods.POISSON:
             population_matrix = poisson_mutation(population_matrix, params["F"], params["mu"])
 
         elif self.method == VectorOpMethods.MUTNOISE:

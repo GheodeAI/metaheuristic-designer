@@ -11,7 +11,7 @@ from metaheuristic_designer.strategies import *
 from metaheuristic_designer.benchmarks import *
 
 
-def run_algorithm(alg_name, memetic, save_state):
+def run_algorithm(alg_name, memetic, save_state, show_plots):
     params = {
         # "stop_cond": "neval or time_limit or fit_target",
         # "stop_cond": "neval or time_limit",
@@ -30,9 +30,9 @@ def run_algorithm(alg_name, memetic, save_state):
         # "v_timer": -1,
     }
 
-    # objfunc = Sphere(3, "min")
+    objfunc = Sphere(3, "min")
     # objfunc = Sphere(30, "min")
-    objfunc = Rastrigin(30, "min")
+    # objfunc = Rastrigin(30, "min")
     # objfunc = Rosenbrock(2, "min")
     # objfunc = Weierstrass(30, "min")
 
@@ -41,6 +41,7 @@ def run_algorithm(alg_name, memetic, save_state):
     parent_params = ParamScheduler("Linear", {"amount": 20})
 
     mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "F": 1e-3, "N": 1})
+    # mutation_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 1})
 
     cross_op = OperatorVector("Multipoint")
 
@@ -174,7 +175,7 @@ def run_algorithm(alg_name, memetic, save_state):
 
     population = alg.optimize()
     print(population.best_solution()[0])
-    alg.display_report(show_plots=True)
+    alg.display_report(show_plots=show_plots)
 
     if save_state:
         alg.store_state("./examples/results/test.json", readable=True, show_pop=True)
@@ -197,9 +198,16 @@ def main():
         action="store_true",
         help="Saves the state of the search strategy",
     )
+    parser.add_argument(
+        "-p",
+        "--plot",
+        dest="plot",
+        action="store_true",
+        help="Saves the state of the search strategy",
+    )
     args = parser.parse_args()
 
-    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state)
+    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state, show_plots=args.plot)
 
 
 if __name__ == "__main__":

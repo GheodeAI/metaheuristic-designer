@@ -25,6 +25,8 @@ class Encoding(ABC):
             Encoded information of the phenotype.
         """
 
+        return phenotype
+
     @abstractmethod
     def decode(self, genotype) -> Any:
         """

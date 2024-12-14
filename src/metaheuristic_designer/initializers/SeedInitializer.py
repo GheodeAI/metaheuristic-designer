@@ -96,7 +96,4 @@ class SeedDetermInitializer(Initializer):
     def generate_population(self, objfunc, n_indiv=None):
         self.inserted = 0
 
-        if n_indiv is None:
-            n_indiv = self.pop_size
-
         return super().generate_population(objfunc, n_indiv)

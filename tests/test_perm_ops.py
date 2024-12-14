@@ -20,6 +20,7 @@ example_population3 = Population(Sphere(100), np.tile(np.arange(100), (pop_size,
 @pytest.mark.parametrize("population", [example_population1, example_population2, example_population3])
 @pytest.mark.parametrize("op_method", perm_ops)
 def test_basic_working(population, op_method):
+    assert np.all(population.genotype_set < population.vec_size)
     pop_init = PermInitializer(population.vec_size, pop_size)
     operator = OperatorPerm(op_method, "default")
 

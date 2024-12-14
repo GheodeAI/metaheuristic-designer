@@ -21,20 +21,6 @@ class Population:
     encoding: Encoding, optional
     """
 
-    objfunc: ObjectiveFunc
-    genotype_set: ndarray
-    speed_set: ndarray
-    ages: ndarray
-    encoding: Encoding
-    pop_size: int
-    vec_size: int
-    fitness: ndarray
-    fitness_calculated: ndarray
-    historical_best_set: ndarray
-    historical_best_fitness: ndarray
-    best: ndarray
-    best_fitness: float | ndarray
-
     def __init__(
         self,
         objfunc: ObjectiveFunc,
@@ -67,11 +53,7 @@ class Population:
         self.fitness_calculated = np.zeros(self.pop_size)
 
         # Best solution found so far
-        if len(genotype_set) > 0:
-            self.best = self.genotype_set[0]
-        else:
-            self.best = None
-        
+        self.best = None
         self.best_fitness = None
 
         # Best inidividual in each spot of the population
@@ -118,7 +100,7 @@ class Population:
 
         return copied_pop
 
-    def best_solution(self) -> Tuple[ndarray, float]:
+    def best_solution(self, decoded=False) -> Tuple[ndarray, float]:
         """
         Returns the best solution.
         """
@@ -126,53 +108,32 @@ class Population:
         best_fitness = self.best_fitness
         if self.objfunc.mode == "min":
             best_fitness *= -1
+        
+        best_solution = self.best
+        if decoded:
+            best_solution = self.encoding.decode(self.best[None, :]).squeeze()
 
-        return self.best, best_fitness
-
-    # objfunc: ObjectiveFunc
-    # genotype_set: ndarray
-    # speed_set: ndarray
-    # ages: ndarray
-    # encoding: Encoding
-    # pop_size: int
-    # vec_size: int
-    # fitness: ndarray
-    # fitness_calculated: ndarray
-    # historical_best_set: ndarray
-    # historical_best_fitness: ndarray
-    # best: ndarray
-    # best_fitness: float | ndarray
+        return best_solution, best_fitness
 
     def update_genotype_set(self, genotype_set: ndarray, speed_set: ndarray = None):
         """
         Returns a copy of the population with a new genotype set
         """
 
-        if speed_set is None and len(genotype_set) == len(self.genotype_set):
-            speed_set = copy(self.speed_set)
-
-        # Create copy of the population
-        new_population = Population(self.objfunc, copy(genotype_set), speed_set, ages=copy(self.ages), encoding=self.encoding)
-
-        # Check which individuals have been changed
         if len(genotype_set) != len(self.genotype_set):
-            new_population.ages = np.zeros_like(self.ages)
-            new_population.fitness_calculated = np.zeros_like(self.fitness_calculated)
+            self.ages = np.zeros_like(self.ages)
+            self.fitness_calculated = np.zeros_like(self.fitness_calculated)
         else:
-            new_population.fitness_calculated = np.all(self.genotype_set == new_population.genotype_set, axis=1)
+            self.fitness_calculated = np.all(self.genotype_set == genotype_set, axis=1)
 
-        # Calculate the fitness of the new individuals
-        new_fitness = new_population.calculate_fitness()
-        new_population.fitness = new_fitness
+        self.genotype_set = genotype_set
 
-        # Update the historical best individuals
-        if len(genotype_set) != len(self.genotype_set):
-            new_population.historical_best_fitness = new_fitness
-        else:
-            new_population.historical_best_set = np.where((new_fitness < self.fitness)[:, None], new_population.genotype_set, genotype_set)
-            new_population.historical_best_fitness = np.maximum(self.fitness, new_fitness)
+        self.pop_size = genotype_set.shape[0]
 
-        return new_population
+        if speed_set is not None:
+            self.speed_set = speed_set
+
+        return self
 
     def take_selection(self, selection_idx):
         """
@@ -197,23 +158,21 @@ class Population:
         Replaces part of the population given a mask.
         """
 
-        population_copy = copy(self)
-        population_copy.genotype_set[selection_idx, :] = selected_pop.genotype_set
-        population_copy.speed_set[selection_idx, :] = selected_pop.speed_set
-        population_copy.ages[selection_idx] = selected_pop.ages
-        population_copy.fitness[selection_idx] = selected_pop.fitness
-        population_copy.fitness_calculated[selection_idx] = selected_pop.fitness_calculated
-        population_copy.historical_best_set[selection_idx, :] = selected_pop.historical_best_set 
-        population_copy.historical_best_fitness[selection_idx] = selected_pop.historical_best_fitness
+        # population_copy = copy(self)
+        self.genotype_set[selection_idx, :] = selected_pop.genotype_set
+        self.speed_set[selection_idx, :] = selected_pop.speed_set
+        self.ages[selection_idx] = selected_pop.ages
+        self.fitness[selection_idx] = selected_pop.fitness
+        self.fitness_calculated[selection_idx] = selected_pop.fitness_calculated
+        self.historical_best_set[selection_idx, :] = selected_pop.historical_best_set 
+        self.historical_best_fitness[selection_idx] = selected_pop.historical_best_fitness
 
-        if selected_pop.best_fitness is None or (self.best_fitness is not None and self.best_fitness > selected_pop.best_fitness):
-            population_copy.best = self.best
-            population_copy.best_fitness = self.best_fitness
-        else:
-            population_copy.best = selected_pop.best
-            population_copy.best_fitness = selected_pop.best_fitness
+        # if selected_pop.best_fitness is None or (self.best_fitness is not None and self.best_fitness > selected_pop.best_fitness):
+        if self.best is None or (selected_pop.best is not None and self.best_fitness < selected_pop.best_fitness):
+            self.best = selected_pop.best
+            self.best_fitness = selected_pop.best_fitness
 
-        return population_copy
+        return self
 
     def take_slice(self, mask):
         """
@@ -239,18 +198,14 @@ class Population:
         Apply the values of the population to a subset of the components of the population vectors.
         """
 
-        population_copy = copy(self)
-        population_copy.genotype_set[:, mask] = sliced_pop.genotype_set
-        population_copy.speed_set[:, mask] = sliced_pop.speed_set
+        self.genotype_set[:, mask] = sliced_pop.genotype_set
+        self.speed_set[:, mask] = sliced_pop.speed_set
 
-        if sliced_pop.best_fitness is None or (self.best_fitness is not None and self.best_fitness > sliced_pop.best_fitness):
-            population_copy.best = self.best
-            population_copy.best_fitness = self.best_fitness
-        else:
-            population_copy.best = sliced_pop.best
-            population_copy.best_fitness = sliced_pop.best_fitness
+        if self.best is None or (sliced_pop.best is not None and self.best_fitness < sliced_pop.best_fitness):
+            self.best = sliced_pop.best
+            self.best_fitness = sliced_pop.best_fitness
 
-        return population_copy
+        return self
 
     @staticmethod
     def _join(population1, population2):
@@ -267,7 +222,8 @@ class Population:
         joined_pop.historical_best_fitness = np.concatenate((population1.historical_best_fitness, population2.historical_best_fitness))
         joined_pop.fitness_calculated = np.concatenate((population1.fitness_calculated, population2.fitness_calculated))
         joined_pop.fitness = np.concatenate((population1.fitness, population2.fitness))
-        if population1.best_fitness > population2.best_fitness:
+
+        if population1.best is None or (population2.best is not None and population1.best_fitness < population2.best_fitness):
             joined_pop.best = population1.best
             joined_pop.best_fitness = population1.best_fitness
         else:
@@ -309,15 +265,18 @@ class Population:
             self.best = parents.best
             self.best_fitness = parents.best_fitness
         return self
+    
+    def update(self, increase_age=False):
+        if self.best is None or np.any(self.best_fitness < self.fitness):
+            best_idx = np.argmax(self.fitness)
+            self.best = self.genotype_set[best_idx, :]
+            self.best_fitness = self.fitness[best_idx]
 
+        if increase_age:
+            self.ages += 1
+            self.ages[self.fitness_calculated == 1] = 0
 
-    def increase_age(self):
-        """
-        Increases the age of the individuals in the population.
-        """
-
-        self.ages += 1
-        self.ages[self.fitness_calculated == 1] = 0
+        return self
 
     def repeat(self, amount=2):
         """
@@ -334,9 +293,17 @@ class Population:
         Calculates the fitness of the individual if it has not been calculated before
         """
 
+        prev_fitness = copy(self.fitness)
         self.fitness = self.objfunc.fitness(self, parallel=parallel, threads=threads)
 
-        if self.best_fitness is None or np.any(self.fitness > self.best_fitness):
+        if len(prev_fitness) != len(self.fitness):
+            self.historical_best_fitness = self.fitness
+        else:
+            improved_mask = prev_fitness < self.fitness
+            self.historical_best_fitness[improved_mask] = self.fitness[improved_mask]
+            self.historical_best_set[improved_mask, :] = self.genotype_set[improved_mask, :]
+
+        if self.best is None or np.any(self.fitness > self.best_fitness):
             best_idx = np.argmax(self.fitness)
             self.best = self.genotype_set[best_idx]
             self.best_fitness = self.fitness[best_idx]
@@ -354,33 +321,39 @@ class Population:
                 self.speed_set[idx] = self.objfunc.repair_speed(self.speed_set[idx])
 
         return self
+    
+    def decode(self):
+        return self.encoding.decode(self.genotype_set)
 
-    # def get_state(self, show_speed: bool = True, show_best: bool = False) -> dict:
-    #     """
-    #     Gets the current state of the algorithm as a dictionary.
+    def get_state(self) -> dict:
+        """
+        Gets the current state of the algorithm as a dictionary.
 
-    #     Parameters
-    #     ----------
-    #     show_speed: bool, optional
-    #         Save the speed of the individual.
-    #     show_best: bool, optional
-    #         Save the best parent of this individual.
+        Parameters
+        ----------
+        show_speed: bool, optional
+            Save the speed of the individual.
+        show_best: bool, optional
+            Save the best parent of this individual.
 
-    #     Returns
-    #     -------
-    #     state: dict
-    #         The current state of this individual.
-    #     """
+        Returns
+        -------
+        state: dict
+            The current state of this individual.
+        """
 
-    #     data = {"genotype": self._genotype, "fitness": self._fitness}
+        data = {
+            "genotype_set": self.genotype_set,
+            "fitness": self.fitness,
+            "historical_best_set": self.genotype_set,
+            "historical_best_fitness": self.historical_best_fitness,
+            "best": self.best,
+            "best_fitness": self.best_fitness,
+            "ages": self.ages,
+            "speed": self.speed_set
+        }
 
-    #     if show_speed:
-    #         data["speed"] = self.speed
-
-    #     if show_best:
-    #         data["best_genotype"] = self.best
-
-    #     return data
+        return data
 
     def __repr__(self):
         return (

@@ -19,8 +19,11 @@ class LocalSearch(SearchStrategy):
         params: ParamScheduler | dict = None,
         name: str = "LocalSearch",
     ):
+        if params is None:
+            params = {}
+        
         if survivor_sel is None:
-            survivor_sel = SurvivorSelection("KeepBest", {"amount": 1})
+            survivor_sel = SurvivorSelection("Many-to-one")
 
         super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name)
 

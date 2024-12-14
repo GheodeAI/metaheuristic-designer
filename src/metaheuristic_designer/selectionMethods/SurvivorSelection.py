@@ -13,6 +13,8 @@ class SurvSelMethod(Enum):
     GENERATIONAL = enum.auto()
     ONE_TO_ONE = enum.auto()
     PROB_ONE_TO_ONE = enum.auto()
+    MANY_TO_ONE = enum.auto()
+    PROB_MANY_TO_ONE = enum.auto()
     MU_PLUS_LAMBDA = enum.auto()
     MU_COMMA_LAMBDA = enum.auto()
     CRO = enum.auto()
@@ -36,6 +38,10 @@ surv_method_map = {
     "hillclimb": SurvSelMethod.ONE_TO_ONE,
     "prob-one-to-one": SurvSelMethod.PROB_ONE_TO_ONE,
     "probhillclimb": SurvSelMethod.PROB_ONE_TO_ONE,
+    "many-to-one": SurvSelMethod.MANY_TO_ONE,
+    "localsearch": SurvSelMethod.MANY_TO_ONE,
+    "prob-many-to-one": SurvSelMethod.PROB_MANY_TO_ONE,
+    "problocalsearch": SurvSelMethod.PROB_MANY_TO_ONE,
     "(m+n)": SurvSelMethod.MU_PLUS_LAMBDA,
     "keepbest": SurvSelMethod.MU_PLUS_LAMBDA,
     "(m,n)": SurvSelMethod.MU_COMMA_LAMBDA,
@@ -109,6 +115,12 @@ class SurvivorSelection(SelectionMethod):
                 full_idx = np.array([int(choose_new_population)])
             else:
                 full_idx = prob_one_to_one(population_fitness, offspring_fitness, self.params["p"])
+
+        elif self.method == SurvSelMethod.MANY_TO_ONE:
+            full_idx = many_to_one(population_fitness, offspring_fitness)
+
+        elif self.method == SurvSelMethod.PROB_MANY_TO_ONE:
+            full_idx = prob_many_to_one(population_fitness, offspring_fitness, self.params["p"])
 
         elif self.method == SurvSelMethod.MU_PLUS_LAMBDA:
             full_idx = lamb_plus_mu(population_fitness, offspring_fitness)

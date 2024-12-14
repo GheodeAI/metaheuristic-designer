@@ -29,8 +29,8 @@ class ObjectiveFunc(ABC):
         self.name = name
         self.counter = 0
         self.factor = 1
-        self.vectorized = False
-        self.recalculate = False
+        self.vectorized = vectorized
+        self.recalculate = recalculate
 
         self.mode = mode
         if mode not in ["max", "min"]:
@@ -66,20 +66,23 @@ class ObjectiveFunc(ABC):
         """
 
         fitness = population.fitness
+        solutions = population.decode()
         if self.vectorized:
-            population_matrix = population.genotype_set
-            population_matrix = population.encoding.decode(population_matrix)
-            if not self.recalculate:
-                fitness = self.objective(population_matrix)
+            if self.recalculate:
+                solutions = solutions[population.fitness_calculated == 0, :]
+            
+            fitness_new = self.objective(solutions)
+            if adjusted:
+                fitness_new = self.factor * (fitness_new - self.penalize(solutions))
+                
+            if self.recalculate:
+                fitness[population.fitness_calculated == 0] = fitness_new
             else:
-                population_matrix = population_matrix[~population.fitness_calculated]
-                fitness_partial = self.objective(population_matrix)
-                fitness[~population.fitness_calculated] = fitness_partial
+                fitness = fitness_new
 
         else:
-            for idx, (individual, already_calculated) in enumerate(zip(population.genotype_set, population.fitness_calculated)):
+            for idx, (solution, already_calculated) in enumerate(zip(solutions, population.fitness_calculated)):
                 if self.recalculate or not already_calculated:
-                    solution = population.encoding.decode(individual)
                     value = self.objective(solution)
 
                     if adjusted:
@@ -128,8 +131,6 @@ class ObjectiveFunc(ABC):
             A modified version of the solution passed that satisfies the restrictions of the problem.
         """
 
-        return solution
-
     def penalize(self, _: Any) -> float:
         """
         Gives a penalization to the fitness value of an individual if it violates any constraints propotional
@@ -176,12 +177,14 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         low_lim: float = -100,
         up_lim: float = 100,
         name: str = "some function",
+        vectorized: bool = False,
+        recalculate: bool = False
     ):
         """
         Constructor for the ObjectiveVectorFunc class
         """
 
-        super().__init__(mode, name)
+        super().__init__(mode=mode, name=name, vectorized=vectorized, recalculate=recalculate)
 
         self.vecsize = vecsize
         self.low_lim = low_lim

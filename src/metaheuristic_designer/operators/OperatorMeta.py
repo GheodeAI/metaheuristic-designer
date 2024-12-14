@@ -99,36 +99,17 @@ class OperatorMeta(Operator):
         new_population = copy(population)
 
         if self.method == MetaOpMethods.BRANCH:
-            # print("BRANCH")
             self.chosen_idx = RAND_GEN.choice(np.arange(len(self.op_list)), size=population.pop_size, p=self.params["weights"])
-            # print()
-            # print(self.name)
-            # print(new_population)
-            # print(self.chosen_idx)
             for idx, op in enumerate(self.op_list):
                 split_mask = self.chosen_idx == idx
 
                 if np.any(split_mask):
-                    # print()
-                    # print(op.name)
-
                     split_population = population.take_selection(split_mask)
                     split_population = op.evolve(split_population, initializer)
-
-                    # print("Split population:", split_population.pop_size)
-                    # print(split_population.genotype_set)
-
-                    # print("Before branch:", new_population.pop_size)
-                    # print(new_population.genotype_set)
-
                     new_population = new_population.apply_selection(split_population, split_mask)
-
-                    # print("After branch:", new_population.pop_size)
-                    # print(new_population.genotype_set)
 
 
         elif self.method == MetaOpMethods.PICK:
-            # print("PICK")
             if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
                 chosen_idx = self.chosen_idx
             else:
@@ -144,16 +125,10 @@ class OperatorMeta(Operator):
                     new_population = new_population.apply_selection(split_population, split_mask)
 
         elif self.method == MetaOpMethods.SEQUENCE:
-            # print("SEQUENCE")
             for op in self.op_list:
-                # print()
-                # print(op.name)
-                
-                # print(new_population.genotype_set)
                 new_population = op.evolve(new_population, initializer)
         
         elif self.method == MetaOpMethods.SPLIT:
-            # print("SPLIT")
             for idx_op, op in enumerate(self.op_list):
                 split_mask = self.mask == idx_op
 
@@ -161,11 +136,6 @@ class OperatorMeta(Operator):
                     split_population = new_population.take_slice(split_mask)
                     split_population = op.evolve(split_population, initializer)
                     new_population = new_population.apply_slice(split_population, split_mask)
-
-        # print(id(new_population) == id(population))
-        # print()
-        # print(self.method)
-        # print("Population changed", np.any(new_population.genotype_set != population.genotype_set))
 
         return new_population
 

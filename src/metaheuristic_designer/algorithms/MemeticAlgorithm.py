@@ -1,4 +1,5 @@
 from __future__ import annotations
+from copy import copy
 from ..Algorithm import Algorithm
 
 
@@ -72,10 +73,10 @@ class MemeticAlgorithm(Algorithm):
     def step(self, time_start=0, verbose=False):
         # Get the population of this generation
         population = self.search_strategy.population
-        population = population.sort_population()
+        new_population = copy(population)
 
         # Generate their parents
-        parents = self.search_strategy.select_parents(population, progress=self.progress, history=self.best_history)
+        parents = self.search_strategy.select_parents(new_population, progress=self.progress, history=self.best_history)
 
         # Evolve the selected parents
         offspring = self.search_strategy.perturb(parents, progress=self.progress, history=self.best_history)

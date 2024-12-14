@@ -1,4 +1,5 @@
 from __future__ import annotations
+from copy import copy
 import enum
 from enum import Enum
 from ..ParamScheduler import ParamScheduler
@@ -72,7 +73,8 @@ class ParentSelection(SelectionMethod):
         self.method = ParentSelMethod.from_str(method)
 
         if self.method in [ParentSelMethod.ROULETTE, ParentSelMethod.SUS]:
-            self.params["method"] = SelectionDist.from_str(self.params["method"])
+            self.params["method"] = SelectionDist.from_str(self.params.get("method", "FitnessProp"))
+
 
     def select(self, population: Population, offspring: Population = None) -> Population:
         new_population = None

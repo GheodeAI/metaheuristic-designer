@@ -9,15 +9,6 @@ import metaheuristic_designer as mhd
 
 mhd.reset_seed(0)
 
-# pop_size = 100
-
-# example_individual = Individual(None, np.zeros(100))
-# pop_init = UniformVectorInitializer(100, 0, 1, pop_size)
-
-# def test_errors():
-#     with pytest.raises(ValueError):
-#         operator = OperatorMeta("not_a_method", [])
-
 pop_size = 100
 example_population1 = Population(Sphere(3), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 3)))
 example_population2 = Population(Sphere(20), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 20)))

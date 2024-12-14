@@ -1,4 +1,5 @@
 from __future__ import annotations
+from copy import copy
 from typing import List
 import random
 import numpy as np
@@ -41,8 +42,6 @@ class DirectInitializer(Initializer):
             indiv = random.choice(self.solutions.genotype_set)
         elif isinstance(self.solutions, np.ndarray):
             indiv = RAND_GEN.choice(self.solutions)
-        else:
-            indiv = random.choice(self.solutions)
 
         return indiv
 
@@ -50,4 +49,14 @@ class DirectInitializer(Initializer):
         if n_indiv is None:
             n_indiv = self.pop_size
 
-        return self.solutions[:n_indiv]
+        if isinstance(self.solutions, Population):
+            if self.solutions.pop_size == n_indiv:
+                population = copy(self.solutions)
+            else:
+                selection_idx = np.arange(n_indiv) % self.solutions.pop_size
+                population = self.solutions.take_selection(selection_idx)
+        elif isinstance(self.solutions, np.ndarray):
+            selection_idx = np.arange(n_indiv) % self.solutions.pop_size
+            population = Population(objfunc, self.solutions.genotype_set[selection_idx])
+
+        return population

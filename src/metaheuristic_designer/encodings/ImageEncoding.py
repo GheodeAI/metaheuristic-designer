@@ -19,8 +19,8 @@ class ImageEncoding(Encoding):
 
         self.shape = shape
 
-    def encode(self, phenotype: ndarray) -> ndarray:
-        return phenotype.flatten()
+    def encode(self, phenotypes: ndarray) -> ndarray:
+        return phenotypes.reshape(phenotypes.shape[:1] + (-1,))
 
-    def decode(self, genotype: ndarray) -> ndarray:
-        return np.reshape(genotype, self.shape).astype(np.uint8)
+    def decode(self, genotypes: ndarray) -> ndarray:
+        return np.reshape(genotypes, genotypes.shape[:1] + self.shape).astype(np.uint8)
