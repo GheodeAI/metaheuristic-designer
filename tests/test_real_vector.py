@@ -243,7 +243,7 @@ def test_reporting():
     alg.optimize()
     test_params["verbose"] = False
 
-    alg.store_state("temp_pytest.json", True, True, True, True, True, True)
+    alg.store_state("temp_pytest.json", True, True, True, True)
     os.remove("temp_pytest.json")
 
 
@@ -257,5 +257,5 @@ def test_reporting_memetic():
     alg.optimize()
     test_params["verbose"] = False
 
-    alg.store_state("temp_pytest.json", True, True, True, True, True, True)
+    alg.store_state("temp_pytest.json", True, True, True, True)
     os.remove("temp_pytest.json")

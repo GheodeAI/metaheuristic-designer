@@ -350,7 +350,8 @@ class Population:
             "best": self.best,
             "best_fitness": self.best_fitness,
             "ages": self.ages,
-            "speed": self.speed_set
+            "speed": self.speed_set,
+            "encoding": type(self.encoding).__name__
         }
 
         return data

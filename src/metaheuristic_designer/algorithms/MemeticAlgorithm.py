@@ -105,27 +105,22 @@ class MemeticAlgorithm(Algorithm):
 
     def get_state(
         self,
-        show_best_solution: bool = True,
         show_fit_history: bool = False,
         show_gen_history: bool = False,
-        show_pop: bool = False,
-        show_pop_details: bool = False,
+        show_population: bool = False,
     ):
         data = super().get_state(
-            show_best_solution,
             show_fit_history,
             show_gen_history,
-            show_pop,
-            show_pop_details,
+            show_population,
         )
 
         # Add parent selection method for local search
         data["improve_selection"] = self.improve_choice.get_state()
 
         # Add local search data
-        local_search_data = self.local_search.get_state()
+        local_search_data = self.local_search.get_state(show_population=False)
         local_search_data.pop("population", None)
-        local_search_data.pop("best_individual", None)
         data["local_search_state"] = local_search_data
 
         # push search strategy data to the bottom

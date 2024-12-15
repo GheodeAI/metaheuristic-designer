@@ -351,11 +351,9 @@ class Algorithm(ABC):
 
     def get_state(
         self,
-        show_best_solution: bool = True,
         show_fit_history: bool = False,
         show_gen_history: bool = False,
-        show_pop: bool = False,
-        show_pop_details: bool = False,
+        show_population: bool = False,
     ) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
@@ -380,6 +378,8 @@ class Algorithm(ABC):
         """
 
         data = {
+            "name": self.name,
+            "objfunc": self.objfunc.name,
             "ended": self.ended,
             "progress": self.progress,
             "generation": self.steps,
@@ -389,17 +389,13 @@ class Algorithm(ABC):
             "params": self.params,
         }
 
-        if show_best_solution:
-            data["best_fitness"] = self.best_solution()[1]
-            data["best_individual"] = self.search_strategy.best.get_state(show_speed=False, show_best=False)
-
         if show_fit_history:
             data["fit_history"] = self.fit_history
 
         if show_gen_history:
             data["best_history"] = self.best_history
 
-        data["search_strat_state"] = self.search_strategy.get_state(show_pop, show_pop_details)
+        data["search_strat_state"] = self.search_strategy.get_state(show_population)
 
         return data
 
@@ -407,11 +403,9 @@ class Algorithm(ABC):
         self,
         file_name: str = "dumped_state.json",
         readable: bool = False,
-        show_best_solution: bool = True,
         show_fit_history: bool = False,
         show_gen_history: bool = False,
-        show_pop: bool = False,
-        show_pop_details: bool = False,
+        show_population: bool = False,
     ):
         """
         Dumps the current state of the algorithm to a JSON file.
@@ -436,11 +430,9 @@ class Algorithm(ABC):
 
         dumped = json.dumps(
             self.get_state(
-                show_best_solution,
                 show_fit_history,
                 show_gen_history,
-                show_pop,
-                show_pop_details,
+                show_population,
             ),
             cls=NumpyEncoder,
             indent=4 if readable else None,

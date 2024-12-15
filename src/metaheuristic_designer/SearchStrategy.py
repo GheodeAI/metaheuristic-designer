@@ -222,7 +222,7 @@ class SearchStrategy(ABC):
 
         self.population.update(increase_age=True)
 
-    def get_state(self, show_pop: bool = False) -> dict:
+    def get_state(self, show_population: bool = False) -> dict:
         """
         Gets the current state of the search strategy as a dictionary.
 
@@ -241,7 +241,7 @@ class SearchStrategy(ABC):
 
         data = {
             "name": self.name,
-            "population_size": self.pop_size,
+            "intializer": type(self.initializer).__name__
         }
 
         if self.param_scheduler:
@@ -259,7 +259,7 @@ class SearchStrategy(ABC):
         if self.survivor_sel_register:
             data["survivor_sel"] = [surv.get_state() for surv in self.survivor_sel_register]
 
-        if show_pop:
+        if show_population:
             data["population"] = self.population.get_state()
 
         return data
