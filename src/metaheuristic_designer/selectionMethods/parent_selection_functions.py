@@ -133,10 +133,11 @@ def selection_distribution(fitness, method, f=None):
         f = 2
 
     if method == SelectionDist.FIT_PROP:
-        weights = fitness
+        weights = fitness - fitness.min() + f
     elif method == SelectionDist.SIGMA_SCALE:
         weights = np.maximum(fitness - (fitness.mean() - f * fitness.std()), 0)
     elif method == SelectionDist.LIN_RANK:
+        f = np.minimum(f, 2)
         fit_order = np.argsort(fitness)
         n_parents = fitness.shape[0]
         weights = (2 - f) + (2 * fit_order * (f - 1)) / (n_parents - 1)

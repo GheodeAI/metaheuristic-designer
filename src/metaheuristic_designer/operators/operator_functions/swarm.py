@@ -24,7 +24,7 @@ def firefly(population, fitness, objfunc, alpha_0, beta_0, delta, gamma):
     Performs a step of the Firefly algorithm
     """
 
-    raise Exception("Not implemented")
+    raise NotImplementedError
 
     sol_range = objfunc.up_lim - objfunc.low_lim
 
@@ -47,3 +47,7 @@ def firefly(population, fitness, objfunc, alpha_0, beta_0, delta, gamma):
     #         new_vector = objfunc.repair_solution(new_vector)
 
     # return new_vector
+
+def glowworm(population, fitness):
+    raise NotImplementedError
+

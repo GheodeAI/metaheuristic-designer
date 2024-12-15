@@ -55,6 +55,7 @@ class VectorOpMethods(Enum):
 
     PSO = enum.auto()
     FIREFLY = enum.auto()
+    GLOWWORM = enum.auto()
 
     RANDOM = enum.auto()
     RANDOM_MASK = enum.auto()
@@ -111,6 +112,7 @@ vector_ops_map = {
     "de/current-to-pbest/1": VectorOpMethods.DE_CTPBEST_1,
     "pso": VectorOpMethods.PSO,
     "firefly": VectorOpMethods.FIREFLY,
+    "glowworm": VectorOpMethods.GLOWWORM,
     "random": VectorOpMethods.RANDOM,
     "randommask": VectorOpMethods.RANDOM_MASK,
     "dummy": VectorOpMethods.DUMMY,
@@ -296,6 +298,12 @@ class OperatorVector(Operator):
                 params["b"],
                 params["d"],
                 params["g"],
+            )
+
+        elif self.method == VectorOpMethods.GLOWWORM:
+            population_matrix = glowworm(
+                population_matrix,
+                fitness_array,
             )
 
         ## Other operators

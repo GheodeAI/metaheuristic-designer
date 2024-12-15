@@ -4,6 +4,7 @@ import enum
 from enum import Enum
 from ..Operator import Operator
 from .operator_functions.permutation import *
+from ..ParamScheduler import ParamScheduler
 from ..utils import RAND_GEN
 
 
@@ -60,7 +61,7 @@ class OperatorPerm(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(self, method: str, params: ParamScheduler | dict = None, name: str = None):
         """
         Constructor for the OperatorPerm class
         """

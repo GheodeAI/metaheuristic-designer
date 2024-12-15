@@ -31,6 +31,11 @@ def test_basic_working(population, op_method):
     if op_method in ["xor", "flip", "xorcross", "flipcross"]:
         population_cpy.genotype_set = population_cpy.genotype_set.astype(int)
 
+    if op_method in ["firefly", "glowworm"]:
+        with pytest.raises(NotImplementedError):
+            operator.evolve(population_cpy, pop_init)
+        return 
+
     new_population = operator.evolve(population_cpy, pop_init)
     assert isinstance(new_population, Population)
     assert np.any(new_population.genotype_set != population.genotype_set) != (op_method in ["nothing", "custom"])
