@@ -1,4 +1,5 @@
 from __future__ import annotations
+from copy import copy
 import numpy as np
 from ..Operator import Operator
 from ..encodings import AdaptionEncoding
@@ -49,20 +50,9 @@ class OperatorAdaptative(Operator):
         self.param_encoding = param_encoding
 
     def evolve(self, population, initializer=None):
-        new_population = [self.evolve_single(indiv, population, initializer) for idx, indiv in enumerate(population)]
-        return new_population
+        population.decode()
 
-    def evolve_single(self, indiv, population, initializer=None):
-        # Evolve only parameters
-        indiv_conf_param = self.param_operator_split.evolve_single(indiv, population, initializer)
-
-        # Apply parameters to operator
-        indiv_params = self.param_encoding.decode_param(indiv_conf_param.genotype)
-        self.base_operator.params.update(indiv_params)
-
-        # Evolve solution
-        new_indiv = self.base_operator_split.evolve_single(indiv_conf_param, population, initializer)
-        return new_indiv
+        raise NotImplementedError
 
     def step(self, progress: float):
         super().step(progress)

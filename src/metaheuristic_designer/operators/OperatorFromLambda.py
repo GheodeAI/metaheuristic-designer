@@ -38,11 +38,3 @@ class OperatorFromLambda(Operator):
             new_population = [self.evolve_single(indiv, population, initializer) for indiv in population]
 
         return new_population
-
-    def evolve_single(self, indiv, population, objfunc, initializer=None):
-        new_indiv = copy(indiv)
-        others = [i for i in population if i != indiv]
-
-        new_indiv.genotype = self.fn(indiv, others, objfunc, **self.params)
-
-        return new_indiv

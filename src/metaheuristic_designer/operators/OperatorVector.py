@@ -160,9 +160,6 @@ class OperatorVector(Operator):
             if "Low" not in self.params:
                 self.params["Low"] = 0
 
-    def evolve_single(self, indiv, population, initializer=None):
-        raise Exception("LMAO what?")
-
     def evolve(self, population, initializer=None):
         new_population = None
         population_matrix = copy(population.genotype_set)

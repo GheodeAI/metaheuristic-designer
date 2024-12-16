@@ -105,14 +105,14 @@ class SurvivorSelection(SelectionMethod):
         elif self.method == SurvSelMethod.ONE_TO_ONE:
             if population.pop_size == offspring.pop_size == 1:
                 choose_new_population = population_fitness < offspring_fitness
-                full_idx = np.array([int(choose_new_population)])
+                full_idx = np.array([choose_new_population.squeeze()], dtype=int)
             else:
                 full_idx = one_to_one(population_fitness, offspring_fitness)
 
         elif self.method == SurvSelMethod.PROB_ONE_TO_ONE:
             if population.pop_size == offspring.pop_size == 1:
                 choose_new_population = population_fitness < offspring_fitness or RAND_GEN.random() < self.params["p"]
-                full_idx = np.array([int(choose_new_population)])
+                full_idx = np.array([choose_new_population.squeeze()], dtype=int)
             else:
                 full_idx = prob_one_to_one(population_fitness, offspring_fitness, self.params["p"])
 

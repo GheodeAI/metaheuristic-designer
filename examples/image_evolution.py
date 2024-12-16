@@ -38,8 +38,8 @@ def save_to_image(image, img_name="result.png"):
 def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size, display):
     params = {
         # General
-        "stop_cond": "convergence or time_limit",
-        # "stop_cond": "time_limit",
+        # "stop_cond": "convergence or time_limit",
+        "stop_cond": "time_limit",
         "progress_metric": "time_limit",
         "time_limit": 500.0,
         "patience": 1000,
@@ -88,8 +88,8 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         encoding=encoding,
     )
 
-    mutation_op = OperatorVector("MutNoise", {"distrib": "Uniform", "min": -20, "max": 20, "N": 15})
-    # mutation_op = OperatorVector("MutNoise", {"distrib": "Normal", "F": 10, "N": 5})
+    # mutation_op = OperatorVector("MutNoise", {"distrib": "Uniform", "min": -20, "max": 20, "N": 15})
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Normal", "F": 10, "N": 5})
     cross_op = OperatorVector("Multipoint")
 
     op_list = [
@@ -128,7 +128,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         search_strat = HillClimb(pop_initializer, mutation_op)
     elif alg_name == "LocalSearch":
         pop_initializer.pop_size = 1
-        search_strat = LocalSearch(pop_initializer, mutation_op, params={"iters": 40})
+        search_strat = LocalSearch(pop_initializer, mutation_op, params={"iters": 500})
     elif alg_name == "SA":
         pop_initializer.pop_size = 1
         search_strat = SA(pop_initializer, mutation_op, {"iter": 100, "temp_init": 1, "alpha": 0.997})
@@ -275,7 +275,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     memetic_str = "M-" if memetic else ""
     if objfunc_name is None or objfunc_name in ["MSE", "MAE", "SSIM", "NMI"]:
         out_img_name = f"{img_name}_{objfunc_name}_{image_shape[0]}x{image_shape[1]}_{memetic_str}{alg_name}.png"
-    elif objfunc_name in ["ENTROPY", "STD"]:
+    else:
         out_img_name = f"{objfunc_name}_{image_shape[0]}x{image_shape[1]}_{memetic_str}{alg_name}.png"
 
     save_to_image(image, out_img_name)

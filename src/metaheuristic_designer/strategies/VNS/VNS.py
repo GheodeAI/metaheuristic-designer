@@ -75,6 +75,7 @@ class VNS(SearchStrategy):
             parents_inner = self.local_search.select_parents(new_population)
 
             offspring_inner = self.local_search.perturb(parents_inner)
+            offspring_inner = self.local_search.evaluate_population(offspring_inner)
 
             new_population = self.local_search.select_individuals(new_population, offspring_inner)
 

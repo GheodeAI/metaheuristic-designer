@@ -207,37 +207,25 @@ class Population:
 
         return self
 
-    @staticmethod
-    def _join(population1, population2):
-        """
-        Concatenates the individuals in both populations into a new one.
-        """
-
-        joined_genotype_set = np.concatenate((population1.genotype_set, population2.genotype_set), axis=0)
-        joined_speed_set = np.concatenate((population1.speed_set, population2.speed_set), axis=0)
-        joined_ages = np.concatenate((population1.ages, population2.ages))
-
-        joined_pop = Population(population1.objfunc, joined_genotype_set, joined_speed_set, ages=joined_ages, encoding=population1.encoding)
-        joined_pop.historical_best_set = np.concatenate((population1.historical_best_set, population2.historical_best_set), axis=0)
-        joined_pop.historical_best_fitness = np.concatenate((population1.historical_best_fitness, population2.historical_best_fitness))
-        joined_pop.fitness_calculated = np.concatenate((population1.fitness_calculated, population2.fitness_calculated))
-        joined_pop.fitness = np.concatenate((population1.fitness, population2.fitness))
-
-        if population1.best is None or (population2.best is not None and population1.best_fitness < population2.best_fitness):
-            joined_pop.best = population1.best
-            joined_pop.best_fitness = population1.best_fitness
-        else:
-            joined_pop.best = population2.best
-            joined_pop.best_fitness = population2.best_fitness
-
-        return joined_pop
-
     def join(self, other_population):
         """
         Adds to the current population the individuals of the input population.
         """
 
-        return Population._join(self, other_population)
+        self.genotype_set = np.concatenate((self.genotype_set, other_population.genotype_set), axis=0)
+        self.pop_size += other_population.genotype_set.shape[0]
+        self.speed_set = np.concatenate((self.speed_set, other_population.speed_set), axis=0)
+        self.ages = np.concatenate((self.ages, other_population.ages))
+        self.historical_best_set = np.concatenate((self.historical_best_set, other_population.historical_best_set), axis=0)
+        self.historical_best_fitness = np.concatenate((self.historical_best_fitness, other_population.historical_best_fitness))
+        self.fitness_calculated = np.concatenate((self.fitness_calculated, other_population.fitness_calculated), axis=0)
+        self.fitness = np.concatenate((self.fitness, other_population.fitness))
+
+        if self.best is None or (other_population.best is not None and self.best_fitness < other_population.best_fitness):
+            self.best = other_population.best
+            self.best_fitness = other_population.best_fitness
+
+        return self
 
     def sort_population(self):
         """

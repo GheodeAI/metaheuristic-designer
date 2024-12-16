@@ -1,6 +1,5 @@
 from __future__ import annotations
 from typing import Iterable
-import random
 import enum
 from enum import Enum
 from copy import copy
@@ -138,60 +137,6 @@ class OperatorMeta(Operator):
                     new_population = new_population.apply_slice(split_population, split_mask)
 
         return new_population
-
-    def evolve_single(self, indiv, population, initializer=None, global_best=None, indiv_idx=0):
-        if self.method == MetaOpMethods.BRANCH:
-            self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
-            chosen_op = self.op_list[self.chosen_idx]
-            result = chosen_op.evolve_single(indiv, population, global_best, initializer)
-
-        elif self.method == MetaOpMethods.PICK:
-            # the chosen index is assumed to be changed by the user
-            if not isinstance(self.chosen_idx, Iterable):
-                chosen_op = self.op_list[self.chosen_idx[indiv_idx]]
-            else:
-                chosen_op = self.op_list[self.chosen_idx]
-            result = chosen_op.evolve_single(indiv, population, global_best, initializer)
-
-        elif self.method == MetaOpMethods.SEQUENCE:
-            result = indiv
-            for op in self.op_list:
-                result = op.evolve_single(result, population, global_best, initializer)
-
-        elif self.method == MetaOpMethods.SPLIT:
-            result = copy(indiv)
-            indiv_copy = copy(indiv)
-            global_best_copy = copy(global_best)
-            population_copy = [copy(i) for i in population]
-
-            for idx_op, op in enumerate(self.op_list):
-                if np.any(self.mask == idx_op):
-                    indiv_copy.genotype = indiv.genotype[self.mask == idx_op]
-                    global_best_copy.genotype = global_best.genotype[self.mask == idx_op]
-
-                    for idx_pop, val in enumerate(population_copy):
-                        val.genotype = population[idx_pop].genotype[self.mask == idx_op]
-
-                    aux_indiv = op.evolve_single(indiv_copy, population_copy, global_best, initializer)
-                    result.genotype[self.mask == idx_op] = aux_indiv.genotype
-
-        return result
-
-    @staticmethod
-    def _filter_indiv(indiv, mask):
-        indiv_copy = copy(indiv)
-        if indiv is not None:
-            indiv_copy.genotype = indiv.genotype[mask]
-            indiv_copy.best = indiv.best[mask]
-            indiv_copy.speed = indiv.speed[mask]
-        return indiv_copy
-
-    @staticmethod
-    def _undo_filter_indiv(indiv, filtered_indiv, mask):
-        if indiv is not None:
-            indiv.genotype[mask] = filtered_indiv.genotype
-            indiv.speed[mask] = filtered_indiv.speed
-        return indiv
 
     def step(self, progress: float):
         super().step(progress)
