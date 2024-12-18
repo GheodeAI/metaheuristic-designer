@@ -140,45 +140,13 @@ class Operator(ABC):
 
         Parameters
         ----------
-        population: List[Individual]
-            The population that will be used in crossing operations.
-        objfunc: ObjectiveFunc
-            The objective function being optimized.
-        initializer: Initialize, params["longitude_max"]r
+        population: Population
+            The population that will be used.
+        initializer: Initialize, optional
             The population initializer of the algorithm (used for randomly generating individuals).
-        global_best: Individual
-            The best individual found during the optimization of the algorithm
 
         Returns
         -------
-        new_population: List[Individual]
+        new_population: Population
             The modified population.
-        """
-
-    def evolve_single(
-        self,
-        indiv: Any,
-        population: Population,
-        initializer: Initializer = None,
-    ) -> Any:
-        """
-        Evolves an individual using a given strategy.
-
-        Parameters
-        ----------
-        indiv: Individual
-            Individual to be operated on.
-        population: List[Individual]
-            The population that will be used in crossing operations.
-        objfunc: ObjectiveFunc
-            The objective function being optimized.
-        initializer: Initializer
-            The population initializer of the algorithm (used for randomly generating individuals).
-        global_best: Individual
-            The best individual found during the optimization of the algorithm
-
-        Returns
-        -------
-        new_individual: Individual
-            The modified individual.
         """

@@ -26,7 +26,6 @@ class SurvivorSelectionNull(SelectionMethod):
     def __init__(
         self,
         params: ParamScheduler | dict = None,
-        padding: bool = False,
         name: str = None,
     ):
         """
@@ -37,7 +36,7 @@ class SurvivorSelectionNull(SelectionMethod):
             name = "Nothing"
 
 
-        super().__init__(params, padding, name)
+        super().__init__(params, name)
 
     def select(self, population: Population, offspring: Population) -> Population:
         self.last_selection_idx = range(len(population), len(offspring))

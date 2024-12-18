@@ -19,6 +19,10 @@ class ObjectiveFunc(ABC):
         Whether to maximize or minimize the function (using the string 'max' or 'min').
     name: str, optional
         The name that will be displayed to represent this function.
+    vectorized: bool, optional
+        Indicates that the function will calculate the fitness of the entire population in one function call.
+    recalculate: bool, optional
+        Wheather to calculate the fitness of the individuals even if they were already calcualted before.
     """
 
     def __init__(self, mode: str = "max", name: str = "some function", vectorized: bool = False, recalculate: bool = False):
@@ -46,7 +50,7 @@ class ObjectiveFunc(ABC):
 
         return self.fitness(population, adjusted)
 
-    def fitness(self, population: Population, adjusted: bool = True, parallel: bool = False, threads: int = 8) -> float:
+    def fitness(self, population: Population, adjusted: bool = True, parallel: bool = False, threads: int = 8) -> ndarray:
         """
         Returns the value of the objective function given an individual.
         If the fitness is adjusted, the sign will be switched for minimization problems
@@ -58,10 +62,14 @@ class ObjectiveFunc(ABC):
             The individual for which the fitness will be calculated.
         adjusted: bool, optional
             Whether to adjust the fitness value or not.
+        parallel: bool, optional
+            Wheather to evaluate the individuals in the population in parallel.
+        threads: int, optional
+            Number of processes to use at once if calculating the fitness in parallel.
 
         Returns
         -------
-        fitness: float
+        fitness: ndarray
             Fitness value of the individual.
         """
 
@@ -100,7 +108,7 @@ class ObjectiveFunc(ABC):
         return fitness
 
     @abstractmethod
-    def objective(self, solution: Any) -> float | np.ndarray:
+    def objective(self, solution: Any) -> float | ndarray:
         """
         Implementation of the objective function.
 
@@ -111,7 +119,7 @@ class ObjectiveFunc(ABC):
 
         Returns
         -------
-        objective_value: float
+        objective_value: float | ndarray
             Value of the objective function given a solution.
         """
 
@@ -131,7 +139,7 @@ class ObjectiveFunc(ABC):
             A modified version of the solution passed that satisfies the restrictions of the problem.
         """
 
-    def penalize(self, _: Any) -> float:
+    def penalize(self, _: Any) -> float | ndarray:
         """
         Gives a penalization to the fitness value of an individual if it violates any constraints propotional
         to how far it is to a viable solution.

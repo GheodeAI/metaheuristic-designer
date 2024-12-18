@@ -28,6 +28,8 @@ class Algorithm(ABC):
         Search strategy that will iteratively optimize the function.
     params: ParamScheduler or dict, optional
         Dictionary of parameters to define the stopping condition and output of the algorithm.
+    name: str, optional
+        Name that will be displayed when showing the algorithm.
     """
 
     def __init__(
@@ -110,7 +112,7 @@ class Algorithm(ABC):
 
         Returns
         -------
-        best_solution: Tuple[Individual, float]
+        best_solution: Tuple[Any, float]
             A pair of the best individual with its fitness.
         """
 
@@ -141,7 +143,7 @@ class Algorithm(ABC):
             Path to the file where the solution will be stored.
         """
 
-        ind, fit = self.search_strategy.best_solution()
+        ind, fit = self.search_strategy.best_solution(decoded=False)
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=",")
 
     def stopping_condition(self, gen: int, real_time_start: float, cpu_time_start: float) -> bool:
@@ -218,18 +220,11 @@ class Algorithm(ABC):
 
         best_fitness = self.best_solution()[1]
 
-        # if self.objfunc.mode == "max":
-        #     if self.fit_target == 0:
-        #         self.fit_target = 1e-40
-        #     target_reached = (best_fitness / self.fit_target
-        # else:
-        #     if best_fitness == 0:
-        #         best_fitness = 1e-40
-        #     target_reached = self.fit_target / best_fitness
+        fit_target = self.fit_target if self.fit_target != 0 else 1e-10
         if self.objfunc.mode == "max":
-            target_reached = 1 - (best_fitness - self.fit_target) / self.fit_target
+            target_reached = 1 - (best_fitness - self.fit_target) / fit_target
         else:
-            target_reached = 1 - (self.fit_target - best_fitness) / self.fit_target
+            target_reached = 1 - (self.fit_target - best_fitness) / fit_target
 
         patience_prec = 1 - self.patience_left / self.max_patience
 
@@ -272,9 +267,14 @@ class Algorithm(ABC):
 
         self.ended = self.stopping_condition(self.steps, real_time_start, cpu_time_start)
 
-    def initialize(self):
+    def initialize(self) -> Population:
         """
         Initializes the optimization algorithm.
+
+        Returns
+        -------
+        initial_population: Population
+            The first set of individuals generated in order to perform the optimization.
         """
 
         self.restart()
@@ -298,8 +298,8 @@ class Algorithm(ABC):
 
         Returns
         -------
-        best_solution: Tuple[Individual, float]
-            A pair of the best individual with its fitness.
+        current_population: Population
+            The new population obtained in this iteration of the algorithm.
         """
 
     def optimize(self) -> Population:
@@ -310,8 +310,8 @@ class Algorithm(ABC):
 
         Returns
         -------
-        best_solution: Tuple[Individual, float]
-            A pair of the best individual with its fitness.
+        current_population: Population
+            Population of the best individuals found by the algorithm.
         """
 
         if self.verbose:

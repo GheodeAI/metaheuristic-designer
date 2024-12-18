@@ -23,9 +23,15 @@ class SearchStrategy(ABC):
 
     Parameters
     ----------
-    pop_init: Initializer
+    initializer: Initializer
         Population initializer that will generate the initial population of the search strategy.
-    param: Union[ParamScheduler, dict]
+    operator: Operator, optional
+        Operator that will be applied to the population each iteration. Defaults to null operator.
+    parent_sel: ParentSelection, optional
+        Parent selection method that will be applied to the population each iteration. Defaults to returning the entire population.
+    survivor_sel: SurvivorSelection, optional
+        Survivor selection method that will be applied to the population each iteration. Defaults to a generational selection.
+    params: ParamScheduler | dict, optional
         Dictionary of parameters to define the stopping condition and output of the search strategy.
     name: str, optional
         The name that will be displayed for this search strategy in the reports.
@@ -114,13 +120,13 @@ class SearchStrategy(ABC):
 
         return self._initializer.pop_size
 
-    def best_solution(self, decoded=False) -> Tuple[Any, float]:
+    def best_solution(self, decoded: bool = False) -> Tuple[Any, float]:
         """
         Returns the best solution found by the search strategy and its fitness.
 
         Returns
         -------
-        best_solution : Tuple[Individual, float]
+        best_solution : Tuple[Any, float]
             A pair of the best individual with its fitness.
         """
 
@@ -131,10 +137,10 @@ class SearchStrategy(ABC):
         return self._initializer
 
     @initializer.setter
-    def initializer(self, new_initializer):
+    def initializer(self, new_initializer: Initializer):
         self._initializer = new_initializer
 
-    def initialize(self, objfunc: ObjectiveFunc):
+    def initialize(self, objfunc: ObjectiveFunc) -> Population:
         """
         Initializes the optimization search strategy.
 
@@ -142,6 +148,11 @@ class SearchStrategy(ABC):
         ----------
         objfunc: ObjectiveFunc
             Objective function to be optimized.
+        
+        Returns
+        -------
+        population: Population
+            The initial population to be used in the algoritm.
         """
 
         if self._initializer is None:
@@ -151,7 +162,24 @@ class SearchStrategy(ABC):
 
         return self.population
 
-    def evaluate_population(self, population, parallel=False, threads=8):
+    def evaluate_population(self, population: Population, parallel: bool = False, threads: int = 8) -> Population:
+        """
+        Calculates the fitness of the individuals on the population.
+
+        Parameters
+        ----------
+        population: Population
+        parallel: bool, optional
+            Wheather to evaluate the individuals in the population in parallel.
+        threads: int, optional
+            Number of processes to use at once if calculating the fitness in parallel.
+
+        Returns
+        -------
+        population: Population
+            The population with the fitness values recorded.
+        """
+
         population.calculate_fitness(parallel=parallel, threads=threads)
 
         return population
@@ -179,7 +207,7 @@ class SearchStrategy(ABC):
 
         Parameters
         ----------
-        parent_list: Population
+        parents: Population
             The current parents that will be used in the search strategy.
 
         Returns
@@ -194,6 +222,20 @@ class SearchStrategy(ABC):
         return offspring
 
     def repair_population(self, population: Population) -> Population:
+        """
+        Repairs the individuals in the population to make them fullfill the problem's restrictions.
+
+        Parameters
+        ----------
+        population: Population
+            The population to be repaired 
+
+        Returns
+        -------
+        repaired_population: Population
+            The population of repaired individuals
+        """
+
         return population.repair_solutions()
 
     def select_individuals(self, population: Population, offspring: Population, **kwargs) -> Population:
@@ -228,10 +270,8 @@ class SearchStrategy(ABC):
 
         Parameters
         ----------
-        show_pop: bool, optional
-            Save the current population.
-        show_pop_details: bool, optional
-            Save the complete details of each individual.
+        show_population: bool, optional
+            Save the state of the current population.
 
         Returns
         -------

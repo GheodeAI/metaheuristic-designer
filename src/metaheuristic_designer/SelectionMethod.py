@@ -14,8 +14,6 @@ class SelectionMethod(ABC):
     ----------
     params: ParamScheduler or dict, optional
         Dictionary of parameters to define the behaviour of the selection method.
-    padding: bool, optional
-        Whether to fill the entire list of selected individuals to match the size of the original one.
     name: str, optional
         The name that will be assigned to this selection method.
     """
@@ -23,7 +21,6 @@ class SelectionMethod(ABC):
     def __init__(
         self,
         params: ParamScheduler | dict = None,
-        padding: bool = False,
         name: str = None,
     ):
         """
@@ -71,6 +68,11 @@ class SelectionMethod(ABC):
     def step(self, progress: float):
         """
         Updates the parameters of the method using a paramater scheduler if it exists
+
+        Parameters
+        ----------
+        progress: float
+            Estimated percentage of the progress of the algorithm (0 if it just started and 1 if it has ended).
         """
 
         if self.param_scheduler:
@@ -84,7 +86,7 @@ class SelectionMethod(ABC):
                 self.params["maxPopSize"] = round(self.params["maxPopSize"])
 
     def set_param(self, **kwargs):
-        """ """
+        """"""
         self.params.update(kwargs)
 
     def get_state(self):

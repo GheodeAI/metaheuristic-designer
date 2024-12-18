@@ -9,7 +9,6 @@ class SelectionFromLambda(SelectionMethod):
         self,
         select_fn: callable,
         params: ParamScheduler | dict,
-        padding: bool = False,
         name: str = None,
     ):
         if name is None:
@@ -17,7 +16,7 @@ class SelectionFromLambda(SelectionMethod):
 
         self.select_fn = select_fn
 
-        super().__init__(params, padding, name)
+        super().__init__(params, name)
 
     def select(self, population: Population, offspring: Population = None) -> Population:
         return self.select_fn(population, offspring, **self.params)

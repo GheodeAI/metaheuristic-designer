@@ -58,7 +58,6 @@ class ParentSelection(SelectionMethod):
         self,
         method: str,
         params: ParamScheduler | dict = None,
-        padding: bool = False,
         name: str = None,
     ):
         """
@@ -68,7 +67,7 @@ class ParentSelection(SelectionMethod):
         if name is None:
             name = method
 
-        super().__init__(params, padding, name)
+        super().__init__(params, name)
 
         self.method = ParentSelMethod.from_str(method)
 

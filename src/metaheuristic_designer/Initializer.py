@@ -42,7 +42,7 @@ class Initializer(ABC):
 
         Returns
         -------
-        new_individual: Individual
+        new_individual: Any
             Newly generated individual.
         """
 
@@ -57,7 +57,7 @@ class Initializer(ABC):
 
         Returns
         -------
-        new_individual: Individual
+        new_individual: Any
             Newly generated individual.
         """
 
@@ -76,7 +76,7 @@ class Initializer(ABC):
 
         Returns
         -------
-        generated_population: List[Individual]
+        generated_population: Population
             Newly generated population.
         """
 
