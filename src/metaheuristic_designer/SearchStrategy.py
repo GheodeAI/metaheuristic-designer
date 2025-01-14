@@ -15,7 +15,7 @@ from .Operator import Operator
 from .operators import OperatorNull
 
 
-class SearchStrategy(ABC):
+class SearchStrategy:
     """
     Abstract Search Strategy class.
 
