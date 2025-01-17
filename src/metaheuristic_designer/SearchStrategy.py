@@ -77,6 +77,8 @@ class SearchStrategy:
             self.params = self.param_scheduler.get_params()
         else:
             self.params = params
+        
+        self.finish = False
 
         self._find_operator_attributes()
 

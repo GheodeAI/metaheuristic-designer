@@ -34,8 +34,11 @@ class RVNS(SearchStrategy):
 
         self.current_op = 0
 
-        if survivor_sel is None:
-            survivor_sel = SurvivorSelection("One-to-One")
+        self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
+
+        if selection_op is None:
+            selection_op = SurvivorSelection("One-to-One")
+        self.selection_op = selection_op
 
         if initializer.pop_size > 1:
             initializer.pop_size = 1
@@ -55,10 +58,7 @@ class RVNS(SearchStrategy):
     def select_individuals(self, population, offspring, **kwargs):
         new_population = super().select_individuals(population, offspring, **kwargs)
 
-        if np.all(new_population.genotype_set == population.genotype_set):
-            self.operator.chosen_idx += 1
-        else:
-            self.operator.chosen_idx = 0
+        self.perturb_op.chosen_idx = next_neighborhood(offspring[0], population[0], self.perturb_op.chosen_idx, self.nchange)
 
         return new_population
 

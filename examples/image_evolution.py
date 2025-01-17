@@ -1,6 +1,7 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import OperatorVector
+from metaheuristic_designer.operators import OperatorVector
 from metaheuristic_designer.strategies import *
 from metaheuristic_designer.initializers import *
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
@@ -96,11 +97,6 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         OperatorVector("Multipoint"),
         OperatorVector("MutRand", {"distrib": "Cauchy", "F": 5, "N": 10}, name="MutCauchy"),
         OperatorVector("MutRand", {"distrib": "Gauss", "F": 5, "N": 10}, name="MutGauss"),
-        OperatorVector(
-            "MutSample",
-            {"distrib": "Uniform", "min": 0, "max": 256, "N": 10},
-            name="MutUniform",
-        ),
     ]
 
     # n_list = np.flip(np.logspace(0, 12, base=2, num=1000))
@@ -204,7 +200,22 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     elif alg_name == "VND":
         search_strat = VND(pop_initializer, neighborhood_structures)
     elif alg_name == "VNS":
-        local_search = LocalSearch(pop_initializer, params={"iters": 10})
+        pop_initializer.pop_size = 1
+        local_search = LocalSearch(pop_initializer, mutation_op, params={"iters": 200})
+        search_strat = VNS(
+            initializer=pop_initializer,
+            op_list=neighborhood_structures,
+            local_search=local_search,
+            params={"nchange": "seq"},
+            inner_loop_params={
+                "stop_cond": "convergence",
+                "patience": 100,
+                "verbose": params['verbose'],
+                "v_timer": params['v_timer'],
+            },
+        )
+    elif alg_name == "GVNS":
+        pop_initializer.pop_size = 1
         search_strat = VNS(
             pop_initializer,
             neighborhood_structures,

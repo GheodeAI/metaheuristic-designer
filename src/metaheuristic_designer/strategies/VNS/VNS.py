@@ -4,11 +4,13 @@ import warnings
 from ...Population import Population
 from ...Algorithm import Algorithm
 from ...Initializer import Initializer
+from ...algorithms import GeneralAlgorithm
 from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
 from ...operators import OperatorMeta
 from ...selectionMethods import SurvivorSelection, ParentSelectionNull
+from .VND import VND
 from .vns_neighborhood_changes import *
 
 
@@ -34,13 +36,27 @@ class VNS(SearchStrategy):
             inner_loop_params = {}
         
         self.iterations = params.get("iters", 100)
-
         self.op_list = op_list
         operator = OperatorMeta("Pick", op_list, {"init_idx": 0})
 
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 
+        if local_search is None:
+            local_search = VND(initializer=initializer, op_list=op_list, one_shot=True)
+        local_search.name = f"VNS ({local_search.name})"
         self.local_search = local_search
+
+        inner_loop_params['init_info'] = False
+
+        # self.local_search = GeneralAlgorithm(
+        #     objfunc=None,
+        #     search_strategy=local_search,
+        #     params=inner_loop_params,
+        #     name=local_search.name
+        # )
+
+        if survivor_sel is None:
+            survivor_sel = SurvivorSelection("One-to-One")
 
         if initializer.pop_size > 1:
             initializer.pop_size = 1
@@ -59,8 +75,9 @@ class VNS(SearchStrategy):
 
     def initialize(self, objfunc):
         initial_population = super().initialize(objfunc)
-        initial_pop = self.local_search.initialize(objfunc)
-        self.local_search.evaluate_population(initial_pop)
+        
+        self.local_search.objfunc = objfunc
+        self.local_search.initialize(objfunc)
 
         return initial_population
 

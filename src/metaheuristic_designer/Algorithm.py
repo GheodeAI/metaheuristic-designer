@@ -52,6 +52,7 @@ class Algorithm(ABC):
             params = {}
 
         # Verbose parameters
+        self.show_init_info = params.get("init_info", True) 
         self.verbose = params.get("verbose", True)
         self.v_timer = params.get("v_timer", 1)
 
@@ -118,7 +119,7 @@ class Algorithm(ABC):
 
         return self.search_strategy.best_solution(decoded)
 
-    def restart(self):
+    def restart(self, reset_objfunc=True):
         """
         Resets the internal values of the algorithm and the number of evaluations of the fitness function.
         """
@@ -130,7 +131,8 @@ class Algorithm(ABC):
         self.prev_best_fitness = None
         self.cpu_time_spent = 0
         self.real_time_spent = 0
-        self.objfunc.counter = 0
+        if reset_objfunc:
+            self.objfunc.counter = 0
 
     def save_solution(self, file_name: str = "solution.csv"):
         """
@@ -180,7 +182,7 @@ class Algorithm(ABC):
 
         patience_reached = self.patience_left < 0
 
-        return process_condition(
+        return self.search_strategy.finish or process_condition(
             self.stop_cond_parsed,
             neval_reached,
             ngen_reached,
@@ -256,7 +258,7 @@ class Algorithm(ABC):
         if pass_step:
             self.steps += 1
 
-        if self.best_solution()[1] == self.prev_best_fitness:
+        if self.prev_best_fitness is not None and (self.best_solution()[1] <= self.prev_best_fitness != self.objfunc.mode == "max"):
             self.patience_left -= 1
         else:
             self.patience_left = self.max_patience
@@ -267,7 +269,7 @@ class Algorithm(ABC):
 
         self.ended = self.stopping_condition(self.steps, real_time_start, cpu_time_start)
 
-    def initialize(self) -> Population:
+    def initialize(self, reset_objfunc=True) -> Population:
         """
         Initializes the optimization algorithm.
 
@@ -277,7 +279,7 @@ class Algorithm(ABC):
             The first set of individuals generated in order to perform the optimization.
         """
 
-        self.restart()
+        self.restart(reset_objfunc)
         initial_population = self.search_strategy.initialize(self.objfunc)
         initial_population = self.search_strategy.evaluate_population(initial_population, self.parallel, self.threads)
         self.search_strategy.population = initial_population
@@ -302,7 +304,7 @@ class Algorithm(ABC):
             The new population obtained in this iteration of the algorithm.
         """
 
-    def optimize(self) -> Population:
+    def optimize(self, initialize=True) -> Population:
         """
         Execute the algorithm to get the best solution possible along with its evaluation.
         It will initialize the algorithm and repeat steps of the algorithm untill the
@@ -314,7 +316,7 @@ class Algorithm(ABC):
             Population of the best individuals found by the algorithm.
         """
 
-        if self.verbose:
+        if self.verbose and self.show_init_info:
             self.init_info()
 
         self.steps = 0
@@ -325,7 +327,8 @@ class Algorithm(ABC):
         display_timer = time.time()
 
         # Initizalize search strategy
-        self.initialize()
+        if initialize:
+            self.initialize()
 
         # Search until the stopping condition is met
         self.update(real_time_start, cpu_time_start, pass_step=False)

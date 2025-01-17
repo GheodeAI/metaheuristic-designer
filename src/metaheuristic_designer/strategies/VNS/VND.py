@@ -7,7 +7,10 @@ from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
 from ...operators import OperatorMeta
-from ...selectionMethods import SurvivorSelection
+from ...selectionMethods import (
+    SurvivorSelection,
+    ParentSelectionNull,
+)
 from .vns_neighborhood_changes import *
 
 
@@ -24,25 +27,25 @@ class VND(SearchStrategy):
         initializer: Initializer,
         op_list: Iterable[Operator],
         survivor_sel: SurvivorSelection = None,
+        one_shot: bool = False,
         params: ParamScheduler | dict = None,
         name: str = "VND",
     ):
+
         if params is None:
             params = {}
 
-        self.iterations = params.get("iters", 100)
-
         self.op_list = op_list
-        operator = OperatorMeta("Pick", op_list, {"init_idx": 0})
+        perturb_op = OperatorMeta("Pick", op_list, {"init_idx": 0})
 
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
+        self.new_loop_flag = False
+        self.one_shot = one_shot
 
         self.current_op = 0
 
         if survivor_sel is None:
             survivor_sel = SurvivorSelection("One-to-One")
-
-        self.inner_selection_op = SurvivorSelection("One-to-One")
 
         if initializer.pop_size > 1:
             initializer.pop_size = 1
@@ -76,7 +79,12 @@ class VND(SearchStrategy):
     def select_individuals(self, population, offspring, **kwargs):
         new_population = super().select_individuals(population, offspring, **kwargs)
 
-        self.operator.chosen_idx = next_neighborhood(offspring.fitness[0], population.fitness[0], self.operator.chosen_idx, self.nchange)
+        new_chosen_idx = next_neighborhood(new_population[0], population[0], self.operator.chosen_idx, self.nchange)
+        self.operator.chosen_idx = new_chosen_idx % len(self.op_list)
+
+        self.new_loop_flag = self.new_loop_flag or new_chosen_idx >= len(self.op_list)
+        if self.new_loop_flag:
+            self.finish = self.one_shot
 
         return new_population
 
@@ -88,11 +96,11 @@ class VND(SearchStrategy):
         if isinstance(self.operator, Operator):
             self.operator.step(progress)
 
-        if self.operator.chosen_idx >= len(self.op_list) or self.operator.chosen_idx < 0:
-            self.operator.chosen_idx = 0
-
     def extra_step_info(self):
         idx = self.operator.chosen_idx
 
+        if self.new_loop_flag:
+            print(f"\tStarted new loop")
+            self.new_loop_flag = False
+        
         print(f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}")
-        # time.sleep(0.25)

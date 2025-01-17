@@ -24,7 +24,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots):
         # "ngen": 10000,
         "neval": 3e6,
         "fit_target": 1e-10,
-        "patience": 200,
+        "patience": 500,
         "verbose": True,
         "v_timer": 0.5,
         # "v_timer": -1,
@@ -149,17 +149,29 @@ def run_algorithm(alg_name, memetic, save_state, show_plots):
             initializer=pop_initializer,
             op_list=neighborhood_structures,
             local_search=local_search,
-            params={"iters": 100, "nchange": "seq"},
+            params={"nchange": "seq"},
+            inner_loop_params={
+                "stop_cond": "convergence",
+                "patience": 3,
+                "verbose": params['verbose'],
+                "v_timer": params['v_timer'],
+            },
         )
+        params['patience'] = 80
     elif alg_name == "GVNS":
         pop_initializer.pop_size = 1
-        local_search = VND(pop_initializer, neighborhood_structures, params={"nchange": "cyclic"})
         search_strat = VNS(
-            pop_initializer,
-            neighborhood_structures,
-            local_search,
-            params={"iters": 100, "nchange": "seq"},
+            initializer=pop_initializer,
+            op_list=neighborhood_structures,
+            params={"nchange": "pipe"},
+            inner_loop_params={
+                "stop_cond": "convergence",
+                "patience": 500,
+                "verbose": params['verbose'],
+                "v_timer": params['v_timer'],
+            },
         )
+        params['patience'] = 10
     elif alg_name == "RandomSearch":
         search_strat = RandomSearch(pop_initializer)
     elif alg_name == "NoSearch":
