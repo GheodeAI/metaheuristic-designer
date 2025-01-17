@@ -1,10 +1,8 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler, simple
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm, AlgorithmSelection
-from metaheuristic_designer.operators import OperatorReal, OperatorInt, OperatorBinary
 from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.strategies import *
-
 from metaheuristic_designer.benchmarks import *
 
 import argparse
@@ -26,13 +24,13 @@ def run_algorithm(save_report):
 
     # Define algorithms to be tested
     algorithms = [
-        simple.hill_climb(objfunc, params),
-        simple.simulated_annealing(objfunc, params),
-        simple.evolution_strategy(objfunc, params),
-        simple.differential_evolution(objfunc, params),
-        simple.genetic_algorithm(objfunc, params),
-        simple.particle_swarm(objfunc, params),
-        simple.random_search(objfunc, params),
+        simple.hill_climb(params, objfunc),
+        simple.simulated_annealing(params, objfunc),
+        simple.evolution_strategy(params, objfunc),
+        simple.differential_evolution(params, objfunc),
+        simple.genetic_algorithm(params, objfunc),
+        simple.particle_swarm(params, objfunc),
+        simple.random_search(params, objfunc),
     ]
 
     algorithm_search = AlgorithmSelection(algorithms)

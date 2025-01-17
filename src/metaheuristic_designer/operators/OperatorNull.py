@@ -1,12 +1,6 @@
 from __future__ import annotations
-import numpy as np
-from ..Operator import Operator
-from .vector_operator_functions import *
-from ..ParamScheduler import ParamScheduler
 from copy import copy
-import enum
-from enum import Enum
-from ..utils import RAND_GEN
+from ..Operator import Operator
 
 
 class OperatorNull(Operator):
@@ -35,7 +29,4 @@ class OperatorNull(Operator):
         super().__init__({}, name)
 
     def evolve(self, population, *args):
-        return population
-    
-    def evolve_single(self, individual, *args):
-        return individual
+        return copy(population)

@@ -2,7 +2,7 @@ import numpy as np
 
 from metaheuristic_designer import ObjectiveFromLambda, ParamScheduler
 from metaheuristic_designer.algorithms import GeneralAlgorithm
-from metaheuristic_designer.operators import OperatorReal
+from metaheuristic_designer.operators import OperatorVector
 from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.strategies import *
 
@@ -13,7 +13,7 @@ def func(vector):
 
 def run_algorithm():
     params = {
-        "stop_cond": "neval",
+        "stop_cond": "time_limit",
         "time_limit": 10.0,
         "cpu_time_limit": 10.0,
         "ngen": 1000,
@@ -27,14 +27,14 @@ def run_algorithm():
 
     pop_init = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1)
 
-    mutation_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0001})
+    mutation_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0001})
 
     search_strat = HillClimb(pop_init, mutation_op)
 
     alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 
-    ind, fit = alg.optimize()
-    print(ind)
+    population = alg.optimize()
+    print(population.best_solution())
     alg.display_report()
 
 

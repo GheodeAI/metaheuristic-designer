@@ -1,9 +1,3 @@
-# from metaheuristic_designer import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
-# from metaheuristic_designer.SearchMethods import GeneralSearch, MemeticSearch
-# from metaheuristic_designer.Operators import OperatorReal, OperatorInt, OperatorBinary
-# from metaheuristic_designer.Initializers import UniformVectorInitializer
-# from metaheuristic_designer.Algorithms import *
-
 import metaheuristic_designer as mhd
 from metaheuristic_designer.simple import hill_climb
 from metaheuristic_designer.simple import genetic_algorithm
@@ -24,8 +18,8 @@ import numpy as np
 def run_algorithm(alg_name, memetic, save_state):
     params = {
         # General algorithm params
-        # "stop_cond": "convergence or time_limit or fit_target",
-        "stop_cond": "time_limit or fit_target",
+        "stop_cond": "convergence or time_limit or fit_target",
+        # "stop_cond": "time_limit or fit_target",
         "progress_metric": "time_limit",
         "time_limit": 100.0,
         "cpu_time_limit": 100.0,
@@ -81,8 +75,8 @@ def run_algorithm(alg_name, memetic, save_state):
     else:
         raise ValueError(f'Error: Algorithm "{alg_name}" doesn\'t exist.')
 
-    ind, fit = alg.optimize()
-    print(ind)
+    population = alg.optimize()
+    print(population.best_solution()[0])
     alg.display_report(show_plots=True)
 
     if save_state:

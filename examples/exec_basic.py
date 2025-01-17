@@ -1,52 +1,47 @@
-from metaheuristic_designer import ObjectiveFunc, ParamScheduler
+import argparse
+
+import numpy as np
+
+from metaheuristic_designer import ParamScheduler
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import OperatorVector
 from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.strategies import *
-
 from metaheuristic_designer.benchmarks import *
 
-import argparse
 
-from copy import copy
-import scipy as sp
-import numpy as np
-
-
-def run_algorithm(alg_name, memetic, save_state):
+def run_algorithm(alg_name, memetic, save_state, show_plots):
     params = {
         # "stop_cond": "neval or time_limit or fit_target",
         # "stop_cond": "neval or time_limit",
-        "stop_cond": "convergence or time_limit",
-        # "stop_cond": "time_limit",
+        # "stop_cond": "convergence or time_limit",
+        "stop_cond": "time_limit",
+        # "stop_cond": "ngen",
         "progress_metric": "time_limit",
-        # "time_limit": 100.0,
-        # "time_limit": 20.0,
-        "time_limit": 2000.0,
+        "time_limit": 20.0,
         "cpu_time_limit": 100.0,
-        "ngen": 1000,
+        # "ngen": 10000,
         "neval": 3e6,
         "fit_target": 1e-10,
         "patience": 500,
         "verbose": True,
-        # "v_timer": 0.5,
-        "v_timer": 0.05,
+        "v_timer": 0.5,
+        # "v_timer": -1,
     }
 
+    objfunc = Sphere(3, "min")
     # objfunc = Sphere(30, "min")
-    objfunc = Rastrigin(3, "min")
+    # objfunc = Rastrigin(30, "min")
     # objfunc = Rosenbrock(2, "min")
     # objfunc = Weierstrass(30, "min")
 
     pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
     parent_params = ParamScheduler("Linear", {"amount": 20})
-    # select_params = ParamScheduler("Linear")
 
-    # mut_params = ParamScheduler("Linear", {"distrib": "Cauchy", "F": [0.01, 0.00001]})
-    # mutation_op = OperatorVector("RandNoise", mut_params)
-    mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "F": 1e-3, "N": 1})
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "F": 1e-3, "N": 1})
+    # mutation_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 1})
 
     cross_op = OperatorVector("Multipoint")
 
@@ -58,16 +53,14 @@ def run_algorithm(alg_name, memetic, save_state):
         OperatorVector("DE/current-to-rand/1", DEparams),
     ]
 
-    # neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 0, base=10, num=80)]
-    neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-5, 0, base=10, num=80)]
-    # neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-4, 1, base=10, num=80)]
+    neighborhood_structures = [OperatorVector("Gauss", {"F": f}, name=f"Gauss(s={f:0.5e})") for f in np.logspace(-6, 0, base=10, num=20)]
 
     parent_sel_op = ParentSelection("Best", parent_params)
     selection_op = SurvivorSelection("(m+n)")
 
     mem_select = ParentSelection("Best", {"amount": 5})
     neihbourhood_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
-    local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
+    local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 20})
 
     if alg_name == "HillClimb":
         pop_initializer.pop_size = 1
@@ -108,6 +101,7 @@ def run_algorithm(alg_name, memetic, save_state):
         search_strat = GaussianPBIL(pop_initializer, parent_sel_op, selection_op, params={"scale": 0.1, "lr": 0.3, "noise": 1e-3})
     elif alg_name == "CrossEntropy":
         pop_initializer.pop_size = 1000
+        # pop_initializer.pop_size = 10
         search_strat = CrossEntropyMethod(pop_initializer)
     elif alg_name == "CRO":
         search_strat = CRO(
@@ -150,12 +144,11 @@ def run_algorithm(alg_name, memetic, save_state):
         search_strat = VND(pop_initializer, neighborhood_structures)
     elif alg_name == "VNS":
         pop_initializer.pop_size = 1
-        local_search = LocalSearch(pop_initializer, mutation_op, params={"iters": 200})
-        # local_search = HillClimb(pop_initializer)
+        local_search = LocalSearch(pop_initializer, params={"iters": 20})
         search_strat = VNS(
             initializer=pop_initializer,
             op_list=neighborhood_structures,
-            local_search_strategy=local_search,
+            local_search=local_search,
             params={"nchange": "seq"},
             inner_loop_params={
                 "stop_cond": "convergence",
@@ -192,9 +185,9 @@ def run_algorithm(alg_name, memetic, save_state):
     else:
         alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 
-    ind, fit = alg.optimize()
-    print(ind)
-    alg.display_report(show_plots=True)
+    population = alg.optimize()
+    print(population.best_solution()[0])
+    alg.display_report(show_plots=show_plots)
 
     if save_state:
         alg.store_state("./examples/results/test.json", readable=True, show_pop=True)
@@ -217,9 +210,16 @@ def main():
         action="store_true",
         help="Saves the state of the search strategy",
     )
+    parser.add_argument(
+        "-p",
+        "--plot",
+        dest="plot",
+        action="store_true",
+        help="Saves the state of the search strategy",
+    )
     args = parser.parse_args()
 
-    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state)
+    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state, show_plots=args.plot)
 
 
 if __name__ == "__main__":

@@ -1,9 +1,10 @@
 from __future__ import annotations
-from ..Operator import Operator
-from .vector_operator_functions import *
 from copy import copy
 import enum
 from enum import Enum
+from ..Operator import Operator
+from .operator_functions.permutation import *
+from ..ParamScheduler import ParamScheduler
 from ..utils import RAND_GEN
 
 
@@ -60,7 +61,7 @@ class OperatorPerm(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(self, method: str, params: ParamScheduler | dict = None, name: str = None):
         """
         Constructor for the OperatorPerm class
         """
@@ -72,66 +73,55 @@ class OperatorPerm(Operator):
 
         self.method = PermOpMethods.from_str(method)
 
-    def evolve(self, population, objfunc, global_best, initializer):
-        new_population = [self.evolve_single(indiv, population, objfunc, global_best, intializer) for indiv in population]
-
-        return new_population
-
-    def evolve_single(self, indiv, population, objfunc, global_best, initializer):
-        new_indiv = copy(indiv)
-        others = [i for i in population if i != indiv]
-        if len(others) == 0:
-            indiv2 = indiv
-            others = [indiv]
-        elif len(others) == 1:
-            indiv2 = indiv
-        else:
-            indiv2 = random.choice(others)
-
-        if global_best is None:
-            global_best = indiv
+    def evolve(self, population, initializer=None):
+        new_population = None
+        population_matrix = population.genotype_set
 
         params = copy(self.params)
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
+            params["N"] = np.count_nonzero(RAND_GEN.random(population_matrix.shape[1]) < params["Cr"])
 
         if "N" in params:
             params["N"] = round(params["N"])
-            params["N"] = min(params["N"], new_indiv.genotype.size)
+            params["N"] = min(params["N"], population_matrix.shape[1])
 
+        # Perform one of the methods (switch-case like structure)
         if self.method == PermOpMethods.SWAP:
-            new_indiv.genotype = permutation(new_indiv.genotype, 2)
+            population_matrix = permute_mutation(population_matrix, 2)
 
         elif self.method == PermOpMethods.SCRAMBLE:
-            new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
+            population_matrix = permute_mutation(population_matrix, params["N"])
 
         elif self.method == PermOpMethods.INSERT:
-            new_indiv.genotype = roll(new_indiv.genotype, 1)
+            population_matrix = roll_mutation(population_matrix, 1)
 
         elif self.method == PermOpMethods.ROLL:
-            new_indiv.genotype = roll(new_indiv.genotype, params["N"])
+            population_matrix = roll_mutation(population_matrix, params["N"])
 
         elif self.method == PermOpMethods.INVERT:
-            new_indiv.genotype = invert_mutation(new_indiv.genotype)
+            population_matrix = invert_mutation(population_matrix)
 
         elif self.method == PermOpMethods.PMX:
-            new_indiv.genotype = pmx(new_indiv.genotype, indiv2.genotype.copy())
+            population_matrix = pmx(population_matrix)
 
         elif self.method == PermOpMethods.ORDERCROSS:
-            new_indiv.genotype = order_cross(new_indiv.genotype, indiv2.genotype.copy())
+            population_matrix = order_cross(population_matrix)
 
         elif self.method == PermOpMethods.RANDOM:
-            new_indiv = initializer.generate_random(objfunc)
+            new_indiv = initializer.generate_population(population.objfunc)
 
         elif self.method == PermOpMethods.DUMMY:
-            new_indiv.genotype = np.arange(indiv.genotype.size)
+            population_matrix = np.tile(np.arange(population_matrix.shape[1]), (population_matrix.shape[0], 1))
 
         elif self.method == PermOpMethods.CUSTOM:
             fn = params["function"]
-            new_indiv.genotype = fn(indiv, population, objfunc, params)
+            population_matrix = fn(population_matrix, population.objfunc, params)
 
         elif self.method == PermOpMethods.NOTHING:
-            new_indiv = indiv
+            population_matrix = population_matrix
 
-        return new_indiv
+        if new_population is None:
+            new_population = population.update_genotype_set(population_matrix)
+
+        return new_population

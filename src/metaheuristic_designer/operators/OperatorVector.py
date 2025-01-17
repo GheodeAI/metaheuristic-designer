@@ -1,12 +1,17 @@
 from __future__ import annotations
-import numpy as np
-from ..Operator import Operator
-from .vector_operator_functions import *
-from ..ParamScheduler import ParamScheduler
-from ..Encoding import Encoding
 from copy import copy
 import enum
 from enum import Enum
+import numpy as np
+
+from .operator_functions.mutation import *
+from .operator_functions.crossover import *
+from .operator_functions.permutation import *
+from .operator_functions.differential_evolution import *
+from .operator_functions.swarm import *
+from ..Operator import Operator
+from ..ParamScheduler import ParamScheduler
+from ..Encoding import Encoding
 from ..utils import RAND_GEN
 
 
@@ -50,6 +55,7 @@ class VectorOpMethods(Enum):
 
     PSO = enum.auto()
     FIREFLY = enum.auto()
+    GLOWWORM = enum.auto()
 
     RANDOM = enum.auto()
     RANDOM_MASK = enum.auto()
@@ -106,6 +112,7 @@ vector_ops_map = {
     "de/current-to-pbest/1": VectorOpMethods.DE_CTPBEST_1,
     "pso": VectorOpMethods.PSO,
     "firefly": VectorOpMethods.FIREFLY,
+    "glowworm": VectorOpMethods.GLOWWORM,
     "random": VectorOpMethods.RANDOM,
     "randommask": VectorOpMethods.RANDOM_MASK,
     "dummy": VectorOpMethods.DUMMY,
@@ -128,7 +135,7 @@ class OperatorVector(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, params: Union[ParamScheduler, dict] = None, name: str = None, encoding: Encoding = None):
+    def __init__(self, method: str, params: ParamScheduler | dict = None, name: str = None, encoding: Encoding = None):
         """
         Constructor for the OperatorPerm class
         """
@@ -153,162 +160,172 @@ class OperatorVector(Operator):
             if "Low" not in self.params:
                 self.params["Low"] = 0
 
-    def evolve(self, population, objfunc, global_best, initializer):
-        new_population = [self.evolve_single(indiv, population, objfunc, global_best, initializer) for indiv in population]
-
-        return new_population
-
-    def evolve_single(self, indiv, population, objfunc, global_best, initializer):
-        new_indiv = copy(indiv)
-        others = [i for i in population if i != indiv]
-        if len(others) == 0:
-            indiv2 = indiv
-            others = [indiv]
-        elif len(others) == 1:
-            indiv2 = indiv
-        else:
-            indiv2 = random.choice(others)
-
-        if global_best is None:
-            global_best = indiv
+    def evolve(self, population, initializer=None):
+        new_population = None
+        population_matrix = copy(population.genotype_set)
+        fitness_array = copy(population.fitness)
+        speed = copy(population.speed_set)
+        global_best = population.best
+        historical_best = population.historical_best_set
 
         params = copy(self.params)
 
         if "Cr" in params and "N" not in params:
-            params["N"] = np.count_nonzero(RAND_GEN.random(indiv.genotype.size) < params["Cr"])
+            params["N"] = np.count_nonzero(RAND_GEN.random(population_matrix.shape[1]) < params["Cr"])
 
         if "N" in params:
             params["N"] = round(params["N"])
-            params["N"] = min(params["N"], new_indiv.genotype.size)
+            params["N"] = min(params["N"], population_matrix.shape[1])
 
+        # Perform one of the methods (switch-case like structure)
+
+        ## Cross operations
         if self.method == VectorOpMethods.ONE_POINT:
-            new_indiv.genotype = cross_1p(new_indiv.genotype, indiv2.genotype.copy())
+            population_matrix = cross_1p(population_matrix)
 
         elif self.method == VectorOpMethods.TWO_POINT:
-            new_indiv.genotype = cross_2p(new_indiv.genotype, indiv2.genotype.copy())
+            population_matrix = cross_2p(population_matrix)
 
         elif self.method == VectorOpMethods.MULTIPOINT:
-            new_indiv.genotype = cross_mp(new_indiv.genotype, indiv2.genotype.copy())
+            population_matrix = cross_mp(population_matrix)
 
         elif self.method == VectorOpMethods.WEIGHTED_AVG:
-            new_indiv.genotype = weighted_average(new_indiv.genotype, indiv2.genotype.copy(), params["F"])
+            population_matrix = weighted_average_cross(population_matrix, params["F"])
 
         elif self.method == VectorOpMethods.BLXALPHA:
-            new_indiv.genotype = blxalpha(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
+            population_matrix = blxalpha(population_matrix, params["Cr"])
 
         elif self.method == VectorOpMethods.SBX:
-            new_indiv.genotype = sbx(new_indiv.genotype, indiv2.genotype.copy(), params["Cr"])
-
-        elif self.method == VectorOpMethods.MULTICROSS:
-            new_indiv.genotype = multi_cross(new_indiv.genotype, others, params["Nindiv"])
-
-        elif self.method == VectorOpMethods.XOR:
-            new_indiv.genotype = xor_mask(new_indiv.genotype, params["N"])
+            population_matrix = sbx(population_matrix, params["Cr"])
 
         elif self.method == VectorOpMethods.XOR_CROSS:
-            new_indiv.genotype = xor_cross(new_indiv.genotype, indiv2.genotype.copy())
+            population_matrix = xor_cross(population_matrix)
+
+        elif self.method == VectorOpMethods.MULTICROSS:
+            population_matrix = multi_cross(population_matrix, params["Nindiv"])
 
         elif self.method == VectorOpMethods.CROSSINTERAVG:
-            new_indiv.genotype = cross_inter_avg(new_indiv.genotype, others, params["N"])
+            population_matrix = cross_inter_avg(population_matrix, params["N"])
 
+        ## Adaptative mutations
         elif self.method == VectorOpMethods.MUTATE1SIGMA:
-            new_indiv.genotype = mutate_1_sigma(new_indiv.genotype, params["epsilon"], params["tau"])
+            population_matrix = mutate_1_sigma(population_matrix, params["epsilon"], params["tau"])
 
         elif self.method == VectorOpMethods.MUTATENSIGMAS:
-            new_indiv.genotype = mutate_n_sigmas(
-                new_indiv.genotype,
+            population_matrix = mutate_n_sigmas(
+                population_matrix,
                 params["epsilon"],
                 params["tau"],
                 params["tau_multiple"],
             )
 
         elif self.method == VectorOpMethods.SAMPLESIGMA:
-            new_indiv.genotype = sample_1_sigma(new_indiv.genotype, params["N"], params["epsilon"], params["tau"])
+            population_matrix = sample_1_sigma(population_matrix, params["N"], params["epsilon"], params["tau"])
+
+        ## Mutation operators
+        elif self.method == VectorOpMethods.XOR:
+            population_matrix = xor_mask(population_matrix, params["N"], params.get("BinRep", "byte"))
 
         elif self.method == VectorOpMethods.PERM:
-            new_indiv.genotype = permutation(new_indiv.genotype, params["N"])
+            population_matrix = permute_mutation(population_matrix, params["N"])
 
         elif self.method == VectorOpMethods.GAUSS:
-            new_indiv.genotype = gaussian(new_indiv.genotype, params["F"])
+            population_matrix = gaussian_mutation(population_matrix, params["F"])
 
         elif self.method == VectorOpMethods.LAPLACE:
-            new_indiv.genotype = laplace(new_indiv.genotype, params["F"])
+            population_matrix = laplace_mutation(population_matrix, params["F"])
 
         elif self.method == VectorOpMethods.CAUCHY:
-            new_indiv.genotype = cauchy(new_indiv.genotype, params["F"])
+            population_matrix = cauchy_mutation(population_matrix, params["F"])
 
         elif self.method == VectorOpMethods.UNIFORM:
-            new_indiv.genotype = uniform(new_indiv.genotype, params["Low"], params["Up"])
+            population_matrix = uniform_mutation(population_matrix, params["F"])
+
+        elif self.method == VectorOpMethods.POISSON:
+            population_matrix = poisson_mutation(population_matrix, params["F"], params["mu"])
 
         elif self.method == VectorOpMethods.MUTNOISE:
-            new_indiv.genotype = mutate_noise(new_indiv.genotype, params)
+            population_matrix = mutate_noise(population_matrix, **params)
 
         elif self.method == VectorOpMethods.MUTSAMPLE:
-            new_indiv.genotype = mutate_sample(new_indiv.genotype, others, params)
+            population_matrix = mutate_sample(population_matrix, **params)
 
         elif self.method == VectorOpMethods.RANDNOISE:
-            new_indiv.genotype = rand_noise(new_indiv.genotype, params)
+            population_matrix = rand_noise(population_matrix, **params)
 
         elif self.method == VectorOpMethods.RANDSAMPLE:
-            new_indiv.genotype = rand_sample(new_indiv.genotype, others, params)
+            population_matrix = rand_sample(population_matrix, **params)
 
         elif self.method == VectorOpMethods.GENERATE:
-            new_indiv.genotype = generate_statistic(new_indiv.genotype, others, params)
+            population_row = generate_statistic(population_matrix, **params)
+            population_matrix = np.tile(population_row, population_matrix.shape[0]).reshape(population_matrix.shape)
 
+        ## Differential evolution operators
         elif self.method == VectorOpMethods.DE_RAND_1:
-            new_indiv.genotype = DE_rand1(new_indiv.genotype, others, params["F"], params["Cr"])
+            population_matrix = DE_rand1(population_matrix, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_BEST_1:
-            new_indiv.genotype = DE_best1(new_indiv.genotype, others, params["F"], params["Cr"])
+            population_matrix = DE_best1(population_matrix, fitness_array, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_RAND_2:
-            new_indiv.genotype = DE_rand2(new_indiv.genotype, others, params["F"], params["Cr"])
+            population_matrix = DE_rand2(population_matrix, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_BEST_2:
-            new_indiv.genotype = DE_best2(new_indiv.genotype, others, params["F"], params["Cr"])
+            population_matrix = DE_best2(population_matrix, fitness_array, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_CTRAND_1:
-            new_indiv.genotype = DE_current_to_rand1(new_indiv.genotype, others, params["F"], params["Cr"])
+            population_matrix = DE_current_to_rand1(population_matrix, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_CTBEST_1:
-            new_indiv.genotype = DE_current_to_best1(new_indiv.genotype, others, params["F"], params["Cr"])
+            population_matrix = DE_current_to_best1(population_matrix, fitness_array, params["F"], params["Cr"])
 
         elif self.method == VectorOpMethods.DE_CTPBEST_1:
-            new_indiv.genotype = DE_current_to_pbest1(new_indiv.genotype, others, params["F"], params["Cr"], params["P"])
+            population_matrix = DE_current_to_pbest1(population_matrix, fitness_array, params["F"], params["Cr"], params["P"])
 
+        ## Swarm based algorithms
         elif self.method == VectorOpMethods.PSO:
-            new_indiv = pso_operator(indiv, others, global_best, params["w"], params["c1"], params["c2"])
+            population_matrix, speed = pso_operator(population_matrix, speed, historical_best, global_best, params["w"], params["c1"], params["c2"])
 
         elif self.method == VectorOpMethods.FIREFLY:
-            new_indiv.genotype = firefly(
-                indiv,
-                others,
-                objfunc,
+            population_matrix = firefly(
+                population_matrix,
+                fitness_array,
+                population.objfunc,
                 params["a"],
                 params["b"],
                 params["d"],
                 params["g"],
             )
 
+        elif self.method == VectorOpMethods.GLOWWORM:
+            population_matrix = glowworm(
+                population_matrix,
+                fitness_array,
+            )
+
+        ## Other operators
         elif self.method == VectorOpMethods.RANDOM:
-            new_indiv = initializer.generate_random(objfunc)
+            new_population = initializer.generate_population(population.objfunc, len(population))
 
         elif self.method == VectorOpMethods.RANDOM_MASK:
-            mask_pos = np.hstack([np.ones(params["N"]), np.zeros(new_indiv.genotype.size - params["N"])]).astype(bool)
-            RAND_GEN.shuffle(mask_pos)
+            mask_pos = np.tile(np.arange(population_matrix.shape[1]) < params["N"], population_matrix.shape[0]).reshape(population_matrix.shape)
+            mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
-            new_indiv.genotype[mask_pos] = initializer.generate_random(objfunc).genotype[mask_pos]
+            random_population = initializer.generate_population(population.objfunc, len(population))
+
+            population_matrix[mask_pos] = random_population.genotype_set[mask_pos]
 
         elif self.method == VectorOpMethods.DUMMY:
-            new_indiv.genotype = dummy_op(new_indiv.genotype, params["F"])
+            population_matrix = dummy_op(population_matrix, params["F"])
 
         elif self.method == VectorOpMethods.CUSTOM:
             fn = params["function"]
-            new_indiv.genotype = fn(indiv, population, objfunc, params)
+            population_matrix = fn(population_matrix, population.objfunc, params)
 
         elif self.method == VectorOpMethods.NOTHING:
-            new_indiv = indiv
-        
-        new_indiv.genotype = self.encoding.encode(new_indiv.genotype)
+            new_population = copy(population)
 
-        return new_indiv
+        if new_population is None:
+            new_population = population.update_genotype_set(population_matrix, speed)
+
+        return new_population

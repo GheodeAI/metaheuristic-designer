@@ -1,8 +1,7 @@
 from __future__ import annotations
-import numpy as np
-from typing import Union
+from ...Initializer import Initializer
+from ...Operator import Operator
 from ...operators import OperatorVector
-from ...selectionMethods import SurvivorSelection
 from ..StaticPopulation import StaticPopulation
 from ...ParamScheduler import ParamScheduler
 
@@ -15,10 +14,13 @@ class PSO(StaticPopulation):
     def __init__(
         self,
         initializer: Initializer,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         pso_op: Operator = None,
         name: str = "PSO",
     ):
+        if params is None:
+            params = {}
+
         if pso_op is None:
             pso_op = OperatorVector(
                 "PSO",
@@ -35,8 +37,8 @@ class PSO(StaticPopulation):
         super().__init__(initializer, pso_op, params=params, name=name)
 
     def extra_step_info(self):
-        popul_matrix = np.array(list(map(lambda x: x.genotype, self.population)))
-        speed_matrix = np.array(list(map(lambda x: x.speed, self.population)))
+        popul_matrix = self.population.genotype_set
+        speed_matrix = self.population.speed_set
         divesity = popul_matrix.std(axis=1).mean()
         mean_speed = speed_matrix.mean()
         print(f"\tdiversity: {divesity:0.3}")

@@ -17,18 +17,18 @@ ParentSelectionNull
    :undoc-members:
    :show-inheritance:
 
-SurvivorSelectionNull
-----------------------------------------------------
-
-.. automodule:: metaheuristic_designer.selectionMethods.SurvivorSelectionNull
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 SurvivorSelection
 ----------------------------------------------------
 
 .. automodule:: metaheuristic_designer.selectionMethods.SurvivorSelection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+SurvivorSelectionNull
+----------------------------------------------------
+
+.. automodule:: metaheuristic_designer.selectionMethods.SurvivorSelectionNull
    :members:
    :undoc-members:
    :show-inheritance:

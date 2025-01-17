@@ -1,11 +1,7 @@
 from __future__ import annotations
+from ..Initializer import Initializer
 from ..ParamScheduler import ParamScheduler
-from ..selectionMethods import (
-    SurvivorSelection,
-    ParentSelection,
-    SurvivorSelectionNull,
-    ParentSelectionNull,
-)
+from ..selectionMethods import SurvivorSelection,ParentSelection
 from ..SearchStrategy import SearchStrategy
 from ..Operator import Operator
 
@@ -21,7 +17,7 @@ class StaticPopulation(SearchStrategy):
         operator: Operator,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "Static Population Evolution",
     ):
         super().__init__(

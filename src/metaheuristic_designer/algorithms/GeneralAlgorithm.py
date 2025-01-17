@@ -1,8 +1,6 @@
 from __future__ import annotations
-import time
-from matplotlib import pyplot as plt
+from copy import copy
 from ..Algorithm import Algorithm
-
 
 class GeneralAlgorithm(Algorithm):
     """
@@ -21,44 +19,46 @@ class GeneralAlgorithm(Algorithm):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def __init__(
-        self,
-        objfunc: ObjectiveFunc,
-        search_strategy: SearchStrategy,
-        params: Union[ParamScheduler, dict] = None,
-        name: str = None,
-    ):
-        """
-        Constructor of the Metaheuristic class
-        """
+    # debug = True
+    # debug_stop = True
 
-        super().__init__(objfunc, search_strategy, params, name)
+    debug = False
+    debug_stop = False
 
     def step(self, time_start=0, verbose=False):
         # Get the population of this generation
         population = self.search_strategy.population
+        new_population = copy(population)
+        if self.debug: print("original population", population)
 
         # Generate their parents
-        parents = self.search_strategy.select_parents(population, progress=self.progress, history=self.best_history)
+        parents = self.search_strategy.select_parents(new_population, progress=self.progress, history=self.best_history)
+        if self.debug: print("Parent selection", population)
 
         # Evolve the selected parents
-        offspring = self.search_strategy.perturb(parents, self.objfunc, progress=self.progress, history=self.best_history)
+        offspring = self.search_strategy.perturb(parents, progress=self.progress, history=self.best_history)
+        if self.debug: print("Perturbed", offspring)
 
         # Get the fitness of the individuals
-        offspring = self.search_strategy.evaluate_population(offspring, self.objfunc, self.parallel, self.threads)
+        offspring = self.search_strategy.evaluate_population(offspring, self.parallel, self.threads)
+        if self.debug: print("Evaluated", offspring)
 
         # Select the individuals that remain for the next generation
-        population = self.search_strategy.select_individuals(population, offspring, progress=self.progress, history=self.best_history)
+        new_population = self.search_strategy.select_individuals(population, offspring, progress=self.progress, history=self.best_history)
+        if self.debug: print("Selected", new_population)
 
-        # Assign the newly generate population
-        self.search_strategy.population = population
-
+        self.search_strategy.population = new_population
+        
         # Get information about the algorithm to track it's progress
-        best_individual, best_fitness = self.search_strategy.best_solution()
         self.search_strategy.update_params(progress=self.progress)
 
+        if self.debug: print("Updated end", new_population)
+
         # Store information
+        best_individual, best_fitness = self.search_strategy.best_solution()
         self.best_history.append(best_individual)
         self.fit_history.append(best_fitness)
 
-        return (best_individual, best_fitness)
+        if self.debug_stop: raise Exception()
+
+        return new_population

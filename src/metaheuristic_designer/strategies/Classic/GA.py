@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import Union
-import numpy as np
+from ...Initializer import Initializer
+from ...Operator import Operator
+from ...selectionMethods import ParentSelection, SurvivorSelection
+from ...ParamScheduler import ParamScheduler
 from ...operators import OperatorMeta, OperatorNull
 from ..VariablePopulation import VariablePopulation
 
@@ -17,9 +19,12 @@ class GA(VariablePopulation):
         cross_op: Operator,
         parent_sel: ParentSelection,
         survivor_sel: SurvivorSelection,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "GA",
     ):
+        if params is None:
+            params = {}
+
         self.pmut = params.get("pmut", 0.1)
         self.pcross = params.get("pcross", 0.9)
 
@@ -28,7 +33,7 @@ class GA(VariablePopulation):
         prob_mut_op = OperatorMeta("Branch", [mutation_op, null_operator], {"p": self.pmut})
         prob_cross_op = OperatorMeta("Branch", [cross_op, null_operator], {"p": self.pcross})
 
-        evolve_op = OperatorMeta("Sequence", [prob_mut_op, prob_cross_op])
+        evolve_op = OperatorMeta("Sequence", [prob_cross_op, prob_mut_op])
 
         super().__init__(
             initializer,
@@ -40,6 +45,6 @@ class GA(VariablePopulation):
         )
 
     def extra_step_info(self):
-        popul_matrix = np.array(list(map(lambda x: x.genotype, self.population)))
-        divesity = popul_matrix.std(axis=1).mean()
+        # popul_matrix = np.array(list(map(lambda x: x.genotype, self.population)))
+        divesity = self.population.genotype_set.std(axis=1).mean()
         print(f"\tdiversity: {divesity:0.3}")

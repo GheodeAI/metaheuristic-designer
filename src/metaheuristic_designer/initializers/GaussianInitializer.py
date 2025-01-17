@@ -1,12 +1,10 @@
 from __future__ import annotations
 import numpy as np
-import random
 from ..Initializer import Initializer
-from ..Individual import Individual
 from ..utils import RAND_GEN
 
 
-class GaussianInitializer(Initializer):
+class GaussianVectorInitializer(Initializer):
     """
     Initializer that generates individuals with vectors following a normal distribution.
 
@@ -49,25 +47,14 @@ class GaussianInitializer(Initializer):
 
         self.dtype = dtype
 
-
-class GaussianVectorInitializer(GaussianInitializer):
-    def generate_random(self, objfunc):
+    def generate_random(self):
         new_vector_float = RAND_GEN.normal(self.g_mean, self.g_std, size=self.genotype_size)
         if self.dtype is int:
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:
             new_vector = new_vector_float.astype(self.dtype)
 
-        return Individual(objfunc, new_vector, encoding=self.encoding)
+        return new_vector
 
-    def generate_individual(self, objfunc):
-        return self.generate_random(objfunc)
-
-
-class GaussianListInitializer(GaussianInitializer):
-    def generate_random(self, objfunc):
-        new_list = [RAND_GEN.normal(m, s) for m, s in zip(self.g_mean, self.g_std)]
-        return Individual(objfunc, new_list, encoding=self.encoding)
-
-    def generate_individual(self, objfunc):
-        return self.generate_random(objfunc)
+    def generate_individual(self):
+        return self.generate_random()

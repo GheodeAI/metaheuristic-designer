@@ -1,7 +1,7 @@
 import pytest
 
 import numpy as np
-from metaheuristic_designer import Individual
+from metaheuristic_designer import Population
 from metaheuristic_designer.operators import OperatorPerm, perm_ops_map
 from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
 from metaheuristic_designer.initializers import PermInitializer
@@ -12,18 +12,17 @@ mhd.reset_seed(0)
 perm_ops = [i for i in perm_ops_map.keys()]
 
 pop_size = 100
+example_population1 = Population(Sphere(3), np.tile(np.arange(3), (pop_size, 1)))
+example_population2 = Population(Sphere(20), np.tile(np.arange(20), (pop_size, 1)))
+example_population3 = Population(Sphere(100), np.tile(np.arange(100), (pop_size, 1)))
 
-example_populaton1 = [Individual(Sphere(3), np.arange(3)) for i in range(pop_size)]
-example_populaton2 = [Individual(Sphere(20), np.arange(20)) for i in range(pop_size)]
-example_populaton3 = [Individual(Sphere(100), np.arange(100)) for i in range(pop_size)]
 
-
-@pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
+@pytest.mark.parametrize("population", [example_population1, example_population2, example_population3])
 @pytest.mark.parametrize("op_method", perm_ops)
 def test_basic_working(population, op_method):
-    pop_init = PermInitializer(population[0].genotype.size, pop_size)
+    assert np.all(population.genotype_set < population.vec_size)
+    pop_init = PermInitializer(population.vec_size, pop_size)
     operator = OperatorPerm(op_method, "default")
 
-    indiv = population[0]
-    new_indiv = operator.evolve(indiv, population, indiv.objfunc, indiv, pop_init)
-    assert type(new_indiv.genotype) == np.ndarray
+    new_population = operator.evolve(population, pop_init)
+    assert isinstance(new_population, Population)

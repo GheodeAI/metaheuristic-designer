@@ -27,10 +27,10 @@ metaheuristic_designer.ObjectiveFunc module
    :undoc-members:
    :show-inheritance:
 
-metaheuristic_designer.Individual module
+metaheuristic_designer.Population module
 ----------------------------------------
 
-.. autoclass:: metaheuristic_designer.Individual
+.. autoclass:: metaheuristic_designer.Population
    :members:
    :undoc-members:
    :show-inheritance:

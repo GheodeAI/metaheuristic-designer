@@ -48,3 +48,11 @@ GaussianUMDA
    :members:
    :undoc-members:
    :show-inheritance:
+
+CrossEntropyMethod
+----------------------------------------
+
+.. automodule:: metaheuristic_designer.strategies.EDA.CrossEntropyMethod
+   :members:
+   :undoc-members:
+   :show-inheritance:

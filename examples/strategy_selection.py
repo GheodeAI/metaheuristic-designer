@@ -1,17 +1,13 @@
+import argparse
+
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler, simple
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm, StrategySelection
 from metaheuristic_designer.operators import OperatorVector, OperatorNull
 from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection, ParentSelectionNull
 from metaheuristic_designer.strategies import *
-
 from metaheuristic_designer.benchmarks import *
 
-import argparse
-
-from copy import copy
-import scipy as sp
-import numpy as np
 
 
 def run_algorithm(save_report):
