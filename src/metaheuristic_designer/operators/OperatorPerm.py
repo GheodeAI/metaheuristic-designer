@@ -87,39 +87,40 @@ class OperatorPerm(Operator):
             params["N"] = min(params["N"], population_matrix.shape[1])
 
         # Perform one of the methods (switch-case like structure)
-        if self.method == PermOpMethods.SWAP:
-            population_matrix = permute_mutation(population_matrix, 2)
+        match self.method:
+            case PermOpMethods.SWAP:
+                population_matrix = permute_mutation(population_matrix, 2)
 
-        elif self.method == PermOpMethods.SCRAMBLE:
-            population_matrix = permute_mutation(population_matrix, params["N"])
+            case PermOpMethods.SCRAMBLE:
+                population_matrix = permute_mutation(population_matrix, params["N"])
 
-        elif self.method == PermOpMethods.INSERT:
-            population_matrix = roll_mutation(population_matrix, 1)
+            case PermOpMethods.INSERT:
+                population_matrix = roll_mutation(population_matrix, 1)
 
-        elif self.method == PermOpMethods.ROLL:
-            population_matrix = roll_mutation(population_matrix, params["N"])
+            case PermOpMethods.ROLL:
+                population_matrix = roll_mutation(population_matrix, params["N"])
 
-        elif self.method == PermOpMethods.INVERT:
-            population_matrix = invert_mutation(population_matrix)
+            case PermOpMethods.INVERT:
+                population_matrix = invert_mutation(population_matrix)
 
-        elif self.method == PermOpMethods.PMX:
-            population_matrix = pmx(population_matrix)
+            case PermOpMethods.PMX:
+                population_matrix = pmx(population_matrix)
 
-        elif self.method == PermOpMethods.ORDERCROSS:
-            population_matrix = order_cross(population_matrix)
+            case PermOpMethods.ORDERCROSS:
+                population_matrix = order_cross(population_matrix)
 
-        elif self.method == PermOpMethods.RANDOM:
-            new_indiv = initializer.generate_population(population.objfunc)
+            case PermOpMethods.RANDOM:
+                new_indiv = initializer.generate_population(population.objfunc)
 
-        elif self.method == PermOpMethods.DUMMY:
-            population_matrix = np.tile(np.arange(population_matrix.shape[1]), (population_matrix.shape[0], 1))
+            case PermOpMethods.DUMMY:
+                population_matrix = np.tile(np.arange(population_matrix.shape[1]), (population_matrix.shape[0], 1))
 
-        elif self.method == PermOpMethods.CUSTOM:
-            fn = params["function"]
-            population_matrix = fn(population_matrix, population.objfunc, params)
+            case PermOpMethods.CUSTOM:
+                fn = params["function"]
+                population_matrix = fn(population_matrix, population.objfunc, params)
 
-        elif self.method == PermOpMethods.NOTHING:
-            population_matrix = population_matrix
+            case PermOpMethods.NOTHING:
+                population_matrix = population_matrix
 
         if new_population is None:
             new_population = population.update_genotype_set(population_matrix)

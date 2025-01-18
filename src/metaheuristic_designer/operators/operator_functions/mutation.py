@@ -250,45 +250,47 @@ def sample_distribution(shape, loc=None, scale=None, **params):
     loc = 0 if loc is None else loc
     scale = 1 if scale is None else scale
 
-    if distrib == ProbDist.GAUSS:
-        prob_distrib = sp.stats.norm(loc=loc, scale=scale)
-    elif distrib == ProbDist.UNIFORM:
-        prob_distrib = sp.stats.uniform(loc=loc, scale=scale)
-    elif distrib == ProbDist.CAUCHY:
-        prob_distrib = sp.stats.cauchy(loc=loc, scale=scale)
-    elif distrib == ProbDist.LAPLACE:
-        prob_distrib = sp.stats.laplace(loc=loc, scale=scale)
-    elif distrib == ProbDist.GAMMA:
-        a = params.get("a", 1)
-        prob_distrib = sp.stats.gamma(a, loc=loc, scale=scale)
-    elif distrib == ProbDist.EXPON:
-        prob_distrib = sp.stats.expon(loc=loc, scale=scale)
-    elif distrib == ProbDist.LEVYSTABLE:
-        a = params.get("a", 2)
-        b = params.get("b", 0)
-        prob_distrib = sp.stats.levy_stable(a, b, loc=loc, scale=scale)
-    elif distrib == ProbDist.POISSON:
-        mu = params.get("mu", 0)
-        prob_distrib = sp.stats.poisson(mu, loc=loc)
-    elif distrib == ProbDist.BERNOULLI:
-        p = params.get("p", 0.5)
-        prob_distrib = sp.stats.bernoulli(p, loc=loc)
-    elif distrib == ProbDist.BINOMIAL:
-        n = params["n"]
-        p = params.get("p", 0.5)
-        prob_distrib = sp.stats.binomial(n, p, loc=loc)
-    elif distrib == ProbDist.CATEGORICAL:
-        p = params["p"]
-        prob_distrib = sp.stats.rv_discrete(name="categorical", values=(np.arange(p.size), p / np.sum(p)))
-    # elif distrib == ProbDist.MULTICATEGORICAL:
-    #     p = params["p"]
-    #     prob_distrib = mulitcategorial(np.arange(p.shape[0]), weight_matrix=p)
-    elif distrib == ProbDist.CUSTOM:
-        if "distrib_class" not in params:
-            raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")
-        prob_distrib = params["distrib_class"]
-    else:
-        raise ValueError("Invalid probability distribution")
+
+    match distrib:
+        case ProbDist.GAUSS:
+            prob_distrib = sp.stats.norm(loc=loc, scale=scale)
+        case ProbDist.UNIFORM:
+            prob_distrib = sp.stats.uniform(loc=loc, scale=scale)
+        case ProbDist.CAUCHY:
+            prob_distrib = sp.stats.cauchy(loc=loc, scale=scale)
+        case ProbDist.LAPLACE:
+            prob_distrib = sp.stats.laplace(loc=loc, scale=scale)
+        case ProbDist.GAMMA:
+            a = params.get("a", 1)
+            prob_distrib = sp.stats.gamma(a, loc=loc, scale=scale)
+        case ProbDist.EXPON:
+            prob_distrib = sp.stats.expon(loc=loc, scale=scale)
+        case ProbDist.LEVYSTABLE:
+            a = params.get("a", 2)
+            b = params.get("b", 0)
+            prob_distrib = sp.stats.levy_stable(a, b, loc=loc, scale=scale)
+        case ProbDist.POISSON:
+            mu = params.get("mu", 0)
+            prob_distrib = sp.stats.poisson(mu, loc=loc)
+        case ProbDist.BERNOULLI:
+            p = params.get("p", 0.5)
+            prob_distrib = sp.stats.bernoulli(p, loc=loc)
+        case ProbDist.BINOMIAL:
+            n = params["n"]
+            p = params.get("p", 0.5)
+            prob_distrib = sp.stats.binomial(n, p, loc=loc)
+        case ProbDist.CATEGORICAL:
+            p = params["p"]
+            prob_distrib = sp.stats.rv_discrete(name="categorical", values=(np.arange(p.size), p / np.sum(p)))
+        # case ProbDist.MULTICATEGORICAL:
+        #     p = params["p"]
+        #     prob_distrib = mulitcategorial(np.arange(p.shape[0]), weight_matrix=p)
+        case ProbDist.CUSTOM:
+            if "distrib_class" not in params:
+                raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")
+            prob_distrib = params["distrib_class"]
+        case _:
+            raise ValueError("Invalid probability distribution")
 
     return prob_distrib.rvs(size=shape, random_state=RAND_GEN)
 
@@ -297,15 +299,16 @@ def generate_statistic(population, **params):
     stat_name = params.get("statistic", "mean")
 
     new_population = None
-    if stat_name == "mean":
-        new_population = np.mean(population, axis=0)
-    elif stat_name == "average":
-        weights = params.get("weights", np.ones(population.shape[1]))
-        new_population = np.average(population, weights=weights, axis=0)
-    elif stat_name == "median":
-        new_population = np.median(population, axis=0)
-    elif stat_name == "std":
-        new_population = np.std(population, axis=0)
+    match stat_name:
+        case "mean":
+            new_population = np.mean(population, axis=0)
+        case "average":
+            weights = params.get("weights", np.ones(population.shape[1]))
+            new_population = np.average(population, weights=weights, axis=0)
+        case "median":
+            new_population = np.median(population, axis=0)
+        case "std":
+            new_population = np.std(population, axis=0)
 
     return new_population
 
@@ -323,7 +326,7 @@ def sample_1_sigma(population, n, epsilon, tau):
 
     sampled = np.maximum(epsilon, population * np.exp(tau * RAND_GEN.normal(0, 1, sigma.shape[0])))
     population[mask_pos] = sampled[mask_pos]
-    return vector
+    return population
 
 
 def mutate_1_sigma(population, epsilon, tau):
@@ -353,14 +356,15 @@ def xor_mask(population, n, mode="byte"):
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
-    if mode == "bin":
-        mask = mask_pos
-    elif mode == "byte":
-        mask = RAND_GEN.integers(1, 0xFF, size=population.shape) * mask_pos
-    elif mode == "int":
-        mask = RAND_GEN.integers(1, 0xFFFF, size=population.shape) * mask_pos
-    else:
-        mask = 0
+    match mode:
+        case "bin":
+            mask = mask_pos
+        case "byte":
+            mask = RAND_GEN.integers(1, 0xFF, size=population.shape) * mask_pos
+        case "int":
+            mask = RAND_GEN.integers(1, 0xFFFF, size=population.shape) * mask_pos
+        case _:
+            mask = 0
 
     return population ^ mask
 

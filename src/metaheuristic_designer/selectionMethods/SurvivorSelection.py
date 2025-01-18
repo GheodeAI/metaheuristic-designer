@@ -91,51 +91,52 @@ class SurvivorSelection(SelectionMethod):
         population_fitness = copy(population.fitness)
         offspring_fitness = copy(offspring.fitness)
 
-        if self.method == SurvSelMethod.ELITISM:
-            full_idx = elitism(population_fitness, offspring_fitness, self.params["amount"])
+        match self.method:
+            case SurvSelMethod.ELITISM:
+                full_idx = elitism(population_fitness, offspring_fitness, self.params["amount"])
 
-        elif self.method == SurvSelMethod.COND_ELITISM:
-            full_idx = cond_elitism(population_fitness, offspring_fitness, self.params["amount"])
+            case SurvSelMethod.COND_ELITISM:
+                full_idx = cond_elitism(population_fitness, offspring_fitness, self.params["amount"])
 
-        elif self.method == SurvSelMethod.GENERATIONAL:
-            self.last_selection_idx = range(len(population), len(offspring))
-            new_population = offspring
+            case SurvSelMethod.GENERATIONAL:
+                self.last_selection_idx = range(len(population), len(offspring))
+                new_population = offspring
 
-        elif self.method == SurvSelMethod.ONE_TO_ONE:
-            if population.pop_size == offspring.pop_size == 1:
-                choose_new_population = population_fitness < offspring_fitness
-                full_idx = np.array([choose_new_population.squeeze()], dtype=int)
-            else:
-                full_idx = one_to_one(population_fitness, offspring_fitness)
+            case SurvSelMethod.ONE_TO_ONE:
+                if population.pop_size == offspring.pop_size == 1:
+                    choose_new_population = population_fitness < offspring_fitness
+                    full_idx = np.array([choose_new_population.squeeze()], dtype=int)
+                else:
+                    full_idx = one_to_one(population_fitness, offspring_fitness)
 
-        elif self.method == SurvSelMethod.PROB_ONE_TO_ONE:
-            if population.pop_size == offspring.pop_size == 1:
-                choose_new_population = population_fitness < offspring_fitness or RAND_GEN.random() < self.params["p"]
-                full_idx = np.array([choose_new_population.squeeze()], dtype=int)
-            else:
-                full_idx = prob_one_to_one(population_fitness, offspring_fitness, self.params["p"])
+            case SurvSelMethod.PROB_ONE_TO_ONE:
+                if population.pop_size == offspring.pop_size == 1:
+                    choose_new_population = population_fitness < offspring_fitness or RAND_GEN.random() < self.params["p"]
+                    full_idx = np.array([choose_new_population.squeeze()], dtype=int)
+                else:
+                    full_idx = prob_one_to_one(population_fitness, offspring_fitness, self.params["p"])
 
-        elif self.method == SurvSelMethod.MANY_TO_ONE:
-            full_idx = many_to_one(population_fitness, offspring_fitness)
+            case SurvSelMethod.MANY_TO_ONE:
+                full_idx = many_to_one(population_fitness, offspring_fitness)
 
-        elif self.method == SurvSelMethod.PROB_MANY_TO_ONE:
-            full_idx = prob_many_to_one(population_fitness, offspring_fitness, self.params["p"])
+            case SurvSelMethod.PROB_MANY_TO_ONE:
+                full_idx = prob_many_to_one(population_fitness, offspring_fitness, self.params["p"])
 
-        elif self.method == SurvSelMethod.MU_PLUS_LAMBDA:
-            full_idx = lamb_plus_mu(population_fitness, offspring_fitness)
+            case SurvSelMethod.MU_PLUS_LAMBDA:
+                full_idx = lamb_plus_mu(population_fitness, offspring_fitness)
 
-        elif self.method == SurvSelMethod.MU_COMMA_LAMBDA:
-            full_idx = lamb_comma_mu(population_fitness, offspring_fitness)
+            case SurvSelMethod.MU_COMMA_LAMBDA:
+                full_idx = lamb_comma_mu(population_fitness, offspring_fitness)
 
-        elif self.method == SurvSelMethod.CRO:
-            full_idx = cro_selection(
-                population_fitness,
-                offspring_fitness,
-                self.params["Fd"],
-                self.params["Pd"],
-                self.params["attempts"],
-                self.params["maxPopSize"],
-            )
+            case SurvSelMethod.CRO:
+                full_idx = cro_selection(
+                    population_fitness,
+                    offspring_fitness,
+                    self.params["Fd"],
+                    self.params["Pd"],
+                    self.params["attempts"],
+                    self.params["maxPopSize"],
+                )
 
         if new_population is None:
             self.last_selection_idx = full_idx

@@ -97,44 +97,45 @@ class OperatorMeta(Operator):
     def evolve(self, population, initializer=None):
         new_population = copy(population)
 
-        if self.method == MetaOpMethods.BRANCH:
-            self.chosen_idx = RAND_GEN.choice(np.arange(len(self.op_list)), size=population.pop_size, p=self.params["weights"])
-            for idx, op in enumerate(self.op_list):
-                split_mask = self.chosen_idx == idx
+        match self.method:
+            case MetaOpMethods.BRANCH:
+                self.chosen_idx = RAND_GEN.choice(np.arange(len(self.op_list)), size=population.pop_size, p=self.params["weights"])
+                for idx, op in enumerate(self.op_list):
+                    split_mask = self.chosen_idx == idx
 
-                if np.any(split_mask):
-                    split_population = population.take_selection(split_mask)
-                    split_population = op.evolve(split_population, initializer)
-                    new_population = new_population.apply_selection(split_population, split_mask)
+                    if np.any(split_mask):
+                        split_population = population.take_selection(split_mask)
+                        split_population = op.evolve(split_population, initializer)
+                        new_population = new_population.apply_selection(split_population, split_mask)
 
 
-        elif self.method == MetaOpMethods.PICK:
-            if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
-                chosen_idx = self.chosen_idx
-            else:
-                chosen_idx = np.asarray([self.chosen_idx] * len(population))
+            case MetaOpMethods.PICK:
+                if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
+                    chosen_idx = self.chosen_idx
+                else:
+                    chosen_idx = np.asarray([self.chosen_idx] * len(population))
 
-            # the chosen index is assumed to be changed by the user
-            for idx, op in enumerate(self.op_list):
-                split_mask = chosen_idx == idx
+                # the chosen index is assumed to be changed by the user
+                for idx, op in enumerate(self.op_list):
+                    split_mask = chosen_idx == idx
 
-                if np.any(split_mask):
-                    split_population = new_population.take_selection(split_mask)
-                    split_population = op.evolve(split_population, initializer)
-                    new_population = new_population.apply_selection(split_population, split_mask)
+                    if np.any(split_mask):
+                        split_population = new_population.take_selection(split_mask)
+                        split_population = op.evolve(split_population, initializer)
+                        new_population = new_population.apply_selection(split_population, split_mask)
 
-        elif self.method == MetaOpMethods.SEQUENCE:
-            for op in self.op_list:
-                new_population = op.evolve(new_population, initializer)
-        
-        elif self.method == MetaOpMethods.SPLIT:
-            for idx_op, op in enumerate(self.op_list):
-                split_mask = self.mask == idx_op
+            case MetaOpMethods.SEQUENCE:
+                for op in self.op_list:
+                    new_population = op.evolve(new_population, initializer)
+            
+            case MetaOpMethods.SPLIT:
+                for idx_op, op in enumerate(self.op_list):
+                    split_mask = self.mask == idx_op
 
-                if np.any(split_mask):
-                    split_population = new_population.take_slice(split_mask)
-                    split_population = op.evolve(split_population, initializer)
-                    new_population = new_population.apply_slice(split_population, split_mask)
+                    if np.any(split_mask):
+                        split_population = new_population.take_slice(split_mask)
+                        split_population = op.evolve(split_population, initializer)
+                        new_population = new_population.apply_slice(split_population, split_mask)
 
         return new_population
 

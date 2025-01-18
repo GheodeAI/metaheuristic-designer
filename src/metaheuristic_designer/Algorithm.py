@@ -568,31 +568,38 @@ def process_condition(
 
     result = None
 
-    if isinstance(cond_parsed, list):
-        if len(cond_parsed) == 3:
-            cond1 = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
-            cond2 = process_condition(cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience)
+    match cond_parsed:
+        case [cond1, "and", cond2]:
+            cond1_parsed = process_condition(cond1, neval, ngen, real_time, cpu_time, target, patience)
+            cond2_parsed = process_condition(cond2, neval, ngen, real_time, cpu_time, target, patience)
 
-            if cond_parsed[1] == "or":
-                result = cond1 or cond2
-            elif cond_parsed[1] == "and":
-                result = cond1 and cond2
+            result = cond1_parsed and cond2_parsed
 
-        elif len(cond_parsed) == 1:
-            result = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
+        case [cond1, "or", cond2]:
+            cond1_parsed = process_condition(cond1, neval, ngen, real_time, cpu_time, target, patience)
+            cond2_parsed = process_condition(cond2, neval, ngen, real_time, cpu_time, target, patience)
 
-    else:
-        if cond_parsed == "neval":
+            result = cond1_parsed or cond2_parsed
+        
+        case [cond1]:
+            result = process_condition(cond1, neval, ngen, real_time, cpu_time, target, patience)
+        
+        case "neval":
             result = neval
-        elif cond_parsed == "ngen":
+
+        case "ngen":
             result = ngen
-        elif cond_parsed == "time_limit":
+
+        case "time_limit":
             result = real_time
-        elif cond_parsed == "cpu_time_limit":
+
+        case "cpu_time_limit":
             result = cpu_time
-        elif cond_parsed == "fit_target":
+
+        case "fit_target":
             result = target
-        elif cond_parsed == "convergence":
+
+        case "convergence":
             result = patience
 
     return result
@@ -636,30 +643,38 @@ def process_progress(
 
     result = None
 
-    if isinstance(cond_parsed, list):
-        if len(cond_parsed) == 3:
-            progress1 = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
-            progress2 = process_progress(cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience)
+    match cond_parsed:
+        case [cond1, "and", cond2]:
+            progress1 = process_progress(cond1, neval, ngen, real_time, cpu_time, target, patience)
+            progress2 = process_progress(cond2, neval, ngen, real_time, cpu_time, target, patience)
 
-            if cond_parsed[1] == "or":
-                result = max(progress1, progress2)
-            elif cond_parsed[1] == "and":
-                result = min(progress1, progress2)
+            result = max(progress1, progress2)
 
-        elif len(cond_parsed) == 1:
-            result = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
-    else:
-        if cond_parsed == "neval":
+        case [cond1, "or", cond2]:
+            progress1 = process_progress(cond1, neval, ngen, real_time, cpu_time, target, patience)
+            progress2 = process_progress(cond2, neval, ngen, real_time, cpu_time, target, patience)
+
+            result = min(progress1, progress2)
+        
+        case [cond1]:
+            result = process_progress(cond1, neval, ngen, real_time, cpu_time, target, patience)
+        
+        case "neval":
             result = neval
-        elif cond_parsed == "ngen":
+
+        case "ngen":
             result = ngen
-        elif cond_parsed == "time_limit":
+
+        case "time_limit":
             result = real_time
-        elif cond_parsed == "cpu_time_limit":
+
+        case "cpu_time_limit":
             result = cpu_time
-        elif cond_parsed == "fit_target":
+
+        case "fit_target":
             result = target
-        elif cond_parsed == "convergence":
+
+        case "convergence":
             result = patience
 
     return result

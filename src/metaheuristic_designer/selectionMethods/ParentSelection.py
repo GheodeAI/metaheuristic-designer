@@ -80,34 +80,35 @@ class ParentSelection(SelectionMethod):
         parent_idx = None
         fitness_array = population.fitness
 
-        if self.method == ParentSelMethod.TOURNAMENT:
-            parent_idx = prob_tournament(fitness_array, self.params["amount"], self.params["p"])
+        match self.method:
+            case ParentSelMethod.TOURNAMENT:
+                parent_idx = prob_tournament(fitness_array, self.params["amount"], self.params["p"])
 
-        elif self.method == ParentSelMethod.BEST:
-            parent_idx = select_best(fitness_array, self.params["amount"])
+            case ParentSelMethod.BEST:
+                parent_idx = select_best(fitness_array, self.params["amount"])
 
-        elif self.method == ParentSelMethod.RANDOM:
-            parent_idx = uniform_selection(fitness_array, self.params["amount"])
+            case ParentSelMethod.RANDOM:
+                parent_idx = uniform_selection(fitness_array, self.params["amount"])
 
-        elif self.method == ParentSelMethod.ROULETTE:
-            parent_idx = roulette(
-                fitness_array,
-                self.params["amount"],
-                self.params["method"],
-                self.params.get("F"),
-            )
+            case ParentSelMethod.ROULETTE:
+                parent_idx = roulette(
+                    fitness_array,
+                    self.params["amount"],
+                    self.params["method"],
+                    self.params.get("F"),
+                )
 
-        elif self.method == ParentSelMethod.SUS:
-            parent_idx = sus(
-                fitness_array,
-                self.params["amount"],
-                self.params["method"],
-                self.params.get("F"),
-            )
+            case ParentSelMethod.SUS:
+                parent_idx = sus(
+                    fitness_array,
+                    self.params["amount"],
+                    self.params["method"],
+                    self.params.get("F"),
+                )
 
-        elif self.method == ParentSelMethod.NOTHING:
-            self.last_selection_idx = range(len(population))
-            new_population = population
+            case ParentSelMethod.NOTHING:
+                self.last_selection_idx = range(len(population))
+                new_population = population
 
         if new_population is None:
             self.last_selection_idx = parent_idx

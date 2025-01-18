@@ -132,20 +132,21 @@ def selection_distribution(fitness, method, f=None):
     if f is None:
         f = 2
 
-    if method == SelectionDist.FIT_PROP:
-        weights = fitness - fitness.min() + f
-    elif method == SelectionDist.SIGMA_SCALE:
-        weights = np.maximum(fitness - (fitness.mean() - f * fitness.std()), 0)
-    elif method == SelectionDist.LIN_RANK:
-        f = np.minimum(f, 2)
-        fit_order = np.argsort(fitness)
-        n_parents = fitness.shape[0]
-        weights = (2 - f) + (2 * fit_order * (f - 1)) / (n_parents - 1)
-    elif method == SelectionDist.EXP_RANK:
-        fit_order = np.argsort(fitness)
-        weights = 1 - np.exp(-fit_order)
-    else:
-        weights = np.ones_like(fitness)
+    match method:
+        case SelectionDist.FIT_PROP:
+            weights = fitness - fitness.min() + f
+        case SelectionDist.SIGMA_SCALE:
+            weights = np.maximum(fitness - (fitness.mean() - f * fitness.std()), 0)
+        case SelectionDist.LIN_RANK:
+            f = np.minimum(f, 2)
+            fit_order = np.argsort(fitness)
+            n_parents = fitness.shape[0]
+            weights = (2 - f) + (2 * fit_order * (f - 1)) / (n_parents - 1)
+        case SelectionDist.EXP_RANK:
+            fit_order = np.argsort(fitness)
+            weights = 1 - np.exp(-fit_order)
+        case _:
+            weights = np.ones_like(fitness)
 
     weight_norm = weights.sum()
     if weight_norm == 0:
