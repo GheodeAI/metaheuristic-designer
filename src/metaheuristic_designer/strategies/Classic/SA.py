@@ -1,9 +1,7 @@
 from __future__ import annotations
-from typing import Union
-import random
 import numpy as np
+from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
-from ...SearchStrategy import SearchStrategy
 from ...selectionMethods import SurvivorSelection
 from ...Operator import Operator
 from ..HillClimb import HillClimb
@@ -18,9 +16,12 @@ class SA(HillClimb):
         self,
         initializer: Initializer,
         operator: Operator,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "SA",
     ):
+        if params is None:
+            params = {}
+
         self.iter = params.get("iter", 100)
         self.iter_count = 0
         self.temp_init = params.get("temp_init", 100)

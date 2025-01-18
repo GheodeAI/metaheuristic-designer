@@ -1,11 +1,11 @@
 from __future__ import annotations
-import time
+from typing import Tuple, Any, Iterable
 import pandas as pd
-from matplotlib import pyplot as plt
+from ..ParamScheduler import ParamScheduler
 from ..SearchStrategy import SearchStrategy
+from ..ObjectiveFunc import ObjectiveFunc
 from .GeneralAlgorithm import GeneralAlgorithm
 from .AlgorithmSelection import AlgorithmSelection
-from collections import Counter
 
 
 class StrategySelection:
@@ -29,8 +29,8 @@ class StrategySelection:
         self,
         objfunc: ObjectiveFunc,
         strategy_list: Iterable[SearchStrategy],
-        algorithm_params: Union[ParamScheduler, dict] = None,
-        params: Union[ParamScheduler, dict] = None,
+        algorithm_params: ParamScheduler | dict = None,
+        params: ParamScheduler | dict = None,
     ):
         self.strategy_list = strategy_list
         algorithm_list = [GeneralAlgorithm(objfunc, strategy, algorithm_params) for strategy in strategy_list]

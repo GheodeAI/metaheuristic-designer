@@ -25,7 +25,7 @@ neigh_change_map = {
 }
 
 
-def next_neighborhood(new_indiv, prev_indiv, chosen_idx, method):
+def next_neighborhood(new_fitness, prev_fitness, chosen_idx, method):
     """
     Methods from:
         Hansen, Pierre, et al. "Variable neighborhood search: basics and variants." EURO Journal on Computational Optimization 5.3 (2017): 423-454.
@@ -33,19 +33,19 @@ def next_neighborhood(new_indiv, prev_indiv, chosen_idx, method):
     next_idx = None
 
     if method == NeighborhoodChange.SEQ:
-        next_idx = sequential_n_change(new_indiv, prev_indiv, chosen_idx)
+        next_idx = sequential_n_change(new_fitness, prev_fitness, chosen_idx)
     elif method == NeighborhoodChange.CYCLIC:
-        next_idx = cyclic_n_change(new_indiv, prev_indiv, chosen_idx)
+        next_idx = cyclic_n_change(new_fitness, prev_fitness, chosen_idx)
     elif method == NeighborhoodChange.PIPE:
-        next_idx = pipe_n_change(new_indiv, prev_indiv, chosen_idx)
+        next_idx = pipe_n_change(new_fitness, prev_fitness, chosen_idx)
 
     return next_idx
 
 
-def sequential_n_change(new_indiv, prev_indiv, chosen_idx):
+def sequential_n_change(new_fitness, prev_fitness, chosen_idx):
     next_idx = None
 
-    if new_indiv.fitness > prev_indiv.fitness:
+    if new_fitness > prev_fitness:
         next_idx = 0
     else:
         next_idx = chosen_idx + 1
@@ -53,14 +53,14 @@ def sequential_n_change(new_indiv, prev_indiv, chosen_idx):
     return next_idx
 
 
-def cyclic_n_change(new_indiv, prev_indiv, chosen_idx):
+def cyclic_n_change(_new_fitness, _prev_fitness, chosen_idx):
     return chosen_idx + 1
 
 
-def pipe_n_change(new_indiv, prev_indiv, chosen_idx):
+def pipe_n_change(new_fitness, prev_fitness, chosen_idx):
     next_idx = None
 
-    if new_indiv.fitness > prev_indiv.fitness:
+    if new_fitness > prev_fitness:
         next_idx = chosen_idx
     else:
         next_idx = chosen_idx + 1

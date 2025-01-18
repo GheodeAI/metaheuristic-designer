@@ -1,4 +1,5 @@
 from __future__ import annotations
+from ..Population import Population
 from ..ParamScheduler import ParamScheduler
 from ..SelectionMethod import SelectionMethod
 
@@ -8,13 +9,14 @@ class SelectionFromLambda(SelectionMethod):
         self,
         select_fn: callable,
         params: ParamScheduler | dict,
-        padding: bool = False,
         name: str = None,
     ):
         if name is None:
             name = select_fn.__name__
 
-        super().__init__(params, padding, name)
+        self.select_fn = select_fn
 
-    def select(self, popul: List[Individual], offspring: List[Individual] = None) -> List[Individual]:
-        return select_fn(popul, offspring, **self.params)
+        super().__init__(params, name)
+
+    def select(self, population: Population, offspring: Population = None) -> Population:
+        return self.select_fn(population, offspring, **self.params)

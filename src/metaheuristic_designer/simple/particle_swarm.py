@@ -1,4 +1,6 @@
 from __future__ import annotations
+from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer
 from ..encodings import TypeCastEncoding
 from ..strategies import PSO
@@ -23,7 +25,7 @@ def particle_swarm(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorit
     """
 
     if "encoding" not in params:
-        raise ValueError(f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
+        raise ValueError('You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
 
     encoding_str = params["encoding"]
 

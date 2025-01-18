@@ -12,7 +12,8 @@ from .algorithms import GeneralAlgorithm, MemeticAlgorithm
 from .SearchStrategy import SearchStrategy
 from . import strategies
 
-from .Individual import Individual
+# from .Individual import Individual
+from .Population import Population
 
 from .Encoding import Encoding
 from . import encodings
@@ -31,3 +32,5 @@ from . import simple
 from . import benchmarks
 
 from .ParamScheduler import ParamScheduler
+
+__version__ = "0.2.0"

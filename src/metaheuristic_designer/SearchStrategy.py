@@ -1,6 +1,6 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
-from .Individual import Individual
+from typing import Tuple, Any
+from abc import ABC
 from .ParamScheduler import ParamScheduler
 from .selectionMethods import (
     SurvivorSelection,
@@ -8,18 +8,14 @@ from .selectionMethods import (
     SurvivorSelectionNull,
     ParentSelectionNull,
 )
+from .Population import Population
+from .Initializer import Initializer
+from .ObjectiveFunc import ObjectiveFunc
 from .Operator import Operator
 from .operators import OperatorNull
-from multiprocessing import Pool
 
 
-def evaluate_indiv(indiv):
-    calculation_done = not indiv.fitness_calculated
-    indiv.calculate_fitness()
-    return indiv, calculation_done
-
-
-class SearchStrategy(ABC):
+class SearchStrategy:
     """
     Abstract Search Strategy class.
 
@@ -27,9 +23,15 @@ class SearchStrategy(ABC):
 
     Parameters
     ----------
-    pop_init: Initializer
+    initializer: Initializer
         Population initializer that will generate the initial population of the search strategy.
-    param: Union[ParamScheduler, dict]
+    operator: Operator, optional
+        Operator that will be applied to the population each iteration. Defaults to null operator.
+    parent_sel: ParentSelection, optional
+        Parent selection method that will be applied to the population each iteration. Defaults to returning the entire population.
+    survivor_sel: SurvivorSelection, optional
+        Survivor selection method that will be applied to the population each iteration. Defaults to a generational selection.
+    params: ParamScheduler | dict, optional
         Dictionary of parameters to define the stopping condition and output of the search strategy.
     name: str, optional
         The name that will be displayed for this search strategy in the reports.
@@ -120,31 +122,27 @@ class SearchStrategy(ABC):
 
         return self._initializer.pop_size
 
-    def best_solution(self) -> Tuple[Individual, float]:
+    def best_solution(self, decoded: bool = False) -> Tuple[Any, float]:
         """
         Returns the best solution found by the search strategy and its fitness.
 
         Returns
         -------
-        best_solution : Tuple[Individual, float]
+        best_solution : Tuple[Any, float]
             A pair of the best individual with its fitness.
         """
 
-        best_fitness = self.best.fitness
-        if self.best.objfunc.mode == "min":
-            best_fitness *= -1
-
-        return self.best.genotype, best_fitness
+        return self.population.best_solution(decoded)
 
     @property
     def initializer(self):
         return self._initializer
 
     @initializer.setter
-    def initializer(self, new_initializer):
+    def initializer(self, new_initializer: Initializer):
         self._initializer = new_initializer
 
-    def initialize(self, objfunc: ObjectiveFunc):
+    def initialize(self, objfunc: ObjectiveFunc) -> Population:
         """
         Initializes the optimization search strategy.
 
@@ -152,90 +150,110 @@ class SearchStrategy(ABC):
         ----------
         objfunc: ObjectiveFunc
             Objective function to be optimized.
+        
+        Returns
+        -------
+        population: Population
+            The initial population to be used in the algoritm.
         """
 
         if self._initializer is None:
-            raise Exception("Initializer not indicated.")
+            raise ValueError("Initializer not indicated.")
 
         self.population = self._initializer.generate_population(objfunc)
 
         return self.population
 
-    def evaluate_population(self, population, objfunc, parallel=False, threads=8):
-        if parallel:
-            with Pool(threads) as p:
-                result_pairs = p.map(evaluate_indiv, population)
-            population, calculated = map(list, zip(*result_pairs))
-            objfunc.counter += sum(calculated)
-        else:
-            [indiv.calculate_fitness() for indiv in population]
+    def evaluate_population(self, population: Population, parallel: bool = False, threads: int = 8) -> Population:
+        """
+        Calculates the fitness of the individuals on the population.
 
-        current_best = max(population, key=lambda x: x.fitness)
+        Parameters
+        ----------
+        population: Population
+        parallel: bool, optional
+            Wheather to evaluate the individuals in the population in parallel.
+        threads: int, optional
+            Number of processes to use at once if calculating the fitness in parallel.
 
-        if not self.best or self.best.fitness < current_best.fitness:
-            self.best = current_best
+        Returns
+        -------
+        population: Population
+            The population with the fitness values recorded.
+        """
+
+        population.calculate_fitness(parallel=parallel, threads=threads)
 
         return population
 
-    def select_parents(self, population: List[Individual], **kwargs) -> Tuple[List[Individual], List[int]]:
+    def select_parents(self, population: Population, **kwargs) -> Population:
         """
         Selects the individuals that will be perturbed in this generation to generate the offspring.
 
         Parameters
         ----------
-        population: List[Individual]
+        population: Population
             The current population of the search strategy.
 
         Returns
         -------
-        parents: Tuple[List[Individual], List[int]]
+        parents: Population
             A pair of the list of individuals considered as parents and their position in the original population.
         """
 
         return self.parent_sel(population)
 
-    def perturb(self, parent_list: List[Individual], objfunc: ObjectiveFunc, **kwargs) -> List[Individual]:
+    def perturb(self, parents: Population, **kwargs) -> Population:
         """
         Applies operators to the population to get the next generation of individuals.
 
         Parameters
         ----------
-        parent_list: List[Individual]
+        parents: Population
             The current parents that will be used in the search strategy.
-        objfunc: ObjectiveFunc
-            Objective function to be optimized.
 
         Returns
         -------
-        offspring: List[Individual]
+        offspring: Population
             The list of individuals modified by the operators of the search strategy.
         """
 
-        offspring = self.operator.evolve(parent_list, objfunc, self.best, self.initializer)
-        offspring = self.repair_population(offspring, objfunc)
-        
-        return offspring
-    
-    def repair_population(self, population: List[Individual], objfunc: ObjectiveFunc) -> List[Individual]:
-        for indiv in population:
-            indiv.genotype = objfunc.repair_solution(indiv.genotype)
-            indiv.speed = objfunc.repair_speed(indiv.speed)
-        return population
+        offspring = self.operator.evolve(parents, self.initializer)
+        offspring = self.repair_population(offspring)
 
-    def select_individuals(self, population: List[Individual], offspring: List[Individual], **kwargs) -> List[Individual]:
+        return offspring
+
+    def repair_population(self, population: Population) -> Population:
+        """
+        Repairs the individuals in the population to make them fullfill the problem's restrictions.
+
+        Parameters
+        ----------
+        population: Population
+            The population to be repaired 
+
+        Returns
+        -------
+        repaired_population: Population
+            The population of repaired individuals
+        """
+
+        return population.repair_solutions()
+
+    def select_individuals(self, population: Population, offspring: Population, **kwargs) -> Population:
         """
         Selects the individuals that will pass to the next generation.
 
         Parameters
         ----------
-        population: List[Individual]
+        population: Population
             The current population of the search strategy.
-        offspring: List[Individual]
+        offspring: Population
             The list of individuals modified by the operators of the search strategy.
 
         Returns
         -------
-        offspring: List[Individual]
+        offspring: Population
             The list of individuals selected for the next generation.
         """
 
@@ -246,19 +264,16 @@ class SearchStrategy(ABC):
         Updates the parameters of the search strategy and the operators.
         """
 
-        for indiv in self.population:
-            indiv.age += 1
+        self.population.update(increase_age=True)
 
-    def get_state(self, show_pop: bool = False, show_pop_details: bool = False) -> dict:
+    def get_state(self, show_population: bool = False) -> dict:
         """
         Gets the current state of the search strategy as a dictionary.
 
         Parameters
         ----------
-        show_pop: bool, optional
-            Save the current population.
-        show_pop_details: bool, optional
-            Save the complete details of each individual.
+        show_population: bool, optional
+            Save the state of the current population.
 
         Returns
         -------
@@ -268,7 +283,7 @@ class SearchStrategy(ABC):
 
         data = {
             "name": self.name,
-            "population_size": self.pop_size,
+            "intializer": type(self.initializer).__name__
         }
 
         if self.param_scheduler:
@@ -286,8 +301,8 @@ class SearchStrategy(ABC):
         if self.survivor_sel_register:
             data["survivor_sel"] = [surv.get_state() for surv in self.survivor_sel_register]
 
-        if show_pop:
-            data["population"] = [ind.get_state(show_speed=show_pop_details, show_best=show_pop_details) for ind in self.population]
+        if show_population:
+            data["population"] = self.population.get_state()
 
         return data
 

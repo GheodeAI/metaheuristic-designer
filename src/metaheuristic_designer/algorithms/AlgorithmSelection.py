@@ -1,10 +1,10 @@
 from __future__ import annotations
-import time
-import pandas as pd
-from matplotlib import pyplot as plt
-from ..Algorithm import Algorithm
+from typing import Iterable, Tuple, Any
 from collections import Counter
+import pandas as pd
 import enlighten
+from ..Algorithm import Algorithm
+from ..ParamScheduler import ParamScheduler
 
 
 class AlgorithmSelection:
@@ -23,7 +23,7 @@ class AlgorithmSelection:
     def __init__(
         self,
         algorithm_list: Iterable[Algorithm],
-        params: Union[ParamScheduler, dict] = None,
+        params: ParamScheduler | dict = None,
     ):
         if params is None:
             params = {}
@@ -60,7 +60,7 @@ class AlgorithmSelection:
             bar_manager = enlighten.get_manager()
             algorithm_bar = bar_manager.counter(total=len(self.algorithm_list), desc="Launching algorithms", color="red")
 
-        for idx, algorithm in enumerate(self.algorithm_list):
+        for algorithm in self.algorithm_list:
             # Create new progress bar for the new algorithm
             if self.verbose:
                 repetition_bar = bar_manager.counter(
@@ -70,9 +70,10 @@ class AlgorithmSelection:
                     leave=False,
                 )
 
-            for rep in range(self.repetitions):
+            for _ in range(self.repetitions):
                 # Optimize using the algorithm
-                solution, fitness = algorithm.optimize()
+                population = algorithm.optimize()
+                solution, fitness = population.best_solution()
 
                 # Get the dataframe row
                 report_raw.loc[len(report_raw.index)] = {

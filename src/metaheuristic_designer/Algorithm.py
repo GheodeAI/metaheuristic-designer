@@ -1,11 +1,16 @@
 from __future__ import annotations
+from typing import List, Tuple, Any
 from abc import ABC, abstractmethod
 import time
 import json
 import numpy as np
 import pyparsing as pp
-from .utils import NumpyEncoder
 import matplotlib.pyplot as plt
+from .utils import NumpyEncoder
+from .ObjectiveFunc import ObjectiveFunc
+from .SearchStrategy import SearchStrategy
+from .ParamScheduler import ParamScheduler
+from .Population import Population
 
 
 class Algorithm(ABC):
@@ -23,6 +28,8 @@ class Algorithm(ABC):
         Search strategy that will iteratively optimize the function.
     params: ParamScheduler or dict, optional
         Dictionary of parameters to define the stopping condition and output of the algorithm.
+    name: str, optional
+        Name that will be displayed when showing the algorithm.
     """
 
     def __init__(
@@ -113,6 +120,21 @@ class Algorithm(ABC):
     def initializer(self, new_initializer):
         self.search_strategy.initializer = new_initializer
 
+    def population(self) -> Population:
+        return self.search_strategy.population
+
+    def best_solution(self, decoded=False) -> Tuple[Any, float]:
+        """
+        Returns the best solution so far in the population.
+
+        Returns
+        -------
+        best_solution: Tuple[Any, float]
+            A pair of the best individual with its fitness.
+        """
+
+        return self.search_strategy.best_solution(decoded)
+
     def restart(self, reset_objfunc=True):
         """
         Resets the internal values of the algorithm and the number of evaluations of the fitness function.
@@ -139,7 +161,7 @@ class Algorithm(ABC):
             Path to the file where the solution will be stored.
         """
 
-        ind, fit = self.search_strategy.best_solution()
+        ind, fit = self.search_strategy.best_solution(decoded=False)
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=",")
 
     def best_solution(self) -> Tuple[Individual, float]:
@@ -153,11 +175,6 @@ class Algorithm(ABC):
         """
 
         return self.search_strategy.best_solution()
-    
-    def result(self) -> Individual:
-        best_solution_genotype, _ = self.best_solution()
-        return solution_genotype
-
 
     def stopping_condition(self, gen: int, real_time_start: float, cpu_time_start: float) -> bool:
         """
@@ -323,18 +340,25 @@ class Algorithm(ABC):
 
         self.ended = self.stopping_condition(self.steps, real_time_start, cpu_time_start)
 
-    def initialize(self, reset_objfunc=True):
+    def initialize(self, reset_objfunc=True) -> Population:
         """
         Initializes the optimization algorithm.
+
+        Returns
+        -------
+        initial_population: Population
+            The first set of individuals generated in order to perform the optimization.
         """
 
         self.restart(reset_objfunc)
         initial_population = self.search_strategy.initialize(self.objfunc)
-        initial_population = self.search_strategy.evaluate_population(initial_population, self.objfunc, self.parallel, self.threads)
+        initial_population = self.search_strategy.evaluate_population(initial_population, self.parallel, self.threads)
         self.search_strategy.population = initial_population
 
+        return initial_population
+
     @abstractmethod
-    def step(self, time_start: float = 0, verbose: bool = False) -> Tuple[Individual, float]:
+    def step(self, time_start: float = 0, verbose: bool = False) -> Population:
         """
         Performs an iteration of the algorithm.
 
@@ -347,11 +371,11 @@ class Algorithm(ABC):
 
         Returns
         -------
-        best_solution: Tuple[Individual, float]
-            A pair of the best individual with its fitness.
+        current_population: Population
+            The new population obtained in this iteration of the algorithm.
         """
 
-    def optimize(self, initialize=True) -> Tuple[Individual, float]:
+    def optimize(self, initialize=True) -> Population:
         """
         Execute the algorithm to get the best solution possible along with its evaluation.
         It will initialize the algorithm and repeat steps of the algorithm untill the
@@ -359,8 +383,8 @@ class Algorithm(ABC):
 
         Returns
         -------
-        best_solution: Tuple[Individual, float]
-            A pair of the best individual with its fitness.
+        current_population: Population
+            Population of the best individuals found by the algorithm.
         """
 
         if self.verbose and self.show_init_info:
@@ -397,15 +421,13 @@ class Algorithm(ABC):
         self.real_time_spent = time.time() - real_time_start
         self.cpu_time_spent = time.process_time() - cpu_time_start
 
-        return self.result()
+        return self.search_strategy.population
 
     def get_state(
         self,
-        show_best_solution: bool = True,
         show_fit_history: bool = False,
         show_gen_history: bool = False,
-        show_pop: bool = False,
-        show_pop_details: bool = False,
+        show_population: bool = False,
     ) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
@@ -430,6 +452,8 @@ class Algorithm(ABC):
         """
 
         data = {
+            "name": self.name,
+            "objfunc": self.objfunc.name,
             "ended": self.ended,
             "progress": self.progress,
             "generation": self.steps,
@@ -439,17 +463,13 @@ class Algorithm(ABC):
             "params": self.params,
         }
 
-        if show_best_solution:
-            data["best_fitness"] = self.best_solution()[1]
-            data["best_individual"] = self.search_strategy.best.get_state(show_speed=False, show_best=False)
-
         if show_fit_history:
             data["fit_history"] = self.fit_history
 
         if show_gen_history:
             data["best_history"] = self.best_history
 
-        data["search_strat_state"] = self.search_strategy.get_state(show_pop, show_pop_details)
+        data["search_strat_state"] = self.search_strategy.get_state(show_population)
 
         return data
 
@@ -457,11 +477,9 @@ class Algorithm(ABC):
         self,
         file_name: str = "dumped_state.json",
         readable: bool = False,
-        show_best_solution: bool = True,
         show_fit_history: bool = False,
         show_gen_history: bool = False,
-        show_pop: bool = False,
-        show_pop_details: bool = False,
+        show_population: bool = False,
     ):
         """
         Dumps the current state of the algorithm to a JSON file.
@@ -486,11 +504,9 @@ class Algorithm(ABC):
 
         dumped = json.dumps(
             self.get_state(
-                show_best_solution,
                 show_fit_history,
                 show_gen_history,
-                show_pop,
-                show_pop_details,
+                show_population,
             ),
             cls=NumpyEncoder,
             indent=4 if readable else None,
@@ -518,7 +534,7 @@ class Algorithm(ABC):
         print(f"\tReal time Spent: {round(time.time() - start_time,2)} s")
         print(f"\tCPU time Spent:  {round(time.time() - start_time,2)} s")
         print(f"\tGeneration: {self.steps}")
-        best_fitness = self.best_solution()[1]
+        _, best_fitness = self.best_solution()
         print(f"\tBest fitness: {best_fitness}")
         print(f"\tEvaluations of fitness: {self.objfunc.counter}")
         print()
@@ -545,12 +561,16 @@ class Algorithm(ABC):
 
         if show_plots:
             # Plot fitness history
-            plt.axhline(y=0, color="black", alpha=0.9)
-            plt.axvline(x=0, color="black", alpha=0.9)
-            plt.plot(self.fit_history, "blue")
-            plt.xlabel("generations")
-            plt.ylabel("fitness")
-            plt.title(f"{self.search_strategy.name} fitness")
+            fig, ax = plt.subplots()
+            ax.plot(self.fit_history, color="blue", zorder=3)
+            _xlim = ax.get_xlim()
+            _ylim = ax.get_ylim()
+            ax.axhline(y=0, color="black", alpha=0.9)
+            ax.axvline(x=0, color="black", alpha=0.9)
+            ax.set_xlim(_xlim)
+            ax.set_ylim(_ylim)
+            ax.set(xlabel="Generations", ylabel="Fitness", title=f"{self.search_strategy.name} fitness")
+            ax.grid()
             plt.show()
 
         self.search_strategy.extra_report(show_plots)
@@ -619,31 +639,38 @@ def process_condition(
 
     result = None
 
-    if isinstance(cond_parsed, list):
-        if len(cond_parsed) == 3:
-            cond1 = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
-            cond2 = process_condition(cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience)
+    match cond_parsed:
+        case [cond1, "and", cond2]:
+            cond1_parsed = process_condition(cond1, neval, ngen, real_time, cpu_time, target, patience)
+            cond2_parsed = process_condition(cond2, neval, ngen, real_time, cpu_time, target, patience)
 
-            if cond_parsed[1] == "or":
-                result = cond1 or cond2
-            elif cond_parsed[1] == "and":
-                result = cond1 and cond2
+            result = cond1_parsed and cond2_parsed
 
-        elif len(cond_parsed) == 1:
-            result = process_condition(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
+        case [cond1, "or", cond2]:
+            cond1_parsed = process_condition(cond1, neval, ngen, real_time, cpu_time, target, patience)
+            cond2_parsed = process_condition(cond2, neval, ngen, real_time, cpu_time, target, patience)
 
-    else:
-        if cond_parsed == "neval":
+            result = cond1_parsed or cond2_parsed
+        
+        case [cond1]:
+            result = process_condition(cond1, neval, ngen, real_time, cpu_time, target, patience)
+        
+        case "neval":
             result = neval
-        elif cond_parsed == "ngen":
+
+        case "ngen":
             result = ngen
-        elif cond_parsed == "time_limit":
+
+        case "time_limit":
             result = real_time
-        elif cond_parsed == "cpu_time_limit":
+
+        case "cpu_time_limit":
             result = cpu_time
-        elif cond_parsed == "fit_target":
+
+        case "fit_target":
             result = target
-        elif cond_parsed == "convergence":
+
+        case "convergence":
             result = patience
 
     return result
@@ -687,30 +714,38 @@ def process_progress(
 
     result = None
 
-    if isinstance(cond_parsed, list):
-        if len(cond_parsed) == 3:
-            progress1 = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
-            progress2 = process_progress(cond_parsed[2], neval, ngen, real_time, cpu_time, target, patience)
+    match cond_parsed:
+        case [cond1, "and", cond2]:
+            progress1 = process_progress(cond1, neval, ngen, real_time, cpu_time, target, patience)
+            progress2 = process_progress(cond2, neval, ngen, real_time, cpu_time, target, patience)
 
-            if cond_parsed[1] == "or":
-                result = max(progress1, progress2)
-            elif cond_parsed[1] == "and":
-                result = min(progress1, progress2)
+            result = max(progress1, progress2)
 
-        elif len(cond_parsed) == 1:
-            result = process_progress(cond_parsed[0], neval, ngen, real_time, cpu_time, target, patience)
-    else:
-        if cond_parsed == "neval":
+        case [cond1, "or", cond2]:
+            progress1 = process_progress(cond1, neval, ngen, real_time, cpu_time, target, patience)
+            progress2 = process_progress(cond2, neval, ngen, real_time, cpu_time, target, patience)
+
+            result = min(progress1, progress2)
+        
+        case [cond1]:
+            result = process_progress(cond1, neval, ngen, real_time, cpu_time, target, patience)
+        
+        case "neval":
             result = neval
-        elif cond_parsed == "ngen":
+
+        case "ngen":
             result = ngen
-        elif cond_parsed == "time_limit":
+
+        case "time_limit":
             result = real_time
-        elif cond_parsed == "cpu_time_limit":
+
+        case "cpu_time_limit":
             result = cpu_time
-        elif cond_parsed == "fit_target":
+
+        case "fit_target":
             result = target
-        elif cond_parsed == "convergence":
+
+        case "convergence":
             result = patience
 
     return result

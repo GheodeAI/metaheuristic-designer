@@ -24,7 +24,7 @@ def simulated_annealing(params: dict, objfunc: ObjectiveVectorFunc = None) -> Al
     """
 
     if "encoding" not in params:
-        raise ValueError(f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
+        raise ValueError('You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
 
     encoding_str = params["encoding"]
 

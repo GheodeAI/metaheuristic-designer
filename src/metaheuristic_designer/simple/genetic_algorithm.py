@@ -1,4 +1,6 @@
 from __future__ import annotations
+from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer
 from ..operators import OperatorVector
 from ..selectionMethods import SurvivorSelection, ParentSelection
@@ -25,7 +27,7 @@ def genetic_algorithm(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algo
     """
 
     if "encoding" not in params:
-        raise ValueError(f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
+        raise ValueError('You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
 
     encoding_str = params["encoding"]
 

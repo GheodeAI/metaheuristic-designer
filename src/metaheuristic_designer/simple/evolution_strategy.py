@@ -1,4 +1,6 @@
 from __future__ import annotations
+from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer
 from ..operators import OperatorVector
 from ..selectionMethods import SurvivorSelection, ParentSelection
@@ -25,7 +27,7 @@ def evolution_strategy(params: dict, objfunc: ObjectiveVectorFunc = None) -> Alg
     """
 
     if "encoding" not in params:
-        raise ValueError(f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
+        raise ValueError('You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
 
     encoding_str = params["encoding"]
 
@@ -49,7 +51,6 @@ def _evolution_strategy_bin_vec(params, objfunc):
 
     pop_size = params.get("pop_size", 100)
     offspring_size = params.get("offspring_size", 150)
-    n_parents = params.get("n_parents", 100)
     mutstr = params.get("mutstr", 1)
     if objfunc is None:
         vecsize = params["vecsize"]

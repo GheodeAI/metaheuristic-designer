@@ -4,4 +4,4 @@ from .OperatorMeta import OperatorMeta, MetaOpMethods, meta_ops_map
 from .OperatorAdaptative import OperatorAdaptative
 from .OperatorNull import OperatorNull
 from .OperatorFromLambda import OperatorFromLambda
-from .vector_operator_functions import *
+from .operator_functions import *

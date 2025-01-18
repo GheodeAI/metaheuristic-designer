@@ -1,27 +1,9 @@
 from copy import copy
-import random
+import numpy as np
+from ..utils import RAND_GEN
 
 
-def argsort(seq):
-    """
-    Implementation of argsort for python-style lists.
-    Source: https://stackoverflow.com/questions/3382352/equivalent-of-numpy-argsort-in-basic-python
-
-    Parameters
-    ----------
-    seq: Iterable
-        Iterable for which we want to obtain the order of.
-
-    Returns
-    -------
-    order: List
-        The positions of the original elements of the list in order.
-    """
-
-    return sorted(range(len(seq)), key=seq.__getitem__)
-
-
-def one_to_one(popul, offspring):
+def one_to_one(population_fitness, offspring_fitness):
     """
     Compares each new individual with its parent and it replaces it if
     it has a better fitness.
@@ -38,22 +20,18 @@ def one_to_one(popul, offspring):
     survivors: List[Individual]
         The individuals selected for the next generation.
     """
+    n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
 
-    new_population = []
-    for parent, child in zip(popul, offspring):
-        if child.fitness > parent.fitness:
-            new_population.append(child)
-        else:
-            new_population.append(parent)
+    assert n_parents == n_offspring
 
-    if len(offspring) < len(popul):
-        n_leftover = len(popul) - len(offspring)
-        new_population += popul[n_leftover:]
-
-    return new_population
+    selection_mask = population_fitness <= offspring_fitness
+    full_idx = np.arange(n_parents)
+    full_idx[selection_mask] += n_parents
+    return full_idx
 
 
-def prob_one_to_one(popul, offspring, p):
+def prob_one_to_one(population_fitness, offspring_fitness, p):
     """
     Compares each new individual with its parent and it replaces it with a
     probability of p or if it has a better fitness.
@@ -72,22 +50,99 @@ def prob_one_to_one(popul, offspring, p):
     survivors: List[Individual]
         The individuals selected for the next generation.
     """
+    n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
 
-    new_population = []
-    for parent, child in zip(popul, offspring):
-        if random.random() < p or child.fitness > parent.fitness:
-            new_population.append(child)
-        else:
-            new_population.append(parent)
+    assert n_parents == n_offspring
 
-    if len(offspring) < len(popul):
-        n_leftover = len(popul) - len(offspring)
-        new_population += popul[n_leftover:]
+    selection_mask = (population_fitness < offspring_fitness) | (RAND_GEN.random(n_parents) < p)
+    full_idx = np.arange(n_parents)
+    full_idx[selection_mask] += n_parents
+    return full_idx
 
-    return new_population
+def many_to_one(population_fitness, offspring_fitness):
+    """
+    Compares each new individual with its parent and it replaces it if
+    it has a better fitness.
+
+    Parameters
+    ----------
+    popul: List[Individual]
+        Original population of individuals before being operated on.
+    offspring: List[Individual]
+        Individuals resulting from an iteration of the algorithm.
+
+    Returns
+    -------
+    survivors: List[Individual]
+        The individuals selected for the next generation.
+    """
+
+    n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
+    n_repetitions = n_offspring // n_parents
+
+    assert (n_offspring % n_parents) == 0
+
+    # Reorder fitness, compare each individual with it's offspring
+    reshaped_offspring_fitness = offspring_fitness.reshape((n_repetitions, n_parents))
+    fitness_matrix = np.concatenate([population_fitness[None, :], reshaped_offspring_fitness], axis=0)
+
+    # Get the best child or the parent for each individual
+    best_individual_idx = np.argmax(fitness_matrix, axis=0)
+
+    # Get indices to use.
+    full_idx = np.arange(n_parents)
+    full_idx += best_individual_idx*n_parents
+
+    return full_idx
 
 
-def elitism(popul, offspring, amount):
+def prob_many_to_one(population_fitness, offspring_fitness, p):
+    """
+    Compares each new individual with its parent and it replaces it with a
+    probability of p or if it has a better fitness.
+
+    Parameters
+    ----------
+    popul: List[Individual]
+        Original population of individuals before being operated on.
+    offspring: List[Individual]
+        Individuals resulting from an iteration of the algorithm.
+    p: float
+        Probability that an individual will be replaced by its child even if it has a worse fitness.
+
+    Returns
+    -------
+    survivors: List[Individual]
+        The individuals selected for the next generation.
+    """
+    n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
+    n_repetitions = n_offspring // n_parents
+
+    assert (n_offspring % n_parents) == 0
+
+    # Reorder fitness, compare each individual with it's offspring.
+    reshaped_offspring_fitness = offspring_fitness.reshape((n_repetitions, n_parents))
+    fitness_matrix = np.concatenate([population_fitness[None, :], reshaped_offspring_fitness], axis=0)
+
+    # Get the best child or the parent for each individual
+    best_individual_idx = np.argmax(fitness_matrix, axis=0)
+
+    # Use random individual with probability 'p'.
+    random_individual_idx = RAND_GEN.integers(0, n_repetitions+1, n_parents)
+    ignore_mask = RAND_GEN.random(n_parents) < p
+    best_individual_idx[ignore_mask] = random_individual_idx[ignore_mask]
+
+    # Get indices to use.
+    full_idx = np.arange(n_parents)
+    full_idx += best_individual_idx*n_parents
+
+    return full_idx
+
+
+def elitism(population_fitness, offspring_fitness, amount):
     """
     The offspring is passed to the next generation and a number of the
     parents replace the worst individuals.
@@ -106,13 +161,15 @@ def elitism(popul, offspring, amount):
     survivors: List[Individual]
         The individuals selected for the next generation.
     """
-    selected_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[: len(popul) - amount]
-    best_parents = sorted(popul, reverse=True, key=lambda x: x.fitness)[:amount]
+    n_parents = population_fitness.shape[0]
+    amount = min(n_parents, amount)
 
-    return best_parents + selected_offspring
+    parent_order = np.argsort(population_fitness)[::-1][:amount]
+    offspring_order = np.argsort(offspring_fitness)[::-1][: n_parents - amount]
+    return np.concatenate((parent_order, offspring_order + n_parents))
 
 
-def cond_elitism(popul, offspring, amount):
+def cond_elitism(population_fitness, offspring_fitness, amount):
     """
     Parameters
     ----------
@@ -128,20 +185,25 @@ def cond_elitism(popul, offspring, amount):
     survivors: List[Individual]
         The individuals selected for the next generation.
     """
+    # best_parents = sorted(popul, reverse=True, key=lambda x: x.fitness)[:amount]
+    # new_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[: len(popul)]
+    # best_offspring = new_offspring[:amount]
 
-    best_parents = sorted(popul, reverse=True, key=lambda x: x.fitness)[:amount]
-    new_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[: len(popul)]
-    best_offspring = new_offspring[:amount]
+    # for idx, val in enumerate(best_parents):
+    #     if val.fitness > best_offspring[0].fitness:
+    #         new_offspring.pop()
+    #         new_offspring = [val] + new_offspring
 
-    for idx, val in enumerate(best_parents):
-        if val.fitness > best_offspring[0].fitness:
-            new_offspring.pop()
-            new_offspring = [val] + new_offspring
+    # return new_offspring
 
-    return new_offspring
+    n_parents = population_fitness.shape[0]
+
+    parent_order = np.argsort(population_fitness)[::-1][:amount]
+    offspring_order = np.argsort(offspring_fitness)[::-1][: n_parents - amount]
+    return np.concatenate((parent_order, offspring_order + n_parents))
 
 
-def lamb_plus_mu(popul, offspring):
+def lamb_plus_mu(population_fitness, offspring_fitness):
     """
     Both the parents and the offspring are considered and the best
     of them will pass to the next generation.
@@ -159,11 +221,15 @@ def lamb_plus_mu(popul, offspring):
         The individuals selected for the next generation.
     """
 
-    population = popul + offspring
-    return sorted(population, reverse=True, key=lambda x: x.fitness)[: len(popul)]
+    n_parents = population_fitness.shape[0]
+
+    full_fitness = np.concatenate((population_fitness, offspring_fitness))
+    fitness_order = np.argsort(full_fitness)[::-1][:n_parents]
+
+    return fitness_order
 
 
-def lamb_comma_mu(popul, offspring):
+def lamb_comma_mu(population_fitness, offspring_fitness):
     """
     Only the best individuals in the offsping are selected.
 
@@ -180,10 +246,13 @@ def lamb_comma_mu(popul, offspring):
         The individuals selected for the next generation.
     """
 
-    return sorted(offspring, reverse=True, key=lambda x: x.fitness)[: len(popul)]
+    n_parents = population_fitness.shape[0]
+
+    fitness_order = np.argsort(offspring_fitness)[::-1][:n_parents] + n_parents
+    return fitness_order
 
 
-def _cro_set_larvae(population, offspring, attempts, maxpopsize):
+def _cro_set_larvae(population_fitness, offspring_fitness, attempts, maxpopsize):
     """
     First step of the CRO selection function.
 
@@ -192,22 +261,32 @@ def _cro_set_larvae(population, offspring, attempts, maxpopsize):
     an individual in that spot, the one with the best fitness is kept.
     """
 
-    new_population = copy(population)
-    for larva in offspring:
-        attempts_left = attempts
-        setted = False
+    # new_population = copy(population)
+    # for larva in offspring:
+    #     attempts_left = attempts
+    #     setted = False
 
-        while attempts_left > 0 and not setted:
-            idx = random.randrange(0, maxpopsize)
+    #     while attempts_left > 0 and not setted:
+    #         idx = random.randrange(0, maxpopsize)
 
-            if setted := (idx >= len(new_population)):
-                new_population.append(larva)
-            elif setted := (larva.fitness > new_population[idx].fitness):
-                new_population[idx] = larva
+    #         if setted := (idx >= len(new_population)):
+    #             new_population.append(larva)
+    #         elif setted := (larva.fitness > new_population[idx].fitness):
+    #             new_population[idx] = larva
 
-            attempts_left -= 1
+    #         attempts_left -= 1
 
-    return new_population
+    # return new_population
+
+    n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
+
+    idx_to_compare = RAND_GEN.integers(0, n_parents, size=(n_offspring, attempts))
+    spot_fitness = population_fitness[idx_to_compare]
+    new_fitness = np.tile(offspring_fitness, (attempts, 1)).T
+
+
+
 
 
 def _cro_depredation(population, Fd, Pd):
@@ -221,27 +300,28 @@ def _cro_depredation(population, Fd, Pd):
     kept.
     """
 
-    amount = int(len(population) * Fd)
+    # amount = int(len(population) * Fd)
 
-    fitness_values = [coral.fitness for coral in population]
-    affected_corals = argsort(fitness_values)[:amount]
+    # fitness_values = [coral.fitness for coral in population]
+    # affected_corals = np.argsort(fitness_values)[:amount]
 
-    alive_count = len(population)
-    dead_list = [False] * len(population)
+    # alive_count = len(population)
+    # dead_list = [False] * len(population)
 
-    for idx, val in enumerate(affected_corals):
-        if alive_count <= 2:
-            break
+    # for idx, val in enumerate(affected_corals):
+    #     if alive_count <= 2:
+    #         break
 
-        dies = random.random() <= Pd
-        dead_list[idx] = dies
-        if dies:
-            alive_count -= 1
+    #     dies = random.random() <= Pd
+    #     dead_list[idx] = dies
+    #     if dies:
+    #         alive_count -= 1
 
-    return [c for idx, c in enumerate(population) if not dead_list[idx]]
+    # return [c for idx, c in enumerate(population) if not dead_list[idx]]
+    return []
 
 
-def cro_selection(popul, offspring, Fd, Pd, attempts, maxpopsize):
+def cro_selection(population_fitness, offspring_fitness, Fd, Pd, attempts, maxpopsize):
     """
     Selection method of the Coral Reef Optimization algorithm.
     The offspring first tries to be inserted into the population, then
@@ -272,6 +352,9 @@ def cro_selection(popul, offspring, Fd, Pd, attempts, maxpopsize):
         The individuals selected for the next generation.
     """
 
-    setted_corals = _cro_set_larvae(popul, offspring, attempts, maxpopsize)
-    reduced_population = _cro_depredation(setted_corals, Fd, Pd)
-    return reduced_population
+    # setted_corals = _cro_set_larvae(popul, offspring, attempts, maxpopsize)
+    # reduced_population = _cro_depredation(setted_corals, Fd, Pd)
+    # return reduced_population
+
+    # DELETEME (debug)
+    return lamb_plus_mu(population_fitness, offspring_fitness)

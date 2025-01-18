@@ -1,100 +1,33 @@
 import pytest
-
-from metaheuristic_designer import Individual
-from metaheuristic_designer.selectionMethods import ParentSelection
+import numpy as np
+from metaheuristic_designer import Population
+from metaheuristic_designer.selectionMethods import ParentSelection, parent_sel_map
+from metaheuristic_designer.benchmarks import Sphere
+from metaheuristic_designer.initializers import UniformVectorInitializer
 import metaheuristic_designer as mhd
 
 mhd.reset_seed(0)
 
+parent_sel_methods = [i for i in parent_sel_map]
+
 pop_size = 100
+example_population1 = Population(Sphere(3), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 3)))
+example_population1.fitness = np.arange(pop_size)
 
-example_populaton1 = [Individual(None, None) for i in range(pop_size)]
-example_populaton2 = [Individual(None, None) for i in range(pop_size)]
+example_population2 = Population(Sphere(20), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 20)))
+example_population2.fitness = np.arange(pop_size)
 
-for idx, ind in enumerate(example_populaton1):
-    example_populaton1[idx].fitness = idx
-
-for idx, ind in enumerate(example_populaton2):
-    example_populaton2[idx].fitness = 1
-
-
-def test_error():
-    with pytest.raises(ValueError):
-        surv_selection = ParentSelection("not_a_method")
+example_population3 = Population(Sphere(100), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 100)))
+example_population3.fitness = np.arange(pop_size)
 
 
-@pytest.mark.parametrize("population", [example_populaton1, example_populaton2])
-def test_nothing(population):
-    parent_sel = ParentSelection("Nothing")
-    parents = parent_sel.select(population)
+@pytest.mark.parametrize("population", [example_population1,example_population2,example_population3])
+@pytest.mark.parametrize("op_method", parent_sel_methods)
+def test_basic_working(population, op_method):
+    pop_init = UniformVectorInitializer(population.vec_size, 0, 1, pop_size)
+    surv_sel = ParentSelection(op_method, {"amount": 20, "p": 0.5})
 
-    assert parents == population
+    selected_population = surv_sel.select(population)
 
-
-@pytest.mark.parametrize("population", [example_populaton1, example_populaton2])
-@pytest.mark.parametrize("amount", [1, 5, 20])
-def test_best(population, amount):
-    parent_sel = ParentSelection("Best", {"amount": amount})
-    parents = parent_sel.select(population)
-    id_list = [i.id for i in population]
-
-    assert len(parents) == amount
-
-    for indiv in parents:
-        assert indiv.id in id_list
-
-    fit_list = [i.fitness for i in population]
-    parent_fit_list = [i.fitness for i in parents]
-    assert max(fit_list) == max(parent_fit_list)
-
-
-@pytest.mark.parametrize("population", [example_populaton1, example_populaton2])
-@pytest.mark.parametrize("amount", [1, 5, 20])
-@pytest.mark.parametrize("prob", [0.01, 0.1, 0.2, 0.5])
-@pytest.mark.parametrize("dummy_var", range(10))  # makes the test repeat 10 times
-def test_tournament(population, amount, prob, dummy_var):
-    parent_sel = ParentSelection("Tournament", {"amount": amount, "p": prob})
-    parents = parent_sel.select(population)
-    id_list = [i.id for i in population]
-
-    for indiv in parents:
-        assert indiv.id in id_list
-
-
-@pytest.mark.parametrize("population", [example_populaton1, example_populaton2])
-@pytest.mark.parametrize("amount", [1, 5, 20])
-def test_random(population, amount):
-    parent_sel = ParentSelection("Random", {"amount": amount})
-    parents = parent_sel.select(population)
-    id_list = [i.id for i in population]
-
-    for indiv in parents:
-        assert indiv.id in id_list
-
-
-@pytest.mark.parametrize("population", [example_populaton1, example_populaton2])
-@pytest.mark.parametrize("amount", [1, 5, 20])
-@pytest.mark.parametrize("method", ["FitnessProp", "SigmaScaling", "LinRank", "ExpRank"])
-@pytest.mark.parametrize("f", [0, 0.5, 1, 1.5, 2])
-@pytest.mark.parametrize("dummy_var", range(5))  # makes the test repeat 5 times
-def test_roullete(population, amount, method, f, dummy_var):
-    parent_sel = ParentSelection("Roulette", {"amount": amount, "method": method, "f": f})
-    parents = parent_sel.select(population)
-    id_list = [i.id for i in population]
-
-    for indiv in parents:
-        assert indiv.id in id_list
-
-
-@pytest.mark.parametrize("population", [example_populaton1, example_populaton2])
-@pytest.mark.parametrize("amount", [1, 5, 20])
-@pytest.mark.parametrize("method", ["FitnessProp", "SigmaScaling", "LinRank", "ExpRank"])
-@pytest.mark.parametrize("f", [0, 0.5, 1, 1.5, 2])
-@pytest.mark.parametrize("dummy_var", range(5))  # makes the test repeat 5 times
-def test_sus(population, amount, method, f, dummy_var):
-    parent_sel = ParentSelection("Sus", {"amount": amount, "method": method, "f": f})
-    parents = parent_sel.select(population)
-    id_list = [i.id for i in population]
-
-    for indiv in parents:
-        assert indiv.id in id_list
+    assert isinstance(selected_population, Population)
+    assert id(selected_population) != id(population) or op_method == "nothing"

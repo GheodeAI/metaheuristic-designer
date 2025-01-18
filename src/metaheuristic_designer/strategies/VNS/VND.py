@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import Union
+from typing import Iterable
 from copy import copy
 import warnings
+from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
@@ -24,12 +25,16 @@ class VND(SearchStrategy):
     def __init__(
         self,
         initializer: Initializer,
-        op_list: List[Operator],
+        op_list: Iterable[Operator],
         survivor_sel: SurvivorSelection = None,
         one_shot: bool = False,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "VND",
     ):
+
+        if params is None:
+            params = {}
+
         self.op_list = op_list
         perturb_op = OperatorMeta("Pick", op_list, {"init_idx": 0})
 
@@ -50,12 +55,26 @@ class VND(SearchStrategy):
             )
 
         super().__init__(
-            initializer=initializer,
-            operator=perturb_op,
-            params=params,
+            initializer,
+            operator=operator,
             survivor_sel=survivor_sel,
+            params=params,
             name=name
         )
+
+    def perturb(self, parents, **kwargs):
+        next_parents = copy(parents)
+        for _ in range(self.iterations):
+            offspring = self.operator.evolve(parents, self.initializer)
+            offspring = self.repair_population(offspring)
+            offspring.calculate_fitness()
+
+            # Keep best individual regardless of selection method
+            self.population.update(offspring)
+
+            next_parents = self.inner_selection_op(next_parents, offspring)
+
+        return next_parents
 
     def select_individuals(self, population, offspring, **kwargs):
         new_population = super().select_individuals(population, offspring, **kwargs)
@@ -76,7 +95,6 @@ class VND(SearchStrategy):
 
         if isinstance(self.operator, Operator):
             self.operator.step(progress)
-
 
     def extra_step_info(self):
         idx = self.operator.chosen_idx

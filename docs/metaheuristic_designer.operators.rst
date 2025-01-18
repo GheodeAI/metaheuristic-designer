@@ -1,26 +1,10 @@
 metaheuristic_designer.operators package
 ========================================
 
-OperatorReal
+OperatorVector
 ----------------------------------------
 
-.. automodule:: metaheuristic_designer.operators.OperatorReal
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-OperatorInt
----------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.OperatorInt
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-OperatorBinary
-------------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.OperatorBinary
+.. automodule:: metaheuristic_designer.operators.OperatorVector
    :members:
    :undoc-members:
    :show-inheritance:
@@ -29,14 +13,6 @@ OperatorPerm
 ------------------------------------------
 
 .. automodule:: metaheuristic_designer.operators.OperatorPerm
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-OperatorList
-----------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.OperatorList
    :members:
    :undoc-members:
    :show-inheritance:
@@ -74,18 +50,47 @@ OperatorFromLambda
    :undoc-members:
    :show-inheritance:
 
-List operator functions
------------------------------------------------------
+Mutation operator functions
+-------------------------------------------------------
 
-.. automodule:: metaheuristic_designer.operators.list_operator_functions
+.. automodule:: metaheuristic_designer.operators.operator_functions.crossover
+   :no-index:
    :members:
    :undoc-members:
    :show-inheritance:
 
-Vector operator functions
+Crossover operator functions
 -------------------------------------------------------
 
-.. automodule:: metaheuristic_designer.operators.vector_operator_functions
+.. automodule:: metaheuristic_designer.operators.operator_functions.crossover
+   :no-index:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Differential Evolution operator functions
+-------------------------------------------------------
+
+.. automodule:: metaheuristic_designer.operators.operator_functions.differential_evolution
+   :no-index:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Swarm operator functions
+-------------------------------------------------------
+
+.. automodule:: metaheuristic_designer.operators.operator_functions.differential_evolution
+   :no-index:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Permutation operator functions
+-------------------------------------------------------
+
+.. automodule:: metaheuristic_designer.operators.operator_functions.permutation
+   :no-index:
    :members:
    :undoc-members:
    :show-inheritance:

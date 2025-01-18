@@ -1,12 +1,9 @@
 from __future__ import annotations
-from typing import Union
-from copy import copy
+from ..Initializer import Initializer
 from ..ParamScheduler import ParamScheduler
 from ..SearchStrategy import SearchStrategy
 from ..Operator import Operator
-from ..operators import OperatorNull
 from ..selectionMethods import SurvivorSelection
-import collections
 
 
 class HillClimb(SearchStrategy):
@@ -19,7 +16,7 @@ class HillClimb(SearchStrategy):
         initializer: Initializer,
         operator: Operator = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "HillClimb",
     ):
         if survivor_sel is None:

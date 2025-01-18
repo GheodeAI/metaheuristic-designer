@@ -1,10 +1,8 @@
 from __future__ import annotations
-from typing import Union
-from copy import copy
+from ..Initializer import Initializer
 from ..ParamScheduler import ParamScheduler
 from ..SearchStrategy import SearchStrategy
 from ..Operator import Operator
-from ..operators import OperatorNull
 from ..selectionMethods import SurvivorSelection
 
 
@@ -18,22 +16,22 @@ class LocalSearch(SearchStrategy):
         initializer: Initializer,
         operator: Operator = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "LocalSearch",
     ):
-        self.iterations = params.get("iters", 100)
-
+        if params is None:
+            params = {}
+        
         if survivor_sel is None:
-            survivor_sel = SurvivorSelection("KeepBest", {"amount": 1})
+            survivor_sel = SurvivorSelection("Many-to-one")
 
         super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name)
 
-    def perturb(self, indiv_list, objfunc, **kwargs):
-        offspring = indiv_list*self.iterations
-        offspring = self.operator(offspring, objfunc, self.best, self.initializer)
-        offspring = self.repair_population(offspring, objfunc)
+        self.iterations = params.get("iters", 100)
 
-        return offspring
+    def perturb(self, parents, **kwargs):
+        new_population = parents.repeat(self.iterations)
+        return super().perturb(new_population, **kwargs)
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)

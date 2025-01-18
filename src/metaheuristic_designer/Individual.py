@@ -160,3 +160,4 @@ class Individual:
             data["best_genotype"] = self.best
 
         return data
+

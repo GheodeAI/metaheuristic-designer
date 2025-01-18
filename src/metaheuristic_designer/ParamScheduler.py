@@ -1,6 +1,5 @@
 from __future__ import annotations
-import random
-import numpy as np
+from typing import Any
 import math
 
 
@@ -27,7 +26,7 @@ class ParamScheduler:
         self.strategy = strategy.lower()
 
         if strategy.lower() not in _par_sch_methods:
-            raise ValueError(f'Parameter scheduler strategy "{self.name}" not defined')
+            raise ValueError(f'Parameter scheduler strategy "{self.strategy}" not defined')
 
         self.param_schedule = param_schedule
 
@@ -54,14 +53,14 @@ class ParamScheduler:
 
         return value in self.current_params
 
-    def get(key: str, def_value: Any = None) -> Any:
+    def get(self, key: str, def_value: Any = None) -> Any:
         """
         Gets the current value of a parameter given its name using a default value if it's missing
         """
 
         return self.current_params.get(key, def_value)
 
-    def update(update_dict: dict):
+    def update(self, update_dict: dict):
         self.current_params.update(update_dict)
 
     def reset(self):

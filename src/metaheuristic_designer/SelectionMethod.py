@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from .ParamScheduler import ParamScheduler
+from .Population import Population
 
 
 class SelectionMethod(ABC):
@@ -13,8 +14,6 @@ class SelectionMethod(ABC):
     ----------
     params: ParamScheduler or dict, optional
         Dictionary of parameters to define the behaviour of the selection method.
-    padding: bool, optional
-        Whether to fill the entire list of selected individuals to match the size of the original one.
     name: str, optional
         The name that will be assigned to this selection method.
     """
@@ -22,7 +21,6 @@ class SelectionMethod(ABC):
     def __init__(
         self,
         params: ParamScheduler | dict = None,
-        padding: bool = False,
         name: str = None,
     ):
         """
@@ -39,36 +37,42 @@ class SelectionMethod(ABC):
             self.params = self.param_scheduler.get_params()
         else:
             self.params = params
+        self.last_selection_idx = None
 
-    def __call__(self, popul: List[Individual], offspring: List[Individual] = None) -> List[Individual]:
+    def __call__(self, population: Population, offspring: Population = None) -> Population:
         """
         Shorthand for calling the 'select' method
         """
 
-        return self.select(popul, offspring)
+        return self.select(population, offspring)
 
     @abstractmethod
-    def select(self, population: List[Individual], offspring: List[Individual] = None) -> List[Individual]:
+    def select(self, population: Population, offspring: Population) -> Population:
         """
         Takes a population with its offspring and returns the individuals that survive
         to produce the next generation.
 
         Parameters
         ----------
-        population: List[Individual]
+        population: Population
             Population of individuals that will be selected.
-        offspring: List[Individual]
+        offspring: Population
             Newly generated individuals to be selected.
 
         Returns
         -------
-        selected: List[Individual]
+        selected: Population
             List of selected individuals.
         """
 
     def step(self, progress: float):
         """
         Updates the parameters of the method using a paramater scheduler if it exists
+
+        Parameters
+        ----------
+        progress: float
+            Estimated percentage of the progress of the algorithm (0 if it just started and 1 if it has ended).
         """
 
         if self.param_scheduler:
@@ -82,6 +86,7 @@ class SelectionMethod(ABC):
                 self.params["maxPopSize"] = round(self.params["maxPopSize"])
 
     def set_param(self, **kwargs):
+        """"""
         self.params.update(kwargs)
 
     def get_state(self):

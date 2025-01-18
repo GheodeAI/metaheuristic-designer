@@ -1,6 +1,7 @@
-from enum import Enum
-import numpy as np
 import json
+from enum import Enum
+
+import numpy as np
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -20,6 +21,12 @@ class NumpyEncoder(json.JSONEncoder):
 
 RAND_GEN = np.random.default_rng()
 
+def get_rng():
+    """
+    Get the global random number generator of the package
+    """
+
+    return RAND_GEN
 
 def reset_seed(seed=0):
     """
@@ -35,8 +42,8 @@ def reset_seed(seed=0):
         random generator
     """
 
-    BitGen = type(RAND_GEN.bit_generator)
+    bit_gen = type(RAND_GEN.bit_generator)
 
-    RAND_GEN.bit_generator.state = BitGen(seed).state
+    RAND_GEN.bit_generator.state = bit_gen(seed).state
 
     return RAND_GEN

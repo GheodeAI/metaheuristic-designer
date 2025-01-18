@@ -1,8 +1,5 @@
-import math
-from .GaussianUMDA import GaussianUMDA
 from ...selectionMethods import (
     ParentSelection,
-    SurvivorSelection,
     SurvivorSelectionNull,
 )
 from ...operators import OperatorVector
@@ -10,12 +7,15 @@ from ..StaticPopulation import StaticPopulation
 
 
 class CrossEntropyMethod(StaticPopulation):
-    def __init__(self, initializer, params={}, name="CrossEntropyMethod"):
+    def __init__(self, initializer, params=None, name="CrossEntropyMethod"):
+        if params is None:
+            params = {}
+        
         operator = OperatorVector(
             "RandSample",
             {"distrib": "Normal", "loc": "calculated", "scale": "calculated"},
         )
-        n = params.get("n", math.ceil(initializer.pop_size / 5))
+        n = params.get("n", initializer.pop_size)
         parent_sel = ParentSelection("Best", {"amount": n})
         survivor_sel = SurvivorSelectionNull()
 

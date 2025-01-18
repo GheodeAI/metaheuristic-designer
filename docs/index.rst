@@ -60,11 +60,11 @@ to constuct an optimization algorithm.
 
 First, **objective functions** are implemented as instances of the class :class:`ObjectiveFunc <metaheuristic_designer.ObjectiveFunc>` which receive
 an input in some unspecified format (an array, a tree or any other object) and output a single numerical value. Our goal is to find
-an input that maximizes (or minimizes) this output value.
+an input that maximizes (or minimizes) this output value. 
 
-Each **solution** is represented as an instance of the class :class:`Individual <metaheuristic_designer.Individual>`, that is a class that holds a possible 
-solution (its genotype) to our optimization problem and has a fitness which is the value of the objective function for this solution adjusted
-so that we are always solving a maximization problem (flipping the sign for minimization problems).
+Our algorithms will work with **populations**, represented as instances of the class :class:`Population <metaheuristic_designer.Population>` which are a collections
+of solutions to our optimization problem. These populations will hold the solutions, their value on the optimization problem, the best solution found and other
+information that can be of use to other algorithms.
 
 The solutions that an individual has are encoded in a certain way, but our objective function might need an input encoded in a different way. 
 This is where **encodings** are used, they are represented as instances of the class :class:`Encoding <metaheuristic_designer.Encoding>` which isolates the 
@@ -74,12 +74,12 @@ For the **initialization step**, there will be an instance of the class :class:`
 an initial population, often completely at random, and will be used whenever a random solution needs to be generated. This class will
 also indicate the size of the population (1 if the algorithm works with only one solution).
 
-Both parent selection and survivor selection are implemented as instances of the class :class:`SelectionMethod <metaheuristic_designer.SelectionMethod>` 
+Both **parent selection** and **survivor selection** are implemented as instances of the class :class:`SelectionMethod <metaheuristic_designer.SelectionMethod>` 
 although it is recomended to use the classes :class:`ParentSelection <metaheuristic_designer.SelectionMethods.ParentSelection>` and
 :class:`SurvivorSelection <metaheuristic_designer.SelectionMethods.SurvivorSelection>` respectively.
 
-To perturb individuals we use operators are instances of the class :class:`Operator <metaheuristic_designer.Operator>` which take an individual and the population
-and returns a perturbed individual. This could represent a crossing operation, a mutation, generating a completely random individual or
+To perturb individuals we use operators that are instances of the class :class:`Operator <metaheuristic_designer.Operator>` which take a population
+and returns a new population of modified indiviuals. This could represent a crossing operation, a mutation, generating a completely random individual or
 even a sequence of operators.
 
 We define a search strategy as the way of combining of the previous elements and specifies how each iteration or step is carried out and

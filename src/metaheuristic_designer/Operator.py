@@ -1,7 +1,12 @@
 from __future__ import annotations
+from typing import Any
 from .ParamScheduler import ParamScheduler
 from .encodings import DefaultEncoding
 from abc import ABC, abstractmethod
+from .Encoding import Encoding
+from .ObjectiveFunc import ObjectiveFunc
+from .Population import Population
+from .Initializer import Initializer
 
 
 class Operator(ABC):
@@ -64,7 +69,7 @@ class Operator(ABC):
                 "w": 0.7,
                 "c1": 1.5,
                 "c2": 1.5,
-                "function": lambda x, y, z, w: x.genotype,
+                "function": lambda x, y, z: x,
             }
         else:
             if "method" in params:
@@ -78,16 +83,15 @@ class Operator(ABC):
 
     def __call__(
         self,
-        population: List[Individual],
+        population: Population,
         objfunc: ObjectiveFunc,
-        global_best: Individual,
         initializer: Initializer,
-    ) -> List[Individual]:
+    ) -> Population:
         """
         A shorthand for calling the 'evolve' method.
         """
 
-        return self.evolve(population, objfunc, global_best, initializer)
+        return self.evolve(population, initializer)
 
     def step(self, progress: float):
         """
@@ -128,59 +132,21 @@ class Operator(ABC):
     @abstractmethod
     def evolve(
         self,
-        population: List[Individual],
-        objfunc: ObjectiveFunc,
-        global_best: Individual,
-        initializer: Initializer,
-    ) -> List[Individual]:
+        population: Population,
+        initializer: Initializer = None,
+    ) -> Population:
         """
         Evolves an population using a given strategy.
 
         Parameters
         ----------
-        indiv: Individual
-            Individual to be operated on.
-        population: List[Individual]
-            The population that will be used in crossing operations.
-        objfunc: ObjectiveFunc
-            The objective function being optimized.
-        global_best: Individual
-            The best individual found during the optimization of the algorithm
-        initializer: Initializer
+        population: Population
+            The population that will be used.
+        initializer: Initialize, optional
             The population initializer of the algorithm (used for randomly generating individuals).
 
         Returns
         -------
-        new_individual: Individual
-            The modified individual.
-        """
-    
-    def evolve_single(
-        self,
-        indiv: Individual,
-        population: List[Individual],
-        objfunc: ObjectiveFunc,
-        global_best: Individual,
-        initializer: Initializer,
-    ) -> Individual:
-        """
-        Evolves an individual using a given strategy.
-
-        Parameters
-        ----------
-        indiv: Individual
-            Individual to be operated on.
-        population: List[Individual]
-            The population that will be used in crossing operations.
-        objfunc: ObjectiveFunc
-            The objective function being optimized.
-        global_best: Individual
-            The best individual found during the optimization of the algorithm
-        initializer: Initializer
-            The population initializer of the algorithm (used for randomly generating individuals).
-
-        Returns
-        -------
-        new_individual: Individual
-            The modified individual.
+        new_population: Population
+            The modified population.
         """

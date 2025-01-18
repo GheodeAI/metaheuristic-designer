@@ -1,10 +1,12 @@
 from __future__ import annotations
-import random
-from ..Operator import Operator
-from copy import copy, deepcopy
-import numpy as np
+from typing import Iterable
 import enum
 from enum import Enum
+from copy import copy
+import numpy as np
+from ..Operator import Operator
+from ..ParamScheduler import ParamScheduler
+from ..utils import RAND_GEN
 
 
 class MetaOpMethods(Enum):
@@ -50,8 +52,8 @@ class OperatorMeta(Operator):
     def __init__(
         self,
         method: str,
-        op_list: List[Operator],
-        params: Union[ParamScheduler, dict] = None,
+        op_list: Iterable[Operator],
+        params: ParamScheduler | dict = None,
         name: str = None,
     ):
         """
@@ -92,51 +94,50 @@ class OperatorMeta(Operator):
         if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
             params["weights"] = [params["p"], 1 - params["p"]]
 
-    def evolve(self, population, objfunc, global_best, initializer):
-        new_population = [self.evolve_single(indiv, population, objfunc, global_best, initializer) for indiv in population]
+    def evolve(self, population, initializer=None):
+        new_population = copy(population)
+
+        match self.method:
+            case MetaOpMethods.BRANCH:
+                self.chosen_idx = RAND_GEN.choice(np.arange(len(self.op_list)), size=population.pop_size, p=self.params["weights"])
+                for idx, op in enumerate(self.op_list):
+                    split_mask = self.chosen_idx == idx
+
+                    if np.any(split_mask):
+                        split_population = population.take_selection(split_mask)
+                        split_population = op.evolve(split_population, initializer)
+                        new_population = new_population.apply_selection(split_population, split_mask)
+
+
+            case MetaOpMethods.PICK:
+                if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
+                    chosen_idx = self.chosen_idx
+                else:
+                    chosen_idx = np.asarray([self.chosen_idx] * len(population))
+
+                # the chosen index is assumed to be changed by the user
+                for idx, op in enumerate(self.op_list):
+                    split_mask = chosen_idx == idx
+
+                    if np.any(split_mask):
+                        split_population = new_population.take_selection(split_mask)
+                        split_population = op.evolve(split_population, initializer)
+                        new_population = new_population.apply_selection(split_population, split_mask)
+
+            case MetaOpMethods.SEQUENCE:
+                for op in self.op_list:
+                    new_population = op.evolve(new_population, initializer)
+            
+            case MetaOpMethods.SPLIT:
+                for idx_op, op in enumerate(self.op_list):
+                    split_mask = self.mask == idx_op
+
+                    if np.any(split_mask):
+                        split_population = new_population.take_slice(split_mask)
+                        split_population = op.evolve(split_population, initializer)
+                        new_population = new_population.apply_slice(split_population, split_mask)
 
         return new_population
-
-    def evolve_single(self, indiv, population, objfunc, global_best, initializer):
-        if self.method == MetaOpMethods.BRANCH:
-            self.chosen_idx = random.choices(range(len(self.op_list)), k=1, weights=self.params["weights"])[0]
-            chosen_op = self.op_list[self.chosen_idx]
-            result = chosen_op.evolve_single(indiv, population, objfunc, global_best, initializer)
-
-        elif self.method == MetaOpMethods.PICK:
-            # the chosen index is assumed to be changed by the user
-            chosen_op = self.op_list[self.chosen_idx]
-            result = chosen_op.evolve_single(indiv, population, objfunc, global_best, initializer)
-
-        elif self.method == MetaOpMethods.SEQUENCE:
-            result = indiv
-            for op in self.op_list:
-                result = op.evolve_single(result, population, objfunc, global_best, initializer)
-
-        elif self.method == MetaOpMethods.SPLIT:
-            result = copy(indiv)
-            indiv_copy = copy(indiv)
-            global_best_copy = copy(global_best)
-            population_copy = [copy(i) for i in population]
-
-            for idx_op, op in enumerate(self.op_list):
-                if np.any(self.mask == idx_op):
-                    indiv_copy.genotype = indiv.genotype[self.mask == idx_op]
-                    global_best_copy.genotype = global_best.genotype[self.mask == idx_op]
-
-                    for idx_pop, val in enumerate(population_copy):
-                        val.genotype = population[idx_pop].genotype[self.mask == idx_op]
-
-                    aux_indiv = op.evolve_single(indiv_copy, population_copy, objfunc, global_best, initializer)
-                    result.genotype[self.mask == idx_op] = aux_indiv.genotype
-
-        return result
-    
-    @staticmethod
-    def _filter_indiv(indiv, mask):
-        indiv_copy = copy(indiv)
-        indiv_copy.genotype = indiv.genotype[self.mask == idx_op]
-        return indiv_copy
 
     def step(self, progress: float):
         super().step(progress)
