@@ -1,8 +1,8 @@
-import numpy as np
-import random
 import warnings
 import enum
 from enum import Enum
+import numpy as np
+from ..utils import RAND_GEN
 
 
 class SelectionDist(Enum):
@@ -29,43 +29,36 @@ select_dist_map = {
 }
 
 
-def select_best(population, amount):
+def select_best(fitness, amount):
     """
     Selects the best parent of the population as parents.
 
     Parameters
     ----------
-    population: List[Individual]
+    population: ndarray
         List of individuals from which the parents will be selected.
     amount: int
         Amount of individuals to be chosen as parents.
 
     Returns
     -------
-    parents: List[Individual]
+    parents: ndarray
         List of individuals chosen as parents.
     """
 
-    # Get the fitness of all the individuals
-    fitness_list = np.fromiter(map(lambda x: x.fitness, population), dtype=float)
+    # Select the best indices of the best 'n' individuals
+    order = np.argsort(fitness)[::-1][:amount]
 
-    # Get the index of the individuals sorted by fitness
-    order = np.argsort(fitness_list)[::-1][:amount]
-
-    # Select the 'amount' best individuals
-    parents = [population[i] for i in order]
-
-    # return parents, order
-    return parents
+    return order
 
 
-def prob_tournament(population, tourn_size, prob):
+def prob_tournament(fitness, tourn_size, prob):
     """
     Selects the parents for the next generation by tournament.
 
     Parameters
     ----------
-    population: List[Individual]
+    population: ndarray
         List of individuals from which the parents will be selected.
     tourn_size: int
         Amount of individuals that will be chosen for each tournament.
@@ -74,66 +67,56 @@ def prob_tournament(population, tourn_size, prob):
 
     Returns
     -------
-    parents: List[Individual]
+    parents: ndarray
         List of individuals chosen as parents.
     """
 
-    parent_pool = []
-    order = []
+    # Generate the participants of each tournament
+    tournament_idx = RAND_GEN.integers(0, fitness.shape[0], size=(fitness.shape[0], tourn_size))
+    tournament_fit = fitness[tournament_idx]
 
-    for _ in population:
-        # Choose 'tourn_size' individuals for the torunament
-        parent_idxs = random.sample(range(len(population)), tourn_size)
-        parents = [population[i] for i in parent_idxs]
-        fits = [i.fitness for i in parents]
+    # Choose the best individual of each tournament
+    best_idx = np.argmax(tournament_fit, axis=1)
 
-        # Choose one of the individuals
-        if random.random() < prob:
-            idx = random.randint(0, tourn_size - 1)
-        else:
-            idx = fits.index(max(fits))
+    # Choose a random individual on each torunament
+    random_idx = RAND_GEN.integers(0, tourn_size, size=fitness.shape[0])
 
-        # Add the individuals to the list
-        order.append(parent_idxs[idx])
-        parent = parents[idx]
-        parent_pool.append(parent)
+    # Choose the final winner of the tournament
+    chosen_idx = np.where(random_idx < RAND_GEN.random(fitness.shape[0]), best_idx, random_idx)
+    selected_idx = tournament_idx[np.arange(fitness.shape[0]), chosen_idx]
 
-    # return parent_pool, order
-    return parent_pool
+    return selected_idx
 
 
-def uniform_selection(population, amount):
+def uniform_selection(fitness, amount):
     """
     Chooses a number of individuals from the population at random.
 
     Parameters
     ----------
-    population: List[Individual]
+    population: ndarray
         List of individuals from which the parents will be selected.
     amount: int
         Amount of individuals to be chosen as parents.
 
     Returns
     -------
-    parents: List[Individual]
+    parents: ndarray
         List of individuals chosen as parents.
     """
 
-    order = random.choices(range(len(population)), k=amount)
-    parents = [population[i] for i in order]
-
-    # return parents, order
-    return parents
+    # Take a random sample of individuals
+    return RAND_GEN.integers(0, fitness.shape[0], amount)
 
 
-def selection_distribution(population, method, f=2):
+def selection_distribution(fitness, method, f=None):
     """
     Gives the weights that will be applied to each individual in
     the selection process.
 
     Parameters
     ----------
-    population: List[Individual]
+    population: ndarray
         List of individuals from which the parents will be selected.
     method: str, optional
         Indicates how the roulette will be generated.
@@ -145,19 +128,25 @@ def selection_distribution(population, method, f=2):
     weights: ndarray
         Weight assinged to each of the individuals
     """
-    fit_list = np.fromiter((i.fitness for i in population), float)
 
-    if method == SelectionDist.FIT_PROP:
-        weights = fit_list
-    elif method == SelectionDist.SIGMA_SCALE:
-        weights = np.maximum(fit_list - (fit_list.mean() - f * fit_list.std()), 0)
-    elif method == SelectionDist.LIN_RANK:
-        fit_order = np.argsort(fit_list)
-        n_parents = len(population)
-        weights = (2 - f) + (2 * fit_order * (f - 1)) / (n_parents - 1)
-    elif method == SelectionDist.EXP_RANK:
-        fit_order = np.argsort(fit_list)
-        weights = 1 - np.exp(-fit_order)
+    if f is None:
+        f = 2
+
+    match method:
+        case SelectionDist.FIT_PROP:
+            weights = fitness - fitness.min() + f
+        case SelectionDist.SIGMA_SCALE:
+            weights = np.maximum(fitness - (fitness.mean() - f * fitness.std()), 0)
+        case SelectionDist.LIN_RANK:
+            f = np.minimum(f, 2)
+            fit_order = np.argsort(fitness)
+            n_parents = fitness.shape[0]
+            weights = (2 - f) + (2 * fit_order * (f - 1)) / (n_parents - 1)
+        case SelectionDist.EXP_RANK:
+            fit_order = np.argsort(fitness)
+            weights = 1 - np.exp(-fit_order)
+        case _:
+            weights = np.ones_like(fitness)
 
     weight_norm = weights.sum()
     if weight_norm == 0:
@@ -167,13 +156,13 @@ def selection_distribution(population, method, f=2):
     return weights / weight_norm
 
 
-def roulette(population, amount, method=None, f=None):
+def roulette(fitness, amount, method=None, f=None):
     """
     Fitness proportionate parent selection.
 
     Parameters
     ----------
-    population: List[Individual]
+    population: ndarray
         List of individuals from which the parents will be selected.
     amount: int
         Amount of individuals to be chosen as parents.
@@ -184,17 +173,14 @@ def roulette(population, amount, method=None, f=None):
 
     Returns
     -------
-    parents: List[Individual]
+    parents: ndarray
         List of individuals chosen as parents.
     """
 
     if method is None:
-        method = "basic"
+        method = SelectionDist.FIT_PROP
 
-    if f is None:
-        f = 2
-
-    weights = selection_distribution(population, method, f)
+    weights = selection_distribution(fitness, method, f)
 
     if np.any(weights < 0):
         warnings.warn(
@@ -202,20 +188,16 @@ def roulette(population, amount, method=None, f=None):
             stacklevel=2,
         )
 
-    order = random.choices(range(len(population)), k=amount, weights=weights)
-    parents = [population[i] for i in order]
-
-    # return parents, order
-    return parents
+    return RAND_GEN.choice(np.arange(fitness.shape[0]), size=amount, p=weights, axis=0)
 
 
-def sus(population, amount, method=None, f=None):
+def sus(fitness, amount, method=None, f=None):
     """
     Stochastic universal sampling parent selection method.
 
     Parameters
     ----------
-    population: List[Individual]
+    population: ndarray
         List of individuals from which the parents will be selected.
     amount: int
         Amount of individuals to be chosen as parents.
@@ -226,31 +208,18 @@ def sus(population, amount, method=None, f=None):
 
     Returns
     -------
-    parents: List[Individual]
+    parents: ndarray
         List of individuals chosen as parents.
     """
 
     if method is None:
-        method = "basic"
+        method = SelectionDist.FIT_PROP
 
-    if f is None:
-        f = 2
-
-    weights = selection_distribution(population, method, f)
+    weights = selection_distribution(fitness, method, f)
 
     cum_weights = np.cumsum(weights)
+    random_offsets = RAND_GEN.random(amount) / amount
+    positions = (np.arange(amount) / amount)[:, None] + random_offsets[:, None]
+    order = np.searchsorted(cum_weights, positions.ravel())[:amount]
 
-    order = []
-    current_member = i = 1
-    while current_member < amount:
-        r = random.random() / amount
-        while r <= cum_weights[i] and current_member < amount:
-            order.append(i)
-            r = r + 1 / amount
-            current_member += 1
-        i += 1
-
-    parents = [population[idx] for idx in order]
-
-    # return parents, order
-    return parents
+    return order

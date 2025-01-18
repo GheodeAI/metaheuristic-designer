@@ -1,9 +1,3 @@
-# from metaheuristic_designer import ObjectiveFunc, ParentSelection, SurvivorSelection, ParamScheduler
-# from metaheuristic_designer.SearchMethods import GeneralSearch, MemeticSearch
-# from metaheuristic_designer.Operators import OperatorReal, OperatorInt, OperatorBinary
-# from metaheuristic_designer.Initializers import UniformVectorInitializer
-# from metaheuristic_designer.Algorithms import *
-
 import metaheuristic_designer as mhd
 from metaheuristic_designer.simple import hill_climb
 from metaheuristic_designer.simple import genetic_algorithm
@@ -24,8 +18,8 @@ import numpy as np
 def run_algorithm(alg_name, memetic, save_state):
     params = {
         # General algorithm params
-        # "stop_cond": "convergence or time_limit or fit_target",
-        "stop_cond": "time_limit or fit_target",
+        "stop_cond": "convergence or time_limit or fit_target",
+        # "stop_cond": "time_limit or fit_target",
         "progress_metric": "time_limit",
         "time_limit": 100.0,
         "cpu_time_limit": 100.0,
@@ -38,8 +32,6 @@ def run_algorithm(alg_name, memetic, save_state):
         # General
         "encoding": "real",
         "mutstr": 1e-3,
-        # "encoding": "int",
-        # "mutstr": 1,
         # Population based algorithms
         "pop_size": 100,
         # GA
@@ -62,28 +54,29 @@ def run_algorithm(alg_name, memetic, save_state):
     }
 
     objfunc = Sphere(30, "min")
+    # objfunc = Rosenbrock(30, "min")
     # objfunc = Rastrigin(10, "min")
     # objfunc = Weierstrass(30, "min")
 
     if alg_name == "HillClimb":
-        alg = hill_climb(objfunc, params=params)
+        alg = hill_climb(params=params, objfunc=objfunc)
     elif alg_name == "SA":
-        alg = simulated_annealing(objfunc, params=params)
+        alg = simulated_annealing(params=params, objfunc=objfunc)
     elif alg_name == "ES":
-        alg = evolution_strategy(objfunc, params=params)
+        alg = evolution_strategy(params=params, objfunc=objfunc)
     elif alg_name == "GA":
-        alg = genetic_algorithm(objfunc, params=params)
+        alg = genetic_algorithm(params=params, objfunc=objfunc)
     elif alg_name == "DE":
-        alg = differential_evolution(objfunc, params=params)
+        alg = differential_evolution(params=params, objfunc=objfunc)
     elif alg_name == "PSO":
-        alg = particle_swarm(objfunc, params=params)
+        alg = particle_swarm(params=params, objfunc=objfunc)
     elif alg_name == "RandomSearch":
-        alg = random_search(objfunc, params=params)
+        alg = random_search(params=params, objfunc=objfunc)
     else:
         raise ValueError(f'Error: Algorithm "{alg_name}" doesn\'t exist.')
 
-    ind, fit = alg.optimize()
-    print(ind)
+    population = alg.optimize()
+    print(population.best_solution()[0])
     alg.display_report(show_plots=True)
 
     if save_state:
@@ -92,7 +85,7 @@ def run_algorithm(alg_name, memetic, save_state):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
+    parser.add_argument("-a", "--algorithm", dest="algorithm", help="Specify an algorithm", default="ES")
     parser.add_argument(
         "-m",
         "--memetic",
@@ -109,20 +102,7 @@ def main():
     )
     args = parser.parse_args()
 
-    algorithm_name = "ES"
-    mem = False
-    save_state = False
-
-    if args.alg:
-        algorithm_name = args.alg
-
-    if args.mem:
-        mem = True
-
-    if args.save_state:
-        save_state = True
-
-    run_algorithm(alg_name=algorithm_name, memetic=mem, save_state=save_state)
+    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state)
 
 
 if __name__ == "__main__":

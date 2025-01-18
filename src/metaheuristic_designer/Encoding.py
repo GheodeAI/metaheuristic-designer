@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 from abc import ABC, abstractmethod
 
 
@@ -9,7 +10,7 @@ class Encoding(ABC):
     This class transforms between phenotype and genotype.
     """
 
-    def encode(self, phenotype) -> Any:
+    def encode(self, phenotype: Any) -> Any:
         """
         Encodes a viable solution to our problem to the encoding used in each individual of the algorithm.
 
@@ -24,8 +25,10 @@ class Encoding(ABC):
             Encoded information of the phenotype.
         """
 
+        return phenotype
+
     @abstractmethod
-    def decode(self, genotype) -> Any:
+    def decode(self, genotype: Any) -> Any:
         """
         Decodes the contents of an individual to a viable solution to our problem.
 

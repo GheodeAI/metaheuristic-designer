@@ -1,11 +1,16 @@
 from __future__ import annotations
-from typing import Union
+from typing import Iterable
 import warnings
+from ...Population import Population
+from ...Algorithm import Algorithm
+from ...Initializer import Initializer
+from ...algorithms import GeneralAlgorithm
 from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
 from ...operators import OperatorMeta
-from ...selectionMethods import SurvivorSelection
+from ...selectionMethods import SurvivorSelection, ParentSelectionNull
+from .VND import VND
 from .vns_neighborhood_changes import *
 
 
@@ -17,24 +22,41 @@ class VNS(SearchStrategy):
     def __init__(
         self,
         initializer: Initializer,
-        op_list: List[Operator],
+        op_list: Iterable[Operator],
         local_search: Algorithm,
-        selection_op: SurvivorSelection = None,
+        survivor_sel: SurvivorSelection = None,
         params: ParamScheduler | dict = {},
+        inner_loop_params: ParamScheduler | dict = {},
         name: str = "VNS",
     ):
-        self.iterations = params.get("iters", 100)
+        if params is None:
+            params = {}
 
+        if inner_loop_params is None:
+            inner_loop_params = {}
+        
+        self.iterations = params.get("iters", 100)
         self.op_list = op_list
-        self.perturb_op = OperatorMeta("Pick", op_list, {"init_idx": 0})
+        operator = OperatorMeta("Pick", op_list, {"init_idx": 0})
 
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 
+        if local_search is None:
+            local_search = VND(initializer=initializer, op_list=op_list, one_shot=True)
+        local_search.name = f"VNS ({local_search.name})"
         self.local_search = local_search
 
-        if selection_op is None:
-            selection_op = SurvivorSelection("One-to-One")
-        self.selection_op = selection_op
+        inner_loop_params['init_info'] = False
+
+        # self.local_search = GeneralAlgorithm(
+        #     objfunc=None,
+        #     search_strategy=local_search,
+        #     params=inner_loop_params,
+        #     name=local_search.name
+        # )
+
+        if survivor_sel is None:
+            survivor_sel = SurvivorSelection("One-to-One")
 
         if initializer.pop_size > 1:
             initializer.pop_size = 1
@@ -43,46 +65,47 @@ class VNS(SearchStrategy):
                 stacklevel=2,
             )
 
-        super().__init__(initializer, params=params, name=name)
+        super().__init__(
+            initializer=initializer,
+            operator=operator,
+            survivor_sel=survivor_sel,
+            params=params,
+            name=name
+        )
 
     def initialize(self, objfunc):
-        super().initialize(objfunc)
+        initial_population = super().initialize(objfunc)
+        
+        self.local_search.objfunc = objfunc
         self.local_search.initialize(objfunc)
 
-    def perturb(self, indiv_list, objfunc, **kwargs):
-        offspring = []
-        for indiv in indiv_list:
-            # Perturb individual
-            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.initializer)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
+        return initial_population
 
-            # Local search
-            population = [new_indiv]
-            self.local_search.perturb_op = self.perturb_op
-            for _ in range(self.iterations):
-                parents, _ = self.local_search.select_parents(population, kwargs)
+    def perturb(self, parents, **kwargs):
+        new_population = self.operator.evolve(parents, self.initializer)
+        new_population = self.repair_population(new_population)
 
-                offspring = self.local_search.perturb(parents, objfunc, kwargs)
+        # Local search
+        self.local_search.operator = self.operator
+        self.local_search.population = new_population
+        for _ in range(self.iterations):
+            parents_inner = self.local_search.select_parents(new_population)
 
-                population = self.local_search.select_individuals(population, offspring, kwargs)
+            offspring_inner = self.local_search.perturb(parents_inner)
+            offspring_inner = self.local_search.evaluate_population(offspring_inner)
 
-                self.local_search.update_params()
+            new_population = self.local_search.select_individuals(new_population, offspring_inner)
 
-            new_indiv = self.local_search.population[0]
+            self.population.update_best_from_parents(offspring_inner)
 
-            offspring.append(new_indiv)
+            self.local_search.update_params(**kwargs)
 
-        # Keep best individual regardless of selection method
-        current_best = max(offspring, key=lambda x: x.fitness)
-        if self.best.fitness < current_best.fitness:
-            self.best = current_best
-
-        return offspring
+        return new_population
 
     def select_individuals(self, population, offspring, **kwargs):
-        new_population = self.selection_op(population, offspring)
+        new_population = super().select_individuals(population, offspring, **kwargs)
 
-        self.perturb_op.chosen_idx = next_neighborhood(offspring[0], population[0], self.perturb_op.chosen_idx, self.nchange)
+        self.operator.chosen_idx = next_neighborhood(offspring.fitness[0], population.fitness[0], self.operator.chosen_idx, self.nchange)
 
         return new_population
 
@@ -91,13 +114,13 @@ class VNS(SearchStrategy):
 
         progress = kwargs["progress"]
 
-        if isinstance(self.perturb_op, Operator):
-            self.perturb_op.step(progress)
+        if isinstance(self.operator, Operator):
+            self.operator.step(progress)
 
-        if self.perturb_op.chosen_idx >= len(self.op_list) or self.perturb_op.chosen_idx < 0:
-            self.perturb_op.chosen_idx = 0
+        if self.operator.chosen_idx >= len(self.op_list) or self.operator.chosen_idx < 0:
+            self.operator.chosen_idx = 0
 
     def extra_step_info(self):
-        idx = self.perturb_op.chosen_idx
+        idx = self.operator.chosen_idx
 
         print(f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}")

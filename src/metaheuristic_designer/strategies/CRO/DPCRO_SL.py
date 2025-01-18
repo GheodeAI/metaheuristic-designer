@@ -165,7 +165,7 @@ class DPCRO_SL(CRO_SL):
             new_parent_list = divided_population[op_idx] if self.group_subs else parent_list
 
             # Apply operator
-            new_indiv = op(indiv, new_parent_list, objfunc, self.best, self.initializer)
+            new_indiv = op.evolve_single(indiv, new_parent_list, objfunc, self.initializer, self.best)
             new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
             new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
 

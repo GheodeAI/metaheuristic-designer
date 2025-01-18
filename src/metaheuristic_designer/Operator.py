@@ -1,6 +1,12 @@
 from __future__ import annotations
+from typing import Any
 from .ParamScheduler import ParamScheduler
+from .encodings import DefaultEncoding
 from abc import ABC, abstractmethod
+from .Encoding import Encoding
+from .ObjectiveFunc import ObjectiveFunc
+from .Population import Population
+from .Initializer import Initializer
 
 
 class Operator(ABC):
@@ -15,11 +21,13 @@ class Operator(ABC):
         Dictionary of parameters to define the operator.
     name: str, optional
         Name that is associated with the operator.
+    encoding: Encoding, optional
+        Postprocessing to the operator output.
     """
 
     _last_id = 0
 
-    def __init__(self, params: ParamScheduler | dict = None, name: str = None):
+    def __init__(self, params: ParamScheduler | dict = None, name: str = None, encoding: Encoding = None):
         """
         Constructor for the Operator class.
         """
@@ -30,6 +38,10 @@ class Operator(ABC):
         self.param_scheduler = None
 
         self.name = name
+
+        if encoding is None:
+            encoding = DefaultEncoding()
+        self.encoding = encoding
 
         if params is None:
             self.params = {}
@@ -57,7 +69,7 @@ class Operator(ABC):
                 "w": 0.7,
                 "c1": 1.5,
                 "c2": 1.5,
-                "function": lambda x, y, z, w: x.genotype,
+                "function": lambda x, y, z: x,
             }
         else:
             if "method" in params:
@@ -71,17 +83,15 @@ class Operator(ABC):
 
     def __call__(
         self,
-        solution: Individual,
-        population: List[Individual],
+        population: Population,
         objfunc: ObjectiveFunc,
-        global_best: Individual,
         initializer: Initializer,
-    ) -> Individual:
+    ) -> Population:
         """
         A shorthand for calling the 'evolve' method.
         """
 
-        return self.evolve(solution, population, objfunc, global_best, initializer)
+        return self.evolve(population, initializer)
 
     def step(self, progress: float):
         """
@@ -122,30 +132,21 @@ class Operator(ABC):
     @abstractmethod
     def evolve(
         self,
-        indiv: Individual,
-        population: List[Individual],
-        objfunc: ObjectiveFunc,
-        global_best: Individual,
-        initializer: Initializer,
-    ) -> Individual:
+        population: Population,
+        initializer: Initializer = None,
+    ) -> Population:
         """
-        Evolves an individual using a given strategy.
+        Evolves an population using a given strategy.
 
         Parameters
         ----------
-        indiv: Individual
-            Individual to be operated on.
-        population: List[Individual]
-            The population that will be used in crossing operations.
-        objfunc: ObjectiveFunc
-            The objective function being optimized.
-        global_best: Individual
-            The best individual found during the optimization of the algorithm
-        initializer: Initializer
+        population: Population
+            The population that will be used.
+        initializer: Initialize, optional
             The population initializer of the algorithm (used for randomly generating individuals).
 
         Returns
         -------
-        new_individual: Individual
-            The modified individual.
+        new_population: Population
+            The modified population.
         """

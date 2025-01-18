@@ -1,6 +1,8 @@
 from __future__ import annotations
+from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer
-from ..operators import OperatorInt, OperatorReal, OperatorBinary
+from ..operators import OperatorVector
 from ..encodings import TypeCastEncoding
 from ..strategies import HillClimb
 from ..algorithms import GeneralAlgorithm
@@ -24,7 +26,7 @@ def hill_climb(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
     """
 
     if "encoding" not in params:
-        raise ValueError(f'You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
+        raise ValueError('You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
 
     encoding_str = params["encoding"]
 
@@ -56,7 +58,7 @@ def _hill_climb_bin_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
 
-    mutation_op = OperatorBinary("Flip", {"N": mutstr})
+    mutation_op = OperatorVector("Flip", {"N": mutstr})
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
@@ -79,10 +81,10 @@ def _hill_climb_int_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=int)
 
-    mutation_op = OperatorInt(
+    mutation_op = OperatorVector(
         "MutRand",
         {
-            "method": "Uniform",
+            "distrib": "Uniform",
             "Low": objfunc.low_lim,
             "Up": objfunc.up_lim,
             "N": mutstr,
@@ -110,7 +112,7 @@ def _hill_climb_real_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=float)
 
-    mutation_op = OperatorReal("RandNoise", {"method": "Gauss", "F": mutstr})
+    mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss", "F": mutstr})
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 

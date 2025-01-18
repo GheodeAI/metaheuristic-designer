@@ -1,7 +1,9 @@
 from __future__ import annotations
-from typing import Union
-from ...operators import OperatorMeta, OperatorReal
-from ...selectionMethods import ParentSelection
+from ...Initializer import Initializer
+from ...Operator import Operator
+from ...selectionMethods import ParentSelection, SurvivorSelection
+from ...ParamScheduler import ParamScheduler
+from ...operators import OperatorMeta
 from ..VariablePopulation import VariablePopulation
 
 
@@ -17,9 +19,12 @@ class ES(VariablePopulation):
         cross_op: Operator = None,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "ES",
     ):
+        if params is None:
+            params = {}
+
         if cross_op is None:
             evolve_op = mutation_op
         else:

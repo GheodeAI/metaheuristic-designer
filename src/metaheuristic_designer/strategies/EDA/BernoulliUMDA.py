@@ -1,7 +1,6 @@
 from __future__ import annotations
 import numpy as np
-import scipy as sp
-from ...operators import OperatorBinary
+from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
@@ -20,13 +19,15 @@ class BernoulliUMDA(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "BernoulliUMDA",
     ):
+        if params is None:
+            params = {}
+
         self.p = params.get("p", 0.5)
 
-        evolve_op = OperatorBinary("RandSample", {"distrib": "Bernoulli", "p": self.p})
-
+        evolve_op = OperatorVector("RandSample", {"distrib": "Bernoulli", "p": self.p})
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
         self.noise = params.get("noise", 0)
@@ -41,17 +42,17 @@ class BernoulliUMDA(VariablePopulation):
             name=name,
         )
 
-    def _batch_fit(self, parent_list):
-        population_matrix = np.asarray([i.genotype for i in parent_list])
+    def _batch_fit(self, population):
+        population_matrix = population.genotype_set
         p_hat = population_matrix.mean(axis=0)
 
         return p_hat
 
-    def perturb(self, parent_list, objfunc, **kwargs):
-        self.p = self._batch_fit(parent_list)
+    def perturb(self, parents, **kwargs):
+        self.p = self._batch_fit(parents)
         self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
         self.p = np.clip(self.p, 0, 1)
 
-        self.operator = OperatorBinary("RandSample", {"distrib": "Bernoulli", "p": self.p})
+        self.operator = OperatorVector("RandSample", {"distrib": "Bernoulli", "p": self.p})
 
-        return super().perturb(parent_list, objfunc, **kwargs)
+        return super().perturb(parents, **kwargs)

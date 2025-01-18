@@ -1,7 +1,6 @@
 from __future__ import annotations
 import numpy as np
-import scipy as sp
-from ...operators import OperatorReal, OperatorBinary, OperatorInt
+from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
@@ -20,17 +19,20 @@ class BinomialUMDA(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "BinomialUMDA",
     ):
+        if params is None:
+            params = {}
+
         self.p = params.get("p", 0.5)
 
         if "n" not in params:
-            raise Exception("A parameter 'n' must be specified which indicates the maximum value.")
+            raise Exception("A parameter 'n' must be specified which indicates the maximum value of the Binomial distribution.")
 
         self.n = params["n"]
 
-        evolve_op = OperatorInt("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
+        evolve_op = OperatorVector("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
 
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
@@ -46,17 +48,17 @@ class BinomialUMDA(VariablePopulation):
             name=name,
         )
 
-    def _batch_fit(self, parent_list):
-        population_matrix = np.asarray([i.genotype for i in parent_list])
+    def _batch_fit(self, population):
+        population_matrix = population.genotype_set
         p_hat = population_matrix.sum(axis=0) / (self.n * population_matrix.shape[0])
 
         return p_hat
 
-    def perturb(self, parent_list, objfunc, **kwargs):
-        self.p = self._batch_fit(parent_list)
+    def perturb(self, parents, **kwargs):
+        self.p = self._batch_fit(parents)
         self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
         self.p = np.clip(self.p, 0, 1)
 
-        self.operator = OperatorInt("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
+        self.operator = OperatorVector("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
 
-        return super().perturb(parent_list, objfunc, **kwargs)
+        return super().perturb(parents, **kwargs)

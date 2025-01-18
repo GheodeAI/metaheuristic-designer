@@ -1,10 +1,9 @@
 from metaheuristic_designer import (
     ObjectiveFunc,
     ParamScheduler,
-    Individual,
 )
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import OperatorReal, OperatorInt, OperatorBinary
+from metaheuristic_designer.operators import OperatorVector
 from metaheuristic_designer.strategies import *
 from metaheuristic_designer.initializers import *
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
@@ -93,24 +92,24 @@ def run_algorithm(alg_name, img_file_name, memetic):
         pop_size=100,
     )
 
-    init_population = [
-        Individual(
-            objfunc,
-            deblured_encoding.encode(np.asarray(reference_img)[:, :, :3].flatten())
-            + np.random.normal(0, 2, np.asarray(reference_img)[:, :, :3].size),
-            encoding=encoding,
-        )
-        for i in range(100)
-    ]
-    pop_initializer = DirectInitializer(pop_initializer, init_population, encoding=encoding)
+    # init_population = [
+    #     Individual(
+    #         objfunc,
+    #         deblured_encoding.encode(np.asarray(reference_img)[:, :, :3].flatten())
+    #         + np.random.normal(0, 2, np.asarray(reference_img)[:, :, :3].size),
+    #         encoding=encoding,
+    #     )
+    #     for i in range(100)
+    # ]
+    # pop_initializer = DirectInitializer(pop_initializer, init_population, encoding=encoding)
 
-    mutation_op = OperatorReal("MutRand", {"distrib": "Cauchy", "F": 4, "N": 2})
-    cross_op = OperatorReal("Multicross", {"Nindiv": 4})
+    mutation_op = OperatorVector("MutRand", {"distrib": "Cauchy", "F": 4, "N": 2})
+    cross_op = OperatorVector("Multicross", {"Nindiv": 4})
     parent_sel_op = ParentSelection("Best", {"amount": 15})
     selection_op = SurvivorSelection("Elitism", {"amount": 10})
 
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorReal("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
+    neihbourhood_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
 
     if alg_name == "HillClimb":
@@ -143,7 +142,7 @@ def run_algorithm(alg_name, img_file_name, memetic):
     elif alg_name == "HS":
         search_strat = HS(pop_initializer, {"HMCR": 0.8, "BW": 0.5, "PAR": 0.2})
     elif alg_name == "DE":
-        search_strat = DE(pop_initializer, OperatorReal("DE/best/1", {"F": 0.8, "Cr": 0.8}))
+        search_strat = DE(pop_initializer, OperatorVector("DE/best/1", {"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
         search_strat = PSO(pop_initializer, {"w": 0.7, "c1": 1.5, "c2": 1.5})
     elif alg_name == "RandomSearch":
@@ -232,25 +231,12 @@ def run_algorithm(alg_name, img_file_name, memetic):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
-    parser.add_argument("-i", "--image", dest="img", help="Specify an image as reference")
+    parser.add_argument("-a", "--algorithm", dest="algorithm", help="Specify an algorithm", default="SA")
+    parser.add_argument("-i", "--image", dest="img", help="Specify an image as reference", default="data/images/cat.png")
     parser.add_argument("-m", "--memetic", dest="mem", action="store_true", help="Specify an algorithm")
     args = parser.parse_args()
 
-    algorithm_name = "SA"
-    img_file_name = "data/images/cat_blurry.png"
-    mem = False
-
-    if args.alg:
-        algorithm_name = args.alg
-
-    if args.img:
-        img_file_name = args.img
-
-    if args.mem:
-        mem = True
-
-    run_algorithm(alg_name=algorithm_name, img_file_name=img_file_name, memetic=mem)
+    run_algorithm(alg_name=args.algorithm, img_file_name=args.img, memetic=args.mem)
 
 
 if __name__ == "__main__":
