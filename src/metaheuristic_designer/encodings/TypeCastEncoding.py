@@ -1,5 +1,5 @@
 from __future__ import annotations
-import numpy as np
+from numpy import ndarray
 from ..Encoding import Encoding
 
 
@@ -13,8 +13,8 @@ class TypeCastEncoding(Encoding):
         self.encoded_dtype = encoded_dtype
         self.decoded_dtype = decoded_dtype
 
-    def encode(self, phenotype: np.ndarray) -> np.ndarray:
-        return phenotype.astype(self.encoded_dtype)
+    def encode(self, phenotypes: ndarray) -> ndarray:
+        return phenotypes.astype(self.encoded_dtype)
 
-    def decode(self, genotype: np.ndarray) -> np.ndarray:
-        return genotype.astype(self.decoded_dtype)
+    def decode(self, genotypes: ndarray) -> ndarray:
+        return genotypes.astype(self.decoded_dtype)

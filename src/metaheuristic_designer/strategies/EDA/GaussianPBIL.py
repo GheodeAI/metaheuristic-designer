@@ -1,8 +1,5 @@
 from __future__ import annotations
-import numpy as np
-import scipy as sp
-from ...Individual import Individual
-from ...operators import OperatorReal
+from ...operators import OperatorVector
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
@@ -21,15 +18,16 @@ class GaussianPBIL(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "GaussianPBIL",
     ):
+        if params is None:
+            params = {}
+
         self.loc = params.get("loc", None)
         self.scale = params.get("scale", 1)
 
-        evolve_op = OperatorReal("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
-        self.prob_vec_mutate = evolve_op
-
+        evolve_op = OperatorVector("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
         self.lr = params.get("lr")
@@ -45,20 +43,20 @@ class GaussianPBIL(VariablePopulation):
             name=name,
         )
 
-    def _batch_fit(self, parent_list):
-        population_matrix = np.asarray([i.genotype for i in parent_list])
+    def _batch_fit(self, population):
+        population_matrix = population.genotype_set
         loc_hat = population_matrix.mean(axis=0)
 
         return loc_hat
 
-    def perturb(self, parent_list, objfunc, **kwargs):
-        new_loc = self._batch_fit(parent_list)
+    def perturb(self, parents, **kwargs):
+        new_loc = self._batch_fit(parents)
         if self.loc is not None:
             self.loc = (1 - self.lr) * self.loc + self.lr * new_loc
             self.loc += RAND_GEN.normal(0, self.noise, size=self.loc.shape)
         else:
             self.loc = new_loc
 
-        self.operator = OperatorReal("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
+        self.operator = OperatorVector("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
 
-        return super().perturb(parent_list, objfunc, **kwargs)
+        return super().perturb(parents, **kwargs)

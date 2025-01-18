@@ -1,14 +1,11 @@
 from __future__ import annotations
-import random
+from copy import copy
+import numpy as np
 from ..Operator import Operator
 from ..encodings import AdaptionEncoding
 from .OperatorMeta import OperatorMeta
-from .OperatorReal import OperatorReal
 from .OperatorNull import OperatorNull
-from copy import copy
-import numpy as np
-import enum
-from enum import Enum
+from ..ParamScheduler import ParamScheduler
 
 
 class OperatorAdaptative(Operator):
@@ -34,7 +31,7 @@ class OperatorAdaptative(Operator):
         base_operator: Operator,
         param_operator: Operator,
         param_encoding: AdaptionEncoding,
-        params: Union[ParamScheduler, dict] = None,
+        params: ParamScheduler | dict = None,
         name: str = None,
     ):
         """
@@ -52,17 +49,10 @@ class OperatorAdaptative(Operator):
         self.param_operator_split = OperatorMeta("Split", [null_op, param_operator], {"mask": vecmask})
         self.param_encoding = param_encoding
 
-    def evolve(self, indiv, population, objfunc, global_best, initializer=None):
-        # Evolve only parameters
-        indiv_conf_param = self.param_operator_split.evolve(indiv, population, objfunc, global_best, initializer)
+    def evolve(self, population, initializer=None):
+        population.decode()
 
-        # Apply parameters to operator
-        indiv_params = self.param_encoding.decode_param(indiv_conf_param.genotype)
-        self.base_operator.params.update(indiv_params)
-
-        # Evolve solution
-        new_indiv = self.base_operator_split.evolve(indiv_conf_param, population, objfunc, global_best, initializer)
-        return new_indiv
+        raise NotImplementedError
 
     def step(self, progress: float):
         super().step(progress)

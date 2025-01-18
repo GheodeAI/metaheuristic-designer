@@ -1,12 +1,8 @@
 from __future__ import annotations
-import random
+from ..Population import Population
+from ..Initializer import Initializer
 from ..ParamScheduler import ParamScheduler
-from ..selectionMethods import (
-    SurvivorSelection,
-    ParentSelection,
-    SurvivorSelectionNull,
-    ParentSelectionNull,
-)
+from ..selectionMethods import SurvivorSelection,ParentSelection
 from ..SearchStrategy import SearchStrategy
 from ..Operator import Operator
 
@@ -23,20 +19,20 @@ class VariablePopulation(SearchStrategy):
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
         n_offspring: int = None,
-        params: ParamScheduler | dict = {},
+        params: ParamScheduler | dict = None,
         name: str = "Variable Population Evolution",
     ):
         self.params = params
-        self.operator = operator
 
         if n_offspring is None and initializer is not None:
             n_offspring = initializer.pop_size
         self.n_offspring = n_offspring
 
-        self.best = None
+        self.population_shuffler = ParentSelection("Random", {"amount": self.n_offspring})
 
         super().__init__(
             initializer,
+            operator=operator,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             params=params,
@@ -50,22 +46,13 @@ class VariablePopulation(SearchStrategy):
     @initializer.setter
     def initializer(self, new_initializer):
         self.n_offspring = new_initializer.pop_size
+        self.population_shuffler = ParentSelection("Random", {"amount": self.n_offspring})
         self._initializer = new_initializer
 
-    def perturb(self, parent_list, objfunc, **kwargs):
-        offspring = []
-
-        while len(offspring) < self.n_offspring:
-            # Apply operator
-            indiv = random.choice(parent_list)
-            new_indiv = self.operator(indiv, parent_list, objfunc, self.best, self.initializer)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
-
-            # Add to offspring list
-            offspring.append(new_indiv)
-
-        return offspring
+    def select_parents(self, population: Population, **kwargs) -> Population:
+        next_population = self.parent_sel(population)
+        next_population = self.population_shuffler(next_population)
+        return next_population
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)

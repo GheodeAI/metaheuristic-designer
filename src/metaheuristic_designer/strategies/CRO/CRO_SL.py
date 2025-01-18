@@ -5,6 +5,7 @@ from ...selectionMethods import SurvivorSelection
 from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
+from ...operators import OperatorMeta
 
 
 class CRO_SL(SearchStrategy):
@@ -29,6 +30,10 @@ class CRO_SL(SearchStrategy):
         self.operator_list = operator_list
         self.operator_idx = [i % len(operator_list) for i in range(initializer.pop_size)]
 
+        # self.operator = OperatorMeta("Branch", operator_list)
+        self.operator = OperatorMeta("Pick", operator_list)
+        self.operator.chosen_idx = self.operator_idx
+
         self.survivor_sel = SurvivorSelection(
             "CRO",
             {
@@ -38,29 +43,6 @@ class CRO_SL(SearchStrategy):
                 "maxPopSize": initializer.pop_size,
             },
         )
-
-    def perturb(self, parent_list, objfunc, **kwargs):
-        offspring = []
-        for idx, indiv in enumerate(parent_list):
-            # Select operator
-            op_idx = self.operator_idx[idx]
-
-            op = self.operator_list[op_idx]
-
-            # Apply operator
-            new_indiv = op(indiv, parent_list, objfunc, self.best, self.initializer)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-            new_indiv.speed = objfunc.repair_speed(new_indiv.speed)
-
-            # Add to offspring list
-            offspring.append(new_indiv)
-
-        # Update best solution
-        current_best = max(offspring, key=lambda x: x.fitness)
-        if self.best.fitness < current_best.fitness:
-            self.best = current_best
-
-        return offspring
 
     def select_individuals(self, population, offspring, **kwargs):
         return self.survivor_sel(population, offspring)

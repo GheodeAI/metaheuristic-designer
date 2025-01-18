@@ -1,8 +1,6 @@
 from __future__ import annotations
 import numpy as np
-import random
 from ..Initializer import Initializer
-from ..Individual import Individual
 from ..utils import RAND_GEN
 
 
@@ -23,7 +21,5 @@ class PermInitializer(Initializer):
 
         super().__init__(pop_size, encoding=None)
 
-    def generate_random(self, objfunc):
-        rang_vec = np.arange(self.genotype_size)
-        RAND_GEN.shuffle(rang_vec)
-        return Individual(objfunc, rang_vec)
+    def generate_random(self):
+        return RAND_GEN.permutation(self.genotype_size)

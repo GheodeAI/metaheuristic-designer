@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import Union
+from typing import Iterable
 import warnings
+import numpy as np
+from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
@@ -19,15 +21,20 @@ class RVNS(SearchStrategy):
     def __init__(
         self,
         initializer: Initializer,
-        op_list: List[Operator],
-        selection_op: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
+        op_list: Iterable[Operator],
+        survivor_sel: SurvivorSelection = None,
+        params: ParamScheduler | dict = None,
         name: str = "RVNS",
     ):
+        if params is None:
+            params = {}
+
         self.op_list = op_list
-        self.perturb_op = OperatorMeta("Pick", op_list, {"init_idx": 0})
+        operator = OperatorMeta("Pick", op_list, {"init_idx": 0})
 
         self.current_op = 0
+
+        self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 
         if selection_op is None:
             selection_op = SurvivorSelection("One-to-One")
@@ -40,26 +47,18 @@ class RVNS(SearchStrategy):
                 stacklevel=2,
             )
 
-        super().__init__(initializer, params=params, name=name)
-
-    def perturb(self, indiv_list, objfunc, **kwargs):
-        offspring = []
-        for indiv in indiv_list:
-            # Perturb individual
-            new_indiv = self.perturb_op(indiv, indiv_list, objfunc, self.best, self.initializer)
-            new_indiv.genotype = objfunc.repair_solution(new_indiv.genotype)
-
-            offspring.append(new_indiv)
-
-        return offspring
+        super().__init__(
+            initializer,
+            operator=operator,
+            survivor_sel=survivor_sel,
+            params=params,
+            name=name
+        )
 
     def select_individuals(self, population, offspring, **kwargs):
-        new_population = self.selection_op(population, offspring)
+        new_population = super().select_individuals(population, offspring, **kwargs)
 
-        if new_population[0].id == population[0].id:
-            self.perturb_op.chosen_idx += 1
-        else:
-            self.perturb_op.chosen_idx = 0
+        self.perturb_op.chosen_idx = next_neighborhood(offspring[0], population[0], self.perturb_op.chosen_idx, self.nchange)
 
         return new_population
 
@@ -68,13 +67,13 @@ class RVNS(SearchStrategy):
 
         progress = kwargs["progress"]
 
-        if isinstance(self.perturb_op, Operator):
-            self.perturb_op.step(progress)
+        if isinstance(self.operator, Operator):
+            self.operator.step(progress)
 
-        if self.perturb_op.chosen_idx >= len(self.op_list) or self.perturb_op.chosen_idx < 0:
-            self.perturb_op.chosen_idx = 0
+        if self.operator.chosen_idx >= len(self.op_list) or self.operator.chosen_idx < 0:
+            self.operator.chosen_idx = 0
 
     def extra_step_info(self):
-        idx = self.perturb_op.chosen_idx
+        idx = self.operator.chosen_idx
 
         print(f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}")

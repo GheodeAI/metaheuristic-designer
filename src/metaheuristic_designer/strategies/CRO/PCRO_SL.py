@@ -24,8 +24,10 @@ class PCRO_SL(CRO_SL):
     ):
         super().__init__(initializer, operator_list, params=params, name=name)
         self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
+        self.operator.chosen_idx = self.operator_idx
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)
 
         self.operator_idx = random.choices(range(len(self.operator_list)), k=self.maxpopsize)
+        self.operator.chosen_idx = self.operator_idx

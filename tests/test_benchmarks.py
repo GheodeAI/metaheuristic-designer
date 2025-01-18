@@ -7,7 +7,7 @@ import metaheuristic_designer as mhd
 mhd.reset_seed(0)
 
 
-benchmark_functions = [
+real_benchmarks = [
     MaxOnes,
     MaxOnesReal,
     Sphere,
@@ -29,24 +29,41 @@ benchmark_functions = [
     N4XinSheYang,
 ]
 
+@pytest.mark.parametrize("vecsize", [2, 5, 10, 20, 30])
+@pytest.mark.parametrize("bench_class", real_benchmarks)
+def test_objective_real(vecsize, bench_class):
+    objfunc = bench_class(vecsize)
+    pop_init = UniformVectorInitializer(vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
+
+    rand_vec = pop_init.generate_random()
+    objfunc.objective(rand_vec)
 
 @pytest.mark.parametrize("vecsize", [2, 5, 10, 20, 30])
-@pytest.mark.parametrize("bench_class", benchmark_functions)
-def test_real_benchmarks(vecsize, bench_class):
+@pytest.mark.parametrize("bench_class", real_benchmarks)
+def test_repair_solution(vecsize, bench_class):
+    objfunc = bench_class(vecsize)
+    pop_init = UniformVectorInitializer(vecsize, -1000000, 1000000, pop_size=100)
+
+    rand_vec = pop_init.generate_random()
+    repaired = objfunc.repair_solution(rand_vec)
+    assert repaired.min() >= objfunc.low_lim
+    assert repaired.max() <= objfunc.up_lim
+
+@pytest.mark.parametrize("vecsize", [2, 5, 10, 20, 30])
+@pytest.mark.parametrize("bench_class", real_benchmarks)
+def test_repair_solution(vecsize, bench_class):
+    objfunc = bench_class(vecsize)
+    pop_init = UniformVectorInitializer(vecsize, -1000000, 1000000, pop_size=100)
+
+    rand_vec = pop_init.generate_random()
+    objfunc.penalize(rand_vec)
+
+@pytest.mark.parametrize("vecsize", [2, 5, 10, 20, 30])
+@pytest.mark.parametrize("bench_class", real_benchmarks)
+def test_fitness(vecsize, bench_class):
     objfunc = bench_class(vecsize)
     pop_init = UniformVectorInitializer(vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
     population = pop_init.generate_population(objfunc)
-    for indiv in population:
-        objfunc.fitness(indiv, adjusted=False)
-        objfunc.fitness(indiv, adjusted=True)
-
-
-@pytest.mark.parametrize("bench_class", benchmark_functions)
-def test_real_benchmarks(bench_class):
-    objfunc = bench_class(20)
-    pop_init = UniformVectorInitializer(20, -10000, 10000, pop_size=100)
-
-    population = pop_init.generate_population(objfunc)
-    for indiv in population:
-        objfunc.repair_solution(indiv.genotype)
+    objfunc.fitness(population, adjusted=False)
+    objfunc.fitness(population, adjusted=True)

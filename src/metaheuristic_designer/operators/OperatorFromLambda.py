@@ -1,12 +1,7 @@
 from __future__ import annotations
-import numpy as np
-from ..Operator import Operator
-from .vector_operator_functions import *
-from ..ParamScheduler import ParamScheduler
 from copy import copy
-import enum
-from enum import Enum
-from ..utils import RAND_GEN
+from ..Operator import Operator
+from ..ParamScheduler import ParamScheduler
 
 
 class OperatorFromLambda(Operator):
@@ -23,22 +18,23 @@ class OperatorFromLambda(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, fn: callable, params: Union[ParamScheduler, dict] = None, name: str = None):
+    def __init__(self, fn: callable, params: ParamScheduler | dict = None, name: str = None, vectorized: bool = True):
         """
         Constructor for the OperatorLambda class
         """
 
         self.fn = fn
+        self.vectorized = vectorized
 
         if name is None:
             name = fn.__name__
 
         super().__init__(params, name)
 
-    def evolve(self, indiv, population, objfunc, global_best, initializer):
-        new_indiv = copy(indiv)
-        others = [i for i in population if i != indiv]
+    def evolve(self, population, initializer=None):
+        if self.vectorized:
+            new_population = self.fn(population.genotype_set, **self.params)
+        else:
+            new_population = [self.evolve_single(indiv, population, initializer) for indiv in population]
 
-        new_indiv.genotype = self.fn(indiv, others, objfunc, **self.params)
-
-        return new_indiv
+        return new_population
