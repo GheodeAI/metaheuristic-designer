@@ -141,7 +141,7 @@ class Population:
         
         best_solution = self.best
         if decoded:
-            best_solution = self.encoding.decode(self.best[None, :]).squeeze()
+            best_solution = self.encoding.decode(self.best[None, :])[0]
 
         return best_solution, best_fitness
 
