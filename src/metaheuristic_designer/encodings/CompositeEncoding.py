@@ -11,6 +11,14 @@ class CompositeEncoding(Encoding):
     def __init__(self, encodings: Iterable[Encoding]):
         self.encodings = encodings
 
+        super().__init__(vectorized=None)
+
+    def encode_func(self, solutions: Any) -> Any:
+        pass
+
+    def decode_func(self, population: Any) -> Any:
+        pass
+
     def encode(self, phenotypes: Any) -> Any:
         encoded = phenotypes
         for encoding in reversed(self.encodings):

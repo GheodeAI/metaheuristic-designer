@@ -35,7 +35,6 @@ class SurvivorSelectionNull(SelectionMethod):
         if name is None:
             name = "Nothing"
 
-
         super().__init__(params, name)
 
     def select(self, population: Population, offspring: Population) -> Population:

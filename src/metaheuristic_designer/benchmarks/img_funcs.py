@@ -32,17 +32,17 @@ class ImgApprox(ObjectiveVectorFunc):
         image_size = np.prod(solutions.shape[1:])
         match self.diff_func:
             case "MSE":
-                error = np.astype(np.sum((solutions - self.reference)**2, axis=(1,2,3))/image_size, float)
+                error = np.astype(np.sum((solutions - self.reference) ** 2, axis=(1, 2, 3)) / image_size, float)
             case "MAE":
-                error = np.astype(np.sum(np.abs(solutions - self.reference), axis=(1,2,3))/image_size, float)
+                error = np.astype(np.sum(np.abs(solutions - self.reference), axis=(1, 2, 3)) / image_size, float)
             case "SSIM":
                 for idx, s in enumerate(solutions):
-                    for s_ch, ref_ch in zip(s.transpose((2,0,1)), self.reference.transpose((2,0,1))):
+                    for s_ch, ref_ch in zip(s.transpose((2, 0, 1)), self.reference.transpose((2, 0, 1))):
                         error[idx] += metrics.structural_similarity(s_ch, ref_ch)
                     error[idx] /= 3
             case "NMI":
                 for idx, s in enumerate(solutions):
-                    for s_ch, ref_ch in zip(s.transpose((2,0,1)), self.reference.transpose((2,0,1))):
+                    for s_ch, ref_ch in zip(s.transpose((2, 0, 1)), self.reference.transpose((2, 0, 1))):
                         error[idx] += metrics.normalized_mutual_information(s_ch, ref_ch, bins=256)
                     error[idx] /= 3
 

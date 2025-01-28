@@ -20,15 +20,17 @@ class AdaptionEncoding(Encoding):
             base_encoding = DefaultEncoding()
         self.base_encoding = base_encoding
 
-    def encode(self, phenotype: Any, param_vec: np.ndarray = None) -> np.ndarray:
+        super().__init__(vectorized=True)
+
+    def encode_func(self, phenotype: Any, param_vec: np.ndarray = None) -> np.ndarray:
         phenotype_encoded = self.base_encoding.encode(phenotype)
         return np.concatenate([phenotype_encoded, param_vec], axis=1)
 
-    def decode(self, genotype: np.ndarray) -> np.ndarray:
-        return self.base_encoding.decode(genotype[:, :self.vecsize])
+    def decode_func(self, genotype: np.ndarray) -> np.ndarray:
+        return self.base_encoding.decode(genotype[:, : self.vecsize])
 
     def decode_param_vec(self, genotype):
-        return genotype[:, self.vecsize:]
+        return genotype[:, self.vecsize :]
 
     @abstractmethod
     def decode_param(self, genotype) -> dict:

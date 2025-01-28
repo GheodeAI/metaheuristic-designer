@@ -8,6 +8,7 @@ from .utils import RAND_GEN
 from .ObjectiveFunc import ObjectiveFunc
 from .Encoding import Encoding
 
+
 class Population:
     """
     Individual that holds a tentative solution with its fitness.
@@ -128,7 +129,7 @@ class Population:
         ----------
         decoded: bool, optional
             Whether to return the raw vector of the best solution or it's decoded version.
-        
+
         Returns
         -------
         best_solution : Tuple[ndarray, float]
@@ -138,7 +139,7 @@ class Population:
         best_fitness = self.best_fitness
         if self.objfunc.mode == "min":
             best_fitness *= -1
-        
+
         best_solution = self.best
         if decoded:
             best_solution = self.encoding.decode(self.best[None, :]).squeeze()
@@ -156,7 +157,7 @@ class Population:
 
         genotype_set: ndarray, optional
             The new speeds to assign to the new indiviudals.
-        
+
         Returns
         -------
         self: Population
@@ -185,7 +186,7 @@ class Population:
         ----------
         selection_idx: ndarray
             An array of indices or a mask that indicate which individuals to take from the population.
-        
+
         Returns
         -------
         selected_population: Population
@@ -216,7 +217,7 @@ class Population:
             Population where to take the individuals that will replace the ones in the population.
         selection_idx: ndarray
             An array of indices or a mask that indicate which individuals to take from the population.
-        
+
         Returns
         -------
         self: Population
@@ -228,7 +229,7 @@ class Population:
         self.ages[selection_idx] = selected_pop.ages
         self.fitness[selection_idx] = selected_pop.fitness
         self.fitness_calculated[selection_idx] = selected_pop.fitness_calculated
-        self.historical_best_set[selection_idx, :] = selected_pop.historical_best_set 
+        self.historical_best_set[selection_idx, :] = selected_pop.historical_best_set
         self.historical_best_fitness[selection_idx] = selected_pop.historical_best_fitness
 
         # if selected_pop.best_fitness is None or (self.best_fitness is not None and self.best_fitness > selected_pop.best_fitness):
@@ -246,7 +247,7 @@ class Population:
         ----------
         mask: ndarray
             An array of indices or a mask that indicate which components to take from each vector in the population.
-        
+
         Returns
         -------
         sliced_population: Population
@@ -278,7 +279,7 @@ class Population:
             current population.
         mask: ndarray
             An array of indices or a mask that indicate which components to take from each vector in the population.
-        
+
         Returns
         -------
         self: Population
@@ -387,7 +388,7 @@ class Population:
             self.best = parents.best
             self.best_fitness = parents.best_fitness
         return self
-    
+
     def update(self, increase_age: bool = False) -> Population:
         """
         Updates the best solution in the population and the ages of the inidivudals.
@@ -420,7 +421,7 @@ class Population:
         ----------
         amount: int, optional
             The amount of times to repeat the individuals in the population.
-        
+
         Returns
         -------
         repeated_population: Population
@@ -479,7 +480,7 @@ class Population:
                 self.speed_set[idx] = self.objfunc.repair_speed(self.speed_set[idx])
 
         return self
-    
+
     def decode(self) -> Any:
         """
         Return the population passed through the decoding funciton defined in the encoding.
@@ -517,7 +518,7 @@ class Population:
             "best_fitness": self.best_fitness,
             "ages": self.ages,
             "speed": self.speed_set,
-            "encoding": type(self.encoding).__name__
+            "encoding": type(self.encoding).__name__,
         }
 
         return data

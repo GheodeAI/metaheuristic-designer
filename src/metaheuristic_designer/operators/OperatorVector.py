@@ -285,7 +285,9 @@ class OperatorVector(Operator):
 
             ## Swarm based algorithms
             case VectorOpMethods.PSO:
-                population_matrix, speed = pso_operator(population_matrix, speed, historical_best, global_best, params["w"], params["c1"], params["c2"])
+                population_matrix, speed = pso_operator(
+                    population_matrix, speed, historical_best, global_best, params["w"], params["c1"], params["c2"]
+                )
 
             case VectorOpMethods.FIREFLY:
                 population_matrix = firefly(
