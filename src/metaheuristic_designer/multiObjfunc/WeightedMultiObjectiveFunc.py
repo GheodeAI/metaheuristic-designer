@@ -2,12 +2,13 @@ from __future__ import annotations
 import numpy as np
 from typing import Iterable
 from ..ObjectiveFunc import *
+from ..Population import Population
 
 
 class WeightedMultiObjectiveFunc(ObjectiveFunc):
     def __init__(
         self,
-        objectives: List[ObjectiveFunc],
+        objectives: Iterable[ObjectiveFunc],
         weights: Iterable[float] = None,
         name: str = "Weighted average of functions",
     ):
@@ -21,18 +22,20 @@ class WeightedMultiObjectiveFunc(ObjectiveFunc):
             weights = np.asarray(weights) / sum(weights)
         self.weights = weights
 
-    def fitness(self, indiv: Individual, adjusted=True) -> float:
+    def fitness(self, population: Population, adjusted=True) -> float:
         fitness_total = 0
         for obj_func, w in zip(self.objectives, self.weights):
-            fitness_total += w * obj_func.fitness(indiv, adjusted)
+            fitness_total += w * obj_func.fitness(population, adjusted)
 
         return fitness_total
 
-    def objective(self, solution: Any) -> float:
-        obj_total = 0
-        for obj_func, w in zip(self.objectives, self.weights):
-            obj_total += w * obj_func.objective(solution)
-        return obj_total
+    def objective(self, solution: Any) -> ndarray:
+        # obj_total = 0
+        # for obj_func, w in zip(self.objectives, self.weights):
+        #     obj_total += w * obj_func.objective(solution)
+        # return obj_total
+
+        return np.array([objfunc.objective(solution) for objfunc in self.objectives])
 
     def repair_solution(self, solution: Any) -> Any:
         return solution

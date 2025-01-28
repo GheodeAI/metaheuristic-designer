@@ -15,8 +15,8 @@ class CombinedMultiObjectiveFunc(MultiObjectiveFunc):
 
         self.objectives = objectives
 
-    def fitness(self, indiv: Individual, adjusted=True) -> ndarray:
-        return np.array([objfunc.fitness(indiv, adjusted) for objfunc in self.objectives])
+    def fitness(self, population: population, adjusted=True) -> ndarray:
+        return np.vstack([objfunc.fitness(population, adjusted) for objfunc in self.objectives]).T
 
     def objective(self, solution: Any) -> ndarray:
         return np.array([objfunc.objective(solution) for objfunc in self.objectives])

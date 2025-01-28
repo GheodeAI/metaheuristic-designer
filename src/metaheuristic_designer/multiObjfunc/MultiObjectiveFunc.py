@@ -24,15 +24,15 @@ class MultiObjectiveFunc(ObjectiveFunc):
             else:
                 self.factors[[i != "max" for i in modes]] = -1
 
-    def fitness(self, indiv: Individual, adjusted: bool = True) -> ndarray:
+    def fitness(self, population: Population, adjusted: bool = True) -> ndarray:
         self.counter += 1
-        solution = indiv.encoding.decode(indiv.genotype)
-        value = self.objective(solution)
+        solutions = population.decode()
+        values = self.objective(solutions)
 
         if adjusted:
-            value = self.factors * (value - self.penalize(solution))
+            values = self.factors * (value - self.penalize(solutions))
 
-        return value
+        return values
 
     @abstractmethod
     def objective(self, solution: Any) -> ndarray:
@@ -71,7 +71,6 @@ class MultiObjectiveVectorFunc(MultiObjectiveFunc):
     ):
         super().__init__(n_objectives=n_objectives, modes=modes, name=name)
 
-        self.n_objectives = n_objectives
         self.vecsize = vecsize
         self.low_lim = low_lim
         self.up_lim = up_lim
