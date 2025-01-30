@@ -34,7 +34,7 @@ class PSO(StaticPopulation):
                 ),
             )
 
-        super().__init__(initializer, pso_op, params=params, name=name)
+        super().__init__(initializer, operator=pso_op, params=params, name=name)
 
     def extra_step_info(self):
         popul_matrix = self.population.genotype_set

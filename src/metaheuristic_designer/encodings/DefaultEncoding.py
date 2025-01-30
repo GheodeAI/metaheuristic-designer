@@ -9,7 +9,7 @@ class DefaultEncoding(Encoding):
     """
 
     def __init__(self):
-        super().__init__(vectorized=True)
+        super().__init__(vectorized=True, decode_as_array=True)
 
     def encode_func(self, solutions: Any) -> Any:
         return solutions

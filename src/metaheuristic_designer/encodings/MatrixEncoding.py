@@ -11,7 +11,7 @@ class MatrixEncoding(Encoding):
 
     def __init__(self, shape):
         self.shape = tuple(shape)
-        super().__init__(vectorized=True)
+        super().__init__(vectorized=True, decode_as_array=True)
 
     def encode_func(self, solutions: ndarray) -> ndarray:
         return solutions.reshape(solutions.shape[:1] + (-1,))

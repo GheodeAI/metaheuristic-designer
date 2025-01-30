@@ -258,7 +258,7 @@ class Algorithm(ABC):
         if pass_step:
             self.steps += 1
 
-        if self.prev_best_fitness is not None and (self.best_solution()[1] <= self.prev_best_fitness != self.objfunc.mode == "max"):
+        if self.prev_best_fitness is not None and ((self.best_solution()[1] >= self.prev_best_fitness) != (self.objfunc.mode == "max")):
             self.patience_left -= 1
         else:
             self.patience_left = self.max_patience

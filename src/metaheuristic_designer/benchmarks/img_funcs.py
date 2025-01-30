@@ -7,16 +7,17 @@ from skimage import metrics
 
 
 class ImgApprox(ObjectiveVectorFunc):
-    def __init__(self, img_dim, reference, mode=None, img_name="", diff_func="MSE"):
+    def __init__(self, img_dim, reference, mode=None, img_name="", diff_func="MSE", name=None):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0] * img_dim[1] * 3
         self.reference = reference.resize((img_dim[0], img_dim[1]))
         self.reference = np.asarray(self.reference)[:, :, :3].astype(np.uint8)
 
-        if img_name == "":
-            name = "Image approximation"
-        else:
-            name = f'Approximating "{img_name}"'
+        if name is None:
+            if img_name == "":
+                name = "Image approximation"
+            else:
+                name = f'Approximating "{img_name}"'
 
         self.diff_func = diff_func
         if mode is None:
@@ -65,7 +66,7 @@ class ImgStd(ObjectiveVectorFunc):
 
     def objective(self, solution):
         solution_color = solution.reshape([3, -1])
-        return solution_color.std(axis=1).max()
+        return solution_color.std(axis=1).mean()
 
     def repair_solution(self, solution):
         return np.clip(solution, 0, 255)
