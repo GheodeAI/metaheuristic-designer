@@ -37,7 +37,7 @@ class GA(VariablePopulation):
 
         super().__init__(
             initializer,
-            evolve_op,
+            operator=evolve_op,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             params=params,

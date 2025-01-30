@@ -11,9 +11,10 @@ class MatrixEncoding(Encoding):
 
     def __init__(self, shape):
         self.shape = tuple(shape)
+        super().__init__(vectorized=True, decode_as_array=True)
 
-    def encode(self, phenotypes: ndarray) -> ndarray:
-        return phenotypes.reshape(phenotypes.shape[:1] + (-1,))
+    def encode_func(self, solutions: ndarray) -> ndarray:
+        return solutions.reshape(solutions.shape[:1] + (-1,))
 
-    def decode(self, genotypes: ndarray) -> ndarray:
-        return np.reshape(genotypes, genotypes.shape[:1] + self.shape)
+    def decode_func(self, population: ndarray) -> ndarray:
+        return np.reshape(population, population.shape[:1] + self.shape)

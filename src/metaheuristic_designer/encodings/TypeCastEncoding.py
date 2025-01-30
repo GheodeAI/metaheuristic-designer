@@ -13,8 +13,10 @@ class TypeCastEncoding(Encoding):
         self.encoded_dtype = encoded_dtype
         self.decoded_dtype = decoded_dtype
 
-    def encode(self, phenotypes: ndarray) -> ndarray:
+        super().__init__(vectorized=True, decode_as_array=True)
+
+    def encode_func(self, solutions: ndarray) -> ndarray:
         return phenotypes.astype(self.encoded_dtype)
 
-    def decode(self, genotypes: ndarray) -> ndarray:
+    def decode_func(self, population: ndarray) -> ndarray:
         return genotypes.astype(self.decoded_dtype)

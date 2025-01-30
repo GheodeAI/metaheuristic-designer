@@ -34,7 +34,7 @@ class ES(VariablePopulation):
 
         super().__init__(
             initializer,
-            evolve_op,
+            operator=evolve_op,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             n_offspring=offspring_size,

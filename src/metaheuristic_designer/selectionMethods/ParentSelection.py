@@ -74,7 +74,6 @@ class ParentSelection(SelectionMethod):
         if self.method in [ParentSelMethod.ROULETTE, ParentSelMethod.SUS]:
             self.params["method"] = SelectionDist.from_str(self.params.get("method", "FitnessProp"))
 
-
     def select(self, population: Population, offspring: Population = None) -> Population:
         new_population = None
         parent_idx = None

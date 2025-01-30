@@ -21,7 +21,7 @@ class LocalSearch(SearchStrategy):
     ):
         if params is None:
             params = {}
-        
+
         if survivor_sel is None:
             survivor_sel = SurvivorSelection("Many-to-one")
 

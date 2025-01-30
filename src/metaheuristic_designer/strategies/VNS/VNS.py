@@ -34,7 +34,7 @@ class VNS(SearchStrategy):
 
         if inner_loop_params is None:
             inner_loop_params = {}
-        
+
         self.iterations = params.get("iters", 100)
         self.op_list = op_list
         operator = OperatorMeta("Pick", op_list, {"init_idx": 0})
@@ -46,7 +46,7 @@ class VNS(SearchStrategy):
         local_search.name = f"VNS ({local_search.name})"
         self.local_search = local_search
 
-        inner_loop_params['init_info'] = False
+        inner_loop_params["init_info"] = False
 
         # self.local_search = GeneralAlgorithm(
         #     objfunc=None,
@@ -65,17 +65,11 @@ class VNS(SearchStrategy):
                 stacklevel=2,
             )
 
-        super().__init__(
-            initializer=initializer,
-            operator=operator,
-            survivor_sel=survivor_sel,
-            params=params,
-            name=name
-        )
+        super().__init__(initializer=initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name)
 
     def initialize(self, objfunc):
         initial_population = super().initialize(objfunc)
-        
+
         self.local_search.objfunc = objfunc
         self.local_search.initialize(objfunc)
 
