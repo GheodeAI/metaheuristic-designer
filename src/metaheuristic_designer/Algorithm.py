@@ -52,7 +52,7 @@ class Algorithm(ABC):
             params = {}
 
         # Verbose parameters
-        self.show_init_info = params.get("init_info", True) 
+        self.show_init_info = params.get("init_info", True)
         self.verbose = params.get("verbose", True)
         self.v_timer = params.get("v_timer", 1)
 
@@ -258,7 +258,7 @@ class Algorithm(ABC):
         if pass_step:
             self.steps += 1
 
-        if self.prev_best_fitness is not None and (self.best_solution()[1] <= self.prev_best_fitness != self.objfunc.mode == "max"):
+        if self.prev_best_fitness is not None and ((self.best_solution()[1] >= self.prev_best_fitness) != (self.objfunc.mode == "max")):
             self.patience_left -= 1
         else:
             self.patience_left = self.max_patience
@@ -580,10 +580,10 @@ def process_condition(
             cond2_parsed = process_condition(cond2, neval, ngen, real_time, cpu_time, target, patience)
 
             result = cond1_parsed or cond2_parsed
-        
+
         case [cond1]:
             result = process_condition(cond1, neval, ngen, real_time, cpu_time, target, patience)
-        
+
         case "neval":
             result = neval
 
@@ -655,10 +655,10 @@ def process_progress(
             progress2 = process_progress(cond2, neval, ngen, real_time, cpu_time, target, patience)
 
             result = min(progress1, progress2)
-        
+
         case [cond1]:
             result = process_progress(cond1, neval, ngen, real_time, cpu_time, target, patience)
-        
+
         case "neval":
             result = neval
 

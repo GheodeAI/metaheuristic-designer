@@ -8,8 +8,11 @@ class DefaultEncoding(Encoding):
     Default encoder that uses the genotype directly as a solution.
     """
 
-    def encode(self, phenotypes: Any) -> Any:
-        return phenotypes
+    def __init__(self):
+        super().__init__(vectorized=True, decode_as_array=True)
 
-    def decode(self, genotypes: Any) -> Any:
-        return genotypes
+    def encode_func(self, solutions: Any) -> Any:
+        return solutions
+
+    def decode_func(self, population: Any) -> Any:
+        return population

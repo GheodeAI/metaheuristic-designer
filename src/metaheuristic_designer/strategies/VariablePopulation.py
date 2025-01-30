@@ -2,7 +2,7 @@ from __future__ import annotations
 from ..Population import Population
 from ..Initializer import Initializer
 from ..ParamScheduler import ParamScheduler
-from ..selectionMethods import SurvivorSelection,ParentSelection
+from ..selectionMethods import SurvivorSelection, ParentSelection
 from ..SearchStrategy import SearchStrategy
 from ..Operator import Operator
 

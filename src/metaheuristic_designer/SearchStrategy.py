@@ -77,7 +77,7 @@ class SearchStrategy:
             self.params = self.param_scheduler.get_params()
         else:
             self.params = params
-        
+
         self.finish = False
 
         self._find_operator_attributes()
@@ -150,7 +150,7 @@ class SearchStrategy:
         ----------
         objfunc: ObjectiveFunc
             Objective function to be optimized.
-        
+
         Returns
         -------
         population: Population
@@ -230,7 +230,7 @@ class SearchStrategy:
         Parameters
         ----------
         population: Population
-            The population to be repaired 
+            The population to be repaired
 
         Returns
         -------
@@ -281,10 +281,7 @@ class SearchStrategy:
             The complete state of the search strategy.
         """
 
-        data = {
-            "name": self.name,
-            "intializer": type(self.initializer).__name__
-        }
+        data = {"name": self.name, "intializer": type(self.initializer).__name__}
 
         if self.param_scheduler:
             data["param_scheduler"] = self.param_scheduler.get_state()

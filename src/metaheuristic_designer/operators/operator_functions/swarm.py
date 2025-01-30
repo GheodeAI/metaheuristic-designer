@@ -48,6 +48,6 @@ def firefly(population, fitness, objfunc, alpha_0, beta_0, delta, gamma):
 
     # return new_vector
 
+
 def glowworm(population, fitness):
     raise NotImplementedError
-

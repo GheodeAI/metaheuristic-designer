@@ -60,6 +60,7 @@ def prob_one_to_one(population_fitness, offspring_fitness, p):
     full_idx[selection_mask] += n_parents
     return full_idx
 
+
 def many_to_one(population_fitness, offspring_fitness):
     """
     Compares each new individual with its parent and it replaces it if
@@ -93,7 +94,7 @@ def many_to_one(population_fitness, offspring_fitness):
 
     # Get indices to use.
     full_idx = np.arange(n_parents)
-    full_idx += best_individual_idx*n_parents
+    full_idx += best_individual_idx * n_parents
 
     return full_idx
 
@@ -131,13 +132,13 @@ def prob_many_to_one(population_fitness, offspring_fitness, p):
     best_individual_idx = np.argmax(fitness_matrix, axis=0)
 
     # Use random individual with probability 'p'.
-    random_individual_idx = RAND_GEN.integers(0, n_repetitions+1, n_parents)
+    random_individual_idx = RAND_GEN.integers(0, n_repetitions + 1, n_parents)
     ignore_mask = RAND_GEN.random(n_parents) < p
     best_individual_idx[ignore_mask] = random_individual_idx[ignore_mask]
 
     # Get indices to use.
     full_idx = np.arange(n_parents)
-    full_idx += best_individual_idx*n_parents
+    full_idx += best_individual_idx * n_parents
 
     return full_idx
 
@@ -284,9 +285,6 @@ def _cro_set_larvae(population_fitness, offspring_fitness, attempts, maxpopsize)
     idx_to_compare = RAND_GEN.integers(0, n_parents, size=(n_offspring, attempts))
     spot_fitness = population_fitness[idx_to_compare]
     new_fitness = np.tile(offspring_fitness, (attempts, 1)).T
-
-
-
 
 
 def _cro_depredation(population, Fd, Pd):

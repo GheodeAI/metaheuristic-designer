@@ -78,11 +78,11 @@ class ObjectiveFunc(ABC):
         if self.vectorized:
             if self.recalculate:
                 solutions = solutions[population.fitness_calculated == 0, :]
-            
+
             fitness_new = self.objective(solutions)
             if adjusted:
                 fitness_new = self.factor * (fitness_new - self.penalize(solutions))
-                
+
             if self.recalculate:
                 fitness[population.fitness_calculated == 0] = fitness_new
             else:
@@ -186,7 +186,7 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         up_lim: float = 100,
         name: str = "some function",
         vectorized: bool = False,
-        recalculate: bool = False
+        recalculate: bool = False,
     ):
         """
         Constructor for the ObjectiveVectorFunc class
