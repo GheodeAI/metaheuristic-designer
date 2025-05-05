@@ -123,6 +123,7 @@ class OperatorPerm(Operator):
                 population_matrix = population_matrix
 
         if new_population is None:
+            population_matrix = self.encoding.encode(population_matrix)
             new_population = population.update_genotype_set(population_matrix)
 
         return new_population

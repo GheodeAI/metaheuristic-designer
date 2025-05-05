@@ -178,9 +178,8 @@ class OperatorVector(Operator):
             params["N"] = min(params["N"], population_matrix.shape[1])
 
         # Perform one of the methods (switch-case like structure)
-
-        ## Cross operations
         match self.method:
+            ## Cross operations
             case VectorOpMethods.ONE_POINT:
                 population_matrix = cross_1p(population_matrix)
 
@@ -327,8 +326,9 @@ class OperatorVector(Operator):
 
             case VectorOpMethods.NOTHING:
                 new_population = copy(population)
-
+        
         if new_population is None:
+            population_matrix = self.encoding.encode(population_matrix)
             new_population = population.update_genotype_set(population_matrix, speed)
 
         return new_population
