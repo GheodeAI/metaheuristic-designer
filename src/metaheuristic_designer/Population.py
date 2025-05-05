@@ -463,7 +463,7 @@ class Population:
             self.best = self.genotype_set[best_idx]
             self.best_fitness = self.fitness[best_idx]
 
-        return self.fitness
+        return self
 
     def repair_solutions(self) -> Population:
         """
