@@ -287,12 +287,15 @@ class Algorithm(ABC):
         return initial_population
 
     @abstractmethod
-    def step(self, time_start: float = 0, verbose: bool = False) -> Population:
+    def step(self, population=None, time_start: float = 0, verbose: bool = False) -> Population:
         """
         Performs an iteration of the algorithm.
 
         Parameters
         ----------
+        population: Population, optional
+            Population to evolve in the next generation. By default use the result from
+            the previous step contained in the search strategy class. 
         time_start: float, optional
             Indicates to the algorihm how much time has already passed.
         verbose: bool, optional
@@ -328,7 +331,9 @@ class Algorithm(ABC):
 
         # Initizalize search strategy
         if initialize:
-            self.initialize()
+            population = self.initialize()
+        else:
+            population = self.search_strategy.population
 
         # Search until the stopping condition is met
         self.update(real_time_start, cpu_time_start, pass_step=False)
@@ -337,7 +342,7 @@ class Algorithm(ABC):
             self.step_info(real_time_start)
 
         while not self.ended:
-            self.step(real_time_start)
+            population = self.step(population=population, time_start=real_time_start)
 
             self.update(real_time_start, cpu_time_start)
 
@@ -350,7 +355,7 @@ class Algorithm(ABC):
         self.real_time_spent = time.time() - real_time_start
         self.cpu_time_spent = time.process_time() - cpu_time_start
 
-        return self.search_strategy.population
+        return population
 
     def get_state(
         self,

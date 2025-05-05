@@ -20,15 +20,16 @@ class GeneralAlgorithm(Algorithm):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    # debug = True
-    # debug_stop = True
-
     debug = False
     debug_stop = False
 
-    def step(self, time_start=0, verbose=False):
+    def step(self, population=None, time_start=0, verbose=False):
         # Get the population of this generation
-        population = self.search_strategy.population
+        if population is None:
+            population = self.search_strategy.population
+        else:
+            self.search_strategy.population = population
+
         new_population = copy(population)
         if self.debug:
             print("original population", population)
