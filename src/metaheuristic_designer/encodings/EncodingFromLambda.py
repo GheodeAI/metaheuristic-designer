@@ -14,8 +14,8 @@ class EncodingFromLambda(Encoding):
 
         super().__init__(vectorized=vectorized)
 
-    def encode_func(self, solutions: Any) -> Any:
-        return self.encode_fn(solutions)
+    def encode_func(self, solution: Any) -> Any:
+        return self.encode_fn(solution)
 
-    def decode_func(self, population: Any) -> Any:
-        return self.encode_fn(population)
+    def decode_func(self, populatio: Any) -> Any:
+        return self.encode_fn(populatio)

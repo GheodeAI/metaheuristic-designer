@@ -39,7 +39,7 @@ class DirectInitializer(Initializer):
     def generate_individual(self):
         indiv = None
         if isinstance(self.solutions, Population):
-            indiv = random.choice(self.solutions.genotype_set)
+            indiv = random.choice(self.solutions.genotype_matrix)
         elif isinstance(self.solutions, np.ndarray):
             indiv = RAND_GEN.choice(self.solutions)
 
@@ -57,6 +57,6 @@ class DirectInitializer(Initializer):
                 population = self.solutions.take_selection(selection_idx)
         elif isinstance(self.solutions, np.ndarray):
             selection_idx = np.arange(n_indiv) % self.solutions.pop_size
-            population = Population(objfunc, self.solutions.genotype_set[selection_idx])
+            population = Population(objfunc, self.solutions.genotype_matrix[selection_idx])
 
         return population

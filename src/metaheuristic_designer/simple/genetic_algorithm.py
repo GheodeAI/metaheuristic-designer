@@ -1,8 +1,8 @@
 from __future__ import annotations
 from ..ObjectiveFunc import ObjectiveVectorFunc
 from ..Algorithm import Algorithm
-from ..initializers import UniformVectorInitializer
-from ..operators import OperatorVector
+from ..initializers import UniformVectorInitializer, PermInitializer
+from ..operators import OperatorVector, OperatorPerm
 from ..selectionMethods import SurvivorSelection, ParentSelection
 from ..encodings import TypeCastEncoding
 from ..strategies import GA
@@ -35,10 +35,12 @@ def genetic_algorithm(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algo
         alg = _genetic_algorithm_bin_vec(params, objfunc)
     elif encoding_str.lower() == "int":
         alg = _genetic_algorithm_int_vec(params, objfunc)
+    elif encoding_str.lower() == "perm":
+        alg = _genetic_algorithm_perm_vec(params, objfunc)
     elif encoding_str.lower() == "real":
         alg = _genetic_algorithm_real_vec(params, objfunc)
     else:
-        raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"')
+        raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real", "int", "perm" or "bin"')
 
     return alg
 
@@ -113,6 +115,42 @@ def _genetic_algorithm_int_vec(params, objfunc):
             "N": mutstr,
         },
     )
+
+    parent_sel_op = ParentSelection("Best", {"amount": n_parents})
+    selection_op = SurvivorSelection("KeepBest")
+
+    search_strat = GA(
+        pop_initializer,
+        mutation_op,
+        cross_op,
+        parent_sel_op,
+        selection_op,
+        {"pcross": pcross, "pmut": pmut},
+    )
+
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
+
+def _genetic_algorithm_perm_vec(params, objfunc):
+    """
+    Instantiates a genetic algorithm to optimize the given objective function.
+    This objective function should accept integer coded vectors.
+    """
+
+    pop_size = params.get("pop_size", 100)
+    n_parents = params.get("n_parents", 20)
+    cross_method = params.get("cross", "OrderCross")
+    pcross = params.get("pcross", 0.8)
+    pmut = params.get("pmut", 0.1)
+    mutstr = params.get("mutstr", 1)
+    if objfunc is None:
+        vecsize = params["vecsize"]
+    else:
+        vecsize = objfunc.vecsize
+
+    pop_initializer = PermInitializer(vecsize, pop_size=pop_size)
+
+    cross_op = OperatorPerm(cross_method)
+    mutation_op = OperatorPerm("Perm", {"N": mutstr})
 
     parent_sel_op = ParentSelection("Best", {"amount": n_parents})
     selection_op = SurvivorSelection("KeepBest")

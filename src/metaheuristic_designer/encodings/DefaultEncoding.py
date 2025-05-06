@@ -11,8 +11,8 @@ class DefaultEncoding(Encoding):
     def __init__(self):
         super().__init__(vectorized=True, decode_as_array=True)
 
-    def encode_func(self, solutions: Any) -> Any:
-        return solutions
+    def encode_func(self, solution: Any) -> Any:
+        return solution
 
     def decode_func(self, population: Any) -> Any:
         return population

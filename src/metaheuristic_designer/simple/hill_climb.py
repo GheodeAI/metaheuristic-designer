@@ -1,8 +1,8 @@
 from __future__ import annotations
 from ..ObjectiveFunc import ObjectiveVectorFunc
 from ..Algorithm import Algorithm
-from ..initializers import UniformVectorInitializer
-from ..operators import OperatorVector
+from ..initializers import UniformVectorInitializer, PermInitializer
+from ..operators import OperatorVector, OperatorPerm
 from ..encodings import TypeCastEncoding
 from ..strategies import HillClimb
 from ..algorithms import GeneralAlgorithm
@@ -34,6 +34,8 @@ def hill_climb(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
         alg = _hill_climb_bin_vec(params, objfunc)
     elif encoding_str.lower() == "int":
         alg = _hill_climb_int_vec(params, objfunc)
+    elif encoding_str.lower() == "perm":
+        alg = _hill_climb_perm_vec(params, objfunc)
     elif encoding_str.lower() == "real":
         alg = _hill_climb_real_vec(params, objfunc)
     else:
@@ -59,6 +61,27 @@ def _hill_climb_bin_vec(params, objfunc):
     pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
 
     mutation_op = OperatorVector("Flip", {"N": mutstr})
+
+    search_strat = HillClimb(pop_initializer, mutation_op)
+
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
+
+
+def _hill_climb_perm_vec(params, objfunc):
+    """
+    Instantiates a hill climbing algorithm to optimize the given objective function.
+    This objective function should accept integer coded vectors.
+    """
+
+    mutstr = params.get("mutstr", 1)
+    if objfunc is None:
+        vecsize = params["vecsize"]
+    else:
+        vecsize = objfunc.vecsize
+
+    pop_initializer = PermInitializer(vecsize, pop_size=1)
+
+    mutation_op = OperatorPerm("Perm", {"N": mutstr})
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 

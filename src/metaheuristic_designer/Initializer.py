@@ -83,8 +83,8 @@ class Initializer(ABC):
         if n_indiv is None:
             n_indiv = self.pop_size
 
-        population_set = [self.generate_individual() for _ in range(n_indiv)]
-        if isinstance(population_set[0], np.ndarray):
-            population_set = np.asarray(population_set)
+        population_matrix = [self.generate_individual() for _ in range(n_indiv)]
+        if isinstance(population_matrix[0], np.ndarray):
+            population_matrix = np.asarray(population_matrix)
 
-        return Population(objfunc, genotype_set=population_set, encoding=self.encoding)
+        return Population(objfunc, genotype_matrix=population_matrix, encoding=self.encoding)

@@ -162,11 +162,11 @@ class OperatorVector(Operator):
 
     def evolve(self, population, initializer=None):
         new_population = None
-        population_matrix = copy(population.genotype_set)
+        population_matrix = copy(population.genotype_matrix)
         fitness_array = copy(population.fitness)
-        speed = copy(population.speed_set)
+        speed = copy(population.speed_matrix)
         global_best = population.best
-        historical_best = population.historical_best_set
+        historical_best = population.historical_best_matrix
 
         params = copy(self.params)
 
@@ -315,7 +315,7 @@ class OperatorVector(Operator):
 
                 random_population = initializer.generate_population(population.objfunc, len(population))
 
-                population_matrix[mask_pos] = random_population.genotype_set[mask_pos]
+                population_matrix[mask_pos] = random_population.genotype_matrix[mask_pos]
 
             case VectorOpMethods.DUMMY:
                 population_matrix = dummy_op(population_matrix, params["F"])
@@ -329,6 +329,6 @@ class OperatorVector(Operator):
         
         if new_population is None:
             population_matrix = self.encoding.encode(population_matrix)
-            new_population = population.update_genotype_set(population_matrix, speed)
+            new_population = population.update_genotype_matrix(population_matrix, speed)
 
         return new_population

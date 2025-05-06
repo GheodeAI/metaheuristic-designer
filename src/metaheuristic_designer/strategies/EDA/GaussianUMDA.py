@@ -43,7 +43,7 @@ class GaussianUMDA(VariablePopulation):
         )
 
     def _batch_fit(self, population):
-        population_matrix = population.genotype_set
+        population_matrix = population.genotype_matrix
         loc_hat = population_matrix.mean(axis=0)
 
         return loc_hat
