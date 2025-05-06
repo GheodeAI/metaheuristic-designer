@@ -324,9 +324,10 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
             pop_size = 100
             search_strat = NoSearch(UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, encoding=encoding))
         case _:
-            raise Exception(f'Algorithm "{alg_name}" doesn\'t exist.')
+            raise ValueError(f'Algorithm "{alg_name}" doesn\'t exist.')
 
     if memetic:
+        mem_select = ParentSelection("Best", {"amount": 5})
         local_search = LocalSearch(
             initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, encoding=encoding),
             operator=OperatorVector("MutRand", {"distrib": "Uniform", "min": -10, "max": -10, "N": 3}),
@@ -341,7 +342,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     cpu_time_start = time.process_time()
     display_timer = time.time()
 
-    alg.initialize()
+    population = alg.initialize()
     alg.update(real_time_start, cpu_time_start, pass_step=False)
 
     while not alg.ended:
@@ -352,7 +353,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
                     exit(0)
             src.fill("#000000")
 
-        alg.step(real_time_start)
+        population = alg.step(population=population, time_start=real_time_start)
         alg.update(real_time_start, cpu_time_start)
 
         if alg.verbose and time.time() - display_timer > alg.v_timer:
@@ -360,7 +361,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
             display_timer = time.time()
 
         if display:
-            image, _ = alg.best_solution(decoded=True)
+            image, _ = population.best_solution(decoded=True)
             render(image, display_dim, src)
             pygame.display.update()
 

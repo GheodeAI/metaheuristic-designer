@@ -69,7 +69,7 @@ def run_algorithm(alg_name, memetic, save_state):
     alg.display_report(show_plots=True)
 
     if save_state:
-        alg.store_state("./examples/results/test.json", readable=True, show_pop=True)
+        alg.store_state("./examples/results/test.json", readable=True, show_population=True)
 
 
 def main():

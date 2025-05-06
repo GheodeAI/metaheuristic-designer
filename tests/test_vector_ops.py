@@ -29,7 +29,7 @@ def test_basic_working(population, op_method):
     operator = OperatorVector(op_method, "default")
 
     if op_method in ["xor", "flip", "xorcross", "flipcross"]:
-        population_cpy.genotype_set = population_cpy.genotype_set.astype(int)
+        population_cpy.genotype_matrix = population_cpy.genotype_matrix.astype(int)
 
     if op_method in ["firefly", "glowworm"]:
         with pytest.raises(NotImplementedError):
@@ -38,4 +38,4 @@ def test_basic_working(population, op_method):
 
     new_population = operator.evolve(population_cpy, pop_init)
     assert isinstance(new_population, Population)
-    assert np.any(new_population.genotype_set != population.genotype_set) != (op_method in ["nothing", "custom"])
+    assert np.any(new_population.genotype_matrix != population.genotype_matrix) != (op_method in ["nothing", "custom"])

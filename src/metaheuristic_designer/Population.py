@@ -295,7 +295,7 @@ class Population:
         return self
 
     @staticmethod
-    def _join(population1, population2):
+    def join_populations(population1, population2):
         """
         Concatenates the individuals in both populations into a new one.
         """

@@ -140,6 +140,6 @@ class SurvivorSelection(SelectionMethod):
 
         if new_population is None:
             self.last_selection_idx = full_idx
-            new_population = population.join(offspring).take_selection(full_idx)
+            new_population = Population.join_populations(population, offspring).take_selection(full_idx)
 
         return new_population
