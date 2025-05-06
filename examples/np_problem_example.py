@@ -202,12 +202,10 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         pop_initializer = PermInitializer(objfunc.vecsize, pop_size=100)
 
         parent_params = ParamScheduler("Linear", {"amount": 20})
-        # select_params = ParamScheduler("Linear")
 
         mut_params = ParamScheduler("Linear", {"N": [10, 1]})
         mutation_op = OperatorPerm("Perm", mut_params)
 
-        # cross_op = OperatorPerm("PMX")
         cross_op = OperatorPerm("OrderCross")
 
         op_list = [
@@ -217,7 +215,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
             OperatorPerm("PMX"),
         ]
 
-        neighborhood_structures = [OperatorPerm("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
+        neighborhood_structures = [OperatorPerm("Swap", {"N": n}, name=f"Swap(n={n})") for n in range(objfunc.vecsize)]
     else:
         raise ValueError(f"The problem '{problem_name}' does not exist.")
 
@@ -337,18 +335,19 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
     else:
         alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 
-    ind, fit = alg.optimize()
+    result = alg.optimize()
+    ind, _ = result.best_solution(decoded=True)
     print(ind)
     alg.display_report(show_plots=True)
 
     if save_state:
-        alg.store_state("./examples/results/test.json", readable=True, show_pop=True)
+        alg.store_state("./examples/results/test.json", readable=True, show_population=True)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
-    parser.add_argument("-p", "--problem", dest="prob", help="Specify an problem to solve")
+    parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm", default="GA")
+    parser.add_argument("-p", "--problem", dest="prob", help="Specify an problem to solve", default="Knapsack")
     parser.add_argument(
         "-m",
         "--memetic",
@@ -365,28 +364,11 @@ def main():
     )
     args = parser.parse_args()
 
-    algorithm_name = "GA"
-    problem_name = "Knapsack"
-    mem = False
-    save_state = False
-
-    if args.alg:
-        algorithm_name = args.alg
-
-    if args.prob:
-        problem_name = args.prob
-
-    if args.mem:
-        mem = True
-
-    if args.save_state:
-        save_state = True
-
     run_algorithm(
-        alg_name=algorithm_name,
-        problem_name=problem_name,
-        memetic=mem,
-        save_state=save_state,
+        alg_name=args.alg,
+        problem_name=args.prob,
+        memetic=args.mem,
+        save_state=args.save_state,
     )
 
 

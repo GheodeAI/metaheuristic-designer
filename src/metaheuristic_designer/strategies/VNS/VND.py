@@ -61,7 +61,7 @@ class VND(SearchStrategy):
         for _ in range(self.iterations):
             offspring = self.operator.evolve(parents, self.initializer)
             offspring = self.repair_population(offspring)
-            offspring.calculate_fitness()
+            offspring = offspring.calculate_fitness()
 
             # Keep best individual regardless of selection method
             self.population.update(offspring)

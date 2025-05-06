@@ -33,8 +33,8 @@ class OperatorFromLambda(Operator):
 
     def evolve(self, population, initializer=None):
         if self.vectorized:
-            new_population = self.fn(population.genotype_set, **self.params)
+            new_population = self.fn(population.genotype_matrix, **self.params)
         else:
-            new_population = [self.evolve_single(indiv, population, initializer) for indiv in population]
+            new_population = [self.fn(indiv, population, initializer) for indiv in population]
 
         return new_population

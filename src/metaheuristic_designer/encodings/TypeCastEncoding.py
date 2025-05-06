@@ -16,7 +16,7 @@ class TypeCastEncoding(Encoding):
         super().__init__(vectorized=True, decode_as_array=True)
 
     def encode_func(self, solutions: ndarray) -> ndarray:
-        return phenotypes.astype(self.encoded_dtype)
+        return solutions.astype(self.encoded_dtype)
 
     def decode_func(self, population: ndarray) -> ndarray:
-        return genotypes.astype(self.decoded_dtype)
+        return population.astype(self.decoded_dtype)

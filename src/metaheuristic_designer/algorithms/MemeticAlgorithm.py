@@ -50,8 +50,9 @@ class MemeticAlgorithm(Algorithm):
         self._name = new_name
 
     def initialize(self):
-        super().initialize()
+        population = super().initialize()
         self.local_search.initialize(self.objfunc)
+        return population
 
     def _do_local_search(self, offspring):
         # Select individuals to improve
@@ -70,9 +71,13 @@ class MemeticAlgorithm(Algorithm):
 
         return offspring
 
-    def step(self, time_start=0, verbose=False):
+    def step(self, population=None, time_start=0, verbose=False):
         # Get the population of this generation
-        population = self.search_strategy.population
+        if population is None:
+            population = self.search_strategy.population
+        else:
+            self.search_strategy.population = population
+
         new_population = copy(population)
 
         # Generate their parents
