@@ -165,7 +165,11 @@ class Population:
 
         if len(genotype_set) != len(self.genotype_set):
             self.ages = np.zeros_like(self.ages)
-            self.fitness_calculated = np.zeros_like(self.fitness_calculated)
+            self.fitness = np.full(len(genotype_set), -np.inf)
+            self.fitness_calculated = np.zeros(len(genotype_set))
+            self.historical_best_fitness = np.full(len(genotype_set), -np.inf)
+            self.historical_best_set = copy(genotype_set)
+            self.ages = np.zeros(len(genotype_set))
         else:
             self.fitness_calculated = np.all(self.genotype_set == genotype_set, axis=1)
 
@@ -447,6 +451,7 @@ class Population:
         -------
         fitness: ndarray
         """
+
 
         prev_fitness = copy(self.fitness)
         self.fitness = self.objfunc.fitness(self, parallel=parallel, threads=threads)

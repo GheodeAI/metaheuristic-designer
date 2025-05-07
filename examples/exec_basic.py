@@ -118,6 +118,12 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim):
             search_strat = CrossEntropyMethod(
                 initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size),
             )
+        case "BO":
+            # pop_size = 100
+            pop_size = 3
+            search_strat = BayesianOptimization(
+                initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size),
+            )
         case "CRO":
             pop_size = 100
             search_strat = CRO(
