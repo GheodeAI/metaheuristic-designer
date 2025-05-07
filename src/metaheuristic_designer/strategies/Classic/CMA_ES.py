@@ -26,7 +26,7 @@ class CMA_ES(StaticPopulation):
             {"distrib": "MultiNormal", "mean": 0, "cov": [1], "F": self.step},
         )
 
-        mutate = OperatorMeta("sequence", [self.generate_mean, self.sample_op])
+        mutate = OperatorMeta("sequence", [self.generate_average, self.sample_op])
         cross = OperatorNull()
 
         super().__init__(initializer, mutate, cross, parent_select, selection, params, name)

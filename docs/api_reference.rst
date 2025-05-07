@@ -88,13 +88,10 @@ The implemented operators for each datatype are listed in the following section
    api_reference.methods
 
 .. csv-table::
-   :header: "Module name", "Methods" ,"Description"
+   :header: "Module name", "Methods", "Description"
 
-   ":py:class:`operators.OperatorBinary<metaheuristic_designer.operators.OperatorBinary.OperatorBinary>`", ":ref:`implemented metods<Operator Binary Methods>`", "Operator for binary coded vectors."
-   ":py:class:`operators.OperatorInt<metaheuristic_designer.operators.OperatorInt.OperatorInt>`", ":ref:`implemented metods<Operator Integer Methods>`", "Operator for integer coded vectors."
-   ":py:class:`operators.OperatorReal<metaheuristic_designer.operators.OperatorReal.OperatorReal>`", ":ref:`implemented metods<Operator Real Methods>`", "Operator for real coded vectors."
+   ":py:class:`operators.OperatorVector<metaheuristic_designer.operators.OperatorVector.OperatorVector>`", ":ref:`implemented metods<Operator Vector Methods>`", "Operator for vectors."
    ":py:class:`operators.OperatorPerm<metaheuristic_designer.operators.OperatorPerm.OperatorPerm>`", ":ref:`implemented metods<Operator Perm Methods>`", "Operator for permutations."
-   ":py:class:`operators.OperatorList<metaheuristic_designer.operators.OperatorList.OperatorList>`", "", "Operator for variable-length collections."
    ":py:class:`operators.OperatorAdaptative<metaheuristic_designer.operators.OperatorAdaptative.OperatorAdaptative>`", "", "Operator that uses part of the individual as parameters for the operator."
    ":py:class:`operators.OperatorMeta<metaheuristic_designer.operators.OperatorMeta.OperatorMeta>`", ":ref:`implemented metods<Operator Meta Methods>`", "Operator that combines other operators."
    ":py:class:`operators.OperatorNull<metaheuristic_designer.operators.OperatorNull.OperatorNull>`", "", "Operator that makes no changes to the individual."

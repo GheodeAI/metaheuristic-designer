@@ -49,7 +49,7 @@ class BinomialUMDA(VariablePopulation):
         )
 
     def _batch_fit(self, population):
-        population_matrix = population.genotype_set
+        population_matrix = population.genotype_matrix
         p_hat = population_matrix.sum(axis=0) / (self.n * population_matrix.shape[0])
 
         return p_hat

@@ -13,8 +13,8 @@ class CompositeEncoding(Encoding):
 
         super().__init__(vectorized=False)
 
-    def encode_func(self, solutions: Any) -> Any:
-        encoded = phenotypes
+    def encode_func(self, solution: Any) -> Any:
+        encoded = solution
         for encoding in reversed(self.encodings):
             if encoding.vectorized:
                 encoded = encoding.encode_func([encoded])[0]
@@ -29,7 +29,7 @@ class CompositeEncoding(Encoding):
                 decoded = encoding.decode_func(decoded[None, :])[0]
             else:
                 decoded = encoding.decode_func(decoded)
-        return encoded
+        return decoded
 
     def encode(self, solutions: Any) -> Any:
         encoded = solutions

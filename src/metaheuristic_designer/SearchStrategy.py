@@ -182,9 +182,7 @@ class SearchStrategy:
             The population with the fitness values recorded.
         """
 
-        population.calculate_fitness(parallel=parallel, threads=threads)
-
-        return population
+        return population.calculate_fitness(parallel=parallel, threads=threads)
 
     def select_parents(self, population: Population, **kwargs) -> Population:
         """
