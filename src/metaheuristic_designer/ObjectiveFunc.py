@@ -195,7 +195,13 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         super().__init__(mode=mode, name=name, vectorized=vectorized, recalculate=recalculate)
 
         self.vecsize = vecsize
+
+        if np.ndim(low_lim) < 1:
+            low_lim = np.repeat(low_lim, vecsize)
         self.low_lim = low_lim
+
+        if np.ndim(up_lim) < 1:
+            up_lim = np.repeat(up_lim, vecsize)
         self.up_lim = up_lim
 
     def repair_solution(self, vector: ndarray) -> ndarray:
