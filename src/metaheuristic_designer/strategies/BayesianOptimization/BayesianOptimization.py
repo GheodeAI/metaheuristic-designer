@@ -5,7 +5,7 @@ from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
 from ...selectionMethods import SurvivorSelection, SurvivorSelectionNull, ParentSelection
 from ...ObjectiveFunc import ObjectiveVectorFunc
-from .OperatorBO import OperatorBO
+from ...operators.OperatorBO import OperatorBO
 
 class BayesianOptimization(SearchStrategy):
     """

@@ -84,7 +84,6 @@ class Operator(ABC):
     def __call__(
         self,
         population: Population,
-        objfunc: ObjectiveFunc,
         initializer: Initializer=None,
     ) -> Population:
         """
