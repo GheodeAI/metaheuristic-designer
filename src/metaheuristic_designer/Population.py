@@ -163,18 +163,28 @@ class Population:
         self: Population
         """
 
-        if len(genotype_matrix) != len(self.genotype_matrix):
-            self.ages = np.zeros_like(self.ages)
-            self.fitness_calculated = np.zeros_like(self.fitness_calculated)
-        else:
-            self.fitness_calculated = np.all(self.genotype_matrix == genotype_matrix, axis=1)
-
-        self.genotype_matrix = genotype_matrix
-
-        self.pop_size = genotype_matrix.shape[0]
+        if genotype_matrix.shape[1] != self.vec_size:
+            raise ValueError("Individual vector size should not change when updating the population.")
 
         if speed_matrix is not None:
+            if speed_matrix.shape != genotype_matrix.shape:
+                raise ValueError("The speed matrix should have the same size as the genotype matrix")
+            
             self.speed_matrix = speed_matrix
+        else:
+            self.speed_matrix = RAND_GEN.random(genotype_matrix.shape)
+
+        if len(genotype_matrix) != len(self.genotype_matrix):
+            self.ages = np.zeros_like(self.ages)
+            self.fitness = np.full(len(genotype_matrix), -np.inf)
+            self.fitness_calculated = np.zeros(len(genotype_matrix))
+            self.historical_best_fitness = np.full(len(genotype_matrix), -np.inf)
+            self.historical_best_matrix = copy(genotype_matrix)
+            self.ages = np.zeros(len(genotype_matrix))
+        else:
+            self.fitness_calculated = np.all(self.genotype_matrix == genotype_matrix, axis=1)
+        self.genotype_matrix = genotype_matrix
+        self.pop_size = genotype_matrix.shape[0]
 
         return self
 
@@ -447,6 +457,7 @@ class Population:
         -------
         fitness: ndarray
         """
+
 
         prev_fitness = copy(self.fitness)
         self.fitness = self.objfunc.fitness(self, parallel=parallel, threads=threads)

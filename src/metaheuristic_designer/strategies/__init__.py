@@ -10,3 +10,4 @@ from .Classic import *
 from .CRO import *
 from .VNS import *
 from .EDA import *
+from .BayesianOptimization import *

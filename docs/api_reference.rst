@@ -93,6 +93,7 @@ The implemented operators for each datatype are listed in the following section
    ":py:class:`operators.OperatorVector<metaheuristic_designer.operators.OperatorVector.OperatorVector>`", ":ref:`implemented metods<Operator Vector Methods>`", "Operator for vectors."
    ":py:class:`operators.OperatorPerm<metaheuristic_designer.operators.OperatorPerm.OperatorPerm>`", ":ref:`implemented metods<Operator Perm Methods>`", "Operator for permutations."
    ":py:class:`operators.OperatorAdaptative<metaheuristic_designer.operators.OperatorAdaptative.OperatorAdaptative>`", "", "Operator that uses part of the individual as parameters for the operator."
+   ":py:class:`operators.OperatorBO<metaheuristic_designer.operators.OperatorMeta.OperatorBO>`", "", "Operator used in Bayesian Optimization."
    ":py:class:`operators.OperatorMeta<metaheuristic_designer.operators.OperatorMeta.OperatorMeta>`", ":ref:`implemented metods<Operator Meta Methods>`", "Operator that combines other operators."
    ":py:class:`operators.OperatorNull<metaheuristic_designer.operators.OperatorNull.OperatorNull>`", "", "Operator that makes no changes to the individual."
 
@@ -120,6 +121,11 @@ The implemented search strategies are listed below.
    | Estimation of Distribution Algorithm."
    ":py:class:`strategies.BernoulliUMDA<metaheuristic_designer.strategies.EDA.BernoulliUMDA>`", "| Bernoulli distributed Univariate Marginal Distribution Algorithm.
    | Estimation of Distribution Algorithm."
+   ":py:class:`strategies.BinomialPBIL<metaheuristic_designer.strategies.EDA.BinomialPBIL>`", "| Binomial distributed Population-based Incremental Learning.
+   | Estimation of Distribution Algorithm."
+   ":py:class:`strategies.BinomialUMDA<metaheuristic_designer.strategies.EDA.BinomialUMDA>`", "| Binomial distributed Univariate Marginal Distribution Algorithm.
+   | Estimation of Distribution Algorithm."
+   ":py:class:`strategies.BayesianOptimization<metaheuristic_designer.strategies.BayesianOptimization.BayesianOptimization>`", "Bayesian Optimization"
    ":py:class:`strategies.CRO<metaheuristic_designer.strategies.CRO.CRO>`", "Coral Reef Optimization strategy."
    ":py:class:`strategies.CRO_SL<metaheuristic_designer.strategies.CRO.CRO_SL>`", "Coral Reef Optimization with Subtrate Layers strategy."
    ":py:class:`strategies.PCRO_SL<metaheuristic_designer.strategies.CRO.PCRO_SL>`", "Probabilistic Coral Reef Optimization with Subtrate Layers strategy."

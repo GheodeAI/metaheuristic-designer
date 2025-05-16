@@ -15,7 +15,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim):
     params = {
         "stop_cond": "convergence or time_limit",
         "progress_metric": "time_limit",
-        "time_limit": 20.0,
+        "time_limit": 120.0,
         "cpu_time_limit": 100.0,
         "neval": 3e6,
         "fit_target": 1e-10,
@@ -117,6 +117,12 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim):
             pop_size = 1000
             search_strat = CrossEntropyMethod(
                 initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size),
+            )
+        case "BO":
+            pop_size = 100
+            search_strat = BayesianOptimization(
+                initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size),
+                params={"batch_size": 50, "max_samples": 100}
             )
         case "CRO":
             pop_size = 100
