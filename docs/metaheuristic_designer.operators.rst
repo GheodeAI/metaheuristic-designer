@@ -34,6 +34,14 @@ OperatorAdaptative
    :show-inheritance:
 
 
+OperatorBO
+----------------------------------------
+
+.. automodule:: metaheuristic_designer.operators.OperatorBO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 OperatorNull
 ----------------------------------------
 
