@@ -162,11 +162,11 @@ class OperatorVector(Operator):
 
     def evolve(self, population, initializer=None):
         new_population = None
-        population_matrix = copy(population.genotype_set)
+        population_matrix = copy(population.genotype_matrix)
         fitness_array = copy(population.fitness)
-        speed = copy(population.speed_set)
+        speed = copy(population.speed_matrix)
         global_best = population.best
-        historical_best = population.historical_best_set
+        historical_best = population.historical_best_matrix
 
         params = copy(self.params)
 
@@ -178,9 +178,8 @@ class OperatorVector(Operator):
             params["N"] = min(params["N"], population_matrix.shape[1])
 
         # Perform one of the methods (switch-case like structure)
-
-        ## Cross operations
         match self.method:
+            ## Cross operations
             case VectorOpMethods.ONE_POINT:
                 population_matrix = cross_1p(population_matrix)
 
@@ -285,7 +284,9 @@ class OperatorVector(Operator):
 
             ## Swarm based algorithms
             case VectorOpMethods.PSO:
-                population_matrix, speed = pso_operator(population_matrix, speed, historical_best, global_best, params["w"], params["c1"], params["c2"])
+                population_matrix, speed = pso_operator(
+                    population_matrix, speed, historical_best, global_best, params["w"], params["c1"], params["c2"]
+                )
 
             case VectorOpMethods.FIREFLY:
                 population_matrix = firefly(
@@ -314,7 +315,7 @@ class OperatorVector(Operator):
 
                 random_population = initializer.generate_population(population.objfunc, len(population))
 
-                population_matrix[mask_pos] = random_population.genotype_set[mask_pos]
+                population_matrix[mask_pos] = random_population.genotype_matrix[mask_pos]
 
             case VectorOpMethods.DUMMY:
                 population_matrix = dummy_op(population_matrix, params["F"])
@@ -325,8 +326,9 @@ class OperatorVector(Operator):
 
             case VectorOpMethods.NOTHING:
                 new_population = copy(population)
-
+        
         if new_population is None:
-            new_population = population.update_genotype_set(population_matrix, speed)
+            population_matrix = self.encoding.encode(population_matrix)
+            new_population = population.update_genotype_matrix(population_matrix, speed)
 
         return new_population

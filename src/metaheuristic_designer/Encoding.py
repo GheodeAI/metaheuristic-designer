@@ -1,6 +1,9 @@
 from __future__ import annotations
-from typing import Any
+from typing import Iterable, Any
 from abc import ABC, abstractmethod
+import warnings
+import numpy as np
+from numpy import ndarray
 
 
 class Encoding(ABC):
@@ -10,35 +13,87 @@ class Encoding(ABC):
     This class transforms between phenotype and genotype.
     """
 
-    def encode(self, phenotype: Any) -> Any:
-        """
-        Encodes a viable solution to our problem to the encoding used in each individual of the algorithm.
-
-        Parameters
-        ----------
-        phenotype: Any
-            Information that should be encoded.
-
-        Returns
-        -------
-        genotype: Any
-            Encoded information of the phenotype.
-        """
-
-        return phenotype
+    def __init__(self, vectorized=False, decode_as_array=False):
+        self.vectorized = vectorized
+        self.decode_as_array = decode_as_array
 
     @abstractmethod
-    def decode(self, genotype: Any) -> Any:
+    def encode_func(self, solution: Any) -> ndarray:
         """
-        Decodes the contents of an individual to a viable solution to our problem.
+        Convert a solution into an individual. (If vectorized is set it converts a list of solutions into a matrix)
 
         Parameters
         ----------
-        genotype: Any
-            Information that should be decoded.
+        solution: Any
+            Solutions that should be encoded.
 
         Returns
         -------
-        phenotype: Any
-            Decoded information of the genotype.
+        individual: ndarray
+            Individual vector.
         """
+
+    @abstractmethod
+    def decode_func(self, indiv: ndarray) -> Any:
+        """
+        Convert an individual as a vector into an individual. (If vectorized is set it converts a list of solutions into a matrix)
+
+        Parameters
+        ----------
+        solution: Any
+            Solutions that should be encoded.
+
+        Returns
+        -------
+        individual: ndarray
+            Individual vector.
+        """
+
+    def encode(self, solutions: Iterable) -> ndarray:
+        """
+        Encodes a list of solutions to our problem to an population matrix.
+
+        Parameters
+        ----------
+        solutions: Iterable
+            Solutions that should be encoded.
+
+        Returns
+        -------
+        population: ndarray
+            Population array.
+        """
+
+        population = None
+        if self.vectorized:
+            population = self.encode_func(solutions)
+        else:
+            population = np.asarray([self.encode_func(indiv) for indiv in solutions])
+
+        return population
+
+    def decode(self, population: ndarray) -> Iterable:
+        """
+        Decodes a population matrix into a list/array of solutions.
+
+        Parameters
+        ----------
+        population: ndarray
+            Population that should be decoded.
+
+        Returns
+        -------
+        solutions: Iterable
+            List/array of solutions.
+        """
+
+        solutions = None
+        if self.vectorized:
+            solutions = self.decode_func(population)
+        else:
+            solutions = [self.decode_func(indiv) for indiv in population]
+
+        if self.decode_as_array:
+            solutions = np.asarray(solutions)
+
+        return solutions

@@ -30,7 +30,7 @@ class SA(HillClimb):
 
         survivor_sel = SurvivorSelection("ProbHillClimb", {"p": np.exp(-1 / self.temp_init)})
 
-        super().__init__(initializer, operator, survivor_sel=survivor_sel, params=params, name=name)
+        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name)
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)

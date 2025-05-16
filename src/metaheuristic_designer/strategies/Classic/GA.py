@@ -37,7 +37,7 @@ class GA(VariablePopulation):
 
         super().__init__(
             initializer,
-            evolve_op,
+            operator=evolve_op,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             params=params,
@@ -45,6 +45,5 @@ class GA(VariablePopulation):
         )
 
     def extra_step_info(self):
-        # popul_matrix = np.array(list(map(lambda x: x.genotype, self.population)))
-        divesity = self.population.genotype_set.std(axis=1).mean()
+        divesity = self.population.genotype_matrix.std(axis=1).mean()
         print(f"\tdiversity: {divesity:0.3}")

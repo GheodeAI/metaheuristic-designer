@@ -41,7 +41,7 @@ class HS(VariablePopulation):
 
         super().__init__(
             initializer,
-            evolve_op,
+            operator=evolve_op,
             survivor_sel=survivor_sel,
             n_offspring=1,
             params=params,

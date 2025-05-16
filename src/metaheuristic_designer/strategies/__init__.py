@@ -12,3 +12,5 @@ from .VNS import *
 from .EDA import *
 
 from .Multiobj import *
+
+from .BayesianOptimization import *

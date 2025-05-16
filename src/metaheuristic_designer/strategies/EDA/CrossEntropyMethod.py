@@ -10,7 +10,7 @@ class CrossEntropyMethod(StaticPopulation):
     def __init__(self, initializer, params=None, name="CrossEntropyMethod"):
         if params is None:
             params = {}
-        
+
         operator = OperatorVector(
             "RandSample",
             {"distrib": "Normal", "loc": "calculated", "scale": "calculated"},

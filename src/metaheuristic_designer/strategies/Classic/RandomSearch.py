@@ -10,4 +10,4 @@ class RandomSearch(HillClimb):
 
     def __init__(self, initializer, name="RandomSearch"):
         random_op = OperatorVector("Random")
-        super().__init__(initializer, random_op, name=name)
+        super().__init__(initializer, operator=random_op, name=name)

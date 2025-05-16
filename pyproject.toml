@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "metaheuristic-designer"
-version = "0.2.0"
+version = "0.2.3"
 authors = [
     {name = "eugenioLR", email = "eugeniolorente0@gmail.com"}
 ]
@@ -20,7 +20,8 @@ dependencies = [
     "pyparsing>=3.0",
     "scikit-image>=0.21",
     "pandas>=2.1.2",
-    "enlighten>=1.12.2"
+    "enlighten>=1.12.2",
+    "scikit-learn"
 ]
 
 [project.urls]

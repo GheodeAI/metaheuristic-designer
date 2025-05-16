@@ -78,11 +78,11 @@ class ObjectiveFunc(ABC):
         if self.vectorized:
             if self.recalculate:
                 solutions = solutions[population.fitness_calculated == 0, :]
-            
+
             fitness_new = self.objective(solutions)
             if adjusted:
                 fitness_new = self.factor * (fitness_new - self.penalize(solutions))
-                
+
             if self.recalculate:
                 fitness[population.fitness_calculated == 0] = fitness_new
             else:
@@ -186,7 +186,7 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         up_lim: float = 100,
         name: str = "some function",
         vectorized: bool = False,
-        recalculate: bool = False
+        recalculate: bool = False,
     ):
         """
         Constructor for the ObjectiveVectorFunc class
@@ -195,7 +195,13 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         super().__init__(mode=mode, name=name, vectorized=vectorized, recalculate=recalculate)
 
         self.vecsize = vecsize
+
+        if np.ndim(low_lim) < 1:
+            low_lim = np.repeat(low_lim, vecsize)
         self.low_lim = low_lim
+
+        if np.ndim(up_lim) < 1:
+            up_lim = np.repeat(up_lim, vecsize)
         self.up_lim = up_lim
 
     def repair_solution(self, vector: ndarray) -> ndarray:

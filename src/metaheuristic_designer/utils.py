@@ -21,12 +21,14 @@ class NumpyEncoder(json.JSONEncoder):
 
 RAND_GEN = np.random.default_rng()
 
+
 def get_rng():
     """
     Get the global random number generator of the package
     """
 
     return RAND_GEN
+
 
 def reset_seed(seed=0):
     """

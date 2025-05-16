@@ -75,7 +75,7 @@ class OperatorPerm(Operator):
 
     def evolve(self, population, initializer=None):
         new_population = None
-        population_matrix = population.genotype_set
+        population_matrix = population.genotype_matrix
 
         params = copy(self.params)
 
@@ -110,7 +110,7 @@ class OperatorPerm(Operator):
                 population_matrix = order_cross(population_matrix)
 
             case PermOpMethods.RANDOM:
-                new_indiv = initializer.generate_population(population.objfunc)
+                new_population = initializer.generate_population(population.objfunc)
 
             case PermOpMethods.DUMMY:
                 population_matrix = np.tile(np.arange(population_matrix.shape[1]), (population_matrix.shape[0], 1))
@@ -120,9 +120,10 @@ class OperatorPerm(Operator):
                 population_matrix = fn(population_matrix, population.objfunc, params)
 
             case PermOpMethods.NOTHING:
-                population_matrix = population_matrix
+                new_population = copy(population)
 
         if new_population is None:
-            new_population = population.update_genotype_set(population_matrix)
+            population_matrix = self.encoding.encode(population_matrix)
+            new_population = population.update_genotype_matrix(population_matrix)
 
         return new_population

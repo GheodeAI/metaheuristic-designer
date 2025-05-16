@@ -15,12 +15,12 @@ class CRO(StaticPopulation):
     def __init__(
         self,
         initializer: Initializer,
-        mutate: Operator,
-        cross: Operator,
+        mutation_op: Operator,
+        cross_op: Operator,
         params: ParamScheduler | dict = {},
         name: str = "CRO",
     ):
-        evolve_op = OperatorMeta("Branch", [cross, mutate], {"p": params["Fb"]})
+        evolve_op = OperatorMeta("Branch", [cross_op, mutation_op], {"p": params["Fb"]})
 
         survivor_sel = SurvivorSelection(
             "CRO",

@@ -34,11 +34,11 @@ class PSO(StaticPopulation):
                 ),
             )
 
-        super().__init__(initializer, pso_op, params=params, name=name)
+        super().__init__(initializer, operator=pso_op, params=params, name=name)
 
     def extra_step_info(self):
-        popul_matrix = self.population.genotype_set
-        speed_matrix = self.population.speed_set
+        popul_matrix = self.population.genotype_matrix
+        speed_matrix = self.population.speed_matrix
         divesity = popul_matrix.std(axis=1).mean()
         mean_speed = speed_matrix.mean()
         print(f"\tdiversity: {divesity:0.3}")

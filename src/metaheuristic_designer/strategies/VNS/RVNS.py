@@ -47,13 +47,7 @@ class RVNS(SearchStrategy):
                 stacklevel=2,
             )
 
-        super().__init__(
-            initializer,
-            operator=operator,
-            survivor_sel=survivor_sel,
-            params=params,
-            name=name
-        )
+        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name)
 
     def select_individuals(self, population, offspring, **kwargs):
         new_population = super().select_individuals(population, offspring, **kwargs)

@@ -250,7 +250,6 @@ def sample_distribution(shape, loc=None, scale=None, **params):
     loc = 0 if loc is None else loc
     scale = 1 if scale is None else scale
 
-
     match distrib:
         case ProbDist.GAUSS:
             prob_distrib = sp.stats.norm(loc=loc, scale=scale)

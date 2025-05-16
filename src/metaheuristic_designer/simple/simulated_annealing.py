@@ -1,9 +1,10 @@
 from __future__ import annotations
-from ..initializers import UniformVectorInitializer
-from ..operators import OperatorVector
+from ..initializers import UniformVectorInitializer, PermInitializer
+from ..operators import OperatorVector, OperatorPerm
 from ..encodings import TypeCastEncoding
 from ..strategies import SA
 from ..algorithms import GeneralAlgorithm
+from ..ObjectiveFunc import ObjectiveVectorFunc
 
 
 def simulated_annealing(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
@@ -32,6 +33,8 @@ def simulated_annealing(params: dict, objfunc: ObjectiveVectorFunc = None) -> Al
         alg = _simulated_annealing_bin_vec(params, objfunc)
     elif encoding_str.lower() == "int":
         alg = _simulated_annealing_int_vec(params, objfunc)
+    elif encoding_str.lower() == "perm":
+        alg = _simulated_annealing_perm_vec(params, objfunc)
     elif encoding_str.lower() == "real":
         alg = _simulated_annealing_real_vec(params, objfunc)
     else:
@@ -60,6 +63,34 @@ def _simulated_annealing_bin_vec(params, objfunc):
     pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
 
     mutation_op = OperatorVector("Flip", {"N": mutstr})
+
+    search_strat = SA(
+        pop_initializer,
+        mutation_op,
+        {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
+    )
+
+    return GeneralAlgorithm(objfunc, search_strat, params=params)
+
+
+def _simulated_annealing_perm_vec(params, objfunc):
+    """
+    Instantiates a simulated annealing algorithm to optimize the given objective function.
+    This objective function should accept integer coded vectors.
+    """
+
+    n_iter = params.get("iter", 100)
+    temp_init = params.get("temp_init", 100)
+    alpha = params.get("alpha", 0.99)
+    mutstr = params.get("mutstr", 1)
+    if objfunc is None:
+        vecsize = params["vecsize"]
+    else:
+        vecsize = objfunc.vecsize
+
+    pop_initializer = PermInitializer(vecsize, pop_size=1)
+
+    mutation_op = OperatorPerm("Perm", {"N": mutstr})
 
     search_strat = SA(
         pop_initializer,

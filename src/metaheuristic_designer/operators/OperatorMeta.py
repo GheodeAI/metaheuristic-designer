@@ -108,7 +108,6 @@ class OperatorMeta(Operator):
                         split_population = op.evolve(split_population, initializer)
                         new_population = new_population.apply_selection(split_population, split_mask)
 
-
             case MetaOpMethods.PICK:
                 if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
                     chosen_idx = self.chosen_idx
@@ -127,7 +126,7 @@ class OperatorMeta(Operator):
             case MetaOpMethods.SEQUENCE:
                 for op in self.op_list:
                     new_population = op.evolve(new_population, initializer)
-            
+
             case MetaOpMethods.SPLIT:
                 for idx_op, op in enumerate(self.op_list):
                     split_mask = self.mask == idx_op

@@ -52,7 +52,7 @@ class Algorithm(ABC):
             params = {}
 
         # Verbose parameters
-        self.show_init_info = params.get("init_info", True) 
+        self.show_init_info = params.get("init_info", True)
         self.verbose = params.get("verbose", True)
         self.v_timer = params.get("v_timer", 1)
 
@@ -329,7 +329,7 @@ class Algorithm(ABC):
         if pass_step:
             self.steps += 1
 
-        if self.prev_best_fitness is not None and (self.best_solution()[1] <= self.prev_best_fitness != self.objfunc.mode == "max"):
+        if self.prev_best_fitness is not None and ((self.best_solution()[1] >= self.prev_best_fitness) != (self.objfunc.mode == "max")):
             self.patience_left -= 1
         else:
             self.patience_left = self.max_patience
@@ -358,12 +358,15 @@ class Algorithm(ABC):
         return initial_population
 
     @abstractmethod
-    def step(self, time_start: float = 0, verbose: bool = False) -> Population:
+    def step(self, population=None, time_start: float = 0, verbose: bool = False) -> Population:
         """
         Performs an iteration of the algorithm.
 
         Parameters
         ----------
+        population: Population, optional
+            Population to evolve in the next generation. By default use the result from
+            the previous step contained in the search strategy class. 
         time_start: float, optional
             Indicates to the algorihm how much time has already passed.
         verbose: bool, optional
@@ -399,7 +402,9 @@ class Algorithm(ABC):
 
         # Initizalize search strategy
         if initialize:
-            self.initialize()
+            population = self.initialize()
+        else:
+            population = self.search_strategy.population
 
         # Search until the stopping condition is met
         self.update(real_time_start, cpu_time_start, pass_step=False)
@@ -408,7 +413,7 @@ class Algorithm(ABC):
             self.step_info(real_time_start)
 
         while not self.ended:
-            self.step(real_time_start)
+            population = self.step(population=population, time_start=real_time_start)
 
             self.update(real_time_start, cpu_time_start)
 
@@ -421,7 +426,7 @@ class Algorithm(ABC):
         self.real_time_spent = time.time() - real_time_start
         self.cpu_time_spent = time.process_time() - cpu_time_start
 
-        return self.search_strategy.population
+        return population
 
     def get_state(
         self,
@@ -651,10 +656,10 @@ def process_condition(
             cond2_parsed = process_condition(cond2, neval, ngen, real_time, cpu_time, target, patience)
 
             result = cond1_parsed or cond2_parsed
-        
+
         case [cond1]:
             result = process_condition(cond1, neval, ngen, real_time, cpu_time, target, patience)
-        
+
         case "neval":
             result = neval
 
@@ -726,10 +731,10 @@ def process_progress(
             progress2 = process_progress(cond2, neval, ngen, real_time, cpu_time, target, patience)
 
             result = min(progress1, progress2)
-        
+
         case [cond1]:
             result = process_progress(cond1, neval, ngen, real_time, cpu_time, target, patience)
-        
+
         case "neval":
             result = neval
 

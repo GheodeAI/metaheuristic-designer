@@ -54,20 +54,14 @@ class VND(SearchStrategy):
                 stacklevel=2,
             )
 
-        super().__init__(
-            initializer,
-            operator=operator,
-            survivor_sel=survivor_sel,
-            params=params,
-            name=name
-        )
+        super().__init__(initializer, operator=perturb_op, survivor_sel=survivor_sel, params=params, name=name)
 
     def perturb(self, parents, **kwargs):
         next_parents = copy(parents)
         for _ in range(self.iterations):
             offspring = self.operator.evolve(parents, self.initializer)
             offspring = self.repair_population(offspring)
-            offspring.calculate_fitness()
+            offspring = offspring.calculate_fitness()
 
             # Keep best individual regardless of selection method
             self.population.update(offspring)
@@ -102,5 +96,5 @@ class VND(SearchStrategy):
         if self.new_loop_flag:
             print(f"\tStarted new loop")
             self.new_loop_flag = False
-        
+
         print(f"\tCurrent Operator: {idx}/{len(self.op_list)}, {self.op_list[idx].name}")
