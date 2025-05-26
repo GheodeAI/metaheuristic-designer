@@ -48,11 +48,17 @@ def run_ga(objective, dim, mutation, crossover, parentsel, survsel, ngen, popsiz
         num_parents_mating=popsize,
         sol_per_pop=popsize,
         num_genes=dim,
+        init_range_low=objfunc.low_lim,
+        init_range_high=objfunc.up_lim,
         parent_selection_type=parent_sel,
-        mutation_type=mutate_op,
-        mutation_probability=0.2,
         crossover_type=cross_op,
         crossover_probability=0.8,
+        mutation_type=mutate_op,
+        mutation_probability=0.2,
+        mutation_percent_genes=10,
+        random_mutation_min_val=objfunc.low_lim,
+        random_mutation_max_val=objfunc.up_lim,
+        keep_elitism=20,
     )
 
     exec_data = pd.DataFrame(columns=["Objective", "Dims", "Mutation", "Crossover", "ParentSel", "SurvSel", "Ngen", "PopSize", "ExecTime", "fitness"])
