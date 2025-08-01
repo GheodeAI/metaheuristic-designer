@@ -3,27 +3,35 @@ import numpy as np
 import random
 
 
-def dominates(indiv1, indiv2):
-    fit_vec1 = indiv1.fitness
-    fit_vec2 = indiv2.fitness
-    return np.all(fit_vec1 >= fit_vec2) and np.any(fit_vec1 > fit_vec2)
+def dominates(indiv1_fitness, indiv2_fitness):
+    return np.all(indiv1_fitness >= indiv2_fitness) & np.any(indiv1_fitness > indiv2_fitness)
 
 
-def dominates_equals(indiv1, indiv2):
-    fit_vec1 = indiv1.fitness
-    fit_vec2 = indiv2.fitness
-    return np.all(fit_vec1 >= fit_vec2)
+def dominates_equals(indiv1_fitness, indiv2_fitness):
+    return np.all(indiv1_fitness >= indiv2_fitness)
+
+def dominates_vec(indiv1_fitness, indiv2_fitness):
+    is_geq = np.all(indiv1_fitness >= indiv2_fitness, axis=0)
+    is_greater = np.any(indiv1_fitness > indiv2_fitness, axis=0)
+    return is_geq & is_greater
+
+def dominates_equals(indiv1_fitness, indiv2_fitness):
+    return np.all(indiv1_fitness >= indiv2_fitness, axis=0)
 
 
-def non_dominated_ranking(indiv_list):
+def non_dominated_ranking(population_fitness):
+    idx_list = list(range(population_fitness.shape[0]))
     if len(indiv_list) > 0:
         best_ranked = []
         not_ranked_idx = []
-        for idx_curr, indiv_curr in enumerate(indiv_list):
+        for idx_curr, fitness_curr in enumerate(population_fitness):
+            remaining_mask = np.ones(population_fitness.shape[0], dtype=bool)
+            remaining_mask[idx_curr] = False
+            remaining = population_fitness[remaining_mask]
+
             is_dominated = False
-            remaining_pop = indiv_list[:idx_curr] + indiv_list[idx_curr + 1:]
-            for indiv_pop in remaining_pop:
-                is_dominated = is_dominated or dominates(indiv_pop, indiv_curr)
+            for fitness in remaining_pop:
+                is_dominated = is_dominated or dominates(fitness, fitness_curr)
                 if is_dominated:
                     break
             
@@ -36,6 +44,41 @@ def non_dominated_ranking(indiv_list):
         return [best_ranked] + non_dominated_ranking(not_ranked)
     else:
         return []
+
+def fast_non_dominated_ranking(population_fitness):
+    S = []
+    N = []
+    ranks = np.zeros(population_fitness.shape[0])
+    F = [[]]
+    for p, fit_p in population_fitness:
+        S_p = []
+        N_p = 0
+        for q, fit_q in population_fitness:
+            if dominates(fit_p, fit_q):
+                s_p.append(f_q_idx)
+            elif np.any(fit_p != fit_q):
+                n_p += 1
+        if n_p == 0:
+            ranks[f_p_idx] = 1
+            F[0].append(p)
+        S.append(S_p)
+        n.append(n_p)
+    
+    i = 0
+    while len(fronts[i]) > 0:
+        Q = []
+        for p_idx, p in enumerate(fronts[i]):
+            for q_idx, q in enumerate(s[i]):
+                n[i] -= 1
+                if n[i] == 0:
+                    rank[q] = i+1 
+                    Q.append(q)
+        
+        i += 1
+        F[i] = Q
+    
+    return fronts
+
 
 
 def crowding_distance_selection(ranks, amount):

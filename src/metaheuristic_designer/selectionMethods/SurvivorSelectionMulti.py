@@ -50,7 +50,6 @@ class SurvivorSelectionMulti(SelectionMethod):
         self,
         method: str,
         params: Union[ParamScheduler, dict] = None,
-        padding: bool = False,
         name: str = None,
     ):
         """
@@ -64,7 +63,7 @@ class SurvivorSelectionMulti(SelectionMethod):
 
         self.method = SurvSelMultiMethod.from_str(method)
 
-    def select(self, popul: List[Individual], offspring: List[Individual]) -> List[Individual]:
+    def select(self, popul: Population, offspring: Population) -> Population:
         result = []
         if self.method == SurvSelMultiMethod.GENERATIONAL:
             result = offspring
