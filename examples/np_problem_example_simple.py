@@ -27,7 +27,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         "fit_target": 1e-10,
         "patience": 200,
         "verbose": True,
-        "v_timer": 0.5,
+        "v_timer": 0.5
     }
 
     if problem_name == "Knapsack":

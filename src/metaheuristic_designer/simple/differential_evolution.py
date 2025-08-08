@@ -3,7 +3,7 @@ from ..Algorithm import Algorithm
 from ..ObjectiveFunc import ObjectiveVectorFunc
 from ..initializers import UniformVectorInitializer
 from ..operators import OperatorVector
-from ..encodings import TypeCastEncoding
+from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import DE
 from ..algorithms import GeneralAlgorithm
 
@@ -139,6 +139,8 @@ def _differential_evolution_bin_vec(params, objfunc):
         vecsize = params["vecsize"]
     else:
         vecsize = objfunc.vecsize
+    min_val = params.get("min", objfunc.low_lim if objfunc else -10)
+    max_val = params.get("max", objfunc.up_lim if objfunc else 10)
 
     if de_type not in [
         "de/rand/1",
@@ -151,12 +153,12 @@ def _differential_evolution_bin_vec(params, objfunc):
     ]:
         raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
 
-    encoding = TypeCastEncoding(float, bool)
+    encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
 
     pop_initializer = UniformVectorInitializer(
         vecsize,
-        0,
-        1,
+        min_val,
+        max_val,
         pop_size=pop_size,
         dtype=float,
         encoding=encoding,

@@ -33,6 +33,14 @@ ImageEncoding
    :undoc-members:
    :show-inheritance:
 
+SigmoidEncoding
+-------------
+
+.. autoclass:: metaheuristic_designer.encodings.SigmoidEncoding
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 CompositeEncoding
 -----------------
 
