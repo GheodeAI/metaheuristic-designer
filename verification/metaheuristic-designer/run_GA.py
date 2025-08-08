@@ -22,7 +22,9 @@ def run_ga(objective, dim, mutation, crossover, parentsel, survsel, ngen, popsiz
         case "gaussmut":
             mutation_op=mhd.operators.OperatorVector("MutNoise", {"distrib": "Gaussian", "F": 1e-3, "N": 1})
         case "uniformsample":
-            mutation_op=mhd.operators.OperatorVector("MutSample", {"distrib": "Uniform", "min":objfunc.low_lim, "max":objfunc.up_lim, "N": 1})
+            mutation_op=mhd.operators.OperatorVector("MutSample", {"distrib": "Uniform", "min":objfunc.low_lim, "max":objfunc.up_lim, "Cr": 1})
+        case "uniformnoise":
+            mutation_op=mhd.operators.OperatorVector("MutNoise", {"distrib": "Uniform", "min":-1, "max":1, "Cr": 0.1})
 
     match crossover:
         case "onepoint":
@@ -35,7 +37,7 @@ def run_ga(objective, dim, mutation, crossover, parentsel, survsel, ngen, popsiz
         case "generational":
             parent_sel=mhd.selectionMethods.ParentSelection("Nothing")
 
-    n_elites = 1
+    n_elites = 20
     match survsel:
         case "elitism":
             survivor_sel=mhd.selectionMethods.SurvivorSelection("Elitism", {"amount": n_elites})
@@ -50,7 +52,7 @@ def run_ga(objective, dim, mutation, crossover, parentsel, survsel, ngen, popsiz
         params={"pcross": 0.8, "pmut": 0.2},
     )
 
-    alg = mhd.algorithms.GeneralAlgorithm(objfunc, search_strat, params={"stop_cond": "ngen", "ngen": ngen, "verbose": False})
+    alg = mhd.algorithms.GeneralAlgorithm(objfunc, search_strat, params={"stop_cond": "ngen", "ngen": ngen, "verbose": True})
 
     exec_data = pd.DataFrame(columns=["Objective", "Dims", "Mutation", "Crossover", "ParentSel", "SurvSel", "Ngen", "PopSize", "ExecTime", "fitness"])
     script_path = pathlib.Path(__file__).parent.resolve()
@@ -68,7 +70,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--objective", dest="objective", help="Name of the objective function.", default="Sphere")
     parser.add_argument("-d", "--dim", dest="dim", help="Dimension of the vectors to optimize.", default=3, type=int)
-    parser.add_argument("-m", "--mutation", dest="mut", help="Mutation method to use.", default="UniformSample")
+    parser.add_argument("-m", "--mutation", dest="mut", help="Mutation method to use.", default="UniformNoise")
     parser.add_argument("-c", "--crossover", dest="cross", help="Crossover method to use.", default="OnePoint")
     parser.add_argument("-p", "--parentsel", dest="parentsel", help="Parent Selection method to use.", default="Generational")
     parser.add_argument("-s", "--survsel", dest="survsel", help="Survivor Selection method to use.", default="Elitism")
