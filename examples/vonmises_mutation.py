@@ -82,14 +82,6 @@ def run_algorithm(alg_name, memetic, save_state):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="algorithm", help="Specify an algorithm", default="ES")
-    parser.add_argument(
-        "-m",
-        "--memetic",
-        dest="mem",
-        action="store_true",
-        help="Does local search after mutation",
-    )
     parser.add_argument(
         "-s",
         "--save-state",

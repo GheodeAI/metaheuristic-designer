@@ -34,7 +34,7 @@ ImageEncoding
    :show-inheritance:
 
 SigmoidEncoding
--------------
+---------------
 
 .. autoclass:: metaheuristic_designer.encodings.SigmoidEncoding
    :members:

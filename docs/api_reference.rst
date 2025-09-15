@@ -72,8 +72,8 @@ The implemented operators for each datatype are listed in the following section
 .. csv-table::
    :header: "Module name", "Methods", "Description"
 
-   ":py:class:`selectionMethods.ParentSelection<metaheuristic_designer.selectionMethods.ParentSelection.ParentSelection>`", ":ref:`implemented metods<Operator Binary Methods>`","Selection methods for parent selection."
-   ":py:class:`selectionMethods.SurvivorSelection<metaheuristic_designer.selectionMethods.SurvivorSelection.SurvivorSelection>`", ":ref:`implemented metods<Operator Binary Methods>`", "Selection methods for survivor selection."
+   ":py:class:`selectionMethods.ParentSelection<metaheuristic_designer.selectionMethods.ParentSelection.ParentSelection>`", ":ref:`implemented metods<Parent Selection>`","Selection methods for parent selection."
+   ":py:class:`selectionMethods.SurvivorSelection<metaheuristic_designer.selectionMethods.SurvivorSelection.SurvivorSelection>`", ":ref:`implemented metods<Survivor Selection>`", "Selection methods for survivor selection."
    ":py:class:`selectionMethods.ParentSelectionNull<metaheuristic_designer.selectionMethods.ParentSelectionNull>`", "", "Selection methods for parent selection that returns the original population."
    ":py:class:`selectionMethods.SurvivorSelectionNull<metaheuristic_designer.selectionMethods.SurvivorSelectionNull>`", "", "Selection methods for survivor selection that returns the offspring."
 
