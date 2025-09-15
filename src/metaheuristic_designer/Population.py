@@ -502,7 +502,7 @@ class Population:
         """
 
         return self.encoding.decode(self.genotype_matrix)
-
+    
     def get_state(self) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.

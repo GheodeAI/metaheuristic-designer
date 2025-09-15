@@ -40,6 +40,21 @@ class AdaptionEncoding(Encoding):
     def decode_param_vec(self, genotype):
         return genotype[:, -self.nparams :]
 
+    def decode_param(self, population) -> dict:
+        solutions = None
+        param_matrix = self.decode_param_vec(population)
+
+        if self.vectorized:
+            param_dict = self.decode_param_vec(population)
+        else:
+            param_list = [self.decode_param_vec(param_row) for param_row in param_matrix]
+
+            # Convert list of (similar) dictionaries to dictionary of numpy arrays (maybe a bit slow)
+            param_dict = {key: np.array([p_dict[key] for p_dict in param_list]) for key in param_list[0]}
+
+        return param_dict
+
     @abstractmethod
-    def decode_param(self, genotype) -> dict:
+    def decode_param_func(self, param_vec) -> dict:
         pass
+    

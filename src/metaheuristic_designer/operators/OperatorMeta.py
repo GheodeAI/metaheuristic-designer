@@ -28,6 +28,7 @@ class MetaOpMethods(Enum):
 meta_ops_map = {
     "branch": MetaOpMethods.BRANCH,
     "sequence": MetaOpMethods.SEQUENCE,
+    "chain": MetaOpMethods.SEQUENCE,
     "split": MetaOpMethods.SPLIT,
     "pick": MetaOpMethods.PICK,
 }
