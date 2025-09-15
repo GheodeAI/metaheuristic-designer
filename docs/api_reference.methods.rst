@@ -69,6 +69,7 @@ The names are case insensitive and specified with the 'distrib' parameter.
    "Gamma", "a (float), loc (float|ndarray), scale (float|ndarray)", "`Gamma distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gamma.html#scipy.stats.gamma>`_"
    "Exp, Expon, Exponential", "loc (float|ndarray), scale (float|ndarray)", "`Exponential distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.expon.html#scipy.stats.expon>`_"
    "LevyStable, levy_stable", "a (float), b (float), loc (float|ndarray), scale (float|ndarray)", "`Levy-Stable distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.levy_stable.html#scipy.stats.levy_stable>`_"
+   "Tikhonov, vonMises, vonMises-Fisher", "mu (ndarray), scale (float|ndarray)", "`Multivariable Tikhonov distribution (a.k.a. the VonMises-Fisher distribution) <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.vonmises_fisher.html#scipy-stats-vonmises-fisher>`_"
    "Poisson", "mu (int|ndarray), loc (float|ndarray)", "`Poisson distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.poisson.html#scipy.stats.poisson>`_"
    "Bernoulli", "p (float|ndarray)", "`Bernoulli distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bernoulli.html#scipy.stats.bernoulli>`_"
    "Binomial", "p (float|ndarray), n (int)", "`Binomial distribution <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html#scipy.stats.binom>`_"
@@ -77,7 +78,7 @@ The names are case insensitive and specified with the 'distrib' parameter.
 
 
 Operator Perm Methods
------------------------
+---------------------
 
 These methods are accessed by instantiating the OperatorBinary class with any of the following methods as an attribute.
 It is case insensitive and the parameters are mandatory, but if extra ones are added they will be ignored.
@@ -99,7 +100,7 @@ It is case insensitive and the parameters are mandatory, but if extra ones are a
 
 
 Operator Meta Methods
------------------------
+---------------------
 
 These methods are accessed by instantiating the OperatorBinary class with any of the following methods as an attribute.
 The methods' names are case insensitive and the parameters are mandatory, but if extra ones are added they will be ignored.
@@ -117,7 +118,7 @@ Implemented Selection Methods
 =============================
 
 Parent Selection
------------------------
+----------------
 
 These methods are accessed by instantiating the OperatorBinary class with any of the following methods as an attribute.
 It is case insensitive and the parameters are mandatory, but if extra ones are added they will be ignored.
@@ -147,7 +148,7 @@ probability of being chosen to each individual in the population.
    "ExpRank", "", "Takes the exponential of the order of the individuals as their weigh."
 
 Survivor Selection
------------------------
+------------------
 
 These methods are accessed by instantiating the OperatorBinary class with any of the following methods as an attribute.
 It is case insensitive and the parameters are mandatory, but if extra ones are added they will be ignored.
