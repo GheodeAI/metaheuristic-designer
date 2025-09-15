@@ -280,10 +280,18 @@ def sample_distribution(shape, loc=None, scale=None, **params):
             p = params.get("p", 0.5)
             prob_distrib = sp.stats.bernoulli(p, loc=loc)
         case ProbDist.VONMISES:
-            mu = np.random.uniform(-1,1,shape[1])
-            mu = mu/np.linalg.norm(mu)
-            prob_distrib = sp.stats.vonmises_fisher(mu=mu, kappa=1/scale)
-            shape = shape[0]
+            mu = params.get("mu", np.random.uniform(-1,1,shape[1]))
+            mu = mu/np.linalg.norm(mu, axis=1, keepdims=True)
+            if np.asarray(mu).ndim <= 1 and np.asarray(scale).ndim <= 1:
+                prob_distrib = sp.stats.vonmises_fisher(mu=mu, kappa=1/scale)
+            else:
+                result = np.empty(shape)
+                for i in range(shape[0]):
+                    mu_i = mu if np.asarray(mu).ndim <= 1 else mu[i]
+                    scale_i = scale if np.asarray(scale).ndim <= 1 else scale[i]
+                    prob_distrib = sp.stats.vonmises_fisher(mu=mu_i, kappa=1/scale_i)
+                    result[i, :] = prob_distrib.rvs(random_state=RAND_GEN)
+
         case ProbDist.BINOMIAL:
             n = params["n"]
             p = params.get("p", 0.5)
@@ -301,7 +309,10 @@ def sample_distribution(shape, loc=None, scale=None, **params):
         case _:
             raise ValueError("Invalid probability distribution")
 
-    return prob_distrib.rvs(size=shape, random_state=RAND_GEN)
+    if result is None:
+        result = prob_distrib.rvs(size=shape, random_state=RAND_GEN)
+    
+    return result
 
 
 def generate_statistic(population, **params):
@@ -353,7 +364,7 @@ def mutate_n_sigmas(population, epsilon, tau, tau_multiple):
 
     return np.maximum(
         epsilon,
-        population * np.exp(tau * RAND_GEN.normal(0, 1, population.shape[0]) + tau_multiple * RAND_GEN.normal(0, 1, population.shape[0])),
+        population * np.exp(tau * RAND_GEN.normal(0, 1, population.shape[0])[:, None] + tau_multiple * RAND_GEN.normal(0, 1, population.shape[0])[:, None]),
     )
 
 
