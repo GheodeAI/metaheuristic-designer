@@ -16,7 +16,7 @@ import numpy as np
 
 
 class STDAdaptEncoding(AdaptionEncoding):
-    def decode_param(self, genotype):
+    def decode_param_func(self, genotype):
         return {"F": np.maximum(1e-7, self.decode_param_vec(genotype))}
 
 
@@ -42,7 +42,11 @@ def run_algorithm(alg_name, memetic, save_state):
     # objfunc = HappyCat(3, "min")
 
     # mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss"})
-    mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "N": 1})
+    # mutation_op = OperatorVector("RandNoise", {"distrib": "Cauchy"})
+    # mutation_op = OperatorVector("RandNoise", {"distrib": "Uniform"})
+    # mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "N": 1})
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "N": 1})
+    # mutation_op = OperatorVector("MutNoise", {"distrib": "Uniform", "N": 1})
 
     param_op = OperatorVector("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
     adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=1)
@@ -50,22 +54,24 @@ def run_algorithm(alg_name, memetic, save_state):
     # adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=objfunc.vecsize)
 
     ada_mutation_op = OperatorAdaptative(mutation_op, param_op, adaption_encoding)
+    objfunc.low_lim = np.hstack([objfunc.low_lim, 0])
+    objfunc.up_lim = np.hstack([objfunc.up_lim, 1])
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding)
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize + 1, objfunc.low_lim, objfunc.up_lim, pop_size=50, encoding=adaption_encoding)
 
     cross_op = OperatorVector("Multipoint")
 
     parent_sel_op = ParentSelection("Nothing")
     selection_op = SurvivorSelection("(m+n)")
 
-    search_strat = ES(pop_initializer, ada_mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": 700}, name="Adaptative-ES")
+    search_strat = ES(pop_initializer, ada_mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": 250}, name="Adaptative-ES")
 
     alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 
-    ind, fit = alg.optimize()
-    print(f"full solution vector: {ind}")
-    print(f"solution: {adaption_encoding.decode(ind)}")
-    print(f"params: {adaption_encoding.decode_param(ind)}")
+    result = alg.optimize()
+    ind, best_fitness = result.best_solution(decoded=True)
+    print(f"solution vector: {ind}")
+    print(f"params: {adaption_encoding.decode_param(result.genotype_matrix)}")
     alg.display_report(show_plots=True)
 
     if save_state:

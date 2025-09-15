@@ -3,6 +3,7 @@ import numpy as np
 from numpy import ndarray
 from ..Encoding import Encoding
 
+
 class SigmoidEncoding(Encoding):
     """
     Encoding designed to use optimization algorithms for binary encoded problems
@@ -33,12 +34,11 @@ class SigmoidEncoding(Encoding):
         if not self.as_probability:
             return solutions
         assert np.all((solutions > 0) & (solutions < 1)), "To encode solutions with the sigmoid encoding, the values must be in the range (0,1)."
-        return np.log(solutions / (1-solutions))
+        return np.log(solutions / (1 - solutions))
 
     def decode_func(self, population: ndarray) -> ndarray:
-        result = 1/(1 + np.exp(-population))
+        result = 1 / (1 + np.exp(-population))
         if not self.as_probability:
             result = (result < self.threshold).astype(int)
 
         return result
-

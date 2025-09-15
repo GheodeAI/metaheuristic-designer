@@ -29,7 +29,7 @@ class ImageBlurEncoding(ImageEncoding):
     def __init__(self, shape, color=True):
         super().__init__(shape, color=True)
         self.vectorized = False
-    
+
     def encode_func(self, phenotype):
         return phenotype
 
@@ -388,13 +388,13 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     img_flat = alg.best_solution()[0]
     image = img_flat.reshape(image_shape + (3,))
     if display:
-            image_blur, _ = alg.best_solution(decoded=True)
-            image_flat, _ = alg.best_solution(decoded=False)
-            image_orig = deblured_encoding.decode(image_flat[None, :])[0]
+        image_blur, _ = alg.best_solution(decoded=True)
+        image_flat, _ = alg.best_solution(decoded=False)
+        image_orig = deblured_encoding.decode(image_flat[None, :])[0]
 
-            full_texture = np.hstack([image_orig, image_blur])
-            render(full_texture, display_dim, src)
-            pygame.display.update()
+        full_texture = np.hstack([image_orig, image_blur])
+        render(full_texture, display_dim, src)
+        pygame.display.update()
     alg.display_report(show_plots=True)
     save_to_image(image, f"{img_name}_{image_shape[0]}x{image_shape[1]}_deblured_{alg_name}.png")
 
@@ -407,9 +407,11 @@ def main():
     parser.add_argument("-m", "--memetic", dest="mem", action="store_true", help="Use a memetic algorithm with the chosen strategy.")
     parser.add_argument("--hide", dest="hide", action="store_true", help="Do not display the result each generation.")
     parser.add_argument("--mode", dest="mode", help="Whether to minimize or maximize ('min' or 'max').")
-    parser.add_argument("-o", "--objfunc", dest="objfunc", help="Which objective function to use ('MSE', 'MAE', 'SSIM', 'NMI', 'STD', 'Entropy').", default="mse")
+    parser.add_argument(
+        "-o", "--objfunc", dest="objfunc", help="Which objective function to use ('MSE', 'MAE', 'SSIM', 'NMI', 'STD', 'Entropy').", default="mse"
+    )
     args = parser.parse_args()
-    
+
     print(args.hide)
 
     run_algorithm(
@@ -419,7 +421,7 @@ def main():
         objfunc_name=args.objfunc.upper(),
         mode=args.mode,
         img_size=args.img_size,
-        display=not args.hide
+        display=not args.hide,
     )
 
 

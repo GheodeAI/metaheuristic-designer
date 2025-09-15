@@ -84,7 +84,7 @@ class Operator(ABC):
     def __call__(
         self,
         population: Population,
-        initializer: Initializer=None,
+        initializer: Initializer = None,
     ) -> Population:
         """
         A shorthand for calling the 'evolve' method.

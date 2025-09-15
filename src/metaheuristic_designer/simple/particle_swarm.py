@@ -105,7 +105,7 @@ def _particle_swarm_bin_vec(params, objfunc):
     """
 
     pop_size = params.get("pop_size", 100)
-    
+
     w = params.get("w", 0.7)
     c1 = params.get("c1", 1.5)
     c2 = params.get("c2", 1.5)
