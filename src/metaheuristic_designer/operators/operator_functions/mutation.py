@@ -16,6 +16,7 @@ class ProbDist(Enum):
     POISSON = enum.auto()
     BERNOULLI = enum.auto()
     BINOMIAL = enum.auto()
+    VONMISES = enum.auto()
     CATEGORICAL = enum.auto()
     CUSTOM = enum.auto()
 
@@ -45,6 +46,9 @@ prob_dist_map = {
     "poisson": ProbDist.POISSON,
     "bernoulli": ProbDist.BERNOULLI,
     "binomial": ProbDist.BINOMIAL,
+    "vonmises": ProbDist.VONMISES,
+    "vonmises-fisher": ProbDist.VONMISES,
+    "tikhonov": ProbDist.VONMISES,
     "categorical": ProbDist.CATEGORICAL,
     "custom": ProbDist.CUSTOM,
 }
@@ -274,6 +278,11 @@ def sample_distribution(shape, loc=None, scale=None, **params):
         case ProbDist.BERNOULLI:
             p = params.get("p", 0.5)
             prob_distrib = sp.stats.bernoulli(p, loc=loc)
+        case ProbDist.VONMISES:
+            mu = np.random.uniform(-1,1,shape[1])
+            mu = mu/np.linalg.norm(mu)
+            prob_distrib = sp.stats.vonmises_fisher(mu=mu, kappa=1/scale)
+            shape = shape[0]
         case ProbDist.BINOMIAL:
             n = params["n"]
             p = params.get("p", 0.5)
