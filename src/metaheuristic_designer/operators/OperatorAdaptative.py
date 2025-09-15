@@ -45,18 +45,16 @@ class OperatorAdaptative(Operator):
 
         self.base_operator = base_operator
         self.param_operator = param_operator
-        self.base_operator_split = OperatorMeta("Split", [base_operator, null_op], {"mask": vecmask})
-        self.param_operator_split = OperatorMeta("Split", [null_op, param_operator], {"mask": vecmask})
-        self.operator_sequence = OperatorMeta("Sequence", [self.base_operator_split, self.param_operator_split])
+        self.main_operator = OperatorMeta("Split", [base_operator, param_operator], {"mask": vecmask})
         self.param_encoding = param_encoding
 
     def evolve(self, population, initializer=None):
-        # Update operator parameters 
+        # Update operator parameters
         params = self.param_encoding.decode_param(population.genotype_matrix)
-        self.base_operator.params = params
-        
+        self.base_operator.params.update(params)
+
         # Evolve population
-        new_population = self.operator_sequence.evolve(population)
+        new_population = self.main_operator.evolve(population)
 
         return new_population
 

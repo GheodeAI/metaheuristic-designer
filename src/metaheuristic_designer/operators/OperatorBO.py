@@ -5,12 +5,14 @@ from sklearn.exceptions import ConvergenceWarning
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel
 import warnings
+
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
 
-from ..Operator import Operator 
+from ..Operator import Operator
 from ..Population import Population
 from ..ObjectiveFunc import ObjectiveVectorFunc
 from ..utils import RAND_GEN
+
 
 def _aquisition_function(gaussian_model, X, x_in, max_y):
     mean_y, std_y = gaussian_model.predict(x_in[None, :], return_std=True)
@@ -21,6 +23,7 @@ def _aquisition_function(gaussian_model, X, x_in, max_y):
 
     return exp_imp
 
+
 class OperatorBO(Operator):
     """
     Operator used specifically in the Bayesian Optimization algorithm.
@@ -29,12 +32,7 @@ class OperatorBO(Operator):
     from the regression model is then optimized to estimate the next best solution for the problem.
     """
 
-    def __init__(
-        self,
-        params=None,
-        name="Gaussian Regression Surrogate Model",
-        encoding=None
-    ):
+    def __init__(self, params=None, name="Gaussian Regression Surrogate Model", encoding=None):
         if params is None:
             params = {}
 
@@ -75,15 +73,12 @@ class OperatorBO(Operator):
         samples = initializer.generate_population(objfunc, self.batch_size).genotype_matrix
         for x0 in samples:
             result = sp.optimize.minimize(
-                fun=lambda x_in: -_aquisition_function(self.gaussian_model, X, x_in, max_y),
-                x0=x0,
-                method="L-BFGS-B",
-                bounds=bounds
+                fun=lambda x_in: -_aquisition_function(self.gaussian_model, X, x_in, max_y), x0=x0, method="L-BFGS-B", bounds=bounds
             )
             if result.fun < min_ei:
                 min_ei = result.fun
                 new_best_point = result.x
-            
+
         # Create new population from the optimization result and merge it with the previous one
         new_sample_population = Population(objfunc, genotype_matrix=new_best_point[None, :], encoding=population.encoding)
         new_population = Population.join_populations(population, new_sample_population)

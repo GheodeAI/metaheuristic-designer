@@ -326,7 +326,7 @@ class OperatorVector(Operator):
 
             case VectorOpMethods.NOTHING:
                 new_population = copy(population)
-        
+
         if new_population is None:
             population_matrix = self.encoding.encode(population_matrix)
             new_population = population.update_genotype_matrix(population_matrix, speed)

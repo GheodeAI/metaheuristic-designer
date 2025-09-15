@@ -79,7 +79,6 @@ def run_algorithm(alg_name, memetic, save_state, objective, dim):
         "max_samples": 100,
     }
 
-
     if alg_name == "HillClimb":
         alg = hill_climb(params=params, objfunc=objfunc)
     elif alg_name == "SA":

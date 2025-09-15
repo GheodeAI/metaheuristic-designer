@@ -169,7 +169,7 @@ class Population:
         if speed_matrix is not None:
             if speed_matrix.shape != genotype_matrix.shape:
                 raise ValueError("The speed matrix should have the same size as the genotype matrix")
-            
+
             self.speed_matrix = speed_matrix
         else:
             self.speed_matrix = RAND_GEN.random(genotype_matrix.shape)
@@ -458,7 +458,6 @@ class Population:
         fitness: ndarray
         """
 
-
         prev_fitness = copy(self.fitness)
         self.fitness = self.objfunc.fitness(self, parallel=parallel, threads=threads)
 
@@ -502,7 +501,7 @@ class Population:
         """
 
         return self.encoding.decode(self.genotype_matrix)
-    
+
     def get_state(self) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
