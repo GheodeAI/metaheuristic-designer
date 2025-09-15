@@ -17,9 +17,6 @@ from copy import deepcopy
 from PIL import Image
 from itertools import product
 
-# import matplotlib
-# matplotlib.use("Gtk3Agg")
-
 import argparse
 
 
@@ -45,7 +42,6 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         "patience": 500,
         "verbose": True,
         "v_timer": 0.5,
-
         # Parallel
         "parallel": False,
         "threads": 8,

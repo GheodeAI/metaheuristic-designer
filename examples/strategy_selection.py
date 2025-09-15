@@ -9,7 +9,6 @@ from metaheuristic_designer.strategies import *
 from metaheuristic_designer.benchmarks import *
 
 
-
 def run_algorithm(save_report):
     objfunc = HappyCat(3, "min")
     single_initializer = UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1)
@@ -19,7 +18,9 @@ def run_algorithm(save_report):
     strategies = [
         HillClimb(single_initializer, OperatorVector("RandNoise", {"distrib": "Gauss", "F": 1e-4}), name="HillClimb-Gauss"),
         HillClimb(single_initializer, OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 1e-4}), name="HillClimb-Cauchy"),
-        LocalSearch(single_initializer, OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 1e-4}), params={"iters": 20}, name="LocalSearch-Cauchy"),
+        LocalSearch(
+            single_initializer, OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 1e-4}), params={"iters": 20}, name="LocalSearch-Cauchy"
+        ),
         LocalSearch(single_initializer, OperatorVector("RandNoise", {"distrib": "Gauss", "F": 1e-4}), params={"iters": 20}, name="LocalSearch-Gauss"),
         SA(
             single_initializer,

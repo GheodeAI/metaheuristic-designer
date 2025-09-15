@@ -295,7 +295,7 @@ class Algorithm(ABC):
         ----------
         population: Population, optional
             Population to evolve in the next generation. By default use the result from
-            the previous step contained in the search strategy class. 
+            the previous step contained in the search strategy class.
         time_start: float, optional
             Indicates to the algorihm how much time has already passed.
         verbose: bool, optional

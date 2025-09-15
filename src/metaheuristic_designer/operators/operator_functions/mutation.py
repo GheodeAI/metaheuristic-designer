@@ -44,6 +44,7 @@ prob_dist_map = {
     "levy_stable": ProbDist.LEVYSTABLE,
     "poisson": ProbDist.POISSON,
     "bernoulli": ProbDist.BERNOULLI,
+    "binom": ProbDist.BINOMIAL,
     "binomial": ProbDist.BINOMIAL,
     "categorical": ProbDist.CATEGORICAL,
     "custom": ProbDist.CUSTOM,
@@ -173,14 +174,14 @@ def mutate_noise(population, **params):
         maxim = params["max"]
         loc = minim
         scale = maxim - minim
-    strength = params.get("F", 1)
+    strength = np.asarray(params.get("F", 1))
 
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
     rand_vec = sample_distribution(population.shape, loc, scale, **params)
 
-    population[mask_pos] = population[mask_pos] + strength * rand_vec[mask_pos]
+    population[mask_pos] = population[mask_pos] + strength.squeeze() * rand_vec[mask_pos]
     return population
 
 
@@ -234,7 +235,7 @@ def rand_noise(population, **params):
         maxim = params["max"]
         loc = minim
         scale = maxim - minim
-    strength = params.get("F", 1)
+    strength = np.asarray(params.get("F", 1))
 
     noise = sample_distribution(population.shape, loc, scale, **params)
 
@@ -277,7 +278,7 @@ def sample_distribution(shape, loc=None, scale=None, **params):
         case ProbDist.BINOMIAL:
             n = params["n"]
             p = params.get("p", 0.5)
-            prob_distrib = sp.stats.binomial(n, p, loc=loc)
+            prob_distrib = sp.stats.binom(n, p, loc=loc)
         case ProbDist.CATEGORICAL:
             p = params["p"]
             prob_distrib = sp.stats.rv_discrete(name="categorical", values=(np.arange(p.size), p / np.sum(p)))
@@ -333,7 +334,7 @@ def mutate_1_sigma(population, epsilon, tau):
     Mutate a sigma value in base of tau param, where epsilon is de minimum value that a sigma can have.
     """
 
-    return np.maximum(epsilon, population * np.exp(tau * RAND_GEN.normal(0, 1, sigma.shape[0])))
+    return np.maximum(epsilon, population * np.exp(tau * RAND_GEN.normal(0, 1, population.shape[0])[:, None]))
 
 
 def mutate_n_sigmas(population, epsilon, tau, tau_multiple):

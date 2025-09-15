@@ -68,7 +68,7 @@ def pmx(population):
         new_population[i] = pmx_single(population[i], population[2 * i])
         new_population[i + half_size] = pmx_single(population[2 * i], population[i])
 
-    return new_population[:population.shape[0]]
+    return new_population[: population.shape[0]]
 
 
 def pmx_single(vector1, vector2):
@@ -120,7 +120,7 @@ def order_cross(population):
         new_population[i] = order_cross_single(parents1[i], parents2[i])
         new_population[i + math.ceil(half_size)] = order_cross_single(parents2[i], parents1[i])
 
-    return new_population[:population.shape[0]]
+    return new_population[: population.shape[0]]
 
 
 def order_cross_single(vector1, vector2):

@@ -130,6 +130,7 @@ def _genetic_algorithm_int_vec(params, objfunc):
 
     return GeneralAlgorithm(objfunc, search_strat, params=params)
 
+
 def _genetic_algorithm_perm_vec(params, objfunc):
     """
     Instantiates a genetic algorithm to optimize the given objective function.
