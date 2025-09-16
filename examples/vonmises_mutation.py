@@ -17,16 +17,14 @@ import numpy as np
 
 class STDAdaptEncoding(AdaptionEncoding):
     def decode_param_func(self, genotype):
-        # return {"F": np.maximum(1e-7, self.decode_param_vec(genotype))}
         param_vec = self.decode_param_vec(genotype)
         return {
-            "F": np.maximum(0, param_vec[:, [-1]]),
+            "F": np.maximum(0, param_vec[:, -1]),
             "mu": param_vec[:, :-1],
-            "scale": 0.1,
         }
 
 
-def run_algorithm(alg_name, memetic, save_state):
+def run_algorithm(save_state, objective, dim):
     params = {
         "stop_cond": "convergence or time_limit",
         "progress_metric": "time_limit",
@@ -40,17 +38,19 @@ def run_algorithm(alg_name, memetic, save_state):
         "v_timer": 0.5,
     }
 
-    # objfunc = Sphere(30, "min")
-    # objfunc = Rastrigin(2, "min")
-    # objfunc = Rastrigin(30, "min")
-    # objfunc = Rosenbrock(2, "min")
-    objfunc = Rosenbrock(30, "min")
-    # objfunc = Ackley(30, "min")
-    # objfunc = Weierstrass(30, "min")
-    # objfunc = HappyCat(3, "min")
+    match objective:
+        case "Sphere":
+            objfunc = Sphere(dim, "min")
+        case "Rastrigin":
+            objfunc = Rastrigin(dim, "min")
+        case "Rosenbrock":
+            objfunc = Rosenbrock(dim, "min")
+        case "Weierstrass":
+            objfunc = Weierstrass(dim, "min")
+        case _:
+            raise Exception(f'Objective function "{objective}" doesn\'t exist.')
 
-    # mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss"})
-    mutation_op = OperatorVector("MutNoise", {"distrib": "VonMises", "N": 1})
+    mutation_op = OperatorVector("RandNoise", {"distrib": "VonMises", "scale": 1e-1})
 
     param_op = OperatorVector("MutateNSigmas", {"tau": 1 / np.sqrt(objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
     adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=objfunc.vecsize+1)
@@ -89,9 +89,11 @@ def main():
         action="store_true",
         help="Saves the state of the search strategy",
     )
+    parser.add_argument("-o", "--objective", dest="objective", help="Name of the objective function.", default="Sphere")
+    parser.add_argument("-d", "--dim", dest="dim", help="Dimension of the vectors to optimize.", default=3, type=int)
     args = parser.parse_args()
 
-    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state)
+    run_algorithm(save_state=args.save_state, objective=args.objective, dim=args.dim)
 
 
 if __name__ == "__main__":

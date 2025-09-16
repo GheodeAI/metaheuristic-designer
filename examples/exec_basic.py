@@ -59,8 +59,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim):
             lam = 150
             search_strat = ES(
                 initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size),
-                mutation_op=OperatorVector("MutNoise", {"distrib": "vonMises", "F": 1e-5, "N": 1}),
-                # mutation_op=OperatorVector("MutNoise", {"distrib": "Gaussian", "F": 1e-3, "N": 1}),
+                mutation_op=OperatorVector("MutNoise", {"distrib": "Gaussian", "F": 1e-3, "N": 1}),
                 cross_op=OperatorVector("Multipoint"),
                 survivor_sel=SurvivorSelection("(m+n)"),
                 params={"offspringSize": lam},

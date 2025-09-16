@@ -8,6 +8,7 @@ from ...utils import RAND_GEN
 class ProbDist(Enum):
     UNIFORM = enum.auto()
     GAUSS = enum.auto()
+    MULTIGAUSS = enum.auto()
     CAUCHY = enum.auto()
     LAPLACE = enum.auto()
     GAMMA = enum.auto()
@@ -18,6 +19,7 @@ class ProbDist(Enum):
     BINOMIAL = enum.auto()
     VONMISES = enum.auto()
     CATEGORICAL = enum.auto()
+    MULTICATEGORICAL = enum.auto()
     CUSTOM = enum.auto()
 
     @staticmethod
@@ -35,6 +37,12 @@ prob_dist_map = {
     "gauss": ProbDist.GAUSS,
     "gaussian": ProbDist.GAUSS,
     "normal": ProbDist.GAUSS,
+    "multivariate_normal": ProbDist.MULTIGAUSS,
+    "multinormal": ProbDist.MULTIGAUSS,
+    "multivariate_gauss": ProbDist.MULTIGAUSS,
+    "multigauss": ProbDist.MULTIGAUSS,
+    "multivariate_gaussian": ProbDist.MULTIGAUSS,
+    "multigaussian": ProbDist.MULTIGAUSS,
     "cauchy": ProbDist.CAUCHY,
     "laplace": ProbDist.LAPLACE,
     "gamma": ProbDist.GAMMA,
@@ -51,11 +59,14 @@ prob_dist_map = {
     "vonmises-fisher": ProbDist.VONMISES,
     "tikhonov": ProbDist.VONMISES,
     "categorical": ProbDist.CATEGORICAL,
+    "multicategorical": ProbDist.MULTICATEGORICAL,
+    "multivariate_categorical": ProbDist.MULTICATEGORICAL,
+    "multivariatecategorical": ProbDist.MULTICATEGORICAL,
     "custom": ProbDist.CUSTOM,
 }
 
 
-class multicategorical:
+class multivariate_categorical:
     def __init__(self, categories, weight_matrix):
         self.categories = categories
         weight_matrix = weight_matrix / weight_matrix.sum(axis=1, keepdims=True)
@@ -65,6 +76,10 @@ class multicategorical:
     def rvs(self, size=None, random_state=None):
         if size is None:
             size = len(self.cumsum_matrix.shape[0])
+        elif np.asarray(size).ndim == 0:
+            size = (size, len(self.categories))
+        else:
+            size = tuple(size) + (len(self.categories),)
 
         if random_state is None:
             random_state = np.random.default_rng()
@@ -179,13 +194,15 @@ def mutate_noise(population, **params):
         loc = minim
         scale = maxim - minim
     strength = np.asarray(params.get("F", 1))
+    if strength.ndim == 1:
+        strength = strength[:, None]
 
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
     rand_vec = sample_distribution(population.shape, loc, scale, **params)
 
-    population[mask_pos] = population[mask_pos] + strength.squeeze() * rand_vec[mask_pos]
+    population[mask_pos] = population[mask_pos] + (strength * rand_vec)[mask_pos]
     return population
 
 
@@ -240,6 +257,8 @@ def rand_noise(population, **params):
         loc = minim
         scale = maxim - minim
     strength = np.asarray(params.get("F", 1))
+    if strength.ndim == 1:
+        strength = strength[:, None]
 
     noise = sample_distribution(population.shape, loc, scale, **params)
 
@@ -251,6 +270,8 @@ def sample_distribution(shape, loc=None, scale=None, **params):
     Takes samples as a matrix with shape 'shape' from a given probablility distribution and returns them as a vector.
     """
 
+    result = None
+
     distrib = params["distrib"]
     loc = 0 if loc is None else loc
     scale = 1 if scale is None else scale
@@ -258,6 +279,19 @@ def sample_distribution(shape, loc=None, scale=None, **params):
     match distrib:
         case ProbDist.GAUSS:
             prob_distrib = sp.stats.norm(loc=loc, scale=scale)
+        case ProbDist.MULTIGAUSS:
+            mean = params.get("mean", np.full(shape[1], loc) if np.asarray(loc).ndim <= 1 else loc)
+            cov = params.get("cov", np.eye(shape[1]) * scale if np.asarray(scale).ndim <= 1 else np.diagflat(scale))
+            if mean.ndim <= 1 and cov.ndim <= 2:
+                prob_distrib = sp.stats.multivariate_normal(mean=mean, cov=cov)
+                shape = shape[0]
+            else:
+                result = np.empty(shape)
+                for i in range(shape[0]):
+                    mean_i = loc if np.asarray(mean).ndim <= 1 else loc[i]
+                    scale_i = scale if np.asarray(cov).ndim <= 2 else scale[i]
+                    prob_distrib = sp.stats.multivariate_normal(mean=mean_i, kappa=scale_i)
+                    result[i, :] = prob_distrib.rvs(random_state=RAND_GEN)
         case ProbDist.UNIFORM:
             prob_distrib = sp.stats.uniform(loc=loc, scale=scale)
         case ProbDist.CAUCHY:
@@ -280,18 +314,21 @@ def sample_distribution(shape, loc=None, scale=None, **params):
             p = params.get("p", 0.5)
             prob_distrib = sp.stats.bernoulli(p, loc=loc)
         case ProbDist.VONMISES:
-            mu = params.get("mu", np.random.uniform(-1,1,shape[1]))
-            mu = mu/np.linalg.norm(mu, axis=1, keepdims=True)
-            if np.asarray(mu).ndim <= 1 and np.asarray(scale).ndim <= 1:
+            mu = params.get("mu", np.random.uniform(-1,1,shape))
+            if mu.ndim <= 1:
+                mu = mu/np.linalg.norm(mu)
+            else:
+                mu = mu/np.linalg.norm(mu, axis=1, keepdims=True)
+            if mu.ndim <= 1 and np.asarray(scale).ndim <= 1:
                 prob_distrib = sp.stats.vonmises_fisher(mu=mu, kappa=1/scale)
+                shape = shape[0]
             else:
                 result = np.empty(shape)
                 for i in range(shape[0]):
-                    mu_i = mu if np.asarray(mu).ndim <= 1 else mu[i]
+                    mu_i = mu if mu.ndim <= 1 else mu[i]
                     scale_i = scale if np.asarray(scale).ndim <= 1 else scale[i]
                     prob_distrib = sp.stats.vonmises_fisher(mu=mu_i, kappa=1/scale_i)
                     result[i, :] = prob_distrib.rvs(random_state=RAND_GEN)
-
         case ProbDist.BINOMIAL:
             n = params["n"]
             p = params.get("p", 0.5)
@@ -299,9 +336,10 @@ def sample_distribution(shape, loc=None, scale=None, **params):
         case ProbDist.CATEGORICAL:
             p = params["p"]
             prob_distrib = sp.stats.rv_discrete(name="categorical", values=(np.arange(p.size), p / np.sum(p)))
-        # case ProbDist.MULTICATEGORICAL:
-        #     p = params["p"]
-        #     prob_distrib = mulitcategorial(np.arange(p.shape[0]), weight_matrix=p)
+        case ProbDist.MULTICATEGORICAL:
+            p = params["p"]
+            prob_distrib = multivariate_categorical(np.arange(p.shape[1]), weight_matrix=p)
+            shape = shape[0]
         case ProbDist.CUSTOM:
             if "distrib_class" not in params:
                 raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")

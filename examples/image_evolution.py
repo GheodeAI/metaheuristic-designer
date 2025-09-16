@@ -392,8 +392,6 @@ def main():
     )
     args = parser.parse_args()
 
-    print(args.hide)
-
     run_algorithm(
         alg_name=args.algorithm.upper(),
         img_file_name=args.img,
