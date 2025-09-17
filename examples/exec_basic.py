@@ -59,7 +59,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim):
             lam = 150
             search_strat = ES(
                 initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size),
-                mutation_op=OperatorVector("MutNoise", {"distrib": "Cauchy", "F": 1e-3, "N": 1}),
+                mutation_op=OperatorVector("MutNoise", {"distrib": "Gaussian", "F": 1e-3, "N": 1}),
                 cross_op=OperatorVector("Multipoint"),
                 survivor_sel=SurvivorSelection("(m+n)"),
                 params={"offspringSize": lam},
@@ -122,7 +122,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim):
             pop_size = 100
             search_strat = BayesianOptimization(
                 initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size),
-                params={"batch_size": 50, "max_samples": 100}
+                params={"batch_size": 50, "max_samples": 100},
             )
         case "CRO":
             pop_size = 100
@@ -290,7 +290,9 @@ def main():
     )
     args = parser.parse_args()
 
-    run_algorithm(alg_name=args.algorithm.upper(), memetic=args.mem, save_state=args.save_state, show_plots=args.plot, objective=args.objective, dim=args.dim)
+    run_algorithm(
+        alg_name=args.algorithm.upper(), memetic=args.mem, save_state=args.save_state, show_plots=args.plot, objective=args.objective, dim=args.dim
+    )
 
 
 if __name__ == "__main__":

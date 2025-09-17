@@ -2,7 +2,7 @@ from __future__ import annotations
 from ..ObjectiveFunc import ObjectiveVectorFunc
 from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer
-from ..encodings import TypeCastEncoding
+from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import PSO
 from ..algorithms import GeneralAlgorithm
 
@@ -105,6 +105,7 @@ def _particle_swarm_bin_vec(params, objfunc):
     """
 
     pop_size = params.get("pop_size", 100)
+
     w = params.get("w", 0.7)
     c1 = params.get("c1", 1.5)
     c2 = params.get("c2", 1.5)
@@ -112,10 +113,10 @@ def _particle_swarm_bin_vec(params, objfunc):
         vecsize = params["vecsize"]
     else:
         vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
+    min_val = params.get("min", objfunc.low_lim if objfunc else -100)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    encoding = TypeCastEncoding(float, bool)
+    encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
 
     pop_initializer = UniformVectorInitializer(
         vecsize,

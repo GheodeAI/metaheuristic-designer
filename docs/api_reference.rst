@@ -59,6 +59,7 @@ The implemented encodings are listed below.
    ":py:class:`encodings.TypeCastEncoding<metaheuristic_designer.encodings.TypeCastEncoding>`", "Encoding that changes the datatype when encoding and decoding."
    ":py:class:`encodings.MatrixEncoding<metaheuristic_designer.encodings.MatrixEncoding>`", "Encoding that reshapes a vector to a tensor with a different size."
    ":py:class:`encodings.ImageEncoding<metaheuristic_designer.encodings.ImageEncoding>`", "Encoding that reshapes a vector to a NxMxC matrix of bytes that represents NxM images with C channels."
+   ":py:class:`encodings.SigmoidEncoding<metaheuristic_designer.encodings.SigmoidEncoding>`", "Encoding that allows algorithms for continuous problems to be applied to binary problems. Converts real numbers to probabilities."
    ":py:class:`encodings.AdaptionEncoding<metaheuristic_designer.encodings.AdaptionEncoding>`", "Encoding that makes individuals represent the solution and parameters of the algorithm."
    ":py:class:`encodings.CompositeEncoding<metaheuristic_designer.encodings.CompositeEncoding>`", "Encoding that applies other encoders in sequence."
    ":py:class:`encodings.CMAEncoding<metaheuristic_designer.encodings.CMAEncoding>`", "Encoding used by the CMA-ES algorithm."
@@ -71,8 +72,8 @@ The implemented operators for each datatype are listed in the following section
 .. csv-table::
    :header: "Module name", "Methods", "Description"
 
-   ":py:class:`selectionMethods.ParentSelection<metaheuristic_designer.selectionMethods.ParentSelection.ParentSelection>`", ":ref:`implemented metods<Operator Binary Methods>`","Selection methods for parent selection."
-   ":py:class:`selectionMethods.SurvivorSelection<metaheuristic_designer.selectionMethods.SurvivorSelection.SurvivorSelection>`", ":ref:`implemented metods<Operator Binary Methods>`", "Selection methods for survivor selection."
+   ":py:class:`selectionMethods.ParentSelection<metaheuristic_designer.selectionMethods.ParentSelection.ParentSelection>`", ":ref:`implemented metods<Parent Selection>`","Selection methods for parent selection."
+   ":py:class:`selectionMethods.SurvivorSelection<metaheuristic_designer.selectionMethods.SurvivorSelection.SurvivorSelection>`", ":ref:`implemented metods<Survivor Selection>`", "Selection methods for survivor selection."
    ":py:class:`selectionMethods.ParentSelectionNull<metaheuristic_designer.selectionMethods.ParentSelectionNull>`", "", "Selection methods for parent selection that returns the original population."
    ":py:class:`selectionMethods.SurvivorSelectionNull<metaheuristic_designer.selectionMethods.SurvivorSelectionNull>`", "", "Selection methods for survivor selection that returns the offspring."
 

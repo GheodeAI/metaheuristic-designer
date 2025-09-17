@@ -14,6 +14,7 @@ import scipy as sp
 import numpy as np
 import networkx as nx
 
+
 def run_algorithm(alg_name, problem_name, memetic, save_state):
     params = {
         # "stop_cond": "neval or time_limit or fit_target",

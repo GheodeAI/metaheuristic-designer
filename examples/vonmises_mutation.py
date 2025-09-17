@@ -17,10 +17,14 @@ import numpy as np
 
 class STDAdaptEncoding(AdaptionEncoding):
     def decode_param_func(self, genotype):
-        return {"F": np.maximum(1e-7, self.decode_param_vec(genotype))}
+        param_vec = self.decode_param_vec(genotype)
+        return {
+            "F": np.maximum(0, param_vec[:, -1]),
+            "mu": param_vec[:, :-1],
+        }
 
 
-def run_algorithm(alg_name, memetic, save_state):
+def run_algorithm(save_state, objective, dim):
     params = {
         "stop_cond": "convergence or time_limit",
         "progress_metric": "time_limit",
@@ -34,37 +38,35 @@ def run_algorithm(alg_name, memetic, save_state):
         "v_timer": 0.5,
     }
 
-    # objfunc = Sphere(30, "min")
-    objfunc = Rastrigin(2, "min")
-    # objfunc = Rosenbrock(2, "min")
-    # objfunc = Ackley(30, "min")
-    # objfunc = Weierstrass(30, "min")
-    # objfunc = HappyCat(3, "min")
+    match objective:
+        case "Sphere":
+            objfunc = Sphere(dim, "min")
+        case "Rastrigin":
+            objfunc = Rastrigin(dim, "min")
+        case "Rosenbrock":
+            objfunc = Rosenbrock(dim, "min")
+        case "Weierstrass":
+            objfunc = Weierstrass(dim, "min")
+        case _:
+            raise Exception(f'Objective function "{objective}" doesn\'t exist.')
 
-    # mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss"})
-    # mutation_op = OperatorVector("RandNoise", {"distrib": "Cauchy"})
-    # mutation_op = OperatorVector("RandNoise", {"distrib": "Uniform"})
-    # mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "N": 1})
-    mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "N": 1})
-    # mutation_op = OperatorVector("MutNoise", {"distrib": "Uniform", "N": 1})
+    mutation_op = OperatorVector("RandNoise", {"distrib": "VonMises", "scale": 1e-1})
 
-    param_op = OperatorVector("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
-    adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=1)
-    # param_op = OperatorVector("MutateNSigmas", {"tau": 1/np.sqrt(2+objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
-    # adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=objfunc.vecsize)
+    param_op = OperatorVector("MutateNSigmas", {"tau": 1 / np.sqrt(objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
+    adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=objfunc.vecsize+1)
 
     ada_mutation_op = OperatorAdaptative(mutation_op, param_op, adaption_encoding)
-    objfunc.low_lim = np.hstack([objfunc.low_lim, 0])
-    objfunc.up_lim = np.hstack([objfunc.up_lim, 1])
 
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize + 1, objfunc.low_lim, objfunc.up_lim, pop_size=50, encoding=adaption_encoding)
+    objfunc.low_lim = np.hstack([objfunc.low_lim, -np.ones(objfunc.low_lim.shape[0]+1)])
+    objfunc.up_lim = np.hstack([objfunc.up_lim, np.ones(objfunc.up_lim.shape[0]+1)])
+    pop_initializer = UniformVectorInitializer(objfunc.vecsize*2+1, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding)
 
     cross_op = OperatorVector("Multipoint")
 
     parent_sel_op = ParentSelection("Nothing")
     selection_op = SurvivorSelection("(m+n)")
 
-    search_strat = ES(pop_initializer, ada_mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": 250}, name="Adaptative-ES")
+    search_strat = ES(pop_initializer, ada_mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": 700}, name="Adaptative-ES")
 
     alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 
@@ -80,14 +82,6 @@ def run_algorithm(alg_name, memetic, save_state):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="algorithm", help="Specify an algorithm", default="ES")
-    parser.add_argument(
-        "-m",
-        "--memetic",
-        dest="mem",
-        action="store_true",
-        help="Does local search after mutation",
-    )
     parser.add_argument(
         "-s",
         "--save-state",
@@ -95,10 +89,13 @@ def main():
         action="store_true",
         help="Saves the state of the search strategy",
     )
+    parser.add_argument("-o", "--objective", dest="objective", help="Name of the objective function.", default="Sphere")
+    parser.add_argument("-d", "--dim", dest="dim", help="Dimension of the vectors to optimize.", default=3, type=int)
     args = parser.parse_args()
 
-    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state)
+    run_algorithm(save_state=args.save_state, objective=args.objective, dim=args.dim)
 
 
 if __name__ == "__main__":
     main()
+
