@@ -25,7 +25,13 @@ class LocalSearch(SearchStrategy):
         if survivor_sel is None:
             survivor_sel = SurvivorSelection("Many-to-one")
 
-        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name)
+        super().__init__(
+            initializer,
+            operator=operator,
+            survivor_sel=survivor_sel,
+            params=params,
+            name=name,
+        )
 
         self.iterations = params.get("iters", 100)
 

@@ -135,7 +135,13 @@ class OperatorVector(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, params: ParamScheduler | dict = None, name: str = None, encoding: Encoding = None):
+    def __init__(
+        self,
+        method: str,
+        params: ParamScheduler | dict = None,
+        name: str = None,
+        encoding: Encoding = None,
+    ):
         """
         Constructor for the OperatorPerm class
         """
@@ -280,12 +286,24 @@ class OperatorVector(Operator):
                 population_matrix = DE_current_to_best1(population_matrix, fitness_array, params["F"], params["Cr"])
 
             case VectorOpMethods.DE_CTPBEST_1:
-                population_matrix = DE_current_to_pbest1(population_matrix, fitness_array, params["F"], params["Cr"], params["P"])
+                population_matrix = DE_current_to_pbest1(
+                    population_matrix,
+                    fitness_array,
+                    params["F"],
+                    params["Cr"],
+                    params["P"],
+                )
 
             ## Swarm based algorithms
             case VectorOpMethods.PSO:
                 population_matrix, speed = pso_operator(
-                    population_matrix, speed, historical_best, global_best, params["w"], params["c1"], params["c2"]
+                    population_matrix,
+                    speed,
+                    historical_best,
+                    global_best,
+                    params["w"],
+                    params["c1"],
+                    params["c2"],
                 )
 
             case VectorOpMethods.FIREFLY:
@@ -310,7 +328,10 @@ class OperatorVector(Operator):
                 new_population = initializer.generate_population(population.objfunc, len(population))
 
             case VectorOpMethods.RANDOM_MASK:
-                mask_pos = np.tile(np.arange(population_matrix.shape[1]) < params["N"], population_matrix.shape[0]).reshape(population_matrix.shape)
+                mask_pos = np.tile(
+                    np.arange(population_matrix.shape[1]) < params["N"],
+                    population_matrix.shape[0],
+                ).reshape(population_matrix.shape)
                 mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
                 random_population = initializer.generate_population(population.objfunc, len(population))

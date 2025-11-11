@@ -3,6 +3,8 @@ from typing import Any
 from abc import ABC, abstractmethod
 import numpy as np
 from numpy import ndarray
+from .ConstraintHandler import ConstraintHandler, NullConstraint
+from .constraintHandlers import ClipBoundConstraint, CompositeConstraint
 
 
 class ObjectiveFunc(ABC):
@@ -25,32 +27,54 @@ class ObjectiveFunc(ABC):
         Wheather to calculate the fitness of the individuals even if they were already calcualted before.
     """
 
-    def __init__(self, mode: str = "max", name: str = "some function", vectorized: bool = False, recalculate: bool = False):
+    def __init__(
+        self,
+        constraint_handler: ConstraintHandler = None,
+        mode: str = "max",
+        name: str = "some function",
+        vectorized: bool = False,
+        recalculate: bool = False,
+    ):
         """
         Constructor for the ObjectiveFunc class
         """
 
+        if constraint_handler is None:
+            constraint_handler = NullConstraint()
+        self.constraint_handler = constraint_handler
         self.name = name
         self.counter = 0
         self.factor = 1
         self.vectorized = vectorized
         self.recalculate = recalculate
 
-        self.mode = mode
         if mode not in ["max", "min"]:
             raise ValueError('Optimization objective (mode) must be "min" or "max".')
+        self.mode = mode
 
-        if self.mode == "min":
+        if mode == "min":
             self.factor = -1
 
-    def __call__(self, population: Population, adjusted: bool = True, parallel: bool = False, threads: int = 8) -> float:
+    def __call__(
+        self,
+        population: Population,
+        adjusted: bool = True,
+        parallel: bool = False,
+        threads: int = 8,
+    ) -> float:
         """
         Shorthand for executing the objective function on a vector.
         """
 
         return self.fitness(population, adjusted)
 
-    def fitness(self, population: Population, adjusted: bool = True, parallel: bool = False, threads: int = 8) -> ndarray:
+    def fitness(
+        self,
+        population: Population,
+        adjusted: bool = True,
+        parallel: bool = False,
+        threads: int = 8,
+    ) -> ndarray:
         """
         Returns the value of the objective function given an individual.
         If the fitness is adjusted, the sign will be switched for minimization problems
@@ -81,7 +105,7 @@ class ObjectiveFunc(ABC):
 
             fitness_new = self.objective(solutions)
             if adjusted:
-                fitness_new = self.factor * (fitness_new - self.penalize(solutions))
+                fitness_new = self.factor * (fitness_new - self.constraint_handler.penalty(solutions))
 
             if self.recalculate:
                 fitness[population.fitness_calculated == 0] = fitness_new
@@ -94,7 +118,7 @@ class ObjectiveFunc(ABC):
                     value = self.objective(solution)
 
                     if adjusted:
-                        value = self.factor * (value - self.penalize(solution))
+                        value = self.factor * (value - self.constraint_handler.penalty(solution))
 
                     fitness[idx] = value
 
@@ -123,7 +147,6 @@ class ObjectiveFunc(ABC):
             Value of the objective function given a solution.
         """
 
-    @abstractmethod
     def repair_solution(self, solution: Any) -> Any:
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
@@ -139,25 +162,7 @@ class ObjectiveFunc(ABC):
             A modified version of the solution passed that satisfies the restrictions of the problem.
         """
 
-    def penalize(self, _: Any) -> float | ndarray:
-        """
-        Gives a penalization to the fitness value of an individual if it violates any constraints propotional
-        to how far it is to a viable solution.
-
-        If not implemented always returns 0.
-
-        Parameters
-        ----------
-        solution: Any
-            A solution that could be violating the restrictions of the problem.
-
-        Returns
-        -------
-        penalty: float
-            The penalty associated to the degree that the solution violates the restrictions of the problem.
-        """
-
-        return 0
+        return self.constraint_handler.repair_solution(solution)
 
 
 class ObjectiveVectorFunc(ObjectiveFunc):
@@ -181,9 +186,10 @@ class ObjectiveVectorFunc(ObjectiveFunc):
     def __init__(
         self,
         vecsize: int,
+        low_lim: float,
+        up_lim: float,
+        constraint_handler: ConstraintHandler = None,
         mode: str = "max",
-        low_lim: float = -100,
-        up_lim: float = 100,
         name: str = "some function",
         vectorized: bool = False,
         recalculate: bool = False,
@@ -192,20 +198,21 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         Constructor for the ObjectiveVectorFunc class
         """
 
-        super().__init__(mode=mode, name=name, vectorized=vectorized, recalculate=recalculate)
-
         self.vecsize = vecsize
 
-        if np.ndim(low_lim) < 1:
-            low_lim = np.repeat(low_lim, vecsize)
-        self.low_lim = low_lim
+        bound_constraint_handler = ClipBoundConstraint(vecsize, low_lim, up_lim)
+        if constraint_handler:
+            constraint_handler = bound_constraint_handler
+        else:
+            constraint_handler = CompositeConstraint([bound_constraint_handler, constraint_handler])
 
-        if np.ndim(up_lim) < 1:
-            up_lim = np.repeat(up_lim, vecsize)
-        self.up_lim = up_lim
-
-    def repair_solution(self, vector: ndarray) -> ndarray:
-        return np.clip(vector, self.low_lim, self.up_lim)
+        super().__init__(
+            constraint_handler=constraint_handler,
+            mode=mode,
+            name=name,
+            vectorized=vectorized,
+            recalculate=recalculate,
+        )
 
     def repair_speed(self, speed: ndarray) -> ndarray:
         """
@@ -228,7 +235,7 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         return result
 
 
-class ObjectiveFromLambda(ObjectiveVectorFunc):
+class ObjectiveFromLambda(ObjectiveFunc):
     """
     Objective function that accepts vectors as an input defined with a callable object.
 
@@ -251,11 +258,11 @@ class ObjectiveFromLambda(ObjectiveVectorFunc):
     def __init__(
         self,
         obj_func: callable,
-        vecsize: int,
+        constraint_handler: ConstraintHandler = None,
         mode: str = "max",
-        low_lim: float = -100,
-        up_lim: float = 100,
-        name: str = "some function",
+        name: str = None,
+        vectorized: bool = False,
+        recalculate: bool = False,
     ):
         """
         Constructor for the ObjectiveFromLambda class
@@ -264,12 +271,15 @@ class ObjectiveFromLambda(ObjectiveVectorFunc):
         if name is None:
             name = obj_func.__name__
 
-        super().__init__(vecsize, mode, low_lim, up_lim, name)
-
         self.obj_func = obj_func
+
+        super().__init__(
+            constraint_handler=constraint_handler,
+            mode=mode,
+            name=name,
+            vectorized=vectorized,
+            recalculate=recalculate
+        )
 
     def objective(self, vector):
         return self.obj_func(vector)
-
-    def repair_solution(self, vector):
-        return np.clip(vector, self.low_lim, self.up_lim)

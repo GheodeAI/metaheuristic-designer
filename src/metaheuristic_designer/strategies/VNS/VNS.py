@@ -65,7 +65,13 @@ class VNS(SearchStrategy):
                 stacklevel=2,
             )
 
-        super().__init__(initializer=initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name)
+        super().__init__(
+            initializer=initializer,
+            operator=operator,
+            survivor_sel=survivor_sel,
+            params=params,
+            name=name,
+        )
 
     def initialize(self, objfunc):
         initial_population = super().initialize(objfunc)
@@ -99,7 +105,12 @@ class VNS(SearchStrategy):
     def select_individuals(self, population, offspring, **kwargs):
         new_population = super().select_individuals(population, offspring, **kwargs)
 
-        self.operator.chosen_idx = next_neighborhood(offspring.fitness[0], population.fitness[0], self.operator.chosen_idx, self.nchange)
+        self.operator.chosen_idx = next_neighborhood(
+            offspring.fitness[0],
+            population.fitness[0],
+            self.operator.chosen_idx,
+            self.nchange,
+        )
 
         return new_population
 

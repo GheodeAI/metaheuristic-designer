@@ -113,7 +113,10 @@ class OperatorPerm(Operator):
                 new_population = initializer.generate_population(population.objfunc)
 
             case PermOpMethods.DUMMY:
-                population_matrix = np.tile(np.arange(population_matrix.shape[1]), (population_matrix.shape[0], 1))
+                population_matrix = np.tile(
+                    np.arange(population_matrix.shape[1]),
+                    (population_matrix.shape[0], 1),
+                )
 
             case PermOpMethods.CUSTOM:
                 fn = params["function"]

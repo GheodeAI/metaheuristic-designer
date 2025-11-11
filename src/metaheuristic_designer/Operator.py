@@ -27,7 +27,12 @@ class Operator(ABC):
 
     _last_id = 0
 
-    def __init__(self, params: ParamScheduler | dict = None, name: str = None, encoding: Encoding = None):
+    def __init__(
+        self,
+        params: ParamScheduler | dict = None,
+        name: str = None,
+        encoding: Encoding = None,
+    ):
         """
         Constructor for the Operator class.
         """

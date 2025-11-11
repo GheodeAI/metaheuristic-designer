@@ -100,7 +100,11 @@ class OperatorMeta(Operator):
 
         match self.method:
             case MetaOpMethods.BRANCH:
-                self.chosen_idx = RAND_GEN.choice(np.arange(len(self.op_list)), size=population.pop_size, p=self.params["weights"])
+                self.chosen_idx = RAND_GEN.choice(
+                    np.arange(len(self.op_list)),
+                    size=population.pop_size,
+                    p=self.params["weights"],
+                )
                 for idx, op in enumerate(self.op_list):
                     split_mask = self.chosen_idx == idx
 

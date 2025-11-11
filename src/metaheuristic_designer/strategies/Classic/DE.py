@@ -25,4 +25,10 @@ class DE(StaticPopulation):
         if survivor_sel is None:
             survivor_sel = SurvivorSelection("One-to-one")
 
-        super().__init__(initializer, operator=de_operator, survivor_sel=survivor_sel, params=params, name=name)
+        super().__init__(
+            initializer,
+            operator=de_operator,
+            survivor_sel=survivor_sel,
+            params=params,
+            name=name,
+        )
