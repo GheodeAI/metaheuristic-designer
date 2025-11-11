@@ -34,7 +34,7 @@ meta_ops_map = {
 }
 
 
-class OperatorMeta(Operator):
+class MetaOperator(Operator):
     """
     Operator class that utilizes a list of operators to modify individuals.
 

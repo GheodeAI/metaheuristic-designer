@@ -1,7 +1,3 @@
-from .BernoulliUMDA import BernoulliUMDA
-from .BernoulliPBIL import BernoulliPBIL
-from .BinomialUMDA import BinomialUMDA
-from .BinomialPBIL import BinomialPBIL
-from .GaussianUMDA import GaussianUMDA
-from .GaussianPBIL import GaussianPBIL
+from .UMDA import BernoulliUMDA, BinomialUMDA, GaussianUMDA
+from .PBIL import BernoulliPBIL, BinomialPBIL, GaussianPBIL
 from .CrossEntropyMethod import CrossEntropyMethod

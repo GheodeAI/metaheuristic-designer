@@ -1,15 +1,16 @@
 from __future__ import annotations
-from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..ObjectiveFunc import VectorObjectiveFunc
 from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer, PermInitializer
-from ..operators import OperatorVector, OperatorNull, OperatorPerm
+from ..operators import VectorOperator, PermOperator
+from ..Operator import NullOperator
 from ..selectionMethods import SurvivorSelection, ParentSelection, ParentSelectionNull
 from ..encodings import TypeCastEncoding
 from ..strategies import ES
 from ..algorithms import GeneralAlgorithm
 
 
-def evolution_strategy(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
+def evolution_strategy(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
     """
     Instantiates a evolution strategy to optimize the given objective function.
 
@@ -63,8 +64,8 @@ def _evolution_strategy_bin_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
 
-    cross_op = OperatorNull()
-    mutation_op = OperatorVector("Flip", {"N": mutstr})
+    cross_op = NullOperator()
+    mutation_op = VectorOperator("Flip", {"N": mutstr})
 
     parent_sel_op = ParentSelection("Nothing")
     selection_op = SurvivorSelection("(m+n)")
@@ -99,8 +100,8 @@ def _evolution_strategy_int_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=int)
 
-    cross_op = OperatorVector("Nothing")
-    mutation_op = OperatorVector(
+    cross_op = VectorOperator("Nothing")
+    mutation_op = VectorOperator(
         "MutRand",
         {
             "distrib": "Uniform",
@@ -141,8 +142,8 @@ def _evolution_strategy_perm_vec(params, objfunc):
 
     pop_initializer = PermInitializer(vecsize, pop_size=pop_size)
 
-    cross_op = OperatorNull()
-    mutation_op = OperatorPerm("Perm", {"N": mutstr})
+    cross_op = NullOperator()
+    mutation_op = PermOperator("Perm", {"N": mutstr})
 
     parent_sel_op = ParentSelectionNull()
     selection_op = SurvivorSelection("(m+n)")
@@ -177,8 +178,8 @@ def _evolution_strategy_real_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
-    cross_op = OperatorNull()
-    mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss", "F": mutstr})
+    cross_op = NullOperator()
+    mutation_op = VectorOperator("RandNoise", {"distrib": "Gauss", "F": mutstr})
     parent_sel_op = ParentSelectionNull()
     selection_op = SurvivorSelection("(m+n)")
 

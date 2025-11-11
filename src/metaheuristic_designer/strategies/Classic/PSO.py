@@ -1,7 +1,7 @@
 from __future__ import annotations
 from ...Initializer import Initializer
 from ...Operator import Operator
-from ...operators import OperatorVector
+from ...operators import VectorOperator
 from ..StaticPopulation import StaticPopulation
 from ...ParamScheduler import ParamScheduler
 
@@ -22,7 +22,7 @@ class PSO(StaticPopulation):
             params = {}
 
         if pso_op is None:
-            pso_op = OperatorVector(
+            pso_op = VectorOperator(
                 "PSO",
                 ParamScheduler(
                     "Linear",

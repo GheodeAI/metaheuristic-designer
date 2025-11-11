@@ -160,7 +160,7 @@ class ObjectiveFunc(ABC):
         return 0
 
 
-class ObjectiveVectorFunc(ObjectiveFunc):
+class VectorObjectiveFunc(ObjectiveFunc):
     """
     Objective function that accepts vectors as an input.
 
@@ -228,7 +228,7 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         return result
 
 
-class ObjectiveFromLambda(ObjectiveVectorFunc):
+class ObjectiveFromLambda(VectorObjectiveFunc):
     """
     Objective function that accepts vectors as an input defined with a callable object.
 

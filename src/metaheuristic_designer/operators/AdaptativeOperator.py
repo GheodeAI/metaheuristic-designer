@@ -1,14 +1,13 @@
 from __future__ import annotations
 from copy import copy
 import numpy as np
-from ..Operator import Operator
-from ..encodings import AdaptionEncoding
-from .OperatorMeta import OperatorMeta
-from .OperatorNull import OperatorNull
+from ..Operator import Operator, NullOperator
+from ..Encoding import ExtendedEncoding
+from .MetaOperator import MetaOperator
 from ..ParamScheduler import ParamScheduler
 
 
-class OperatorAdaptative(Operator):
+class AdaptativeOperator(Operator):
     """
     Operator class that allow algorithms to self-adapt by mutating the operator's parameters.
 
@@ -30,7 +29,7 @@ class OperatorAdaptative(Operator):
         self,
         base_operator: Operator,
         param_operator: Operator,
-        param_encoding: AdaptionEncoding,
+        param_encoding: ExtendedEncoding,
         params: ParamScheduler | dict = None,
         name: str = None,
     ):
@@ -38,7 +37,7 @@ class OperatorAdaptative(Operator):
         Constructor for the OperatorAdaptative class
         """
 
-        super().__init__(params, base_operator.name + "-Adaptative")
+        super().__init__(params, base_operator.name + "-Adaptative", use_params=True)
 
         vecmask = np.concatenate([np.zeros(param_encoding.vecsize), np.ones(param_encoding.nparams)])
         null_op = OperatorNull()
@@ -50,7 +49,7 @@ class OperatorAdaptative(Operator):
 
     def evolve(self, population, initializer=None):
         # Update operator parameters
-        params = self.param_encoding.decode_param(population.genotype_matrix)
+        params = self.param_encoding.decode_params(population.genotype_matrix)
         self.base_operator.params.update(params)
 
         # Evolve population

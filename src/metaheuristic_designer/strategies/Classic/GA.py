@@ -1,9 +1,9 @@
 from __future__ import annotations
 from ...Initializer import Initializer
-from ...Operator import Operator
+from ...Operator import Operator, NullOperator
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...ParamScheduler import ParamScheduler
-from ...operators import OperatorMeta, OperatorNull
+from ...operators import MetaOperator
 from ..VariablePopulation import VariablePopulation
 
 
@@ -28,12 +28,12 @@ class GA(VariablePopulation):
         self.pmut = params.get("pmut", 0.1)
         self.pcross = params.get("pcross", 0.9)
 
-        null_operator = OperatorNull()
+        null_operator = NullOperator()
 
-        prob_mut_op = OperatorMeta("Branch", [mutation_op, null_operator], {"p": self.pmut})
-        prob_cross_op = OperatorMeta("Branch", [cross_op, null_operator], {"p": self.pcross})
+        prob_mut_op = MetaOperator("Branch", [mutation_op, null_operator], {"p": self.pmut})
+        prob_cross_op = MetaOperator("Branch", [cross_op, null_operator], {"p": self.pcross})
 
-        evolve_op = OperatorMeta("Sequence", [prob_cross_op, prob_mut_op])
+        evolve_op = MetaOperator("Sequence", [prob_cross_op, prob_mut_op])
 
         super().__init__(
             initializer,

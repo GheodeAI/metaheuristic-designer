@@ -3,7 +3,7 @@ from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import OperatorVector, OperatorAdaptative
 from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
-from metaheuristic_designer.encodings import AdaptionEncoding
+from metaheuristic_designer.encodings import ExtendedEncoding
 from metaheuristic_designer.strategies import *
 
 from metaheuristic_designer.benchmarks import *
@@ -13,12 +13,6 @@ import argparse
 from copy import copy
 import scipy as sp
 import numpy as np
-
-
-class STDAdaptEncoding(AdaptionEncoding):
-    def decode_param_func(self, genotype):
-        return {"F": np.maximum(1e-7, self.decode_param_vec(genotype))}
-
 
 def run_algorithm(alg_name, memetic, save_state):
     params = {
@@ -44,14 +38,15 @@ def run_algorithm(alg_name, memetic, save_state):
     # mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss"})
     # mutation_op = OperatorVector("RandNoise", {"distrib": "Cauchy"})
     # mutation_op = OperatorVector("RandNoise", {"distrib": "Uniform"})
-    # mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "N": 1})
-    mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "N": 1})
+    mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "N": 1})
+    # mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "N": 1})
     # mutation_op = OperatorVector("MutNoise", {"distrib": "Uniform", "N": 1})
 
-    param_op = OperatorVector("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
-    adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=1)
+    adaption_encoding = ExtendedEncoding(objfunc.vecsize, named_param_sizes=(("F", 1),))
+    param_op = OperatorVector("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-8})
+
+    # adaption_encoding = ExtendedEncoding(objfunc.vecsize, named_param_sizes=(("F", objfunc.vecsize),))
     # param_op = OperatorVector("MutateNSigmas", {"tau": 1/np.sqrt(2+objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
-    # adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=objfunc.vecsize)
 
     ada_mutation_op = OperatorAdaptative(mutation_op, param_op, adaption_encoding)
     objfunc.low_lim = np.hstack([objfunc.low_lim, 0])
@@ -71,7 +66,7 @@ def run_algorithm(alg_name, memetic, save_state):
     result = alg.optimize()
     ind, best_fitness = result.best_solution(decoded=True)
     print(f"solution vector: {ind}")
-    print(f"params: {adaption_encoding.decode_param(result.genotype_matrix)}")
+    print(f"params: {adaption_encoding.decode_params(result.genotype_matrix)}")
     alg.display_report(show_plots=True)
 
     if save_state:

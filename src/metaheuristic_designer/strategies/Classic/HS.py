@@ -1,7 +1,7 @@
 from __future__ import annotations
 from ...ParamScheduler import ParamScheduler
 from ...Initializer import Initializer
-from ...operators import OperatorVector, OperatorMeta
+from ...operators import VectorOperator, MetaOperator
 from ...selectionMethods import SurvivorSelection
 from ..VariablePopulation import VariablePopulation
 
@@ -23,9 +23,9 @@ class HS(VariablePopulation):
         survivor_sel = SurvivorSelection("(m+n)")
 
         HSM = initializer.pop_size
-        cross = OperatorVector("Multicross", {"Nindiv": HSM})
+        cross = VectorOperator("Multicross", {"Nindiv": HSM})
 
-        mutate1 = OperatorVector(
+        mutate1 = VectorOperator(
             "MutNoise",
             {
                 "distrib": "Gauss",
@@ -33,11 +33,11 @@ class HS(VariablePopulation):
                 "Cr": params["HMCR"] * params["PAR"],
             },
         )
-        rand1 = OperatorVector("RandomMask", {"Cr": 1 - params["HMCR"]})
+        rand1 = VectorOperator("RandomMask", {"Cr": 1 - params["HMCR"]})
 
-        mutate = OperatorMeta("Sequence", [mutate1, rand1])
+        mutate = MetaOperator("Sequence", [mutate1, rand1])
 
-        evolve_op = OperatorMeta("Sequence", [cross, mutate])
+        evolve_op = MetaOperator("Sequence", [cross, mutate])
 
         super().__init__(
             initializer,

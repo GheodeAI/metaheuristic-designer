@@ -1,15 +1,15 @@
 from __future__ import annotations
-from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..ObjectiveFunc import VectorObjectiveFunc
 from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer, PermInitializer
-from ..operators import OperatorVector, OperatorPerm
+from ..operators import VectorOperator, PermOperator
 from ..selectionMethods import SurvivorSelection, ParentSelection
 from ..encodings import TypeCastEncoding
 from ..strategies import GA
 from ..algorithms import GeneralAlgorithm
 
 
-def genetic_algorithm(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
+def genetic_algorithm(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
     """
     Instantiates a genetic algorithm to optimize the given objective function.
 
@@ -66,8 +66,8 @@ def _genetic_algorithm_bin_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
 
-    cross_op = OperatorVector(cross_method)
-    mutation_op = OperatorVector("Flip", {"N": mutstr})
+    cross_op = VectorOperator(cross_method)
+    mutation_op = VectorOperator("Flip", {"N": mutstr})
 
     parent_sel_op = ParentSelection("Best", {"amount": n_parents})
     selection_op = SurvivorSelection("KeepBest")
@@ -105,8 +105,8 @@ def _genetic_algorithm_int_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=int)
 
-    cross_op = OperatorVector(cross_method)
-    mutation_op = OperatorVector(
+    cross_op = VectorOperator(cross_method)
+    mutation_op = VectorOperator(
         "MutRand",
         {
             "distrib": "Uniform",
@@ -150,8 +150,8 @@ def _genetic_algorithm_perm_vec(params, objfunc):
 
     pop_initializer = PermInitializer(vecsize, pop_size=pop_size)
 
-    cross_op = OperatorPerm(cross_method)
-    mutation_op = OperatorPerm("Perm", {"N": mutstr})
+    cross_op = PermOperator(cross_method)
+    mutation_op = PermOperator("Perm", {"N": mutstr})
 
     parent_sel_op = ParentSelection("Best", {"amount": n_parents})
     selection_op = SurvivorSelection("KeepBest")
@@ -189,8 +189,8 @@ def _genetic_algorithm_real_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
-    cross_op = OperatorVector(cross_method)
-    mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "F": mutstr, "N": 1})
+    cross_op = VectorOperator(cross_method)
+    mutation_op = VectorOperator("MutNoise", {"distrib": "Gauss", "F": mutstr, "N": 1})
 
     parent_sel_op = ParentSelection("Best", {"amount": n_parents})
     selection_op = SurvivorSelection("KeepBest")

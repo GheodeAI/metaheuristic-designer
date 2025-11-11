@@ -1,9 +1,9 @@
 import numpy as np
 import warnings
-from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..ObjectiveFunc import VectorObjectiveFunc
 
 
-class ThreeSAT(ObjectiveVectorFunc):
+class ThreeSAT(VectorObjectiveFunc):
     """
     This is the 3-SAT problem that consist in finding if a logical expression
     given in 3CNF (conjunctive normal form with 3 variables per clause) is satisfiable,
@@ -79,7 +79,7 @@ class ThreeSAT(ObjectiveVectorFunc):
         return n_satisfied / self.clauses.shape[0]
 
 
-class BinKnapsack(ObjectiveVectorFunc):
+class BinKnapsack(VectorObjectiveFunc):
     """
     This is the 0-1 Knapsack problem that consist in choosing from set of elements
     which have a certain cost and value to maximize the value without reaching a weight threshold.
@@ -134,7 +134,7 @@ class BinKnapsack(ObjectiveVectorFunc):
         return (np.round(solution) != 0).astype(int)
 
 
-class MaxClique(ObjectiveVectorFunc):
+class MaxClique(VectorObjectiveFunc):
     """
     This is the Maximum clique problem which consists on finding the size of the largest
     subgraph that has all its nodes interconected (a clique).
@@ -181,7 +181,7 @@ class MaxClique(ObjectiveVectorFunc):
         return n_cliques
 
 
-class TSP(ObjectiveVectorFunc):
+class TSP(VectorObjectiveFunc):
     def __init__(self):
         super().__init__(1, name="TSP")
 

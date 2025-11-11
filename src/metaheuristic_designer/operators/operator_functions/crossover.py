@@ -8,6 +8,9 @@ def cross_1p(population):
     Performs a 1-point crossover between one half of the population and the rest.
     """
 
+    if population.shape[1] == 1:
+        return population
+
     half_size = population.shape[0] / 2
     parents1 = population[: math.ceil(half_size)]
     parents2 = population[math.floor(half_size) :]

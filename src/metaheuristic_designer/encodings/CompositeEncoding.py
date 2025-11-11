@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import Any, Iterable
-from ..Encoding import Encoding
+from ..Encoding import Encoding, ExtendedEncoding
 
 
-class CompositeEncoding(Encoding):
+class CompositeEncoding(ExtendedEncoding):
     """
     Default encoder that uses the genotype directly as a solution.
     """
@@ -11,7 +11,8 @@ class CompositeEncoding(Encoding):
     def __init__(self, encodings: Iterable[Encoding]):
         self.encodings = encodings
 
-        super().__init__(vectorized=False)
+        # is_extended = any([isinstance(enc, ExtendedEncoding) for enc in encodings])
+        super().__init__(vectorized=False, is_extended=is_extended)
 
     def encode_func(self, solution: Any) -> Any:
         encoded = solution
@@ -21,6 +22,22 @@ class CompositeEncoding(Encoding):
             else:
                 encoded = encoding.encode_func(encoded)
         return encoded
+
+    def extract_solution(self, population_matrix: ndarray) -> ndarray:
+        result_population = population_matrix
+        for encoding in self.encodings:
+            if isinstance(encoding, ExtendedEncoding):
+                result_population = encoding.extract_solution(result_population)
+
+        return result_population
+
+    def extract_params(self, population_matrix: ndarray) -> ndarray:
+        result_params = population_matrix
+        for encoding in self.encodings:
+            if isinstance(encoding, ExtendedEncoding):
+                result_params = encoding.extract_params(result_population)
+
+        return result_params
 
     def decode_func(self, indiv: Any) -> Any:
         decoded = indiv

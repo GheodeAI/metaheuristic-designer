@@ -8,7 +8,7 @@ from ...algorithms import GeneralAlgorithm
 from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
-from ...operators import OperatorMeta
+from ...operators import MetaOperator
 from ...selectionMethods import SurvivorSelection, ParentSelectionNull
 from .VND import VND
 from .vns_neighborhood_changes import *
@@ -37,7 +37,7 @@ class VNS(SearchStrategy):
 
         self.iterations = params.get("iters", 100)
         self.op_list = op_list
-        operator = OperatorMeta("Pick", op_list, {"init_idx": 0})
+        operator = MetaOperator("Pick", op_list, {"init_idx": 0})
 
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 

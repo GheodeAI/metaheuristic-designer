@@ -6,7 +6,7 @@ from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
-from ...operators import OperatorMeta
+from ...operators import MetaOperator
 from ...selectionMethods import SurvivorSelection
 
 
@@ -30,7 +30,7 @@ class RVNS(SearchStrategy):
             params = {}
 
         self.op_list = op_list
-        operator = OperatorMeta("Pick", op_list, {"init_idx": 0})
+        operator = MetaOperator("Pick", op_list, {"init_idx": 0})
 
         self.current_op = 0
 

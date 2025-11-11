@@ -3,10 +3,9 @@ from typing import Tuple, Any
 from copy import copy
 import numpy as np
 from numpy import ndarray
-from .encodings import DefaultEncoding
 from .utils import RAND_GEN
 from .ObjectiveFunc import ObjectiveFunc
-from .Encoding import Encoding
+from .Encoding import Encoding, DefaultEncoding, ExtendedEncoding
 
 
 class Population:
@@ -19,10 +18,6 @@ class Population:
         The objective function to be maximized or minimized.
     genotype_matrix: ndarray
         The solutions that will form part of the population.
-    speed: ndarray, optional
-        The speed that these individuals will have.
-    ages: ndarray, optional
-        The ages of the individuals.
     encoding: Encoding, optional
         The encoding to be used when calculating the objective function.
     """
@@ -31,8 +26,6 @@ class Population:
         self,
         objfunc: ObjectiveFunc,
         genotype_matrix: ndarray,
-        speed_matrix: ndarray = None,
-        ages: ndarray = None,
         encoding: Encoding = None,
     ):
         """
@@ -49,11 +42,6 @@ class Population:
         self.pop_size = genotype_matrix.shape[0]
         self.vec_size = genotype_matrix.shape[1]
 
-        # Speed of the individuals
-        if speed_matrix is None:
-            speed_matrix = RAND_GEN.random(genotype_matrix.shape)
-        self.speed_matrix = speed_matrix
-
         # Fitness of each individual in the population
         self.fitness = np.full(self.pop_size, -np.inf)
         self.fitness_calculated = np.zeros(self.pop_size)
@@ -65,11 +53,6 @@ class Population:
         # Best inidividual in each spot of the population
         self.historical_best_matrix = genotype_matrix
         self.historical_best_fitness = np.full(self.pop_size, -np.inf)
-
-        # Ages of the individuals
-        if ages is None:
-            ages = np.zeros(self.pop_size)
-        self.ages = ages
 
         # Encoding to use
         if encoding is None:
@@ -96,8 +79,6 @@ class Population:
             "Population{"
             f"\n\tobjfunc = {self.objfunc.name}"
             f"\n\tgenotype_matrix = {self.genotype_matrix}"
-            f"\n\tspeed_matrix = {self.speed_matrix}"
-            f"\n\tages = {self.ages}"
             f"\n\tpop_size = {self.pop_size}"
             f"\n\tvec_size = {self.vec_size}"
             f"\n\tfitness = {self.fitness}"
@@ -111,7 +92,7 @@ class Population:
 
     def __copy__(self) -> Population:
 
-        copied_pop = Population(self.objfunc, copy(self.genotype_matrix), copy(self.speed_matrix), ages=copy(self.ages), encoding=self.encoding)
+        copied_pop = Population(self.objfunc, copy(self.genotype_matrix), encoding=self.encoding)
         copied_pop.fitness = copy(self.fitness)
         copied_pop.fitness_calculated = copy(self.fitness_calculated)
         copied_pop.historical_best_matrix = copy(self.historical_best_matrix)
@@ -146,7 +127,7 @@ class Population:
 
         return best_solution, best_fitness
 
-    def update_genotype_matrix(self, genotype_matrix: ndarray, speed_matrix: ndarray = None) -> Population:
+    def update_genotype_matrix(self, genotype_matrix: ndarray) -> Population:
         """
         Replaces the solutions in the population with the ones inputted.
 
@@ -154,9 +135,6 @@ class Population:
         ----------
         genotype_matrix: ndarray
             The set of solutions that will replace the ones that were in the population.
-
-        speed_matrix: ndarray, optional
-            The new speeds to assign to the new indiviudals.
 
         Returns
         -------
@@ -166,21 +144,11 @@ class Population:
         if genotype_matrix.shape[1] != self.vec_size:
             raise ValueError("Individual vector size should not change when updating the population.")
 
-        if speed_matrix is not None:
-            if speed_matrix.shape != genotype_matrix.shape:
-                raise ValueError("The speed matrix should have the same size as the genotype matrix")
-
-            self.speed_matrix = speed_matrix
-        else:
-            self.speed_matrix = RAND_GEN.random(genotype_matrix.shape)
-
         if len(genotype_matrix) != len(self.genotype_matrix):
-            self.ages = np.zeros_like(self.ages)
             self.fitness = np.full(len(genotype_matrix), -np.inf)
             self.fitness_calculated = np.zeros(len(genotype_matrix))
             self.historical_best_fitness = np.full(len(genotype_matrix), -np.inf)
             self.historical_best_matrix = copy(genotype_matrix)
-            self.ages = np.zeros(len(genotype_matrix))
         else:
             self.fitness_calculated = np.all(self.genotype_matrix == genotype_matrix, axis=1)
         self.genotype_matrix = genotype_matrix
@@ -204,10 +172,8 @@ class Population:
         """
 
         selected_genotype_matrix = copy(self.genotype_matrix[selection_idx, :])
-        selected_speed_matrix = copy(self.speed_matrix[selection_idx, :])
-        selected_ages = copy(self.ages[selection_idx])
 
-        selected_pop = Population(self.objfunc, selected_genotype_matrix, selected_speed_matrix, ages=selected_ages, encoding=self.encoding)
+        selected_pop = Population(self.objfunc, selected_genotype_matrix, encoding=self.encoding)
         selected_pop.fitness = copy(self.fitness[selection_idx])
         selected_pop.fitness_calculated = copy(self.fitness_calculated[selection_idx])
         selected_pop.historical_best_matrix = copy(self.historical_best_matrix[selection_idx, :])
@@ -235,8 +201,6 @@ class Population:
 
         # population_copy = copy(self)
         self.genotype_matrix[selection_idx, :] = selected_pop.genotype_matrix
-        self.speed_matrix[selection_idx, :] = selected_pop.speed_matrix
-        self.ages[selection_idx] = selected_pop.ages
         self.fitness[selection_idx] = selected_pop.fitness
         self.fitness_calculated[selection_idx] = selected_pop.fitness_calculated
         self.historical_best_matrix[selection_idx, :] = selected_pop.historical_best_matrix
@@ -265,10 +229,8 @@ class Population:
         """
 
         sliced_genotype_matrix = copy(self.genotype_matrix[:, mask])
-        sliced_speed_matrix = copy(self.speed_matrix[:, mask])
-        sliced_ages = copy(self.ages)
 
-        sliced_pop = Population(self.objfunc, sliced_genotype_matrix, sliced_speed_matrix, ages=sliced_ages, encoding=self.encoding)
+        sliced_pop = Population(self.objfunc, sliced_genotype_matrix, encoding=self.encoding)
         sliced_pop.historical_best_matrix = copy(self.historical_best_matrix[:, mask])
         sliced_pop.historical_best_fitness = copy(self.historical_best_fitness)
         sliced_pop.fitness_calculated = copy(self.fitness_calculated)
@@ -296,7 +258,6 @@ class Population:
         """
 
         self.genotype_matrix[:, mask] = sliced_pop.genotype_matrix
-        self.speed_matrix[:, mask] = sliced_pop.speed_matrix
 
         if self.best is None or (sliced_pop.best is not None and self.best_fitness < sliced_pop.best_fitness):
             self.best = sliced_pop.best
@@ -311,10 +272,8 @@ class Population:
         """
 
         joined_genotype_matrix = np.concatenate((population1.genotype_matrix, population2.genotype_matrix), axis=0)
-        joined_speed_matrix = np.concatenate((population1.speed_matrix, population2.speed_matrix), axis=0)
-        joined_ages = np.concatenate((population1.ages, population2.ages))
 
-        joined_pop = Population(population1.objfunc, joined_genotype_matrix, joined_speed_matrix, ages=joined_ages, encoding=population1.encoding)
+        joined_pop = Population(population1.objfunc, joined_genotype_matrix, encoding=population1.encoding)
         joined_pop.historical_best_matrix = np.concatenate((population1.historical_best_matrix, population2.historical_best_matrix), axis=0)
         joined_pop.historical_best_fitness = np.concatenate((population1.historical_best_fitness, population2.historical_best_fitness))
         joined_pop.fitness_calculated = np.concatenate((population1.fitness_calculated, population2.fitness_calculated))
@@ -347,8 +306,6 @@ class Population:
 
         self.genotype_matrix = np.concatenate((self.genotype_matrix, other_population.genotype_matrix), axis=0)
         self.pop_size += other_population.genotype_matrix.shape[0]
-        self.speed_matrix = np.concatenate((self.speed_matrix, other_population.speed_matrix), axis=0)
-        self.ages = np.concatenate((self.ages, other_population.ages))
         self.historical_best_matrix = np.concatenate((self.historical_best_matrix, other_population.historical_best_matrix), axis=0)
         self.historical_best_fitness = np.concatenate((self.historical_best_fitness, other_population.historical_best_fitness))
         self.fitness_calculated = np.concatenate((self.fitness_calculated, other_population.fitness_calculated), axis=0)
@@ -372,8 +329,6 @@ class Population:
         fitness_order = np.argsort(self.fitness)
 
         self.genotype_matrix = self.genotype_matrix[fitness_order, :]
-        self.speed_matrix = self.speed_matrix[fitness_order, :]
-        self.ages = self.ages[fitness_order]
         self.historical_best_matrix = self.historical_best_matrix[fitness_order, :]
         self.historical_best_fitness = self.historical_best_fitness[fitness_order]
         self.fitness_calculated = self.fitness_calculated[fitness_order]
@@ -399,14 +354,9 @@ class Population:
             self.best_fitness = parents.best_fitness
         return self
 
-    def update(self, increase_age: bool = False) -> Population:
+    def update(self) -> Population:
         """
-        Updates the best solution in the population and the ages of the inidivudals.
-
-        Parameters
-        ----------
-        increase_age: bool, optional
-            Wheather to increase the ages of the individuals.
+        Updates the best solution in the population.
 
         Returns
         -------
@@ -416,10 +366,8 @@ class Population:
             best_idx = np.argmax(self.fitness)
             self.best = self.genotype_matrix[best_idx, :]
             self.best_fitness = self.fitness[best_idx]
-
-        if increase_age:
-            self.ages += 1
-            self.ages[self.fitness_calculated == 1] = 0
+        
+        self.genotype_matrix = self.encoding.update(self)
 
         return self
 
@@ -438,9 +386,7 @@ class Population:
         """
 
         genotype_matrix = np.tile(self.genotype_matrix, (amount, 1))
-        speed_matrix = np.tile(self.speed_matrix, (amount, 1))
-        ages = np.tile(self.ages, amount)
-        return Population(self.objfunc, genotype_matrix, speed_matrix, ages=ages, encoding=self.encoding)
+        return Population(self.objfunc, genotype_matrix, encoding=self.encoding)
 
     def calculate_fitness(self, parallel: bool = False, threads: int = 8) -> ndarray:
         """
@@ -486,8 +432,6 @@ class Population:
 
         for idx, indiv in enumerate(self.genotype_matrix):
             self.genotype_matrix[idx] = self.objfunc.repair_solution(indiv)
-            if self.speed_matrix is not None:
-                self.speed_matrix[idx] = self.objfunc.repair_speed(self.speed_matrix[idx])
 
         return self
 
@@ -502,14 +446,26 @@ class Population:
 
         return self.encoding.decode(self.genotype_matrix)
 
+    def decode_params(self) -> Any:
+        """
+        Return the population passed through the decoding funciton defined in the encoding.
+
+        Returns
+        -------
+        decoded_population: Any
+        """
+
+        if isinstance(self.encoding, ExtendedEncoding):
+            return self.encoding.decode_params(self.genotype_matrix)
+        else:
+            return None
+
     def get_state(self) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
 
         Parameters
         ----------
-        show_speed: bool, optional
-            Save the speed of the individual.
         show_best: bool, optional
             Save the best parent of this individual.
 
@@ -526,8 +482,6 @@ class Population:
             "historical_best_fitness": self.historical_best_fitness,
             "best": self.best,
             "best_fitness": self.best_fitness,
-            "ages": self.ages,
-            "speed": self.speed_matrix,
             "encoding": type(self.encoding).__name__,
         }
 

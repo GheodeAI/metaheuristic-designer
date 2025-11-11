@@ -3,8 +3,7 @@ from typing import Any
 from abc import ABC, abstractmethod
 import numpy as np
 from .Population import Population
-from .Encoding import Encoding
-from .encodings import DefaultEncoding
+from .Encoding import Encoding, DefaultEncoding, ExtendedEncoding
 from .ObjectiveFunc import ObjectiveFunc
 
 
@@ -88,3 +87,25 @@ class Initializer(ABC):
             population_matrix = np.asarray(population_matrix)
 
         return Population(objfunc, genotype_matrix=population_matrix, encoding=self.encoding)
+
+class InitializerFromLambda(Initializer):
+    """
+    Initializer that generates individuals with vectors following an user-defined distribution.
+
+    Parameters
+    ----------
+    generator: callable
+        Function that samples an user-defined probability distribution to generate individuals.
+    pop_size: int, optional
+        Number of individuals to be generated.
+    encoding: Encoding, optional
+        Encoding that will be passed to each individual.
+    """
+
+    def __init__(self, generator: callable, pop_size: int = 1, encoding: Encoding = None):
+        self.generator = generator
+
+        super().__init__(pop_size, encoding)
+
+    def generate_random(self) -> Any:
+        return self.generator()

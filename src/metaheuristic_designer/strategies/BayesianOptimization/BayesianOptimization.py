@@ -4,8 +4,8 @@ from ...SearchStrategy import SearchStrategy
 from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
 from ...selectionMethods import SurvivorSelection, SurvivorSelectionNull, ParentSelection
-from ...ObjectiveFunc import ObjectiveVectorFunc
-from ...operators.OperatorBO import OperatorBO
+# from ...ObjectiveFunc import ObjectiveVectorFunc
+from ...operators.BOOperator import BOOperator
 
 
 class BayesianOptimization(SearchStrategy):
@@ -21,5 +21,5 @@ class BayesianOptimization(SearchStrategy):
         name: str = "Bayesian Optimization",
     ):
         super().__init__(
-            initializer, operator=OperatorBO(params=params), parent_sel=parent_sel, survivor_sel=SurvivorSelectionNull(), params=params, name=name
+            initializer, operator=BOOperator(params=params), parent_sel=parent_sel, survivor_sel=SurvivorSelectionNull(), params=params, name=name
         )

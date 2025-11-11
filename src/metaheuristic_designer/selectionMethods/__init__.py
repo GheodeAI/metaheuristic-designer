@@ -1,6 +1,4 @@
-from .SurvivorSelection import SurvivorSelection, SurvSelMethod, surv_method_map
-from .SurvivorSelectionNull import SurvivorSelectionNull
+from .SurvivorSelection import SurvivorSelection, SurvivorSelectionNull, SurvSelMethod, surv_method_map
 from .survivor_selection_functions import *
-from .ParentSelection import ParentSelection, ParentSelMethod, parent_sel_map
-from .ParentSelectionNull import ParentSelectionNull
+from .ParentSelection import ParentSelection, ParentSelectionNull, ParentSelMethod, parent_sel_map
 from .parent_selection_functions import *

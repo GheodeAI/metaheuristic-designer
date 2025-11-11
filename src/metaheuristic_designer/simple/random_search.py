@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..ObjectiveFunc import VectorObjectiveFunc
 from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer, PermInitializer
 from ..encodings import TypeCastEncoding
@@ -7,7 +7,7 @@ from ..strategies import RandomSearch
 from ..algorithms import GeneralAlgorithm
 
 
-def random_search(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
+def random_search(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
     """
     Instantiates a random search algorithm to optimize the given objective function.
 

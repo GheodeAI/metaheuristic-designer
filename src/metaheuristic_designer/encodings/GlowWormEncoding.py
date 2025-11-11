@@ -3,15 +3,14 @@ import numpy as np
 from ..Encoding import ExtendedEncoding
 
 
-class CMAEncoding(ExtendedEncoding):
+class GlowWormEncoding(ExtraEncoding):
     """
-    Decoder used to implement the CMA-ES algorithm.
+    Encoding used to implement the GWO algorithm.
     """
     def __init__(self, vecsize, base_encoding):
         named_params = {
-            "mean": vecsize,
-            "cov": 0.5*(vecsize**2)-vecsize,
-            "F": 1
+            "luciferin": vecsize,
         }
 
         super().__init__(self, vecsize, named_params, base_encoding)
+

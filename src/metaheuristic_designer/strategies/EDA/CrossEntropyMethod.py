@@ -2,7 +2,7 @@ from ...selectionMethods import (
     ParentSelection,
     SurvivorSelectionNull,
 )
-from ...operators import OperatorVector
+from ...operators import VectorOperator
 from ..StaticPopulation import StaticPopulation
 
 
@@ -11,7 +11,7 @@ class CrossEntropyMethod(StaticPopulation):
         if params is None:
             params = {}
 
-        operator = OperatorVector(
+        operator = VectorOperator(
             "RandSample",
             {"distrib": "Normal", "loc": "calculated", "scale": "calculated"},
         )

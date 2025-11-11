@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
 from ..Initializer import Initializer
-from ..encodings import AdaptionEncoding
+from ..Encoding import ExtendedEncoding
 from ..utils import RAND_GEN
 
 
@@ -29,7 +29,7 @@ class UniformVectorInitializer(Initializer):
         super().__init__(pop_size, encoding)
 
         self.genotype_size = genotype_size
-        if isinstance(encoding, AdaptionEncoding):
+        if isinstance(encoding, ExtendedEncoding):
             self.genotype_size = encoding.vecsize + encoding.nparams
 
         if type(low_lim) in [list, tuple, np.ndarray]:

@@ -47,7 +47,7 @@ perm_ops_map = {
 }
 
 
-class OperatorPerm(Operator):
+class PermOperator(Operator):
     """
     Operator class that has mutation and cross methods for permutations.
 
@@ -76,6 +76,13 @@ class OperatorPerm(Operator):
     def evolve(self, population, initializer=None):
         new_population = None
         population_matrix = population.genotype_matrix
+
+        # Only evolve solution parameters, the rest is managed in a specific way by each operator
+        if isinstance(population.encoding, ExtendedEncoding):
+            population_matrix = population_encoding.extract_solution(population_matrix_full)
+        else:
+            population_matrix = population_matrix_full
+        encoded_params = None
 
         params = copy(self.params)
 
@@ -124,6 +131,16 @@ class OperatorPerm(Operator):
 
         if new_population is None:
             population_matrix = self.encoding.encode(population_matrix)
+
+            # Only evolve solution parameters, the rest is managed in a specific way by each operator
+            if isinstance(population.encoding, ExtendedEncoding):
+                new_population_matrix = population_matrix_full
+                new_population_matrix[:, :population.encoding.vecsize] = population_matrix[:, :population.encoding.vecsize]
+                if encoded_params is not None:
+                    new_population_matrix[:, population.encoding.vecsize:] = encoded_params
+            else:
+                new_population_matrix = population_matrix
+
             new_population = population.update_genotype_matrix(population_matrix)
 
         return new_population

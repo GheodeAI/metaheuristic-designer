@@ -9,8 +9,8 @@ import warnings
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
 
 from ..Operator import Operator
+from ..ObjectiveFunc import VectorObjectiveFunc
 from ..Population import Population
-from ..ObjectiveFunc import ObjectiveVectorFunc
 from ..utils import RAND_GEN
 
 
@@ -24,7 +24,7 @@ def _aquisition_function(gaussian_model, X, x_in, max_y):
     return exp_imp
 
 
-class OperatorBO(Operator):
+class BOOperator(Operator):
     """
     Operator used specifically in the Bayesian Optimization algorithm.
 
@@ -64,7 +64,7 @@ class OperatorBO(Operator):
         min_ei = float("inf")
         new_best_point = X[0]
 
-        if isinstance(objfunc, ObjectiveVectorFunc):
+        if isinstance(objfunc, VectorObjectiveFunc):
             bounds = np.array((objfunc.low_lim, objfunc.up_lim)).T
         else:
             bounds = None

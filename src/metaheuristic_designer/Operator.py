@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import Any
-from .ParamScheduler import ParamScheduler
-from .encodings import DefaultEncoding
+from copy import copy
 from abc import ABC, abstractmethod
-from .Encoding import Encoding
+from .ParamScheduler import ParamScheduler
+from .Encoding import Encoding, DefaultEncoding
 from .ObjectiveFunc import ObjectiveFunc
 from .Population import Population
 from .Initializer import Initializer
@@ -27,7 +27,7 @@ class Operator(ABC):
 
     _last_id = 0
 
-    def __init__(self, params: ParamScheduler | dict = None, name: str = None, encoding: Encoding = None):
+    def __init__(self, params: ParamScheduler | dict = None, name: str = None, use_params : bool = False, encoding: Encoding = None):
         """
         Constructor for the Operator class.
         """
@@ -38,6 +38,8 @@ class Operator(ABC):
         self.param_scheduler = None
 
         self.name = name
+
+        self.use_params = use_params
 
         if encoding is None:
             encoding = DefaultEncoding()
@@ -149,3 +151,68 @@ class Operator(ABC):
         new_population: Population
             The modified population.
         """
+
+
+class NullOperator(Operator):
+    """
+    Operator class that returns the individual without changes.
+    Surprisingly useful.
+
+    Parameters
+    ----------
+    fn: callable
+        Function that will be applied when operating on an individual.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the operator.
+    name: str, optional
+        Name that is associated with the operator.
+    """
+
+    def __init__(self, name: str = None):
+        """
+        Constructor for the OperatorNull class
+        """
+
+        if name is None:
+            name = "Nothing"
+
+        super().__init__({}, name)
+
+    def evolve(self, population, *args):
+        return copy(population)
+
+
+class OperatorFromLambda(Operator):
+    """
+    Operator class that applies a custom operator specified as a function.
+
+    Parameters
+    ----------
+    fn: callable
+        Function that will be applied when operating on an individual.
+    params: ParamScheduler or dict, optional
+        Dictionary of parameters to define the operator.
+    name: str, optional
+        Name that is associated with the operator.
+    """
+
+    def __init__(self, fn: callable, params: ParamScheduler | dict = None, name: str = None, vectorized: bool = True):
+        """
+        Constructor for the OperatorLambda class
+        """
+
+        self.fn = fn
+        self.vectorized = vectorized
+
+        if name is None:
+            name = fn.__name__
+
+        super().__init__(params, name)
+
+    def evolve(self, population, initializer=None):
+        if self.vectorized:
+            new_population = self.fn(population.genotype_matrix, **self.params)
+        else:
+            new_population = [self.fn(indiv, population, initializer) for indiv in population]
+
+        return new_population

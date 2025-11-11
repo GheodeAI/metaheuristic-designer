@@ -1,14 +1,14 @@
 from __future__ import annotations
-from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..ObjectiveFunc import VectorObjectiveFunc
 from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer, PermInitializer
-from ..operators import OperatorVector, OperatorPerm
+from ..operators import VectorOperator, PermOperator
 from ..encodings import TypeCastEncoding
 from ..strategies import HillClimb
 from ..algorithms import GeneralAlgorithm
 
 
-def hill_climb(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
+def hill_climb(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
 
@@ -60,7 +60,7 @@ def _hill_climb_bin_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
 
-    mutation_op = OperatorVector("Flip", {"N": mutstr})
+    mutation_op = VectorOperator("Flip", {"N": mutstr})
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
@@ -81,7 +81,7 @@ def _hill_climb_perm_vec(params, objfunc):
 
     pop_initializer = PermInitializer(vecsize, pop_size=1)
 
-    mutation_op = OperatorPerm("Perm", {"N": mutstr})
+    mutation_op = PermOperator("Perm", {"N": mutstr})
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
@@ -104,7 +104,7 @@ def _hill_climb_int_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=int)
 
-    mutation_op = OperatorVector(
+    mutation_op = VectorOperator(
         "MutRand",
         {
             "distrib": "Uniform",
@@ -135,7 +135,7 @@ def _hill_climb_real_vec(params, objfunc):
 
     pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=float)
 
-    mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss", "F": mutstr})
+    mutation_op = VectorOperator("RandNoise", {"distrib": "Gauss", "F": mutstr})
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 

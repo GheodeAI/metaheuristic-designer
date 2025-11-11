@@ -3,7 +3,7 @@ from ...Initializer import Initializer
 from ...Operator import Operator
 from ...selectionMethods import ParentSelection, SurvivorSelection
 from ...ParamScheduler import ParamScheduler
-from ...operators import OperatorMeta
+from ...operators import MetaOperator
 from ..VariablePopulation import VariablePopulation
 
 
@@ -28,7 +28,7 @@ class ES(VariablePopulation):
         if cross_op is None:
             evolve_op = mutation_op
         else:
-            evolve_op = OperatorMeta("Sequence", [mutation_op, cross_op])
+            evolve_op = MetaOperator("Sequence", [mutation_op, cross_op])
 
         offspring_size = params.get("offspringSize", initializer.pop_size)
 

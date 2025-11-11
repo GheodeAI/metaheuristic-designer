@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..ObjectiveFunc import VectorObjectiveFunc
 from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer
 from ..selectionMethods import ParentSelectionNull
@@ -7,7 +7,7 @@ from ..strategies import BayesianOptimization
 from ..algorithms import GeneralAlgorithm
 
 
-def bayesian_optimization(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
+def bayesian_optimization(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
     """
     Instantiates a bayesian optimization algorithm to optimize the given objective function.
 

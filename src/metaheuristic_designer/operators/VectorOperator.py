@@ -11,7 +11,7 @@ from .operator_functions.differential_evolution import *
 from .operator_functions.swarm import *
 from ..Operator import Operator
 from ..ParamScheduler import ParamScheduler
-from ..Encoding import Encoding
+from ..Encoding import Encoding, ExtendedEncoding
 from ..utils import RAND_GEN
 
 
@@ -121,7 +121,7 @@ vector_ops_map = {
 }
 
 
-class OperatorVector(Operator):
+class VectorOperator(Operator):
     """
     Operator class that has mutation and cross methods for real coded vectors
 
@@ -135,7 +135,7 @@ class OperatorVector(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, method: str, params: ParamScheduler | dict = None, name: str = None, encoding: Encoding = None):
+    def __init__(self, method: str, params: ParamScheduler | dict = None, name: str = None, use_params : bool = False, encoding: Encoding = None):
         """
         Constructor for the OperatorPerm class
         """
@@ -143,7 +143,7 @@ class OperatorVector(Operator):
         if name is None:
             name = method
 
-        super().__init__(params=params, name=name, encoding=encoding)
+        super().__init__(params=params, name=name, use_params=use_params, encoding=encoding)
 
         self.method = VectorOpMethods.from_str(method)
 
@@ -162,9 +162,17 @@ class OperatorVector(Operator):
 
     def evolve(self, population, initializer=None):
         new_population = None
-        population_matrix = copy(population.genotype_matrix)
+        population_matrix_full = copy(population.genotype_matrix)
+        population_encoding = population.encoding
+
+        # Only evolve solution parameters, the rest is managed in a specific way by each operator
+        if isinstance(population.encoding, ExtendedEncoding):
+            population_matrix = population_encoding.extract_solution(population_matrix_full)
+        else:
+            population_matrix = population_matrix_full
+        encoded_params = None
+
         fitness_array = copy(population.fitness)
-        speed = copy(population.speed_matrix)
         global_best = population.best
         historical_best = population.historical_best_matrix
 
@@ -284,26 +292,33 @@ class OperatorVector(Operator):
 
             ## Swarm based algorithms
             case VectorOpMethods.PSO:
-                population_matrix, speed = pso_operator(
-                    population_matrix, speed, historical_best, global_best, params["w"], params["c1"], params["c2"]
+                assert not self.use_params, "The PSO encoding needs to be run with 'use_params' set to False."
+
+                population_params = population_encoding.decode_params(population_matrix_full)
+                population_matrix, population_params["speed"] = pso_operator(
+                    population_matrix, population_params["speed"], historical_best, global_best, params["w"], params["c1"], params["c2"]
                 )
+                encoded_params = population_encoding.encode_params(population_params) 
 
             case VectorOpMethods.FIREFLY:
                 population_matrix = firefly(
                     population_matrix,
                     fitness_array,
                     population.objfunc,
-                    params["a"],
-                    params["b"],
-                    params["d"],
-                    params["g"],
+                    params["alpha"],
+                    params["beta"],
+                    params["delta"],
+                    params["gamma"],
                 )
 
             case VectorOpMethods.GLOWWORM:
-                population_matrix = glowworm(
+                population_params = population.decode_params(population_matrix_full)
+                population_matrix, luciferin = glowworm(
                     population_matrix,
                     fitness_array,
+                    population_params["luciferin"],
                 )
+                encoded_params = population_encoding.encode_params(population_params) 
 
             ## Other operators
             case VectorOpMethods.RANDOM:
@@ -329,6 +344,16 @@ class OperatorVector(Operator):
 
         if new_population is None:
             population_matrix = self.encoding.encode(population_matrix)
-            new_population = population.update_genotype_matrix(population_matrix, speed)
+
+            # Only evolve solution parameters, the rest is managed in a specific way by each operator
+            if isinstance(population.encoding, ExtendedEncoding):
+                new_population_matrix = population_matrix_full
+                new_population_matrix[:, :population.encoding.vecsize] = population_matrix[:, :population.encoding.vecsize]
+                if encoded_params is not None:
+                    new_population_matrix[:, population.encoding.vecsize:] = encoded_params
+            else:
+                new_population_matrix = population_matrix
+
+            new_population = population.update_genotype_matrix(new_population_matrix)
 
         return new_population

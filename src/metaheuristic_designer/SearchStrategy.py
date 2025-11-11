@@ -11,8 +11,7 @@ from .selectionMethods import (
 from .Population import Population
 from .Initializer import Initializer
 from .ObjectiveFunc import ObjectiveFunc
-from .Operator import Operator
-from .operators import OperatorNull
+from .Operator import Operator, NullOperator
 
 
 class SearchStrategy:
@@ -54,7 +53,7 @@ class SearchStrategy:
         self._initializer = initializer
 
         if operator is None:
-            operator = OperatorNull()
+            operator = NullOperator()
         self.operator = operator
 
         if parent_sel is None:
@@ -262,7 +261,7 @@ class SearchStrategy:
         Updates the parameters of the search strategy and the operators.
         """
 
-        self.population.update(increase_age=True)
+        self.population.update()
 
     def get_state(self, show_population: bool = False) -> dict:
         """

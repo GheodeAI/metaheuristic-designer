@@ -3,7 +3,7 @@ from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import OperatorVector, OperatorAdaptative
 from metaheuristic_designer.initializers import UniformVectorInitializer
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
-from metaheuristic_designer.encodings import AdaptionEncoding
+from metaheuristic_designer.encodings import ExtraEncoding
 from metaheuristic_designer.strategies import *
 
 from metaheuristic_designer.benchmarks import *
@@ -15,9 +15,9 @@ import scipy as sp
 import numpy as np
 
 
-class STDAdaptEncoding(AdaptionEncoding):
+class STDAdaptEncoding(ExtraEncoding):
     def decode_param_func(self, genotype):
-        param_vec = self.decode_param_vec(genotype)
+        param_vec = self.decode_extra_vec(genotype)
         return {
             "F": np.maximum(0, param_vec[:, -1]),
             "mu": param_vec[:, :-1],
@@ -73,7 +73,7 @@ def run_algorithm(save_state, objective, dim):
     result = alg.optimize()
     ind, best_fitness = result.best_solution(decoded=True)
     print(f"solution vector: {ind}")
-    print(f"params: {adaption_encoding.decode_param(result.genotype_matrix)}")
+    print(f"params: {adaption_encoding.decode_extra(result.genotype_matrix)}")
     alg.display_report(show_plots=True)
 
     if save_state:

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..ObjectiveFunc import VectorObjectiveFunc
 from ..Algorithm import Algorithm
 from ..initializers import UniformVectorInitializer
 from ..encodings import TypeCastEncoding, SigmoidEncoding
@@ -7,7 +7,7 @@ from ..strategies import PSO
 from ..algorithms import GeneralAlgorithm
 
 
-def particle_swarm(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
+def particle_swarm(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
     """
     Instantiates a particle swarm algorithm to optimize the given objective function.
 
