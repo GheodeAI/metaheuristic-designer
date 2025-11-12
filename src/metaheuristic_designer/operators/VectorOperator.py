@@ -135,7 +135,17 @@ class VectorOperator(Operator):
         Name that is associated with the operator.
     """
 
+<<<<<<< HEAD:src/metaheuristic_designer/operators/VectorOperator.py
     def __init__(self, method: str, params: ParamScheduler | dict = None, name: str = None, use_params : bool = False, encoding: Encoding = None):
+=======
+    def __init__(
+        self,
+        method: str,
+        params: ParamScheduler | dict = None,
+        name: str = None,
+        encoding: Encoding = None,
+    ):
+>>>>>>> devel:src/metaheuristic_designer/operators/OperatorVector.py
         """
         Constructor for the OperatorPerm class
         """
@@ -288,15 +298,32 @@ class VectorOperator(Operator):
                 population_matrix = DE_current_to_best1(population_matrix, fitness_array, params["F"], params["Cr"])
 
             case VectorOpMethods.DE_CTPBEST_1:
-                population_matrix = DE_current_to_pbest1(population_matrix, fitness_array, params["F"], params["Cr"], params["P"])
+                population_matrix = DE_current_to_pbest1(
+                    population_matrix,
+                    fitness_array,
+                    params["F"],
+                    params["Cr"],
+                    params["P"],
+                )
 
             ## Swarm based algorithms
             case VectorOpMethods.PSO:
+<<<<<<< HEAD:src/metaheuristic_designer/operators/VectorOperator.py
                 assert not self.use_params, "The PSO encoding needs to be run with 'use_params' set to False."
 
                 population_params = population_encoding.decode_params(population_matrix_full)
                 population_matrix, population_params["speed"] = pso_operator(
                     population_matrix, population_params["speed"], historical_best, global_best, params["w"], params["c1"], params["c2"]
+=======
+                population_matrix, speed = pso_operator(
+                    population_matrix,
+                    speed,
+                    historical_best,
+                    global_best,
+                    params["w"],
+                    params["c1"],
+                    params["c2"],
+>>>>>>> devel:src/metaheuristic_designer/operators/OperatorVector.py
                 )
                 encoded_params = population_encoding.encode_params(population_params) 
 
@@ -325,7 +352,10 @@ class VectorOperator(Operator):
                 new_population = initializer.generate_population(population.objfunc, len(population))
 
             case VectorOpMethods.RANDOM_MASK:
-                mask_pos = np.tile(np.arange(population_matrix.shape[1]) < params["N"], population_matrix.shape[0]).reshape(population_matrix.shape)
+                mask_pos = np.tile(
+                    np.arange(population_matrix.shape[1]) < params["N"],
+                    population_matrix.shape[0],
+                ).reshape(population_matrix.shape)
                 mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
                 random_population = initializer.generate_population(population.objfunc, len(population))

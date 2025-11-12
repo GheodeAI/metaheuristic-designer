@@ -27,6 +27,7 @@ There are classes that allow the implementation of optimization modules with a l
    :header: "Module name", "Description"
 
    ":py:class:`ObjectiveFromLambda<metaheuristic_designer.ObjectiveFunc.ObjectiveFromLambda>`", "Objective function from a function."
+   ":py:class:`ConstraintHandlerFromLambda<metaheuristic_designer.ConstraintHandler.ConstraintHandlerFromLambda>`", "Constraint Handler from a function."
    ":py:class:`initializers.InitializerFromLambda<metaheuristic_designer.initializers.InitializerFromLambda>`", "Population initializer from a function."
    ":py:class:`encodings.EncodingFromLambda<metaheuristic_designer.encodings.EncodingFromLambda>`", "Encoding from an encoding function and a decoding function."
    ":py:class:`selectionMethods.SelectionFromLambda<metaheuristic_designer.selectionMethods.SelectionFromLambda>`", "Individual selection from a function."

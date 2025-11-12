@@ -1,54 +1,42 @@
 import numpy as np
 
 # from numba import jit
-from ..ObjectiveFunc import VectorObjectiveFunc
+from ..ObjectiveFunc import ObjectiveFunc, VectorObjectiveFunc
 from ..utils import RAND_GEN
+from ..constraintHandlers import ClipBoundConstraint
 import time
 
 
 class MaxOnes(VectorObjectiveFunc):
-    def __init__(self, size, opt="max"):
-        self.size = size
-        super().__init__(self.size, opt, name="Max ones")
+    def __init__(self, vecsize, mode="max"):
+        super().__init__(vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")
 
     def objective(self, solution):
         return solution.sum()
 
-    def repair_solution(self, solution):
-        return (solution >= 0.5).astype(np.int32)
 
-
-class DiophantineEq(VectorObjectiveFunc):
-    def __init__(self, size, coeff, target, opt="min"):
-        self.size = size
+class DiophantineEq(ObjectiveFunc):
+    def __init__(self, vecsize, coeff, target, mode="min"):
         self.coeff = coeff
         self.target = target
-        super().__init__(self.size, opt, name="Diophantine equation")
+        super().__init__(mode=mode, name="Diophantine equation")
 
     def objective(self, solution):
         return abs((solution * self.coeff).sum() - self.target)
 
-    def repair_solution(self, solution):
-        return solution.astype(np.int32)
-
 
 class MaxOnesReal(VectorObjectiveFunc):
-    def __init__(self, size, opt="max"):
-        self.size = size
-        super().__init__(self.size, opt, name="Max ones")
+    def __init__(self, vecsize, mode="max"):
+        super().__init__(vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")
 
     def objective(self, solution):
         return solution.sum()
 
-    def repair_solution(self, solution):
-        return np.clip(solution.copy(), 0, 1)
-
 
 class SleepTest(VectorObjectiveFunc):
-    def __init__(self, size, sleep_time=2, opt="min"):
-        self.size = size
+    def __init__(self, vecsize, sleep_time=2, mode="min"):
         self.sleep_time = sleep_time
-        super().__init__(self.size, opt, -100, 100, name="Sphere function")
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Sphere function")
 
     def objective(self, solution):
         time.sleep(self.sleep_time)
@@ -57,135 +45,120 @@ class SleepTest(VectorObjectiveFunc):
 
 ### Benchmark functions
 class Sphere(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -100, 100, name="Sphere function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Sphere function")
 
     def objective(self, solution):
         return _sphere(solution)
 
 
 class HighCondElliptic(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -5.12, 5.12, name="High condition elliptic function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-5.12, up_lim=5.12, name="High condition elliptic function")
 
     def objective(self, solution):
         return _high_cond_elipt_f(solution)
 
 
 class BentCigar(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -100, 100, name="Bent Cigar function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Bent Cigar function")
 
     def objective(self, solution):
         return _bent_cigar(solution)
 
 
 class Discus(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -5.12, 5.12, name="Discus function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-5.12, up_lim=5.12, name="Discus function")
 
     def objective(self, solution):
         return _discus(solution)
 
 
 class Rosenbrock(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -100, 100, name="Rosenbrock function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Rosenbrock function")
 
     def objective(self, solution):
         return _rosenbrock(solution)
 
 
 class Ackley(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -5.12, 5.12, name="Ackley function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-5.12, up_lim=5.12, name="Ackley function")
 
     def objective(self, solution):
         return _ackley(solution)
 
 
 class Weierstrass(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -100, 100, name="Weierstrass function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Weierstrass function")
 
     def objective(self, solution):
         return _weierstrass(solution)
 
 
 class Griewank(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -100, 100, name="Griewank function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Griewank function")
 
     def objective(self, solution):
         return _griewank(solution)
 
 
 class Rastrigin(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -5.12, 5.12, name="Rastrigin function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-5.12, up_lim=5.12, name="Rastrigin function")
 
     def objective(self, solution):
         return _rastrigin(solution)
 
 
 class ModSchwefel(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -100, 100, name="Modified Schweafel function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Modified Schweafel function")
 
     def objective(self, solution):
         return _mod_schwefel(solution)
 
 
 class Katsuura(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -100, 100, name="Katsuura function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Katsuura function")
 
     def objective(self, solution):
         return _katsuura(solution)
 
 
 class HappyCat(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -2, 2, name="Happy Cat function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsice, mode=mode, low_lim=-2, up_lim=2, name="Happy Cat function")
 
     def objective(self, solution):
         return _happy_cat(solution)
 
 
 class HGBat(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -2, 2, name="HGBat function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-2, up_lim=2, name="HGBat function")
 
     def objective(self, solution):
         return _hgbat(solution)
 
 
 class ExpandedGriewankPlusRosenbrock(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -100, 100, name="Expanded Griewank + Rosenbrock")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Expanded Griewank + Rosenbrock")
 
     def objective(self, solution):
         return _exp_griewank_plus_rosenbrock(solution)
 
 
 class ExpandedShafferF6(VectorObjectiveFunc):
-    def __init__(self, size, opt="min"):
-        self.size = size
-        super().__init__(self.size, opt, -100, 100, name="Expanded Shaffer F6 function")
+    def __init__(self, vecsize, mode="min"):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Expanded Shaffer F6 function")
 
     def objective(self, solution):
         return _exp_shafferF6(solution)
@@ -196,27 +169,11 @@ class SumPowell(VectorObjectiveFunc):
     Sum of Powell function
     """
 
-    def __init__(self, size, opt="min", lim_min=-1, lim_max=1):
-        self.size = size
-        self.lim_min = lim_min
-        self.lim_max = lim_max
-        super().__init__(self.size, opt, low_lim=lim_min, up_lim=lim_max, name="Sum Powell")
+    def __init__(self, vecsize, mode="min", lim_min=-1, lim_max=1):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=lim_min, up_lim=lim_max, name="Sum Powell")
 
     def objective(self, solution):
         return _sum_powell(solution)
-
-    # def repair_solution(self, solution, parent=None):
-    #     # bounce back method
-    #     if parent:
-    #         mask_inf = solution < self.lim_min
-    #         mask_sup = solution > self.lim_max
-    #         solution[mask_inf] = parent[mask_inf] + RAND_GEN.random() * (self.lim_min - parent[mask_inf])
-    #         solution[mask_sup] = parent[mask_sup] + RAND_GEN.random() * (parent[mask_sup] - self.lim_max)
-    #     # random in range
-    #     else:
-    #         mask = (solution < self.lim_min) | (solution > self.lim_max)
-    #         solution[mask] = RAND_GEN.random(len(mask[mask == True])) * (self.lim_max - self.lim_min) - self.lim_min
-    #     return solution
 
 
 class N4XinSheYang(VectorObjectiveFunc):
@@ -224,30 +181,13 @@ class N4XinSheYang(VectorObjectiveFunc):
     N4 Xin-She Yang function
     """
 
-    def __init__(self, size, opt="min", lim_min=-10, lim_max=10):
-        self.size = size
-        self.lim_min = lim_min
-        self.lim_max = lim_max
-        super().__init__(self.size, opt, low_lim=lim_min, up_lim=lim_max, name="N4 Xin-She Yang")
+    def __init__(self, vecsize, mode="min", lim_min=-10, lim_max=10):
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=lim_min, up_lim=lim_max, name="N4 Xin-She Yang")
 
     def objective(self, solution):
         return _n4xinshe_yang(solution)
 
-    # def repair_solution(self, solution, parent=None):
-    #     # bounce back method
-    #     if parent:
-    #         mask_inf = solution < self.lim_min
-    #         mask_sup = solution > self.lim_max
-    #         solution[mask_inf] = parent[mask_inf] + RAND_GEN.random() * (self.lim_min - parent[mask_inf])
-    #         solution[mask_sup] = parent[mask_sup] + RAND_GEN.random() * (parent[mask_sup] - self.lim_max)
-    #     # random in range
-    #     else:
-    #         mask = (solution < self.lim_min) | (solution > self.lim_max)
-    #         solution[mask] = RAND_GEN.random(len(mask[mask == True])) * (self.lim_max - self.lim_min) - self.lim_min
-    #     return solution
 
-
-# @jit(nopython=True)
 def _sphere(solution):
     return (solution**2).sum()
 

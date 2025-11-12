@@ -54,7 +54,13 @@ class VND(SearchStrategy):
                 stacklevel=2,
             )
 
-        super().__init__(initializer, operator=perturb_op, survivor_sel=survivor_sel, params=params, name=name)
+        super().__init__(
+            initializer,
+            operator=perturb_op,
+            survivor_sel=survivor_sel,
+            params=params,
+            name=name,
+        )
 
     def perturb(self, parents, **kwargs):
         next_parents = copy(parents)

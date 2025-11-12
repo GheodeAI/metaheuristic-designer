@@ -22,7 +22,13 @@ class HillClimb(SearchStrategy):
         if survivor_sel is None:
             survivor_sel = SurvivorSelection("HillClimb")
 
-        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name)
+        super().__init__(
+            initializer,
+            operator=operator,
+            survivor_sel=survivor_sel,
+            params=params,
+            name=name,
+        )
 
     def update_params(self, **kwargs):
         super().update_params(**kwargs)

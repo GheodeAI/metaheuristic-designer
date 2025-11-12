@@ -503,7 +503,11 @@ class Algorithm(ABC):
             ax.axvline(x=0, color="black", alpha=0.9)
             ax.set_xlim(_xlim)
             ax.set_ylim(_ylim)
-            ax.set(xlabel="Generations", ylabel="Fitness", title=f"{self.search_strategy.name} fitness")
+            ax.set(
+                xlabel="Generations",
+                ylabel="Fitness",
+                title=f"{self.search_strategy.name} fitness",
+            )
             ax.grid()
             plt.show()
 

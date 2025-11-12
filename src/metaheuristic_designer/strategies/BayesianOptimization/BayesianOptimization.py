@@ -4,7 +4,6 @@ from ...SearchStrategy import SearchStrategy
 from ...Initializer import Initializer
 from ...ParamScheduler import ParamScheduler
 from ...selectionMethods import SurvivorSelection, SurvivorSelectionNull, ParentSelection
-# from ...ObjectiveFunc import ObjectiveVectorFunc
 from ...operators.BOOperator import BOOperator
 
 
