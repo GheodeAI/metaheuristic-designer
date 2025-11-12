@@ -111,7 +111,13 @@ class Population:
 
     def __copy__(self) -> Population:
 
-        copied_pop = Population(self.objfunc, copy(self.genotype_matrix), copy(self.speed_matrix), ages=copy(self.ages), encoding=self.encoding)
+        copied_pop = Population(
+            self.objfunc,
+            copy(self.genotype_matrix),
+            copy(self.speed_matrix),
+            ages=copy(self.ages),
+            encoding=self.encoding,
+        )
         copied_pop.fitness = copy(self.fitness)
         copied_pop.fitness_calculated = copy(self.fitness_calculated)
         copied_pop.historical_best_matrix = copy(self.historical_best_matrix)
@@ -207,7 +213,13 @@ class Population:
         selected_speed_matrix = copy(self.speed_matrix[selection_idx, :])
         selected_ages = copy(self.ages[selection_idx])
 
-        selected_pop = Population(self.objfunc, selected_genotype_matrix, selected_speed_matrix, ages=selected_ages, encoding=self.encoding)
+        selected_pop = Population(
+            self.objfunc,
+            selected_genotype_matrix,
+            selected_speed_matrix,
+            ages=selected_ages,
+            encoding=self.encoding,
+        )
         selected_pop.fitness = copy(self.fitness[selection_idx])
         selected_pop.fitness_calculated = copy(self.fitness_calculated[selection_idx])
         selected_pop.historical_best_matrix = copy(self.historical_best_matrix[selection_idx, :])
@@ -268,7 +280,13 @@ class Population:
         sliced_speed_matrix = copy(self.speed_matrix[:, mask])
         sliced_ages = copy(self.ages)
 
-        sliced_pop = Population(self.objfunc, sliced_genotype_matrix, sliced_speed_matrix, ages=sliced_ages, encoding=self.encoding)
+        sliced_pop = Population(
+            self.objfunc,
+            sliced_genotype_matrix,
+            sliced_speed_matrix,
+            ages=sliced_ages,
+            encoding=self.encoding,
+        )
         sliced_pop.historical_best_matrix = copy(self.historical_best_matrix[:, mask])
         sliced_pop.historical_best_fitness = copy(self.historical_best_fitness)
         sliced_pop.fitness_calculated = copy(self.fitness_calculated)
@@ -314,8 +332,17 @@ class Population:
         joined_speed_matrix = np.concatenate((population1.speed_matrix, population2.speed_matrix), axis=0)
         joined_ages = np.concatenate((population1.ages, population2.ages))
 
-        joined_pop = Population(population1.objfunc, joined_genotype_matrix, joined_speed_matrix, ages=joined_ages, encoding=population1.encoding)
-        joined_pop.historical_best_matrix = np.concatenate((population1.historical_best_matrix, population2.historical_best_matrix), axis=0)
+        joined_pop = Population(
+            population1.objfunc,
+            joined_genotype_matrix,
+            joined_speed_matrix,
+            ages=joined_ages,
+            encoding=population1.encoding,
+        )
+        joined_pop.historical_best_matrix = np.concatenate(
+            (population1.historical_best_matrix, population2.historical_best_matrix),
+            axis=0,
+        )
         joined_pop.historical_best_fitness = np.concatenate((population1.historical_best_fitness, population2.historical_best_fitness))
         joined_pop.fitness_calculated = np.concatenate((population1.fitness_calculated, population2.fitness_calculated))
         joined_pop.fitness = np.concatenate((population1.fitness, population2.fitness))
@@ -349,7 +376,10 @@ class Population:
         self.pop_size += other_population.genotype_matrix.shape[0]
         self.speed_matrix = np.concatenate((self.speed_matrix, other_population.speed_matrix), axis=0)
         self.ages = np.concatenate((self.ages, other_population.ages))
-        self.historical_best_matrix = np.concatenate((self.historical_best_matrix, other_population.historical_best_matrix), axis=0)
+        self.historical_best_matrix = np.concatenate(
+            (self.historical_best_matrix, other_population.historical_best_matrix),
+            axis=0,
+        )
         self.historical_best_fitness = np.concatenate((self.historical_best_fitness, other_population.historical_best_fitness))
         self.fitness_calculated = np.concatenate((self.fitness_calculated, other_population.fitness_calculated), axis=0)
         self.fitness = np.concatenate((self.fitness, other_population.fitness))
@@ -440,7 +470,13 @@ class Population:
         genotype_matrix = np.tile(self.genotype_matrix, (amount, 1))
         speed_matrix = np.tile(self.speed_matrix, (amount, 1))
         ages = np.tile(self.ages, amount)
-        return Population(self.objfunc, genotype_matrix, speed_matrix, ages=ages, encoding=self.encoding)
+        return Population(
+            self.objfunc,
+            genotype_matrix,
+            speed_matrix,
+            ages=ages,
+            encoding=self.encoding,
+        )
 
     def calculate_fitness(self, parallel: bool = False, threads: int = 8) -> ndarray:
         """

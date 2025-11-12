@@ -18,7 +18,13 @@ class OperatorFromLambda(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, fn: callable, params: ParamScheduler | dict = None, name: str = None, vectorized: bool = True):
+    def __init__(
+        self,
+        fn: callable,
+        params: ParamScheduler | dict = None,
+        name: str = None,
+        vectorized: bool = True,
+    ):
         """
         Constructor for the OperatorLambda class
         """

@@ -1,6 +1,16 @@
 from .utils import RAND_GEN, reset_seed
 
 from .ObjectiveFunc import ObjectiveFunc, ObjectiveVectorFunc, ObjectiveFromLambda
+from . import benchmarks
+
+from .ConstraintHandler import (
+    ConstraintHandler,
+    ConstraintHandlerFromLambda,
+    PenalizeConstraint,
+    RepareConstraint,
+    NullConstraint,
+)
+from . import constraintHandlers
 
 from .Algorithm import Algorithm
 from . import algorithms
@@ -9,7 +19,6 @@ from .algorithms import GeneralAlgorithm, MemeticAlgorithm
 from .SearchStrategy import SearchStrategy
 from . import strategies
 
-# from .Individual import Individual
 from .Population import Population
 
 from .Encoding import Encoding
@@ -26,7 +35,6 @@ from . import selectionMethods
 
 from . import simple
 
-from . import benchmarks
 
 from .ParamScheduler import ParamScheduler
 
