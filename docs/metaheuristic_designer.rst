@@ -11,6 +11,7 @@ These subpackages provide implementations of the interfaces needed to define an 
 
    metaheuristic_designer.simple
    metaheuristic_designer.benchmarks
+   metaheuristic_designer.constraintHandlers
    metaheuristic_designer.algorithms
    metaheuristic_designer.strategies
    metaheuristic_designer.operators
@@ -23,6 +24,14 @@ metaheuristic_designer.ObjectiveFunc module
 -------------------------------------------
 
 .. automodule:: metaheuristic_designer.ObjectiveFunc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+metaheuristic_designer.ConstraintHandler module
+-----------------------------------------------
+
+.. automodule:: metaheuristic_designer.ConstraintHandler
    :members:
    :undoc-members:
    :show-inheritance:

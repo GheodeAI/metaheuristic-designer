@@ -5,6 +5,7 @@ from . import benchmarks
 
 from .ConstraintHandler import (
     ConstraintHandler,
+    ConstraintHandlerFromLambda,
     PenalizeConstraint,
     RepareConstraint,
     NullConstraint,

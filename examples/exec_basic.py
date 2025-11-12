@@ -35,7 +35,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim):
             objfunc = Weierstrass(dim, "min")
         case _:
             raise Exception(f'Objective function "{objective}" doesn\'t exist.')
-
+        
     match alg_name:
         case "HILLCLIMB":
             search_strat = HillClimb(

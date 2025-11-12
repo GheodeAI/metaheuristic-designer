@@ -199,12 +199,14 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         """
 
         self.vecsize = vecsize
+        self.low_lim = low_lim
+        self.up_lim = up_lim
 
         bound_constraint_handler = ClipBoundConstraint(vecsize, low_lim, up_lim)
-        if constraint_handler:
+        if constraint_handler is None:
             constraint_handler = bound_constraint_handler
         else:
-            constraint_handler = CompositeConstraint([bound_constraint_handler, constraint_handler])
+            constraint_handler = CompositeConstraint([constraint_handler, bound_constraint_handler])
 
         super().__init__(
             constraint_handler=constraint_handler,
@@ -237,7 +239,7 @@ class ObjectiveVectorFunc(ObjectiveFunc):
 
 class ObjectiveFromLambda(ObjectiveFunc):
     """
-    Objective function that accepts vectors as an input defined with a callable object.
+    Objective function indicated by a function call.
 
     Parameters
     ----------
@@ -273,13 +275,7 @@ class ObjectiveFromLambda(ObjectiveFunc):
 
         self.obj_func = obj_func
 
-        super().__init__(
-            constraint_handler=constraint_handler,
-            mode=mode,
-            name=name,
-            vectorized=vectorized,
-            recalculate=recalculate
-        )
+        super().__init__(constraint_handler=constraint_handler, mode=mode, name=name, vectorized=vectorized, recalculate=recalculate)
 
     def objective(self, vector):
         return self.obj_func(vector)

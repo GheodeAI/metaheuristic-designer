@@ -6,6 +6,20 @@ from ..ConstraintHandler import RepareConstraint
 
 
 class CycleBoundConstraint(RepareConstraint):
+    """
+    Encodes a bound constraint by wrapping through the bounds, performing a modulo
+    operation componentwise.
+
+    Parameters
+    ----------
+    vecsize: int
+        size of the input vector (decoded).
+    low_lim: float | ndarray, optional
+        lower limit of the bounds.
+    up_lim: float | ndarray, optional
+        upper limit of the bounds.
+    """
+
     def __init__(self, vecsize, low_lim: float = -100, up_lim: float = 100):
         self.vecsize = vecsize
 
@@ -21,7 +35,7 @@ class CycleBoundConstraint(RepareConstraint):
     def repair_solution(self, vector: ndarray) -> ndarray:
         if np.all(self.up_lim == self.low_lim):
             return self.up_lim
-        
+
         fixed_solution = np.mod(vector - self.low_lim, self.range_lim) + self.low_lim
 
         ouside_bound_mask = (vector < self.low_lim) | (vector > self.up_lim)

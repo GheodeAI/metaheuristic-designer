@@ -5,6 +5,22 @@ from ..ConstraintHandler import PenalizeConstraint
 
 
 class LinearPenaltyBoundConstraint(PenalizeConstraint):
+    """
+    Encodes a bound constraint by adding a penalty proportional to the distance of the
+    solution's distance to the bounds.
+    
+    Parameters
+    ----------
+    vecsize: int
+        size of the input vector (decoded).
+    alpha: float, optional
+        factor to multiply to the penalty before being applied.
+    low_lim: float | ndarray, optional
+        lower limit of the bounds.
+    up_lim: float | ndarray, optional
+        upper limit of the bounds.
+    """
+
     def __init__(self, vecsize, alpha=1, low_lim: float = -100, up_lim: float = 100):
         self.vecsize = vecsize
         self.alpha = alpha

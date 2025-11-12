@@ -6,6 +6,21 @@ from ..ConstraintHandler import RepareConstraint
 
 
 class BounceBoundConstraint(RepareConstraint):
+    """
+    Encodes a bound constraint by bouncing through the bounds, substracting the leftover part of the vector
+    that lies outisde the bounds. If the substraction still lies outside the bounds, the leftover part is added,
+    substraction and addition are alternated until the solution lies in bounds.
+
+    Parameters
+    ----------
+    vecsize: int
+        size of the input vector (decoded).
+    low_lim: float | ndarray, optional
+        lower limit of the bounds.
+    up_lim: float | ndarray, optional
+        upper limit of the bounds.
+    """
+
     def __init__(self, vecsize, low_lim: float = -100, up_lim: float = 100):
         self.vecsize = vecsize
 

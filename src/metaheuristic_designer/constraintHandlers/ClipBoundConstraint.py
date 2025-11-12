@@ -5,6 +5,19 @@ from ..ConstraintHandler import RepareConstraint
 
 
 class ClipBoundConstraint(RepareConstraint):
+    """
+    Encodes a bound constraint by clipping solutions to the nearest point in the boundary.
+
+    Parameters
+    ----------
+    vecsize: int
+        size of the input vector (decoded).
+    low_lim: float | ndarray, optional
+        lower limit of the bounds.
+    up_lim: float | ndarray, optional
+        upper limit of the bounds.
+    """
+
     def __init__(self, vecsize, low_lim: float = -100, up_lim: float = 100):
         self.vecsize = vecsize
 

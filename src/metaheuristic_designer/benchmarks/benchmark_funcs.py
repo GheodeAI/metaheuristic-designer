@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..ObjectiveFunc import ObjectiveFunc, ObjectiveVectorFunc
 from ..utils import RAND_GEN
 from ..constraintHandlers import ClipBoundConstraint
 import time
@@ -8,17 +8,17 @@ import time
 
 class MaxOnes(ObjectiveVectorFunc):
     def __init__(self, vecsize, mode="max"):
-        super().__init__(vecsize=vecsize, mode=mode, name="Max ones")
+        super().__init__(vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")
 
     def objective(self, solution):
         return solution.sum()
 
 
-class DiophantineEq(ObjectiveVectorFunc):
+class DiophantineEq(ObjectiveFunc):
     def __init__(self, vecsize, coeff, target, mode="min"):
         self.coeff = coeff
         self.target = target
-        super().__init__(vecsize=vecsize, mode=mode, name="Diophantine equation")
+        super().__init__(mode=mode, name="Diophantine equation")
 
     def objective(self, solution):
         return abs((solution * self.coeff).sum() - self.target)
