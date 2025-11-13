@@ -1,4 +1,4 @@
-from ..ObjectiveFunc import VectorObjectiveFunc
+from ..objective_function import VectorObjectiveFunc
 from ..encodings import ImageEncoding
 import numpy as np
 

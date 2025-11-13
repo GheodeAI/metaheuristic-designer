@@ -1,10 +1,10 @@
 from __future__ import annotations
-from ..ObjectiveFunc import VectorObjectiveFunc
-from ..Algorithm import Algorithm
+from ..objective_function import VectorObjectiveFunc
+from ..algorithm import Algorithm
 from ..initializers import UniformInitializer, PermInitializer
 from ..operators import VectorOperator, PermOperator
-from ..Operator import NullOperator
-from ..selectionMethods import SurvivorSelection, ParentSelection, NullParentSelection
+from ..operator import NullOperator
+from ..selection_methods import SurvivorSelection, ParentSelection, NullParentSelection
 from ..encodings import TypeCastEncoding
 from ..strategies import ES
 from ..algorithms import GeneralAlgorithm

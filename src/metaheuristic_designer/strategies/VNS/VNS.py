@@ -1,17 +1,17 @@
 from __future__ import annotations
 from typing import Iterable
 import warnings
-from ...Population import Population
-from ...Algorithm import Algorithm
-from ...Initializer import Initializer
+from ...population import Population
+from ...algorithm import Algorithm
+from ...initializer import Initializer
 from ...algorithms import GeneralAlgorithm
-from ...ParamScheduler import ParamScheduler
-from ...SearchStrategy import SearchStrategy
-from ...Operator import Operator
+from ...param_scheduler import ParamScheduler
+from ...search_strategy import SearchStrategy
+from ...operator import Operator
 from ...operators import MetaOperator
-from ...selectionMethods import SurvivorSelection
+from ...selection_methods import SurvivorSelection
 from .VND import VND
-from .vns_neighborhood_changes import *
+from .neighborhood_changes import *
 
 
 class VNS(SearchStrategy):

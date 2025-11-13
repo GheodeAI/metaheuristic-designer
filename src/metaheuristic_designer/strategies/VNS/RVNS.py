@@ -2,12 +2,12 @@ from __future__ import annotations
 from typing import Iterable
 import warnings
 import numpy as np
-from ...Initializer import Initializer
-from ...ParamScheduler import ParamScheduler
-from ...SearchStrategy import SearchStrategy
-from ...Operator import Operator
+from ...initializer import Initializer
+from ...param_scheduler import ParamScheduler
+from ...search_strategy import SearchStrategy
+from ...operator import Operator
 from ...operators import MetaOperator
-from ...selectionMethods import SurvivorSelection
+from ...selection_methods import SurvivorSelection
 
 
 class RVNS(SearchStrategy):

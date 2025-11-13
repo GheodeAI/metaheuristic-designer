@@ -1,10 +1,10 @@
 from __future__ import annotations
 from typing import Union, List
 from copy import deepcopy
-from ...selectionMethods import SurvivorSelection
-from ...ParamScheduler import ParamScheduler
-from ...SearchStrategy import SearchStrategy
-from ...Operator import Operator
+from ...selection_methods import SurvivorSelection
+from ...param_scheduler import ParamScheduler
+from ...search_strategy import SearchStrategy
+from ...operator import Operator
 from ...operators import MetaOperator
 
 

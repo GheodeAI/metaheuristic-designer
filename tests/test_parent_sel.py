@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from metaheuristic_designer import Population
-from metaheuristic_designer.selectionMethods import ParentSelection, parent_sel_map
+from metaheuristic_designer.selection_methods import ParentSelection, parent_sel_map
 from metaheuristic_designer.benchmarks import Sphere
 from metaheuristic_designer.initializers import UniformInitializer
 import metaheuristic_designer as mhd

@@ -1,9 +1,9 @@
 from .utils import RAND_GEN, reset_seed
 
-from .ObjectiveFunc import ObjectiveFunc, NullObjectiveFunc, VectorObjectiveFunc, ObjectiveFromLambda
+from .objective_function import ObjectiveFunc, NullObjectiveFunc, VectorObjectiveFunc, ObjectiveFromLambda
 from . import benchmarks
 
-from .ConstraintHandler import (
+from .constraint_handler import (
     ConstraintHandler,
     ConstraintHandlerFromLambda,
     NullConstraint,
@@ -11,31 +11,31 @@ from .ConstraintHandler import (
     PenalizeConstraint,
     RepareConstraint,
 )
-from . import constraintHandlers
+from . import constraint_handlers
 
-from .Algorithm import Algorithm
+from .algorithm import Algorithm
 from . import algorithms
 from .algorithms import GeneralAlgorithm, MemeticAlgorithm
 
-from .SearchStrategy import SearchStrategy
+from .search_strategy import SearchStrategy
 from . import strategies
 
-from .Population import Population
+from .population import Population
 
-from .Encoding import Encoding, EncodingFromLambda, DefaultEncoding, ExtendedEncoding
+from .encoding import Encoding, EncodingFromLambda, DefaultEncoding, ExtendedEncoding
 from . import encodings
 
-from .Initializer import Initializer, InitializerFromLambda, ExtendedInitializer
+from .initializer import Initializer, InitializerFromLambda, ExtendedInitializer
 from . import initializers
 
-from .Operator import Operator, OperatorFromLambda, NullOperator, ExtendedOperator
+from .operator import Operator, OperatorFromLambda, NullOperator, ExtendedOperator
 from . import operators
 
-from .SelectionMethod import SelectionMethod
-from . import selectionMethods
+from .selection_method import SelectionMethod
+from . import selection_methods
 
 from . import simple
 
-from .ParamScheduler import ParamScheduler
+from .param_scheduler import ParamScheduler
 
 __version__ = "0.2.0"

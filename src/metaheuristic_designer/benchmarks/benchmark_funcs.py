@@ -1,9 +1,9 @@
 import numpy as np
 
 # from numba import jit
-from ..ObjectiveFunc import ObjectiveFunc, VectorObjectiveFunc
+from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
 from ..utils import RAND_GEN
-from ..constraintHandlers import ClipBoundConstraint
+from ..constraint_handlers import ClipBoundConstraint
 import time
 
 

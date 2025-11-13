@@ -2,7 +2,7 @@ import pytest
 from typing import List, Any
 import numpy as np
 from metaheuristic_designer import ConstraintHandler, NullConstraint
-from metaheuristic_designer.constraintHandlers import *
+from metaheuristic_designer.constraint_handlers import *
 
 # Test data generators
 def generate_test_vectors():

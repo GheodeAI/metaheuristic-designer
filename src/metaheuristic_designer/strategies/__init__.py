@@ -1,14 +1,14 @@
-from .HillClimb import HillClimb
-from .LocalSearch import LocalSearch
+from .hill_climb import HillClimb
+from .local_search import LocalSearch
 
-from .StaticPopulation import StaticPopulation
-from .VariablePopulation import VariablePopulation
+from .static_population import StaticPopulation
+from .variable_population import VariablePopulation
 
-from .NoSearch import NoSearch
+from .no_search import NoSearch
 
-from .Classic import *
-from .Swarm import *
+from .classic import *
+from .swarm import *
 from .CRO import *
 from .VNS import *
 from .EDA import *
-from .BayesianOptimization import *
+from .bayesian_optimization import *

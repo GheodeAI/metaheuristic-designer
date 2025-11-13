@@ -2,7 +2,7 @@ from __future__ import annotations
 import random
 from typing import Union, List
 import numpy as np
-from ...ParamScheduler import ParamScheduler
+from ...param_scheduler import ParamScheduler
 from .CRO_SL import CRO_SL
 
 

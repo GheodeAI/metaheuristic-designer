@@ -1,9 +1,9 @@
 from __future__ import annotations
-from ..ObjectiveFunc import VectorObjectiveFunc
-from ..Algorithm import Algorithm
+from ..objective_function import VectorObjectiveFunc
+from ..algorithm import Algorithm
 from ..initializers import UniformInitializer, PermInitializer
 from ..operators import VectorOperator, PermOperator
-from ..selectionMethods import SurvivorSelection, ParentSelection
+from ..selection_methods import SurvivorSelection, ParentSelection
 from ..encodings import TypeCastEncoding
 from ..strategies import GA
 from ..algorithms import GeneralAlgorithm

@@ -1,4 +1,5 @@
-from .VectorOperator import VectorOperator, VectorOpMethods, vector_ops_map
-from .PermOperator import PermOperator, PermOpMethods, perm_ops_map
-from .MetaOperator import MetaOperator, MetaOpMethods, meta_ops_map
+from .vector_operator import VectorOperator, VectorOpMethods, vector_ops_map
+from .perm_operator import PermOperator, PermOpMethods, perm_ops_map
+from .meta_operator import MetaOperator, MetaOpMethods, meta_ops_map
+from .BO_operator import BOOperator
 from .operator_functions import *

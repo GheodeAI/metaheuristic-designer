@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from metaheuristic_designer.selectionMethods.parent_selection_functions import * 
+from metaheuristic_designer.selection_methods.parent_selection_functions import * 
 import metaheuristic_designer as mhd
 
 mhd.reset_seed(0)

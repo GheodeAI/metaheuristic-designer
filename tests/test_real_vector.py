@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
-from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
+from metaheuristic_designer.selection_methods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import VectorOperator
 from metaheuristic_designer.initializers import UniformInitializer

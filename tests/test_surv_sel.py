@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from metaheuristic_designer import Population
-from metaheuristic_designer.selectionMethods import SurvivorSelection, surv_method_map
+from metaheuristic_designer.selection_methods import SurvivorSelection, surv_method_map
 from metaheuristic_designer.benchmarks import Sphere
 import metaheuristic_designer as mhd
 

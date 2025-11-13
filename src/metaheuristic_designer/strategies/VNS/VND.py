@@ -2,13 +2,13 @@ from __future__ import annotations
 from typing import Iterable
 from copy import copy
 import warnings
-from ...Initializer import Initializer
-from ...ParamScheduler import ParamScheduler
-from ...SearchStrategy import SearchStrategy
-from ...Operator import Operator
+from ...initializer import Initializer
+from ...param_scheduler import ParamScheduler
+from ...search_strategy import SearchStrategy
+from ...operator import Operator
 from ...operators import MetaOperator
-from ...selectionMethods import SurvivorSelection
-from .vns_neighborhood_changes import *
+from ...selection_methods import SurvivorSelection
+from .neighborhood_changes import *
 
 
 class VND(SearchStrategy):

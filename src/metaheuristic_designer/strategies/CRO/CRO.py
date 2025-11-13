@@ -2,9 +2,9 @@ from __future__ import annotations
 from typing import Union
 from copy import deepcopy
 from ...operators import MetaOperator
-from ...selectionMethods import SurvivorSelection
-from ..StaticPopulation import StaticPopulation
-from ...ParamScheduler import ParamScheduler
+from ...selection_methods import SurvivorSelection
+from ..static_population import StaticPopulation
+from ...param_scheduler import ParamScheduler
 
 
 class CRO(StaticPopulation):

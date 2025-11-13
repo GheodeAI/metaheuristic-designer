@@ -1,10 +1,10 @@
 from __future__ import annotations
 import numpy as np
 from ...operators import VectorOperator
-from ...selectionMethods import ParentSelection, SurvivorSelection
-from ...Initializer import Initializer
-from ...ParamScheduler import ParamScheduler
-from ..VariablePopulation import VariablePopulation
+from ...selection_methods import ParentSelection, SurvivorSelection
+from ...initializer import Initializer
+from ...param_scheduler import ParamScheduler
+from ..variable_population import VariablePopulation
 from ...utils import RAND_GEN
 
 

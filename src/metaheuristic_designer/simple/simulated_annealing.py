@@ -4,7 +4,7 @@ from ..operators import VectorOperator, PermOperator
 from ..encodings import TypeCastEncoding
 from ..strategies import SA
 from ..algorithms import GeneralAlgorithm
-from ..ObjectiveFunc import VectorObjectiveFunc
+from ..objective_function import VectorObjectiveFunc
 
 
 def simulated_annealing(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
