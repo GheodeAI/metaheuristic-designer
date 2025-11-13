@@ -102,21 +102,6 @@ class Encoding(ABC):
         return population.genotype_matrix
 
 
-class DefaultEncoding(Encoding):
-    """
-    Default encoder that uses the genotype directly as a solution.
-    """
-
-    def __init__(self, decode_as_array=True):
-        super().__init__(vectorized=True, decode_as_array=decode_as_array)
-
-    def encode_func(self, solution: Any) -> Any:
-        return solution
-
-    def decode_func(self, population: Any) -> Any:
-        return population
-
-
 class EncodingFromLambda(Encoding):
     """
     Decoder that uses user specified functions.
@@ -135,6 +120,21 @@ class EncodingFromLambda(Encoding):
         return self.encode_fn(population)
 
 
+class DefaultEncoding(Encoding):
+    """
+    Default encoder that uses the genotype directly as a solution.
+    """
+
+    def __init__(self, decode_as_array=True):
+        super().__init__(vectorized=True, decode_as_array=decode_as_array)
+
+    def encode_func(self, solution: Any) -> Any:
+        return solution
+
+    def decode_func(self, population: Any) -> Any:
+        return population
+
+
 class ExtendedEncoding(Encoding, ABC):
     """
     Abstract Extended Encoding class.
@@ -143,25 +143,56 @@ class ExtendedEncoding(Encoding, ABC):
     This interface is intended to be used in swarm-based or adaptative algorithms.
     """
 
-    def __init__(self, vecsize: int, param_sizes: Iterable, base_encoding: Encoding = None, verify = False):
+    def __init__(self, vecsize: int, param_sizes: Iterable[Tuple[str, int]], base_encoding: Encoding = None, verify = False):
         self.vecsize = vecsize
         self.param_sizes = param_sizes
         self.nparams = sum([param_size for _, param_size in param_sizes])
         if base_encoding is None:
             base_encoding = DefaultEncoding()
         self.base_encoding = base_encoding
+        self.verify = verify
 
         super().__init__(vectorized=base_encoding.vectorized)
 
-    def encode_func(self, solution: Any, param_vec: np.ndarray = None) -> np.ndarray:
+    def encode_func(self, solution: Any, params: dict = None) -> np.ndarray:
         solution_encoded = self.base_encoding.encode_func(solution)
-        return np.concatenate([solution_encoded, param_vec])
+        if params is None:
+            params_encoded = np.zeros((1, self.nparams))
+        else:
+            params_encoded = self.encode_params(params)
+
+        solution_encoded = np.hstack([solution_encoded, params_encoded])
+        
+        return solution_encoded
 
     def decode_func(self, genotype: np.ndarray) -> np.ndarray:
         if self.vectorized:
             return self.base_encoding.decode(genotype[:, : self.vecsize])
         else:
             return self.base_encoding.decode(genotype[: self.vecsize])
+
+    def encode(self, solutions: Iterable, params: dict = None) -> ndarray:
+        """
+        Encodes a list of solutions to our problem to an population matrix.
+
+        Parameters
+        ----------
+        solutions: Iterable
+            Solutions that should be encoded.
+
+        Returns
+        -------
+        population: ndarray
+            Population array.
+        """
+
+        population = None
+        if self.vectorized:
+            population = self.encode_func(solutions, params=params)
+        else:
+            population = np.asarray([self.encode_func(indiv) for indiv in solutions])
+
+        return population
 
     def extract_solution(self, population_matrix: ndarray) -> ndarray:
         return population_matrix[:, :self.vecsize]
@@ -184,7 +215,7 @@ class ExtendedEncoding(Encoding, ABC):
             List/array of solutions.
         """
 
-        param_matrix = self.encode_params_func(population)
+        param_matrix = self.encode_params_func(param_dict)
 
         return param_matrix
     
@@ -200,7 +231,7 @@ class ExtendedEncoding(Encoding, ABC):
         vcounter = 0
         result = np.empty((population_size, self.nparams))
         for param_name, param_size in self.param_sizes:
-            result[vcounter:vcounter+param_size] = param_dict[param_name]
+            result[:, vcounter:vcounter+param_size] = param_dict[param_name]
             vcounter += param_size
         
         return result

@@ -1,10 +1,10 @@
 from __future__ import annotations
 from ..ObjectiveFunc import VectorObjectiveFunc
 from ..Algorithm import Algorithm
-from ..initializers import UniformVectorInitializer, PermInitializer
+from ..initializers import UniformInitializer, PermInitializer
 from ..operators import VectorOperator, PermOperator
 from ..Operator import NullOperator
-from ..selectionMethods import SurvivorSelection, ParentSelection, ParentSelectionNull
+from ..selectionMethods import SurvivorSelection, ParentSelection, NullParentSelection
 from ..encodings import TypeCastEncoding
 from ..strategies import ES
 from ..algorithms import GeneralAlgorithm
@@ -62,12 +62,12 @@ def _evolution_strategy_bin_vec(params, objfunc):
 
     encoding = TypeCastEncoding(int, bool)
 
-    pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
+    pop_initializer = UniformInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
 
     cross_op = NullOperator()
     mutation_op = VectorOperator("Flip", {"N": mutstr})
 
-    parent_sel_op = ParentSelection("Nothing")
+    parent_sel_op = NullParentSelection()
     selection_op = SurvivorSelection("(m+n)")
 
     search_strat = ES(
@@ -98,7 +98,7 @@ def _evolution_strategy_int_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=int)
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=int)
 
     cross_op = VectorOperator("Nothing")
     mutation_op = VectorOperator(
@@ -111,7 +111,7 @@ def _evolution_strategy_int_vec(params, objfunc):
         },
     )
 
-    parent_sel_op = ParentSelectionNull()
+    parent_sel_op = NullParentSelection()
     selection_op = SurvivorSelection("(m+n)")
 
     search_strat = ES(
@@ -145,7 +145,7 @@ def _evolution_strategy_perm_vec(params, objfunc):
     cross_op = NullOperator()
     mutation_op = PermOperator("Perm", {"N": mutstr})
 
-    parent_sel_op = ParentSelectionNull()
+    parent_sel_op = NullParentSelection()
     selection_op = SurvivorSelection("(m+n)")
 
     search_strat = ES(
@@ -176,11 +176,11 @@ def _evolution_strategy_real_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
     cross_op = NullOperator()
     mutation_op = VectorOperator("RandNoise", {"distrib": "Gauss", "F": mutstr})
-    parent_sel_op = ParentSelectionNull()
+    parent_sel_op = NullParentSelection()
     selection_op = SurvivorSelection("(m+n)")
 
     search_strat = ES(

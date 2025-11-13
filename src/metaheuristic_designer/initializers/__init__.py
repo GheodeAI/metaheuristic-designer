@@ -1,5 +1,5 @@
-from .UniformInitializer import UniformVectorInitializer
-from .GaussianInitializer import GaussianVectorInitializer
+from .UniformInitializer import UniformInitializer
+from .GaussianInitializer import GaussianInitializer
 from .SeedInitializer import SeedDetermInitializer, SeedProbInitializer
 from .DirectInitializer import DirectInitializer
 from .PermInitializer import PermInitializer

@@ -7,6 +7,7 @@ from .VariablePopulation import VariablePopulation
 from .NoSearch import NoSearch
 
 from .Classic import *
+from .Swarm import *
 from .CRO import *
 from .VNS import *
 from .EDA import *

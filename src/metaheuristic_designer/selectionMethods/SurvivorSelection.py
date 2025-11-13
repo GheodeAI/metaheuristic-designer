@@ -144,7 +144,7 @@ class SurvivorSelection(SelectionMethod):
 
         return new_population
 
-class SurvivorSelectionNull(SelectionMethod):
+class NullSurvivorSelection(SelectionMethod):
     """
     Survivor selection methods.
 

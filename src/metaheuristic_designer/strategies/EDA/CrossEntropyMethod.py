@@ -1,6 +1,6 @@
 from ...selectionMethods import (
     ParentSelection,
-    SurvivorSelectionNull,
+    NullSurvivorSelection,
 )
 from ...operators import VectorOperator
 from ..StaticPopulation import StaticPopulation
@@ -17,7 +17,7 @@ class CrossEntropyMethod(StaticPopulation):
         )
         n = params.get("n", initializer.pop_size)
         parent_sel = ParentSelection("Best", {"amount": n})
-        survivor_sel = SurvivorSelectionNull()
+        survivor_sel = NullSurvivorSelection()
 
         super().__init__(
             initializer=initializer,

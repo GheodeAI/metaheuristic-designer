@@ -5,8 +5,8 @@ import numpy as np
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import OperatorVector
-from metaheuristic_designer.initializers import UniformVectorInitializer
+from metaheuristic_designer.operators import VectorOperator
+from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.strategies import *
 from metaheuristic_designer.benchmarks import Sphere
 import metaheuristic_designer as mhd
@@ -22,12 +22,12 @@ test_params = {
 }
 
 mut_params = ParamScheduler("Linear", {"distrib": "Gauss", "F": [0.001, 0.00001]})
-mutation_op = OperatorVector("RandNoise", mut_params)
+mutation_op = VectorOperator("RandNoise", mut_params)
 
-cross_op = OperatorVector("Multipoint")
+cross_op = VectorOperator("Multipoint")
 
 de_params = ParamScheduler("Linear", {"F": [0.8, 0.9], "Cr": [0.8, 0.5]})
-de_op = OperatorVector("DE/best/1", de_params)
+de_op = VectorOperator("DE/best/1", de_params)
 
 parent_params = ParamScheduler("Linear", {"amount": [30, 15]})
 parent_sel_op = ParentSelection("Best", parent_params)
@@ -36,8 +36,8 @@ selection_op = SurvivorSelection("(m+n)")
 
 objfunc = Sphere(10, "min")
 
-pop_init_single = UniformVectorInitializer(10, objfunc.low_lim, objfunc.up_lim, pop_size=1)
-pop_init = UniformVectorInitializer(10, objfunc.low_lim, objfunc.up_lim, pop_size=100)
+pop_init_single = UniformInitializer(10, objfunc.low_lim, objfunc.up_lim, pop_size=1)
+pop_init = UniformInitializer(10, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
 
 def test_hillclimb_empty():
@@ -228,7 +228,7 @@ def test_cro():
 def test_memetic():
     search_strat = GA(pop_init, mutation_op, cross_op, parent_sel_op, selection_op)
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
+    neihbourhood_op = VectorOperator("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_init, neihbourhood_op, params={"iters": 10})
     alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=test_params)
     alg.optimize()
@@ -251,7 +251,7 @@ def test_reporting_memetic():
     test_params["verbose"] = True
     search_strat = GA(pop_init, mutation_op, cross_op, parent_sel_op, selection_op)
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
+    neihbourhood_op = VectorOperator("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_init, neihbourhood_op, params={"iters": 10})
     alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=test_params)
     alg.optimize()

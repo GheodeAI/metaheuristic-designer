@@ -1,7 +1,7 @@
 from __future__ import annotations
 from ..ObjectiveFunc import VectorObjectiveFunc
 from ..Algorithm import Algorithm
-from ..initializers import UniformVectorInitializer
+from ..initializers import UniformInitializer
 from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import PSO
 from ..algorithms import GeneralAlgorithm
@@ -58,7 +58,7 @@ def _particle_swarm_real_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
     search_strat = PSO(pop_initializer, {"w": w, "c1": c1, "c2": c2})
 
@@ -84,7 +84,7 @@ def _particle_swarm_int_vec(params, objfunc):
 
     encoding = TypeCastEncoding(float, int)
 
-    pop_initializer = UniformVectorInitializer(
+    pop_initializer = UniformInitializer(
         vecsize,
         min_val,
         max_val,
@@ -118,7 +118,7 @@ def _particle_swarm_bin_vec(params, objfunc):
 
     encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
 
-    pop_initializer = UniformVectorInitializer(
+    pop_initializer = UniformInitializer(
         vecsize,
         min_val,
         max_val,

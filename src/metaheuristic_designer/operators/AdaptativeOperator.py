@@ -28,7 +28,7 @@ class AdaptativeOperator(Operator):
     def __init__(
         self,
         base_operator: Operator,
-        param_operator: Operator,
+        param_operator: dict,
         param_encoding: ExtendedEncoding,
         params: ParamScheduler | dict = None,
         name: str = None,

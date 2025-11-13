@@ -24,7 +24,6 @@ def firefly(population, fitness, objfunc, alpha_0, beta_0, delta, gamma):
     Performs a step of the Firefly algorithm
     """
 
-    raise NotImplementedError
 
     # sol_range = objfunc.up_lim - objfunc.low_lim
 

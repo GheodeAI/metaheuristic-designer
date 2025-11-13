@@ -1,7 +1,7 @@
 from __future__ import annotations
 from ..ObjectiveFunc import VectorObjectiveFunc
 from ..Algorithm import Algorithm
-from ..initializers import UniformVectorInitializer, PermInitializer
+from ..initializers import UniformInitializer, PermInitializer
 from ..operators import VectorOperator, PermOperator
 from ..encodings import TypeCastEncoding
 from ..strategies import HillClimb
@@ -58,7 +58,7 @@ def _hill_climb_bin_vec(params, objfunc):
 
     encoding = TypeCastEncoding(int, bool)
 
-    pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
+    pop_initializer = UniformInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
 
     mutation_op = VectorOperator("Flip", {"N": mutstr})
 
@@ -102,7 +102,7 @@ def _hill_climb_int_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=int)
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=1, dtype=int)
 
     mutation_op = VectorOperator(
         "MutRand",
@@ -133,7 +133,7 @@ def _hill_climb_real_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=float)
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=1, dtype=float)
 
     mutation_op = VectorOperator("RandNoise", {"distrib": "Gauss", "F": mutstr})
 

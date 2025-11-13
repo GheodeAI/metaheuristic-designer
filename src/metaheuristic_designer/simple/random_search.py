@@ -1,7 +1,7 @@
 from __future__ import annotations
 from ..ObjectiveFunc import VectorObjectiveFunc
 from ..Algorithm import Algorithm
-from ..initializers import UniformVectorInitializer, PermInitializer
+from ..initializers import UniformInitializer, PermInitializer
 from ..encodings import TypeCastEncoding
 from ..strategies import RandomSearch
 from ..algorithms import GeneralAlgorithm
@@ -58,7 +58,7 @@ def _random_search_bin_vec(params, objfunc):
 
     encoding = TypeCastEncoding(int, bool)
 
-    pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
+    pop_initializer = UniformInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
 
     search_strat = RandomSearch(pop_initializer)
 
@@ -100,7 +100,7 @@ def _random_search_int_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=int)
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=int)
 
     search_strat = RandomSearch(pop_initializer)
 
@@ -122,7 +122,7 @@ def _random_search_real_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
     search_strat = RandomSearch(pop_initializer)
 

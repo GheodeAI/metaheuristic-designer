@@ -115,7 +115,7 @@ class ParentSelection(SelectionMethod):
 
         return new_population
 
-class ParentSelectionNull(SelectionMethod):
+class NullParentSelection(SelectionMethod):
     """
     Parent selection methods.
 

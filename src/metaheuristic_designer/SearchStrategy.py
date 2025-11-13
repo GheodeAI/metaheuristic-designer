@@ -5,8 +5,8 @@ from .ParamScheduler import ParamScheduler
 from .selectionMethods import (
     SurvivorSelection,
     ParentSelection,
-    SurvivorSelectionNull,
-    ParentSelectionNull,
+    NullSurvivorSelection,
+    NullParentSelection,
 )
 from .Population import Population
 from .Initializer import Initializer
@@ -57,11 +57,11 @@ class SearchStrategy:
         self.operator = operator
 
         if parent_sel is None:
-            parent_sel = ParentSelectionNull()
+            parent_sel = NullParentSelection()
         self.parent_sel = parent_sel
 
         if survivor_sel is None:
-            survivor_sel = SurvivorSelectionNull()
+            survivor_sel = NullSurvivorSelection()
         self.survivor_sel = survivor_sel
 
         self.population = None

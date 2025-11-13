@@ -1,7 +1,7 @@
 from __future__ import annotations
 from ..Algorithm import Algorithm
 from ..ObjectiveFunc import VectorObjectiveFunc
-from ..initializers import UniformVectorInitializer
+from ..initializers import UniformInitializer
 from ..operators import VectorOperator
 from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import DE
@@ -70,7 +70,7 @@ def _differential_evolution_real_vec(params, objfunc):
     ]:
         raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
     de_op = VectorOperator(de_type, {"F": f, "Cr": cr})
 
@@ -109,7 +109,7 @@ def _differential_evolution_int_vec(params, objfunc):
 
     encoding = TypeCastEncoding(float, int)
 
-    pop_initializer = UniformVectorInitializer(
+    pop_initializer = UniformInitializer(
         vecsize,
         min_val,
         max_val,
@@ -155,7 +155,7 @@ def _differential_evolution_bin_vec(params, objfunc):
 
     encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
 
-    pop_initializer = UniformVectorInitializer(
+    pop_initializer = UniformInitializer(
         vecsize,
         min_val,
         max_val,

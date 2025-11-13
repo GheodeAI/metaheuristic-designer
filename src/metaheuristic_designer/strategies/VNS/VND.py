@@ -7,10 +7,7 @@ from ...ParamScheduler import ParamScheduler
 from ...SearchStrategy import SearchStrategy
 from ...Operator import Operator
 from ...operators import MetaOperator
-from ...selectionMethods import (
-    SurvivorSelection,
-    ParentSelectionNull,
-)
+from ...selectionMethods import SurvivorSelection
 from .vns_neighborhood_changes import *
 
 

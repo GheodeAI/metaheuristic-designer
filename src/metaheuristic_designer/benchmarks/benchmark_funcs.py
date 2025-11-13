@@ -8,8 +8,8 @@ import time
 
 
 class MaxOnes(VectorObjectiveFunc):
-    def __init__(self, vecsize, mode="max"):
-        super().__init__(vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")
+    def __init__(self, vecsize, mode="max", constraint_handler = None):
+        super().__init__(constraint_handler=constraint_handler, vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")
 
     def objective(self, solution):
         return solution.sum()
@@ -45,8 +45,8 @@ class SleepTest(VectorObjectiveFunc):
 
 ### Benchmark functions
 class Sphere(VectorObjectiveFunc):
-    def __init__(self, vecsize, mode="min"):
-        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Sphere function")
+    def __init__(self, vecsize, mode="min", constraint_handler = None):
+        super().__init__(constraint_handler=constraint_handler,vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Sphere function")
 
     def objective(self, solution):
         return _sphere(solution)
@@ -134,7 +134,7 @@ class Katsuura(VectorObjectiveFunc):
 
 class HappyCat(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
-        super().__init__(vecsize=vecsice, mode=mode, low_lim=-2, up_lim=2, name="Happy Cat function")
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-2, up_lim=2, name="Happy Cat function")
 
     def objective(self, solution):
         return _happy_cat(solution)

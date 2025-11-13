@@ -5,7 +5,7 @@ from ..Encoding import ExtendedEncoding
 from ..utils import RAND_GEN
 
 
-class UniformVectorInitializer(Initializer):
+class UniformInitializer(Initializer):
     """
     Initializer that generates individuals with vectors following an uniform distribution.
 

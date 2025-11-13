@@ -1,14 +1,15 @@
 from .utils import RAND_GEN, reset_seed
 
-from .ObjectiveFunc import ObjectiveFunc, ObjectiveVectorFunc, ObjectiveFromLambda
+from .ObjectiveFunc import ObjectiveFunc, NullObjectiveFunc, VectorObjectiveFunc, ObjectiveFromLambda
 from . import benchmarks
 
 from .ConstraintHandler import (
     ConstraintHandler,
     ConstraintHandlerFromLambda,
+    NullConstraint,
+    ExtendedConstraintHandler,
     PenalizeConstraint,
     RepareConstraint,
-    NullConstraint,
 )
 from . import constraintHandlers
 
@@ -21,20 +22,19 @@ from . import strategies
 
 from .Population import Population
 
-from .Encoding import Encoding
+from .Encoding import Encoding, EncodingFromLambda, DefaultEncoding, ExtendedEncoding
 from . import encodings
 
-from .Initializer import Initializer
+from .Initializer import Initializer, InitializerFromLambda, ExtendedInitializer
 from . import initializers
 
-from .Operator import Operator
+from .Operator import Operator, OperatorFromLambda, NullOperator, ExtendedOperator
 from . import operators
 
 from .SelectionMethod import SelectionMethod
 from . import selectionMethods
 
 from . import simple
-
 
 from .ParamScheduler import ParamScheduler
 

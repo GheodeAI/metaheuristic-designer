@@ -165,7 +165,7 @@ class ObjectiveFunc(ABC):
         return self.constraint_handler.repair_solution(solution)
 
 
-class ObjectiveVectorFunc(ObjectiveFunc):
+class VectorObjectiveFunc(ObjectiveFunc):
     """
     Objective function that accepts vectors as an input.
 
@@ -235,6 +235,13 @@ class ObjectiveVectorFunc(ObjectiveFunc):
         if speed is not None:
             result = self.repair_solution(speed)
         return result
+
+class NullObjectiveFunc(ObjectiveFunc):
+    def __init__(self):
+        super().__init__(name="Null objective")
+
+    def objective(self, _):
+        return 0
 
 
 class ObjectiveFromLambda(ObjectiveFunc):

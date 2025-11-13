@@ -26,10 +26,6 @@ class VectorOpMethods(Enum):
     XOR_CROSS = enum.auto()
     CROSSINTERAVG = enum.auto()
 
-    MUTATE1SIGMA = enum.auto()
-    MUTATENSIGMAS = enum.auto()
-    SAMPLESIGMA = enum.auto()
-
     PERM = enum.auto()
     XOR = enum.auto()
     GAUSS = enum.auto()
@@ -56,6 +52,10 @@ class VectorOpMethods(Enum):
     PSO = enum.auto()
     FIREFLY = enum.auto()
     GLOWWORM = enum.auto()
+
+    MUTATE1SIGMA = enum.auto()
+    MUTATENSIGMAS = enum.auto()
+    SAMPLESIGMA = enum.auto()
 
     RANDOM = enum.auto()
     RANDOM_MASK = enum.auto()
@@ -87,9 +87,6 @@ vector_ops_map = {
     "xorcross": VectorOpMethods.XOR_CROSS,
     "flipcross": VectorOpMethods.XOR_CROSS,
     "crossinteravg": VectorOpMethods.CROSSINTERAVG,
-    "mutate1sigma": VectorOpMethods.MUTATE1SIGMA,
-    "mutatensigmas": VectorOpMethods.MUTATENSIGMAS,
-    "samplesigma": VectorOpMethods.SAMPLESIGMA,
     "perm": VectorOpMethods.PERM,
     "gauss": VectorOpMethods.GAUSS,
     "laplace": VectorOpMethods.LAPLACE,
@@ -113,6 +110,9 @@ vector_ops_map = {
     "pso": VectorOpMethods.PSO,
     "firefly": VectorOpMethods.FIREFLY,
     "glowworm": VectorOpMethods.GLOWWORM,
+    "mutate1sigma": VectorOpMethods.MUTATE1SIGMA,
+    "mutatensigmas": VectorOpMethods.MUTATENSIGMAS,
+    "samplesigma": VectorOpMethods.SAMPLESIGMA,
     "random": VectorOpMethods.RANDOM,
     "randommask": VectorOpMethods.RANDOM_MASK,
     "dummy": VectorOpMethods.DUMMY,
@@ -135,17 +135,7 @@ class VectorOperator(Operator):
         Name that is associated with the operator.
     """
 
-<<<<<<< HEAD:src/metaheuristic_designer/operators/VectorOperator.py
     def __init__(self, method: str, params: ParamScheduler | dict = None, name: str = None, use_params : bool = False, encoding: Encoding = None):
-=======
-    def __init__(
-        self,
-        method: str,
-        params: ParamScheduler | dict = None,
-        name: str = None,
-        encoding: Encoding = None,
-    ):
->>>>>>> devel:src/metaheuristic_designer/operators/OperatorVector.py
         """
         Constructor for the OperatorPerm class
         """
@@ -169,6 +159,8 @@ class VectorOperator(Operator):
 
             if "Low" not in self.params:
                 self.params["Low"] = 0
+        elif self.method == VectorOpMethods.PSO:
+            assert isinstance(encoding, ExtendedEncoding), "To use the `PSO` operator, an extended encoding must be indicated, you can try using a `PSOEncoding`."
 
     def evolve(self, population, initializer=None):
         new_population = None
@@ -224,21 +216,6 @@ class VectorOperator(Operator):
 
             case VectorOpMethods.CROSSINTERAVG:
                 population_matrix = cross_inter_avg(population_matrix, params["N"])
-
-            ## Adaptative mutations
-            case VectorOpMethods.MUTATE1SIGMA:
-                population_matrix = mutate_1_sigma(population_matrix, params["epsilon"], params["tau"])
-
-            case VectorOpMethods.MUTATENSIGMAS:
-                population_matrix = mutate_n_sigmas(
-                    population_matrix,
-                    params["epsilon"],
-                    params["tau"],
-                    params["tau_multiple"],
-                )
-
-            case VectorOpMethods.SAMPLESIGMA:
-                population_matrix = sample_1_sigma(population_matrix, params["N"], params["epsilon"], params["tau"])
 
             ## Mutation operators
             case VectorOpMethods.XOR:
@@ -308,26 +285,17 @@ class VectorOperator(Operator):
 
             ## Swarm based algorithms
             case VectorOpMethods.PSO:
-<<<<<<< HEAD:src/metaheuristic_designer/operators/VectorOperator.py
-                assert not self.use_params, "The PSO encoding needs to be run with 'use_params' set to False."
-
                 population_params = population_encoding.decode_params(population_matrix_full)
+                historical_best_solution = population_encoding.extract_solution(historical_best)
+                global_best_solution = population_encoding.extract_solution(global_best[None, :])[0]
+
                 population_matrix, population_params["speed"] = pso_operator(
-                    population_matrix, population_params["speed"], historical_best, global_best, params["w"], params["c1"], params["c2"]
-=======
-                population_matrix, speed = pso_operator(
-                    population_matrix,
-                    speed,
-                    historical_best,
-                    global_best,
-                    params["w"],
-                    params["c1"],
-                    params["c2"],
->>>>>>> devel:src/metaheuristic_designer/operators/OperatorVector.py
+                    population_matrix, population_params["speed"], historical_best_solution , global_best_solution , params["w"], params["c1"], params["c2"]
                 )
                 encoded_params = population_encoding.encode_params(population_params) 
 
             case VectorOpMethods.FIREFLY:
+                raise NotImplementedError
                 population_matrix = firefly(
                     population_matrix,
                     fitness_array,
@@ -339,13 +307,29 @@ class VectorOperator(Operator):
                 )
 
             case VectorOpMethods.GLOWWORM:
-                population_params = population.decode_params(population_matrix_full)
+                raise NotImplementedError
+                population_params = population_encoding.decode_params(population_matrix_full)
                 population_matrix, luciferin = glowworm(
                     population_matrix,
                     fitness_array,
                     population_params["luciferin"],
                 )
                 encoded_params = population_encoding.encode_params(population_params) 
+
+            ## Adaptative mutations
+            case VectorOpMethods.MUTATE1SIGMA:
+                population_matrix = mutate_1_sigma(population_matrix, params["epsilon"], params["tau"])
+
+            case VectorOpMethods.MUTATENSIGMAS:
+                population_matrix = mutate_n_sigmas(
+                    population_matrix,
+                    params["epsilon"],
+                    params["tau"],
+                    params["tau_multiple"],
+                )
+
+            case VectorOpMethods.SAMPLESIGMA:
+                population_matrix = sample_1_sigma(population_matrix, params["N"], params["epsilon"], params["tau"])
 
             ## Other operators
             case VectorOpMethods.RANDOM:

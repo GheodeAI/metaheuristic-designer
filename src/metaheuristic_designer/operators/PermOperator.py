@@ -4,6 +4,7 @@ import enum
 from enum import Enum
 from ..Operator import Operator
 from .operator_functions.permutation import *
+from ..Encoding import ExtendedEncoding
 from ..ParamScheduler import ParamScheduler
 from ..utils import RAND_GEN
 
@@ -75,7 +76,8 @@ class PermOperator(Operator):
 
     def evolve(self, population, initializer=None):
         new_population = None
-        population_matrix = population.genotype_matrix
+        population_matrix_full = copy(population.genotype_matrix)
+        population_encoding = population.encoding
 
         # Only evolve solution parameters, the rest is managed in a specific way by each operator
         if isinstance(population.encoding, ExtendedEncoding):

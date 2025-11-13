@@ -4,7 +4,7 @@ from ..Initializer import Initializer
 from ..utils import RAND_GEN
 
 
-class GaussianVectorInitializer(Initializer):
+class GaussianInitializer(Initializer):
     """
     Initializer that generates individuals with vectors following a normal distribution.
 

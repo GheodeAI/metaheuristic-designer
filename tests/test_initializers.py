@@ -17,7 +17,7 @@ sample_pop1 = np.tile(np.arange(n_components), n_indiv).reshape((n_indiv, n_comp
 @pytest.mark.parametrize("min_val, max_val", [(0, 1), (-1, 1), (-100, 2), (2, 24)])
 @pytest.mark.parametrize("pop_size", [1, 10, 100])
 def test_uniform_vec_init(vec_size, min_val, max_val, pop_size):
-    pop_init = UniformVectorInitializer(vec_size, min_val, max_val, pop_size)
+    pop_init = UniformInitializer(vec_size, min_val, max_val, pop_size)
 
     for _ in range(30):
         rand_inidv = pop_init.generate_random()
@@ -50,7 +50,7 @@ def test_uniform_vec_init(vec_size, min_val, max_val, pop_size):
 )
 @pytest.mark.parametrize("pop_size", [1, 10, 100])
 def test_uniform_arr_param_vec_init(min_val, max_val, pop_size):
-    pop_init = UniformVectorInitializer(10, min_val, max_val, pop_size)
+    pop_init = UniformInitializer(10, min_val, max_val, pop_size)
 
     for _ in range(30):
         rand_inidv = pop_init.generate_random()
@@ -73,7 +73,7 @@ def test_uniform_arr_param_vec_init(min_val, max_val, pop_size):
 
 
 def test_uniform_int_vec_init():
-    pop_init = UniformVectorInitializer(200, 0, 1, 100, dtype=int)
+    pop_init = UniformInitializer(200, 0, 1, 100, dtype=int)
     rand_inidv = pop_init.generate_random()
     assert 0 in rand_inidv
     assert 1 in rand_inidv
@@ -81,10 +81,10 @@ def test_uniform_int_vec_init():
 
 def test_uniform_err_vec_init():
     with pytest.raises(ValueError):
-        UniformVectorInitializer(10, np.zeros(10), np.ones(9))
+        UniformInitializer(10, np.zeros(10), np.ones(9))
 
     with pytest.raises(ValueError):
-        UniformVectorInitializer(10, np.zeros(9), np.ones(10))
+        UniformInitializer(10, np.zeros(9), np.ones(10))
 
 
 @pytest.mark.parametrize("vec_size", [1, 2, 10, 100])
@@ -99,7 +99,7 @@ def test_uniform_err_vec_init():
 )
 @pytest.mark.parametrize("pop_size", [1, 10, 100])
 def test_gaussian_vec_init(vec_size, mean_val, std_val, pop_size):
-    pop_init = GaussianVectorInitializer(vec_size, mean_val, std_val, pop_size)
+    pop_init = GaussianInitializer(vec_size, mean_val, std_val, pop_size)
 
     for _ in range(30):
         rand_inidv = pop_init.generate_random()
@@ -126,7 +126,7 @@ def test_gaussian_vec_init(vec_size, mean_val, std_val, pop_size):
 )
 @pytest.mark.parametrize("pop_size", [1, 10, 100])
 def test_gaussian_arr_param_vec_init(min_val, max_val, pop_size):
-    pop_init = GaussianVectorInitializer(10, min_val, max_val, pop_size)
+    pop_init = GaussianInitializer(10, min_val, max_val, pop_size)
 
     for _ in range(30):
         rand_inidv = pop_init.generate_random()
@@ -143,22 +143,22 @@ def test_gaussian_arr_param_vec_init(min_val, max_val, pop_size):
 
 
 def test_gaussian_int_vec_init():
-    pop_init = GaussianVectorInitializer(200, 0, 1, 100, dtype=int)
+    pop_init = GaussianInitializer(200, 0, 1, 100, dtype=int)
     rand_inidv = pop_init.generate_random()
 
 
 def test_gaussian_err_vec_init():
     with pytest.raises(ValueError):
-        GaussianVectorInitializer(10, np.zeros(10), np.ones(9))
+        GaussianInitializer(10, np.zeros(10), np.ones(9))
 
     with pytest.raises(ValueError):
-        GaussianVectorInitializer(10, np.zeros(9), np.ones(10))
+        GaussianInitializer(10, np.zeros(9), np.ones(10))
 
 
 # @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 # def test_direct_initializer(population):
 #     print(population[0])
-#     default_pop_init = GaussianVectorInitializer(population[0].genotype.size, -100, 100)
+#     default_pop_init = GaussianInitializer(population[0].genotype.size, -100, 100)
 #     pop_init = DirectInitializer(default_pop_init, population)
 
 #     # ids_in_pop = [i.id for i in population]
@@ -179,7 +179,7 @@ def test_gaussian_err_vec_init():
 
 # @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 # def test_seed_prob_initializer(population):
-#     default_pop_init = GaussianVectorInitializer(population[0].genotype.size, -100, 100)
+#     default_pop_init = GaussianInitializer(population[0].genotype.size, -100, 100)
 #     pop_init = SeedProbInitializer(default_pop_init, population)
 
 #     ids_in_pop = [i.id for i in population]
@@ -195,7 +195,7 @@ def test_gaussian_err_vec_init():
 
 # @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 # def test_seed_determ_initializer(population):
-#     default_pop_init = GaussianVectorInitializer(population[0].genotype.size, -100, 100)
+#     default_pop_init = GaussianInitializer(population[0].genotype.size, -100, 100)
 #     pop_init = SeedDetermInitializer(default_pop_init, population, 4)
 
 #     # ids_in_pop = [i.id for i in population]
@@ -211,7 +211,7 @@ def test_gaussian_err_vec_init():
 
 # @pytest.mark.parametrize("population", [example_populaton1, example_populaton2, example_populaton3])
 # def test_seed_determ_null_param_initializer(population):
-#     default_pop_init = GaussianVectorInitializer(population[0].genotype.size, -100, 100)
+#     default_pop_init = GaussianInitializer(population[0].genotype.size, -100, 100)
 #     pop_init = SeedDetermInitializer(default_pop_init, population)
 
 
