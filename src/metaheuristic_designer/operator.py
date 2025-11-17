@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Any
 from copy import copy
 from abc import ABC, abstractmethod
+import numpy as np
 from .param_scheduler import ParamScheduler
 from .encoding import Encoding, DefaultEncoding
 from .objective_function import ObjectiveFunc
@@ -218,59 +219,61 @@ class OperatorFromLambda(Operator):
         return new_population
 
 
-class ExtendedOperator(Operator):
-    """
-    Operator class that allow algorithms to self-adapt by mutating the operator's parameters.
+# from .operators import MetaOperator
 
-    Parameters
-    ----------
-        base_operator: Operator
-            Operator that will be applied to the solution we are evaluating.
-        param_operator: Operator
-            Operator that will be applied to the parameters of the base operator.
-        param_encoding: AdaptionEncoding
-            Encoding that divides the genotype into the solution and the operator's parameters.
-        params: Union[ParamScheduler, dict]
-            Optional parameters that are used by the operator.
-        name: str
-            Name of the operator.
-    """
+# class ExtendedOperator(Operator):
+#     """
+#     Operator class that allow algorithms to self-adapt by mutating the operator's parameters.
 
-    def __init__(
-        self,
-        base_operator: Operator,
-        param_operators: dict,
-        encoding: ExtendedEncoding,
-        params: ParamScheduler | dict = None,
-        name: str = None,
-    ):
-        """
-        Constructor for the OperatorAdaptative class
-        """
+#     Parameters
+#     ----------
+#         base_operator: Operator
+#             Operator that will be applied to the solution we are evaluating.
+#         param_operator: Operator
+#             Operator that will be applied to the parameters of the base operator.
+#         param_encoding: AdaptionEncoding
+#             Encoding that divides the genotype into the solution and the operator's parameters.
+#         params: Union[ParamScheduler, dict]
+#             Optional parameters that are used by the operator.
+#         name: str
+#             Name of the operator.
+#     """
 
-        super().__init__(params=params, name=base_operator.name)
+#     def __init__(
+#         self,
+#         base_operator: Operator,
+#         param_operators: dict,
+#         encoding: ExtendedEncoding,
+#         params: ParamScheduler | dict = None,
+#         name: str = None,
+#     ):
+#         """
+#         Constructor for the OperatorAdaptative class
+#         """
 
-        vecmask = np.zeros(encoding.vecsize + encoding.nparams)
+#         super().__init__(params=params, name=base_operator.name)
 
-        counter = encoding.vecsize
-        for idx, (_, param_num) in enumerate(param_encoding.param_names):
-            vecmask[counter:counter + param_num] = idx + 1
-            counter = counter+param_num
+#         vecmask = np.zeros(encoding.vecsize + encoding.nparams)
 
-        self.base_operator = base_operator
-        self.param_operators = param_operators
-        operator_list = [base_operator] + [param_operators[param_name] for idx, (param_name, _) in enumerate(param_encoding.param_names)]
+#         counter = encoding.vecsize
+#         for idx, (_, param_num) in enumerate(encoding.param_sizes):
+#             vecmask[counter:counter + param_num] = idx + 1
+#             counter = counter+param_num
 
-        self.main_operator = OperatorMeta("Split", operator_list, {"mask": vecmask})
-        self.param_encoding = param_encoding 
+#         self.base_operator = base_operator
+#         self.param_operators = param_operators
+#         operator_list = [base_operator] + [param_operators[param_name] for idx, (param_name, _) in enumerate(encoding.param_sizes)]
 
-    def evolve(self, population, initializer=None):
-        return self.main_operator.evolve(population, initializer=initializer)
+#         self.main_operator = MetaOperator("Split", operator_list, {"mask": vecmask})
+#         self.param_encoding = param_encoding 
 
-    def step(self, progress: float):
-        super().step(progress)
+#     def evolve(self, population, initializer=None):
+#         return self.main_operator.evolve(population, initializer=initializer)
 
-        self.base_operator.step(progress)
+#     def step(self, progress: float):
+#         super().step(progress)
 
-        for op in self.param_operators:
-            op.step(progress)
+#         self.base_operator.step(progress)
+
+#         for op in self.param_operators:
+#             op.step(progress)

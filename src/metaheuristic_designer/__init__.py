@@ -28,7 +28,7 @@ from . import encodings
 from .initializer import Initializer, InitializerFromLambda, ExtendedInitializer
 from . import initializers
 
-from .operator import Operator, OperatorFromLambda, NullOperator, ExtendedOperator
+from .operator import Operator, OperatorFromLambda, NullOperator#, ExtendedOperator
 from . import operators
 
 from .selection_method import SelectionMethod, SelectionFromLambda

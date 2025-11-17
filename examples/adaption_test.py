@@ -1,9 +1,15 @@
-from metaheuristic_designer import ObjectiveFunc, ParamScheduler
+from metaheuristic_designer import (
+    ObjectiveFunc,
+    ParamScheduler,
+    InitializerFromLambda,
+    ExtendedEncoding,
+    ExtendedInitializer,
+    NullOperator
+)
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import OperatorVector, OperatorAdaptative
-from metaheuristic_designer.initializers import UniformVectorInitializer
-from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
-from metaheuristic_designer.encodings import ExtendedEncoding
+from metaheuristic_designer.operators import VectorOperator, AdaptativeOperator
+from metaheuristic_designer.initializers import UniformInitializer
+from metaheuristic_designer.selection_methods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.strategies import *
 
 from metaheuristic_designer.benchmarks import *
@@ -35,26 +41,21 @@ def run_algorithm(alg_name, memetic, save_state):
     # objfunc = Weierstrass(30, "min")
     # objfunc = HappyCat(3, "min")
 
-    # mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss"})
-    # mutation_op = OperatorVector("RandNoise", {"distrib": "Cauchy"})
-    # mutation_op = OperatorVector("RandNoise", {"distrib": "Uniform"})
-    mutation_op = OperatorVector("MutNoise", {"distrib": "Gauss", "N": 1})
-    # mutation_op = OperatorVector("MutNoise", {"distrib": "Cauchy", "N": 1})
-    # mutation_op = OperatorVector("MutNoise", {"distrib": "Uniform", "N": 1})
+    adaption_encoding = ExtendedEncoding(objfunc.vecsize, param_sizes=(("F", 1),))
 
-    adaption_encoding = ExtendedEncoding(objfunc.vecsize, named_param_sizes=(("F", 1),))
-    param_op = OperatorVector("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-8})
+    pop_initializer = ExtendedInitializer(
+        solution_init=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding),
+        param_init_dict={"F": InitializerFromLambda(lambda: sp.stats.expon(scale=0.01).rvs(size=1), pop_size=5, encoding=adaption_encoding)},
+        encoding=adaption_encoding
+    )
 
-    # adaption_encoding = ExtendedEncoding(objfunc.vecsize, named_param_sizes=(("F", objfunc.vecsize),))
-    # param_op = OperatorVector("MutateNSigmas", {"tau": 1/np.sqrt(2+objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
+    ada_mutation_op = AdaptativeOperator(
+        base_operator=VectorOperator("MutNoise", {"distrib": "Gauss", "N": 1}),
+        param_operators={"F": VectorOperator("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-7})},
+        encoding=adaption_encoding
+    )
 
-    ada_mutation_op = OperatorAdaptative(mutation_op, param_op, adaption_encoding)
-    objfunc.low_lim = np.hstack([objfunc.low_lim, 0])
-    objfunc.up_lim = np.hstack([objfunc.up_lim, 1])
-
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize + 1, objfunc.low_lim, objfunc.up_lim, pop_size=50, encoding=adaption_encoding)
-
-    cross_op = OperatorVector("Multipoint")
+    cross_op = VectorOperator("Multipoint")
 
     parent_sel_op = ParentSelection("Nothing")
     selection_op = SurvivorSelection("(m+n)")

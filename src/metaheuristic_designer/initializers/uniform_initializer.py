@@ -29,8 +29,6 @@ class UniformInitializer(Initializer):
         super().__init__(pop_size, encoding)
 
         self.genotype_size = genotype_size
-        if isinstance(encoding, ExtendedEncoding):
-            self.genotype_size = encoding.vecsize + encoding.nparams
 
         if type(low_lim) in [list, tuple, np.ndarray]:
             if len(low_lim) != genotype_size:

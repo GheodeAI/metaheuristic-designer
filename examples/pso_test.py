@@ -10,8 +10,8 @@ initializer = mhd.ExtendedInitializer(
 )
 
 constraint_handler = mhd.ExtendedConstraintHandler(
-    mhd.constraintHandlers.ClipBoundConstraint(10, -100, 100),
-    {"speed": mhd.constraintHandlers.BounceBoundConstraint(10, -100, 100)},
+    mhd.constraint_handlers.ClipBoundConstraint(10, -100, 100),
+    {"speed": mhd.constraint_handlers.BounceBoundConstraint(10, -100, 100)},
     encoding=pso_encoding,
 )
 # constraint_handler = None
