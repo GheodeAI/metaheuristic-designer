@@ -31,11 +31,11 @@ from . import initializers
 from .operator import Operator, OperatorFromLambda, NullOperator, ExtendedOperator
 from . import operators
 
-from .selection_method import SelectionMethod
+from .selection_method import SelectionMethod, SelectionFromLambda
 from . import selection_methods
 
 from . import simple
 
 from .param_scheduler import ParamScheduler
 
-__version__ = "0.2.0"
+__version__ = "0.2.4"

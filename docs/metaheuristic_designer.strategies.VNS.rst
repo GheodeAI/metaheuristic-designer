@@ -4,7 +4,7 @@ metaheuristic_designer.strategies.VNS package
 RVNS
 ----------------------------------------
 
-.. automodule:: metaheuristic_designer.strategies.VNS.RVNS
+.. automodule:: metaheuristic_designer.strategies.RVNS
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ RVNS
 VND
 ---------------------------------------
 
-.. automodule:: metaheuristic_designer.strategies.VNS.VND
+.. automodule:: metaheuristic_designer.strategies.VND
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,13 +20,13 @@ VND
 VNS
 ---------------------------------------
 
-.. automodule:: metaheuristic_designer.strategies.VNS.VNS
+.. automodule:: metaheuristic_designer.strategies.VNS
    :members:
    :undoc-members:
    :show-inheritance:
 
 VNS neighborhood changes
---------------------------------------------------------------
+------------------------
 
 .. automodule:: metaheuristic_designer.strategies.VNS.vns_neighborhood_changes
    :members:

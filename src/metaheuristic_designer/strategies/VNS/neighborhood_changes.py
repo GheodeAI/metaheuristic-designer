@@ -1,7 +1,6 @@
 import enum
 from enum import Enum
 
-
 class NeighborhoodChange(Enum):
     SEQ = enum.auto()
     CYCLIC = enum.auto()

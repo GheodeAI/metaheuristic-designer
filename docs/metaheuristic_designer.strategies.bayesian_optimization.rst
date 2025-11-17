@@ -1,10 +1,10 @@
 metaheuristic_designer.strategies.BayesianOptimization package
---------------------------------------------------------------
+==============================================================
 
 BayesianOptimization
 --------------------
 
-.. automodule:: metaheuristic_designer.strategies.BayesianOptimization.BayesianOptimization
+.. autoclass:: metaheuristic_designer.strategies.bayesian_optimization.BayesianOptimization
    :members:
    :undoc-members:
    :show-inheritance:

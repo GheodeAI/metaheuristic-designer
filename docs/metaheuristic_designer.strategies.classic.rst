@@ -4,7 +4,7 @@ metaheuristic_designer.strategies.Classic package
 ES
 ---------------------------------------
 
-.. autoclass:: metaheuristic_designer.strategies.Classic.ES
+.. autoclass:: metaheuristic_designer.strategies.ES
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,15 +12,7 @@ ES
 GA
 ---------------------------------------
 
-.. autoclass:: metaheuristic_designer.strategies.Classic.GA
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-PSO
-----------------------------------------
-
-.. autoclass:: metaheuristic_designer.strategies.Classic.PSO
+.. autoclass:: metaheuristic_designer.strategies.GA
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +20,7 @@ PSO
 SA
 ---------------------------------------
 
-.. autoclass:: metaheuristic_designer.strategies.Classic.SA
+.. autoclass:: metaheuristic_designer.strategies.SA
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +28,7 @@ SA
 DE
 ---------------------------------------
 
-.. autoclass:: metaheuristic_designer.strategies.Classic.DE
+.. autoclass:: metaheuristic_designer.strategies.DE
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +36,7 @@ DE
 HS
 ---------------------------------------
 
-.. autoclass:: metaheuristic_designer.strategies.Classic.HS
+.. autoclass:: metaheuristic_designer.strategies.HS
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,7 +44,7 @@ HS
 RandomSearch
 -------------------------------------------------
 
-.. autoclass:: metaheuristic_designer.strategies.Classic.RandomSearch
+.. autoclass:: metaheuristic_designer.strategies.RandomSearch
    :members:
    :undoc-members:
    :show-inheritance:

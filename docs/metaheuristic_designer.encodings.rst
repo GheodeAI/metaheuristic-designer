@@ -1,14 +1,6 @@
 metaheuristic_designer.encodings package
 ========================================
 
-DefaultEncoding
----------------
-
-.. autoclass:: metaheuristic_designer.encodings.DefaultEncoding
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 TypeCastEncoding
 ----------------
 
@@ -49,26 +41,29 @@ CompositeEncoding
    :undoc-members:
    :show-inheritance:
 
-AdaptionEncoding
-----------------
+Algorithm specific encoders
+---------------------------
 
-.. autoclass:: metaheuristic_designer.encodings.AdaptionEncoding
+PSO Encoding
+^^^^^^^^^^^^
+
+.. autoclass:: metaheuristic_designer.encodings.PSOEncoding
    :members:
    :undoc-members:
    :show-inheritance:
 
-CMAEncoding
------------
+CMA-ES Encoding
+^^^^^^^^^^^^^^^
 
 .. autoclass:: metaheuristic_designer.encodings.CMAEncoding
    :members:
    :undoc-members:
    :show-inheritance:
 
-EncodingFromLambda
-------------------
+GWO Encoding
+^^^^^^^^^^^^
 
-.. autoclass:: metaheuristic_designer.encodings.EncodingFromLambda
+.. autoclass:: metaheuristic_designer.encodings.GWOEncoding
    :members:
    :undoc-members:
    :show-inheritance:
