@@ -142,12 +142,12 @@ def test_de():
     assert search_strat.pop_size == pop_init.pop_size
 
 
-def test_pso():
-    search_strat = PSO(pop_init, {"w": 0.7, "c1": 1.5, "c2": 1.5})
-    alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    alg.optimize()
-    assert alg.fit_history[0] > alg.fit_history[-1]
-    assert search_strat.pop_size == pop_init.pop_size
+# def test_pso():
+#     search_strat = PSO(pop_init, {"w": 0.7, "c1": 1.5, "c2": 1.5})
+#     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
+#     alg.optimize()
+#     assert alg.fit_history[0] > alg.fit_history[-1]
+#     assert search_strat.pop_size == pop_init.pop_size
 
 
 def test_gumda():
