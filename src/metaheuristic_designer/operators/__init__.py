@@ -1,7 +1,8 @@
-from .OperatorVector import OperatorVector, VectorOpMethods, vector_ops_map
-from .OperatorPerm import OperatorPerm, PermOpMethods, perm_ops_map
-from .OperatorMeta import OperatorMeta, MetaOpMethods, meta_ops_map
-from .OperatorAdaptative import OperatorAdaptative
-from .OperatorNull import OperatorNull
-from .OperatorFromLambda import OperatorFromLambda
+from .vector_operator import VectorOperator, VectorOpMethods, vector_ops_map
+from .swarm_operator import SwarmOperator, SwarmOpMethods, swarm_ops_map
+from .perm_operator import PermOperator, PermOpMethods, perm_ops_map
+from .meta_operator import MetaOperator, MetaOpMethods, meta_ops_map
+from .BO_operator import BOOperator
+from .adaptative_operator import AdaptativeOperator
+from .extended_operator import ExtendedOperator
 from .operator_functions import *

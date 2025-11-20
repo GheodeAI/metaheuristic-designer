@@ -1,14 +1,15 @@
 import numpy as np
 
-from ..ObjectiveFunc import ObjectiveFunc, ObjectiveVectorFunc
+# from numba import jit
+from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
 from ..utils import RAND_GEN
-from ..constraintHandlers import ClipBoundConstraint
+from ..constraint_handlers import ClipBoundConstraint
 import time
 
 
-class MaxOnes(ObjectiveVectorFunc):
-    def __init__(self, vecsize, mode="max"):
-        super().__init__(vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")
+class MaxOnes(VectorObjectiveFunc):
+    def __init__(self, vecsize, mode="max", constraint_handler = None):
+        super().__init__(constraint_handler=constraint_handler, vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")
 
     def objective(self, solution):
         return solution.sum()
@@ -24,7 +25,7 @@ class DiophantineEq(ObjectiveFunc):
         return abs((solution * self.coeff).sum() - self.target)
 
 
-class MaxOnesReal(ObjectiveVectorFunc):
+class MaxOnesReal(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="max"):
         super().__init__(vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")
 
@@ -32,7 +33,7 @@ class MaxOnesReal(ObjectiveVectorFunc):
         return solution.sum()
 
 
-class SleepTest(ObjectiveVectorFunc):
+class SleepTest(VectorObjectiveFunc):
     def __init__(self, vecsize, sleep_time=2, mode="min"):
         self.sleep_time = sleep_time
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Sphere function")
@@ -43,15 +44,15 @@ class SleepTest(ObjectiveVectorFunc):
 
 
 ### Benchmark functions
-class Sphere(ObjectiveVectorFunc):
-    def __init__(self, vecsize, mode="min"):
-        super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Sphere function")
+class Sphere(VectorObjectiveFunc):
+    def __init__(self, vecsize, mode="min", constraint_handler = None):
+        super().__init__(constraint_handler=constraint_handler,vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Sphere function")
 
     def objective(self, solution):
         return _sphere(solution)
 
 
-class HighCondElliptic(ObjectiveVectorFunc):
+class HighCondElliptic(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-5.12, up_lim=5.12, name="High condition elliptic function")
 
@@ -59,7 +60,7 @@ class HighCondElliptic(ObjectiveVectorFunc):
         return _high_cond_elipt_f(solution)
 
 
-class BentCigar(ObjectiveVectorFunc):
+class BentCigar(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Bent Cigar function")
 
@@ -67,7 +68,7 @@ class BentCigar(ObjectiveVectorFunc):
         return _bent_cigar(solution)
 
 
-class Discus(ObjectiveVectorFunc):
+class Discus(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-5.12, up_lim=5.12, name="Discus function")
 
@@ -75,7 +76,7 @@ class Discus(ObjectiveVectorFunc):
         return _discus(solution)
 
 
-class Rosenbrock(ObjectiveVectorFunc):
+class Rosenbrock(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Rosenbrock function")
 
@@ -83,7 +84,7 @@ class Rosenbrock(ObjectiveVectorFunc):
         return _rosenbrock(solution)
 
 
-class Ackley(ObjectiveVectorFunc):
+class Ackley(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-5.12, up_lim=5.12, name="Ackley function")
 
@@ -91,7 +92,7 @@ class Ackley(ObjectiveVectorFunc):
         return _ackley(solution)
 
 
-class Weierstrass(ObjectiveVectorFunc):
+class Weierstrass(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Weierstrass function")
 
@@ -99,7 +100,7 @@ class Weierstrass(ObjectiveVectorFunc):
         return _weierstrass(solution)
 
 
-class Griewank(ObjectiveVectorFunc):
+class Griewank(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Griewank function")
 
@@ -107,7 +108,7 @@ class Griewank(ObjectiveVectorFunc):
         return _griewank(solution)
 
 
-class Rastrigin(ObjectiveVectorFunc):
+class Rastrigin(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-5.12, up_lim=5.12, name="Rastrigin function")
 
@@ -115,7 +116,7 @@ class Rastrigin(ObjectiveVectorFunc):
         return _rastrigin(solution)
 
 
-class ModSchwefel(ObjectiveVectorFunc):
+class ModSchwefel(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Modified Schweafel function")
 
@@ -123,7 +124,7 @@ class ModSchwefel(ObjectiveVectorFunc):
         return _mod_schwefel(solution)
 
 
-class Katsuura(ObjectiveVectorFunc):
+class Katsuura(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Katsuura function")
 
@@ -131,15 +132,15 @@ class Katsuura(ObjectiveVectorFunc):
         return _katsuura(solution)
 
 
-class HappyCat(ObjectiveVectorFunc):
+class HappyCat(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
-        super().__init__(vecsize=vecsice, mode=mode, low_lim=-2, up_lim=2, name="Happy Cat function")
+        super().__init__(vecsize=vecsize, mode=mode, low_lim=-2, up_lim=2, name="Happy Cat function")
 
     def objective(self, solution):
         return _happy_cat(solution)
 
 
-class HGBat(ObjectiveVectorFunc):
+class HGBat(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-2, up_lim=2, name="HGBat function")
 
@@ -147,7 +148,7 @@ class HGBat(ObjectiveVectorFunc):
         return _hgbat(solution)
 
 
-class ExpandedGriewankPlusRosenbrock(ObjectiveVectorFunc):
+class ExpandedGriewankPlusRosenbrock(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Expanded Griewank + Rosenbrock")
 
@@ -155,7 +156,7 @@ class ExpandedGriewankPlusRosenbrock(ObjectiveVectorFunc):
         return _exp_griewank_plus_rosenbrock(solution)
 
 
-class ExpandedShafferF6(ObjectiveVectorFunc):
+class ExpandedShafferF6(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="min"):
         super().__init__(vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Expanded Shaffer F6 function")
 
@@ -163,7 +164,7 @@ class ExpandedShafferF6(ObjectiveVectorFunc):
         return _exp_shafferF6(solution)
 
 
-class SumPowell(ObjectiveVectorFunc):
+class SumPowell(VectorObjectiveFunc):
     """
     Sum of Powell function
     """
@@ -175,7 +176,7 @@ class SumPowell(ObjectiveVectorFunc):
         return _sum_powell(solution)
 
 
-class N4XinSheYang(ObjectiveVectorFunc):
+class N4XinSheYang(VectorObjectiveFunc):
     """
     N4 Xin-She Yang function
     """

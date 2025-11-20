@@ -1,8 +1,8 @@
 from __future__ import annotations
-from ..Algorithm import Algorithm
-from ..ObjectiveFunc import ObjectiveVectorFunc
-from ..initializers import UniformVectorInitializer
-from ..operators import OperatorVector
+from ..algorithm import Algorithm
+from ..objective_function import VectorObjectiveFunc
+from ..initializers import UniformInitializer
+from ..operators import VectorOperator
 from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import DE
 from ..algorithms import GeneralAlgorithm
@@ -70,9 +70,9 @@ def _differential_evolution_real_vec(params, objfunc):
     ]:
         raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
-    de_op = OperatorVector(de_type, {"F": f, "Cr": cr})
+    de_op = VectorOperator(de_type, {"F": f, "Cr": cr})
 
     search_strat = DE(pop_initializer, de_op)
 
@@ -109,7 +109,7 @@ def _differential_evolution_int_vec(params, objfunc):
 
     encoding = TypeCastEncoding(float, int)
 
-    pop_initializer = UniformVectorInitializer(
+    pop_initializer = UniformInitializer(
         vecsize,
         min_val,
         max_val,
@@ -118,7 +118,7 @@ def _differential_evolution_int_vec(params, objfunc):
         encoding=encoding,
     )
 
-    de_op = OperatorVector(de_type, {"F": f, "Cr": cr})
+    de_op = VectorOperator(de_type, {"F": f, "Cr": cr})
 
     search_strat = DE(pop_initializer, de_op)
 
@@ -155,7 +155,7 @@ def _differential_evolution_bin_vec(params, objfunc):
 
     encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
 
-    pop_initializer = UniformVectorInitializer(
+    pop_initializer = UniformInitializer(
         vecsize,
         min_val,
         max_val,
@@ -164,7 +164,7 @@ def _differential_evolution_bin_vec(params, objfunc):
         encoding=encoding,
     )
 
-    de_op = OperatorVector(de_type, {"F": f, "Cr": cr})
+    de_op = VectorOperator(de_type, {"F": f, "Cr": cr})
 
     search_strat = DE(pop_initializer, de_op)
 

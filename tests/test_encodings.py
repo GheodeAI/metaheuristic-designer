@@ -1,10 +1,10 @@
 import pytest
 
 import numpy as np
+from metaheuristic_designer import DefaultEncoding
 from metaheuristic_designer.encodings import (
     MatrixEncoding,
     ImageEncoding,
-    DefaultEncoding,
     TypeCastEncoding,
 )
 import metaheuristic_designer as mhd

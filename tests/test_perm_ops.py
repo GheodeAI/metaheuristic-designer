@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 from metaheuristic_designer import Population
-from metaheuristic_designer.operators import OperatorPerm, perm_ops_map
+from metaheuristic_designer.operators import PermOperator, perm_ops_map
 from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
 from metaheuristic_designer.initializers import PermInitializer
 import metaheuristic_designer as mhd
@@ -22,7 +22,7 @@ example_population3 = Population(Sphere(100), np.tile(np.arange(100), (pop_size,
 def test_basic_working(population, op_method):
     assert np.all(population.genotype_matrix < population.vec_size)
     pop_init = PermInitializer(population.vec_size, pop_size)
-    operator = OperatorPerm(op_method, "default")
+    operator = PermOperator(op_method, "default")
 
     new_population = operator.evolve(population, pop_init)
     assert isinstance(new_population, Population)

@@ -2,12 +2,12 @@ from __future__ import annotations
 from typing import Iterable
 import warnings
 import numpy as np
-from ...Initializer import Initializer
-from ...ParamScheduler import ParamScheduler
-from ...SearchStrategy import SearchStrategy
-from ...Operator import Operator
-from ...operators import OperatorMeta
-from ...selectionMethods import SurvivorSelection
+from ...initializer import Initializer
+from ...param_scheduler import ParamScheduler
+from ...search_strategy import SearchStrategy
+from ...operator import Operator
+from ...operators import MetaOperator
+from ...selection_methods import SurvivorSelection
 
 
 class RVNS(SearchStrategy):
@@ -30,7 +30,7 @@ class RVNS(SearchStrategy):
             params = {}
 
         self.op_list = op_list
-        operator = OperatorMeta("Pick", op_list, {"init_idx": 0})
+        operator = MetaOperator("Pick", op_list, {"init_idx": 0})
 
         self.current_op = 0
 

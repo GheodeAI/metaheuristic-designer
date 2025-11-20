@@ -1,62 +1,47 @@
 metaheuristic_designer.operators package
 ========================================
 
-OperatorVector
+Vector Operator
 ----------------------------------------
 
-.. automodule:: metaheuristic_designer.operators.OperatorVector
+.. autoclass:: metaheuristic_designer.operators.VectorOperator
    :members:
    :undoc-members:
    :show-inheritance:
 
-OperatorPerm
+Permutation Operator
 ------------------------------------------
 
-.. automodule:: metaheuristic_designer.operators.OperatorPerm
+.. autoclass:: metaheuristic_designer.operators.PermOperator
    :members:
    :undoc-members:
    :show-inheritance:
 
-OperatorMeta
+Operator on Operators
 ----------------------------------------
 
-.. automodule:: metaheuristic_designer.operators.OperatorMeta
+.. autoclass:: metaheuristic_designer.operators.MetaOperator
    :members:
    :undoc-members:
    :show-inheritance:
 
-OperatorAdaptative
+Adaptative Operator
 ----------------------------------------
 
-.. automodule:: metaheuristic_designer.operators.OperatorAdaptative
+.. autoclass:: metaheuristic_designer.operators.AdaptativeOperator
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-OperatorBO
+Bayesian Optimization Operator
 ----------------------------------------
 
-.. automodule:: metaheuristic_designer.operators.OperatorBO
+.. autoclass:: metaheuristic_designer.operators.BOOperator
    :members:
    :undoc-members:
    :show-inheritance:
 
-OperatorNull
-----------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.OperatorNull
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-OperatorFromLambda
-----------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.OperatorFromLambda
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 Mutation operator functions
 -------------------------------------------------------

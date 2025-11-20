@@ -1,13 +1,17 @@
 from __future__ import annotations
-from ..ObjectiveFunc import ObjectiveVectorFunc
-from ..Algorithm import Algorithm
-from ..initializers import UniformVectorInitializer
-from ..encodings import TypeCastEncoding, SigmoidEncoding
+import numpy as np
+from ..objective_function import VectorObjectiveFunc
+from ..algorithm import Algorithm
+from ..initializer import ExtendedInitializer
+from ..initializers import UniformInitializer
+from ..encodings import CompositeEncoding, TypeCastEncoding, SigmoidEncoding, PSOEncoding
 from ..strategies import PSO
 from ..algorithms import GeneralAlgorithm
+from ..constraint_handler import ExtendedConstraintHandler
+from ..constraint_handlers import ClipBoundConstraint, BounceBoundConstraint
 
 
-def particle_swarm(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
+def particle_swarm(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
     """
     Instantiates a particle swarm algorithm to optimize the given objective function.
 
@@ -55,12 +59,27 @@ def _particle_swarm_real_vec(params, objfunc):
         vecsize = params["vecsize"]
     else:
         vecsize = objfunc.vecsize
+
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
+    abs_max_val = np.maximum(np.abs(min_val), np.abs(max_val))
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
+    pso_encoding = PSOEncoding(vecsize)
 
-    search_strat = PSO(pop_initializer, {"w": w, "c1": c1, "c2": c2})
+    pop_initializer = ExtendedInitializer(
+        solution_init=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size),
+        param_init_dict={"speed": UniformInitializer(vecsize, -abs_max_val, abs_max_val)},
+        encoding=pso_encoding,
+    )
+
+    constraint_handler = ExtendedConstraintHandler(
+        ClipBoundConstraint(vecsize, min_val, max_val),
+        {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)},
+        encoding=pso_encoding,
+    )
+    objfunc.constraint_handler = constraint_handler
+
+    search_strat = PSO(initializer=pop_initializer, encoding=pso_encoding, params={"w": w, "c1": c1, "c2": c2})
 
     return GeneralAlgorithm(objfunc, search_strat, params=params)
 
@@ -79,21 +98,30 @@ def _particle_swarm_int_vec(params, objfunc):
         vecsize = params["vecsize"]
     else:
         vecsize = objfunc.vecsize
+
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
+    max_val = params.get("max", objfunc.up_lim if objfunc else 1)
+    abs_max_val = np.maximum(np.abs(min_val), np.abs(max_val))
 
-    encoding = TypeCastEncoding(float, int)
+    pso_encoding = CompositeEncoding([
+        PSOEncoding(vecsize),
+        TypeCastEncoding(float, int),
+    ])
 
-    pop_initializer = UniformVectorInitializer(
-        vecsize,
-        min_val,
-        max_val,
-        pop_size=pop_size,
-        dtype=float,
-        encoding=encoding,
+    pop_initializer = ExtendedInitializer(
+        solution_init=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size),
+        param_init_dict={"speed": UniformInitializer(vecsize, -abs_max_val, abs_max_val)},
+        encoding=pso_encoding,
     )
 
-    search_strat = PSO(pop_initializer, {"w": w, "c1": c1, "c2": c2})
+    constraint_handler = ExtendedConstraintHandler(
+        ClipBoundConstraint(vecsize, min_val, max_val),
+        {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)},
+        encoding=pso_encoding,
+    )
+    objfunc.constraint_handler = constraint_handler
+
+    search_strat = PSO(initializer=pop_initializer, encoding=pso_encoding, params={"w": w, "c1": c1, "c2": c2})
 
     return GeneralAlgorithm(objfunc, search_strat, params=params)
 
@@ -105,7 +133,6 @@ def _particle_swarm_bin_vec(params, objfunc):
     """
 
     pop_size = params.get("pop_size", 100)
-
     w = params.get("w", 0.7)
     c1 = params.get("c1", 1.5)
     c2 = params.get("c2", 1.5)
@@ -113,20 +140,29 @@ def _particle_swarm_bin_vec(params, objfunc):
         vecsize = params["vecsize"]
     else:
         vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else -100)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
+    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
+    max_val = params.get("max", objfunc.up_lim if objfunc else 1)
+    abs_max_val = np.maximum(np.abs(min_val), np.abs(max_val))
 
-    pop_initializer = UniformVectorInitializer(
-        vecsize,
-        min_val,
-        max_val,
-        pop_size=pop_size,
-        dtype=float,
-        encoding=encoding,
+    pso_encoding = CompositeEncoding([
+        PSOEncoding(vecsize),
+        SigmoidEncoding(as_probability=False, threshold=0.5)
+    ])
+
+    pop_initializer = ExtendedInitializer(
+        solution_init=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size),
+        param_init_dict={"speed": UniformInitializer(vecsize, -abs_max_val, abs_max_val)},
+        encoding=pso_encoding,
     )
 
-    search_strat = PSO(pop_initializer, {"w": w, "c1": c1, "c2": c2})
+    constraint_handler = ExtendedConstraintHandler(
+        ClipBoundConstraint(vecsize, min_val, max_val),
+        {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)},
+        encoding=pso_encoding,
+    )
+    objfunc.constraint_handler = constraint_handler
+
+    search_strat = PSO(initializer=pop_initializer, encoding=pso_encoding, params={"w": w, "c1": c1, "c2": c2})
 
     return GeneralAlgorithm(objfunc, search_strat, params=params)

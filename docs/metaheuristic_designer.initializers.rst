@@ -4,7 +4,7 @@ metaheuristic_designer.initializers package
 DirectInitializer
 ------------------------------------------------
 
-.. automodule:: metaheuristic_designer.initializers.DirectInitializer
+.. autoclass:: metaheuristic_designer.initializers.DirectInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,15 +12,23 @@ DirectInitializer
 GaussianInitializer
 --------------------------------------------------
 
-.. automodule:: metaheuristic_designer.initializers.GaussianInitializer
+.. autoclass:: metaheuristic_designer.initializers.GaussianInitializer
    :members:
    :undoc-members:
    :show-inheritance:
 
-SeedInitializer
+SeedDetermInitializer
 ----------------------------------------------
 
-.. automodule:: metaheuristic_designer.initializers.SeedInitializer
+.. autoclass:: metaheuristic_designer.initializers.SeedDetermInitializer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+SeedProbInitializer
+----------------------------------------------
+
+.. autoclass:: metaheuristic_designer.initializers.SeedProbInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +36,7 @@ SeedInitializer
 UniformInitializer
 -------------------------------------------------
 
-.. automodule:: metaheuristic_designer.initializers.UniformInitializer
+.. autoclass:: metaheuristic_designer.initializers.UniformInitializer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,15 +44,7 @@ UniformInitializer
 PermInitializer
 -------------------------------------------------
 
-.. automodule:: metaheuristic_designer.initializers.PermInitializer
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-InitializerFromLambda
--------------------------------------------------
-
-.. automodule:: metaheuristic_designer.initializers.InitializerFromLambda
+.. autoclass:: metaheuristic_designer.initializers.PermInitializer
    :members:
    :undoc-members:
    :show-inheritance:

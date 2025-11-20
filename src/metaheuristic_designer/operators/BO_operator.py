@@ -1,0 +1,96 @@
+from __future__ import annotations
+import numpy as np
+import scipy as sp
+from sklearn.exceptions import ConvergenceWarning
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, WhiteKernel
+import warnings
+
+warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
+
+from ..operator import Operator
+from ..objective_function import VectorObjectiveFunc
+from ..population import Population
+from ..utils import RAND_GEN
+
+
+def _aquisition_function(gaussian_model, X, x_in, max_y):
+    mean_y, std_y = gaussian_model.predict(x_in[None, :], return_std=True)
+    std_y = np.maximum(std_y, 1e-10)
+
+    z = (mean_y - max_y) / std_y
+    exp_imp = (mean_y - max_y) * sp.stats.norm.cdf(z) + std_y * sp.stats.norm.pdf(z)
+
+    return exp_imp
+
+
+class BOOperator(Operator):
+    """
+    Operator used specifically in the Bayesian Optimization algorithm.
+
+    Implements a surrogate model based on a Gaussian Process Regressor. An aquisition function calculated
+    from the regression model is then optimized to estimate the next best solution for the problem.
+    """
+
+    def __init__(self, params=None, name="Gaussian Regression Surrogate Model", encoding=None):
+        if params is None:
+            params = {}
+
+        super().__init__(params=params, name=name, encoding=encoding)
+
+        a = 1.0
+        kernel = a * RBF(length_scale=1.0) + WhiteKernel(noise_level=1.0)
+        self.gaussian_model = GaussianProcessRegressor(kernel=kernel, normalize_y=True, copy_X_train=False)
+        self.batch_size = params.get("batch_size", 100)
+        self.max_samples = params.get("max_samples", 100)
+
+    def evolve(self, population, initializer):
+        # Obtain training data from the population
+        population = population.calculate_fitness()
+
+        X = population.genotype_matrix
+        y = population.fitness
+        if population.pop_size > self.max_samples:
+            mask = RAND_GEN.choice(population.pop_size, size=self.max_samples, replace=False)
+            X = X[mask]
+            y = y[mask]
+
+        # Fit the surrogate model
+        self.gaussian_model.fit(X, y)
+
+        # Initialize optimization data structures
+        objfunc = population.objfunc
+        max_y = np.max(self.gaussian_model.predict(X))
+        min_ei = float("inf")
+        new_best_point = X[0]
+
+        if isinstance(objfunc, VectorObjectiveFunc):
+            bounds = np.asarray((objfunc.low_lim, objfunc.up_lim)).T
+            if bounds.ndim == 1:
+                bounds = bounds[None, :]
+        else:
+            bounds = None
+
+        # Optimize the aquisition function with a batch of initial points chosen at random
+        samples = initializer.generate_population(objfunc, self.batch_size).genotype_matrix
+        for x0 in samples:
+            result = sp.optimize.minimize(
+                fun=lambda x_in: -_aquisition_function(self.gaussian_model, X, x_in, max_y),
+                x0=x0,
+                method="L-BFGS-B",
+                bounds=bounds,
+            )
+            if result.fun < min_ei:
+                min_ei = result.fun
+                new_best_point = result.x
+
+        # Create new population from the optimization result and merge it with the previous one
+        new_sample_population = Population(
+            objfunc,
+            genotype_matrix=new_best_point[None, :],
+            encoding=population.encoding,
+        )
+        new_population = Population.join_populations(population, new_sample_population)
+        new_population = new_population.repair_solutions()
+
+        return new_population
