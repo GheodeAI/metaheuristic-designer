@@ -56,15 +56,19 @@ Implementation
 ~~~~~~~~~~~~~~
 
 This is implemented as Interfaces (or more accurately, abstract classes) that are related to each other and which must be implemented
-to constuct an optimization algorithm.
+to constuct an optimization algorithm. Most common implementations of these interfaces are already available in the package.
 
 First, **objective functions** are implemented as instances of the class :class:`ObjectiveFunc <metaheuristic_designer.ObjectiveFunc>` which receive
 an input in some unspecified format (an array, a tree or any other object) and output a single numerical value. Our goal is to find
-an input that maximizes (or minimizes) this output value. 
+an input that maximizes (or minimizes) this output value.
+
+Objective functions often come with constraints, which can be dealt with in several ways, including specifically engineered encodings or operators 
+(explained later), appliying a solution fixing procedure or applying a penalty to the objective when constraints are violated. For solution repairing
+and penalty we have the :class:`ConstraintHandler <metaheuristic_designer.ConstraintHandler>` class, that is hooked up to the objective function. Penalties
+are added at the same time as the objective is caluclated, and solution repairing is performed immediately after applying the operators to the population.
 
 Our algorithms will work with **populations**, represented as instances of the class :class:`Population <metaheuristic_designer.Population>` which are a collections
-of solutions to our optimization problem. These populations will hold the solutions, their value on the optimization problem, the best solution found and other
-information that can be of use to other algorithms.
+of solutions to our optimization problem. These populations will hold the solutions, their value on the optimization problem and the best solution found so far.
 
 The solutions that an individual has are encoded in a certain way, but our objective function might need an input encoded in a different way. 
 This is where **encodings** are used, they are represented as instances of the class :class:`Encoding <metaheuristic_designer.Encoding>` which isolates the 
@@ -75,8 +79,8 @@ an initial population, often completely at random, and will be used whenever a r
 also indicate the size of the population (1 if the algorithm works with only one solution).
 
 Both **parent selection** and **survivor selection** are implemented as instances of the class :class:`SelectionMethod <metaheuristic_designer.SelectionMethod>` 
-although it is recomended to use the classes :class:`ParentSelection <metaheuristic_designer.SelectionMethods.ParentSelection>` and
-:class:`SurvivorSelection <metaheuristic_designer.SelectionMethods.SurvivorSelection>` respectively.
+although it is recomended to use the classes :class:`ParentSelection <metaheuristic_designer.selection_methods.ParentSelection>` and
+:class:`SurvivorSelection <metaheuristic_designer.selection_methods.SurvivorSelection>` respectively.
 
 To perturb individuals we use operators that are instances of the class :class:`Operator <metaheuristic_designer.Operator>` which take a population
 and returns a new population of modified indiviuals. This could represent a crossing operation, a mutation, generating a completely random individual or

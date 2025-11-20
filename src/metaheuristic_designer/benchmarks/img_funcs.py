@@ -1,4 +1,4 @@
-from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..objective_function import VectorObjectiveFunc
 from ..encodings import ImageEncoding
 import numpy as np
 
@@ -6,7 +6,7 @@ import numpy as np
 from skimage import metrics
 
 
-class ImgApprox(ObjectiveVectorFunc):
+class ImgApprox(VectorObjectiveFunc):
     def __init__(self, img_dim, reference, mode=None, img_name="", diff_func="MSE", name=None):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0] * img_dim[1] * 3
@@ -33,9 +33,15 @@ class ImgApprox(ObjectiveVectorFunc):
         image_size = np.prod(solutions.shape[1:])
         match self.diff_func:
             case "MSE":
-                error = np.astype(np.sum((solutions - self.reference) ** 2, axis=(1, 2, 3)) / image_size, float)
+                error = np.astype(
+                    np.sum((solutions - self.reference) ** 2, axis=(1, 2, 3)) / image_size,
+                    float,
+                )
             case "MAE":
-                error = np.astype(np.sum(np.abs(solutions - self.reference), axis=(1, 2, 3)) / image_size, float)
+                error = np.astype(
+                    np.sum(np.abs(solutions - self.reference), axis=(1, 2, 3)) / image_size,
+                    float,
+                )
             case "SSIM":
                 for idx, s in enumerate(solutions):
                     for s_ch, ref_ch in zip(s.transpose((2, 0, 1)), self.reference.transpose((2, 0, 1))):
@@ -56,7 +62,7 @@ class ImgApprox(ObjectiveVectorFunc):
         return np.clip(solution, -100, 100)
 
 
-class ImgStd(ObjectiveVectorFunc):
+class ImgStd(VectorObjectiveFunc):
     def __init__(self, img_dim, mode=None):
         self.size = img_dim[0] * img_dim[1] * 3
         if mode is None:
@@ -75,7 +81,7 @@ class ImgStd(ObjectiveVectorFunc):
         return np.clip(solution, -100, 100)
 
 
-class ImgEntropy(ObjectiveVectorFunc):
+class ImgEntropy(VectorObjectiveFunc):
     def __init__(self, img_dim, nbins=10, mode=None):
         self.size = img_dim[0] * img_dim[1] * 3
         self.nbins = nbins
@@ -99,7 +105,7 @@ class ImgEntropy(ObjectiveVectorFunc):
         return np.clip(solution, -100, 100)
 
 
-class ImgExperimental(ObjectiveVectorFunc):
+class ImgExperimental(VectorObjectiveFunc):
     def __init__(self, img_dim, reference, img_name, mode=None):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0] * img_dim[1] * 3

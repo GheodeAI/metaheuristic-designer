@@ -2,15 +2,15 @@ from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.encodings import TypeCastEncoding
 from metaheuristic_designer.operators import (
-    OperatorVector,
-    OperatorPerm,
+    VectorOperator,
+    PermOperator,
 )
 from metaheuristic_designer.initializers import (
-    UniformVectorInitializer,
+    UniformInitializer,
     PermInitializer,
 )
 from metaheuristic_designer.strategies import *
-from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
+from metaheuristic_designer.selection_methods import *
 from metaheuristic_designer.benchmarks import *
 
 import argparse
@@ -149,47 +149,47 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         objfunc = BinKnapsack(weights, values, capacity)
 
         encoding = TypeCastEncoding(int, bool)
-        pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding)
+        pop_initializer = UniformInitializer(objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding)
 
         parent_params = ParamScheduler("Linear", {"amount": 20})
         # select_params = ParamScheduler("Linear")
 
         mut_params = ParamScheduler("Linear", {"N": [10, 1]})
-        mutation_op = OperatorVector("Flip", mut_params)
+        mutation_op = VectorOperator("Flip", mut_params)
 
-        cross_op = OperatorVector("Multipoint")
+        cross_op = VectorOperator("Multipoint")
 
         op_list = [
-            OperatorVector("Flip", {"N": 2}),
-            OperatorVector("1point"),
-            OperatorVector("Multipoint"),
-            OperatorVector("MutSample", {"distrib": "Bernoulli", "p": 0.2, "N": 2}),
+            VectorOperator("Flip", {"N": 2}),
+            VectorOperator("1point"),
+            VectorOperator("Multipoint"),
+            VectorOperator("MutSample", {"distrib": "Bernoulli", "p": 0.2, "N": 2}),
         ]
 
-        neighborhood_structures = [OperatorVector("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
+        neighborhood_structures = [VectorOperator("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
 
     elif problem_name == "3SAT":
         objfunc = ThreeSAT.from_cnf_file("./data/sat_examples/uf50-03.cnf")
 
         encoding = TypeCastEncoding(int, bool)
-        pop_initializer = UniformVectorInitializer(objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding)
+        pop_initializer = UniformInitializer(objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding)
 
         parent_params = ParamScheduler("Linear", {"amount": 20})
         # select_params = ParamScheduler("Linear")
 
         mut_params = ParamScheduler("Linear", {"N": [10, 1]})
-        mutation_op = OperatorVector("Flip", mut_params)
+        mutation_op = VectorOperator("Flip", mut_params)
 
-        cross_op = OperatorVector("Multipoint")
+        cross_op = VectorOperator("Multipoint")
 
         op_list = [
-            OperatorVector("Flip", {"N": 2}),
-            OperatorVector("1point"),
-            OperatorVector("Multipoint"),
-            OperatorVector("MutSample", {"distrib": "Bernoulli", "p": 0.2, "N": 2}),
+            VectorOperator("Flip", {"N": 2}),
+            VectorOperator("1point"),
+            VectorOperator("Multipoint"),
+            VectorOperator("MutSample", {"distrib": "Bernoulli", "p": 0.2, "N": 2}),
         ]
 
-        neighborhood_structures = [OperatorVector("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
+        neighborhood_structures = [VectorOperator("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
     elif problem_name == "MaxClique":
         g = nx.gnp_random_graph(100, 0.8)
         adj_mat = nx.adjacency_matrix(g).todense()
@@ -202,22 +202,20 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         pop_initializer = PermInitializer(objfunc.vecsize, pop_size=100)
 
         parent_params = ParamScheduler("Linear", {"amount": 20})
-        # select_params = ParamScheduler("Linear")
 
         mut_params = ParamScheduler("Linear", {"N": [10, 1]})
-        mutation_op = OperatorPerm("Perm", mut_params)
+        mutation_op = PermOperator("Perm", mut_params)
 
-        # cross_op = OperatorPerm("PMX")
-        cross_op = OperatorPerm("OrderCross")
+        cross_op = PermOperator("OrderCross")
 
         op_list = [
-            OperatorPerm("Swap", mut_params),
-            OperatorPerm("Insert", mut_params),
-            OperatorPerm("Invert", mut_params),
-            OperatorPerm("PMX"),
+            PermOperator("Swap", mut_params),
+            PermOperator("Insert", mut_params),
+            PermOperator("Invert", mut_params),
+            PermOperator("PMX"),
         ]
 
-        neighborhood_structures = [OperatorPerm("Flip", {"N": n}, name=f"Flip(n={n})") for n in range(objfunc.vecsize)]
+        neighborhood_structures = [PermOperator("Swap", {"N": n}, name=f"Swap(n={n})") for n in range(objfunc.vecsize)]
     else:
         raise ValueError(f"The problem '{problem_name}' does not exist.")
 
@@ -225,7 +223,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
     selection_op = SurvivorSelection("(m+n)")
 
     mem_select = ParentSelection("Best", {"amount": 5})
-    neihbourhood_op = OperatorVector("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
+    neihbourhood_op = VectorOperator("RandNoise", {"distrib": "Cauchy", "F": 0.0002})
     local_search = LocalSearch(pop_initializer, neihbourhood_op, params={"iters": 10})
 
     if alg_name == "HillClimb":
@@ -337,18 +335,19 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
     else:
         alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 
-    ind, fit = alg.optimize()
+    result = alg.optimize()
+    ind, _ = result.best_solution(decoded=True)
     print(ind)
     alg.display_report(show_plots=True)
 
     if save_state:
-        alg.store_state("./examples/results/test.json", readable=True, show_pop=True)
+        alg.store_state("./examples/results/test.json", readable=True, show_population=True)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm")
-    parser.add_argument("-p", "--problem", dest="prob", help="Specify an problem to solve")
+    parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm", default="GA")
+    parser.add_argument("-o", "--objective", dest="objective", help="Specify an problem to solve", default="Knapsack")
     parser.add_argument(
         "-m",
         "--memetic",
@@ -365,28 +364,11 @@ def main():
     )
     args = parser.parse_args()
 
-    algorithm_name = "GA"
-    problem_name = "Knapsack"
-    mem = False
-    save_state = False
-
-    if args.alg:
-        algorithm_name = args.alg
-
-    if args.prob:
-        problem_name = args.prob
-
-    if args.mem:
-        mem = True
-
-    if args.save_state:
-        save_state = True
-
     run_algorithm(
-        alg_name=algorithm_name,
-        problem_name=problem_name,
-        memetic=mem,
-        save_state=save_state,
+        alg_name=args.alg,
+        problem_name=args.objective,
+        memetic=args.mem,
+        save_state=args.save_state,
     )
 
 

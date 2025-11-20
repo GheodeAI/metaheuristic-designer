@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from metaheuristic_designer.selectionMethods.parent_selection_functions import * 
+from metaheuristic_designer.selection_methods.parent_selection_functions import * 
 import metaheuristic_designer as mhd
 
 mhd.reset_seed(0)
@@ -44,6 +44,6 @@ def test_uniform_selection(fitness, amount, method, f):
 @pytest.mark.parametrize("amount", [1, 2, 5, 8])
 @pytest.mark.parametrize("method", [SelectionDist.FIT_PROP, SelectionDist.EXP_RANK, SelectionDist.LIN_RANK, SelectionDist.SIGMA_SCALE])
 @pytest.mark.parametrize("f", [0, 0.5, 1, 2, 10])
-def test_uniform_selection(fitness, amount, method, f):
+def test_sus_selection(fitness, amount, method, f):
     result = sus(fitness, amount, method=method, f=f)
     assert result.shape[0] == amount

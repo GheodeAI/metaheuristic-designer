@@ -1,9 +1,8 @@
 import pytest
 import numpy as np
 from metaheuristic_designer import Population
-from metaheuristic_designer.selectionMethods import SurvivorSelection, surv_method_map
+from metaheuristic_designer.selection_methods import SurvivorSelection, surv_method_map
 from metaheuristic_designer.benchmarks import Sphere
-from metaheuristic_designer.initializers import UniformVectorInitializer
 import metaheuristic_designer as mhd
 
 mhd.reset_seed(0)
@@ -34,10 +33,12 @@ example_offspring3.fitness = np.arange(pop_size) + pop_size
 ])
 @pytest.mark.parametrize("op_method", surv_methods)
 def test_basic_working(population, offspring, op_method):
-    pop_init = UniformVectorInitializer(population.vec_size, 0, 1, pop_size)
     surv_sel = SurvivorSelection(op_method, {"Fd": 0.1, "Pd": 0.1, "attempts": 3, "maxPopSize": pop_size, "amount": 10, "p": 0.5})
-
+    
     selected_population = surv_sel.select(population, offspring)
+    population_set = set(tuple(tuple(i for i in r) for r in population.genotype_matrix))
+    offspring_set = set(tuple(tuple(i for i in r) for r in offspring.genotype_matrix))
+    selected_set = set(tuple(tuple(i for i in r) for r in selected_population.genotype_matrix))
 
     assert isinstance(selected_population, Population)
-    assert id(selected_population) != id(population)
+    assert selected_set <= offspring_set.union(population_set) # Is selected population a subset of the population joined with the offspring

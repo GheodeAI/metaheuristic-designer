@@ -1,8 +1,7 @@
-from .DefaultEncoding import DefaultEncoding
-from .CMAEncoding import CMAEncoding
-from .ImageEncoding import ImageEncoding
-from .MatrixEncoding import MatrixEncoding
-from .TypeCastEncoding import TypeCastEncoding
-from .AdaptionEncoding import AdaptionEncoding
-from .CompositeEncoding import CompositeEncoding
-from .EncodingFromLambda import EncodingFromLambda
+from .image_encoding import ImageEncoding
+from .matrix_encoding import MatrixEncoding
+from .sigmoid_encoding import SigmoidEncoding
+from .type_cast_encoding import TypeCastEncoding
+from .composite_encoding import CompositeEncoding
+
+from .special import *

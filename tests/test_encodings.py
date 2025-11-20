@@ -1,10 +1,10 @@
 import pytest
 
 import numpy as np
+from metaheuristic_designer import DefaultEncoding
 from metaheuristic_designer.encodings import (
     MatrixEncoding,
     ImageEncoding,
-    DefaultEncoding,
     TypeCastEncoding,
 )
 import metaheuristic_designer as mhd
@@ -22,7 +22,7 @@ mhd.reset_seed(0)
     ],
 )
 def test_default(genotype, phenotype):
-    encoding = DefaultEncoding()
+    encoding = DefaultEncoding(decode_as_array=isinstance(genotype, np.ndarray))
 
     if isinstance(genotype, np.ndarray):
         np.testing.assert_array_equal(encoding.decode(genotype), phenotype)

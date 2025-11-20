@@ -5,3 +5,4 @@ from .random_search import random_search
 from .evolution_strategy import evolution_strategy
 from .differential_evolution import differential_evolution
 from .simulated_annealing import simulated_annealing
+from .bayesian_optimization import bayesian_optimization

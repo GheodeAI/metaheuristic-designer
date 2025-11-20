@@ -47,7 +47,9 @@ Strategies Subpackages
 .. toctree::
    :maxdepth: 2
 
-   metaheuristic_designer.strategies.CRO
-   metaheuristic_designer.strategies.Classic
+   metaheuristic_designer.strategies.classic
+   metaheuristic_designer.strategies.swarm
    metaheuristic_designer.strategies.EDA
+   metaheuristic_designer.strategies.bayesian_optimization
    metaheuristic_designer.strategies.VNS
+   metaheuristic_designer.strategies.CRO

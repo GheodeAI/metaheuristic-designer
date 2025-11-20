@@ -1,7 +1,7 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler, simple
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm, AlgorithmSelection
-from metaheuristic_designer.initializers import UniformVectorInitializer
-from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
+from metaheuristic_designer.initializers import *
+from metaheuristic_designer.selection_methods import *
 from metaheuristic_designer.strategies import *
 from metaheuristic_designer.benchmarks import *
 

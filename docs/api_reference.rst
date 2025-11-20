@@ -10,7 +10,8 @@ These are the intefaces from which to inherit to implement a new component for a
    :header: "Module name", "Description"
 
    ":py:class:`~metaheuristic_designer.ObjectiveFunc`", "Prototype of a data type agnostic objective function."
-   ":py:class:`~metaheuristic_designer.ObjectiveFunc.ObjectiveVectorFunc`", "Prototype of an objective function with vector inputs."
+   ":py:class:`~metaheuristic_designer.VectorObjectiveFunc`", "Prototype of an objective function with vector inputs."
+   ":py:class:`~metaheuristic_designer.ConstraintHandler`", "Prototype of a constraint handler class."
    ":py:class:`~metaheuristic_designer.Initializer`", "Prototype of a population initializer."
    ":py:class:`~metaheuristic_designer.Encoding`", "Prototype of an individual solution encoding."
    ":py:class:`~metaheuristic_designer.SelectionMethod`", "Prototype of an individual selection method."
@@ -26,11 +27,28 @@ There are classes that allow the implementation of optimization modules with a l
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`ObjectiveFromLambda<metaheuristic_designer.ObjectiveFunc.ObjectiveFromLambda>`", "Objective function from a function."
-   ":py:class:`initializers.InitializerFromLambda<metaheuristic_designer.initializers.InitializerFromLambda>`", "Population initializer from a function."
-   ":py:class:`encodings.EncodingFromLambda<metaheuristic_designer.encodings.EncodingFromLambda>`", "Encoding from an encoding function and a decoding function."
-   ":py:class:`selectionMethods.SelectionFromLambda<metaheuristic_designer.selectionMethods.SelectionFromLambda>`", "Individual selection from a function."
-   ":py:class:`operators.OperatorFromLambda<metaheuristic_designer.operators.OperatorFromLambda>`", "Operator from a function."
+   ":py:class:`~metaheuristic_designer.ObjectiveFromLambda`", "Objective function from a function."
+   ":py:class:`~metaheuristic_designer.ConstraintHandlerFromLambda`", "Constraint Handler from a function."
+   ":py:class:`~metaheuristic_designer.InitializerFromLambda`", "Population initializer from a function."
+   ":py:class:`~metaheuristic_designer.EncodingFromLambda`", "Encoding from an encoding function and a decoding function."
+   ":py:class:`~metaheuristic_designer.SelectionFromLambda`", "Individual selection from a function."
+   ":py:class:`~metaheuristic_designer.OperatorFromLambda`", "Operator from a function."
+
+Extended encoding classes
+-------------------------
+When the genotype vector encodes more information other than the soluion, like in the case of PSO with a speed vector and adaptative algorithms with 
+parameters of the algorithm, you need to use the following interfaces to handle the size difference of the solution vector.
+
+Note that there are also a number of implementations of these interfaces already available for specific algorithms like PSO.
+
+.. csv-table::
+   :header: "Module name", "Description"
+
+   ":py:class:`~metaheuristic_designer.ExtendedEncoding`", "Encoding that splits the vector into a solution and a dictionary with the necesary data."
+   ":py:class:`~metaheuristic_designer.ExtendedConstraintHandler`", "Split constraint handler that treats the solution and the rest of the data separately."
+   ":py:class:`~metaheuristic_designer.ExtendedInitializer`", "Split initializer that initializes the solution with a different distribution than other data."
+   ":py:class:`~metaheuristic_designer.ExtendedOperator`", "Split operator that applies a different operation to the solution and the other data."
+
 
 Initializers
 ------------
@@ -40,11 +58,11 @@ The implemented initializers are listed below.
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`initializers.UniformVectorInitializer<metaheuristic_designer.initializers.UniformInitializer.UniformVectorInitializer>`", "Initializer that uses an uniform distribution."
-   ":py:class:`initializers.GaussianVectorInitializer<metaheuristic_designer.initializers.GaussianInitializer.GaussianVectorInitializer>`", "Initializer that uses an gaussian distribution."
+   ":py:class:`initializers.UniformInitializer<metaheuristic_designer.initializers.UniformInitializer>`", "Initializer that uses an uniform distribution."
+   ":py:class:`initializers.GaussianInitializer<metaheuristic_designer.initializers.GaussianInitializer>`", "Initializer that uses an gaussian distribution."
    ":py:class:`initializers.DirectInitializer<metaheuristic_designer.initializers.DirectInitializer>`", "Initializer with a predefined population of individuals."
-   ":py:class:`initializers.SeedDetermInitializer<metaheuristic_designer.initializers.SeedInitializer.SeedDetermInitializer>`", "Initializer with a fixed number of seeded solutions."
-   ":py:class:`initializers.SeedProbInitializer<metaheuristic_designer.initializers.SeedInitializer.SeedProbInitializer>`", "Initializer with randomly inserted seeded solutions."
+   ":py:class:`initializers.SeedDetermInitializer<metaheuristic_designer.initializers.SeedDetermInitializer>`", "Initializer with a fixed number of seeded solutions."
+   ":py:class:`initializers.SeedProbInitializer<metaheuristic_designer.initializers.SeedProbInitializer>`", "Initializer with randomly inserted seeded solutions."
    ":py:class:`initializers.PermInitializer<metaheuristic_designer.initializers.PermInitializer>`", "Initializer that produces random permutations of n elements as vectors."
 
 Encodings
@@ -55,11 +73,11 @@ The implemented encodings are listed below.
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`encodings.DefaultEncoding<metaheuristic_designer.encodings.DefaultEncoding>`", "Encoding that makes no changes while encoding or decoding."
+   ":py:class:`DefaultEncoding<metaheuristic_designer.DefaultEncoding>`", "Encoding that makes no changes while encoding or decoding."
    ":py:class:`encodings.TypeCastEncoding<metaheuristic_designer.encodings.TypeCastEncoding>`", "Encoding that changes the datatype when encoding and decoding."
    ":py:class:`encodings.MatrixEncoding<metaheuristic_designer.encodings.MatrixEncoding>`", "Encoding that reshapes a vector to a tensor with a different size."
    ":py:class:`encodings.ImageEncoding<metaheuristic_designer.encodings.ImageEncoding>`", "Encoding that reshapes a vector to a NxMxC matrix of bytes that represents NxM images with C channels."
-   ":py:class:`encodings.AdaptionEncoding<metaheuristic_designer.encodings.AdaptionEncoding>`", "Encoding that makes individuals represent the solution and parameters of the algorithm."
+   ":py:class:`encodings.SigmoidEncoding<metaheuristic_designer.encodings.SigmoidEncoding>`", "Encoding that allows algorithms for continuous problems to be applied to binary problems. Converts real numbers to probabilities."
    ":py:class:`encodings.CompositeEncoding<metaheuristic_designer.encodings.CompositeEncoding>`", "Encoding that applies other encoders in sequence."
    ":py:class:`encodings.CMAEncoding<metaheuristic_designer.encodings.CMAEncoding>`", "Encoding used by the CMA-ES algorithm."
 
@@ -71,10 +89,10 @@ The implemented operators for each datatype are listed in the following section
 .. csv-table::
    :header: "Module name", "Methods", "Description"
 
-   ":py:class:`selectionMethods.ParentSelection<metaheuristic_designer.selectionMethods.ParentSelection.ParentSelection>`", ":ref:`implemented metods<Operator Binary Methods>`","Selection methods for parent selection."
-   ":py:class:`selectionMethods.SurvivorSelection<metaheuristic_designer.selectionMethods.SurvivorSelection.SurvivorSelection>`", ":ref:`implemented metods<Operator Binary Methods>`", "Selection methods for survivor selection."
-   ":py:class:`selectionMethods.ParentSelectionNull<metaheuristic_designer.selectionMethods.ParentSelectionNull>`", "", "Selection methods for parent selection that returns the original population."
-   ":py:class:`selectionMethods.SurvivorSelectionNull<metaheuristic_designer.selectionMethods.SurvivorSelectionNull>`", "", "Selection methods for survivor selection that returns the offspring."
+   ":py:class:`~metaheuristic_designer.selection_methods.ParentSelection`", ":ref:`implemented metods<Parent Selection>`","Selection methods for parent selection."
+   ":py:class:`~metaheuristic_designer.selection_methods.NullParentSelection`", "", "Selection methods for parent selection that returns the original population."
+   ":py:class:`~metaheuristic_designer.selection_methods.SurvivorSelection`", ":ref:`implemented metods<Survivor Selection>`", "Selection methods for survivor selection."
+   ":py:class:`~metaheuristic_designer.selection_methods.NullSurvivorSelection`", "", "Selection methods for survivor selection that returns the offspring."
 
 
 Operators
@@ -90,11 +108,12 @@ The implemented operators for each datatype are listed in the following section
 .. csv-table::
    :header: "Module name", "Methods", "Description"
 
-   ":py:class:`operators.OperatorVector<metaheuristic_designer.operators.OperatorVector.OperatorVector>`", ":ref:`implemented metods<Operator Vector Methods>`", "Operator for vectors."
-   ":py:class:`operators.OperatorPerm<metaheuristic_designer.operators.OperatorPerm.OperatorPerm>`", ":ref:`implemented metods<Operator Perm Methods>`", "Operator for permutations."
-   ":py:class:`operators.OperatorAdaptative<metaheuristic_designer.operators.OperatorAdaptative.OperatorAdaptative>`", "", "Operator that uses part of the individual as parameters for the operator."
-   ":py:class:`operators.OperatorMeta<metaheuristic_designer.operators.OperatorMeta.OperatorMeta>`", ":ref:`implemented metods<Operator Meta Methods>`", "Operator that combines other operators."
-   ":py:class:`operators.OperatorNull<metaheuristic_designer.operators.OperatorNull.OperatorNull>`", "", "Operator that makes no changes to the individual."
+   ":py:class:`NullOperator<metaheuristic_designer.NullOperator>`", "", "Operator that makes no changes to the individual."
+   ":py:class:`operators.VectorOperator<metaheuristic_designer.operators.VectorOperator>`", ":ref:`implemented metods<Operator Vector Methods>`", "Operator for vectors."
+   ":py:class:`operators.PermOperator<metaheuristic_designer.operators.PermOperator>`", ":ref:`implemented metods<Operator Perm Methods>`", "Operator for permutations."
+   ":py:class:`operators.MetaOperator<metaheuristic_designer.operators.MetaOperator>`", ":ref:`implemented metods<Operator Meta Methods>`", "Operator that combines other operators."
+   ":py:class:`operators.AdaptativeOperator<metaheuristic_designer.operators.AdaptativeOperator>`", "", "Operator that uses part of the individual as parameters for the operator."
+   ":py:class:`operators.BOOperator<metaheuristic_designer.operators.BOOperator>`", "", "Operator used in Bayesian Optimization."
 
 
 Search Strategies
@@ -105,29 +124,34 @@ The implemented search strategies are listed below.
    :header: "Module name", "Description"
 
    ":py:class:`strategies.NoSearch<metaheuristic_designer.strategies.NoSearch>`", "Search strategy that does nothing."
-   ":py:class:`strategies.RandomSearch<metaheuristic_designer.strategies.Classic.RandomSearch>`", "Random search strategy."
+   ":py:class:`strategies.RandomSearch<metaheuristic_designer.strategies.RandomSearch>`", "Random search strategy."
    ":py:class:`strategies.StaticPopulation<metaheuristic_designer.strategies.StaticPopulation>`", "Basic population based search strategy with a fixed-size population."
    ":py:class:`strategies.VariablePopulation<metaheuristic_designer.strategies.VariablePopulation>`", "Basic population based search strategy with a variable-size population."
    ":py:class:`strategies.HillClimb<metaheuristic_designer.strategies.HillClimb>`", "Greedy Hill Climbing strategy."
    ":py:class:`strategies.LocalSearch<metaheuristic_designer.strategies.LocalSearch>`", "Local search strategy."
-   ":py:class:`strategies.SA<metaheuristic_designer.strategies.Classic.SA>`", "Simulated annealing strategy."
-   ":py:class:`strategies.GA<metaheuristic_designer.strategies.Classic.GA>`", "Genetic Algorithm strategy."
-   ":py:class:`strategies.ES<metaheuristic_designer.strategies.Classic.ES>`", "Evolution Strategy."
-   ":py:class:`strategies.HS<metaheuristic_designer.strategies.Classic.HS>`", "Harmony Search strategy."
-   ":py:class:`strategies.PSO<metaheuristic_designer.strategies.Classic.PSO>`", "Particle Swarm Optimization strategy."
-   ":py:class:`strategies.DE<metaheuristic_designer.strategies.Classic.DE>`", "Differential Evolution strategy."
+   ":py:class:`strategies.SA<metaheuristic_designer.strategies.SA>`", "Simulated annealing strategy."
+   ":py:class:`strategies.GA<metaheuristic_designer.strategies.GA>`", "Genetic Algorithm strategy."
+   ":py:class:`strategies.ES<metaheuristic_designer.strategies.ES>`", "Evolution Strategy."
+   ":py:class:`strategies.HS<metaheuristic_designer.strategies.HS>`", "Harmony Search strategy."
+   ":py:class:`strategies.DE<metaheuristic_designer.strategies.DE>`", "Differential Evolution strategy."
+   ":py:class:`strategies.PSO<metaheuristic_designer.strategies.swarm.PSO>`", "Particle Swarm Optimization strategy."
    ":py:class:`strategies.BernoulliPBIL<metaheuristic_designer.strategies.EDA.BernoulliPBIL>`", "| Bernoulli distributed Population-based Incremental Learning.
    | Estimation of Distribution Algorithm."
    ":py:class:`strategies.BernoulliUMDA<metaheuristic_designer.strategies.EDA.BernoulliUMDA>`", "| Bernoulli distributed Univariate Marginal Distribution Algorithm.
    | Estimation of Distribution Algorithm."
-   ":py:class:`strategies.CRO<metaheuristic_designer.strategies.CRO.CRO>`", "Coral Reef Optimization strategy."
-   ":py:class:`strategies.CRO_SL<metaheuristic_designer.strategies.CRO.CRO_SL>`", "Coral Reef Optimization with Subtrate Layers strategy."
-   ":py:class:`strategies.PCRO_SL<metaheuristic_designer.strategies.CRO.PCRO_SL>`", "Probabilistic Coral Reef Optimization with Subtrate Layers strategy."
-   ":py:class:`strategies.DPCRO_SL<metaheuristic_designer.strategies.CRO.DPCRO_SL>`", "Dynamic Probabilistic Coral Reef Optimization with Subtrate Layers strategy."
+   ":py:class:`strategies.BinomialPBIL<metaheuristic_designer.strategies.EDA.BinomialPBIL>`", "| Binomial distributed Population-based Incremental Learning.
+   | Estimation of Distribution Algorithm."
+   ":py:class:`strategies.BinomialUMDA<metaheuristic_designer.strategies.EDA.BinomialUMDA>`", "| Binomial distributed Univariate Marginal Distribution Algorithm.
+   | Estimation of Distribution Algorithm."
+   ":py:class:`strategies.BayesianOptimization<metaheuristic_designer.strategies.bayesian_optimization.BayesianOptimization>`", "Bayesian Optimization"
    ":py:class:`strategies.VND<metaheuristic_designer.strategies.VNS.VND>`", "Variable Neighborhood Descent strategy."
    ":py:class:`strategies.RVNS<metaheuristic_designer.strategies.VNS.RVNS>`", "Restricted Varaible Neighborhood Search strategy."
    ":py:class:`strategies.VNS<metaheuristic_designer.strategies.VNS.VNS>`", "Variable Neighborhood Search strategy."
-   ":py:class:`strategies.CMA_ES<metaheuristic_designer.strategies.Classic.CMA_ES>`", "Covariance Matrix Adaption-Evolution Strategy."
+   ":py:class:`strategies.CMA_ES<metaheuristic_designer.strategies.CMA_ES>`", "Covariance Matrix Adaption-Evolution Strategy."
+   ":py:class:`strategies.CRO<metaheuristic_designer.strategies.CRO>`", "Coral Reef Optimization strategy."
+   ":py:class:`strategies.CRO_SL<metaheuristic_designer.strategies.CRO_SL>`", "Coral Reef Optimization with Subtrate Layers strategy."
+   ":py:class:`strategies.PCRO_SL<metaheuristic_designer.strategies.PCRO_SL>`", "Probabilistic Coral Reef Optimization with Subtrate Layers strategy."
+   ":py:class:`strategies.DPCRO_SL<metaheuristic_designer.strategies.DPCRO_SL>`", "Dynamic Probabilistic Coral Reef Optimization with Subtrate Layers strategy."
 
 Algorithms
 ----------
