@@ -154,52 +154,53 @@ class ExtendedEncoding(Encoding, ABC):
 
         super().__init__(vectorized=base_encoding.vectorized)
 
-    def encode_func(self, solution: Any, params: dict = None) -> np.ndarray:
-        solution_encoded = self.base_encoding.encode_func(solution)
-        if params is None:
-            params_encoded = np.zeros((1, self.nparams))
-        else:
-            params_encoded = self.encode_params(params)
-
-        solution_encoded = np.hstack([solution_encoded, params_encoded])
-        
-        return solution_encoded
-
-    def decode_func(self, genotype: np.ndarray) -> np.ndarray:
-        if self.vectorized:
-            return self.base_encoding.decode(genotype[:, : self.vecsize])
-        else:
-            return self.base_encoding.decode(genotype[: self.vecsize])
-
-    def encode(self, solutions: Iterable, params: dict = None) -> ndarray:
-        """
-        Encodes a list of solutions to our problem to an population matrix.
-
-        Parameters
-        ----------
-        solutions: Iterable
-            Solutions that should be encoded.
-
-        Returns
-        -------
-        population: ndarray
-            Population array.
-        """
-
-        population = None
-        if self.vectorized:
-            population = self.encode_func(solutions, params=params)
-        else:
-            population = np.asarray([self.encode_func(indiv) for indiv in solutions])
-
-        return population
-
     def extract_solution(self, population_matrix: ndarray) -> ndarray:
-        return population_matrix[:, :self.vecsize]
+        if self.vectorized:
+            result = population_matrix[:, :self.vecsize]
+        else:
+            result = population_matrix[:self.vecsize]
+        return result
 
     def extract_params(self, population_matrix: ndarray) -> ndarray:
-        return population_matrix[:, self.vecsize:]
+        if self.vectorized:
+            result = population_matrix[:, self.vecsize:]
+        else:
+            result = population_matrix[self.vecsize:]
+        return result
 
+    def encode_params_func(self, param_dict: dict) -> ndarray:
+        if self.verify:
+            assert param_dict.keys() == {name for name, _ in self.param_sizes}
+        
+        # check the first available parameter to obtain the population size
+        sample_param_name, _ = self.param_sizes[0]
+        sample_param_vector = param_dict[sample_param_name] 
+        if sample_param_vector.ndim == 2:
+            population_size, nparams = sample_param_vector.shape
+        else:
+            population_size = 1
+            nparams = sample_param_vector.shape[0]
+        
+        if self.verify:
+            assert nparams == self.nparams
+
+        vcounter = 0
+        result = np.empty((population_size, nparams))
+        for param_name, param_size in self.param_sizes:
+            result[:, vcounter:vcounter+param_size] = param_dict[param_name]
+            vcounter += param_size
+        
+        return result
+    
+    def decode_params_func(self, genotype: np.ndarray) -> dict:
+        param_dict = {}
+        param_vec = self.extract_params(genotype)
+        for name, length in self.param_sizes:
+            param_dict[name] = param_vec[:, :length]
+            param_vec = param_vec[:, length:]
+        
+        return param_dict
+    
     def encode_params(self, param_dict: dict) -> Iterable:
         """
         Decodes a population matrix into a list/array of solutions.
@@ -215,28 +216,8 @@ class ExtendedEncoding(Encoding, ABC):
             List/array of solutions.
         """
 
-        param_matrix = self.encode_params_func(param_dict)
+        return self.encode_params_func(param_dict)
 
-        return param_matrix
-    
-    def encode_params_func(self, param_dict: dict) -> ndarray:
-        if self.verify:
-            assert param_dict.keys() == set(map(lambda x: x[0], self.param_sizes))
-        
-        # check the first available parameter to obtain the population size
-        sample_param = self.param_sizes[0]
-        sample_param_name = sample_param[0]
-        population_size = len(param_dict[sample_param_name])
-
-        vcounter = 0
-        result = np.empty((population_size, self.nparams))
-        for param_name, param_size in self.param_sizes:
-            result[:, vcounter:vcounter+param_size] = param_dict[param_name]
-            vcounter += param_size
-        
-        return result
-
-    
     def decode_params(self, population: ndarray) -> Iterable:
         """
         Decodes a population matrix into a list/array of solutions.
@@ -264,13 +245,37 @@ class ExtendedEncoding(Encoding, ABC):
 
         return param_dict
     
-    
-    def decode_params_func(self, genotype: np.ndarray) -> dict:
-        param_dict = {}
-        param_vec = genotype[:, self.vecsize:]
-        for name, length in self.param_sizes:
-            param_dict[name] = param_vec[:, :length]
-            param_vec = param_vec[:, length:]
-        
-        return param_dict
-    
+    def encode_func(self, solution: Any, params: dict = None) -> np.ndarray:
+        solution_encoded = self.base_encoding.encode_func(solution)
+        if params is None:
+            params_encoded = np.zeros((solution_encoded.shape[0], self.nparams))
+        else:
+            params_encoded = self.encode_params(params)
+
+        return np.hstack([solution_encoded, params_encoded])
+
+    def decode_func(self, genotype: np.ndarray) -> np.ndarray:
+        solution_matrix = self.extract_solution(genotype)
+        return self.base_encoding.decode_func(solution_matrix)
+
+    def encode(self, solutions: Iterable, params: dict = None) -> ndarray:
+        """
+        Encodes a list of solutions to our problem to an population matrix.
+
+        Parameters
+        ----------
+        solutions: Iterable
+            Solutions that should be encoded.
+
+        Returns
+        -------
+        population: ndarray
+            Population array.
+        """
+
+        if self.vectorized:
+            population = self.encode_func(solutions, params=params)
+        else:
+            population = np.asarray([self.encode_func(indiv) for indiv in solutions])
+
+        return population

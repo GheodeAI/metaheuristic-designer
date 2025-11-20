@@ -1,7 +1,7 @@
 import pytest
 
 import numpy as np
-from metaheuristic_designer import Population 
+from metaheuristic_designer import Population, InitializerFromLambda
 from metaheuristic_designer.initializers import *
 import metaheuristic_designer as mhd
 
@@ -252,3 +252,20 @@ def test_perm_init(vec_size, pop_size):
 
     for indiv in rand_pop:
         assert np.all(np.isin(np.arange(vec_size), rand_inidv))
+
+@pytest.mark.parametrize("pop_size", [1, 10, 100])
+@pytest.mark.parametrize("vec_size", [1, 10, 100])
+def test_initialize_lambda(pop_size, vec_size):
+    pop_init = InitializerFromLambda(lambda: np.zeros(vec_size), pop_size)
+
+    rand_inidv = pop_init.generate_random()
+    assert rand_inidv.shape[0] == vec_size
+    assert np.all(rand_inidv == 0)
+
+    rand_inidv = pop_init.generate_random()
+    assert rand_inidv.shape[0] == vec_size
+    assert np.all(rand_inidv == 0)
+
+    rand_population_matrix = pop_init.generate_population(None).genotype_matrix
+    assert rand_population_matrix.shape == (pop_size, vec_size)
+    assert np.all(rand_population_matrix == 0)

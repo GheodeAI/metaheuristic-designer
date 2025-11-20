@@ -20,7 +20,7 @@ from copy import copy
 import scipy as sp
 import numpy as np
 
-def run_algorithm(alg_name, memetic, save_state):
+def run_algorithm(alg_name, save_state, show_plots, objective, dim):
     params = {
         "stop_cond": "convergence or time_limit",
         "progress_metric": "time_limit",
@@ -34,12 +34,18 @@ def run_algorithm(alg_name, memetic, save_state):
         "v_timer": 0.5,
     }
 
-    # objfunc = Sphere(30, "min")
-    objfunc = Rastrigin(2, "min")
-    # objfunc = Rosenbrock(2, "min")
-    # objfunc = Ackley(30, "min")
-    # objfunc = Weierstrass(30, "min")
-    # objfunc = HappyCat(3, "min")
+
+    match objective:
+        case "Sphere":
+            objfunc = Sphere(dim, "min")
+        case "Rastrigin":
+            objfunc = Rastrigin(dim, "min")
+        case "Rosenbrock":
+            objfunc = Rosenbrock(dim, "min")
+        case "Weierstrass":
+            objfunc = Weierstrass(dim, "min")
+        case _:
+            raise Exception(f'Objective function "{objective}" doesn\'t exist.')
 
     adaption_encoding = ExtendedEncoding(objfunc.vecsize, param_sizes=(("F", 1),))
 
@@ -66,34 +72,40 @@ def run_algorithm(alg_name, memetic, save_state):
 
     result = alg.optimize()
     ind, best_fitness = result.best_solution(decoded=True)
+    ind_full, best_fitness = result.best_solution(decoded=False)
     print(f"solution vector: {ind}")
-    print(f"params: {adaption_encoding.decode_params(result.genotype_matrix)}")
+    print(f"solution genotype: {ind_full}")
     alg.display_report(show_plots=True)
 
     if save_state:
         alg.store_state("./examples/results/test.json", readable=True, show_population=True)
 
 
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="algorithm", help="Specify an algorithm", default="ES")
-    parser.add_argument(
-        "-m",
-        "--memetic",
-        dest="mem",
-        action="store_true",
-        help="Does local search after mutation",
-    )
+    parser.add_argument("-a", "--algorithm", dest="algorithm", help="specify an algorithm", default="es")
     parser.add_argument(
         "-s",
         "--save-state",
         dest="save_state",
         action="store_true",
-        help="Saves the state of the search strategy",
+        help="saves the state of the search strategy",
+    )
+    parser.add_argument("-o", "--objective", dest="objective", help="name of the objective function.", default="Sphere")
+    parser.add_argument("-d", "--dim", dest="dim", help="dimension of the vectors to optimize.", default=3, type=int)
+    parser.add_argument(
+        "-p",
+        "--plot",
+        dest="plot",
+        action="store_true",
+        help="saves the state of the search strategy",
     )
     args = parser.parse_args()
 
-    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state)
+    run_algorithm(
+        alg_name=args.algorithm.upper(), save_state=args.save_state, show_plots=args.plot, objective=args.objective, dim=args.dim
+    )
 
 
 if __name__ == "__main__":

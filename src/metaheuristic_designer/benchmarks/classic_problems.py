@@ -1,6 +1,6 @@
 import numpy as np
 import warnings
-from ..objective_function import VectorObjectiveFunc
+from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
 
 
 class ThreeSAT(VectorObjectiveFunc):
@@ -28,7 +28,7 @@ class ThreeSAT(VectorObjectiveFunc):
         self.clauses = clauses
         self.n_vars = np.abs(clauses).max()
 
-        super().__init__(self.n_vars, name="3-SAT")
+        super().__init__(self.n_vars, low_lim=0, up_lim=1, name="3-SAT")
 
     @staticmethod
     def from_cnf_file(path):
@@ -103,7 +103,7 @@ class BinKnapsack(VectorObjectiveFunc):
         self.cost = cost
         self.value = value
         self.max_weight = max_weight
-        super().__init__(cost.size, mode="max", name="0-1 Knapsack Problem")
+        super().__init__(cost.size, low_lim=0, up_lim=1, mode="max", name="0-1 Knapsack Problem")
 
     def objective(self, solution):
         """
@@ -147,7 +147,7 @@ class MaxClique(VectorObjectiveFunc):
 
     def __init__(self, adjacency_matrix):
         self.adj_mat = adjacency_matrix
-        super().__init__(adjacency_matrix.shape[0], name="Max Clique")
+        super().__init__(adjacency_matrix.shape[0], low_lim=0, up_lim=adjacency_matrix.shape[0], name="Max Clique")
 
     def objective(self, solution):
         """
@@ -190,7 +190,11 @@ class TSP(VectorObjectiveFunc):
         Not implemented.
         """
 
+        raise NotImplementedError()
+
     def repair_solution(self, solution):
         """
         Not implemented.
         """
+
+        raise NotImplementedError()

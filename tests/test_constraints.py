@@ -1,7 +1,7 @@
 import pytest
 from typing import List, Any
 import numpy as np
-from metaheuristic_designer import ConstraintHandler, NullConstraint
+from metaheuristic_designer import ConstraintHandler, NullConstraint, ConstraintHandlerFromLambda
 from metaheuristic_designer.constraint_handlers import *
 
 # Test data generators
@@ -321,3 +321,28 @@ def test_repair_respects_bounds(constraint_class, vecsize, low_lim, up_lim):
         # All repaired values should be within bounds
         assert np.all(repaired >= low_lim)
         assert np.all(repaired <= up_lim)
+
+# ClipBoundConstraint Tests
+@pytest.mark.parametrize("vecsize,solution,expected_repaired", [
+    (3, np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0])),
+    (4, np.array([2.0, 2.0, 2.0, 2.0]), np.array([0.0, 0.0, 0.0, 0.0])),
+])
+def test_repair_constraint_lambda(vecsize, solution, expected_repaired):
+    """Test that ClipBoundConstraint properly clips values to bounds"""
+    constraint = ConstraintHandlerFromLambda(repair_solution_fn=lambda x: np.zeros(vecsize))
+    repaired = constraint.repair_solution(solution)
+    
+    np.testing.assert_array_equal(repaired, expected_repaired)
+    assert repaired is not solution
+
+# ClipBoundConstraint Tests
+@pytest.mark.parametrize("solution, expected_penalty", [
+    (np.array([0.0, 0.0, 0.0]), 0),  # Within bounds
+    (np.array([2.0, 2.0, 2.0]), 0),  # Above bounds
+])
+def test_penalize_constraint_lambda(solution, expected_penalty):
+    """Test that ClipBoundConstraint properly clips values to bounds"""
+    constraint = ConstraintHandlerFromLambda(penalty_fn=lambda x: 0)
+    calculated_penalty = constraint.penalty(solution)
+    
+    assert expected_penalty == calculated_penalty

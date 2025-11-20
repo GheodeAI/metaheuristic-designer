@@ -24,10 +24,10 @@ class SwarmOpMethods(Enum):
     def from_str(str_input):
         str_input = str_input.lower()
 
-        if str_input not in vector_ops_map:
+        if str_input not in swarm_ops_map:
             raise ValueError(f'Vector operator "{str_input}" not defined')
 
-        return vector_ops_map[str_input]
+        return swarm_ops_map[str_input]
 
 
 swarm_ops_map = {
@@ -71,10 +71,7 @@ class SwarmOperator(Operator):
         population_encoding = population.encoding
 
         # Only evolve solution parameters, the rest is managed in a specific way by each operator
-        if isinstance(population.encoding, ExtendedEncoding):
-            population_matrix = population_encoding.extract_solution(population_matrix_full)
-        else:
-            population_matrix = population_matrix_full
+        population_matrix = population_encoding.extract_solution(population_matrix_full)
         encoded_params = None
 
         fitness_array = copy(population.fitness)
@@ -83,16 +80,9 @@ class SwarmOperator(Operator):
 
         params = copy(self.params)
 
-        # if "Cr" in params and "N" not in params:
-        #     params["N"] = np.count_nonzero(RAND_GEN.random(population_matrix.shape[1]) < params["Cr"])
-
-        # if "N" in params:
-        #     params["N"] = round(params["N"])
-        #     params["N"] = min(params["N"], population_matrix.shape[1])
-
         # Perform one of the methods (switch-case like structure)
         match self.method:
-            case VectorOpMethods.PSO:
+            case SwarmOpMethods.PSO:
                 population_params = population_encoding.decode_params(population_matrix_full)
                 historical_best_solution = population_encoding.extract_solution(historical_best)
                 global_best_solution = population_encoding.extract_solution(global_best[None, :])[0]
@@ -100,9 +90,8 @@ class SwarmOperator(Operator):
                 population_matrix, population_params["speed"] = pso_operator(
                     population_matrix, population_params["speed"], historical_best_solution , global_best_solution , params["w"], params["c1"], params["c2"]
                 )
-                encoded_params = population_encoding.encode_params(population_params) 
 
-            case VectorOpMethods.FIREFLY:
+            case SwarmOpMethods.FIREFLY:
                 raise NotImplementedError
                 population_matrix = firefly(
                     population_matrix,
@@ -114,7 +103,7 @@ class SwarmOperator(Operator):
                     params["gamma"],
                 )
 
-            case VectorOpMethods.GLOWWORM:
+            case SwarmOpMethods.GLOWWORM:
                 raise NotImplementedError
                 population_params = population_encoding.decode_params(population_matrix_full)
                 population_matrix, luciferin = glowworm(
@@ -122,20 +111,19 @@ class SwarmOperator(Operator):
                     fitness_array,
                     population_params["luciferin"],
                 )
-                encoded_params = population_encoding.encode_params(population_params) 
 
         if new_population is None:
-            population_matrix = self.encoding.encode(population_matrix)
+            population_matrix = self.encoding.encode(population_matrix, population_params)
 
             # Only evolve solution parameters, the rest is managed in a specific way by each operator
-            if isinstance(population.encoding, ExtendedEncoding):
-                new_population_matrix = population_matrix_full
-                new_population_matrix[:, :population.encoding.vecsize] = population_matrix[:, :population.encoding.vecsize]
-                if encoded_params is not None:
-                    new_population_matrix[:, population.encoding.vecsize:] = encoded_params
-            else:
-                new_population_matrix = population_matrix
+            # if isinstance(population.encoding, ExtendedEncoding):
+            #     new_population_matrix = population_matrix_full
+            #     new_population_matrix[:, :population.encoding.vecsize] = population_matrix[:, :population.encoding.vecsize]
+            #     if encoded_params is not None:
+            #         new_population_matrix[:, population.encoding.vecsize:] = encoded_params
+            # else:
+            #     new_population_matrix = population_matrix
 
-            new_population = population.update_genotype_matrix(new_population_matrix)
+            new_population = population.update_genotype_matrix(population_matrix)
 
         return new_population

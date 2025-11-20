@@ -197,26 +197,30 @@ class OperatorFromLambda(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, fn: callable, params: ParamScheduler | dict = None, name: str = None, vectorized: bool = True):
+    def __init__(self, operator_fn: callable, params: ParamScheduler | dict = None, name: str = None, vectorized: bool = True):
         """
         Constructor for the OperatorLambda class
         """
 
-        self.fn = fn
+        self.operator_fn = operator_fn
         self.vectorized = vectorized
 
         if name is None:
-            name = fn.__name__
+            name = operator_fn.__name__
 
         super().__init__(params, name)
 
     def evolve(self, population, initializer=None):
         if self.vectorized:
-            new_population = self.fn(population.genotype_matrix, **self.params)
+            population_matrix = copy(population.genotype_matrix)
+            population_matrix = self.operator_fn(population_matrix, **self.params)
         else:
-            new_population = [self.fn(indiv, population, initializer) for indiv in population]
+            population_cpy = copy(population)
+            population_matrix = np.asarray([self.operator_fn(indiv, population, initializer) for indiv in population_cpy])
+        # print(population_matrix)
 
-        return new_population
+        # return population.update_genotype_matrix(population_matrix)
+        return population.update_genotype_matrix(population_matrix)
 
 
 # from .operators import MetaOperator

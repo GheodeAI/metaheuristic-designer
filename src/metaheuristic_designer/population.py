@@ -59,19 +59,20 @@ class Population:
             encoding = DefaultEncoding()
         self.encoding = encoding
 
-        self.index = -1
+        self.index = 0
 
     def __len__(self):
         return self.genotype_matrix.shape[0]
 
     def __iter__(self):
-        self.index = -1
+        self.index = 0
         return self
 
     def __next__(self):
-        self.index += 1
-        if self.index <= len(self):
-            return self.genotype_matrix[self.index - 1]
+        if self.index < len(self):
+            result = self.genotype_matrix[self.index]
+            self.index += 1
+            return result
         raise StopIteration
 
     def __repr__(self):
@@ -91,7 +92,6 @@ class Population:
         )
 
     def __copy__(self) -> Population:
-
         copied_pop = Population(self.objfunc, copy(self.genotype_matrix), encoding=self.encoding)
         copied_pop.fitness = copy(self.fitness)
         copied_pop.fitness_calculated = copy(self.fitness_calculated)
@@ -199,14 +199,12 @@ class Population:
         self: Population
         """
 
-        # population_copy = copy(self)
         self.genotype_matrix[selection_idx, :] = selected_pop.genotype_matrix
         self.fitness[selection_idx] = selected_pop.fitness
         self.fitness_calculated[selection_idx] = selected_pop.fitness_calculated
         self.historical_best_matrix[selection_idx, :] = selected_pop.historical_best_matrix
         self.historical_best_fitness[selection_idx] = selected_pop.historical_best_fitness
 
-        # if selected_pop.best_fitness is None or (self.best_fitness is not None and self.best_fitness > selected_pop.best_fitness):
         if self.best is None or (selected_pop.best is not None and self.best_fitness < selected_pop.best_fitness):
             self.best = selected_pop.best
             self.best_fitness = selected_pop.best_fitness
@@ -231,6 +229,7 @@ class Population:
         sliced_genotype_matrix = copy(self.genotype_matrix[:, mask])
 
         sliced_pop = Population(self.objfunc, sliced_genotype_matrix, encoding=self.encoding)
+        sliced_pop.vecsize = sliced_genotype_matrix.shape[1]
         sliced_pop.historical_best_matrix = copy(self.historical_best_matrix[:, mask])
         sliced_pop.historical_best_fitness = copy(self.historical_best_fitness)
         sliced_pop.fitness_calculated = copy(self.fitness_calculated)
@@ -279,7 +278,7 @@ class Population:
         joined_pop.fitness_calculated = np.concatenate((population1.fitness_calculated, population2.fitness_calculated))
         joined_pop.fitness = np.concatenate((population1.fitness, population2.fitness))
 
-        if population1.best is None or (population2.best is not None and population1.best_fitness < population2.best_fitness):
+        if population1.best is None or (population2.best is not None and population1.best_fitness > population2.best_fitness):
             joined_pop.best = population1.best
             joined_pop.best_fitness = population1.best_fitness
         else:
@@ -407,12 +406,9 @@ class Population:
         prev_fitness = copy(self.fitness)
         self.fitness = self.objfunc.fitness(self, parallel=parallel, threads=threads)
 
-        if len(prev_fitness) != len(self.fitness):
-            self.historical_best_fitness = self.fitness
-        else:
-            improved_mask = prev_fitness < self.fitness
-            self.historical_best_fitness[improved_mask] = self.fitness[improved_mask]
-            self.historical_best_matrix[improved_mask, :] = self.genotype_matrix[improved_mask, :]
+        improved_mask = prev_fitness < self.fitness
+        self.historical_best_fitness[improved_mask] = self.fitness[improved_mask]
+        self.historical_best_matrix[improved_mask, :] = self.genotype_matrix[improved_mask, :]
 
         if self.best is None or np.any(self.fitness > self.best_fitness):
             best_idx = np.argmax(self.fitness)

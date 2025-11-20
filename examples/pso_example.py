@@ -18,9 +18,9 @@ constraint_handler = mhd.ExtendedConstraintHandler(
 
 objfunc = mhd.benchmarks.Sphere(10, constraint_handler=constraint_handler)
 
-operator = mhd.operators.VectorOperator("PSO", {"w": 0.9, "c1":0.9, "c2":0.9})
+operator = mhd.operators.SwarmOperator("PSO", {"w": 0.9, "c1":0.9, "c2":0.9}, encoding=pso_encoding)
 
-strategy = mhd.strategies.PSO(initializer)
+strategy = mhd.strategies.PSO(initializer=initializer, encoding=pso_encoding)
 
 algorithm = mhd.algorithms.GeneralAlgorithm(
     objfunc,

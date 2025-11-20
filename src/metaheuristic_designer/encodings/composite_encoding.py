@@ -10,9 +10,14 @@ class CompositeEncoding(ExtendedEncoding):
 
     def __init__(self, encodings: Iterable[Encoding]):
         self.encodings = encodings
+        vecsize = None
+        param_sizes = []
+        for encoding in encodings:
+            if isinstance(encoding, ExtendedEncoding):
+                param_sizes += encoding.param_sizes
+                vecsize = encoding.vecsize if vecsize is None else min(vecsize, encoding.vecsize)
 
-        # is_extended = any([isinstance(enc, ExtendedEncoding) for enc in encodings])
-        super().__init__(vectorized=False, is_extended=is_extended)
+        super().__init__(vecsize=vecsize, param_sizes=param_sizes)
 
     def encode_func(self, solution: Any) -> Any:
         encoded = solution
@@ -35,7 +40,7 @@ class CompositeEncoding(ExtendedEncoding):
         result_params = population_matrix
         for encoding in self.encodings:
             if isinstance(encoding, ExtendedEncoding):
-                result_params = encoding.extract_params(result_population)
+                result_params = encoding.extract_params(result_params)
 
         return result_params
 
@@ -48,10 +53,13 @@ class CompositeEncoding(ExtendedEncoding):
                 decoded = encoding.decode_func(decoded)
         return decoded
 
-    def encode(self, solutions: Any) -> Any:
+    def encode(self, solutions: Iterable, params: dict = None) -> ndarray:
         encoded = solutions
         for encoding in reversed(self.encodings):
-            encoded = encoding.encode(encoded)
+            if isinstance(encoding, ExtendedEncoding):
+                encoded = encoding.encode(encoded, params)
+            else:
+                encoded = encoding.encode(encoded)
         return encoded
 
     def decode(self, population: Any) -> Any:

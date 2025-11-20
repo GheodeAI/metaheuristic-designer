@@ -1,9 +1,8 @@
-from metaheuristic_designer import ObjectiveFunc, ParamScheduler
+from metaheuristic_designer import ObjectiveFunc, ParamScheduler, ExtendedEncoding, ExtendedInitializer
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import OperatorVector, OperatorAdaptative
-from metaheuristic_designer.initializers import UniformVectorInitializer
-from metaheuristic_designer.selectionMethods import ParentSelection, SurvivorSelection
-from metaheuristic_designer.encodings import ExtraEncoding
+from metaheuristic_designer.operators import VectorOperator, AdaptativeOperator
+from metaheuristic_designer.initializers import UniformInitializer, ExponentialInitializer
+from metaheuristic_designer.selection_methods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.strategies import *
 
 from metaheuristic_designer.benchmarks import *
@@ -15,9 +14,9 @@ import scipy as sp
 import numpy as np
 
 
-class STDAdaptEncoding(ExtraEncoding):
+class STDAdaptEncoding(ExtendedEncoding):
     def decode_param_func(self, genotype):
-        param_vec = self.decode_extra_vec(genotype)
+        param_vec = self.extract_params(genotype)
         return {
             "F": np.maximum(0, param_vec[:, -1]),
             "mu": param_vec[:, :-1],
@@ -50,30 +49,40 @@ def run_algorithm(save_state, objective, dim):
         case _:
             raise Exception(f'Objective function "{objective}" doesn\'t exist.')
 
-    mutation_op = OperatorVector("RandNoise", {"distrib": "VonMises", "scale": 1e-1})
+    adaption_encoding = STDAdaptEncoding(objfunc.vecsize, param_sizes=(("mu", objfunc.vecsize), ("F", 1)))
 
-    param_op = OperatorVector("MutateNSigmas", {"tau": 1 / np.sqrt(objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-7})
-    adaption_encoding = STDAdaptEncoding(objfunc.vecsize, nparams=objfunc.vecsize+1)
+    ada_mutation_op = AdaptativeOperator(
+        VectorOperator("RandNoise", {"distrib": "VonMises"}),
+        {
+            "mu": VectorOperator("MutateNSigmas", {"tau": 1 / np.sqrt(objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-8}),
+            "F": VectorOperator("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-8})
+        },
+        encoding=adaption_encoding
+    )
 
-    ada_mutation_op = OperatorAdaptative(mutation_op, param_op, adaption_encoding)
+    pop_initializer = ExtendedInitializer(
+        solution_init = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding),
+        param_init_dict = {
+            "mu": ExponentialInitializer(objfunc.vecsize, beta=100),
+            "F": ExponentialInitializer(1, beta=100),
+        },
+        encoding=adaption_encoding,
+    )
 
-    objfunc.low_lim = np.hstack([objfunc.low_lim, -np.ones(objfunc.low_lim.shape[0]+1)])
-    objfunc.up_lim = np.hstack([objfunc.up_lim, np.ones(objfunc.up_lim.shape[0]+1)])
-    pop_initializer = UniformVectorInitializer(objfunc.vecsize*2+1, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding)
-
-    cross_op = OperatorVector("Multipoint")
+    cross_op = VectorOperator("Multipoint")
 
     parent_sel_op = ParentSelection("Nothing")
     selection_op = SurvivorSelection("(m+n)")
 
-    search_strat = ES(pop_initializer, ada_mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": 700}, name="Adaptative-ES")
+    search_strat = ES(pop_initializer, ada_mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": 700}, name="Tikhinov Adaptative-ES")
 
     alg = GeneralAlgorithm(objfunc, search_strat, params=params)
 
     result = alg.optimize()
     ind, best_fitness = result.best_solution(decoded=True)
+    ind_extended, _ = result.best_solution(decoded=False)
     print(f"solution vector: {ind}")
-    print(f"params: {adaption_encoding.decode_extra(result.genotype_matrix)}")
+    print(f"params: {adaption_encoding.decode_params(ind_extended[None, :])}")
     alg.display_report(show_plots=True)
 
     if save_state:

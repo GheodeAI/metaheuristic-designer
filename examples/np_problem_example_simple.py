@@ -184,7 +184,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", dest="alg", help="Specify an algorithm", default="GA")
-    parser.add_argument("-p", "--problem", dest="prob", help="Specify an problem to solve", default="Knapsack")
+    parser.add_argument("-o", "--objective", dest="objective", help="Specify an problem to solve", default="Knapsack")
     parser.add_argument(
         "-m",
         "--memetic",
@@ -203,7 +203,7 @@ def main():
 
     run_algorithm(
         alg_name=args.alg,
-        problem_name=args.prob,
+        problem_name=args.objective,
         memetic=args.mem,
         save_state=args.save_state,
     )
