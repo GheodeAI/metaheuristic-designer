@@ -1,9 +1,9 @@
 import numpy as np
 import warnings
-from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
 
 
-class ThreeSAT(ObjectiveVectorFunc):
+class ThreeSAT(VectorObjectiveFunc):
     """
     This is the 3-SAT problem that consist in finding if a logical expression
     given in 3CNF (conjunctive normal form with 3 variables per clause) is satisfiable,
@@ -28,7 +28,7 @@ class ThreeSAT(ObjectiveVectorFunc):
         self.clauses = clauses
         self.n_vars = np.abs(clauses).max()
 
-        super().__init__(self.n_vars, name="3-SAT")
+        super().__init__(self.n_vars, low_lim=0, up_lim=1, name="3-SAT")
 
     @staticmethod
     def from_cnf_file(path):
@@ -79,7 +79,7 @@ class ThreeSAT(ObjectiveVectorFunc):
         return n_satisfied / self.clauses.shape[0]
 
 
-class BinKnapsack(ObjectiveVectorFunc):
+class BinKnapsack(VectorObjectiveFunc):
     """
     This is the 0-1 Knapsack problem that consist in choosing from set of elements
     which have a certain cost and value to maximize the value without reaching a weight threshold.
@@ -103,7 +103,7 @@ class BinKnapsack(ObjectiveVectorFunc):
         self.cost = cost
         self.value = value
         self.max_weight = max_weight
-        super().__init__(cost.size, mode="max", name="0-1 Knapsack Problem")
+        super().__init__(cost.size, low_lim=0, up_lim=1, mode="max", name="0-1 Knapsack Problem")
 
     def objective(self, solution):
         """
@@ -134,7 +134,7 @@ class BinKnapsack(ObjectiveVectorFunc):
         return (np.round(solution) != 0).astype(int)
 
 
-class MaxClique(ObjectiveVectorFunc):
+class MaxClique(VectorObjectiveFunc):
     """
     This is the Maximum clique problem which consists on finding the size of the largest
     subgraph that has all its nodes interconected (a clique).
@@ -147,7 +147,7 @@ class MaxClique(ObjectiveVectorFunc):
 
     def __init__(self, adjacency_matrix):
         self.adj_mat = adjacency_matrix
-        super().__init__(adjacency_matrix.shape[0], name="Max Clique")
+        super().__init__(adjacency_matrix.shape[0], low_lim=0, up_lim=adjacency_matrix.shape[0], name="Max Clique")
 
     def objective(self, solution):
         """
@@ -181,7 +181,7 @@ class MaxClique(ObjectiveVectorFunc):
         return n_cliques
 
 
-class TSP(ObjectiveVectorFunc):
+class TSP(VectorObjectiveFunc):
     def __init__(self):
         super().__init__(1, name="TSP")
 
@@ -190,7 +190,11 @@ class TSP(ObjectiveVectorFunc):
         Not implemented.
         """
 
+        raise NotImplementedError()
+
     def repair_solution(self, solution):
         """
         Not implemented.
         """
+
+        raise NotImplementedError()

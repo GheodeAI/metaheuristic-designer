@@ -1,0 +1,43 @@
+from __future__ import annotations
+import numpy as np
+from ..initializer import Initializer
+from ..encoding import ExtendedEncoding
+from ..utils import RAND_GEN
+
+
+class ExponentialInitializer(Initializer):
+    """
+    Initializer that generates individuals with vectors following an uniform distribution.
+
+    Parameters
+    ----------
+    genotype_size: ndarray
+        The dimension of the vectors accepted by the objective function.
+    beta: ndarray or float
+        Beta parameter of the exponential distribution
+    pop_size: int, optional
+        Number of individuals to be generated.
+    encoding: Encoding, optional
+        Encoding that will be passed to each individual.
+    dtype: type, optional
+        Data type used in each of the components of the vector in the individual.
+    """
+
+    def __init__(self, genotype_size, beta, pop_size=1, encoding=None, dtype=float):
+        super().__init__(pop_size, encoding)
+
+        self.genotype_size = genotype_size
+        self.beta = beta
+        self.dtype = dtype
+
+    def generate_random(self):
+        new_vector_float = RAND_GEN.exponential(self.beta, size=self.genotype_size)
+        if self.dtype is int:
+            new_vector = np.round(new_vector_float).astype(self.dtype)
+        else:
+            new_vector = new_vector_float.astype(self.dtype)
+
+        return new_vector
+
+    def generate_individual(self):
+        return self.generate_random()

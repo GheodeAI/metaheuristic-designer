@@ -1,13 +1,12 @@
 from __future__ import annotations
-from ..ObjectiveFunc import ObjectiveVectorFunc
-from ..Algorithm import Algorithm
-from ..initializers import UniformVectorInitializer
-from ..selectionMethods import ParentSelectionNull
+from ..objective_function import VectorObjectiveFunc
+from ..algorithm import Algorithm
+from ..initializers import UniformInitializer
 from ..strategies import BayesianOptimization
 from ..algorithms import GeneralAlgorithm
 
 
-def bayesian_optimization(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
+def bayesian_optimization(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
     """
     Instantiates a bayesian optimization algorithm to optimize the given objective function.
 
@@ -52,7 +51,7 @@ def _bayesian_optimization_real_vec(params, objfunc):
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
     search_strat = BayesianOptimization(
-        initializer=UniformVectorInitializer(vecsize, min_val, max_val, pop_size=pop_size),
+        initializer=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size),
         params=params,
     )
 

@@ -1,4 +1,0 @@
-from .WeightedMultiObjectiveFunc import WeightedMultiObjectiveFunc
-from .CombinedMultiObjectiveFunc import CombinedMultiObjectiveFunc
-from .MultiObjectiveFunc import MultiObjectiveFunc, MultiObjectiveVectorFunc
-from .ChebychevMultiObjectiveFunc import ChebychevMultiObjectiveFunc

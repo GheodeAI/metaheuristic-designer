@@ -1,6 +1,6 @@
 import pytest
 
-from metaheuristic_designer.initializers import UniformVectorInitializer
+from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.benchmarks import *
 import metaheuristic_designer as mhd
 
@@ -33,7 +33,7 @@ real_benchmarks = [
 @pytest.mark.parametrize("bench_class", real_benchmarks)
 def test_objective_real(vecsize, bench_class):
     objfunc = bench_class(vecsize)
-    pop_init = UniformVectorInitializer(vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
+    pop_init = UniformInitializer(vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
     rand_vec = pop_init.generate_random()
     objfunc.objective(rand_vec)
@@ -42,7 +42,7 @@ def test_objective_real(vecsize, bench_class):
 @pytest.mark.parametrize("bench_class", real_benchmarks)
 def test_repair_solution(vecsize, bench_class):
     objfunc = bench_class(vecsize)
-    pop_init = UniformVectorInitializer(vecsize, -1000000, 1000000, pop_size=100)
+    pop_init = UniformInitializer(vecsize, -1000000, 1000000, pop_size=100)
 
     rand_vec = pop_init.generate_random()
     repaired = objfunc.repair_solution(rand_vec)
@@ -53,16 +53,17 @@ def test_repair_solution(vecsize, bench_class):
 @pytest.mark.parametrize("bench_class", real_benchmarks)
 def test_repair_solution(vecsize, bench_class):
     objfunc = bench_class(vecsize)
-    pop_init = UniformVectorInitializer(vecsize, -1000000, 1000000, pop_size=100)
+    pop_init = UniformInitializer(vecsize, -1000000, 1000000, pop_size=100)
 
     rand_vec = pop_init.generate_random()
-    objfunc.penalize(rand_vec)
+    fixed_solution = objfunc.repair_solution(rand_vec)
+    assert fixed_solution is not rand_vec
 
 @pytest.mark.parametrize("vecsize", [2, 5, 10, 20, 30])
 @pytest.mark.parametrize("bench_class", real_benchmarks)
 def test_fitness(vecsize, bench_class):
     objfunc = bench_class(vecsize)
-    pop_init = UniformVectorInitializer(vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
+    pop_init = UniformInitializer(vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100)
 
     population = pop_init.generate_population(objfunc)
     objfunc.fitness(population, adjusted=False)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Union, List
 import random
-from ...ParamScheduler import ParamScheduler
+from ...param_scheduler import ParamScheduler
 from .CRO_SL import CRO_SL
 
 

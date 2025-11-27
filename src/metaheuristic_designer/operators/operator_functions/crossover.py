@@ -8,8 +8,6 @@ def cross_1p(population):
     Performs a 1-point crossover between one half of the population and the rest.
     """
 
-    print(population.shape)
-
     if population.shape[1] == 1:
         return population
 

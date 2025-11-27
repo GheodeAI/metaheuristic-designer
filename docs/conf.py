@@ -24,10 +24,14 @@ copyright = "2023, Eugenio Lorente-Ramos"
 author = "Eugenio Lorente-Ramos"
 
 # The full version, including alpha/beta/rc tags
+<<<<<<< HEAD
 release = "0.2.3"
+=======
+release = "0.3.0"
+
+>>>>>>> devel
 
 
-# -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom

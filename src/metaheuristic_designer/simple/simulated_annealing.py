@@ -1,13 +1,13 @@
 from __future__ import annotations
-from ..initializers import UniformVectorInitializer, PermInitializer
-from ..operators import OperatorVector, OperatorPerm
+from ..initializers import UniformInitializer, PermInitializer
+from ..operators import VectorOperator, PermOperator
 from ..encodings import TypeCastEncoding
 from ..strategies import SA
 from ..algorithms import GeneralAlgorithm
-from ..ObjectiveFunc import ObjectiveVectorFunc
+from ..objective_function import VectorObjectiveFunc
 
 
-def simulated_annealing(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
+def simulated_annealing(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
     """
     Instantiates a simulated annealing algorithm to optimize the given objective function.
 
@@ -60,9 +60,9 @@ def _simulated_annealing_bin_vec(params, objfunc):
 
     encoding = TypeCastEncoding(int, bool)
 
-    pop_initializer = UniformVectorInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
+    pop_initializer = UniformInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
 
-    mutation_op = OperatorVector("Flip", {"N": mutstr})
+    mutation_op = VectorOperator("Flip", {"N": mutstr})
 
     search_strat = SA(
         pop_initializer,
@@ -90,7 +90,7 @@ def _simulated_annealing_perm_vec(params, objfunc):
 
     pop_initializer = PermInitializer(vecsize, pop_size=1)
 
-    mutation_op = OperatorPerm("Perm", {"N": mutstr})
+    mutation_op = PermOperator("Perm", {"N": mutstr})
 
     search_strat = SA(
         pop_initializer,
@@ -118,9 +118,9 @@ def _simulated_annealing_int_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=int)
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=1, dtype=int)
 
-    mutation_op = OperatorVector(
+    mutation_op = VectorOperator(
         "MutRand",
         {
             "distrib": "Uniform",
@@ -156,9 +156,9 @@ def _simulated_annealing_real_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformVectorInitializer(vecsize, min_val, max_val, pop_size=1, dtype=float)
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=1, dtype=float)
 
-    mutation_op = OperatorVector("RandNoise", {"distrib": "Gauss", "F": mutstr})
+    mutation_op = VectorOperator("RandNoise", {"distrib": "Gauss", "F": mutstr})
 
     search_strat = SA(
         pop_initializer,

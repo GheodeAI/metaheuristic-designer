@@ -1,8 +1,8 @@
 metaheuristic_designer.algorithms package
-============================================
+=========================================
 
 General Algorithm
----------------------------------------------
+-----------------
 
 .. autoclass:: metaheuristic_designer.algorithms.GeneralAlgorithm
    :members:
@@ -10,7 +10,7 @@ General Algorithm
    :show-inheritance:
 
 Memetic Algorithm
----------------------------------------------
+-----------------
 
 .. autoclass:: metaheuristic_designer.algorithms.MemeticAlgorithm
    :members:
@@ -18,7 +18,7 @@ Memetic Algorithm
    :show-inheritance:
 
 Algorithm Selection
----------------------------------------------
+-------------------
 
 .. autoclass:: metaheuristic_designer.algorithms.AlgorithmSelection
    :members:
@@ -26,7 +26,7 @@ Algorithm Selection
    :show-inheritance:
 
 Strategy Selection
----------------------------------------------
+------------------
 
 .. autoclass:: metaheuristic_designer.algorithms.StrategySelection
    :members:

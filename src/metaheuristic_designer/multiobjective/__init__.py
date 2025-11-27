@@ -1,0 +1,4 @@
+from .weighted_multiobjective import WeightedMultiObjectiveFunc
+from .combined_multiobjective import CombinedMultiObjectiveFunc
+from .multiobjective_function import MultiObjectiveFunc, MultiObjectiveVectorFunc
+from .chebychev_multiobjective import ChebychevMultiObjectiveFunc

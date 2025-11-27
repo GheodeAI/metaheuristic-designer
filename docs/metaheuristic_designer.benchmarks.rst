@@ -17,8 +17,8 @@ metaheuristic_designer.benchmarks.img_funcs module
    :undoc-members:
    :show-inheritance:
 
-metaheuristic_designer.benchmarks.benchmark\_funcs module
----------------------------------------------------------
+metaheuristic_designer.benchmarks.benchmark_funcs module
+--------------------------------------------------------
 
 .. automodule:: metaheuristic_designer.benchmarks.benchmark_funcs
    :members:

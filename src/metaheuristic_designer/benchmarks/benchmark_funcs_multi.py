@@ -1,5 +1,5 @@
 import numpy as np
-from ..multiObjfunc import MultiObjectiveVectorFunc
+from ..multiobjective import MultiObjectiveVectorFunc
 
 
 class FonsecaFleming(MultiObjectiveVectorFunc):

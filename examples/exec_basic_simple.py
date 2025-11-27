@@ -127,7 +127,7 @@ def main():
     parser.add_argument("-d", "--dim", dest="dim", help="Dimension of the vectors to optimize.", default=3, type=int)
     args = parser.parse_args()
 
-    run_algorithm(alg_name=args.algorithm, memetic=args.mem, save_state=args.save_state, objective=args.objective, dim=args.dim)
+    run_algorithm(alg_name=args.algorithm.upper(), memetic=args.mem, save_state=args.save_state, objective=args.objective, dim=args.dim)
 
 
 if __name__ == "__main__":
