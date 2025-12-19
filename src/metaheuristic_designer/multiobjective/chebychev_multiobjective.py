@@ -4,7 +4,7 @@ from typing import Iterable
 from ..objective_function import *
 
 
-class ChebychevMultiObjectiveFunc(ObjectiveFunc):
+class ChebychevMultiobjectiveFunc(ObjectiveFunc):
     """
     https://doi.org/10.1007/
     """

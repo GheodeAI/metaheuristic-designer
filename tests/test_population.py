@@ -148,7 +148,7 @@ def test_update_genotype_matrix(mock_objfunc, sample_genotype, new_size, same_si
 ])
 def test_take_selection(mock_objfunc, sample_genotype, selection_idx):
     pop = Population(mock_objfunc, sample_genotype)
-    pop.fitness = np.array([1.0, 2.0, 3.0])
+    pop.fitness = np.array([[1.0], [2.0], [3.0]])
     pop.best = sample_genotype[2]
     pop.best_fitness = 3.0
     
@@ -170,7 +170,7 @@ def test_apply_selection(mock_objfunc, sample_genotype, selection_idx):
     pop = Population(mock_objfunc, sample_genotype)
     selected_pop = Population(mock_objfunc, np.array([[10, 11, 12], [13, 14, 15]]))
     selected_pop.best = np.array([13, 14, 15])
-    selected_pop.best_fitness = 5.0
+    selected_pop.best_fitness = np.array([5.0])
     
     result = pop.apply_selection(selected_pop, selection_idx)
     
@@ -339,12 +339,12 @@ def test_calculate_fitness(mock_objfunc, sample_genotype):
     
     assert result is pop
     # Fitness should be set to what objfunc.fitness returns
-    assert np.array_equal(pop.fitness, np.array([1.0, 2.0, 3.0]))
+    assert np.array_equal(pop.fitness, np.array([[1.0], [2.0], [3.0]]))
     # Historical best should be updated
-    assert np.array_equal(pop.historical_best_fitness, np.array([1.0, 2.0, 3.0]))
+    assert np.array_equal(pop.historical_best_fitness, np.array([[1.0], [2.0], [3.0]]))
     # Best individual should be set
     assert np.array_equal(pop.best, sample_genotype[2])  # Index 2 has fitness 3.0
-    assert pop.best_fitness == 3.0
+    assert np.array_equal(pop.best_fitness, np.array([3.0]))
 
 
 def test_repair_solutions(mock_objfunc, sample_genotype):
@@ -374,7 +374,7 @@ def test_decode(mock_objfunc, sample_genotype, default_encoding):
 
 def test_get_state(mock_objfunc, sample_genotype):
     pop = Population(mock_objfunc, sample_genotype)
-    pop.fitness = np.array([1.0, 2.0, 3.0])
+    pop.fitness = np.array([[1.0], [2.0], [3.0]])
     pop.best = sample_genotype[0]
     pop.best_fitness = 1.0
     
@@ -382,7 +382,7 @@ def test_get_state(mock_objfunc, sample_genotype):
     
     expected_state = {
         "genotype_matrix": sample_genotype,
-        "fitness": np.array([1.0, 2.0, 3.0]),
+        "fitness": np.array([[1.0], [2.0], [3.0]]),
         "historical_best_matrix": sample_genotype,
         "historical_best_fitness": pop.historical_best_fitness,
         "best": sample_genotype[0],

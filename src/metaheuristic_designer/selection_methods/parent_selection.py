@@ -77,7 +77,7 @@ class ParentSelection(SelectionMethod):
     def select(self, population: Population, offspring: Population = None) -> Population:
         new_population = None
         parent_idx = None
-        fitness_array = population.fitness
+        fitness_array = population.fitness.flatten()
 
         match self.method:
             case ParentSelMethod.TOURNAMENT:

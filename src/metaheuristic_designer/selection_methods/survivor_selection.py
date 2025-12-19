@@ -88,8 +88,8 @@ class SurvivorSelection(SelectionMethod):
     def select(self, population: Population, offspring: Population) -> Population:
         new_population = None
         full_idx = None
-        population_fitness = copy(population.fitness)
-        offspring_fitness = copy(offspring.fitness)
+        population_fitness = population.fitness.flatten()
+        offspring_fitness = offspring.fitness.flatten()
 
         match self.method:
             case SurvSelMethod.ELITISM:
@@ -99,7 +99,7 @@ class SurvivorSelection(SelectionMethod):
                 full_idx = cond_elitism(population_fitness, offspring_fitness, self.params["amount"])
 
             case SurvSelMethod.GENERATIONAL:
-                self.last_selection_idx = range(len(population), len(offspring))
+                self.last_selection_idx = np.arange(len(population), len(offspring))
                 new_population = offspring
 
             case SurvSelMethod.ONE_TO_ONE:

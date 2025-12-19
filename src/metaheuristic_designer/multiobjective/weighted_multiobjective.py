@@ -5,7 +5,7 @@ from ..objective_function import *
 from ..population import Population
 
 
-class WeightedMultiObjectiveFunc(ObjectiveFunc):
+class WeightedMultiobjectiveFunc(ObjectiveFunc):
     def __init__(
         self,
         objectives: Iterable[ObjectiveFunc],
@@ -30,11 +30,6 @@ class WeightedMultiObjectiveFunc(ObjectiveFunc):
         return fitness_total
 
     def objective(self, solution: Any) -> ndarray:
-        # obj_total = 0
-        # for obj_func, w in zip(self.objectives, self.weights):
-        #     obj_total += w * obj_func.objective(solution)
-        # return obj_total
-
         return np.array([objfunc.objective(solution) for objfunc in self.objectives])
 
     def repair_solution(self, solution: Any) -> Any:

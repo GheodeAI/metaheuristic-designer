@@ -28,7 +28,7 @@ surv_multi_method_map = {
 }
 
 
-class SurvivorSelectionMulti(SelectionMethod):
+class SurvivorSelectionMO(SelectionMethod):
     """
     Survivor selection methods.
 

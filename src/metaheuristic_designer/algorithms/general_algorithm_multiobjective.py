@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from ..algorithm import Algorithm, process_condition
 
 
-class GeneralAlgorithmMulti(Algorithm):
+class GeneralAlgorithmMO(Algorithm):
     """
     General framework for metaheuristic algorithms.
 

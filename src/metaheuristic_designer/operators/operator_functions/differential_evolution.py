@@ -22,6 +22,8 @@ def DE_best1(population, fitness, F, CR):
     Performs the differential evolution operator DE/best/1
     """
 
+    fitness = fitness.flatten()
+
     r_best = population[np.argmax(fitness)][None, :]
     r1 = population[RAND_GEN.permutation(population.shape[0])]
     r2 = population[RAND_GEN.permutation(population.shape[0])]

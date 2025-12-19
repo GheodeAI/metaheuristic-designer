@@ -1,8 +1,8 @@
 import numpy as np
-from ..multiobjective import MultiObjectiveVectorFunc
+from ..multiobjective import MultiobjectiveVectorFunc
 
 
-class FonsecaFleming(MultiObjectiveVectorFunc):
+class FonsecaFleming(MultiobjectiveVectorFunc):
     def __init__(self, name="Fonseca Fleming function"):
         super().__init__(n_objectives=2, vecsize=3, low_lim=-4, up_lim=4, modes="min", name=name)
 
@@ -16,7 +16,7 @@ class FonsecaFleming(MultiObjectiveVectorFunc):
         ).squeeze()
 
 
-class Kursawe(MultiObjectiveVectorFunc):
+class Kursawe(MultiobjectiveVectorFunc):
     def __init__(self, name="Kursawe function"):
         super().__init__(n_objectives=2, vecsize=3, low_lim=-5, up_lim=5, modes="min", name=name)
 
@@ -30,7 +30,7 @@ class Kursawe(MultiObjectiveVectorFunc):
         ).squeeze()
 
 
-class Shaffer1(MultiObjectiveVectorFunc):
+class Shaffer1(MultiobjectiveVectorFunc):
     def __init__(self, name="Shaffer nº1"):
         super().__init__(n_objectives=2, vecsize=1, low_lim=-10, up_lim=10, modes="min", name=name)
 

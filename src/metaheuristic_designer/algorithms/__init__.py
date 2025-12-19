@@ -1,4 +1,4 @@
-from .general_algorithm_multiobjective import GeneralAlgorithmMulti
+from .general_algorithm_multiobjective import GeneralAlgorithmMO
 from .general_algorithm import GeneralAlgorithm
 from .memetic_algorithm import MemeticAlgorithm
 from .algorithm_selection import AlgorithmSelection

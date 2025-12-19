@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Union
 import numpy as np
-from ...selection_methods import NullParentSelection, SurvivorSelectionMulti
+from ...selection_methods import NullParentSelection, SurvivorSelectionMO
 from ...operator import NullOperator
 from ...operators import VectorOperator, MetaOperator
 from ..variable_population import VariablePopulation
@@ -32,7 +32,7 @@ class NSGAII(VariablePopulation):
         evolve_op = MetaOperator("Sequence", [prob_mut_op, prob_cross_op])
 
         parent_sel = NullParentSelection()
-        survivor_sel = SurvivorSelectionMulti("non-dominated-sorting", {"amount": initializer.pop_size})
+        survivor_sel = SurvivorSelectionMO("non-dominated-sorting", {"amount": initializer.pop_size})
 
         super().__init__(
             initializer,

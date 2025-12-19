@@ -1,4 +1,4 @@
-from .weighted_multiobjective import WeightedMultiObjectiveFunc
-from .combined_multiobjective import CombinedMultiObjectiveFunc
-from .multiobjective_function import MultiObjectiveFunc, MultiObjectiveVectorFunc
-from .chebychev_multiobjective import ChebychevMultiObjectiveFunc
+from .weighted_multiobjective import WeightedMultiobjectiveFunc
+from .combined_multiobjective import CombinedMultiobjectiveFunc
+from .multiobjective_function import MultiobjectiveFunc, MultiobjectiveVectorFunc
+from .chebychev_multiobjective import ChebychevMultiobjectiveFunc

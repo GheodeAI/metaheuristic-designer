@@ -47,7 +47,13 @@ def test_hillclimb_empty():
 def test_hillclimb():
     search_strat = HillClimb(pop_init_single, mutation_op)
     alg = GeneralAlgorithm(objfunc, search_strat, params=test_params)
-    alg.optimize()
+    best_pop = alg.optimize()
+
+    best_pop.fitness_calculated = best_pop.fitness_calculated & 0
+    print(objfunc.fitness(best_pop, adjusted=True))
+    best_pop.fitness_calculated = best_pop.fitness_calculated & 0
+    print(objfunc.fitness(best_pop, adjusted=False))
+
     assert alg.fit_history[0] > alg.fit_history[-1]
     assert search_strat.pop_size == 1
 

@@ -50,10 +50,10 @@ class ObjectiveFunc(ABC):
 
         if mode not in ["max", "min"]:
             raise ValueError('Optimization objective (mode) must be "min" or "max".')
-        self.mode = mode
 
         if mode == "min":
             self.factor = -1
+        self.mode = mode
 
     def __call__(
         self,

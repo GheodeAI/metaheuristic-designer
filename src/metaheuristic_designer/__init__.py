@@ -3,7 +3,7 @@ from .utils import RAND_GEN, reset_seed
 from .objective_function import ObjectiveFunc, NullObjectiveFunc, VectorObjectiveFunc, ObjectiveFromLambda
 from . import benchmarks
 
-from .multiobjective import MultiObjectiveFunc, CombinedMultiObjectiveFunc, WeightedMultiObjectiveFunc
+from .multiobjective import MultiobjectiveFunc, CombinedMultiobjectiveFunc, WeightedMultiobjectiveFunc
 from . import multiobjective
 
 from .constraint_handler import (

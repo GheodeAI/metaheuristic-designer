@@ -2,10 +2,10 @@ from __future__ import annotations
 import numpy as np
 from numpy import ndarray
 from typing import Iterable
-from .multiobjective_function import MultiObjectiveFunc
+from .multiobjective_function import MultiobjectiveFunc
 
 
-class CombinedMultiObjectiveFunc(MultiObjectiveFunc):
+class CombinedMultiobjectiveFunc(MultiobjectiveFunc):
     def __init__(
         self,
         objectives: List[ObjectiveFunc],
