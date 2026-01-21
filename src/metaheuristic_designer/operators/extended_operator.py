@@ -48,7 +48,7 @@ class ExtendedOperator(Operator):
         self.param_operators = param_operators
         operator_list = [base_operator] + [param_operators[param_name] for idx, (param_name, _) in enumerate(encoding.param_sizes)]
 
-        self.main_operator = CompositeOperator(operator_list, "Split", {"mask": vecmask})
+        self.main_operator = SplitOperator(operator_list, {"mask": vecmask})
         self.vecmask = vecmask
         self.param_encoding = encoding 
 

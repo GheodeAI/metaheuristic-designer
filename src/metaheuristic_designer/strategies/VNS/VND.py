@@ -33,7 +33,7 @@ class VND(SearchStrategy):
             params = {}
 
         self.op_list = op_list
-        perturb_op = CompositeOperator(op_list, method="Pick", params={"init_idx": 0})
+        perturb_op = BranchOperator(op_list, method="Pick", params={"init_idx": 0})
 
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
         self.new_loop_flag = False

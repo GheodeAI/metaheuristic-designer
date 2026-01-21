@@ -6,7 +6,7 @@ from ...initializer import Initializer
 from ...param_scheduler import ParamScheduler
 from ...search_strategy import SearchStrategy
 from ...operator import Operator
-from ...operators import CompositeOperator
+from ...operators import BranchOperator
 from ...selection_methods import SurvivorSelection
 
 
@@ -30,7 +30,7 @@ class RVNS(SearchStrategy):
             params = {}
 
         self.op_list = op_list
-        operator = CompositeOperator(op_list, method="Pick", params={"init_idx": 0})
+        operator = BranchOperator(op_list, method="Pick", params={"init_idx": 0})
 
         self.current_op = 0
 

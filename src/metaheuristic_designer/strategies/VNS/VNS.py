@@ -37,7 +37,7 @@ class VNS(SearchStrategy):
 
         self.iterations = params.get("iters", 100)
         self.op_list = op_list
-        operator = CompositeOperator(op_list, method="Pick", params={"init_idx": 0})
+        operator = BranchOperator(op_list, method="Pick", params={"init_idx": 0})
 
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 

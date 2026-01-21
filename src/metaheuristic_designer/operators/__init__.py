@@ -1,4 +1,6 @@
-from .composite_operator import CompositeOperator, CompositeOpMethods, composite_ops_map
+from .composite_operator import CompositeOperator
+from .branch_operator import BranchOperator, BranchOpMethods, branch_ops_map
+from .split_operator import SplitOperator
 from .extended_operator import ExtendedOperator
 from .adaptative_operator import AdaptativeOperator
 from .vector_operator import VectorOperator, VectorOpMethods, vector_ops_map

@@ -5,7 +5,7 @@ from ...selection_methods import SurvivorSelection
 from ...param_scheduler import ParamScheduler
 from ...search_strategy import SearchStrategy
 from ...operator import Operator
-from ...operators import CompositeOperator
+from ...operators import BranchOperator
 
 
 class CRO_SL(SearchStrategy):
@@ -30,7 +30,7 @@ class CRO_SL(SearchStrategy):
         self.operator_list = operator_list
         self.operator_idx = [i % len(operator_list) for i in range(initializer.pop_size)]
 
-        self.operator = CompositeOperator(operator_list, method="Pick")
+        self.operator = BranchOperator(operator_list, method="Pick")
         self.operator.chosen_idx = self.operator_idx
 
         self.survivor_sel = SurvivorSelection(

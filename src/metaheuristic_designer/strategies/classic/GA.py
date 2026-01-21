@@ -3,7 +3,7 @@ from ...initializer import Initializer
 from ...operator import Operator, NullOperator
 from ...selection_methods import ParentSelection, SurvivorSelection
 from ...param_scheduler import ParamScheduler
-from ...operators import CompositeOperator
+from ...operators import CompositeOperator, BranchOperator
 from ..variable_population import VariablePopulation
 
 
@@ -30,8 +30,8 @@ class GA(VariablePopulation):
 
         null_operator = NullOperator()
 
-        prob_mut_op = CompositeOperator([mutation_op, null_operator], method="Branch", params={"p": self.pmut})
-        prob_cross_op = CompositeOperator([cross_op, null_operator], method="Branch", params={"p": self.pcross})
+        prob_mut_op = BranchOperator([mutation_op, null_operator], method="Random", params={"p": self.pmut})
+        prob_cross_op = BranchOperator([cross_op, null_operator], method="Random", params={"p": self.pcross})
 
         evolve_op = CompositeOperator([prob_cross_op, prob_mut_op])
 

@@ -9,7 +9,7 @@ from ..param_scheduler import ParamScheduler
 from ..utils import RAND_GEN
 
 
-class CompositeOperator(Operator):
+class SplitOperator(Operator):
     """
     Operator class that utilizes a list of operators to modify individuals.
 
@@ -28,6 +28,8 @@ class CompositeOperator(Operator):
     def __init__(
         self,
         op_list: Iterable[Operator],
+        method: str = None, 
+        params: ParamScheduler | dict = None,
         name: str = None,
     ):
         """
@@ -45,15 +47,29 @@ class CompositeOperator(Operator):
                     op_names.append(op.name)
 
             joined_names = ", ".join(op_names)
-            name = f"Sequence ({joined_names})"
+            name = f"Split ({joined_names})"
 
-        super().__init__(name=name)
+        if params is None:
+            # Default parameters
+            params = {
+                "mask": 0,
+            }
+
+        super().__init__(params, name)
+
+        # Record of the index of the last operator used
+        self.mask = params.get("mask", 0)
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)
 
-        for op in self.op_list:
-            new_population = op.evolve(new_population, initializer)
+        for idx_op, op in enumerate(self.op_list):
+            split_mask = self.mask == idx_op
+
+            if np.any(split_mask):
+                split_population = new_population.take_slice(split_mask)
+                split_population = op.evolve(split_population, initializer)
+                new_population = new_population.apply_slice(split_population, split_mask)
 
         return new_population
 
@@ -76,3 +92,4 @@ class CompositeOperator(Operator):
                 data["op_list"].append("lambda_func")
 
         return data
+
