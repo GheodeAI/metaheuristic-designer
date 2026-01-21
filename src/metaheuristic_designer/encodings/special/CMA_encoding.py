@@ -1,6 +1,6 @@
 from __future__ import annotations
 import numpy as np
-from ...encoding import ExtendedEncoding
+from .. import ExtendedEncoding
 
 
 class CMAEncoding(ExtendedEncoding):

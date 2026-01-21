@@ -4,7 +4,7 @@ import enum
 from enum import Enum
 from ..operator import Operator
 from .operator_functions.permutation import *
-from ..encoding import ExtendedEncoding
+from ..encodings import ExtendedEncoding
 from ..param_scheduler import ParamScheduler
 from ..utils import RAND_GEN
 

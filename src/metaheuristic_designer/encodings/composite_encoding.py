@@ -1,7 +1,5 @@
 from __future__ import annotations
-from typing import Any, Iterable
-from ..encoding import Encoding, ExtendedEncoding
-
+from .extended_encoding import ExtendedEncoding
 
 class CompositeEncoding(ExtendedEncoding):
     """

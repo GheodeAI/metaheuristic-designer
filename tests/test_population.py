@@ -9,7 +9,8 @@ sys.modules['.utils'] = Mock()
 sys.modules['.objective_function'] = Mock()
 sys.modules['.encoding'] = Mock()
 
-from metaheuristic_designer import RAND_GEN, ObjectiveFunc, Encoding, DefaultEncoding, ExtendedEncoding, Population
+from metaheuristic_designer import RAND_GEN, ObjectiveFunc, Encoding, DefaultEncoding, Population
+from metaheuristic_designer.encodings import ExtendedEncoding
 
 
 # Fixtures for common test objects

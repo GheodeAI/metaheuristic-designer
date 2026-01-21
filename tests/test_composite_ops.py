@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 from metaheuristic_designer import Population
-from metaheuristic_designer.operators import MetaOperator, meta_ops_map, VectorOperator
+from metaheuristic_designer.operators import CompositeOperator, composite_ops_map, VectorOperator
 from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
 from metaheuristic_designer.initializers import UniformInitializer
 import metaheuristic_designer as mhd
@@ -16,7 +16,7 @@ example_population3 = Population(Sphere(100), mhd.RAND_GEN.uniform(-100, 100, (p
 
 def test_errors():
     with pytest.raises(ValueError):
-        operator = MetaOperator("not_a_method", [])
+        operator = CompositeOperator([], "not_a_method")
 
 
 @pytest.mark.parametrize("population", [example_population1])
@@ -43,7 +43,7 @@ def test_errors():
 )
 def test_branch_op(population, op_list, args):
     pop_init = UniformInitializer(population.vec_size, 0, 1, pop_size)
-    operator = MetaOperator("branch", op_list, args)
+    operator = CompositeOperator(op_list, "branch", params=args)
 
     new_population = operator.evolve(population, pop_init)
     # assert type(new_indiv.genotype) == np.ndarray
@@ -69,7 +69,7 @@ def test_branch_op(population, op_list, args):
 )
 def test_sequence_op(population, op_list, expected_val):
     pop_init = UniformInitializer(population.vec_size, 0, 1, pop_size)
-    operator = MetaOperator("sequence", op_list)
+    operator = CompositeOperator(op_list)
 
     new_population = operator.evolve(population, pop_init)
     # assert type(new_indiv.genotype) == np.ndarray
@@ -95,7 +95,7 @@ def test_sequence_op(population, op_list, expected_val):
 )
 def test_pick_op(population, op_list, values):
     pop_init = UniformInitializer(population.vec_size, 0, 1, pop_size)
-    operator = MetaOperator("pick", op_list, {})
+    operator = CompositeOperator(op_list, method="pick", params={})
     for i, _ in enumerate(op_list):
         operator.chosen_idx = i
         new_population = operator.evolve(population, pop_init)
@@ -124,7 +124,7 @@ def test_pick_op(population, op_list, values):
 def test_split_op(population, op_list, values, mask):
     pop_init = UniformInitializer(population.vec_size, 0, 1, pop_size)
     mask = mask[:population.vec_size]
-    operator = MetaOperator("split", op_list, {"mask": mask})
+    operator = CompositeOperator(op_list, method="split", params={"mask": mask})
     new_population = operator.evolve(population, pop_init)
 
     # new_indiv = operator.evolve(example_individual, [example_individual], None, example_individual, pop_init)

@@ -9,7 +9,7 @@ from ..param_scheduler import ParamScheduler
 from ..utils import RAND_GEN
 
 
-class MetaOpMethods(Enum):
+class CompositeOpMethods(Enum):
     BRANCH = enum.auto()
     SEQUENCE = enum.auto()
     SPLIT = enum.auto()
@@ -19,22 +19,21 @@ class MetaOpMethods(Enum):
     def from_str(str_input):
         str_input = str_input.lower()
 
-        if str_input not in meta_ops_map:
+        if str_input not in composite_ops_map:
             raise ValueError(f'Operator on operators "{str_input}" not defined')
 
-        return meta_ops_map[str_input]
+        return composite_ops_map[str_input]
 
-
-meta_ops_map = {
-    "branch": MetaOpMethods.BRANCH,
-    "sequence": MetaOpMethods.SEQUENCE,
-    "chain": MetaOpMethods.SEQUENCE,
-    "split": MetaOpMethods.SPLIT,
-    "pick": MetaOpMethods.PICK,
+composite_ops_map = {
+    "branch": CompositeOpMethods.BRANCH,
+    "sequence": CompositeOpMethods.SEQUENCE,
+    "chain": CompositeOpMethods.SEQUENCE,
+    "split": CompositeOpMethods.SPLIT,
+    "pick": CompositeOpMethods.PICK,
 }
 
 
-class MetaOperator(Operator):
+class CompositeOperator(Operator):
     """
     Operator class that utilizes a list of operators to modify individuals.
 
@@ -52,8 +51,8 @@ class MetaOperator(Operator):
 
     def __init__(
         self,
-        method: str,
         op_list: Iterable[Operator],
+        method: str = None, 
         params: ParamScheduler | dict = None,
         name: str = None,
     ):
@@ -85,21 +84,24 @@ class MetaOperator(Operator):
 
         super().__init__(params, name)
 
-        self.method = MetaOpMethods.from_str(method)
+        if method is None:
+            self.method = CompositeOpMethods.SEQUENCE
+        else:
+            self.method = CompositeOpMethods.from_str(method)
 
         # Record of the index of the last operator used
         self.chosen_idx = params.get("init_idx", -1)
         self.mask = params.get("mask", 0)
 
         # If we have a branch with 2 operators and "p" is given as an input
-        if self.method == MetaOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
+        if self.method == CompositeOpMethods.BRANCH and "weights" not in params and "p" in params and len(op_list) == 2:
             params["weights"] = [params["p"], 1 - params["p"]]
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)
 
         match self.method:
-            case MetaOpMethods.BRANCH:
+            case CompositeOpMethods.BRANCH:
                 self.chosen_idx = RAND_GEN.choice(
                     np.arange(len(self.op_list)),
                     size=population.pop_size,
@@ -113,7 +115,7 @@ class MetaOperator(Operator):
                         split_population = op.evolve(split_population, initializer)
                         new_population = new_population.apply_selection(split_population, split_mask)
 
-            case MetaOpMethods.PICK:
+            case CompositeOpMethods.PICK:
                 if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
                     chosen_idx = self.chosen_idx
                 else:
@@ -128,11 +130,11 @@ class MetaOperator(Operator):
                         split_population = op.evolve(split_population, initializer)
                         new_population = new_population.apply_selection(split_population, split_mask)
 
-            case MetaOpMethods.SEQUENCE:
+            case CompositeOpMethods.SEQUENCE:
                 for op in self.op_list:
                     new_population = op.evolve(new_population, initializer)
 
-            case MetaOpMethods.SPLIT:
+            case CompositeOpMethods.SPLIT:
                 for idx_op, op in enumerate(self.op_list):
                     split_mask = self.mask == idx_op
 

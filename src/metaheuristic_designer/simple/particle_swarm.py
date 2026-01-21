@@ -2,13 +2,11 @@ from __future__ import annotations
 import numpy as np
 from ..objective_function import VectorObjectiveFunc
 from ..algorithm import Algorithm
-from ..initializer import ExtendedInitializer
-from ..initializers import UniformInitializer
+from ..initializers import UniformInitializer, ExtendedInitializer
 from ..encodings import CompositeEncoding, TypeCastEncoding, SigmoidEncoding, PSOEncoding
 from ..strategies import PSO
 from ..algorithms import GeneralAlgorithm
-from ..constraint_handler import ExtendedConstraintHandler
-from ..constraint_handlers import ClipBoundConstraint, BounceBoundConstraint
+from ..constraint_handlers import ClipBoundConstraint, BounceBoundConstraint, ExtendedConstraintHandler
 
 
 def particle_swarm(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:

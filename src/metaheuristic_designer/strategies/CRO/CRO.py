@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Union
 from copy import deepcopy
-from ...operators import MetaOperator
+from ...operators import CompositeOperator
 from ...selection_methods import SurvivorSelection
 from ..static_population import StaticPopulation
 from ...param_scheduler import ParamScheduler
@@ -20,7 +20,7 @@ class CRO(StaticPopulation):
         params: ParamScheduler | dict = {},
         name: str = "CRO",
     ):
-        evolve_op = MetaOperator("Branch", [cross_op, mutation_op], {"p": params["Fb"]})
+        evolve_op = CompositeOperator([cross_op, mutation_op], method="Branch", params={"p": params["Fb"]})
 
         survivor_sel = SurvivorSelection(
             "CRO",

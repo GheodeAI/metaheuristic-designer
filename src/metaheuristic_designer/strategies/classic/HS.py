@@ -1,7 +1,7 @@
 from __future__ import annotations
 from ...param_scheduler import ParamScheduler
 from ...initializer import Initializer
-from ...operators import VectorOperator, MetaOperator
+from ...operators import VectorOperator, CompositeOperator
 from ...selection_methods import SurvivorSelection
 from ..variable_population import VariablePopulation
 
@@ -35,9 +35,9 @@ class HS(VariablePopulation):
         )
         rand1 = VectorOperator("RandomMask", {"Cr": 1 - params["HMCR"]})
 
-        mutate = MetaOperator("Sequence", [mutate1, rand1])
+        mutate = CompositeOperator([mutate1, rand1])
 
-        evolve_op = MetaOperator("Sequence", [cross, mutate])
+        evolve_op = CompositeOperator([cross, mutate])
 
         super().__init__(
             initializer,
