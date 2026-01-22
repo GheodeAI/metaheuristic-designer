@@ -137,6 +137,33 @@ class VectorOperator(Operator):
         if name is None:
             name = method
 
+        if params == "default":
+            params = {
+                "F": 0.5,
+                "Cr": 0.8,
+                "N": 5,
+                "Nindiv": 5,
+                "P": 0.1,
+                "distrib": "gauss",
+                "temp_ch": 10,
+                "iter": 20,
+                "Low": -10,
+                "Up": 10,
+                "p": 0.5,
+                "mu": 2,
+                "epsilon": 0.1,
+                "tau": 0.1,
+                "tau_multiple": 0.1,
+                "a": 0.1,
+                "b": 0.1,
+                "d": 0.1,
+                "g": 0.1,
+                "w": 0.7,
+                "c1": 1.5,
+                "c2": 1.5,
+                "function": lambda x, y, **z: x,
+            }
+
         super().__init__(params=params, name=name, use_params=use_params, encoding=encoding)
 
         self.method = VectorOpMethods.from_str(method)
@@ -174,112 +201,101 @@ class VectorOperator(Operator):
         match self.method:
             ## Cross operations
             case VectorOpMethods.ONE_POINT:
-                population_matrix = cross_1p(population_matrix)
+                population_matrix = cross_1p(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.TWO_POINT:
-                population_matrix = cross_2p(population_matrix)
+                population_matrix = cross_2p(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.MULTIPOINT:
-                population_matrix = cross_mp(population_matrix)
+                population_matrix = cross_mp(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.WEIGHTED_AVG:
-                population_matrix = weighted_average_cross(population_matrix, params["F"])
+                population_matrix = weighted_average_cross(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.BLXALPHA:
-                population_matrix = blxalpha(population_matrix, params["Cr"])
+                population_matrix = blxalpha(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.SBX:
-                population_matrix = sbx(population_matrix, params["Cr"])
+                population_matrix = sbx(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.XOR_CROSS:
-                population_matrix = xor_cross(population_matrix)
+                population_matrix = xor_cross(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.MULTICROSS:
-                population_matrix = multi_cross(population_matrix, params["Nindiv"])
+                population_matrix = multi_cross(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.CROSSINTERAVG:
-                population_matrix = cross_inter_avg(population_matrix, params["N"])
+                population_matrix = cross_inter_avg(population_matrix, fitness_array, **params)
 
             ## Mutation operators
             case VectorOpMethods.XOR:
-                population_matrix = xor_mask(population_matrix, params["N"], params.get("BinRep", "byte"))
+                population_matrix = xor_mask(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.PERM:
-                population_matrix = permute_mutation(population_matrix, params["N"])
+                population_matrix = permute_mutation(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.GAUSS:
-                population_matrix = gaussian_mutation(population_matrix, params["F"])
+                population_matrix = gaussian_mutation(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.LAPLACE:
-                population_matrix = laplace_mutation(population_matrix, params["F"])
+                population_matrix = laplace_mutation(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.CAUCHY:
-                population_matrix = cauchy_mutation(population_matrix, params["F"])
+                population_matrix = cauchy_mutation(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.UNIFORM:
-                population_matrix = uniform_mutation(population_matrix, params["F"])
+                population_matrix = uniform_mutation(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.POISSON:
-                population_matrix = poisson_mutation(population_matrix, params["F"], params["mu"])
+                population_matrix = poisson_mutation(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.MUTNOISE:
-                population_matrix = mutate_noise(population_matrix, **params)
+                population_matrix = mutate_noise(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.MUTSAMPLE:
-                population_matrix = mutate_sample(population_matrix, **params)
+                population_matrix = mutate_sample(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.RANDNOISE:
-                population_matrix = rand_noise(population_matrix, **params)
+                population_matrix = rand_noise(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.RANDSAMPLE:
-                population_matrix = rand_sample(population_matrix, **params)
+                population_matrix = rand_sample(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.GENERATE:
-                population_row = generate_statistic(population_matrix, **params)
+                population_row = generate_statistic(population_matrix, fitness_array, **params)
                 population_matrix = np.tile(population_row, population_matrix.shape[0]).reshape(population_matrix.shape)
 
             ## Differential evolution operators
             case VectorOpMethods.DE_RAND_1:
-                population_matrix = DE_rand1(population_matrix, params["F"], params["Cr"])
+                population_matrix = DE_rand1(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.DE_BEST_1:
-                population_matrix = DE_best1(population_matrix, fitness_array, params["F"], params["Cr"])
+                population_matrix = DE_best1(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.DE_RAND_2:
-                population_matrix = DE_rand2(population_matrix, params["F"], params["Cr"])
+                population_matrix = DE_rand2(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.DE_BEST_2:
-                population_matrix = DE_best2(population_matrix, fitness_array, params["F"], params["Cr"])
+                population_matrix = DE_best2(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.DE_CTRAND_1:
-                population_matrix = DE_current_to_rand1(population_matrix, params["F"], params["Cr"])
+                population_matrix = DE_current_to_rand1(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.DE_CTBEST_1:
-                population_matrix = DE_current_to_best1(population_matrix, fitness_array, params["F"], params["Cr"])
+                population_matrix = DE_current_to_best1(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.DE_CTPBEST_1:
-                population_matrix = DE_current_to_pbest1(
-                    population_matrix,
-                    fitness_array,
-                    params["F"],
-                    params["Cr"],
-                    params["P"],
-                )
+                population_matrix = DE_current_to_pbest1(population_matrix, fitness_array, **params)
 
             ## Adaptative mutations
             case VectorOpMethods.MUTATE1SIGMA:
-                population_matrix = mutate_1_sigma(population_matrix, params["epsilon"], params["tau"])
+                population_matrix = mutate_1_sigma(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.MUTATENSIGMAS:
-                population_matrix = mutate_n_sigmas(
-                    population_matrix,
-                    params["epsilon"],
-                    params["tau"],
-                    params["tau_multiple"],
-                )
+                population_matrix = mutate_n_sigmas(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.SAMPLESIGMA:
-                population_matrix = sample_1_sigma(population_matrix, params["N"], params["epsilon"], params["tau"])
+                population_matrix = sample_1_sigma(population_matrix, fitness_array, **params)
 
             ## Other operators
             case VectorOpMethods.RANDOM:
@@ -297,11 +313,11 @@ class VectorOperator(Operator):
                 population_matrix[mask_pos] = random_population.genotype_matrix[mask_pos]
 
             case VectorOpMethods.DUMMY:
-                population_matrix = dummy_op(population_matrix, params["F"])
+                population_matrix = dummy_op(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.CUSTOM:
                 fn = params["function"]
-                population_matrix = fn(population_matrix, population.objfunc, params)
+                population_matrix = fn(population_matrix, fitness_array, **params)
 
             case VectorOpMethods.NOTHING:
                 new_population = copy(population)

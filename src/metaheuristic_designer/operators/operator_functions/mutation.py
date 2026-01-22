@@ -88,72 +88,78 @@ class multivariate_categorical:
         return self.sample_fn(self.cumsum_matrix, index_rnd)
 
 
-def gaussian_mutation(population, strength):
+def gaussian_mutation(population, fitness, **kwargs):
     """
     Adds random noise following a Gaussian distribution to the vector.
     """
 
-    return rand_noise(population, distrib=ProbDist.GAUSS, F=strength)
+    kwargs["distrib"] = ProbDist.GAUSS
+    return rand_noise(population, fitness, **kwargs)
 
 
-def cauchy_mutation(population, strength):
+def cauchy_mutation(population, fitness, **kwargs):
     """
     Adds random noise following a Cauchy distribution to the vector.
     """
 
-    return rand_noise(population, distrib=ProbDist.CAUCHY, F=strength)
+    kwargs["distrib"] = ProbDist.CAUCHY
+    return rand_noise(population, fitness, **kwargs)
 
 
-def laplace_mutation(population, strength):
+def laplace_mutation(population, fitness, **kwargs):
     """
     Adds random noise following a Laplace distribution to the vector.
     """
 
-    return rand_noise(population, distrib=ProbDist.LAPLACE, F=strength)
+    kwargs["distrib"] = ProbDist.LAPLACE
+    return rand_noise(population, fitness, **kwargs)
 
 
-def uniform_mutation(population, strength):
+def uniform_mutation(population, fitness, **kwargs):
     """
     Adds random noise following an Uniform distribution to the vector.
     """
 
-    return rand_noise(population, distrib=ProbDist.UNIFORM, F=strength, min=-1, max=1)
+    kwargs["distrib"] = ProbDist.UNIFORM
+    return rand_noise(population, fitness, **kwargs)
 
 
-def poisson_mutation(population, strength, mu):
+def poisson_mutation(population, fitness, **kwargs):
     """
     Adds random noise following a Poisson distribution to the vector.
     """
 
-    return rand_noise(population, distrib=ProbDist.POISSON, F=strength, mu=mu)
+    kwargs["distrib"] = ProbDist.POISSON
+    return rand_noise(population, fitness, **kwargs)
 
 
-def bernoulli_mutation(population, p):
+def bernoulli_mutation(population, fitness, **kwargs):
     """
     Adds random noise following a Poisson distribution to the vector.
     """
 
-    return rand_sample(population, distrib=ProbDist.BERNOULLI, p=p, loc=0, scale=1)
+    kwargs["distrib"] = ProbDist.BERNOULLI
+    return rand_sample(population, fitness, **kwargs)
 
 
-def mutate_sample(population, **params):
+def mutate_sample(population, fitness, **kwargs):
     """
     Replaces 'n' components of the input vector with a random value sampled from a given probability distribution.
     """
 
-    n = round(params["N"])
-    distrib = params["distrib"]
+    n = round(kwargs["N"])
+    distrib = kwargs["distrib"]
 
-    loc = params.get("loc")
-    scale = params.get("scale")
-    if "loc" in params:
-        del params["loc"]
-    if "scale" in params:
-        del params["scale"]
+    loc = kwargs.get("loc")
+    scale = kwargs.get("scale")
+    if "loc" in kwargs:
+        del kwargs["loc"]
+    if "scale" in kwargs:
+        del kwargs["scale"]
 
-    if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
-        minim = params["min"]
-        maxim = params["max"]
+    if distrib == ProbDist.UNIFORM and "max" in kwargs and "min" in params:
+        minim = kwargs["min"]
+        maxim = kwargs["max"]
         loc = minim
         scale = maxim - minim
 
@@ -165,65 +171,65 @@ def mutate_sample(population, **params):
     if scale is None or (type(scale) is str and scale == "calculated"):
         scale = population[mask_pos].std(axis=0)
 
-    rand_vec = sample_distribution(population.shape, loc, scale, **params)
+    rand_vec = sample_distribution(population.shape, loc, scale, **kwargs)
 
     population[mask_pos] = rand_vec[mask_pos]
 
     return population
 
 
-def mutate_noise(population, **params):
+def mutate_noise(population, fitness, **kwargs):
     """
     Adds random noise with a given probability distribution to 'n' components of the input vector.
     """
 
-    n = round(params["N"])
-    distrib = params["distrib"]
+    n = round(kwargs["N"])
+    distrib = kwargs["distrib"]
 
-    loc = params.get("loc")
-    scale = params.get("scale")
+    loc = kwargs.get("loc")
+    scale = kwargs.get("scale")
 
-    if "loc" in params:
-        del params["loc"]
-    if "scale" in params:
-        del params["scale"]
+    if "loc" in kwargs:
+        del kwargs["loc"]
+    if "scale" in kwargs:
+        del kwargs["scale"]
 
-    if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
-        minim = params["min"]
-        maxim = params["max"]
+    if distrib == ProbDist.UNIFORM and "max" in kwargs and "min" in params:
+        minim = kwargs["min"]
+        maxim = kwargs["max"]
         loc = minim
         scale = maxim - minim
-    strength = np.asarray(params.get("F", 1))
+    strength = np.asarray(kwargs.get("F", 1))
     if strength.ndim == 1:
         strength = strength[:, None]
 
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
-    rand_vec = sample_distribution(population.shape, loc, scale, **params)
+    rand_vec = sample_distribution(population.shape, loc, scale, **kwargs)
 
     population[mask_pos] = population[mask_pos] + (strength * rand_vec)[mask_pos]
     return population
 
 
-def rand_sample(population, **params):
+def rand_sample(population, fitness, **kwargs):
     """
     Picks a vector with components sampled from a probability distribution.
     """
 
-    distrib = params["distrib"]
+    distrib = kwargs["distrib"]
 
-    loc = params.get("loc")
-    scale = params.get("scale")
+    loc = kwargs.get("loc")
+    scale = kwargs.get("scale")
 
-    if "loc" in params:
-        del params["loc"]
-    if "scale" in params:
-        del params["scale"]
+    if "loc" in kwargs:
+        del kwargs["loc"]
+    if "scale" in kwargs:
+        del kwargs["scale"]
 
-    if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
-        minim = params["min"]
-        maxim = params["max"]
+    if distrib == ProbDist.UNIFORM and "max" in kwargs and "min" in params:
+        minim = kwargs["min"]
+        maxim = kwargs["max"]
         loc = minim
         scale = maxim - minim
 
@@ -232,47 +238,47 @@ def rand_sample(population, **params):
     if scale is None or (type(scale) is str and scale == "calculated"):
         scale = population.std(axis=0)
 
-    rand_population = sample_distribution(population.shape, loc, scale, **params)
+    rand_population = sample_distribution(population.shape, loc, scale, **kwargs)
 
     return rand_population
 
 
-def rand_noise(population, **params):
+def rand_noise(population, fitness, **kwargs):
     """
     Adds random noise with a given probability distribution to all components of the input vector.
     """
 
-    distrib = params["distrib"]
+    distrib = kwargs["distrib"]
 
-    loc = params.get("loc")
-    scale = params.get("scale")
-    if "loc" in params:
-        del params["loc"]
-    if "scale" in params:
-        del params["scale"]
+    loc = kwargs.get("loc")
+    scale = kwargs.get("scale")
+    if "loc" in kwargs:
+        del kwargs["loc"]
+    if "scale" in kwargs:
+        del kwargs["scale"]
 
-    if distrib == ProbDist.UNIFORM and "max" in params and "min" in params:
-        minim = params["min"]
-        maxim = params["max"]
+    if distrib == ProbDist.UNIFORM and "max" in kwargs and "min" in kwargs:
+        minim = kwargs["min"]
+        maxim = kwargs["max"]
         loc = minim
         scale = maxim - minim
-    strength = np.asarray(params.get("F", 1))
+    strength = np.asarray(kwargs.get("F", 1))
     if strength.ndim == 1:
         strength = strength[:, None]
 
-    noise = sample_distribution(population.shape, loc, scale, **params)
+    noise = sample_distribution(population.shape, loc, scale, **kwargs)
 
     return population + strength * noise
 
 
-def sample_distribution(shape, loc=None, scale=None, **params):
+def sample_distribution(shape, loc=None, scale=None, **kwargs):
     """
     Takes samples as a matrix with shape 'shape' from a given probablility distribution and returns them as a vector.
     """
 
     result = None
 
-    distrib = params["distrib"]
+    distrib = kwargs["distrib"]
     loc = 0 if loc is None else loc
     scale = 1 if scale is None else scale
 
@@ -280,8 +286,8 @@ def sample_distribution(shape, loc=None, scale=None, **params):
         case ProbDist.GAUSS:
             prob_distrib = sp.stats.norm(loc=loc, scale=scale)
         case ProbDist.MULTIGAUSS:
-            mean = params.get("mean", np.full(shape[1], loc) if np.asarray(loc).ndim <= 1 else loc)
-            cov = params.get(
+            mean = kwargs.get("mean", np.full(shape[1], loc) if np.asarray(loc).ndim <= 1 else loc)
+            cov = kwargs.get(
                 "cov",
                 (np.eye(shape[1]) * scale if np.asarray(scale).ndim <= 1 else np.diagflat(scale)),
             )
@@ -302,22 +308,22 @@ def sample_distribution(shape, loc=None, scale=None, **params):
         case ProbDist.LAPLACE:
             prob_distrib = sp.stats.laplace(loc=loc, scale=scale)
         case ProbDist.GAMMA:
-            a = params.get("a", 1)
+            a = kwargs.get("a", 1)
             prob_distrib = sp.stats.gamma(a, loc=loc, scale=scale)
         case ProbDist.EXPON:
             prob_distrib = sp.stats.expon(loc=loc, scale=scale)
         case ProbDist.LEVYSTABLE:
-            a = params.get("a", 2)
-            b = params.get("b", 0)
+            a = kwargs.get("a", 2)
+            b = kwargs.get("b", 0)
             prob_distrib = sp.stats.levy_stable(a, b, loc=loc, scale=scale)
         case ProbDist.POISSON:
-            mu = params.get("mu", 0)
+            mu = kwargs.get("mu", 0)
             prob_distrib = sp.stats.poisson(mu, loc=loc)
         case ProbDist.BERNOULLI:
-            p = params.get("p", 0.5)
+            p = kwargs.get("p", 0.5)
             prob_distrib = sp.stats.bernoulli(p, loc=loc)
         case ProbDist.VONMISES:
-            mu = params.get("mu", np.random.uniform(-1, 1, shape))
+            mu = kwargs.get("mu", np.random.uniform(-1, 1, shape))
             if mu.ndim <= 1:
                 mu = mu / np.linalg.norm(mu)
             else:
@@ -333,20 +339,20 @@ def sample_distribution(shape, loc=None, scale=None, **params):
                     prob_distrib = sp.stats.vonmises_fisher(mu=mu_i, kappa=1 / scale_i)
                     result[i, :] = prob_distrib.rvs(random_state=RAND_GEN)
         case ProbDist.BINOMIAL:
-            n = params["n"]
-            p = params.get("p", 0.5)
+            n = kwargs["n"]
+            p = kwargs.get("p", 0.5)
             prob_distrib = sp.stats.binom(n, p, loc=loc)
         case ProbDist.CATEGORICAL:
-            p = params["p"]
+            p = kwargs["p"]
             prob_distrib = sp.stats.rv_discrete(name="categorical", values=(np.arange(p.size), p / np.sum(p)))
         case ProbDist.MULTICATEGORICAL:
-            p = params["p"]
+            p = kwargs["p"]
             prob_distrib = multivariate_categorical(np.arange(p.shape[1]), weight_matrix=p)
             shape = shape[0]
         case ProbDist.CUSTOM:
-            if "distrib_class" not in params:
+            if "distrib_class" not in kwargs:
                 raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")
-            prob_distrib = params["distrib_class"]
+            prob_distrib = kwargs["distrib_class"]
         case _:
             raise ValueError("Invalid probability distribution")
 
@@ -356,15 +362,15 @@ def sample_distribution(shape, loc=None, scale=None, **params):
     return result
 
 
-def generate_statistic(population, **params):
-    stat_name = params.get("statistic", "mean")
+def generate_statistic(population, fitness, **kwargs):
+    stat_name = kwargs.get("statistic", "mean")
 
     new_population = None
     match stat_name:
         case "mean":
             new_population = np.mean(population, axis=0)
         case "average":
-            weights = params.get("weights", np.ones(population.shape[1]))
+            weights = kwargs.get("weights", np.ones(population.shape[1]))
             new_population = np.average(population, weights=weights, axis=0)
         case "median":
             new_population = np.median(population, axis=0)
@@ -374,7 +380,7 @@ def generate_statistic(population, **params):
     return new_population
 
 
-def sample_1_sigma(population, n, epsilon, tau):
+def sample_1_sigma(population, fitness, **kwargs):
     """
     Replaces 'n' components of the input vector with a value sampled from the mutate 1 sigma function.
 
@@ -390,7 +396,7 @@ def sample_1_sigma(population, n, epsilon, tau):
     return population
 
 
-def mutate_1_sigma(population, epsilon, tau):
+def mutate_1_sigma(population, fitness, **kwargs):
     """
     Mutate a sigma value in base of tau param, where epsilon is de minimum value that a sigma can have.
     """
@@ -401,7 +407,7 @@ def mutate_1_sigma(population, epsilon, tau):
     )
 
 
-def mutate_n_sigmas(population, epsilon, tau, tau_multiple):
+def mutate_n_sigmas(population, fitness, **kwargs):
     """
     Mutate a list of sigmas values in base of tau and tau_multiple params, where epsilon is de minimum value that a sigma can have.
     """
@@ -413,10 +419,13 @@ def mutate_n_sigmas(population, epsilon, tau, tau_multiple):
     )
 
 
-def xor_mask(population, n, mode="byte"):
+def xor_mask(population, fitness, **kwargs):
     """
     Applies an XOR operation between a random number and the input vector.
     """
+
+    n = kwargs["N"]
+    mode = kwargs.get("BinRep", "byte")
 
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
@@ -434,11 +443,11 @@ def xor_mask(population, n, mode="byte"):
     return population ^ mask
 
 
-def dummy_op(population, scale=1000):
+def dummy_op(population, fitness, **kwargs):
     """
     Replaces the vector with one consisting of all the same value
 
     Only for testing, not useful for real applications
     """
 
-    return np.full_like(population, scale)
+    return np.full_like(population, kwargs["F"])

@@ -4,11 +4,12 @@ import scipy as sp
 from ...utils import RAND_GEN
 
 
-def permute_mutation(population, n):
+def permute_mutation(population, fitness, **kwargs):
     """
     Randomly permutes 'n' of the components of the input vector.
     """
 
+    n = kwargs.get("N", population.shape[0])
     n = np.clip(n, 2, population.shape[0])
 
     mask_pos = np.tile(np.arange(population.shape[1]), (population.shape[0], 1))
@@ -24,10 +25,12 @@ def permute_mutation(population, n):
     return population
 
 
-def roll_mutation(population, n):
+def roll_mutation(population, fitness, **kwargs):
     """
     Rolls a selection of components of the vector.
     """
+
+    n = kwargs.get("N", 1)
 
     roll_start = RAND_GEN.integers(0, population.shape[1] - 2, population.shape[0])
     roll_end = RAND_GEN.integers(roll_start + 2, population.shape[1] + 1, (population.shape[0]))
@@ -42,7 +45,7 @@ def roll_mutation(population, n):
     return population
 
 
-def invert_mutation(population):
+def invert_mutation(population, fitness, **kwargs):
     """
     Inverts the order a selection of components of the vector.
     """
@@ -60,7 +63,7 @@ def invert_mutation(population):
     return population
 
 
-def pmx(population):
+def pmx(population, fitness, **kwargs):
     half_size = np.ceil(population.shape[0] / 2).astype(int)
 
     new_population = np.empty((2 * half_size, population.shape[1]), dtype=int)
@@ -110,7 +113,7 @@ def pmx_single(vector1, vector2):
     return child
 
 
-def order_cross(population):
+def order_cross(population, fitness, **kwargs):
     half_size = population.shape[0] / 2
     parents1 = population[: math.ceil(half_size)]
     parents2 = population[math.floor(half_size) :]
