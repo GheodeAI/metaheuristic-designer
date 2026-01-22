@@ -68,7 +68,7 @@ class BranchOperator(Operator):
             joined_names = ", ".join(op_names)
             name = f"{method}({joined_names})"
 
-        if params is None:
+        if params is None or params == "default":
             # Default parameters
             params = {
                 "p": 0.5,

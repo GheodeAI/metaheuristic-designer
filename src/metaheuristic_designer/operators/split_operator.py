@@ -49,7 +49,7 @@ class SplitOperator(Operator):
             joined_names = ", ".join(op_names)
             name = f"Split ({joined_names})"
 
-        if params is None:
+        if params is None or params == "default":
             # Default parameters
             params = {
                 "mask": 0,
@@ -58,7 +58,7 @@ class SplitOperator(Operator):
         super().__init__(params, name)
 
         # Record of the index of the last operator used
-        self.mask = params.get("mask", 0)
+        self.mask = params["mask"]
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)
