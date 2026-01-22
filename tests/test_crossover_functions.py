@@ -13,45 +13,45 @@ sample_pop_bin1 = sample_pop_bin1.astype(int)
 
 
 def test_1p_cross():
-    result_arr = cross_1p(sample_pop1)
+    result_arr = cross_1p(sample_pop1, None)
     assert result_arr.shape == sample_pop1.shape
 
 
 def test_2p_cross():
-    result_arr = cross_2p(sample_pop1)
+    result_arr = cross_2p(sample_pop1, None)
     assert result_arr.shape == sample_pop1.shape
 
 
 def test_mp_cross():
-    result_arr = cross_mp(sample_pop1)
+    result_arr = cross_mp(sample_pop1, None)
     assert result_arr.shape == sample_pop1.shape
 
 
 def test_weighted_average_cross():
-    result_arr = weighted_average_cross(sample_pop1, 0.25)
+    result_arr = weighted_average_cross(sample_pop1, None, alpha=0.25)
     assert result_arr.shape == sample_pop1.shape
 
 
 def test_blxalpha():
-    result_arr = blxalpha(sample_pop1, 0.5)
+    result_arr = blxalpha(sample_pop1, None, alpha=0.5)
     assert result_arr.shape == sample_pop1.shape
 
 
 def test_xor_cross_bin():
-    result_arr = xor_cross(sample_pop_bin1)
+    result_arr = xor_cross(sample_pop_bin1, None)
     assert result_arr.shape == sample_pop1.shape
 
 
 def test_xor_cross_byte():
-    result_arr = xor_cross(sample_pop1)
+    result_arr = xor_cross(sample_pop1, None)
     assert result_arr.shape == sample_pop1.shape
 
 
 def test_multi_cross():
-    result_arr = multi_cross(sample_pop1, 3)
+    result_arr = multi_cross(sample_pop1, None, N=3)
     assert result_arr.shape == sample_pop1.shape
 
 
 def test_cross_inter_avg():
-    result_arr = cross_inter_avg(sample_pop1, 3)
+    result_arr = cross_inter_avg(sample_pop1, None, N=3)
     assert result_arr.shape == sample_pop1.shape

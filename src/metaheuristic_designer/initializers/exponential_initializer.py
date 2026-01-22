@@ -1,7 +1,6 @@
 from __future__ import annotations
 import numpy as np
 from ..initializer import Initializer
-from ..encoding import ExtendedEncoding
 from ..utils import RAND_GEN
 
 

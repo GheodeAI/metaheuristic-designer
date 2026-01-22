@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
-from ...initializer import Initializer, ExtendedInitializer
-from ...initializers import UniformInitializer
+from ...initializer import Initializer
+from ...initializers import UniformInitializer, ExtendedInitializer
 from ...operator import Operator
 from ...operators import SwarmOperator
 from ..static_population import StaticPopulation

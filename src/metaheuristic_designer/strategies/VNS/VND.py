@@ -6,7 +6,7 @@ from ...initializer import Initializer
 from ...param_scheduler import ParamScheduler
 from ...search_strategy import SearchStrategy
 from ...operator import Operator
-from ...operators import MetaOperator
+from ...operators import CompositeOperator
 from ...selection_methods import SurvivorSelection
 from .neighborhood_changes import *
 
@@ -33,7 +33,7 @@ class VND(SearchStrategy):
             params = {}
 
         self.op_list = op_list
-        perturb_op = MetaOperator("Pick", op_list, {"init_idx": 0})
+        perturb_op = BranchOperator(op_list, method="Pick", params={"init_idx": 0})
 
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
         self.new_loop_flag = False

@@ -5,7 +5,8 @@ import numpy as np
 from numpy import ndarray
 from .utils import RAND_GEN
 from .objective_function import ObjectiveFunc
-from .encoding import Encoding, DefaultEncoding, ExtendedEncoding
+from .encoding import Encoding, DefaultEncoding
+from .encodings import ExtendedEncoding
 
 
 class Population:

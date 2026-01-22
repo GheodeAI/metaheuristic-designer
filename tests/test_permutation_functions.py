@@ -13,22 +13,22 @@ sample_pop1 = rng.permuted(sample_pop1, axis=1)
 
 
 def test_swap():
-    result_arr = permute_mutation(sample_pop1, 2)
+    result_arr = permute_mutation(sample_pop1, None, N=2)
     assert result_arr.shape == sample_pop1.shape
 
 def test_roll():
-    result_arr = roll_mutation(sample_pop1, 1)
+    result_arr = roll_mutation(sample_pop1, None, N=1)
     assert result_arr.shape == sample_pop1.shape
 
 def test_invert():
-    result_arr = invert_mutation(sample_pop1)
+    result_arr = invert_mutation(sample_pop1, None)
     assert result_arr.shape == sample_pop1.shape
 
 def test_pmx():
-    result_arr = pmx(sample_pop1)
+    result_arr = pmx(sample_pop1, None)
     assert result_arr.shape == sample_pop1.shape
 
 def test_order_cross():
-    result_arr = order_cross(sample_pop1)
+    result_arr = order_cross(sample_pop1, None)
     assert result_arr.shape == sample_pop1.shape
 

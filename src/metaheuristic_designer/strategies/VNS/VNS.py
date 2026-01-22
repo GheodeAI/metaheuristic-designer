@@ -8,7 +8,7 @@ from ...algorithms import GeneralAlgorithm
 from ...param_scheduler import ParamScheduler
 from ...search_strategy import SearchStrategy
 from ...operator import Operator
-from ...operators import MetaOperator
+from ...operators import CompositeOperator
 from ...selection_methods import SurvivorSelection
 from .VND import VND
 from .neighborhood_changes import *
@@ -37,7 +37,7 @@ class VNS(SearchStrategy):
 
         self.iterations = params.get("iters", 100)
         self.op_list = op_list
-        operator = MetaOperator("Pick", op_list, {"init_idx": 0})
+        operator = BranchOperator(op_list, method="Pick", params={"init_idx": 0})
 
         self.nchange = NeighborhoodChange.from_str(params["nchange"]) if "nchange" in params else NeighborhoodChange.SEQ
 

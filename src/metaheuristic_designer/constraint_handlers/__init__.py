@@ -1,4 +1,5 @@
 from .composite_constraint import CompositeConstraint
+from .extended_constraint import ExtendedConstraintHandler
 from .clip_bound_constraint import ClipBoundConstraint
 from .bounce_bound_constraint import BounceBoundConstraint
 from .cycle_bound_constraint import CycleBoundConstraint

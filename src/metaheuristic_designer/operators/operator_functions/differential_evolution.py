@@ -2,10 +2,14 @@ import numpy as np
 from ...utils import RAND_GEN
 
 
-def DE_rand1(population, F, CR):
+# def DE_rand1(population, F, CR):
+def DE_rand1(population, fitness, **kwargs):
     """
     Performs the differential evolution operator DE/rand/1
     """
+
+    F = kwargs["F"]
+    CR = kwargs["Cr"]
 
     r1 = population[RAND_GEN.permutation(population.shape[0])]
     r2 = population[RAND_GEN.permutation(population.shape[0])]
@@ -17,10 +21,13 @@ def DE_rand1(population, F, CR):
     return population
 
 
-def DE_best1(population, fitness, F, CR):
+def DE_best1(population, fitness, **kwargs):
     """
     Performs the differential evolution operator DE/best/1
     """
+
+    F = kwargs["F"]
+    CR = kwargs["Cr"]
 
     r_best = population[np.argmax(fitness)][None, :]
     r1 = population[RAND_GEN.permutation(population.shape[0])]
@@ -32,10 +39,13 @@ def DE_best1(population, fitness, F, CR):
     return population
 
 
-def DE_rand2(population, F, CR):
+def DE_rand2(population, fitness, **kwargs):
     """
     Performs the differential evolution operator DE/rand/2
     """
+
+    F = kwargs["F"]
+    CR = kwargs["Cr"]
 
     r1 = population[RAND_GEN.permutation(population.shape[0])]
     r2 = population[RAND_GEN.permutation(population.shape[0])]
@@ -49,10 +59,13 @@ def DE_rand2(population, F, CR):
     return population
 
 
-def DE_best2(population, fitness, F, CR):
+def DE_best2(population, fitness, **kwargs):
     """
     Performs the differential evolution operator DE/best/2
     """
+
+    F = kwargs["F"]
+    CR = kwargs["Cr"]
 
     r_best = population[np.argmax(fitness)][None, :]
     r1 = population[RAND_GEN.permutation(population.shape[0])]
@@ -66,10 +79,13 @@ def DE_best2(population, fitness, F, CR):
     return population
 
 
-def DE_current_to_rand1(population, F, CR):
+def DE_current_to_rand1(population, fitness, **kwargs):
     """
     Performs the differential evolution operator DE/current-to-rand/1
     """
+
+    F = kwargs["F"]
+    CR = kwargs["Cr"]
 
     r1 = population[RAND_GEN.permutation(population.shape[0])]
     r2 = population[RAND_GEN.permutation(population.shape[0])]
@@ -82,10 +98,13 @@ def DE_current_to_rand1(population, F, CR):
     return population
 
 
-def DE_current_to_best1(population, fitness, F, CR):
+def DE_current_to_best1(population, fitness, **kwargs):
     """
     Performs the differential evolution operator DE/current-to-best/1
     """
+
+    F = kwargs["F"]
+    CR = kwargs["Cr"]
 
     r_best = population[np.argmax(fitness)][None, :]
     r1 = population[RAND_GEN.permutation(population.shape[0])]
@@ -97,10 +116,14 @@ def DE_current_to_best1(population, fitness, F, CR):
     return population
 
 
-def DE_current_to_pbest1(population, fitness, F, CR, P):
+def DE_current_to_pbest1(population, fitness, **kwargs):
     """
     Performs the differential evolution operator DE/current-to-pbest/1
     """
+
+    F = kwargs["F"]
+    CR = kwargs["Cr"]
+    P = kwargs["p"]
 
     n_best_max_idx = np.ceil(population.shape[0] * P).astype(int)
     n_best_idx = np.argsort(fitness)[::-1][:n_best_max_idx]

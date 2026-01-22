@@ -1,7 +1,7 @@
 from __future__ import annotations
 from ...Initializer import Initializer
 from ..static_population import StaticPopulation
-from ...operators import VectorOperator, MetaOperator
+from ...operators import VectorOperator, CompositeOperator
 from ..operator import NullOperator
 from ...selection_methods import SurvivorSelection, ParentSelection
 from ...encodings import CMAEncoding
@@ -27,7 +27,7 @@ class CMA_ES(StaticPopulation):
             {"distrib": "MultiNormal", "mean": 0, "cov": [1], "F": self.step},
         )
 
-        mutate = MetaOperator("sequence", [self.generate_average, self.sample_op])
+        mutate = CompositeOperator([self.generate_average, self.sample_op])
         cross = NullOperator()
 
         super().__init__(initializer, mutate, cross, parent_select, selection, params, name)

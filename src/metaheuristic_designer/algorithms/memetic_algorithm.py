@@ -72,6 +72,7 @@ class MemeticAlgorithm(Algorithm):
         return offspring
 
     def step(self, population=None, time_start=0, verbose=False):
+
         # Get the population of this generation
         if population is None:
             population = self.search_strategy.population

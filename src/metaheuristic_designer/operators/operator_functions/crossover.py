@@ -3,7 +3,7 @@ import numpy as np
 from ...utils import RAND_GEN
 
 
-def cross_1p(population):
+def cross_1p(population, fitness, **kwargs):
     """
     Performs a 1-point crossover between one half of the population and the rest.
     """
@@ -25,7 +25,7 @@ def cross_1p(population):
     return np.concatenate((offspring1, offspring2))[: population.shape[0]]
 
 
-def cross_2p(population):
+def cross_2p(population, fitness, **kwargs):
     """
     Performs a 2-point crossover between one half of the population and the rest.
     """
@@ -48,7 +48,7 @@ def cross_2p(population):
     return np.concatenate((offspring1, offspring2))[: population.shape[0]]
 
 
-def cross_mp(population):
+def cross_mp(population, fitness, **kwargs):
     """
     Performs a multipoint crossover between one half of the population and the rest.
     """
@@ -65,23 +65,25 @@ def cross_mp(population):
     return np.concatenate((offspring1, offspring2))[: population.shape[0]]
 
 
-def weighted_average_cross(population, alpha):
+def weighted_average_cross(population, fitness, **kwargs):
     """
     Performs a weighted average between each individual and a random member of the population.
     """
+
+    alpha = kwargs.get("alpha", 0.5)
 
     population_shuffled = population[RAND_GEN.permutation(population.shape[0]), :]
 
     return (1 - alpha) * population + alpha * population_shuffled
 
 
-def blxalpha(population, alpha, lower_bounds=None, upper_bounds=None):
+def blxalpha(population, fitness, **kwargs):
     """
     Performs the BLX alpha crossing operator between two vectors.
     """
-
-    parent_min = np.min(population, axis=0)
-    parent_max = np.max(population, axis=0)
+    alpha = kwargs.get("alpha", 0.5)
+    parent_min = kwargs.get("low", np.min(population, axis=0))
+    parent_max = kwargs.get("up", np.max(population, axis=0))
     diff = alpha * (parent_max - parent_min)
     low = population - diff
     high = population + diff
@@ -89,10 +91,12 @@ def blxalpha(population, alpha, lower_bounds=None, upper_bounds=None):
     return RAND_GEN.random(population.shape) * (high - low) + low
 
 
-def sbx(population, strength):
+def sbx(population, fitness, **kwargs):
     """
     Performs the SBX crossing operator between two vectors.
     """
+
+    strength = kwargs.get("F", 1)
 
     population_shuffled = population[RAND_GEN.permutation(population.shape[0])]
 
@@ -109,7 +113,7 @@ def sbx(population, strength):
     return 0.5 * (population + population_shuffled) + sign * 0.5 * beta * (population - population_shuffled)
 
 
-def xor_cross(population):
+def xor_cross(population, fitness, **kwargs):
     """
     Applies the XOR operation between each component of individuals in the population. The crossover is performed
     between the first and second half of the population
@@ -120,11 +124,12 @@ def xor_cross(population):
     return population ^ population_shuffled
 
 
-def multi_cross(population, n_indiv):
+def multi_cross(population, fitness, **kwargs):
     """
     Performs a multipoint crossover between 'n_indiv' randomly chosen individuals for each member of the population.
     """
 
+    n_indiv = kwargs.get("N", 3)
     n_indiv = np.minimum(n_indiv, population.shape[0])
 
     indiv_chosen = np.tile(np.arange(population.shape[0]), (n_indiv, 1))
@@ -137,11 +142,12 @@ def multi_cross(population, n_indiv):
     return population[components_chosen, np.arange(population.shape[1])]
 
 
-def cross_inter_avg(population, n_indiv):
+def cross_inter_avg(population, fitness, **kwargs):
     """
     Performs an intermediate average crossover between the vector and 'n-1' individuals the population.
     """
 
+    n_indiv = kwargs.get("N", 3)
     n_indiv = np.minimum(n_indiv, population.shape[0])
 
     # TODO: individuals should be chosen with replacement

@@ -1,8 +1,8 @@
 from __future__ import annotations
 import numpy as np
 from ..operator import Operator, NullOperator
-from ..encoding import ExtendedEncoding
-from .meta_operator import MetaOperator
+from ..encodings import ExtendedEncoding
+from .composite_operator import CompositeOperator
 
 
 class ExtendedOperator(Operator):
@@ -48,7 +48,7 @@ class ExtendedOperator(Operator):
         self.param_operators = param_operators
         operator_list = [base_operator] + [param_operators[param_name] for idx, (param_name, _) in enumerate(encoding.param_sizes)]
 
-        self.main_operator = MetaOperator("Split", operator_list, {"mask": vecmask})
+        self.main_operator = SplitOperator(operator_list, {"mask": vecmask})
         self.vecmask = vecmask
         self.param_encoding = encoding 
 

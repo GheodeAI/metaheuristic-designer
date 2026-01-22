@@ -7,7 +7,6 @@ from .constraint_handler import (
     ConstraintHandler,
     ConstraintHandlerFromLambda,
     NullConstraint,
-    ExtendedConstraintHandler,
     PenalizeConstraint,
     RepareConstraint,
 )
@@ -22,13 +21,13 @@ from . import strategies
 
 from .population import Population
 
-from .encoding import Encoding, EncodingFromLambda, DefaultEncoding, ExtendedEncoding
+from .encoding import Encoding, EncodingFromLambda, DefaultEncoding
 from . import encodings
 
-from .initializer import Initializer, InitializerFromLambda, ExtendedInitializer
+from .initializer import Initializer, InitializerFromLambda
 from . import initializers
 
-from .operator import Operator, OperatorFromLambda, NullOperator#, ExtendedOperator
+from .operator import Operator, OperatorFromLambda, NullOperator
 from . import operators
 
 from .selection_method import SelectionMethod, SelectionFromLambda

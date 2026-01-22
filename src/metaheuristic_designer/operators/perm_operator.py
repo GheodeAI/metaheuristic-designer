@@ -4,7 +4,7 @@ import enum
 from enum import Enum
 from ..operator import Operator
 from .operator_functions.permutation import *
-from ..encoding import ExtendedEncoding
+from ..encodings import ExtendedEncoding
 from ..param_scheduler import ParamScheduler
 from ..utils import RAND_GEN
 
@@ -70,6 +70,13 @@ class PermOperator(Operator):
         if name is None:
             name = method
 
+        if params == "default":
+            params = {
+                "N": 2,
+                "P": 0.1,
+                "function": lambda x, y, **z: x,
+            }
+
         super().__init__(params, name)
 
         self.method = PermOpMethods.from_str(method)
@@ -77,6 +84,7 @@ class PermOperator(Operator):
     def evolve(self, population, initializer=None):
         new_population = None
         population_matrix_full = copy(population.genotype_matrix)
+        fitness_array = copy(population.fitness)
         population_encoding = population.encoding
 
         # Only evolve solution parameters, the rest is managed in a specific way by each operator
@@ -98,25 +106,25 @@ class PermOperator(Operator):
         # Perform one of the methods (switch-case like structure)
         match self.method:
             case PermOpMethods.SWAP:
-                population_matrix = permute_mutation(population_matrix, 2)
+                population_matrix = permute_mutation(population_matrix, fitness_array, N=2)
 
             case PermOpMethods.SCRAMBLE:
-                population_matrix = permute_mutation(population_matrix, params["N"])
+                population_matrix = permute_mutation(population_matrix, fitness_array, **params)
 
             case PermOpMethods.INSERT:
-                population_matrix = roll_mutation(population_matrix, 1)
+                population_matrix = roll_mutation(population_matrix, fitness_array, N=1)
 
             case PermOpMethods.ROLL:
-                population_matrix = roll_mutation(population_matrix, params["N"])
+                population_matrix = roll_mutation(population_matrix, fitness_array, **params)
 
             case PermOpMethods.INVERT:
-                population_matrix = invert_mutation(population_matrix)
+                population_matrix = invert_mutation(population_matrix, fitness_array, **params)
 
             case PermOpMethods.PMX:
-                population_matrix = pmx(population_matrix)
+                population_matrix = pmx(population_matrix, fitness_array, **params)
 
             case PermOpMethods.ORDERCROSS:
-                population_matrix = order_cross(population_matrix)
+                population_matrix = order_cross(population_matrix, fitness_array, **params)
 
             case PermOpMethods.RANDOM:
                 new_population = initializer.generate_population(population.objfunc)
@@ -129,7 +137,7 @@ class PermOperator(Operator):
 
             case PermOpMethods.CUSTOM:
                 fn = params["function"]
-                population_matrix = fn(population_matrix, population.objfunc, params)
+                population_matrix = fn(population_matrix, fitness_array, **params)
 
             case PermOpMethods.NOTHING:
                 new_population = copy(population)

@@ -1,8 +1,6 @@
 from __future__ import annotations
-from typing import Iterable
 from copy import copy
 from ..constraint_handler import ConstraintHandler
-
 
 class CompositeConstraint(ConstraintHandler):
     """
