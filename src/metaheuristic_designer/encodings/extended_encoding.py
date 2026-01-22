@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC
-from ..encoding import Encoding
+from ..encoding import Encoding, DefaultEncoding
 
 class ExtendedEncoding(Encoding, ABC):
     """
