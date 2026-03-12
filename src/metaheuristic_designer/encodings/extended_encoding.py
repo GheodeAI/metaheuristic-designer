@@ -1,5 +1,7 @@
 from __future__ import annotations
 from abc import ABC
+from typing import Iterable
+import numpy as np
 from ..encoding import Encoding, DefaultEncoding
 
 class ExtendedEncoding(Encoding, ABC):
@@ -10,7 +12,7 @@ class ExtendedEncoding(Encoding, ABC):
     This interface is intended to be used in swarm-based or adaptative algorithms.
     """
 
-    def __init__(self, vecsize: int, param_sizes: Iterable[Tuple[str, int]], base_encoding: Encoding = None, verify = False):
+    def __init__(self, vecsize: int, param_sizes: Iterable[(str, int)], base_encoding: Encoding = None, verify = False):
         self.vecsize = vecsize
         self.param_sizes = param_sizes
         self.nparams = sum([param_size for _, param_size in param_sizes])
@@ -21,21 +23,21 @@ class ExtendedEncoding(Encoding, ABC):
 
         super().__init__(vectorized=base_encoding.vectorized)
 
-    def extract_solution(self, population_matrix: ndarray) -> ndarray:
+    def extract_solution(self, population_matrix: np.ndarray) -> np.ndarray:
         if self.vectorized:
             result = population_matrix[:, :self.vecsize]
         else:
             result = population_matrix[:self.vecsize]
         return result
 
-    def extract_params(self, population_matrix: ndarray) -> ndarray:
+    def extract_params(self, population_matrix: np.ndarray) -> np.ndarray:
         if self.vectorized:
             result = population_matrix[:, self.vecsize:]
         else:
             result = population_matrix[self.vecsize:]
         return result
 
-    def encode_params_func(self, param_dict: dict) -> ndarray:
+    def encode_params_func(self, param_dict: dict) -> np.ndarray:
         if self.verify:
             assert param_dict.keys() == {name for name, _ in self.param_sizes}
         
@@ -59,7 +61,7 @@ class ExtendedEncoding(Encoding, ABC):
         
         return result
     
-    def decode_params_func(self, genotype: np.ndarray) -> dict:
+    def decode_params_func(self, genotype: np.np.ndarray) -> dict:
         param_dict = {}
         param_vec = self.extract_params(genotype)
         for name, length in self.param_sizes:
@@ -74,7 +76,7 @@ class ExtendedEncoding(Encoding, ABC):
 
         Parameters
         ----------
-        population: ndarray
+        population: np.ndarray
             Population that should be decoded.
 
         Returns
@@ -85,13 +87,13 @@ class ExtendedEncoding(Encoding, ABC):
 
         return self.encode_params_func(param_dict)
 
-    def decode_params(self, population: ndarray) -> Iterable:
+    def decode_params(self, population: np.ndarray) -> Iterable:
         """
         Decodes a population matrix into a list/array of solutions.
 
         Parameters
         ----------
-        population: ndarray
+        population: np.ndarray
             Population that should be decoded.
 
         Returns
@@ -112,7 +114,7 @@ class ExtendedEncoding(Encoding, ABC):
 
         return param_dict
     
-    def encode_func(self, solution: Any, params: dict = None) -> np.ndarray:
+    def encode_func(self, solution: Any, params: dict = None) -> np.np.ndarray:
         solution_encoded = self.base_encoding.encode_func(solution)
         if params is None:
             params_encoded = np.zeros((solution_encoded.shape[0], self.nparams))
@@ -121,11 +123,11 @@ class ExtendedEncoding(Encoding, ABC):
 
         return np.hstack([solution_encoded, params_encoded])
 
-    def decode_func(self, genotype: np.ndarray) -> np.ndarray:
+    def decode_func(self, genotype: np.np.ndarray) -> np.np.ndarray:
         solution_matrix = self.extract_solution(genotype)
         return self.base_encoding.decode_func(solution_matrix)
 
-    def encode(self, solutions: Iterable, params: dict = None) -> ndarray:
+    def encode(self, solutions: Iterable, params: dict = None) -> np.ndarray:
         """
         Encodes a list of solutions to our problem to an population matrix.
 
@@ -136,7 +138,7 @@ class ExtendedEncoding(Encoding, ABC):
 
         Returns
         -------
-        population: ndarray
+        population: np.ndarray
             Population array.
         """
 

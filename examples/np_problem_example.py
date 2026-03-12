@@ -257,8 +257,6 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
             survivor_sel=selection_op,
             params={"pcross": 0.8, "pmut": 0.2},
         )
-    elif alg_name == "HS":
-        search_strat = HS(pop_initializer, params={"HMCR": 0.8, "BW": 0.5, "PAR": 0.2})
     elif alg_name == "DE":
         search_strat = DE(pop_initializer, OperatorVector("DE/best/1", params={"F": 0.8, "Cr": 0.8}))
     elif alg_name == "PSO":
@@ -267,39 +265,6 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
         search_strat = BernoulliUMDA(pop_initializer, parent_sel_op, selection_op, params={"p": 0.1, "noise": 5e-3})
     elif alg_name == "BernoulliPBIL":
         search_strat = BernoulliPBIL(pop_initializer, parent_sel_op, selection_op, params={"p": 0.1, "lr": 0.25, "noise": 5e-3})
-    elif alg_name == "CRO":
-        search_strat = CRO(
-            pop_initializer,
-            mutation_op,
-            cross_op,
-            params={"rho": 0.6, "Fb": 0.95, "Fd": 0.1, "Pd": 0.9, "attempts": 3},
-        )
-    elif alg_name == "CRO_SL":
-        search_strat = CRO_SL(
-            pop_initializer,
-            op_list,
-            params={"rho": 0.6, "Fb": 0.95, "Fd": 0.1, "Pd": 0.9, "attempts": 3},
-        )
-    elif alg_name == "PCRO_SL":
-        search_strat = PCRO_SL(
-            pop_initializer,
-            op_list,
-            params={"rho": 0.6, "Fb": 0.95, "Fd": 0.1, "Pd": 0.9, "attempts": 3},
-        )
-    elif alg_name == "DPCRO_SL":
-        search_strat_params = {
-            "rho": 0.6,
-            "Fb": 0.95,
-            "Fd": 0.1,
-            "Pd": 0.9,
-            "attempts": 3,
-            "group_subs": True,
-            "dyn_method": "diff",
-            "dyn_metric": "best",
-            "dyn_steps": 75,
-            "prob_amp": 0.1,
-        }
-        search_strat = DPCRO_SL(pop_initializer, op_list, search_strat_params)
     elif alg_name == "RVNS":
         search_strat = RVNS(pop_initializer, neighborhood_structures)
     elif alg_name == "VND":

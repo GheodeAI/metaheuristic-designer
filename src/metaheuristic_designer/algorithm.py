@@ -1,3 +1,7 @@
+"""
+"""
+
+
 from __future__ import annotations
 from typing import List, Tuple, Any
 from abc import ABC, abstractmethod
@@ -145,7 +149,7 @@ class Algorithm(ABC):
             Path to the file where the solution will be stored.
         """
 
-        ind, fit = self.search_strategy.best_solution(decoded=False)
+        ind, _ = self.search_strategy.best_solution(decoded=False)
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=",")
 
     def stopping_condition(self, gen: int, real_time_start: float, cpu_time_start: float) -> bool:
@@ -495,7 +499,7 @@ class Algorithm(ABC):
 
         if show_plots:
             # Plot fitness history
-            fig, ax = plt.subplots()
+            _, ax = plt.subplots()
             ax.plot(self.fit_history, color="blue", zorder=3)
             _xlim = ax.get_xlim()
             _ylim = ax.get_ylim()
@@ -530,8 +534,8 @@ def parse_stopping_cond(condition_str: str) -> List[str | List]:
         The list of tokens representing the original string.
     """
 
-    orop = pp.Literal("and")
-    andop = pp.Literal("or")
+    andop = pp.Literal("and")
+    orop = pp.Literal("or")
     condition = pp.oneOf(["neval", "ngen", "time_limit", "cpu_time_limit", "fit_target", "convergence"])
 
     expr = pp.infixNotation(condition, [(orop, 2, pp.opAssoc.RIGHT), (andop, 2, pp.opAssoc.RIGHT)])

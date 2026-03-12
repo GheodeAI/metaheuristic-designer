@@ -3,6 +3,7 @@ import numpy as np
 from ..operator import Operator, NullOperator
 from ..encodings import ExtendedEncoding
 from .composite_operator import CompositeOperator
+from .split_operator import SplitOperator
 
 
 class ExtendedOperator(Operator):

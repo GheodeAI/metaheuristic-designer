@@ -1,5 +1,7 @@
 from __future__ import annotations
+from copy import copy
 from ..constraint_handler import ConstraintHandler
+from ..encodings import ExtendedEncoding
 
 class ExtendedConstraintHandler(ConstraintHandler):
     def __init__(self, solution_handler: ConstraintHandler, param_handler_dict: dict, encoding: ExtendedEncoding):

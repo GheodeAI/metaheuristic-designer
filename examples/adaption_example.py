@@ -2,14 +2,13 @@ from metaheuristic_designer import (
     ObjectiveFunc,
     ParamScheduler,
     InitializerFromLambda,
-    ExtendedEncoding,
-    ExtendedInitializer,
     NullOperator
 )
 from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import VectorOperator, AdaptativeOperator
-from metaheuristic_designer.initializers import UniformInitializer
+from metaheuristic_designer.initializers import UniformInitializer, ExtendedInitializer
 from metaheuristic_designer.selection_methods import ParentSelection, SurvivorSelection
+from metaheuristic_designer.encodings import ExtendedEncoding
 from metaheuristic_designer.strategies import *
 
 from metaheuristic_designer.benchmarks import *

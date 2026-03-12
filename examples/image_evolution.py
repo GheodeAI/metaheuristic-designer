@@ -116,13 +116,6 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
                 survivor_sel=SurvivorSelection("Elitism", {"amount": n_elites}),
                 params={"pcross": 0.8, "pmut": 0.2},
             )
-        case "HS":
-            pop_size = 100
-            params["patience"] = 1000
-            search_strat = HS(
-                initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, encoding=encoding),
-                params={"HMCR": 0.8, "BW": 0.5, "PAR": 0.2},
-            )
         case "DE":
             pop_size = 100
             search_strat = DE(
@@ -171,65 +164,6 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
             pop_size = 1000
             search_strat = CrossEntropyMethod(
                 initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, encoding=encoding),
-            )
-        case "CRO":
-            pop_size = 100
-            search_strat = CRO(
-                initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, encoding=encoding),
-                mutation_op=OperatorVector("MutNoise", {"distrib": "Cauchy", "F": 1e-3, "N": 1}),
-                cross_op=OperatorVector("Multipoint"),
-                params={"rho": 0.6, "Fb": 0.95, "Fd": 0.1, "Pd": 0.9, "attempts": 3},
-            )
-        case "CRO_SL":
-            pop_size = 100
-            DEparams = {"F": 0.7, "Cr": 0.8}
-            search_strat = CRO_SL(
-                initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, encoding=encoding),
-                operator_list=[
-                    OperatorVector("DE/rand/1", DEparams),
-                    OperatorVector("DE/best/2", DEparams),
-                    OperatorVector("DE/current-to-best/1", DEparams),
-                    OperatorVector("DE/current-to-rand/1", DEparams),
-                ],
-                params={"rho": 0.6, "Fb": 0.95, "Fd": 0.1, "Pd": 0.9, "attempts": 3},
-            )
-        case "PCRO_SL":
-            pop_size = 100
-            DEparams = {"F": 0.7, "Cr": 0.8}
-            search_strat = PCRO_SL(
-                initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, encoding=encoding),
-                operator_list=[
-                    OperatorVector("DE/rand/1", DEparams),
-                    OperatorVector("DE/best/2", DEparams),
-                    OperatorVector("DE/current-to-best/1", DEparams),
-                    OperatorVector("DE/current-to-rand/1", DEparams),
-                ],
-                params={"rho": 0.6, "Fb": 0.95, "Fd": 0.1, "Pd": 0.9, "attempts": 3},
-            )
-        case "DPCRO_SL":
-            pop_size = 100
-            DEparams = {"F": 0.7, "Cr": 0.8}
-            search_strat_params = {
-                "rho": 0.6,
-                "Fb": 0.95,
-                "Fd": 0.1,
-                "Pd": 0.9,
-                "attempts": 3,
-                "group_subs": True,
-                "dyn_method": "diff",
-                "dyn_metric": "best",
-                "dyn_steps": 75,
-                "prob_amp": 0.1,
-            }
-            search_strat = DPCRO_SL(
-                initializer=UniformVectorInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, encoding=encoding),
-                operator_list=[
-                    OperatorVector("DE/rand/1", DEparams),
-                    OperatorVector("DE/best/2", DEparams),
-                    OperatorVector("DE/current-to-best/1", DEparams),
-                    OperatorVector("DE/current-to-rand/1", DEparams),
-                ],
-                params=search_strat_params,
             )
         case "RVNS":
             pop_size = 1

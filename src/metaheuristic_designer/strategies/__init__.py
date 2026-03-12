@@ -8,7 +8,6 @@ from .no_search import NoSearch
 
 from .classic import *
 from .swarm import *
-from .CRO import *
 from .VNS import *
 from .EDA import *
 from .bayesian_optimization import *

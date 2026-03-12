@@ -1,4 +1,5 @@
 from __future__ import annotations
+import numpy as np
 from ..encodings import ExtendedEncoding
 from ..initializer import Initializer
 
