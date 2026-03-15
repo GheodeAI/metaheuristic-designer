@@ -4,7 +4,7 @@ import enum
 from enum import Enum
 from ..operator import Operator
 from .operator_functions.permutation import *
-from ..encodings import ExtendedEncoding
+from ..encodings import ParameterExtendingEncoding
 from ..param_scheduler import ParamScheduler
 from ..utils import RAND_GEN
 
@@ -88,7 +88,7 @@ class PermOperator(Operator):
         population_encoding = population.encoding
 
         # Only evolve solution parameters, the rest is managed in a specific way by each operator
-        if isinstance(population.encoding, ExtendedEncoding):
+        if isinstance(population.encoding, ParameterExtendingEncoding):
             population_matrix = population_encoding.extract_solution(population_matrix_full)
         else:
             population_matrix = population_matrix_full
@@ -146,7 +146,7 @@ class PermOperator(Operator):
             population_matrix = self.encoding.encode(population_matrix)
 
             # Only evolve solution parameters, the rest is managed in a specific way by each operator
-            if isinstance(population.encoding, ExtendedEncoding):
+            if isinstance(population.encoding, ParameterExtendingEncoding):
                 new_population_matrix = population_matrix_full
                 new_population_matrix[:, :population.encoding.vecsize] = population_matrix[:, :population.encoding.vecsize]
                 if encoded_params is not None:

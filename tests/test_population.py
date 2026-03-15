@@ -10,7 +10,7 @@ sys.modules['.objective_function'] = Mock()
 sys.modules['.encoding'] = Mock()
 
 from metaheuristic_designer import RAND_GEN, ObjectiveFunc, Encoding, DefaultEncoding, Population
-from metaheuristic_designer.encodings import ExtendedEncoding
+from metaheuristic_designer.encodings import ParameterExtendingEncoding
 
 
 # Fixtures for common test objects
@@ -272,12 +272,12 @@ def test_best_solution_decoded(mock_objfunc, sample_genotype, default_encoding):
 
 
 @pytest.mark.parametrize("encoding_type,expected_return", [
-    (ExtendedEncoding, np.array([1, 2, 3])),  # Should return decoded params
+    (ParameterExtendingEncoding, np.array([1, 2, 3])),  # Should return decoded params
     (DefaultEncoding, None),  # Should return None
 ])
 def test_decode_params(mock_objfunc, sample_genotype, encoding_type, expected_return):
     encoding = Mock(spec=encoding_type)
-    if encoding_type == ExtendedEncoding:
+    if encoding_type == ParameterExtendingEncoding:
         encoding.decode_params.return_value = expected_return
     else:
         # For non-ExtendedEncoding, the method shouldn't exist in the same way
@@ -287,7 +287,7 @@ def test_decode_params(mock_objfunc, sample_genotype, encoding_type, expected_re
     
     result = pop.decode_params()
     
-    if encoding_type == ExtendedEncoding:
+    if encoding_type == ParameterExtendingEncoding:
         assert np.array_equal(result, expected_return)
         encoding.decode_params.assert_called_once_with(sample_genotype)
     else:

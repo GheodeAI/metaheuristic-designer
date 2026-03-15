@@ -12,7 +12,7 @@ from .operator_functions.swarm import *
 from ..operator import Operator
 from ..param_scheduler import ParamScheduler
 from ..encoding import Encoding
-from ..encodings import ExtendedEncoding
+from ..encodings import ParameterExtendingEncoding
 from ..utils import RAND_GEN
 
 
@@ -64,7 +64,7 @@ class SwarmOperator(Operator):
 
         self.method = SwarmOpMethods.from_str(method)
 
-        assert isinstance(encoding, ExtendedEncoding), "To use swarm operators, an extended encoding must be indicated."
+        assert isinstance(encoding, ParameterExtendingEncoding), "To use swarm operators, an extended encoding must be indicated."
 
     def evolve(self, population, initializer=None):
         new_population = None

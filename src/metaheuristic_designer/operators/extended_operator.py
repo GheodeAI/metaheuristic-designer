@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
 from ..operator import Operator, NullOperator
-from ..encodings import ExtendedEncoding
+from ..encodings import ParameterExtendingEncoding
 from .composite_operator import CompositeOperator
 from .split_operator import SplitOperator
 
@@ -28,7 +28,7 @@ class ExtendedOperator(Operator):
         self,
         base_operator: Operator,
         param_operators: dict,
-        encoding: ExtendedEncoding,
+        encoding: ParameterExtendingEncoding,
         params: ParamScheduler | dict = None,
         name: str = None,
     ):

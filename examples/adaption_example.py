@@ -8,7 +8,7 @@ from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import VectorOperator, AdaptativeOperator
 from metaheuristic_designer.initializers import UniformInitializer, ExtendedInitializer
 from metaheuristic_designer.selection_methods import ParentSelection, SurvivorSelection
-from metaheuristic_designer.encodings import ExtendedEncoding
+from metaheuristic_designer.encodings import ParameterExtendingEncoding
 from metaheuristic_designer.strategies import *
 
 from metaheuristic_designer.benchmarks import *
@@ -46,7 +46,7 @@ def run_algorithm(alg_name, save_state, show_plots, objective, dim):
         case _:
             raise Exception(f'Objective function "{objective}" doesn\'t exist.')
 
-    adaption_encoding = ExtendedEncoding(objfunc.vecsize, param_sizes=(("F", 1),))
+    adaption_encoding = ParameterExtendingEncoding(objfunc.vecsize, param_sizes=(("F", 1),))
 
     pop_initializer = ExtendedInitializer(
         solution_init=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding),

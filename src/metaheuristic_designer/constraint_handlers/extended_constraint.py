@@ -1,11 +1,11 @@
 from __future__ import annotations
 from copy import copy
 from ..constraint_handler import ConstraintHandler
-from ..encodings import ExtendedEncoding
+from ..encodings import ParameterExtendingEncoding
 
 class ExtendedConstraintHandler(ConstraintHandler):
-    def __init__(self, solution_handler: ConstraintHandler, param_handler_dict: dict, encoding: ExtendedEncoding):
-        assert isinstance(encoding, ExtendedEncoding), "An `ExtendedEncoding` instance must be used with this type of ConstraintHandler"
+    def __init__(self, solution_handler: ConstraintHandler, param_handler_dict: dict, encoding: ParameterExtendingEncoding):
+        assert isinstance(encoding, ParameterExtendingEncoding), "An `ExtendedEncoding` instance must be used with this type of ConstraintHandler"
 
         self.solution_handler = solution_handler
         self.param_handler_dict = param_handler_dict

@@ -1,10 +1,10 @@
 from __future__ import annotations
 from abc import ABC
-from typing import Iterable
+from typing import Iterable, Tuple, Any
 import numpy as np
 from ..encoding import Encoding, DefaultEncoding
 
-class ExtendedEncoding(Encoding, ABC):
+class ParameterExtendingEncoding(Encoding, ABC):
     """
     Abstract Extended Encoding class.
 
@@ -12,7 +12,7 @@ class ExtendedEncoding(Encoding, ABC):
     This interface is intended to be used in swarm-based or adaptative algorithms.
     """
 
-    def __init__(self, vecsize: int, param_sizes: Iterable[(str, int)], base_encoding: Encoding = None, verify = False):
+    def __init__(self, vecsize: int, param_sizes: Iterable[Tuple[str, int]], base_encoding: Encoding = None, verify = False):
         self.vecsize = vecsize
         self.param_sizes = param_sizes
         self.nparams = sum([param_size for _, param_size in param_sizes])
@@ -123,8 +123,8 @@ class ExtendedEncoding(Encoding, ABC):
 
         return np.hstack([solution_encoded, params_encoded])
 
-    def decode_func(self, genotype: np.np.ndarray) -> np.np.ndarray:
-        solution_matrix = self.extract_solution(genotype)
+    def decode_func(self, indiv: np.np.ndarray) -> np.np.ndarray:
+        solution_matrix = self.extract_solution(indiv)
         return self.base_encoding.decode_func(solution_matrix)
 
     def encode(self, solutions: Iterable, params: dict = None) -> np.ndarray:

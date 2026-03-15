@@ -1,11 +1,11 @@
 from __future__ import annotations
 import numpy as np
-from ..encodings import ExtendedEncoding
+from ..encodings import ParameterExtendingEncoding
 from ..initializer import Initializer
 
 class ExtendedInitializer(Initializer):
-    def __init__(self, solution_init: Initializer, param_init_dict: dict, encoding: ExtendedEncoding):
-        assert isinstance(encoding, ExtendedEncoding), "An `ExtendedEncoding` instance must be used with this type of initializer"
+    def __init__(self, solution_init: Initializer, param_init_dict: dict, encoding: ParameterExtendingEncoding):
+        assert isinstance(encoding, ParameterExtendingEncoding), "An `ExtendedEncoding` instance must be used with this type of initializer"
 
         self.solution_init = solution_init
         self.param_init_dict = param_init_dict

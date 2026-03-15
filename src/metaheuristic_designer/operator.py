@@ -28,7 +28,7 @@ class Operator(ABC):
 
     _last_id = 0
 
-    def __init__(self, params: ParamScheduler | dict = None, name: str = None, use_params : bool = False, encoding: Encoding = None):
+    def __init__(self, params: ParamScheduler | dict = None, name: str = None, encoding: Encoding = None):
         """
         Constructor for the Operator class.
         """
@@ -39,8 +39,6 @@ class Operator(ABC):
         self.param_scheduler = None
 
         self.name = name
-
-        self.use_params = use_params
 
         if encoding is None:
             encoding = DefaultEncoding()

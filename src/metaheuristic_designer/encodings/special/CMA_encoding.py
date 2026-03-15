@@ -1,9 +1,9 @@
 from __future__ import annotations
 import numpy as np
-from .. import ExtendedEncoding
+from .. import ParameterExtendingEncoding
 
 
-class CMAEncoding(ExtendedEncoding):
+class CMAEncoding(ParameterExtendingEncoding):
     """
     Decoder used to implement the CMA-ES algorithm.
     """

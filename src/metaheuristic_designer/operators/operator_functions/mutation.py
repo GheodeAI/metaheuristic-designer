@@ -157,7 +157,7 @@ def mutate_sample(population, fitness, **kwargs):
     if "scale" in kwargs:
         del kwargs["scale"]
 
-    if distrib == ProbDist.UNIFORM and "max" in kwargs and "min" in params:
+    if distrib == ProbDist.UNIFORM and "max" in kwargs and "min" in kwargs:
         minim = kwargs["min"]
         maxim = kwargs["max"]
         loc = minim
@@ -194,7 +194,7 @@ def mutate_noise(population, fitness, **kwargs):
     if "scale" in kwargs:
         del kwargs["scale"]
 
-    if distrib == ProbDist.UNIFORM and "max" in kwargs and "min" in params:
+    if distrib == ProbDist.UNIFORM and "max" in kwargs and "min" in kwargs:
         minim = kwargs["min"]
         maxim = kwargs["max"]
         loc = minim
@@ -227,15 +227,15 @@ def rand_sample(population, fitness, **kwargs):
     if "scale" in kwargs:
         del kwargs["scale"]
 
-    if distrib == ProbDist.UNIFORM and "max" in kwargs and "min" in params:
+    if distrib == ProbDist.UNIFORM and "max" in kwargs and "min" in kwargs:
         minim = kwargs["min"]
         maxim = kwargs["max"]
         loc = minim
         scale = maxim - minim
 
-    if loc is None or (type(loc) is str and loc == "calculated"):
+    if loc is None or (isinstance(loc, str) and loc == "calculated"):
         loc = population.mean(axis=0)
-    if scale is None or (type(scale) is str and scale == "calculated"):
+    if scale is None or (isinstance(loc, str) and scale == "calculated"):
         scale = population.std(axis=0)
 
     rand_population = sample_distribution(population.shape, loc, scale, **kwargs)
@@ -388,6 +388,12 @@ def sample_1_sigma(population, fitness, **kwargs):
     np.exp(tau * N(0,1)) as a distribution function with a minimum value of epsilon.
     """
 
+    epsilon = kwargs["epsilon"]
+    sigma = kwargs["sigma"]
+    tau = kwargs["tau"]
+    n = kwargs["n"]
+
+
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
@@ -401,6 +407,10 @@ def mutate_1_sigma(population, fitness, **kwargs):
     Mutate a sigma value in base of tau param, where epsilon is de minimum value that a sigma can have.
     """
 
+    epsilon = kwargs["epsilon"]
+    sigma = kwargs["sigma"]
+    tau = kwargs["tau"]
+
     return np.maximum(
         epsilon,
         population * np.exp(tau * RAND_GEN.normal(0, 1, population.shape[0])[:, None]),
@@ -411,6 +421,10 @@ def mutate_n_sigmas(population, fitness, **kwargs):
     """
     Mutate a list of sigmas values in base of tau and tau_multiple params, where epsilon is de minimum value that a sigma can have.
     """
+
+    epsilon = kwargs["epsilon"]
+    tau = kwargs["tau"]
+    tau_multiple = kwargs["tau_multiple"]
 
     return np.maximum(
         epsilon,

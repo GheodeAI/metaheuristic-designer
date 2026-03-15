@@ -6,7 +6,7 @@ from numpy import ndarray
 from .utils import RAND_GEN
 from .objective_function import ObjectiveFunc
 from .encoding import Encoding, DefaultEncoding
-from .encodings import ExtendedEncoding
+from .encodings import ParameterExtendingEncoding
 
 
 class Population:
@@ -452,7 +452,7 @@ class Population:
         decoded_population: Any
         """
 
-        if isinstance(self.encoding, ExtendedEncoding):
+        if isinstance(self.encoding, ParameterExtendingEncoding):
             return self.encoding.decode_params(self.genotype_matrix)
         else:
             return None

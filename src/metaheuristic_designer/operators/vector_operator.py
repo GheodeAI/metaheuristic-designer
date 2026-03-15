@@ -12,7 +12,7 @@ from .operator_functions.swarm import *
 from ..operator import Operator
 from ..param_scheduler import ParamScheduler
 from ..encoding import Encoding
-from ..encodings import ExtendedEncoding
+from ..encodings import ParameterExtendingEncoding
 from ..utils import RAND_GEN
 
 

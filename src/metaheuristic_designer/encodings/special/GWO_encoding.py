@@ -1,9 +1,8 @@
 from __future__ import annotations
-import numpy as np
-from .. import ExtendedEncoding
+from .. import ParameterExtendingEncoding
 
 
-class GWOEncoding(ExtendedEncoding):
+class GWOEncoding(ParameterExtendingEncoding):
     """
     Encoding used to implement the GWO algorithm.
     """

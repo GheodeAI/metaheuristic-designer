@@ -1,5 +1,7 @@
 from __future__ import annotations
+from typing import Iterable
 from copy import copy
+import numpy as np
 from ..constraint_handler import ConstraintHandler
 
 class CompositeConstraint(ConstraintHandler):
@@ -15,7 +17,7 @@ class CompositeConstraint(ConstraintHandler):
     def __init__(self, constraints: Iterable):
         self.constraints = constraints
 
-    def repair_solution(self, solution):
+    def repair_solution(self, solution: np.ndarray):
         repaired_solution = copy(solution)
         for c in self.constraints:
             repaired_solution = c.repair_solution(repaired_solution)
