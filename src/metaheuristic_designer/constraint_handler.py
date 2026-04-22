@@ -1,3 +1,9 @@
+"""
+Base class for the Constraint Handler module. 
+
+This module implements ways to enforce constraints on the objective function.
+"""
+
 from __future__ import annotations
 from copy import copy
 from typing import Any

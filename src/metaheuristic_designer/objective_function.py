@@ -1,3 +1,9 @@
+"""
+Base class for the Objective Function module. 
+
+This module implements the objective function that will measure the quality of the solutions.
+"""
+
 from __future__ import annotations
 from typing import Any
 from abc import ABC, abstractmethod

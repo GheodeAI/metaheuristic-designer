@@ -1,9 +1,14 @@
+"""
+Base class for the Population module. 
+
+This module implements a data structure to hold the collection of solutions we are considering.
+"""
+
 from __future__ import annotations
 from typing import Tuple, Any
 from copy import copy
 import numpy as np
 from numpy import ndarray
-from .utils import RAND_GEN
 from .objective_function import ObjectiveFunc
 from .encoding import Encoding, DefaultEncoding
 from .encodings import ParameterExtendingEncoding

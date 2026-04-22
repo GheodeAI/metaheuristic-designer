@@ -1,6 +1,8 @@
 """
-"""
+Base class for the Algorithm module. 
 
+This module implements the main loop of the optimization algorithm using a search strategy.
+"""
 
 from __future__ import annotations
 from typing import List, Tuple, Any

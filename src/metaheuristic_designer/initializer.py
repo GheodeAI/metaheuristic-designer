@@ -1,3 +1,9 @@
+"""
+Base class for the Initializer module. 
+
+This module implements functions to generate the initial population of the algorithm.
+"""
+
 from __future__ import annotations
 from typing import Any
 from abc import ABC, abstractmethod

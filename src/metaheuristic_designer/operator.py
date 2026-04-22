@@ -1,11 +1,15 @@
+"""
+Base class for the Operator module. 
+
+This module implements procedures to modify the current solutions so that we explore the search space.
+"""
+
 from __future__ import annotations
-from typing import Any
 from copy import copy
 from abc import ABC, abstractmethod
 import numpy as np
 from .param_scheduler import ParamScheduler
 from .encoding import Encoding, DefaultEncoding
-from .objective_function import ObjectiveFunc
 from .population import Population
 from .initializer import Initializer
 

@@ -1,3 +1,9 @@
+"""
+Base class for the Search strategy module. 
+
+This module implements the procedure applied in each iteration of the algorithm.
+"""
+
 from __future__ import annotations
 from typing import Any
 import math

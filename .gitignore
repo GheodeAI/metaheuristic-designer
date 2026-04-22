@@ -163,6 +163,7 @@ cython_debug/
 
 *.code-workspace
 examples/results/*
+.vscode/
 
 code_dump.sh
 whole_code.txt

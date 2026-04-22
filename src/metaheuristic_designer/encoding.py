@@ -1,7 +1,13 @@
+"""
+Base class for the Encoding module. 
+
+This module implements a way to have a different representation in the inner working
+of the algorithm and the result of the procedure.
+"""
+
 from __future__ import annotations
 from typing import Iterable, Any
 from abc import ABC, abstractmethod
-import warnings
 import numpy as np
 from numpy import ndarray
 
