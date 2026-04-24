@@ -187,7 +187,7 @@ class OperatorFromLambda(Operator):
             elif p.kind == inspect.Parameter.VAR_POSITIONAL:
                 return
         
-        required_min_count = 1 if vectorized else 2
+        required_min_count = 3 if vectorized else 4
         if count < required_min_count:
             raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is{'' if vectorized else ' not'} vectorized.")
 

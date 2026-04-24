@@ -165,5 +165,5 @@ cython_debug/
 examples/results/*
 .vscode/
 
-code_dump.sh
-whole_code.txt
+*.sh
+*.txt

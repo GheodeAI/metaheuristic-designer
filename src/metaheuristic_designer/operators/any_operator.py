@@ -2,39 +2,51 @@
 """
 
 import logging
-from .BO_operator import BOOperator
+from ..operator import OperatorFromLambda, NullOperator
+from .debug_operator import debug_ops_map
 from .random_operator import random_ops_map
 from .crossover_operator import crossover_fn_map
 from .mutation_operator import mutation_ops_map
 from .differential_evolution_operator import de_ops_map
 from .perm_operator import perm_ops_map
 from .swarm_operator import swarm_ops_map
-from ..operator import OperatorFromLambda
+from .BO_operator import BOOperator
 
 logger = logging.getLogger(__name__)
 
 all_ops_map = {
-    "random": random_ops_map,
-    "mutation": mutation_ops_map,
-    "crossover": crossover_fn_map,
-    "permutation": perm_ops_map,
-    "DE": de_ops_map,
-    "swarm": swarm_ops_map,
+    "random":       random_ops_map,
+    "mutation":     mutation_ops_map,
+    "crossover":    crossover_fn_map,
+    "permutation":  perm_ops_map,
+    "de":           de_ops_map,
+    "swarm":        swarm_ops_map,
+    "debug":        debug_ops_map,
+    "custom":       {} 
 }
 
-def create_operator(method, encoding=None, random_state=None, **kwargs) :
+bo_aliases = {"bo", "bayesian_optimization"}
+null_aliases = {"null", "nothing", "identity", "passthrough"}
+
+def create_operator(method, encoding=None, random_state=None, name=None, **kwargs) :
     """
 
     Parameters
     ----------
     method
-        _description_
+        Name in the operator registry. The name can be the plain operator name or a dot-separated
+        string indicating both the registry and operator name such as "crossover.one_point", 
+        "mutation.gauss", "DE.DE/Rand/1", ....
     encoding, optional
-        _description_, by default None
+        Encoding to use as a postprocessing step on the population matrix after the operator.
+    random_state
+        Random generator.
+    name, optional
+        Name of the algorithm to be used in logs and progress information.
 
     Returns
     -------
-        _description_
+        Object that inherits from the Operator class.
 
     Raises
     ------
@@ -42,25 +54,79 @@ def create_operator(method, encoding=None, random_state=None, **kwargs) :
         When the method indicated is not one of the available ones in the registry.
     """
 
+    if name is None:
+        name = method
+
     method_lower = method.lower()
     new_operator = None
-    if method == "bo":
-        new_operator = BOOperator(encoding=encoding, **kwargs)
+    if method_lower in bo_aliases:
+        new_operator = BOOperator(name=name, encoding=encoding, random_state=random_state, **kwargs)
+        logger.debug("Created bayesian optimization operator.")
+    elif method_lower in null_aliases:
+        new_operator = NullOperator(name=name)
+        logger.debug("Created null operator.")
+    elif "." in method_lower:
+        op_reg_name, op_name, *_ = method_lower.split(".")
+        if op_reg_name not in all_ops_map:
+            raise ValueError(f"Operator registry {op_reg_name} doesn't exist, try one of {all_ops_map.keys()}")
+
+        op_map = all_ops_map[op_reg_name]
+        if op_name in op_map:
+            new_operator = OperatorFromLambda(
+                operator_fn=op_map[op_name],
+                name=name,
+                vectorized=True,
+                encoding=encoding,
+                random_state=random_state,
+                **kwargs
+            )
+        else:
+            raise ValueError(f"Operator {op_name} not found in the operator registry {op_reg_name}.")
+        logger.debug("Created operator from %s registry.", op_reg_name)
     else:
+        possible_collision = None
         for op_reg_name, op_map in all_ops_map.items():
             if method_lower in op_map:
-                new_operator = OperatorFromLambda(
-                    operator_fn=op_map[method_lower],
-                    name=method,
-                    vectorized=True,
-                    encoding=encoding,
-                    random_state=random_state,
-                    **kwargs
-                )
-                logger.debug("Created operator from %s registry.", op_reg_name)
-                break
+                if new_operator is None:
+                    new_operator = OperatorFromLambda(
+                        operator_fn=op_map[method_lower],
+                        name=name,
+                        vectorized=True,
+                        encoding=encoding,
+                        random_state=random_state,
+                        **kwargs
+                    )
+                    possible_collision = op_reg_name
+                    logger.debug("Created operator from %s registry.", op_reg_name)
+                else:
+                    logger.warning("Found a name collision on operator %s between registries %s and %s.", method_lower, possible_collision, op_reg_name)
 
     if new_operator is None:
         raise ValueError(f"Operator {method} not found in the operator registry.")
 
     return new_operator
+
+def add_operator_entry(operator_fn: callable, operator_name: str, operator_registry: str = "custom"):
+    """
+    Adds an operator so it can be generated by a the operator factory.
+
+    Parameters
+    ----------
+    operator_fn
+        Callable that gets a population and a random_state to perturb the population. It is highly recommended to
+        use one of the avaliable wrappers OperatorVectorDef, OperatorRandomDef, ...
+    operator_name
+        Name to give the operator in the registry.
+    operator_registry, optional
+        Name of the registry to add this operator to. New names simply generate a new registry, by default "custom"
+    """
+    if operator_registry not in all_ops_map:
+        all_ops_map[operator_registry] = {}
+        logger.info("Added a new operator registry named \"%s\"", operator_registry)
+
+    op_reg_map = all_ops_map[operator_registry]
+    if operator_name in op_reg_map:
+        logger.warning("Overwritten operator \"%s\" in registry \"%s\"", operator_name, operator_registry)
+    op_reg_map[operator_name] = operator_fn
+
+    logger.info("Added a new operator \"%s\" in registry \"%s\"", operator_name, operator_registry)

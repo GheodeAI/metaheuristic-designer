@@ -5,8 +5,6 @@ from enum import Enum
 from copy import copy
 import numpy as np
 from ..operator import Operator
-from ..param_scheduler import ParamScheduler
-from ..utils import RAND_GEN
 
 class BranchOpMethods(Enum):
     RANDOM = enum.auto()
@@ -47,9 +45,11 @@ class BranchOperator(Operator):
     def __init__(
         self,
         op_list: Iterable[Operator],
-        method: str = None, 
-        params: ParamScheduler | dict = None,
+        method: str = None,
         name: str = None,
+        encoding = None,
+        random_state = None,
+        **kwargs
     ):
         """
         Constructor for the OperatorMeta class
@@ -68,36 +68,27 @@ class BranchOperator(Operator):
             joined_names = ", ".join(op_names)
             name = f"{method}({joined_names})"
 
-        if params is None or params == "default":
-            # Default parameters
-            params = {
-                "p": 0.5,
-                "weights": [1] * len(op_list),
-                "init_idx": -1,
-            }
+        super().__init__(name=name, encoding=encoding, random_state=random_state, **kwargs)
         
         if method is None:
             self.method = BranchOpMethods.RANDOM
         else:
             self.method = BranchOpMethods.from_str(method)
 
-
-        super().__init__(params, name)
-
-        self.chosen_idx = params.get("in_description_it_idx", -1)
+        self.chosen_idx = kwargs.get("in_description_it_idx", -1)
 
         # If we have a branch with 2 operators and "p" is given as an input
-        if "weights" not in params and "p" in params and len(op_list) == 2:
-            params["weights"] = [params["p"], 1 - params["p"]]
+        if "weights" not in kwargs and "p" in kwargs and len(op_list) == 2:
+            kwargs["weights"] = [kwargs["p"], 1 - kwargs["p"]]
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)
 
         if self.method == BranchOpMethods.RANDOM:
-            self.chosen_idx = RAND_GEN.choice(
+            self.chosen_idx = self.random_state.choice(
                 np.arange(len(self.op_list)),
                 size=population.pop_size,
-                p=self.params["weights"],
+                p=self.kwargs["weights"],
             )
 
         if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
@@ -115,7 +106,7 @@ class BranchOperator(Operator):
 
         return new_population
     
-    def choose_index(idx: int):
+    def choose_index(self, idx: int):
         """
         Manually chooses the operator to use next
 

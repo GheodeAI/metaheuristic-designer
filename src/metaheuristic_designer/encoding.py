@@ -123,7 +123,7 @@ class EncodingFromLambda(Encoding):
         return self.encode_fn(solution)
 
     def decode_func(self, population: Any) -> Any:
-        return self.encode_fn(population)
+        return self.decode_fn(population)
 
 
 class DefaultEncoding(Encoding):

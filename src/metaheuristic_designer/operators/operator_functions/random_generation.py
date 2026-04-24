@@ -92,26 +92,3 @@ def random_reset(population_matrix, initializer: Initializer, n: int = 1):
     population_matrix[mask_pos] = random_population_marix
 
     return population_matrix
-
-
-def dummy_op(population_matrix, _fitness_array, f=0):
-    """
-    Replaces the vector with one consisting of all the same value
-
-    Only for testing, not useful for real applications
-
-    Parameters
-    ----------
-    population_matrix: numpy.array
-        Matrix containing the set of tentative solutions.
-    _fitness_array: numpy.array
-        Array containing the fitness of the individuals. (unused, kept for compatibility with other operator functions).
-    F: float, optional
-        Value to set as the value for the components.
-
-    Returns
-    -------
-        Vector with all the components consisting of the same value.
-    """
-
-    return np.full_like(population_matrix, f)

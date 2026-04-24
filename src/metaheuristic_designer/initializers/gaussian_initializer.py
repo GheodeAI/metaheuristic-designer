@@ -14,7 +14,7 @@ class GaussianInitializer(Initializer):
         The dimension of the vectors accepted by the objective function.
     g_mean: ndarray or float
         Mean of the probability distribution used to generate the individuals.
-    g_str: ndarray or float
+    g_std: ndarray or float
         Standard deviation of the probability distribution used to generate the individuals.
     pop_size: int, optional
         Number of individuals to be generated.

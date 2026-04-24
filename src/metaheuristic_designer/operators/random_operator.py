@@ -7,13 +7,20 @@ from .operator_functions.utils import OperatorVectorDef, OperatorRandomDef
 from ..operator import OperatorFromLambda
 
 random_ops_map = {
-    "random": OperatorRandomDef(random_initialize),
-    "reset": OperatorRandomDef(random_reset),
-    "dummy": OperatorVectorDef(dummy_op),
+    "random":              OperatorRandomDef(random_initialize),
+    "reinitialize":        OperatorRandomDef(random_initialize),
+    "regenerate":          OperatorRandomDef(random_initialize),
+    "full_random_reset":   OperatorRandomDef(random_initialize),
+
+    "reset":               OperatorRandomDef(random_reset),
+    "reset_n":             OperatorRandomDef(random_reset),
+    "reset_random":        OperatorRandomDef(random_reset),
+    "reset_components":    OperatorRandomDef(random_reset),
 }
 
 def create_random_operator(method, encoding=None, **kwargs):
     """
+    Create operators that utilize the Initializer interface for random generation.
     """
 
     return OperatorFromLambda(

@@ -22,7 +22,7 @@ class GeneralAlgorithm(Algorithm):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def step(self, population=None, time_start=0, verbose=False):
+    def step(self, population=None, time_start=0):
         # Get the population of this generation
         if population is None:
             population = self.search_strategy.population

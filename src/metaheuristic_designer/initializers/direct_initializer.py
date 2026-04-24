@@ -57,8 +57,8 @@ class DirectInitializer(Initializer):
                 selection_idx = np.arange(n_indiv) % self.solutions.pop_size
                 population = self.solutions.take_selection(selection_idx)
         elif isinstance(self.solutions, np.ndarray):
-            selection_idx = np.arange(n_indiv) % self.solutions.pop_size
-            population = Population(objfunc, self.solutions.genotype_matrix[selection_idx])
+            selection_idx = np.arange(n_indiv) % self.solutions.shape[0]
+            population = Population(objfunc, self.solutions[selection_idx, :])
         else:
             raise TypeError("The provided population is not valid. It should be of type Population or numpy array.")
 

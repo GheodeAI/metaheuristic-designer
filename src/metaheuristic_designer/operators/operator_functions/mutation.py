@@ -6,7 +6,7 @@ import enum
 from enum import Enum
 import numpy as np
 import scipy as sp
-from ...utils import RAND_GEN
+from ...utils import check_random_state
 
 
 class ProbDist(Enum):
@@ -85,17 +85,18 @@ class multivariate_categorical:
         else:
             size = tuple(size) + (len(self.categories),)
 
-        if random_state is None:
-            random_state = np.random.default_rng()
+        random_state = check_random_state(random_state)
 
         index_rnd = random_state.random(size=size)
         return self.sample_fn(self.cumsum_matrix, index_rnd)
 
 
-def mutate_sample(population, _fitness, **kwargs):
+def mutate_sample(population, _fitness, random_state=None, **kwargs):
     """
     Replaces 'n' components of the input vector with a random value sampled from a given probability distribution.
     """
+
+    random_state = check_random_state(random_state)
 
     n = round(kwargs["N"])
     distrib = kwargs["distrib"]
@@ -114,24 +115,26 @@ def mutate_sample(population, _fitness, **kwargs):
         scale = maxim - minim
 
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
-    mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
+    mask_pos = random_state.permuted(mask_pos, axis=1)
 
     if loc is None or (isinstance(loc, str) and loc == "calculated"):
         loc = population[mask_pos].mean(axis=0)
     if scale is None or (isinstance(scale, str) and scale == "calculated"):
         scale = population[mask_pos].std(axis=0)
 
-    rand_vec = sample_distribution(population.shape, loc, scale, **kwargs)
+    rand_vec = sample_distribution(population.shape, loc, scale, random_state, **kwargs)
 
     population[mask_pos] = rand_vec[mask_pos]
 
     return population
 
 
-def mutate_noise(population, _fitness, **kwargs):
+def mutate_noise(population, _fitness, random_state=None, **kwargs):
     """
     Adds random noise with a given probability distribution to 'n' components of the input vector.
     """
+
+    random_state = check_random_state(random_state)
 
     n = round(kwargs["N"])
     distrib = kwargs["distrib"]
@@ -154,18 +157,20 @@ def mutate_noise(population, _fitness, **kwargs):
         strength = strength[:, None]
 
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
-    mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
+    mask_pos = random_state.permuted(mask_pos, axis=1)
 
-    rand_vec = sample_distribution(population.shape, loc, scale, **kwargs)
+    rand_vec = sample_distribution(population.shape, loc, scale, random_state, **kwargs)
 
     population[mask_pos] = population[mask_pos] + (strength * rand_vec)[mask_pos]
     return population
 
 
-def rand_sample(population, _fitness, **kwargs):
+def rand_sample(population, _fitness, random_state=None, **kwargs):
     """
     Picks a vector with components sampled from a probability distribution.
     """
+
+    random_state = check_random_state(random_state)
 
     distrib = kwargs["distrib"]
 
@@ -188,15 +193,17 @@ def rand_sample(population, _fitness, **kwargs):
     if scale is None or (isinstance(loc, str) and scale == "calculated"):
         scale = population.std(axis=0)
 
-    rand_population = sample_distribution(population.shape, loc, scale, **kwargs)
+    rand_population = sample_distribution(population.shape, loc, scale, random_state, **kwargs)
 
     return rand_population
 
 
-def rand_noise(population, _fitness, **kwargs):
+def rand_noise(population, _fitness, random_state=None, **kwargs):
     """
     Adds random noise with a given probability distribution to all components of the input vector.
     """
+    
+    random_state = check_random_state(random_state)
 
     distrib = kwargs["distrib"]
 
@@ -216,15 +223,17 @@ def rand_noise(population, _fitness, **kwargs):
     if strength.ndim == 1:
         strength = strength[:, None]
 
-    noise = sample_distribution(population.shape, loc, scale, **kwargs)
+    noise = sample_distribution(population.shape, loc, scale, random_state, **kwargs)
 
     return population + strength * noise
 
 
-def sample_distribution(shape, loc=None, scale=None, **kwargs):
+def sample_distribution(shape, loc=None, scale=None, random_state=None, **kwargs):
     """
     Takes samples as a matrix with shape 'shape' from a given probablility distribution and returns them as a vector.
     """
+
+    random_state = check_random_state(random_state)
 
     result = None
 
@@ -250,7 +259,7 @@ def sample_distribution(shape, loc=None, scale=None, **kwargs):
                     mean_i = loc if np.asarray(mean).ndim <= 1 else loc[i]
                     scale_i = scale if np.asarray(cov).ndim <= 2 else scale[i]
                     prob_distrib = sp.stats.multivariate_normal(mean=mean_i, kappa=scale_i)
-                    result[i, :] = prob_distrib.rvs(random_state=RAND_GEN)
+                    result[i, :] = prob_distrib.rvs(random_state=random_state)
         case ProbDist.UNIFORM:
             prob_distrib = sp.stats.uniform(loc=loc, scale=scale)
         case ProbDist.CAUCHY:
@@ -287,7 +296,7 @@ def sample_distribution(shape, loc=None, scale=None, **kwargs):
                     mu_i = mu if mu.ndim <= 1 else mu[i]
                     scale_i = scale if np.asarray(scale).ndim <= 1 else scale[i]
                     prob_distrib = sp.stats.vonmises_fisher(mu=mu_i, kappa=1 / scale_i)
-                    result[i, :] = prob_distrib.rvs(random_state=RAND_GEN)
+                    result[i, :] = prob_distrib.rvs(random_state=random_state)
         case ProbDist.BINOMIAL:
             n = kwargs["n"]
             p = kwargs.get("p", 0.5)
@@ -307,18 +316,20 @@ def sample_distribution(shape, loc=None, scale=None, **kwargs):
             raise ValueError("Invalid probability distribution")
 
     if result is None:
-        result = prob_distrib.rvs(size=shape, random_state=RAND_GEN)
+        result = prob_distrib.rvs(size=shape, random_state=random_state)
 
     return result
 
 
-def sample_1_sigma(population, _fitness, **kwargs):
+def sample_1_sigma(population, _fitness, random_state=None, **kwargs):
     """
     Replaces 'n' components of the input vector with a value sampled from the mutate 1 sigma function.
 
     In future, it should be integrated in mutate_sample and sample_distribution functions, considering
     np.exp(tau * N(0,1)) as a distribution function with a minimum value of epsilon.
     """
+
+    random_state = check_random_state(random_state)
 
     epsilon = kwargs["epsilon"]
     sigma = kwargs["sigma"]
@@ -327,31 +338,35 @@ def sample_1_sigma(population, _fitness, **kwargs):
 
 
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
-    mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
+    mask_pos = random_state.permuted(mask_pos, axis=1)
 
-    sampled = np.maximum(epsilon, population * np.exp(tau * RAND_GEN.normal(0, 1, sigma.shape[0])))
+    sampled = np.maximum(epsilon, population * np.exp(tau * random_state.normal(0, 1, sigma.shape[0])))
     population[mask_pos] = sampled[mask_pos]
     return population
 
 
-def mutate_1_sigma(population, _fitness, **kwargs):
+def mutate_1_sigma(population, _fitness, random_state=None, **kwargs):
     """
     Mutate a sigma value in base of tau param, where epsilon is de minimum value that a sigma can have.
     """
+
+    random_state = check_random_state(random_state)
 
     epsilon = kwargs["epsilon"]
     tau = kwargs["tau"]
 
     return np.maximum(
         epsilon,
-        population * np.exp(tau * RAND_GEN.normal(0, 1, population.shape[0])[:, None]),
+        population * np.exp(tau * random_state.normal(0, 1, population.shape[0])[:, None]),
     )
 
 
-def mutate_n_sigmas(population, _fitness, **kwargs):
+def mutate_n_sigmas(population, _fitness, random_state=None, **kwargs):
     """
     Mutate a list of sigmas values in base of tau and tau_multiple params, where epsilon is de minimum value that a sigma can have.
     """
+
+    random_state = check_random_state(random_state)
 
     epsilon = kwargs["epsilon"]
     tau = kwargs["tau"]
@@ -360,28 +375,30 @@ def mutate_n_sigmas(population, _fitness, **kwargs):
     return np.maximum(
         epsilon,
         population
-        * np.exp(tau * RAND_GEN.normal(0, 1, population.shape[0])[:, None] + tau_multiple * RAND_GEN.normal(0, 1, population.shape[0])[:, None]),
+        * np.exp(tau * random_state.normal(0, 1, population.shape[0])[:, None] + tau_multiple * random_state.normal(0, 1, population.shape[0])[:, None]),
     )
 
 
-def xor_mask(population, _fitness, **kwargs):
+def xor_mask(population, _fitness, random_state=None, **kwargs):
     """
     Applies an XOR operation between a random number and the input vector.
     """
+
+    random_state = check_random_state(random_state)
 
     n = kwargs["N"]
     mode = kwargs.get("BinRep", "byte")
 
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
-    mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
+    mask_pos = random_state.permuted(mask_pos, axis=1)
 
     match mode:
         case "bin":
             mask = mask_pos
         case "byte":
-            mask = RAND_GEN.integers(1, 0xFF, size=population.shape) * mask_pos
+            mask = random_state.integers(1, 0xFF, size=population.shape) * mask_pos
         case "int":
-            mask = RAND_GEN.integers(1, 0xFFFF, size=population.shape) * mask_pos
+            mask = random_state.integers(1, 0xFFFF, size=population.shape) * mask_pos
         case _:
             mask = 0
 

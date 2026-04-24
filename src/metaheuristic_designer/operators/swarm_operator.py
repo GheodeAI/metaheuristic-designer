@@ -28,7 +28,7 @@ def create_swarm_operator(method, encoding, **kwargs):
         raise TypeError("The encoding must inherit from ParameterExtendingEncoding.")
 
     return OperatorFromLambda(
-        operator_fn=perm[method.lower()],
+        operator_fn=swarm_ops_map[method.lower()],
         name=method,
         vectorized=True,
         encoding=encoding,

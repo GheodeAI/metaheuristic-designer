@@ -1,20 +1,18 @@
 from __future__ import annotations
+import warnings
 import numpy as np
 import scipy as sp
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel
-import warnings
-
-warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
-
 from ..operator import Operator
 from ..objective_function import VectorObjectiveFunc
 from ..population import Population
-from ..utils import RAND_GEN
+
+warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
 
 
-def _aquisition_function(gaussian_model, X, x_in, max_y):
+def _aquisition_function(gaussian_model, _X, x_in, max_y):
     mean_y, std_y = gaussian_model.predict(x_in[None, :], return_std=True)
     std_y = np.maximum(std_y, 1e-10)
 
@@ -32,8 +30,8 @@ class BOOperator(Operator):
     from the regression model is then optimized to estimate the next best solution for the problem.
     """
 
-    def __init__(self, name="Gaussian Regression Surrogate Model", encoding=None, **kwargs):
-        super().__init__(name=name, encoding=encoding, **kwargs)
+    def __init__(self, name="Gaussian Regression Surrogate Model", encoding=None, random_state=None, **kwargs):
+        super().__init__(name=name, encoding=encoding, random_state=random_state, **kwargs)
 
         a = 1.0
         kernel = a * RBF(length_scale=1.0) + WhiteKernel(noise_level=1.0)
@@ -41,14 +39,14 @@ class BOOperator(Operator):
         self.batch_size = kwargs.get("batch_size", 100)
         self.max_samples = kwargs.get("max_samples", 100)
 
-    def evolve(self, population, initializer):
+    def evolve(self, population, initializer=None):
         # Obtain training data from the population
         population = population.calculate_fitness()
 
         X = population.genotype_matrix
         y = population.fitness
         if population.pop_size > self.max_samples:
-            mask = RAND_GEN.choice(population.pop_size, size=self.max_samples, replace=False)
+            mask = self.random_state.choice(population.pop_size, size=self.max_samples, replace=False)
             X = X[mask]
             y = y[mask]
 

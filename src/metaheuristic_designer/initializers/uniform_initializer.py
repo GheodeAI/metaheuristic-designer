@@ -24,7 +24,7 @@ class UniformInitializer(Initializer):
     """
 
     def __init__(self, genotype_size, low_lim, up_lim, pop_size=1, encoding=None, dtype=float, random_state=None):
-        super().__init__(pop_size, encoding, random_state=None)
+        super().__init__(pop_size, encoding, random_state=random_state)
 
         self.genotype_size = genotype_size
 

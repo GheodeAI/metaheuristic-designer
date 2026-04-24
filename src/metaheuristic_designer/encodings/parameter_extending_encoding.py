@@ -61,7 +61,7 @@ class ParameterExtendingEncoding(Encoding, ABC):
         
         return result
     
-    def decode_params_func(self, genotype: np.np.ndarray) -> dict:
+    def decode_params_func(self, genotype: np.ndarray) -> dict:
         param_dict = {}
         param_vec = self.extract_params(genotype)
         for name, length in self.param_sizes:

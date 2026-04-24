@@ -24,6 +24,14 @@ de_ops_map = {
     "de/current-to-rand/1": OperatorVectorDef(differential_evolution_current_to_rand1),
     "de/current-to-best/1": OperatorVectorDef(differential_evolution_current_to_best1),
     "de/current-to-pbest/1": OperatorVectorDef(differential_evolution_current_to_pbest1),
+
+    "de_rand_1": OperatorVectorDef(differential_evolution_rand1),
+    "de_best_1": OperatorVectorDef(differential_evolution_best1), 
+    "de_rand_2": OperatorVectorDef(differential_evolution_rand2),
+    "de_best_2": OperatorVectorDef(differential_evolution_best2),
+    "de_current_to_rand_1": OperatorVectorDef(differential_evolution_current_to_rand1),
+    "de_current_to_best_1": OperatorVectorDef(differential_evolution_current_to_best1),
+    "de_current_to_pbest_1": OperatorVectorDef(differential_evolution_current_to_pbest1),
 }
 
 def create_differential_evolution_operator(method, encoding=None, vectorized=True, **kwargs):
