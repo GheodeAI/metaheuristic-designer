@@ -1,4 +1,4 @@
-from .utils import RAND_GEN, reset_seed
+from .utils import check_random_state
 
 from .objective_function import ObjectiveFunc, NullObjectiveFunc, VectorObjectiveFunc, ObjectiveFromLambda
 from . import benchmarks

@@ -97,4 +97,4 @@ class OperatorSwarmFuncDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
         
-        return population.update_genotype_matrix(self.operator_fn(population.genotype_matrix, random_state, **modified_kwargs))
+        return population.update_genotype_matrix(self.operator_fn(population, random_state, **modified_kwargs))

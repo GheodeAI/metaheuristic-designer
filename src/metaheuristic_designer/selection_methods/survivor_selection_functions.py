@@ -1,6 +1,6 @@
 from copy import copy
 import numpy as np
-from ..utils import RAND_GEN
+from ..utils import check_random_state
 
 
 def one_to_one(population_fitness, offspring_fitness):

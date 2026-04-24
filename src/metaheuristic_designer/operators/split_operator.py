@@ -1,12 +1,9 @@
 from __future__ import annotations
 from typing import Iterable
-import enum
-from enum import Enum
 from copy import copy
 import numpy as np
 from ..operator import Operator
 from ..param_scheduler import ParamScheduler
-from ..utils import RAND_GEN
 
 
 class SplitOperator(Operator):
@@ -28,7 +25,6 @@ class SplitOperator(Operator):
     def __init__(
         self,
         op_list: Iterable[Operator],
-        method: str = None, 
         params: ParamScheduler | dict = None,
         name: str = None,
     ):

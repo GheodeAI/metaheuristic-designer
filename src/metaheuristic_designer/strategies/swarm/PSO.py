@@ -3,7 +3,6 @@ import numpy as np
 from ...initializer import Initializer
 from ...initializers import UniformInitializer, ExtendedInitializer
 from ...operator import Operator
-from ...operators import SwarmOperator
 from ..static_population import StaticPopulation
 from ...param_scheduler import ParamScheduler
 

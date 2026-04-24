@@ -5,7 +5,7 @@ import logging
 from ..operator import OperatorFromLambda, NullOperator
 from .debug_operator import debug_ops_map
 from .random_operator import random_ops_map
-from .crossover_operator import crossover_fn_map
+from .crossover_operator import crossover_ops_map
 from .mutation_operator import mutation_ops_map
 from .differential_evolution_operator import de_ops_map
 from .perm_operator import perm_ops_map
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 all_ops_map = {
     "random":       random_ops_map,
     "mutation":     mutation_ops_map,
-    "crossover":    crossover_fn_map,
+    "crossover":    crossover_ops_map,
     "permutation":  perm_ops_map,
     "de":           de_ops_map,
     "swarm":        swarm_ops_map,

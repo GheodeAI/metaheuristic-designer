@@ -2,7 +2,7 @@ import warnings
 import enum
 from enum import Enum
 import numpy as np
-from ..utils import RAND_GEN
+from ..utils import check_random_state
 
 
 class SelectionDist(Enum):

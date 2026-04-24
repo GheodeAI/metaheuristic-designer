@@ -1,5 +1,4 @@
 from __future__ import annotations
-from copy import copy
 import enum
 from enum import Enum
 from ..param_scheduler import ParamScheduler
