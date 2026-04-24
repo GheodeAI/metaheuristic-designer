@@ -33,11 +33,11 @@ class LinearPenaltyBoundConstraint(PenalizeConstraint):
             up_lim = np.repeat(up_lim, vecsize)
         self.up_lim = up_lim
 
-    def penalty(self, vector: ndarray) -> ndarray:
-        low_bound_diff = vector - self.low_lim
+    def penalty(self, solution: ndarray) -> ndarray:
+        low_bound_diff = solution - self.low_lim
         low_bound_diff[low_bound_diff > 0] = 0
 
-        up_bound_diff = vector - self.up_lim
+        up_bound_diff = solution - self.up_lim
         up_bound_diff[up_bound_diff < 0] = 0
 
         return self.alpha * np.sum(np.abs(low_bound_diff - up_bound_diff))

@@ -1,8 +1,6 @@
 from __future__ import annotations
 import numpy as np
 from ..initializer import Initializer
-from ..utils import RAND_GEN
-
 
 class PermInitializer(Initializer):
     """
@@ -16,10 +14,10 @@ class PermInitializer(Initializer):
         Number of individuals to be generated.
     """
 
-    def __init__(self, genotype_size, pop_size=1):
+    def __init__(self, genotype_size, pop_size=1, random_state=None):
+        super().__init__(pop_size, encoding=None, random_state=random_state)
+
         self.genotype_size = genotype_size
 
-        super().__init__(pop_size, encoding=None)
-
     def generate_random(self):
-        return RAND_GEN.permutation(self.genotype_size)
+        return self.random_state.permutation(self.genotype_size)

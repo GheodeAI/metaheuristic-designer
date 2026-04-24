@@ -1,63 +1,48 @@
+"""
+"""
+
 import numpy as np
-import scipy as sp
 import scipy.spatial.distance as sp_dist
+from ...population import Population
 from ...utils import RAND_GEN
 
 
-def pso_operator(population, population_speed, historical_best, global_best, w, c1, c2):
+def pso_operator(population_matrix: np.array, population_speed: np.array, historical_best: np.array, global_best: np.array, w: float, c1: float, c2: float):
     """
     Performs a step of the Particle Swarm algorithm
     """
 
-    global_best = global_best[None, :]
+    c1 = c1 * RAND_GEN.random(population_matrix.shape)
+    c2 = c2 * RAND_GEN.random(population_matrix.shape)
 
-    c1 = c1 * RAND_GEN.random(population.shape)
-    c2 = c2 * RAND_GEN.random(population.shape)
+    speed = w * population_speed + c1 * (historical_best - population_matrix) + c2 * (global_best - population_matrix)
 
-    speed = w * population_speed + c1 * (historical_best - population) + c2 * (global_best - population)
+    return population_matrix + speed, speed
 
-    return population + speed, speed
-
-
-def firefly(population, fitness, objfunc, alpha_0, beta_0, delta, gamma):
+def firefly_operator(population_matrix, fitness_array, alpha_0, beta_0, delta, gamma):
     """
     Performs a step of the Firefly algorithm
     """
 
 
-    # sol_range = objfunc.up_lim - objfunc.low_lim
-
-    # fit_order = np.argsort(fitness)
-    # sorted_population = population[fit_order]
-    # sorted_fitness = fitness[fit_order]
-
-    # distances = sp_dist.squareform(sp_dist.pdist())[:, :, None]
-    # beta = beta_0 * np.exp(-gamma * distances**2)
-
-    # sol_range = objfunc.up_lim - objfunc.low_lim
-    # n_dim = solution.genotype.size
-    # new_vector = solution.genotype.copy()
-    # for idx, ind in enumerate(population):
-    #     if solution.fitness < ind.fitness:
-    #         r = np.linalg.norm(solution.genotype - ind.genotype)
-    #         alpha = alpha_0 * delta**idx
-    #         beta = beta_0 * np.exp(-gamma * (r / (sol_range * np.sqrt(n_dim))) ** 2)
-    #         new_vector = new_vector + beta * (ind.genotype - new_vector) + alpha * sol_range * RAND_GEN.random() - 0.5
-    #         new_vector = objfunc.repair_solution(new_vector)
-
-    # return new_vector
-
-    sol_range = objfunc.up_lim - objfunc.low_lim
-    dist_matrix = sp_dist.pdist(population)
-    fit_order = np.argsort(fitness)
+    n_components = population_matrix.shape[1]
+    dist_matrix_flat = sp_dist.pdist(population_matrix)
+    dist_matrix = sp_dist.squareform(dist_matrix_flat)
+    fit_order = np.argsort(fitness_array)[::-1]
     for idx_i, i in enumerate(fit_order):
-        for idx_j, j in enumerate(fit_order[:i]):
-            if fit_j > fit_i:
-                alpha = alpha_0 * delta**idx_j
-                beta = beta_0*np.exp(-gamma * (dist_matrix[idx_i, idx_j]/sol_range)**2 / population.shape[1])
-                population[idx_i,:] = solution[idx_i,:] + beta * (population[idx_j, :] - population[idx_i, :]) + alpha * RAND_GEN.random()
-    
-    return population
+        for idx_j, j in enumerate(fit_order[:idx_i]):
+            r = dist_matrix[i, j]
+
+            # if fitness_array[i] > fitness_array[j]:
+            alpha = alpha_0 * delta**idx_j
+            beta = beta_0*np.exp(-gamma * r * r)
+            population_matrix[i,:] = (
+                population_matrix[i,:]
+                + beta * (population_matrix[j, :] - population_matrix[i, :])
+                + alpha * (RAND_GEN.random(n_components) - 0.5)
+            )
+
+    return population_matrix
 
 
 def glowworm(population, luciferin, fitness, rho, gamma, radial_range, step_size):
@@ -80,4 +65,38 @@ def glowworm(population, luciferin, fitness, rho, gamma, radial_range, step_size
                 population[idx] += step_size * (population[idx_n] - population[idx]) / sp_dist.euclidean(population[idx_n], population[idx])
     
     return population, luciferin_next
+
+
+def pso_operator_wrapper(population: Population, w=0.7, c1=1.5, c2=1.5):
+    """
+    """
+
+    population_encoding = population.encoding
+    population_params = population_encoding.decode_params(population.genotype_matrix)
+    historical_best_solution = population_encoding.extract_solution(population.historical_best)
+    global_best_solution = population_encoding.extract_solution(population.best[None, :])[0]
+
+    population_solutions, population_params["speed"] = pso_operator(
+        population.genotype_matrix, population_params["speed"], historical_best_solution, global_best_solution,
+        w, c1, c2
+    )
+
+    population_matrix = population.encoding.encode(population_solutions, population_params)
+    return population.update_genotype_matrix(population_matrix)
+
+
+def firefly_operator_wrapper(population: Population, alpha_0=0.2, beta_0=1.0, delta=1.0, gamma=0.97):
+    """
+    """
+
+    population_encoding = population.encoding
+    population_params = population_encoding.decode_params(population.genotype_matrix)
+
+    population_solutions, population_params["speed"] = firefly_operator(
+        population.genotype_matrix, population.fitness,
+        alpha_0, beta_0, delta, gamma
+    )
+
+    population_matrix = population.encoding.encode(population_solutions, population_params)
+    return population.update_genotype_matrix(population_matrix)
 

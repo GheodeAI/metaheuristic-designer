@@ -1,3 +1,7 @@
+"""
+Mutation operator implementations based on probability distributions.
+"""
+
 import enum
 from enum import Enum
 import numpy as np
@@ -75,7 +79,7 @@ class multivariate_categorical:
 
     def rvs(self, size=None, random_state=None):
         if size is None:
-            size = len(self.cumsum_matrix.shape[0])
+            size = self.cumsum_matrix.shape[0]
         elif np.asarray(size).ndim == 0:
             size = (size, len(self.categories))
         else:
@@ -88,61 +92,7 @@ class multivariate_categorical:
         return self.sample_fn(self.cumsum_matrix, index_rnd)
 
 
-def gaussian_mutation(population, fitness, **kwargs):
-    """
-    Adds random noise following a Gaussian distribution to the vector.
-    """
-
-    kwargs["distrib"] = ProbDist.GAUSS
-    return rand_noise(population, fitness, **kwargs)
-
-
-def cauchy_mutation(population, fitness, **kwargs):
-    """
-    Adds random noise following a Cauchy distribution to the vector.
-    """
-
-    kwargs["distrib"] = ProbDist.CAUCHY
-    return rand_noise(population, fitness, **kwargs)
-
-
-def laplace_mutation(population, fitness, **kwargs):
-    """
-    Adds random noise following a Laplace distribution to the vector.
-    """
-
-    kwargs["distrib"] = ProbDist.LAPLACE
-    return rand_noise(population, fitness, **kwargs)
-
-
-def uniform_mutation(population, fitness, **kwargs):
-    """
-    Adds random noise following an Uniform distribution to the vector.
-    """
-
-    kwargs["distrib"] = ProbDist.UNIFORM
-    return rand_noise(population, fitness, **kwargs)
-
-
-def poisson_mutation(population, fitness, **kwargs):
-    """
-    Adds random noise following a Poisson distribution to the vector.
-    """
-
-    kwargs["distrib"] = ProbDist.POISSON
-    return rand_noise(population, fitness, **kwargs)
-
-
-def bernoulli_mutation(population, fitness, **kwargs):
-    """
-    Adds random noise following a Poisson distribution to the vector.
-    """
-
-    kwargs["distrib"] = ProbDist.BERNOULLI
-    return rand_sample(population, fitness, **kwargs)
-
-
-def mutate_sample(population, fitness, **kwargs):
+def mutate_sample(population, _fitness, **kwargs):
     """
     Replaces 'n' components of the input vector with a random value sampled from a given probability distribution.
     """
@@ -166,9 +116,9 @@ def mutate_sample(population, fitness, **kwargs):
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)
 
-    if loc is None or (type(loc) is str and loc == "calculated"):
+    if loc is None or (isinstance(loc, str) and loc == "calculated"):
         loc = population[mask_pos].mean(axis=0)
-    if scale is None or (type(scale) is str and scale == "calculated"):
+    if scale is None or (isinstance(scale, str) and scale == "calculated"):
         scale = population[mask_pos].std(axis=0)
 
     rand_vec = sample_distribution(population.shape, loc, scale, **kwargs)
@@ -178,7 +128,7 @@ def mutate_sample(population, fitness, **kwargs):
     return population
 
 
-def mutate_noise(population, fitness, **kwargs):
+def mutate_noise(population, _fitness, **kwargs):
     """
     Adds random noise with a given probability distribution to 'n' components of the input vector.
     """
@@ -212,7 +162,7 @@ def mutate_noise(population, fitness, **kwargs):
     return population
 
 
-def rand_sample(population, fitness, **kwargs):
+def rand_sample(population, _fitness, **kwargs):
     """
     Picks a vector with components sampled from a probability distribution.
     """
@@ -243,7 +193,7 @@ def rand_sample(population, fitness, **kwargs):
     return rand_population
 
 
-def rand_noise(population, fitness, **kwargs):
+def rand_noise(population, _fitness, **kwargs):
     """
     Adds random noise with a given probability distribution to all components of the input vector.
     """
@@ -351,7 +301,7 @@ def sample_distribution(shape, loc=None, scale=None, **kwargs):
             shape = shape[0]
         case ProbDist.CUSTOM:
             if "distrib_class" not in kwargs:
-                raise Exception("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")
+                raise ValueError("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")
             prob_distrib = kwargs["distrib_class"]
         case _:
             raise ValueError("Invalid probability distribution")
@@ -362,25 +312,7 @@ def sample_distribution(shape, loc=None, scale=None, **kwargs):
     return result
 
 
-def generate_statistic(population, fitness, **kwargs):
-    stat_name = kwargs.get("statistic", "mean")
-
-    new_population = None
-    match stat_name:
-        case "mean":
-            new_population = np.mean(population, axis=0)
-        case "average":
-            weights = kwargs.get("weights", np.ones(population.shape[1]))
-            new_population = np.average(population, weights=weights, axis=0)
-        case "median":
-            new_population = np.median(population, axis=0)
-        case "std":
-            new_population = np.std(population, axis=0)
-
-    return new_population
-
-
-def sample_1_sigma(population, fitness, **kwargs):
+def sample_1_sigma(population, _fitness, **kwargs):
     """
     Replaces 'n' components of the input vector with a value sampled from the mutate 1 sigma function.
 
@@ -402,13 +334,12 @@ def sample_1_sigma(population, fitness, **kwargs):
     return population
 
 
-def mutate_1_sigma(population, fitness, **kwargs):
+def mutate_1_sigma(population, _fitness, **kwargs):
     """
     Mutate a sigma value in base of tau param, where epsilon is de minimum value that a sigma can have.
     """
 
     epsilon = kwargs["epsilon"]
-    sigma = kwargs["sigma"]
     tau = kwargs["tau"]
 
     return np.maximum(
@@ -417,7 +348,7 @@ def mutate_1_sigma(population, fitness, **kwargs):
     )
 
 
-def mutate_n_sigmas(population, fitness, **kwargs):
+def mutate_n_sigmas(population, _fitness, **kwargs):
     """
     Mutate a list of sigmas values in base of tau and tau_multiple params, where epsilon is de minimum value that a sigma can have.
     """
@@ -433,7 +364,7 @@ def mutate_n_sigmas(population, fitness, **kwargs):
     )
 
 
-def xor_mask(population, fitness, **kwargs):
+def xor_mask(population, _fitness, **kwargs):
     """
     Applies an XOR operation between a random number and the input vector.
     """
@@ -455,13 +386,3 @@ def xor_mask(population, fitness, **kwargs):
             mask = 0
 
     return population ^ mask
-
-
-def dummy_op(population, fitness, **kwargs):
-    """
-    Replaces the vector with one consisting of all the same value
-
-    Only for testing, not useful for real applications
-    """
-
-    return np.full_like(population, kwargs["F"])

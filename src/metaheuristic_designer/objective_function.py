@@ -5,6 +5,7 @@ This module implements the objective function that will measure the quality of t
 """
 
 from __future__ import annotations
+import logging
 from typing import Any
 from abc import ABC, abstractmethod
 import numpy as np
@@ -12,6 +13,7 @@ from numpy import ndarray
 from .constraint_handler import ConstraintHandler, NullConstraint
 from .constraint_handlers import ClipBoundConstraint, CompositeConstraint
 
+logger = logging.getLogger(__name__)
 
 class ObjectiveFunc(ABC):
     """
@@ -103,6 +105,7 @@ class ObjectiveFunc(ABC):
             Fitness value of the individual.
         """
 
+        logger.info("Calculating fitness of the population...")
         fitness = population.fitness
         solutions = population.decode()
         if self.vectorized:
@@ -135,6 +138,7 @@ class ObjectiveFunc(ABC):
 
         population.fitness_calculated = np.ones_like(population.fitness_calculated)
 
+        logger.debug("Done calculating the fitness.")
         return fitness
 
     @abstractmethod
@@ -222,26 +226,6 @@ class VectorObjectiveFunc(ObjectiveFunc):
             recalculate=recalculate,
         )
 
-    def repair_speed(self, speed: ndarray) -> ndarray:
-        """
-        Transforms an invalid vector into one that satisfies the restrictions of the problem.
-
-        Parameters
-        ----------
-        speed: ndarray
-            A speed vector that could be violating the restrictions of the problem.
-
-        Returns
-        -------
-        repaired_speed: ndarray
-            A modified version of the speed vector passed that satisfies the restrictions of the problem.
-        """
-
-        result = None
-        if speed is not None:
-            result = self.repair_solution(speed)
-        return result
-
 class NullObjectiveFunc(ObjectiveFunc):
     def __init__(self):
         super().__init__(name="Null objective")
@@ -290,5 +274,5 @@ class ObjectiveFromLambda(ObjectiveFunc):
 
         super().__init__(constraint_handler=constraint_handler, mode=mode, name=name, vectorized=vectorized, recalculate=recalculate)
 
-    def objective(self, vector):
-        return self.obj_func(vector)
+    def objective(self, solution):
+        return self.obj_func(solution)

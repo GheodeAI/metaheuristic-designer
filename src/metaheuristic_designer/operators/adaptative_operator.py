@@ -6,7 +6,7 @@ class AdaptativeOperator(ExtendedOperator):
     def evolve(self, population, initializer=None):
         # Update operator parameters
         params = self.param_encoding.decode_params(population.genotype_matrix)
-        self.base_operator.params.update(params)
+        self.base_operator.kwargs.update(params)
 
         # Evolve population
         return super().evolve(population=population, initializer=initializer)

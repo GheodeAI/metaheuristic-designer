@@ -1,141 +1,221 @@
+"""
+Differential evolution operator implementations.
+"""
+
 import numpy as np
 from ...utils import RAND_GEN
 
 
-# def DE_rand1(population, F, CR):
-def DE_rand1(population, fitness, **kwargs):
+def differential_evolution_rand1(population_matrix, _fitness_array, **kwargs):
     """
     Performs the differential evolution operator DE/rand/1
+
+    Parameters
+    ----------
+    population_matrix
+        _description_
+    _fitness_array
+        _description_
+
+    Returns
+    -------
+        _description_
     """
 
-    F = kwargs["F"]
-    CR = kwargs["Cr"]
+    f = kwargs["F"]
+    cr = kwargs["Cr"]
 
-    r1 = population[RAND_GEN.permutation(population.shape[0])]
-    r2 = population[RAND_GEN.permutation(population.shape[0])]
-    r3 = population[RAND_GEN.permutation(population.shape[0])]
+    r1 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r2 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r3 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
 
-    v = r1 + F * (r2 - r3)
-    mask_pos = RAND_GEN.random(population.shape) <= CR
-    population[mask_pos] = v[mask_pos]
-    return population
+    v = r1 + f * (r2 - r3)
+    mask_pos = RAND_GEN.random(population_matrix.shape) <= cr
+    population_matrix[mask_pos] = v[mask_pos]
+    return population_matrix
 
 
-def DE_best1(population, fitness, **kwargs):
+def differential_evolution_best1(population_matrix, fitness_array, **kwargs):
     """
     Performs the differential evolution operator DE/best/1
+
+    Parameters
+    ----------
+    population_matrix
+        _description_
+    fitness_array
+        _description_
+
+    Returns
+    -------
+        _description_
     """
 
-    F = kwargs["F"]
-    CR = kwargs["Cr"]
+    f = kwargs["F"]
+    cr = kwargs["Cr"]
 
-    r_best = population[np.argmax(fitness)][None, :]
-    r1 = population[RAND_GEN.permutation(population.shape[0])]
-    r2 = population[RAND_GEN.permutation(population.shape[0])]
+    r_best = population_matrix[np.argmax(fitness_array)][None, :]
+    r1 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r2 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
 
-    v = r_best + F * (r1 - r2)
-    mask_pos = RAND_GEN.random(population.shape) <= CR
-    population[mask_pos] = v[mask_pos]
-    return population
+    v = r_best + f * (r1 - r2)
+    mask_pos = RAND_GEN.random(population_matrix.shape) <= cr
+    population_matrix[mask_pos] = v[mask_pos]
+    return population_matrix
 
 
-def DE_rand2(population, fitness, **kwargs):
+def differential_evolution_rand2(population_matrix, _fitness_array, **kwargs):
     """
     Performs the differential evolution operator DE/rand/2
+
+    Parameters
+    ----------
+    population_matrix
+        _description_
+    _fitness_array
+        _description_
+
+    Returns
+    -------
+        _description_
     """
 
-    F = kwargs["F"]
-    CR = kwargs["Cr"]
+    f = kwargs["F"]
+    cr = kwargs["Cr"]
 
-    r1 = population[RAND_GEN.permutation(population.shape[0])]
-    r2 = population[RAND_GEN.permutation(population.shape[0])]
-    r3 = population[RAND_GEN.permutation(population.shape[0])]
-    r4 = population[RAND_GEN.permutation(population.shape[0])]
-    r5 = population[RAND_GEN.permutation(population.shape[0])]
+    r1 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r2 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r3 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r4 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r5 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
 
-    v = r1 + F * (r2 - r3) + F * (r4 - r5)
-    mask_pos = RAND_GEN.random(population.shape) <= CR
-    population[mask_pos] = v[mask_pos]
-    return population
+    v = r1 + f * (r2 - r3) + f * (r4 - r5)
+    mask_pos = RAND_GEN.random(population_matrix.shape) <= cr
+    population_matrix[mask_pos] = v[mask_pos]
+    return population_matrix
 
 
-def DE_best2(population, fitness, **kwargs):
+def differential_evolution_best2(population_matrix, fitness_array, **kwargs):
     """
     Performs the differential evolution operator DE/best/2
+
+    Parameters
+    ----------
+    population_matrix
+        _description_
+    fitness_array
+        _description_
+
+    Returns
+    -------
+        _description_
     """
 
-    F = kwargs["F"]
-    CR = kwargs["Cr"]
+    f = kwargs["F"]
+    cr = kwargs["Cr"]
 
-    r_best = population[np.argmax(fitness)][None, :]
-    r1 = population[RAND_GEN.permutation(population.shape[0])]
-    r2 = population[RAND_GEN.permutation(population.shape[0])]
-    r3 = population[RAND_GEN.permutation(population.shape[0])]
-    r4 = population[RAND_GEN.permutation(population.shape[0])]
+    r_best = population_matrix[np.argmax(fitness_array)][None, :]
+    r1 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r2 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r3 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r4 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
 
-    v = r_best + F * (r1 - r2) + F * (r3 - r4)
-    mask_pos = RAND_GEN.random(population.shape) <= CR
-    population[mask_pos] = v[mask_pos]
-    return population
+    v = r_best + f * (r1 - r2) + f * (r3 - r4)
+    mask_pos = RAND_GEN.random(population_matrix.shape) <= cr
+    population_matrix[mask_pos] = v[mask_pos]
+    return population_matrix
 
 
-def DE_current_to_rand1(population, fitness, **kwargs):
+def differential_evolution_current_to_rand1(population_matrix, _fitness_array, **kwargs):
     """
     Performs the differential evolution operator DE/current-to-rand/1
+
+    Parameters
+    ----------
+    population_matrix
+        _description_
+    _fitness_array
+        _description_
+
+    Returns
+    -------
+        _description_
     """
 
-    F = kwargs["F"]
-    CR = kwargs["Cr"]
+    f = kwargs["F"]
+    cr = kwargs["Cr"]
 
-    r1 = population[RAND_GEN.permutation(population.shape[0])]
-    r2 = population[RAND_GEN.permutation(population.shape[0])]
-    r3 = population[RAND_GEN.permutation(population.shape[0])]
-    r4 = population[RAND_GEN.permutation(population.shape[0])]
+    r1 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r2 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r3 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
 
-    v = population + RAND_GEN.random() * (r1 - population) + F * (r2 - r3)
-    mask_pos = RAND_GEN.random(population.shape) <= CR
-    population[mask_pos] = v[mask_pos]
-    return population
+    v = population_matrix + RAND_GEN.random() * (r1 - population_matrix) + f * (r2 - r3)
+    mask_pos = RAND_GEN.random(population_matrix.shape) <= cr
+    population_matrix[mask_pos] = v[mask_pos]
+    return population_matrix
 
 
-def DE_current_to_best1(population, fitness, **kwargs):
+def differential_evolution_current_to_best1(population_matrix, fitness_array, **kwargs):
     """
     Performs the differential evolution operator DE/current-to-best/1
+
+    Parameters
+    ----------
+    population_matrix
+        _description_
+    fitness_array
+        _description_
+
+    Returns
+    -------
+        _description_
     """
 
-    F = kwargs["F"]
-    CR = kwargs["Cr"]
+    f = kwargs["F"]
+    cr = kwargs["Cr"]
 
-    r_best = population[np.argmax(fitness)][None, :]
-    r1 = population[RAND_GEN.permutation(population.shape[0])]
-    r2 = population[RAND_GEN.permutation(population.shape[0])]
+    r_best = population_matrix[np.argmax(fitness_array)][None, :]
+    r1 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r2 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
 
-    v = population + RAND_GEN.random() * (r_best - population) + F * (r1 - r2)
-    mask_pos = RAND_GEN.random(population.shape) <= CR
-    population[mask_pos] = v[mask_pos]
-    return population
+    v = population_matrix + RAND_GEN.random() * (r_best - population_matrix) + f * (r1 - r2)
+    mask_pos = RAND_GEN.random(population_matrix.shape) <= cr
+    population_matrix[mask_pos] = v[mask_pos]
+    return population_matrix
 
 
-def DE_current_to_pbest1(population, fitness, **kwargs):
+def differential_evolution_current_to_pbest1(population_matrix, fitness_array, **kwargs):
     """
     Performs the differential evolution operator DE/current-to-pbest/1
+
+    Parameters
+    ----------
+    population_matrix
+        _description_
+    fitness_array
+        _description_
+
+    Returns
+    -------
+        _description_
     """
+    
 
-    F = kwargs["F"]
-    CR = kwargs["Cr"]
-    P = kwargs["p"]
+    f = kwargs["F"]
+    cr = kwargs["Cr"]
+    p = kwargs["p"]
 
-    n_best_max_idx = np.ceil(population.shape[0] * P).astype(int)
-    n_best_idx = np.argsort(fitness)[::-1][:n_best_max_idx]
-    chosen_idx = RAND_GEN.choice(n_best_idx, replace=True, size=population.shape[0])
+    n_best_max_idx = np.ceil(population_matrix.shape[0] * p).astype(int)
+    n_best_idx = np.argsort(fitness_array)[::-1][:n_best_max_idx]
+    chosen_idx = RAND_GEN.choice(n_best_idx, replace=True, size=population_matrix.shape[0])
 
-    r_best = population[chosen_idx]
-    r1 = population[RAND_GEN.permutation(population.shape[0])]
-    r2 = population[RAND_GEN.permutation(population.shape[0])]
+    r_best = population_matrix[chosen_idx]
+    r1 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
+    r2 = population_matrix[RAND_GEN.permutation(population_matrix.shape[0])]
 
-    v = population + RAND_GEN.random() * (r_best - population) + F * (r1 - r2)
-    mask_pos = RAND_GEN.random(population.shape) <= CR
+    v = population_matrix + RAND_GEN.random() * (r_best - population_matrix) + f * (r1 - r2)
+    mask_pos = RAND_GEN.random(population_matrix.shape) <= cr
 
-    population[mask_pos] = v[mask_pos]
+    population_matrix[mask_pos] = v[mask_pos]
 
-    return population
+    return population_matrix

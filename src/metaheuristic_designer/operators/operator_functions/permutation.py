@@ -1,39 +1,41 @@
+"""
+"""
+
 import math
 import numpy as np
-import scipy as sp
 from ...utils import RAND_GEN
 
 
-def permute_mutation(population, fitness, **kwargs):
+def permute_mutation(population_matrix, _fitness_array, **kwargs):
     """
     Randomly permutes 'n' of the components of the input vector.
     """
 
-    n = kwargs.get("N", population.shape[0])
-    n = np.clip(n, 2, population.shape[0])
+    n = kwargs.get("N", population_matrix.shape[0])
+    n = np.clip(n, 2, population_matrix.shape[0])
 
-    mask_pos = np.tile(np.arange(population.shape[1]), (population.shape[0], 1))
+    mask_pos = np.tile(np.arange(population_matrix.shape[1]), (population_matrix.shape[0], 1))
     mask_pos = RAND_GEN.permuted(mask_pos, axis=1)[:, :n]
 
     if n == 2:
-        population[np.arange(population.shape[0])[:, None], mask_pos] = population[np.arange(population.shape[0])[:, None], mask_pos][:, ::-1]
+        population_matrix[np.arange(population_matrix.shape[0])[:, None], mask_pos] = population_matrix[np.arange(population_matrix.shape[0])[:, None], mask_pos][:, ::-1]
     else:
-        population[np.arange(population.shape[0])[:, None], mask_pos] = RAND_GEN.permuted(
-            population[np.arange(population.shape[0])[:, None], mask_pos], axis=1
+        population_matrix[np.arange(population_matrix.shape[0])[:, None], mask_pos] = RAND_GEN.permuted(
+            population_matrix[np.arange(population_matrix.shape[0])[:, None], mask_pos], axis=1
         )
 
-    return population
+    return population_matrix
 
 
-def roll_mutation(population, fitness, **kwargs):
+def roll_mutation(population_matrix, _fitness_array, **kwargs):
     """
     Rolls a selection of components of the vector.
     """
 
     n = kwargs.get("N", 1)
 
-    roll_start = RAND_GEN.integers(0, population.shape[1] - 2, population.shape[0])
-    roll_end = RAND_GEN.integers(roll_start + 2, population.shape[1] + 1, (population.shape[0]))
+    roll_start = RAND_GEN.integers(0, population_matrix.shape[1] - 2, population_matrix.shape[0])
+    roll_end = RAND_GEN.integers(roll_start + 2, population_matrix.shape[1] + 1, (population_matrix.shape[0]))
 
     def roll_individual(indiv, start, end, n):
         indiv_copy = indiv.copy()
@@ -41,17 +43,17 @@ def roll_mutation(population, fitness, **kwargs):
         return indiv_copy
 
     roll_vec = np.vectorize(roll_individual, signature="(m),(),(),()->(m)")
-    population = roll_vec(population, roll_start, roll_end, n)
-    return population
+    population_matrix = roll_vec(population_matrix, roll_start, roll_end, n)
+    return population_matrix
 
 
-def invert_mutation(population, fitness, **kwargs):
+def invert_mutation(population_matrix, _fitness_array):
     """
     Inverts the order a selection of components of the vector.
     """
 
-    invert_start = RAND_GEN.integers(0, population.shape[1] - 2, population.shape[0])
-    invert_end = RAND_GEN.integers(invert_start + 2, population.shape[1] + 1, population.shape[0])
+    invert_start = RAND_GEN.integers(0, population_matrix.shape[1] - 2, population_matrix.shape[0])
+    invert_end = RAND_GEN.integers(invert_start + 2, population_matrix.shape[1] + 1, population_matrix.shape[0])
 
     def invert_individual(indiv, start, end):
         indiv_copy = indiv.copy()
@@ -59,19 +61,19 @@ def invert_mutation(population, fitness, **kwargs):
         return indiv_copy
 
     invert_vec = np.vectorize(invert_individual, signature="(m),(),()->(m)")
-    population = invert_vec(population, invert_start, invert_end)
-    return population
+    population_matrix = invert_vec(population_matrix, invert_start, invert_end)
+    return population_matrix
 
 
-def pmx(population, fitness, **kwargs):
-    half_size = np.ceil(population.shape[0] / 2).astype(int)
+def pmx(population_matrix, _fitness_array):
+    half_size = np.ceil(population_matrix.shape[0] / 2).astype(int)
 
-    new_population = np.empty((2 * half_size, population.shape[1]), dtype=int)
+    new_population = np.empty((2 * half_size, population_matrix.shape[1]), dtype=int)
     for i in range(half_size):
-        new_population[i] = pmx_single(population[i], population[2 * i])
-        new_population[i + half_size] = pmx_single(population[2 * i], population[i])
+        new_population[i] = pmx_single(population_matrix[i], population_matrix[2 * i])
+        new_population[i + half_size] = pmx_single(population_matrix[2 * i], population_matrix[i])
 
-    return new_population[: population.shape[0]]
+    return new_population[: population_matrix.shape[0]]
 
 
 def pmx_single(vector1, vector2):
@@ -113,17 +115,17 @@ def pmx_single(vector1, vector2):
     return child
 
 
-def order_cross(population, fitness, **kwargs):
-    half_size = population.shape[0] / 2
-    parents1 = population[: math.ceil(half_size)]
-    parents2 = population[math.floor(half_size) :]
+def order_cross(population_matrix, _fitness_array):
+    half_size = population_matrix.shape[0] / 2
+    parents1 = population_matrix[: math.ceil(half_size)]
+    parents2 = population_matrix[math.floor(half_size) :]
 
-    new_population = np.empty((2 * np.ceil(half_size).astype(int), population.shape[1]), dtype=int)
+    new_population = np.empty((2 * np.ceil(half_size).astype(int), population_matrix.shape[1]), dtype=int)
     for i in range(math.ceil(half_size)):
         new_population[i] = order_cross_single(parents1[i], parents2[i])
         new_population[i + math.ceil(half_size)] = order_cross_single(parents2[i], parents1[i])
 
-    return new_population[: population.shape[0]]
+    return new_population[: population_matrix.shape[0]]
 
 
 def order_cross_single(vector1, vector2):

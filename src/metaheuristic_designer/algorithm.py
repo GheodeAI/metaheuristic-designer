@@ -5,6 +5,7 @@ This module implements the main loop of the optimization algorithm using a searc
 """
 
 from __future__ import annotations
+import logging
 from typing import List, Tuple, Any
 from abc import ABC, abstractmethod
 import time
@@ -18,6 +19,7 @@ from .search_strategy import SearchStrategy
 from .param_scheduler import ParamScheduler
 from .population import Population
 
+logger = logging.getLogger(__name__)
 
 class Algorithm(ABC):
     """
@@ -139,6 +141,8 @@ class Algorithm(ABC):
         self.real_time_spent = 0
         if reset_objfunc:
             self.objfunc.counter = 0
+        
+        logger.debug("Reset the data of the algorithm.")
 
     def save_solution(self, file_name: str = "solution.csv"):
         """
@@ -153,6 +157,7 @@ class Algorithm(ABC):
 
         ind, _ = self.search_strategy.best_solution(decoded=False)
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=",")
+        logger.info("Succesfully saved the optimization history to %s", file_name)
 
     def stopping_condition(self, gen: int, real_time_start: float, cpu_time_start: float) -> bool:
         """
@@ -335,7 +340,8 @@ class Algorithm(ABC):
         cpu_time_start = time.process_time()
         display_timer = time.time()
 
-        # Initizalize search strategy
+        # Initizalize search strategyce
+        logger.info("Generating initial solutions...")
         if initialize:
             population = self.initialize()
         else:
@@ -347,7 +353,9 @@ class Algorithm(ABC):
         if self.verbose:
             self.step_info(real_time_start)
 
+        logger.info("Starting main optimization loop...")
         while not self.ended:
+            logger.debug("Started iteration %i...", self.steps)
             population = self.step(population=population, time_start=real_time_start)
 
             self.update(real_time_start, cpu_time_start)
@@ -360,6 +368,8 @@ class Algorithm(ABC):
         # Store the time spent optimizing
         self.real_time_spent = time.time() - real_time_start
         self.cpu_time_spent = time.process_time() - cpu_time_start
+
+        logger.info("Optimization finished.")
 
         return population
 
@@ -452,7 +462,7 @@ class Algorithm(ABC):
             indent=4 if readable else None,
         )
 
-        with open(file_name, "w") as fp:
+        with open(file_name, "w", encoding="utf-8") as fp:
             fp.write(dumped)
 
     def init_info(self):
@@ -515,6 +525,7 @@ class Algorithm(ABC):
                 title=f"{self.search_strategy.name} fitness",
             )
             ax.grid()
+            logger.debug("Generated summary plot.")
             plt.show()
 
         self.search_strategy.extra_report(show_plots)

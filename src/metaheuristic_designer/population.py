@@ -437,7 +437,7 @@ class Population:
 
         return self
 
-    def decode(self) -> Any:
+    def decode(self, encoding=None) -> Any:
         """
         Return the population passed through the decoding funciton defined in the encoding.
 
@@ -445,10 +445,13 @@ class Population:
         -------
         decoded_population: Any
         """
+
+        if encoding is None:
+            encoding = self.encoding
 
         return self.encoding.decode(self.genotype_matrix)
 
-    def decode_params(self) -> Any:
+    def decode_params(self, encoding=None) -> Any:
         """
         Return the population passed through the decoding funciton defined in the encoding.
 
@@ -456,11 +459,27 @@ class Population:
         -------
         decoded_population: Any
         """
+        if encoding is None:
+            encoding = self.encoding
 
         if isinstance(self.encoding, ParameterExtendingEncoding):
             return self.encoding.decode_params(self.genotype_matrix)
         else:
             return None
+    
+    def encode(self, encoding: Encoding = None):
+        """
+
+        Parameters
+        ----------
+        encoding, optional
+            _description_, by default None
+        """
+
+        if encoding is None:
+            encoding = self.encoding
+        
+        return encoding.encode(self.genotype_matrix)
 
     def get_state(self) -> dict:
         """
@@ -488,3 +507,30 @@ class Population:
         }
 
         return data
+
+    def debug_repr(self, max_solutions=5, max_vars=5):
+        genotype_matrix = self.genotype_matrix
+        shape = genotype_matrix.shape
+        
+        if genotype_matrix.size == 0:
+            matrix_preview = "[]"
+        elif genotype_matrix.size > max_solutions * max_vars:
+            n_sol = min(max_solutions, shape[0])
+            n_vars = min(max_vars, shape[1])
+            preview = genotype_matrix[:n_sol, :n_vars]
+            matrix_preview = (
+                f"array({preview}, shape={shape}) ... "
+                f"(showing first {n_sol} rows, {n_vars} cols)"
+            )
+        else:
+            matrix_preview = f"array({genotype_matrix})"
+        
+        return (
+            f"Population(\n"
+            f"  objfunc={self.objfunc.name},\n"
+            f"  size={self.pop_size}, dims={self.vec_size},\n"
+            f"  fitness=[{self.fitness.min():.3e}, {self.fitness.max():.3e}],\n"
+            f"  best_fitness={self.best_fitness:.3e},\n"
+            f"  genotype_matrix={matrix_preview}\n"
+            f")"
+        )

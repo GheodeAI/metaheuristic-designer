@@ -5,6 +5,7 @@ This module implements the procedure applied in each iteration of the algorithm.
 """
 
 from __future__ import annotations
+import logging 
 from typing import Tuple, Any
 from abc import ABC
 from .param_scheduler import ParamScheduler
@@ -18,6 +19,8 @@ from .population import Population
 from .initializer import Initializer
 from .objective_function import ObjectiveFunc
 from .operator import Operator, NullOperator
+
+logger = logging.getLogger(__name__)
 
 
 class SearchStrategy:
@@ -204,6 +207,7 @@ class SearchStrategy:
             A pair of the list of individuals considered as parents and their position in the original population.
         """
 
+        logger.info("Selected parents...")
         return self.parent_sel(population)
 
     def perturb(self, parents: Population, **kwargs) -> Population:
@@ -224,6 +228,7 @@ class SearchStrategy:
         offspring = self.operator.evolve(parents, self.initializer)
         offspring = self.repair_population(offspring)
 
+        logger.info("Applied perturbation operators...")
         return offspring
 
     def repair_population(self, population: Population) -> Population:
@@ -241,6 +246,7 @@ class SearchStrategy:
             The population of repaired individuals
         """
 
+        logger.info("Applied hard constraints...")
         return population.repair_solutions()
 
     def select_individuals(self, population: Population, offspring: Population, **kwargs) -> Population:
@@ -260,6 +266,7 @@ class SearchStrategy:
             The list of individuals selected for the next generation.
         """
 
+        logger.info("Selected survivors...")
         return self.survivor_sel(population, offspring)
 
     def update_params(self, **kwargs):

@@ -1,6 +1,6 @@
 import numpy as np
 import warnings
-from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
+from ..objective_function import VectorObjectiveFunc
 
 
 class ThreeSAT(VectorObjectiveFunc):

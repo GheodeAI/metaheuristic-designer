@@ -1,10 +1,6 @@
-import numpy as np
-
-# from numba import jit
-from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
-from ..utils import RAND_GEN
-from ..constraint_handlers import ClipBoundConstraint
 import time
+import numpy as np
+from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
 
 
 class MaxOnes(VectorObjectiveFunc):

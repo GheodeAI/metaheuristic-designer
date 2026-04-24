@@ -1,7 +1,6 @@
 from __future__ import annotations
 import numpy as np
 from ..initializer import Initializer
-from ..utils import RAND_GEN
 
 
 class UniformInitializer(Initializer):
@@ -24,8 +23,8 @@ class UniformInitializer(Initializer):
         Data type used in each of the components of the vector in the individual.
     """
 
-    def __init__(self, genotype_size, low_lim, up_lim, pop_size=1, encoding=None, dtype=float):
-        super().__init__(pop_size, encoding)
+    def __init__(self, genotype_size, low_lim, up_lim, pop_size=1, encoding=None, dtype=float, random_state=None):
+        super().__init__(pop_size, encoding, random_state=None)
 
         self.genotype_size = genotype_size
 
@@ -48,7 +47,7 @@ class UniformInitializer(Initializer):
         self.dtype = dtype
 
     def generate_random(self):
-        new_vector_float = RAND_GEN.uniform(self.low_lim, self.up_lim, size=self.genotype_size)
+        new_vector_float = self.random_state.uniform(self.low_lim, self.up_lim, size=self.genotype_size)
         if self.dtype is int:
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:

@@ -5,13 +5,14 @@ This module implements procedures to modify the current solutions so that we exp
 """
 
 from __future__ import annotations
+import inspect
 from copy import copy
 from abc import ABC, abstractmethod
 import numpy as np
-from .param_scheduler import ParamScheduler
 from .encoding import Encoding, DefaultEncoding
 from .population import Population
 from .initializer import Initializer
+from .utils import check_random_state
 
 
 class Operator(ABC):
@@ -22,8 +23,6 @@ class Operator(ABC):
 
     Parameters
     ----------
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the operator.
     name: str, optional
         Name that is associated with the operator.
     encoding: Encoding, optional
@@ -32,7 +31,7 @@ class Operator(ABC):
 
     _last_id = 0
 
-    def __init__(self, params: ParamScheduler | dict = None, name: str = None, encoding: Encoding = None):
+    def __init__(self, name: str = None, encoding: Encoding = None, random_state=None, **kwargs):
         """
         Constructor for the Operator class.
         """
@@ -48,17 +47,12 @@ class Operator(ABC):
             encoding = DefaultEncoding()
         self.encoding = encoding
 
-        if params is None:
-            self.params = {}
-        else:
-            if "method" in params:
-                params["method"] = params["method"].lower()
+        if "method" in kwargs:
+            kwargs["method"] = kwargs["method"].lower()
 
-            if isinstance(params, ParamScheduler):
-                self.param_scheduler = params
-                self.params = self.param_scheduler.get_params()
-            else:
-                self.params = params
+        self.random_state = check_random_state(random_state)
+
+        self.kwargs = kwargs
 
     def __call__(
         self,
@@ -81,9 +75,7 @@ class Operator(ABC):
             Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
         """
 
-        if self.param_scheduler:
-            self.param_scheduler.step(progress)
-            self.params = self.param_scheduler.get_params()
+        raise NotImplementedError
 
     def get_state(self) -> dict:
         """
@@ -97,13 +89,13 @@ class Operator(ABC):
 
         data = {"name": self.name}
 
-        if self.param_scheduler:
-            data["param_scheduler"] = self.param_scheduler.get_state()
-            data["params"] = self.param_scheduler.get_params()
-            data["params"].pop("function", None)
-        elif self.params:
-            data["params"] = self.params
-            data["params"].pop("function", None)
+        data["encoding"] = self.encoding.get_state()
+
+        data["params"] = copy(self.kwargs)
+
+        # Serialization fails when encoding anonymous functions, we remove the function if available
+        if "function" in data["params"]:
+            data["params"].pop("function")
 
         return data
 
@@ -137,10 +129,6 @@ class NullOperator(Operator):
 
     Parameters
     ----------
-    fn: callable
-        Function that will be applied when operating on an individual.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the operator.
     name: str, optional
         Name that is associated with the operator.
     """
@@ -153,7 +141,7 @@ class NullOperator(Operator):
         if name is None:
             name = "Nothing"
 
-        super().__init__({}, name)
+        super().__init__(name)
 
     def evolve(self, population, *args):
         return copy(population)
@@ -167,31 +155,47 @@ class OperatorFromLambda(Operator):
     ----------
     fn: callable
         Function that will be applied when operating on an individual.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the operator.
     name: str, optional
         Name that is associated with the operator.
+    vectorized: bool, optional
+        Whether to apply a single operation to the entire population or loop for each individual.
     """
 
-    def __init__(self, operator_fn: callable, params: ParamScheduler | dict = None, name: str = None, vectorized: bool = True):
+    def __init__(self, operator_fn: callable, name: str = None, encoding: Encoding = None, vectorized = True, random_state=None, **kwargs):
         """
         Constructor for the OperatorLambda class
         """
 
-        self.operator_fn = operator_fn
-        self.vectorized = vectorized
+        self._validate_function(operator_fn, vectorized)
 
         if name is None:
             name = operator_fn.__name__
 
-        super().__init__(params, name)
+        super().__init__(name, encoding=encoding, random_state=random_state, **kwargs)
+        self.operator_fn = operator_fn
+        self.vectorized = vectorized
 
-    def evolve(self, population, initializer=None):
+    
+    @staticmethod
+    def _validate_function(operator_fn, vectorized):
+        operator_sig = inspect.signature(operator_fn)
+
+        count = 0
+        for p in operator_sig.parameters.values():
+            if p.kind in inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                count += 1
+            elif p.kind == inspect.Parameter.VAR_POSITIONAL:
+                return
+        
+        required_min_count = 1 if vectorized else 2
+        if count < required_min_count:
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is{'' if vectorized else ' not'} vectorized.")
+
+    def evolve(self, population: Population, initializer=None):
         if self.vectorized:
-            population_matrix = copy(population.genotype_matrix)
-            population_matrix = self.operator_fn(population_matrix, **self.params)
+            population = self.operator_fn(population, initializer, self.random_state, **self.kwargs)
         else:
-            population_cpy = copy(population)
-            population_matrix = np.asarray([self.operator_fn(indiv, population, initializer) for indiv in population_cpy])
+            population = np.asarray([self.operator_fn(copy(indiv), population, initializer, self.random_state, **self.kwargs) for indiv in population.genotype_matrix])
 
-        return population.update_genotype_matrix(population_matrix)
+        return population.update_genotype_matrix(population.encode(self.encoding))
+

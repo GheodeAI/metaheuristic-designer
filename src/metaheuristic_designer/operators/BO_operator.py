@@ -32,17 +32,14 @@ class BOOperator(Operator):
     from the regression model is then optimized to estimate the next best solution for the problem.
     """
 
-    def __init__(self, params=None, name="Gaussian Regression Surrogate Model", encoding=None):
-        if params is None:
-            params = {}
-
-        super().__init__(params=params, name=name, encoding=encoding)
+    def __init__(self, name="Gaussian Regression Surrogate Model", encoding=None, **kwargs):
+        super().__init__(name=name, encoding=encoding, **kwargs)
 
         a = 1.0
         kernel = a * RBF(length_scale=1.0) + WhiteKernel(noise_level=1.0)
         self.gaussian_model = GaussianProcessRegressor(kernel=kernel, normalize_y=True, copy_X_train=False)
-        self.batch_size = params.get("batch_size", 100)
-        self.max_samples = params.get("max_samples", 100)
+        self.batch_size = kwargs.get("batch_size", 100)
+        self.max_samples = kwargs.get("max_samples", 100)
 
     def evolve(self, population, initializer):
         # Obtain training data from the population

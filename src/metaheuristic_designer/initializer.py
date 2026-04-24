@@ -11,6 +11,7 @@ import numpy as np
 from .population import Population
 from .encoding import Encoding, DefaultEncoding
 from .objective_function import ObjectiveFunc
+from .utils import check_random_state
 
 
 class Initializer(ABC):
@@ -25,7 +26,7 @@ class Initializer(ABC):
         Encoding that will be passed to each individual.
     """
 
-    def __init__(self, pop_size: int = 1, encoding: Encoding = None):
+    def __init__(self, pop_size: int = 1, encoding: Encoding = None, random_state=None):
         """
         Constructor for the Initializer class.
         """
@@ -34,6 +35,7 @@ class Initializer(ABC):
         if encoding is None:
             encoding = DefaultEncoding()
         self.encoding = encoding
+        self.random_state = check_random_state(random_state)
 
     @abstractmethod
     def generate_random(self) -> Any:
@@ -108,10 +110,10 @@ class InitializerFromLambda(Initializer):
         Encoding that will be passed to each individual.
     """
 
-    def __init__(self, generator: callable, pop_size: int = 1, encoding: Encoding = None):
+    def __init__(self, generator: callable, pop_size: int = 1, encoding: Encoding = None, random_state = None):
         self.generator = generator
 
         super().__init__(pop_size, encoding)
 
     def generate_random(self) -> Any:
-        return self.generator()
+        return self.generator(self.random_state)

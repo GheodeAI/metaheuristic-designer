@@ -23,5 +23,5 @@ class ClipBoundConstraint(RepareConstraint):
         self.low_lim = low_lim
         self.up_lim = up_lim
 
-    def repair_solution(self, vector: ndarray) -> ndarray:
-        return np.clip(vector, self.low_lim, self.up_lim)
+    def repair_solution(self, solution: ndarray) -> ndarray:
+        return np.clip(solution, self.low_lim, self.up_lim)

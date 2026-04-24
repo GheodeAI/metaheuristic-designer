@@ -1,7 +1,7 @@
 from __future__ import annotations
+from numbers import Integral
 import numpy as np
 from ..initializer import Initializer
-from ..utils import RAND_GEN
 
 
 class ExponentialInitializer(Initializer):
@@ -22,16 +22,16 @@ class ExponentialInitializer(Initializer):
         Data type used in each of the components of the vector in the individual.
     """
 
-    def __init__(self, genotype_size, beta, pop_size=1, encoding=None, dtype=float):
-        super().__init__(pop_size, encoding)
+    def __init__(self, genotype_size, beta, pop_size=1, encoding=None, dtype=float, random_state=None):
+        super().__init__(pop_size, encoding, random_state=random_state)
 
         self.genotype_size = genotype_size
         self.beta = beta
         self.dtype = dtype
 
     def generate_random(self):
-        new_vector_float = RAND_GEN.exponential(self.beta, size=self.genotype_size)
-        if self.dtype is int:
+        new_vector_float = self.random_state.exponential(self.beta, size=self.genotype_size)
+        if isinstance(self.dtype, Integral):
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:
             new_vector = new_vector_float.astype(self.dtype)

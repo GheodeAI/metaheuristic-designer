@@ -46,3 +46,6 @@ examples = [
     "opencv-python>=4.8"
 ]
 
+[tool.black]
+line-length = 150
+target-version = ['py310']

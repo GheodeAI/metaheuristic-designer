@@ -26,14 +26,14 @@ class CycleBoundConstraint(RepareConstraint):
         self.up_lim = up_lim
         self.range_lim = up_lim - low_lim
 
-    def repair_solution(self, vector: ndarray) -> ndarray:
+    def repair_solution(self, solution: ndarray) -> ndarray:
         if np.all(self.up_lim == self.low_lim):
             return self.up_lim
 
-        fixed_solution = np.mod(vector - self.low_lim, self.range_lim) + self.low_lim
+        fixed_solution = np.mod(solution - self.low_lim, self.range_lim) + self.low_lim
 
-        ouside_bound_mask = (vector < self.low_lim) | (vector > self.up_lim)
-        vector = copy(vector)
-        vector[ouside_bound_mask] = fixed_solution[ouside_bound_mask]
+        ouside_bound_mask = (solution < self.low_lim) | (solution > self.up_lim)
+        solution = copy(solution)
+        solution[ouside_bound_mask] = fixed_solution[ouside_bound_mask]
 
-        return vector
+        return solution
