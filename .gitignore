@@ -167,3 +167,5 @@ examples/results/*
 
 *.sh
 *.txt
+*.log
+*.logs
