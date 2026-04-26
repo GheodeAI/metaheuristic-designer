@@ -1,0 +1,75 @@
+from __future__ import annotations
+from dataclasses import dataclass, field
+from ..population import Population
+from ..survivor_selection import SurvivorSelectionFromLambda, NullSurvivorSelection
+from .survivor_selection_functions import (
+    generational,
+    elitism,
+    cond_elitism,
+    one_to_one,
+    prob_one_to_one,
+    many_to_one,
+    prob_many_to_one,
+    lamb_plus_mu,
+    lamb_comma_mu,
+)
+from ..utils import null_aliases
+
+
+@dataclass
+class SurvivorSelectionDef:
+    """ """
+
+    selection_fn: callable
+    params: dict = field(default_factory=dict)
+    forced_params: dict = field(default_factory=dict)
+
+    def __call__(self, population: Population, offspring: Population, random_state=None, **kwargs):
+        modified_kwargs = {}
+        modified_kwargs.update(self.params)
+        modified_kwargs.update(kwargs)
+        modified_kwargs.update(self.forced_params)
+
+        return self.selection_fn(population.fitness, offspring.fitness, random_state, **kwargs)
+
+
+surv_method_map = {
+    "elitism": SurvivorSelectionDef(elitism),
+    "cond_elitism": SurvivorSelectionDef(cond_elitism),
+    "conditional_elitism": SurvivorSelectionDef(cond_elitism),
+    "generational": SurvivorSelectionDef(generational),
+    "nothing": SurvivorSelectionDef(generational),
+    "one_to_one": SurvivorSelectionDef(one_to_one),
+    "hillclimb": SurvivorSelectionDef(one_to_one),
+    "hill_climb": SurvivorSelectionDef(one_to_one),
+    "prob_one_to_one": SurvivorSelectionDef(prob_one_to_one),
+    "prob_hillclimb": SurvivorSelectionDef(prob_one_to_one),
+    "prob_hill_climb": SurvivorSelectionDef(prob_one_to_one),
+    "probabilistic_one_to_one": SurvivorSelectionDef(prob_one_to_one),
+    "probabilistic_hillclimb": SurvivorSelectionDef(prob_one_to_one),
+    "probabilistic_hill_climb": SurvivorSelectionDef(prob_one_to_one),
+    "many_to_one": SurvivorSelectionDef(many_to_one),
+    "local_search": SurvivorSelectionDef(many_to_one),
+    "prob_many_to_one": SurvivorSelectionDef(prob_many_to_one),
+    "prob_local_search": SurvivorSelectionDef(prob_many_to_one),
+    "probabilistic_many_to_one": SurvivorSelectionDef(prob_many_to_one),
+    "probabilistic_local_search": SurvivorSelectionDef(prob_many_to_one),
+    "(m+n)": SurvivorSelectionDef(lamb_plus_mu),
+    "(mu+lambda)": SurvivorSelectionDef(lamb_plus_mu),
+    "mu+lambda": SurvivorSelectionDef(lamb_plus_mu),
+    "keep_best": SurvivorSelectionDef(lamb_plus_mu),
+    "(m,n)": SurvivorSelectionDef(lamb_comma_mu),
+    "(mu,lambda)": SurvivorSelectionDef(lamb_comma_mu),
+    "mu,lambda": SurvivorSelectionDef(lamb_comma_mu),
+    "keep_offspring": SurvivorSelectionDef(lamb_comma_mu),
+}
+
+
+def create_survivor_selection(method, name=None, random_state=None, **kwargs):
+    if name is None:
+        name = method
+
+    if method in null_aliases:
+        return NullSurvivorSelection(name=name, **kwargs)
+
+    return SurvivorSelectionFromLambda(selection_fn=surv_method_map[method.lower()], name=name, random_state=random_state, **kwargs)

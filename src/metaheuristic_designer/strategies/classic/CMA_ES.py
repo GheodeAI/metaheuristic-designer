@@ -1,9 +1,8 @@
 from __future__ import annotations
-from ...Initializer import Initializer
+from ...initializer import Initializer
 from ..static_population import StaticPopulation
-from ...operators import  CompositeOperator
-from ..operator import NullOperator
-from ...selection_methods import SurvivorSelection, ParentSelection
+from ...survivor_selection import SurvivorSelection
+from ...parent_selection import ParentSelection
 from ...encodings import CMAEncoding
 
 
@@ -13,7 +12,6 @@ class CMA_ES(StaticPopulation):
         initializer: Initializer,
         parent_sel_op: ParentSelection,
         selection_op: SurvivorSelection,
-        params: ParamScheduler | dict = {},
         name: str = "ES",
     ):
         parent_select = ParentSelection("Nothing")

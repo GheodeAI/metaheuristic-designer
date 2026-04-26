@@ -2,12 +2,13 @@ from __future__ import annotations
 from ..objective_function import VectorObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer, PermInitializer
-from ..operators import VectorOperator, PermOperator
+from ..operators import create_operator
 from ..operator import NullOperator
-from ..selection_methods import SurvivorSelection, ParentSelection, NullParentSelection
+from ..survivor_selection_methods import create_survivor_selection
+from ..parent_selection import NullParentSelection
 from ..encodings import TypeCastEncoding
 from ..strategies import ES
-from ..algorithms import GeneralAlgorithm
+from ..algorithms import StandardAlgorithm
 
 
 def evolution_strategy(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
@@ -65,12 +66,12 @@ def _evolution_strategy_bin_vec(params, objfunc):
     pop_initializer = UniformInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
 
     cross_op = NullOperator()
-    mutation_op = VectorOperator("Flip", {"N": mutstr})
+    mutation_op = create_operator("mutation.bitflip", N=mutstr)
 
     parent_sel_op = NullParentSelection()
-    selection_op = SurvivorSelection("(m+n)")
+    selection_op = create_survivor_selection("(m+n)")
 
-    search_strat = ES(
+    search_strategy = ES(
         pop_initializer,
         mutation_op,
         cross_op,
@@ -79,7 +80,7 @@ def _evolution_strategy_bin_vec(params, objfunc):
         {"offspringSize": offspring_size},
     )
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)
 
 
 def _evolution_strategy_int_vec(params, objfunc):
@@ -100,21 +101,13 @@ def _evolution_strategy_int_vec(params, objfunc):
 
     pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=int)
 
-    cross_op = VectorOperator("Nothing")
-    mutation_op = VectorOperator(
-        "MutRand",
-        {
-            "distrib": "Uniform",
-            "Low": objfunc.low_lim,
-            "Up": objfunc.up_lim,
-            "N": mutstr,
-        },
-    )
+    cross_op = NullOperator()
+    mutation_op = create_operator("mutation.uniform_noise", min=objfunc.low_lim, max=objfunc.up_lim, N=mutstr)
 
     parent_sel_op = NullParentSelection()
-    selection_op = SurvivorSelection("(m+n)")
+    selection_op = create_survivor_selection("(m+n)")
 
-    search_strat = ES(
+    search_strategy = ES(
         pop_initializer,
         mutation_op,
         cross_op,
@@ -123,7 +116,7 @@ def _evolution_strategy_int_vec(params, objfunc):
         {"offspringSize": offspring_size},
     )
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)
 
 
 def _evolution_strategy_perm_vec(params, objfunc):
@@ -143,12 +136,12 @@ def _evolution_strategy_perm_vec(params, objfunc):
     pop_initializer = PermInitializer(vecsize, pop_size=pop_size)
 
     cross_op = NullOperator()
-    mutation_op = PermOperator("Perm", {"N": mutstr})
+    mutation_op = create_operator("permutaiton.scramble", N=mutstr)
 
     parent_sel_op = NullParentSelection()
-    selection_op = SurvivorSelection("(m+n)")
+    selection_op = create_survivor_selection("(m+n)")
 
-    search_strat = ES(
+    search_strategy = ES(
         pop_initializer,
         mutation_op,
         cross_op,
@@ -157,7 +150,7 @@ def _evolution_strategy_perm_vec(params, objfunc):
         {"offspringSize": offspring_size},
     )
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)
 
 
 def _evolution_strategy_real_vec(params, objfunc):
@@ -179,11 +172,11 @@ def _evolution_strategy_real_vec(params, objfunc):
     pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
     cross_op = NullOperator()
-    mutation_op = VectorOperator("RandNoise", {"distrib": "Gauss", "F": mutstr})
+    mutation_op = create_operator("mutation.gaussian_noise", f=mutstr)
     parent_sel_op = NullParentSelection()
-    selection_op = SurvivorSelection("(m+n)")
+    selection_op = create_survivor_selection("(m+n)")
 
-    search_strat = ES(
+    search_strategy = ES(
         pop_initializer,
         mutation_op,
         cross_op,
@@ -192,4 +185,4 @@ def _evolution_strategy_real_vec(params, objfunc):
         {"offspringSize": offspring_size},
     )
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)

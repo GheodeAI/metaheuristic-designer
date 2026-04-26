@@ -1,19 +1,25 @@
 """
-Base class for the Constraint Handler module. 
+Base class for the Constraint Handler module.
 
 This module implements ways to enforce constraints on the objective function.
 """
 
 from __future__ import annotations
 from copy import copy
-from typing import Any
+from typing import Any, Callable, Optional
 from abc import ABC, abstractmethod
+from .parametrizable_mixin import ParametrizableMixin
+from .utils import ScalarLike
 
 
-class ConstraintHandler(ABC):
+class ConstraintHandler(ParametrizableMixin, ABC):
     """
     Class responsible for enforcing restrictions of the optimization problem.
     """
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.store_kwargs(**kwargs)
 
     @abstractmethod
     def repair_solution(self, solution: Any) -> Any:
@@ -24,7 +30,7 @@ class ConstraintHandler(ABC):
         ----------
         solution: Any
             The input solution.
-        
+
         Returns
         -------
         fixed_solution: Any
@@ -32,7 +38,7 @@ class ConstraintHandler(ABC):
         """
 
     @abstractmethod
-    def penalty(self, solution: Any) -> float:
+    def penalty(self, solution: Any) -> ScalarLike:
         """
         Offset to the objective value for the solution corresponding to violations of the problem's constraints.
 
@@ -46,6 +52,7 @@ class ConstraintHandler(ABC):
         penalty: float
             The amount of penalty to apply to the current solution.
         """
+
 
 class ConstraintHandlerFromLambda(ConstraintHandler):
     """
@@ -63,36 +70,37 @@ class ConstraintHandlerFromLambda(ConstraintHandler):
         Function to calculate the penalty of the current solution.
     """
 
-    def __init__(self, repair_solution_fn: callable = None, penalty_fn: callable = None):
+    def __init__(self, repair_solution_fn: Optional[Callable] = None, penalty_fn: Optional[Callable] = None, **kwargs):
+        super().__init__(**kwargs)
+
         if repair_solution_fn is None and penalty_fn is None:
             raise ValueError("You must give the implementation of the repairing procedure or the penalty calculation.")
 
         self.repair_solution_fn = repair_solution_fn
         self.penalty_fn = penalty_fn
 
-
     def repair_solution(self, solution: Any) -> Any:
         if self.repair_solution_fn is None:
             return copy(solution)
-        
+
         return self.repair_solution_fn(solution)
 
-    def penalty(self, solution: Any) -> float:
+    def penalty(self, solution: Any) -> ScalarLike:
         if self.penalty_fn is None:
             return 0
-        
+
         return self.penalty_fn(solution)
 
 
 class NullConstraint(ConstraintHandler):
     """
-    Constraint handler that enforces no constraints. The penalty is 0 and reparing the solution does nothing.
+    Constraint handler that enforces no constraints. The penalty is 0 and repairing the solution does nothing.
     """
 
-    def repair_solution(self, solution):
+    def repair_solution(self, solution: Any) -> Any:
         return copy(solution)
 
-    def penalty(self, solution):
+    def penalty(self, solution: Any) -> ScalarLike:
         return 0
 
 
@@ -103,18 +111,16 @@ class PenalizeConstraint(ConstraintHandler, ABC):
     The `penalty` function must be implemented.
     """
 
-    def repair_solution(self, solution):
+    def repair_solution(self, solution: Any) -> Any:
         return copy(solution)
 
 
-class RepareConstraint(ConstraintHandler, ABC):
+class RepairConstraint(ConstraintHandler, ABC):
     """
-    Abstract constraint handler for reparing solutions that violate the constraints.
+    Abstract constraint handler for repairing solutions that violate the constraints.
 
     The `repair_solution` function must be implemented.
     """
 
-    def penalty(self, solution):
+    def penalty(self, _solution: Any) -> ScalarLike:
         return 0
-
-

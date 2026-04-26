@@ -1,10 +1,13 @@
 from __future__ import annotations
+from typing import Optional
 from ...initializer import Initializer
 from ...operator import Operator, NullOperator
-from ...selection_methods import ParentSelection, SurvivorSelection
-from ...param_scheduler import ParamScheduler
+from ...survivor_selection import SurvivorSelection
+from ...parent_selection import ParentSelection
 from ...operators import CompositeOperator, BranchOperator
 from ..variable_population import VariablePopulation
+from ...schedulable_parameter import SchedulableParameter
+from ...utils import check_random_state, RNGLike
 
 
 class GA(VariablePopulation):
@@ -19,31 +22,21 @@ class GA(VariablePopulation):
         cross_op: Operator,
         parent_sel: ParentSelection,
         survivor_sel: SurvivorSelection,
-        params: ParamScheduler | dict = None,
         name: str = "GA",
+        mutation_prob: float | SchedulableParameter = 0.1,
+        crossover_prob: float | SchedulableParameter = 0.9,
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
     ):
-        if params is None:
-            params = {}
+        # We need to do the check earlier since it will be injected into the operators
+        # and we want everything to share the random state if possible.
+        random_state = check_random_state(random_state)
 
-        self.pmut = params.get("pmut", 0.1)
-        self.pcross = params.get("pcross", 0.9)
-
-        null_operator = NullOperator()
-
-        prob_mut_op = BranchOperator([mutation_op, null_operator], method="Random", params={"p": self.pmut})
-        prob_cross_op = BranchOperator([cross_op, null_operator], method="Random", params={"p": self.pcross})
+        prob_mut_op = BranchOperator([mutation_op, NullOperator()], method="Random", p=mutation_prob, random_state=random_state)
+        prob_cross_op = BranchOperator([cross_op, NullOperator()], method="Random", p=crossover_prob, random_state=random_state)
 
         evolve_op = CompositeOperator([prob_cross_op, prob_mut_op])
 
         super().__init__(
-            initializer,
-            operator=evolve_op,
-            parent_sel=parent_sel,
-            survivor_sel=survivor_sel,
-            params=params,
-            name=name,
+            initializer, operator=evolve_op, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs
         )
-
-    def extra_step_info(self):
-        divesity = self.population.genotype_matrix.std(axis=1).mean()
-        print(f"\tdiversity: {divesity:0.3}")

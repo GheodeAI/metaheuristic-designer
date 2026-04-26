@@ -1,7 +1,7 @@
 import argparse
 
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler, simple, NullOperator
-from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm, StrategySelection
+from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm, StrategySelection
 from metaheuristic_designer.operators import VectorOperator
 from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.selection_methods import ParentSelection, SurvivorSelection, NullParentSelection

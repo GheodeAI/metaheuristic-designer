@@ -3,7 +3,6 @@ from typing import Iterable
 from copy import copy
 import numpy as np
 from ..operator import Operator
-from ..param_scheduler import ParamScheduler
 
 
 class SplitOperator(Operator):
@@ -22,18 +21,10 @@ class SplitOperator(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(
-        self,
-        op_list: Iterable[Operator],
-        params: ParamScheduler | dict = None,
-        name: str = None,
-    ):
+    def __init__(self, op_list: Iterable[Operator], name: str = None, **kwargs):
         """
         Constructor for the OperatorMeta class
         """
-
-        self.op_list = op_list
-
         if name is None:
             op_names = []
             for op in op_list:
@@ -45,16 +36,8 @@ class SplitOperator(Operator):
             joined_names = ", ".join(op_names)
             name = f"Split ({joined_names})"
 
-        if params is None or params == "default":
-            # Default parameters
-            params = {
-                "mask": 0,
-            }
-
-        super().__init__(params, name)
-
-        # Record of the index of the last operator used
-        self.mask = params["mask"]
+        self.op_list = op_list
+        super().__init__(name, **kwargs)
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)
@@ -69,12 +52,12 @@ class SplitOperator(Operator):
 
         return new_population
 
-    def step(self, progress: float):
-        super().step(progress)
+    def update(self, progress: float):
+        super().update(progress)
 
         for op in self.op_list:
             if isinstance(op, Operator):
-                op.step(progress)
+                op.update(progress)
 
     def get_state(self) -> dict:
         data = super().get_state()
@@ -88,4 +71,3 @@ class SplitOperator(Operator):
                 data["op_list"].append("lambda_func")
 
         return data
-

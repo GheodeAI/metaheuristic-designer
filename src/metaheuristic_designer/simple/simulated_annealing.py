@@ -1,9 +1,9 @@
 from __future__ import annotations
+from ..algorithm import Algorithm
 from ..initializers import UniformInitializer, PermInitializer
-from ..operators import VectorOperator, PermOperator
 from ..encodings import TypeCastEncoding
 from ..strategies import SA
-from ..algorithms import GeneralAlgorithm
+from ..algorithms import StandardAlgorithm
 from ..objective_function import VectorObjectiveFunc
 
 
@@ -70,7 +70,7 @@ def _simulated_annealing_bin_vec(params, objfunc):
         {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
     )
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)
 
 
 def _simulated_annealing_perm_vec(params, objfunc):
@@ -98,7 +98,7 @@ def _simulated_annealing_perm_vec(params, objfunc):
         {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
     )
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)
 
 
 def _simulated_annealing_int_vec(params, objfunc):
@@ -136,7 +136,7 @@ def _simulated_annealing_int_vec(params, objfunc):
         {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
     )
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)
 
 
 def _simulated_annealing_real_vec(params, objfunc):
@@ -166,4 +166,4 @@ def _simulated_annealing_real_vec(params, objfunc):
         {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
     )
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)

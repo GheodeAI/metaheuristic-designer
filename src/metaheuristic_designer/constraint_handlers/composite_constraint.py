@@ -4,6 +4,7 @@ from copy import copy
 import numpy as np
 from ..constraint_handler import ConstraintHandler
 
+
 class CompositeConstraint(ConstraintHandler):
     """
     Aplies every constraint handler in succession.

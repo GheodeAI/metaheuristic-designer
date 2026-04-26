@@ -2,10 +2,9 @@ from __future__ import annotations
 from ..objective_function import VectorObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer, PermInitializer
-from ..operators import VectorOperator, PermOperator
 from ..encodings import TypeCastEncoding
 from ..strategies import HillClimb
-from ..algorithms import GeneralAlgorithm
+from ..algorithms import StandardAlgorithm
 
 
 def hill_climb(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
@@ -64,7 +63,7 @@ def _hill_climb_bin_vec(params, objfunc):
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)
 
 
 def _hill_climb_perm_vec(params, objfunc):
@@ -85,7 +84,7 @@ def _hill_climb_perm_vec(params, objfunc):
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)
 
 
 def _hill_climb_int_vec(params, objfunc):
@@ -116,7 +115,7 @@ def _hill_climb_int_vec(params, objfunc):
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)
 
 
 def _hill_climb_real_vec(params, objfunc):
@@ -139,4 +138,4 @@ def _hill_climb_real_vec(params, objfunc):
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)

@@ -1,0 +1,122 @@
+"""
+Base class for the Search strategy module.
+
+This module implements the procedure applied in each iteration of the algorithm.
+"""
+
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Optional, Callable
+import numpy as np
+from .parametrizable_mixin import ParametrizableMixin
+from .population import Population
+from .utils import check_random_state, RNGLike
+
+
+class SurvivorSelection(ParametrizableMixin, ABC):
+    """
+    Abstract Selection Method class.
+
+    This class defines the structure for individual selection methods.
+
+    Parameters
+    ----------
+    params: dict, optional
+        Dictionary of parameters to define the behavior of the selection method.
+    name: str, optional
+        The name that will be assigned to this selection method.
+    """
+
+    def __init__(self, name: Optional[str] = None, random_state: Optional[RNGLike] = None, **kwargs):
+        """
+        Constructor for the SurvivorSelection class
+        """
+        super().__init__()
+
+        self.name = name
+        self.random_state = check_random_state(random_state)
+        self.store_kwargs(**kwargs)
+
+        self.last_selection_idx = None
+
+    def __call__(self, population: Population, offspring: Population) -> Population:
+        """
+        Shorthand for calling the 'select' method
+        """
+
+        return self.select(population, offspring)
+
+    @abstractmethod
+    def select(self, population: Population, offspring: Population) -> Population:
+        """
+        Takes a population with its offspring and returns the individuals that survive
+        to produce the next generation.
+
+        Parameters
+        ----------
+        population: Population
+            Population of individuals that will be selected.
+        offspring: Population
+            Newly generated individuals to be selected.
+
+        Returns
+        -------
+        selected: Population
+            List of selected individuals.
+        """
+
+    def get_state(self):
+        """
+        Gets the current state of the algorithm as a dictionary.
+        """
+
+        data = {"name": self.name}
+        data["parameters"] = self.get_params()
+
+        return data
+
+
+class NullSurvivorSelection(SurvivorSelection):
+    """
+    Survivor selection methods.
+
+    Selects the individuals that will remain for the next generation of our algorithm.
+
+    Parameters
+    ----------
+    method: str
+        Strategy used in the selection process.
+    params: dict, optional
+        Dictionary of parameters to define the behavior of the selection method.
+    padding: bool, optional
+        Whether to fill the entire list of selected individuals to match the size of the original one.
+    name: str, optional
+        The name that will be assigned to this selection method.
+    """
+
+    def __init__(self, name: Optional[str] = None, **kwargs):
+        """
+        Constructor for the SurvivorSelection class
+        """
+
+        if name is None:
+            name = "Nothing"
+
+        super().__init__(name, random_state=None, **kwargs)
+
+    def select(self, population: Population, offspring: Population) -> Population:
+        self.last_selection_idx = np.arange(population.pop_size, population.pop_size + offspring.pop_size)
+        offspring = offspring.update_best_from_parents(population)
+        return offspring
+
+
+class SurvivorSelectionFromLambda(SurvivorSelection):
+    def __init__(self, selection_fn: Callable, name: Optional[str] = None, **kwargs):
+        if name is None:
+            name = selection_fn.__name__
+        self.selection_fn = selection_fn
+        super().__init__(name, **kwargs)
+
+    def select(self, population: Population, offspring: Population) -> Population:
+        selected_idx = self.selection_fn(population, offspring, self.random_state, **self.current_kwargs)
+        return Population.join_populations(population, offspring).take_selection(selected_idx)

@@ -1,15 +1,12 @@
 from __future__ import annotations
 from typing import Iterable
 import warnings
-from ...population import Population
 from ...algorithm import Algorithm
 from ...initializer import Initializer
-from ...algorithms import GeneralAlgorithm
-from ...param_scheduler import ParamScheduler
 from ...search_strategy import SearchStrategy
 from ...operator import Operator
-from ...operators import CompositeOperator
-from ...selection_methods import SurvivorSelection
+from ...operators import BranchOperator
+from ...survivor_selection import SurvivorSelection
 from .VND import VND
 from .neighborhood_changes import *
 
@@ -25,8 +22,8 @@ class VNS(SearchStrategy):
         op_list: Iterable[Operator],
         local_search: Algorithm,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = {},
-        inner_loop_params: ParamScheduler | dict = {},
+        params: dict = {},
+        inner_loop_params: dict = {},
         name: str = "VNS",
     ):
         if params is None:

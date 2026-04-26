@@ -2,10 +2,10 @@ from __future__ import annotations
 from copy import copy
 import numpy as np
 from numpy import ndarray
-from ..constraint_handler import RepareConstraint
+from ..constraint_handler import RepairConstraint
 
 
-class CycleBoundConstraint(RepareConstraint):
+class CycleBoundConstraint(RepairConstraint):
     """
     Encodes a bound constraint by wrapping through the bounds, performing a modulo
     operation componentwise.

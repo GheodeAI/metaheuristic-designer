@@ -1,29 +1,28 @@
-from ...selection_methods import (
-    ParentSelection,
-    NullSurvivorSelection,
-)
-from ...operators import VectorOperator
+from typing import Optional
+from ...initializer import Initializer
+from ...parent_selection import ParentSelection
+from ...parent_selection_methods import create_parent_selection
+from ...survivor_selection import SurvivorSelection
+from ...operators import create_mutation_operator
 from ..static_population import StaticPopulation
+from ...schedulable_parameter import SchedulableParameter
+from ...utils import check_random_state, RNGLike
 
 
 class CrossEntropyMethod(StaticPopulation):
-    def __init__(self, initializer, params=None, name="CrossEntropyMethod"):
-        if params is None:
-            params = {}
+    def __init__(
+        self,
+        initializer: Initializer,
+        name: str = "CrossEntropyMethod",
+        random_state: Optional[RNGLike] = None,
+        elite_amount: Optional[int | SchedulableParameter] = None,
+        **kwargs,
+    ):
+        random_state = check_random_state(random_state)
 
-        operator = VectorOperator(
-            "RandSample",
-            {"distrib": "Normal", "loc": "calculated", "scale": "calculated"},
-        )
-        n = params.get("n", initializer.pop_size)
-        parent_sel = ParentSelection("Best", {"amount": n})
-        survivor_sel = NullSurvivorSelection()
+        operator = create_mutation_operator("RandSample", distrib="Normal", loc="calculated", scale="calculated", random_state=random_state)
+        parent_sel = create_parent_selection("best", amount=elite_amount)
 
-        super().__init__(
-            initializer=initializer,
-            operator=operator,
-            parent_sel=parent_sel,
-            survivor_sel=survivor_sel,
-            params=params,
-            name=name,
-        )
+        super().__init__(initializer=initializer, operator=operator, parent_sel=parent_sel, name=name, **kwargs)
+
+    # TODO: add alpha smoothing for the mean each time the parent selection method is called.

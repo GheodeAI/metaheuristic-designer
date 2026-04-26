@@ -2,6 +2,7 @@ from __future__ import annotations
 import numpy as np
 from ..initializer import Initializer
 
+
 class PermInitializer(Initializer):
     """
     Initializer that generates individuals with random permutations of n components.

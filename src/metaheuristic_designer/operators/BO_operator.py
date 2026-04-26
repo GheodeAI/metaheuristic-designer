@@ -12,7 +12,7 @@ from ..population import Population
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
 
 
-def _aquisition_function(gaussian_model, _X, x_in, max_y):
+def _acquisition_function(gaussian_model, _X, x_in, max_y):
     mean_y, std_y = gaussian_model.predict(x_in[None, :], return_std=True)
     std_y = np.maximum(std_y, 1e-10)
 
@@ -30,11 +30,12 @@ class BOOperator(Operator):
     from the regression model is then optimized to estimate the next best solution for the problem.
     """
 
-    def __init__(self, name="Gaussian Regression Surrogate Model", encoding=None, random_state=None, **kwargs):
+    def __init__(self, name="Gaussian Regression Surrogate Model", encoding=None, kernel=None, random_state=None, **kwargs):
         super().__init__(name=name, encoding=encoding, random_state=random_state, **kwargs)
 
         a = 1.0
-        kernel = a * RBF(length_scale=1.0) + WhiteKernel(noise_level=1.0)
+        if kernel is None:
+            kernel = a * RBF(length_scale=1.0) + WhiteKernel(noise_level=1.0)
         self.gaussian_model = GaussianProcessRegressor(kernel=kernel, normalize_y=True, copy_X_train=False)
         self.batch_size = kwargs.get("batch_size", 100)
         self.max_samples = kwargs.get("max_samples", 100)
@@ -66,11 +67,11 @@ class BOOperator(Operator):
         else:
             bounds = None
 
-        # Optimize the aquisition function with a batch of initial points chosen at random
+        # Optimize the acquisition function with a batch of initial points chosen at random
         samples = initializer.generate_population(objfunc, self.batch_size).genotype_matrix
         for x0 in samples:
             result = sp.optimize.minimize(
-                fun=lambda x_in: -_aquisition_function(self.gaussian_model, X, x_in, max_y),
+                fun=lambda x_in: -_acquisition_function(self.gaussian_model, X, x_in, max_y),
                 x0=x0,
                 method="L-BFGS-B",
                 bounds=bounds,

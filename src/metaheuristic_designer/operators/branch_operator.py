@@ -6,6 +6,7 @@ from copy import copy
 import numpy as np
 from ..operator import Operator
 
+
 class BranchOpMethods(Enum):
     RANDOM = enum.auto()
     PICK = enum.auto()
@@ -19,12 +20,14 @@ class BranchOpMethods(Enum):
 
         return branch_ops_map[str_input]
 
+
 branch_ops_map = {
     "random": BranchOpMethods.RANDOM,
     "rand": BranchOpMethods.RANDOM,
     "pick": BranchOpMethods.PICK,
     "choose": BranchOpMethods.PICK,
 }
+
 
 class BranchOperator(Operator):
     """
@@ -42,15 +45,7 @@ class BranchOperator(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(
-        self,
-        op_list: Iterable[Operator],
-        method: str = None,
-        name: str = None,
-        encoding = None,
-        random_state = None,
-        **kwargs
-    ):
+    def __init__(self, op_list: Iterable[Operator], method: str = None, name: str = None, encoding=None, random_state=None, **kwargs):
         """
         Constructor for the OperatorMeta class
         """
@@ -69,7 +64,7 @@ class BranchOperator(Operator):
             name = f"{method}({joined_names})"
 
         super().__init__(name=name, encoding=encoding, random_state=random_state, **kwargs)
-        
+
         if method is None:
             self.method = BranchOpMethods.RANDOM
         else:
@@ -105,7 +100,7 @@ class BranchOperator(Operator):
                 new_population = new_population.apply_selection(split_population, split_mask)
 
         return new_population
-    
+
     def choose_index(self, idx: int):
         """
         Manually chooses the operator to use next
@@ -115,15 +110,15 @@ class BranchOperator(Operator):
         idx : int
             Index of the operator in the list.
         """
-        
+
         self.chosen_idx = idx
 
-    def step(self, progress: float):
-        super().step(progress)
+    def update(self, progress: float):
+        super().update(progress)
 
         for op in self.op_list:
             if isinstance(op, Operator):
-                op.step(progress)
+                op.update(progress)
 
     def get_state(self) -> dict:
         data = super().get_state()
@@ -137,4 +132,3 @@ class BranchOperator(Operator):
                 data["op_list"].append("lambda_func")
 
         return data
-

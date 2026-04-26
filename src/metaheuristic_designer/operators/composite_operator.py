@@ -20,13 +20,7 @@ class CompositeOperator(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(
-        self,
-        op_list: Iterable[Operator],
-        name: str = None,
-        encoding = None,
-        random_state = None
-    ):
+    def __init__(self, op_list: Iterable[Operator], name: str = None, encoding=None, random_state=None):
         """
         Constructor for the OperatorMeta class
         """
@@ -42,9 +36,10 @@ class CompositeOperator(Operator):
             joined_names = ", ".join(op_names)
             name = f"Sequence ({joined_names})"
 
-        super().__init__(name=name, encoding=encoding, random_state=random_state)
-
+        # We need to define the op_list before the constructor since it's used in the update method
         self.op_list = op_list
+
+        super().__init__(name=name, encoding=encoding, random_state=random_state)
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)
@@ -54,12 +49,12 @@ class CompositeOperator(Operator):
 
         return new_population
 
-    def step(self, progress: float):
-        super().step(progress)
+    def update(self, progress):
+        super().update(progress)
 
         for op in self.op_list:
             if isinstance(op, Operator):
-                op.step(progress)
+                op.update(progress)
 
     def get_state(self) -> dict:
         data = super().get_state()

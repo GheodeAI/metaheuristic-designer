@@ -1,10 +1,14 @@
 from __future__ import annotations
+from typing import Optional
 from ..population import Population
 from ..initializer import Initializer
-from ..param_scheduler import ParamScheduler
-from ..selection_methods import SurvivorSelection, ParentSelection
+from ..parent_selection import ParentSelection
+from ..survivor_selection import SurvivorSelection
+from ..parent_selection_methods import create_parent_selection
 from ..search_strategy import SearchStrategy
 from ..operator import Operator
+from ..utils import check_random_state, RNGLike
+from ..schedulable_parameter import SchedulableParameter
 
 
 class VariablePopulation(SearchStrategy):
@@ -16,28 +20,31 @@ class VariablePopulation(SearchStrategy):
         self,
         initializer: Initializer,
         operator: Operator,
-        parent_sel: ParentSelection = None,
-        survivor_sel: SurvivorSelection = None,
-        n_offspring: int = None,
-        params: ParamScheduler | dict = None,
+        parent_sel: Optional[ParentSelection] = None,
+        survivor_sel: Optional[SurvivorSelection] = None,
+        offspring_size: Optional[int | SchedulableParameter] = None,
         name: str = "Variable Population Evolution",
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
     ):
-        self.params = params
+        self.using_custom_offspring_size = offspring_size is not None
 
-        if n_offspring is None and initializer is not None:
-            n_offspring = initializer.pop_size
-        self.n_offspring = n_offspring
-
-        self.population_shuffler = ParentSelection("Random", {"amount": self.n_offspring})
+        if not self.using_custom_offspring_size:
+            offspring_size = initializer.pop_size
 
         super().__init__(
             initializer,
             operator=operator,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            params=params,
             name=name,
+            random_state=random_state,
+            # Forced kwargs
+            offspring_size=offspring_size,
+            **kwargs,
         )
+
+        self.population_shuffler = create_parent_selection("Random", amount=offspring_size, random_state=self.random_state)
 
     @property
     def initializer(self):
@@ -45,26 +52,12 @@ class VariablePopulation(SearchStrategy):
 
     @initializer.setter
     def initializer(self, new_initializer):
-        self.n_offspring = new_initializer.pop_size
-        self.population_shuffler = ParentSelection("Random", {"amount": self.n_offspring})
+        if not self.using_custom_offspring_size:
+            self.update_kwargs(n_offspring=new_initializer.pop_size)
+            self.population_shuffler = create_parent_selection("Random", amount=self.params.n_offspring, random_state=self.random_state)
         self._initializer = new_initializer
 
-    def select_parents(self, population: Population, **kwargs) -> Population:
-        next_population = self.parent_sel(population)
+    def select_parents(self, population: Population) -> Population:
+        next_population = super().select_parents(population)
         next_population = self.population_shuffler(next_population)
         return next_population
-
-    def update_params(self, **kwargs):
-        super().update_params(**kwargs)
-
-        progress = kwargs["progress"]
-
-        if isinstance(self.operator, Operator):
-            self.operator.step(progress)
-
-        if isinstance(self.survivor_sel, SurvivorSelection):
-            self.survivor_sel.step(progress)
-
-        if self.param_scheduler:
-            self.param_scheduler.step(progress)
-            self.params = self.param_scheduler.get_params()

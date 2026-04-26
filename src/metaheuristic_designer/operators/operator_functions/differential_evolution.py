@@ -5,6 +5,7 @@ Differential evolution operator implementations.
 import numpy as np
 from ...utils import check_random_state
 
+
 def differential_evolution_rand1(population_matrix, _fitness_array, random_state=None, **kwargs):
     """
     Performs the differential evolution operator DE/rand/1

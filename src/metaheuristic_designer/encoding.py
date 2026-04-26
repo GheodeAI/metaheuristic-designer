@@ -1,30 +1,33 @@
 """
-Base class for the Encoding module. 
+Base class for the Encoding module.
 
 This module implements a way to have a different representation in the inner working
 of the algorithm and the result of the procedure.
 """
 
 from __future__ import annotations
-from typing import Iterable, Any
+from typing import Iterable, Any, Callable
 from abc import ABC, abstractmethod
 import numpy as np
 from numpy import ndarray
+from .parametrizable_mixin import ParametrizableMixin
+from .utils import MatrixLike
 
 
-class Encoding(ABC):
+class Encoding(ParametrizableMixin, ABC):
     """
     Abstract Encoding class
 
     This class transforms between phenotype and genotype.
     """
 
-    def __init__(self, vectorized=False, decode_as_array=False):
-        self.vectorized = vectorized
+    def __init__(self, decode_as_array: bool = False, **kwargs):
+        super().__init__()
         self.decode_as_array = decode_as_array
+        self.store_kwargs(**kwargs)
 
     @abstractmethod
-    def encode_func(self, solution: Any) -> ndarray:
+    def encode_func(self, solution: Iterable, **kwargs) -> MatrixLike:
         """
         Convert a solution into an individual. (If vectorized is set it converts a list of solutions into a matrix)
 
@@ -40,7 +43,7 @@ class Encoding(ABC):
         """
 
     @abstractmethod
-    def decode_func(self, indiv: ndarray) -> Any:
+    def decode_func(self, population_matrix: MatrixLike) -> Iterable:
         """
         Convert an individual as a vector into an individual. (If vectorized is set it converts a list of solutions into a matrix)
 
@@ -55,7 +58,7 @@ class Encoding(ABC):
             Individual vector.
         """
 
-    def encode(self, solutions: Iterable) -> ndarray:
+    def encode(self, solutions: Iterable) -> MatrixLike:
         """
         Encodes a list of solutions to our problem to an population matrix.
 
@@ -70,13 +73,7 @@ class Encoding(ABC):
             Population array.
         """
 
-        population = None
-        if self.vectorized:
-            population = self.encode_func(solutions)
-        else:
-            population = np.asarray([self.encode_func(indiv) for indiv in solutions])
-
-        return population
+        return self.encode_func(solutions)
 
     def decode(self, population: ndarray) -> Iterable:
         """
@@ -93,37 +90,15 @@ class Encoding(ABC):
             List/array of solutions.
         """
 
-        solutions = None
-        if self.vectorized:
-            solutions = self.decode_func(population)
-        else:
-            solutions = [self.decode_func(indiv) for indiv in population]
+        solutions = self.decode_func(population)
 
         if self.decode_as_array:
             solutions = np.asarray(solutions)
 
         return solutions
 
-    def update(self, population):
-        return population.genotype_matrix
-
-
-class EncodingFromLambda(Encoding):
-    """
-    Decoder that uses user specified functions.
-    """
-
-    def __init__(self, encode_fn: callable, decode_fn: callable, vectorized: bool = False):
-        self.encode_fn = encode_fn
-        self.decode_fn = decode_fn
-
-        super().__init__(vectorized=vectorized)
-
-    def encode_func(self, solution: Any) -> Any:
-        return self.encode_fn(solution)
-
-    def decode_func(self, population: Any) -> Any:
-        return self.decode_fn(population)
+    def get_state(self) -> dict:
+        return {}
 
 
 class DefaultEncoding(Encoding):
@@ -131,11 +106,28 @@ class DefaultEncoding(Encoding):
     Default encoder that uses the genotype directly as a solution.
     """
 
-    def __init__(self, decode_as_array=True):
-        super().__init__(vectorized=True, decode_as_array=decode_as_array)
+    def __init__(self, decode_as_array: bool = True):
+        super().__init__(decode_as_array=decode_as_array)
 
-    def encode_func(self, solution: Any) -> Any:
+    def encode_func(self, solution: Iterable) -> MatrixLike:
         return solution
 
-    def decode_func(self, population: Any) -> Any:
+    def decode_func(self, population: MatrixLike) -> Iterable:
         return population
+
+
+class EncodingFromLambda(Encoding):
+    """
+    Decoder that uses user specified functions.
+    """
+
+    def __init__(self, encode_fn: Callable, decode_fn: Callable):
+        super().__init__()
+        self.encode_fn = encode_fn
+        self.decode_fn = decode_fn
+
+    def encode_func(self, solution: Iterable) -> MatrixLike:
+        return self.encode_fn(solution)
+
+    def decode_func(self, population: MatrixLike) -> Iterable:
+        return self.decode_fn(population)

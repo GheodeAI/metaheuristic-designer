@@ -18,7 +18,7 @@ class ImageEncoding(Encoding):
                 shape = shape + (1,)
 
         self.shape = shape
-        super().__init__(vectorized=True, decode_as_array=True)
+        super().__init__(decode_as_array=True)
 
     def encode_func(self, solution: ndarray) -> ndarray:
         return solution.reshape(solution.shape[:1] + (-1,))

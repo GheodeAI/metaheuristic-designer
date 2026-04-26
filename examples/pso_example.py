@@ -21,7 +21,7 @@ operator = mhd.operators.SwarmOperator("PSO", {"w": 0.9, "c1":0.9, "c2":0.9}, en
 
 strategy = mhd.strategies.PSO(initializer=initializer, encoding=pso_encoding)
 
-algorithm = mhd.algorithms.GeneralAlgorithm(
+algorithm = mhd.algorithms.StandardAlgorithm(
     objfunc,
     strategy,
     {"stop_cond": "time_limit", "time_limit": 3}

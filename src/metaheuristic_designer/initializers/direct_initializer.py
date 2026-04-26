@@ -21,13 +21,7 @@ class DirectInitializer(Initializer):
         Encoding that will be passed to each individual.
     """
 
-    def __init__(
-        self,
-        default_init: Initializer,
-        solutions: Population | List | np.ndarray,
-        encoding: Encoding = None,
-        random_state = None
-    ):
+    def __init__(self, default_init: Initializer, solutions: Population | List | np.ndarray, encoding: Encoding = None, random_state=None):
         super().__init__(len(solutions), encoding=encoding, random_state=random_state)
         self.solutions = solutions
         self.default_init = default_init
@@ -46,18 +40,18 @@ class DirectInitializer(Initializer):
 
         return indiv
 
-    def generate_population(self, objfunc, n_indiv=None):
-        if n_indiv is None:
-            n_indiv = self.pop_size
+    def generate_population(self, objfunc, n_individuals=None):
+        if n_individuals is None:
+            n_individuals = self.pop_size
 
         if isinstance(self.solutions, Population):
-            if self.solutions.pop_size == n_indiv:
+            if self.solutions.pop_size == n_individuals:
                 population = copy(self.solutions)
             else:
-                selection_idx = np.arange(n_indiv) % self.solutions.pop_size
+                selection_idx = np.arange(n_individuals) % self.solutions.pop_size
                 population = self.solutions.take_selection(selection_idx)
         elif isinstance(self.solutions, np.ndarray):
-            selection_idx = np.arange(n_indiv) % self.solutions.shape[0]
+            selection_idx = np.arange(n_individuals) % self.solutions.shape[0]
             population = Population(objfunc, self.solutions[selection_idx, :])
         else:
             raise TypeError("The provided population is not valid. It should be of type Population or numpy array.")

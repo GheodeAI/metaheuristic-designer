@@ -8,13 +8,17 @@ from .constraint_handler import (
     ConstraintHandlerFromLambda,
     NullConstraint,
     PenalizeConstraint,
-    RepareConstraint,
+    RepairConstraint,
 )
 from . import constraint_handlers
 
+from .parametrizable_mixin import ParametrizableMixin
+from .schedulable_parameter import SchedulableParameter
+from . import parameter_schedules
+
 from .algorithm import Algorithm
 from . import algorithms
-from .algorithms import GeneralAlgorithm, MemeticAlgorithm
+from .algorithms import StandardAlgorithm, MemeticAlgorithm
 
 from .search_strategy import SearchStrategy
 from . import strategies
@@ -27,14 +31,15 @@ from . import encodings
 from .initializer import Initializer, InitializerFromLambda
 from . import initializers
 
+from .parent_selection import ParentSelection, NullParentSelection, ParentSelectionFromLambda
+from . import parent_selection_methods
+
 from .operator import Operator, OperatorFromLambda, NullOperator
 from . import operators
 
-from .selection_method import SelectionMethod, SelectionFromLambda
-from . import selection_methods
+from .survivor_selection import SurvivorSelection, NullSurvivorSelection, SurvivorSelectionFromLambda
+from . import survivor_selection_methods
 
 from . import simple
-
-from .param_scheduler import ParamScheduler
 
 __version__ = "0.3.0"

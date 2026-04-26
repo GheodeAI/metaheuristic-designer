@@ -1,10 +1,9 @@
 from __future__ import annotations
 import numpy as np
-from ...initializer import Initializer
 from ...initializers import UniformInitializer, ExtendedInitializer
-from ...operator import Operator
+from ...operators import create_swarm_operator
+from ...encodings import ParameterExtendingEncoding
 from ..static_population import StaticPopulation
-from ...param_scheduler import ParamScheduler
 
 
 class PSO(StaticPopulation):
@@ -14,12 +13,12 @@ class PSO(StaticPopulation):
 
     def __init__(
         self,
-        encoding: ExtendedEncoding,
+        encoding: ParameterExtendingEncoding,
         initializer: ExtendedInitializer = None,
         population_size: int = 100,
         low_lim: float = -100,
         up_lim: float = 100,
-        params: ParamScheduler | dict = None,
+        params: dict = None,
         name: str = "PSO",
     ):
         if initializer is None:
@@ -37,17 +36,6 @@ class PSO(StaticPopulation):
         if params is None:
             params = {}
 
-        pso_op = SwarmOperator(
-            "PSO",
-            ParamScheduler(
-                "Linear",
-                {
-                    "w": params.get("w", 0.7),
-                    "c1": params.get("c1", 1.5),
-                    "c2": params.get("c2", 1.5),
-                },
-            ),
-            encoding=encoding
-        )
+        pso_op = create_swarm_operator("PSO", encoding=encoding, w=0.7, c1=1.5, c2=1.5)
 
         super().__init__(initializer, operator=pso_op, params=params, name=name)

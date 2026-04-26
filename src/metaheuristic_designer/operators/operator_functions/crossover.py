@@ -1,6 +1,4 @@
-"""
-
-"""
+""" """
 
 import math
 import numpy as np
@@ -94,7 +92,6 @@ def multiparent_discrete_crossover(population_array, _fitness_array, N=3, random
     return population_array[components_chosen, np.arange(population_array.shape[1])]
 
 
-
 def averaged_crossover(population_array, _fitness_array, alpha=0.5, random_state=None):
     """
     Performs a weighted average between each individual and a random member of the population_array.
@@ -158,7 +155,6 @@ def bitwise_xor_crossover(population_array, _fitness_array, random_state=None):
     population_shuffled = population_array[random_state.permutation(population_array.shape[0])]
 
     return population_array ^ population_shuffled
-
 
 
 def cross_inter_avg(population_array, _fitness_array, N=3, random_state=None):

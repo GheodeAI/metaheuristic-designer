@@ -1,13 +1,12 @@
 from __future__ import annotations
 from typing import Iterable
 import warnings
-import numpy as np
 from ...initializer import Initializer
-from ...param_scheduler import ParamScheduler
 from ...search_strategy import SearchStrategy
 from ...operator import Operator
 from ...operators import BranchOperator
-from ...selection_methods import SurvivorSelection
+from ...survivor_selection import SurvivorSelection
+from .neighborhood_changes import NeighborhoodChange, next_neighborhood
 
 
 class RVNS(SearchStrategy):
@@ -23,7 +22,7 @@ class RVNS(SearchStrategy):
         initializer: Initializer,
         op_list: Iterable[Operator],
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
+        params: dict = None,
         name: str = "RVNS",
     ):
         if params is None:

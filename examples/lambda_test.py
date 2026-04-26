@@ -1,7 +1,7 @@
 import numpy as np
 
 from metaheuristic_designer import ConstraintHandlerFromLambda, ObjectiveFromLambda, InitializerFromLambda, OperatorFromLambda
-from metaheuristic_designer.algorithms import GeneralAlgorithm
+from metaheuristic_designer.algorithms import StandardAlgorithm
 from metaheuristic_designer.strategies import *
 
 
@@ -38,7 +38,7 @@ def run_algorithm():
 
     search_strat = HillClimb(pop_init, mutation_op)
 
-    alg = GeneralAlgorithm(objfunc, search_strat, params=params)
+    alg = StandardAlgorithm(objfunc, search_strat, params=params)
 
     population = alg.optimize()
     print(population.best_solution())

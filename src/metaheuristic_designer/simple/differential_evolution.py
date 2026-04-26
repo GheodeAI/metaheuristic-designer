@@ -2,13 +2,13 @@ from __future__ import annotations
 from ..algorithm import Algorithm
 from ..objective_function import VectorObjectiveFunc
 from ..initializers import UniformInitializer
-from ..operators import VectorOperator
+from ..operators import create_operator
 from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import DE
-from ..algorithms import GeneralAlgorithm
+from ..algorithms import StandardAlgorithm
 
 
-def differential_evolution(params: dict, objfunc: ObjectiveVectorFunc = None) -> Algorithm:
+def differential_evolution(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
     """
     Instantiates a differential evolution algorithm to optimize the given objective function.
 
@@ -72,11 +72,11 @@ def _differential_evolution_real_vec(params, objfunc):
 
     pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
-    de_op = VectorOperator(de_type, {"F": f, "Cr": cr})
+    de_op = create_operator(de_type, f=f, cr=cr)
 
-    search_strat = DE(pop_initializer, de_op)
+    search_strategy = DE(pop_initializer, de_op)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)
 
 
 def _differential_evolution_int_vec(params, objfunc):
@@ -118,11 +118,11 @@ def _differential_evolution_int_vec(params, objfunc):
         encoding=encoding,
     )
 
-    de_op = VectorOperator(de_type, {"F": f, "Cr": cr})
+    de_op = create_operator(de_type, f=f, cr=cr)
 
-    search_strat = DE(pop_initializer, de_op)
+    search_strategy = DE(pop_initializer, de_op)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)
 
 
 def _differential_evolution_bin_vec(params, objfunc):
@@ -164,8 +164,8 @@ def _differential_evolution_bin_vec(params, objfunc):
         encoding=encoding,
     )
 
-    de_op = VectorOperator(de_type, {"F": f, "Cr": cr})
+    de_op = create_operator(de_type, f=f, cr=cr)
 
-    search_strat = DE(pop_initializer, de_op)
+    search_strategy = DE(pop_initializer, de_op)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)

@@ -3,6 +3,7 @@ from typing import List
 import numpy as np
 from ..initializer import Initializer
 
+
 class SeedProbInitializer(Initializer):
     """
     Initializer that inserts predefined solutions into the population with a given probability, generating
@@ -18,13 +19,7 @@ class SeedProbInitializer(Initializer):
         Probability of inserting one of the predefined solutions into the population.
     """
 
-    def __init__(
-        self,
-        default_init: Initializer,
-        solutions: List | np.ndarray,
-        insert_prob: float = 0.1,
-        random_state=None
-    ):
+    def __init__(self, default_init: Initializer, solutions: List | np.ndarray, insert_prob: float = 0.1, random_state=None):
         super().__init__(default_init.pop_size, random_state=random_state)
 
         self.default_init = default_init
@@ -60,13 +55,7 @@ class SeedDetermInitializer(Initializer):
         Amount of predefined individuals to insert in the population.
     """
 
-    def __init__(
-        self,
-        default_init: Initializer,
-        solutions: List,
-        n_to_insert: int = None,
-        random_state=None
-    ):
+    def __init__(self, default_init: Initializer, solutions: List, n_to_insert: int = None, random_state=None):
         super().__init__(default_init.pop_size, random_state=random_state)
 
         self.default_init = default_init
@@ -92,7 +81,7 @@ class SeedDetermInitializer(Initializer):
         self.inserted += 1
         return new_indiv
 
-    def generate_population(self, objfunc, n_indiv=None):
+    def generate_population(self, objfunc, n_individuals=None):
         self.inserted = 0
 
-        return super().generate_population(objfunc, n_indiv)
+        return super().generate_population(objfunc, n_individuals)

@@ -1,5 +1,5 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
-from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
+from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.encodings import TypeCastEncoding
 from metaheuristic_designer.operators import (
     VectorOperator,
@@ -298,7 +298,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state):
     if memetic:
         alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=params)
     else:
-        alg = GeneralAlgorithm(objfunc, search_strat, params=params)
+        alg = StandardAlgorithm(objfunc, search_strat, params=params)
 
     result = alg.optimize()
     ind, _ = result.best_solution(decoded=True)

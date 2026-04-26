@@ -1,9 +1,11 @@
 from __future__ import annotations
+from typing import Optional
 from ..initializer import Initializer
-from ..param_scheduler import ParamScheduler
-from ..selection_methods import SurvivorSelection, ParentSelection
+from ..parent_selection import ParentSelection
+from ..survivor_selection import SurvivorSelection
 from ..search_strategy import SearchStrategy
 from ..operator import Operator
+from ..utils import RNGLike
 
 
 class StaticPopulation(SearchStrategy):
@@ -15,31 +17,12 @@ class StaticPopulation(SearchStrategy):
         self,
         initializer: Initializer,
         operator: Operator,
-        parent_sel: ParentSelection = None,
-        survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
+        parent_sel: Optional[ParentSelection] = None,
+        survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "Static Population Evolution",
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
     ):
         super().__init__(
-            initializer,
-            operator=operator,
-            parent_sel=parent_sel,
-            survivor_sel=survivor_sel,
-            params=params,
-            name=name,
+            initializer, operator=operator, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, random_state=random_state**kwargs
         )
-
-    def update_params(self, **kwargs):
-        super().update_params(**kwargs)
-
-        progress = kwargs["progress"]
-
-        if isinstance(self.operator, Operator):
-            self.operator.step(progress)
-
-        if isinstance(self.survivor_sel, SurvivorSelection):
-            self.survivor_sel.step(progress)
-
-        if self.param_scheduler:
-            self.param_scheduler.step(progress)
-            self.params = self.param_scheduler.get_params()

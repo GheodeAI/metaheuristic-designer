@@ -24,42 +24,42 @@ class ExtendedOperator(Operator):
             Name of the operator.
     """
 
-    def __init__(
-        self,
-        base_operator: Operator,
-        param_operators: dict,
-        encoding: ParameterExtendingEncoding,
-        params: ParamScheduler | dict = None,
-        name: str = None,
-    ):
+    def __init__(self, base_operator: Operator, param_operators: dict, encoding: ParameterExtendingEncoding, name: str = None, **kwargs):
         """
         Constructor for the OperatorAdaptative class
         """
 
-        super().__init__(params=params, name=base_operator.name, encoding=encoding)
+        if not isinstance(encoding, ParameterExtendingEncoding):
+            raise TypeError("The encoding must inherit from ParameterExtendingEncoding.")
 
-        vecmask = np.zeros(encoding.vecsize + encoding.nparams)
+        if name is None:
+            name = f"{base_operator.name}"
+
+        super().__init__(name=name, encoding=encoding, **kwargs)
+
+        mask = np.zeros(encoding.vecsize + encoding.nparams)
 
         counter = encoding.vecsize
         for idx, (_, param_num) in enumerate(encoding.param_sizes):
-            vecmask[counter:counter + param_num] = idx + 1
-            counter = counter+param_num
+            mask[counter : counter + param_num] = idx + 1
+            counter = counter + param_num
 
         self.base_operator = base_operator
         self.param_operators = param_operators
         operator_list = [base_operator] + [param_operators[param_name] for idx, (param_name, _) in enumerate(encoding.param_sizes)]
 
-        self.main_operator = SplitOperator(operator_list, {"mask": vecmask})
-        self.vecmask = vecmask
-        self.param_encoding = encoding 
+        self.main_operator = SplitOperator(operator_list, {"mask": mask})
+        self.mask = mask
+        self.param_encoding = encoding
 
     def evolve(self, population, initializer=None):
         return self.main_operator.evolve(population, initializer=initializer)
 
-    def step(self, progress: float):
-        super().step(progress)
+    def update(self, progress: float):
+        super().update(progress)
 
-        self.base_operator.step(progress)
+        self.base_operator.update(progress)
 
         for _, op in self.param_operators.items():
-            op.step(progress)
+            if isinstance(op, Operator):
+                op.update(progress)

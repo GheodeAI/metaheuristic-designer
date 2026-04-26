@@ -1,4 +1,5 @@
 from __future__ import annotations
+import scipy as sp
 import numpy as np
 from numpy import ndarray
 from ..encoding import Encoding
@@ -17,7 +18,7 @@ class SigmoidEncoding(Encoding):
     ----------
     as_probability: boolean
         If set to True, return a real number in the range (0,1)
-        If set to False, returns a boolean set to 1 when :math:`\\sigma(x)` is bigger than a theshold
+        If set to False, returns a boolean set to 1 when :math:`\\sigma(x)` is bigger than a threshold
     threshold: float
         When using `as_probability`, sets the limit at which the value is considered to be a 1.
     """
@@ -28,7 +29,7 @@ class SigmoidEncoding(Encoding):
         self.as_probability = as_probability
         self.threshold = threshold
 
-        super().__init__(vectorized=True, decode_as_array=True)
+        super().__init__(decode_as_array=True)
 
     def encode_func(self, solutions: ndarray) -> ndarray:
         if not self.as_probability:
@@ -37,7 +38,7 @@ class SigmoidEncoding(Encoding):
         return np.log(solutions / (1 - solutions))
 
     def decode_func(self, population: ndarray) -> ndarray:
-        result = 1 / (1 + np.exp(-population))
+        result = sp.special.expit(population)
         if not self.as_probability:
             result = (result < self.threshold).astype(int)
 

@@ -2,11 +2,14 @@
 Mutation operator implementations based on probability distributions.
 """
 
+import logging
 import enum
 from enum import Enum
 import numpy as np
 import scipy as sp
 from ...utils import check_random_state
+
+logger = logging.getLogger(__name__)
 
 
 class ProbDist(Enum):
@@ -126,6 +129,8 @@ def mutate_sample(population, _fitness, random_state=None, **kwargs):
 
     population[mask_pos] = rand_vec[mask_pos]
 
+    logger.debug("Resampled components of the vector %s, with mask %s", population[mask_pos], mask_pos.astype(int))
+
     return population
 
 
@@ -162,6 +167,14 @@ def mutate_noise(population, _fitness, random_state=None, **kwargs):
     rand_vec = sample_distribution(population.shape, loc, scale, random_state, **kwargs)
 
     population[mask_pos] = population[mask_pos] + (strength * rand_vec)[mask_pos]
+
+    logger.debug(
+        "Mutated components of the vector:\nvector = %s\nnoise_added = %s\nmask = %s",
+        population[mask_pos],
+        (strength * rand_vec)[mask_pos],
+        mask_pos.astype(int),
+    )
+
     return population
 
 
@@ -195,6 +208,8 @@ def rand_sample(population, _fitness, random_state=None, **kwargs):
 
     rand_population = sample_distribution(population.shape, loc, scale, random_state, **kwargs)
 
+    logger.debug("Resampled vector %s", rand_population)
+
     return rand_population
 
 
@@ -202,7 +217,7 @@ def rand_noise(population, _fitness, random_state=None, **kwargs):
     """
     Adds random noise with a given probability distribution to all components of the input vector.
     """
-    
+
     random_state = check_random_state(random_state)
 
     distrib = kwargs["distrib"]
@@ -224,8 +239,11 @@ def rand_noise(population, _fitness, random_state=None, **kwargs):
         strength = strength[:, None]
 
     noise = sample_distribution(population.shape, loc, scale, random_state, **kwargs)
+    result = population + strength * noise
 
-    return population + strength * noise
+    logger.debug("Added noise to vector %s", result)
+
+    return result
 
 
 def sample_distribution(shape, loc=None, scale=None, random_state=None, **kwargs):
@@ -313,10 +331,12 @@ def sample_distribution(shape, loc=None, scale=None, random_state=None, **kwargs
                 raise ValueError("To use a custom probability distribution you must specify it with the 'distrib_class' parameter.")
             prob_distrib = kwargs["distrib_class"]
         case _:
-            raise ValueError("Invalid probability distribution")
+            raise ValueError(f"Invalid probability distribution {distrib}")
 
     if result is None:
         result = prob_distrib.rvs(size=shape, random_state=random_state)
+
+    logger.debug("Generated random noise vector %s", result)
 
     return result
 
@@ -335,7 +355,6 @@ def sample_1_sigma(population, _fitness, random_state=None, **kwargs):
     sigma = kwargs["sigma"]
     tau = kwargs["tau"]
     n = kwargs["n"]
-
 
     mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
     mask_pos = random_state.permuted(mask_pos, axis=1)
@@ -375,7 +394,9 @@ def mutate_n_sigmas(population, _fitness, random_state=None, **kwargs):
     return np.maximum(
         epsilon,
         population
-        * np.exp(tau * random_state.normal(0, 1, population.shape[0])[:, None] + tau_multiple * random_state.normal(0, 1, population.shape[0])[:, None]),
+        * np.exp(
+            tau * random_state.normal(0, 1, population.shape[0])[:, None] + tau_multiple * random_state.normal(0, 1, population.shape[0])[:, None]
+        ),
     )
 
 

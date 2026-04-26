@@ -2,14 +2,8 @@ import pytest
 
 import numpy as np
 from metaheuristic_designer import DefaultEncoding
-from metaheuristic_designer.encodings import (
-    MatrixEncoding,
-    ImageEncoding,
-    TypeCastEncoding,
-)
+from metaheuristic_designer.encodings import *
 import metaheuristic_designer as mhd
-
-mhd.reset_seed(0)
 
 
 @pytest.mark.parametrize(
@@ -139,3 +133,121 @@ def test_rgb_img(genotype, phenotype, shape):
 
     np.testing.assert_array_equal(encoding.decode(genotype), phenotype)
     np.testing.assert_array_equal(encoding.encode(phenotype), genotype)
+
+# ============================================================================
+# SigmoidEncoding
+# ============================================================================
+@pytest.mark.parametrize(
+    "genotype, as_prob, threshold, expected_decode",
+    [
+        # probability mode: sigmoid
+        (np.array([[0.0]]), True, 0.5, np.array([[0.5]])), 
+        (np.array([[999.0]]), True, 0.5, np.array([[1.0]])),  # high value → 1
+        (np.array([[-999.0]]), True, 0.5, np.array([[0.0]])), # low value → 0
+        # binary mode with threshold
+        (np.array([[0.0]]), False, 0.5, np.array([[False]])),
+        (np.array([[1.0]]), False, 0.5, np.array([[True]])),
+        (np.array([[-1.0]]), False, 0.5, np.array([[False]])),
+    ],
+)
+def test_sigmoid_decode(genotype, as_prob, threshold, expected_decode):
+    enc = SigmoidEncoding(as_probability=as_prob, threshold=threshold)
+    decoded = enc.decode(genotype)
+    np.testing.assert_array_equal(decoded, expected_decode)
+
+
+def test_sigmoid_encode():
+    enc = SigmoidEncoding(as_probability=True)
+    # encode should be the identity (or pass‑through) for this encoding?
+    # Check that it returns the input as an array
+    inp = np.array([[0.5], [0.2]])
+    encoded = enc.encode(inp)
+    np.testing.assert_array_equal(encoded, inp)
+
+
+# ============================================================================
+# EncodingFromLambda
+# ============================================================================
+def test_encoding_from_lambda():
+    # simple encode: double the value, decode: halve
+    encode_fn = lambda x: 2 * np.asarray(x)
+    decode_fn = lambda y: np.asarray(y) / 2.0
+    enc = EncodingFromLambda(encode_fn, decode_fn)
+
+    genotype = np.array([[1.0, 2.0], [3.0, 4.0]])
+    phenotype = np.array([[0.5, 1.0], [1.5, 2.0]])
+
+    np.testing.assert_array_equal(enc.encode(phenotype), genotype)
+    np.testing.assert_array_equal(enc.decode(genotype), phenotype)
+
+
+# ============================================================================
+# CompositeEncoding
+# ============================================================================
+def test_composite_encoding():
+    # Two sub‑encodings:
+    #   - part 1: DefaultEncoding (keeps as is)
+    #   - part 2: SigmoidEncoding (probability mode)
+    part1 = DefaultEncoding(decode_as_array=True)
+    part2 = SigmoidEncoding(as_probability=True)
+
+    comp = CompositeEncoding([part1, part2])
+
+    # sample solution: a dict with keys 0 and 1 (index in the list)
+    solution = {
+        0: np.array([[3.0, 4.0]]),
+        1: np.array([[0.0, 10.0]]),  # will be decoded to sigmoid(0)=0.5, sigmoid(10)~1
+    }
+    # encoded genotype: concatenation of encoded parts
+    encoded = comp.encode([solution])  # list of solutions
+    # expected: first part unchanged: [[3,4]], second part unchanged (identity encode) [[0,10]]
+    expected_encoded = np.array([[3, 4, 0, 10]])
+    np.testing.assert_array_equal(encoded, expected_encoded)
+
+    # decoding
+    decoded = comp.decode(np.array([[3, 4, 0, 10]]))
+    # part1 unchanged: [3,4], part2 decoded via sigmoid: [0.5, ~1.0]
+    expected_decoded = [np.array([3.0, 4.0]), np.array([0.5, 0.9999546])]
+    assert len(decoded) == 2
+    np.testing.assert_array_almost_equal(decoded[0], expected_decoded[0])
+    np.testing.assert_array_almost_equal(decoded[1], expected_decoded[1])
+
+
+# ============================================================================
+# ParameterExtendingEncoding (via PSOEncoding)
+# ============================================================================
+def test_pso_encoding_extracts_solution_and_params():
+    # PSOEncoding: vecsize = 5, default base_encoding=None
+    enc = PSOEncoding(vecsize=5)
+    # an individual with 5 solution genes + 5 speed genes = 10 total
+    indiv = np.array([[1, 2, 3, 4, 5, 0.1, 0.2, 0.3, 0.4, 0.5]])
+
+    solution_part = enc.extract_solution(indiv)
+    params_part = enc.extract_params(indiv)
+
+    np.testing.assert_array_equal(solution_part, np.array([[1, 2, 3, 4, 5]]))
+    np.testing.assert_array_equal(params_part, np.array([[0.1, 0.2, 0.3, 0.4, 0.5]]))
+
+
+def test_pso_encode_decode_params():
+    enc = PSOEncoding(vecsize=5)
+    param_dict = {"speed": np.array([0.1, 0.2, 0.3, 0.4, 0.5])}
+    encoded = enc.encode_params(param_dict)
+    np.testing.assert_array_equal(encoded, np.array([[0.1, 0.2, 0.3, 0.4, 0.5]]))
+
+    decoded = enc.decode_params(encoded)
+    np.testing.assert_array_equal(decoded["speed"], np.array([0.1, 0.2, 0.3, 0.4, 0.5]))
+
+
+def test_pso_full_encode_decode():
+    enc = PSOEncoding(vecsize=5)
+    solution = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+    params = {"speed": np.array([0.1, 0.2, 0.3, 0.4, 0.5])}
+    indiv = enc.encode([solution], params=params)
+    expected = np.array([[1, 2, 3, 4, 5, 0.1, 0.2, 0.3, 0.4, 0.5]])
+    np.testing.assert_array_equal(indiv, expected)
+
+    decoded_solutions = enc.decode(indiv)
+    decoded_params = enc.decode_params(indiv)
+    np.testing.assert_array_equal(decoded_solutions[0], solution)
+    np.testing.assert_array_equal(decoded_params["speed"], np.array([0.1, 0.2, 0.3, 0.4, 0.5]))

@@ -64,7 +64,7 @@ def test_null_constraint_penalty_always_zero(solution):
 @pytest.mark.parametrize("solution", generate_test_vectors())
 def test_linear_penalty_repair_unchanged(vecsize, low_lim, up_lim, solution):
     """Test that LinearPenaltyBoundConstraint doesn't modify solution during repair"""
-    constraint = LinearPenaltyBoundConstraint(vecsize=vecsize, low_lim=low_lim, up_lim=up_lim, alpha=1.0)
+    constraint = LinearBoundPenaltyConstraint(vecsize=vecsize, low_lim=low_lim, up_lim=up_lim, alpha=1.0)
     repaired = constraint.repair_solution(solution)
     
     np.testing.assert_array_equal(repaired, solution)
@@ -80,7 +80,7 @@ def test_linear_penalty_repair_unchanged(vecsize, low_lim, up_lim, solution):
 ])
 def test_linear_penalty_calculation(vecsize, low_lim, up_lim, alpha, solution, expected_penalty):
     """Test linear penalty calculation for various scenarios"""
-    constraint = LinearPenaltyBoundConstraint(vecsize=vecsize, low_lim=low_lim, up_lim=up_lim, alpha=alpha)
+    constraint = LinearBoundPenaltyConstraint(vecsize=vecsize, low_lim=low_lim, up_lim=up_lim, alpha=alpha)
     penalty = constraint.penalty(solution)
     
     assert penalty == pytest.approx(expected_penalty)
@@ -213,8 +213,8 @@ def test_composite_constraint_repair_sequence(solution):
 def test_composite_constraint_penalty_sum(solution):
     """Test that CompositeConstraint sums penalties from all constraints"""
     # Use LinearPenaltyBoundConstraint since it's the only one with non-zero penalty
-    penalty_constraint1 = LinearPenaltyBoundConstraint(vecsize=3, low_lim=-1.0, up_lim=1.0, alpha=1.0)
-    penalty_constraint2 = LinearPenaltyBoundConstraint(vecsize=3, low_lim=0.0, up_lim=5.0, alpha=2.0)
+    penalty_constraint1 = LinearBoundPenaltyConstraint(vecsize=3, low_lim=-1.0, up_lim=1.0, alpha=1.0)
+    penalty_constraint2 = LinearBoundPenaltyConstraint(vecsize=3, low_lim=0.0, up_lim=5.0, alpha=2.0)
     null_constraint = NullConstraint()
     
     constraints = [penalty_constraint1, penalty_constraint2, null_constraint]

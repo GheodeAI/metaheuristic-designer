@@ -1,8 +1,30 @@
+from typing import Optional, Tuple
 import json
-from numbers import Integral
+import numbers
 from enum import Enum
 import numpy as np
-import numpy.random
+
+null_aliases = {"null", "nothing", "identity", "passthrough"}
+RNGLike = int | np.random.Generator
+
+RealVector = np.ndarray[tuple[int], np.floating]
+RealMatrix = np.ndarray[tuple[int, int], np.floating]
+RealTensor = np.ndarray[tuple[int, ...], np.floating]
+
+IntVector = np.ndarray[tuple[int], np.integer]
+IntMatrix = np.ndarray[tuple[int, int], np.integer]
+IntTensor = np.ndarray[tuple[int, ...], np.integer]
+
+BinVector = np.ndarray[tuple[int], np.uint8 | np.bool]
+BinMatrix = np.ndarray[tuple[int, int], np.uint8 | np.bool]
+BinTensor = np.ndarray[tuple[int, ...], np.uint8 | np.bool]
+
+ScalarLike = np.number | float | int
+VectorLike = RealVector | IntVector | BinVector
+MatrixLike = RealMatrix | IntMatrix | BinMatrix
+TensorLike = RealTensor | IntTensor | BinTensor
+
+MaskLike = IntTensor | BinTensor
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -19,8 +41,9 @@ class NumpyEncoder(json.JSONEncoder):
             return str(o)
         return json.JSONEncoder.default(self, o)
 
-def check_random_state(seed):
-    """Turn seed into an np.random.RandomState instance.
+
+def check_random_state(seed: Optional[RNGLike]) -> np.random.Generator:
+    """Turn seed into an np.random.Generator instance.
 
     Original implementation adapted from:
     https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/utils/validation.py
@@ -28,25 +51,23 @@ def check_random_state(seed):
 
     Parameters
     ----------
-    seed : None, int or instance of RandomState
-        If seed is None, return the RandomState singleton used by np.random.
-        If seed is an int, return a new RandomState instance seeded with seed.
-        If seed is already a RandomState instance, return it.
+    seed : None, int or instance of Generator
+        If seed is None, return the Generator singleton used by np.random.
+        If seed is an int, return a new Generator instance seeded with seed.
+        If seed is already a Generator instance, return it.
         Otherwise raise ValueError.
 
     Returns
     -------
-    :class:`numpy:numpy.random.RandomState`
+    :class:`numpy:numpy.random.Generator`
         The random state object based on `seed` parameter.
 
     """
 
     if seed is None or seed is np.random:
-        return np.random.mtrand._rand
+        return np.random.default_rng()
     if isinstance(seed, numbers.Integral):
-        return np.random.RandomState(seed)
-    if isinstance(seed, np.random.RandomState):
+        return np.random.default_rng(seed)
+    if isinstance(seed, np.random.Generator):
         return seed
-    raise ValueError(
-        "%r cannot be used to seed a numpy.random.RandomState instance" % seed
-    )
+    raise ValueError("%r cannot be used to seed a numpy.random.Generator instance" % seed)

@@ -1,3 +1,5 @@
+from ..search_strategy import SearchStrategy
+
 from .hill_climb import HillClimb
 from .local_search import LocalSearch
 

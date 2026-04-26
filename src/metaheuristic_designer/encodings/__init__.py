@@ -1,3 +1,4 @@
+from ..encoding import Encoding, EncodingFromLambda, DefaultEncoding
 from .composite_encoding import CompositeEncoding
 from .parameter_extending_encoding import ParameterExtendingEncoding
 from .image_encoding import ImageEncoding

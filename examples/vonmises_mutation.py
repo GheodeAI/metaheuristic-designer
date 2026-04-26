@@ -1,6 +1,6 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.encodings import ParameterExtendingEncoding
-from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
+from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import VectorOperator, AdaptativeOperator, SplitOperator
 from metaheuristic_designer.initializers import UniformInitializer, ExponentialInitializer, ExtendedInitializer
 from metaheuristic_designer.selection_methods import ParentSelection, SurvivorSelection
@@ -77,7 +77,7 @@ def run_algorithm(save_state, objective, dim):
 
     search_strat = ES(pop_initializer, ada_mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": 700}, name="Tikhinov Adaptative-ES")
 
-    alg = GeneralAlgorithm(objfunc, search_strat, params=params)
+    alg = StandardAlgorithm(objfunc, search_strat, params=params)
 
     result = alg.optimize()
     ind, best_fitness = result.best_solution(decoded=True)

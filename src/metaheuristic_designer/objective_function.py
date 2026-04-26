@@ -1,21 +1,24 @@
 """
-Base class for the Objective Function module. 
+Base class for the Objective Function module.
 
 This module implements the objective function that will measure the quality of the solutions.
 """
 
 from __future__ import annotations
 import logging
-from typing import Any
+from typing import Any, Callable, Optional
 from abc import ABC, abstractmethod
 import numpy as np
 from numpy import ndarray
 from .constraint_handler import ConstraintHandler, NullConstraint
 from .constraint_handlers import ClipBoundConstraint, CompositeConstraint
+from .parametrizable_mixin import ParametrizableMixin
+from .utils import check_random_state, RNGLike, VectorLike, ScalarLike
 
 logger = logging.getLogger(__name__)
 
-class ObjectiveFunc(ABC):
+
+class ObjectiveFunc(ParametrizableMixin, ABC):
     """
     Abstract Fitness function class.
 
@@ -32,20 +35,22 @@ class ObjectiveFunc(ABC):
     vectorized: bool, optional
         Indicates that the function will calculate the fitness of the entire population in one function call.
     recalculate: bool, optional
-        Wheather to calculate the fitness of the individuals even if they were already calcualted before.
+        Whether to calculate the fitness of the individuals even if they were already calculated before.
     """
 
     def __init__(
         self,
-        constraint_handler: ConstraintHandler = None,
+        constraint_handler: Optional[ConstraintHandler] = None,
         mode: str = "max",
         name: str = "some function",
         vectorized: bool = False,
         recalculate: bool = False,
+        **kwargs,
     ):
         """
         Constructor for the ObjectiveFunc class
         """
+        super().__init__()
 
         if constraint_handler is None:
             constraint_handler = NullConstraint()
@@ -63,13 +68,15 @@ class ObjectiveFunc(ABC):
         if mode == "min":
             self.factor = -1
 
+        self.store_kwargs(**kwargs)
+
     def __call__(
         self,
         population: Population,
         adjusted: bool = True,
         parallel: bool = False,
         threads: int = 8,
-    ) -> float:
+    ) -> VectorLike:
         """
         Shorthand for executing the objective function on a vector.
         """
@@ -82,7 +89,7 @@ class ObjectiveFunc(ABC):
         adjusted: bool = True,
         parallel: bool = False,
         threads: int = 8,
-    ) -> ndarray:
+    ) -> VectorLike:
         """
         Returns the value of the objective function given an individual.
         If the fitness is adjusted, the sign will be switched for minimization problems
@@ -95,7 +102,7 @@ class ObjectiveFunc(ABC):
         adjusted: bool, optional
             Whether to adjust the fitness value or not.
         parallel: bool, optional
-            Wheather to evaluate the individuals in the population in parallel.
+            Whether to evaluate the individuals in the population in parallel.
         threads: int, optional
             Number of processes to use at once if calculating the fitness in parallel.
 
@@ -104,6 +111,9 @@ class ObjectiveFunc(ABC):
         fitness: ndarray
             Fitness value of the individual.
         """
+
+        if parallel:
+            logger.warning("Parallel fitness computing not available at the moment. Ignoring parallel option.")
 
         logger.info("Calculating fitness of the population...")
         fitness = population.fitness
@@ -142,7 +152,7 @@ class ObjectiveFunc(ABC):
         return fitness
 
     @abstractmethod
-    def objective(self, solution: Any) -> float | ndarray:
+    def objective(self, solution: Any) -> VectorLike | ScalarLike:
         """
         Implementation of the objective function.
 
@@ -174,6 +184,9 @@ class ObjectiveFunc(ABC):
 
         return self.constraint_handler.repair_solution(solution)
 
+    def restart(self):
+        self.counter = 0
+
 
 class VectorObjectiveFunc(ObjectiveFunc):
     """
@@ -198,11 +211,12 @@ class VectorObjectiveFunc(ObjectiveFunc):
         vecsize: int,
         low_lim: float,
         up_lim: float,
-        constraint_handler: ConstraintHandler = None,
+        constraint_handler: Optional[ConstraintHandler] = None,
         mode: str = "max",
-        name: str = "some function",
+        name: str = "Some function",
         vectorized: bool = False,
         recalculate: bool = False,
+        **kwargs,
     ):
         """
         Constructor for the ObjectiveVectorFunc class
@@ -218,19 +232,14 @@ class VectorObjectiveFunc(ObjectiveFunc):
         else:
             constraint_handler = CompositeConstraint([constraint_handler, bound_constraint_handler])
 
-        super().__init__(
-            constraint_handler=constraint_handler,
-            mode=mode,
-            name=name,
-            vectorized=vectorized,
-            recalculate=recalculate,
-        )
+        super().__init__(constraint_handler=constraint_handler, mode=mode, name=name, vectorized=vectorized, recalculate=recalculate, **kwargs)
+
 
 class NullObjectiveFunc(ObjectiveFunc):
-    def __init__(self):
-        super().__init__(name="Null objective")
+    def __init__(self, **kwargs):
+        super().__init__(name="Null objective", **kwargs)
 
-    def objective(self, _):
+    def objective(self, _) -> VectorLike | ScalarLike:
         return 0
 
 
@@ -240,7 +249,7 @@ class ObjectiveFromLambda(ObjectiveFunc):
 
     Parameters
     ----------
-    obj_func: callable
+    obj_func: Callable
         Objective function as a callable object.
     vecsize: int
         The dimension of the vectors accepted by the objective function.
@@ -256,12 +265,13 @@ class ObjectiveFromLambda(ObjectiveFunc):
 
     def __init__(
         self,
-        obj_func: callable,
-        constraint_handler: ConstraintHandler = None,
+        obj_func: Callable,
+        constraint_handler: Optional[ConstraintHandler] = None,
         mode: str = "max",
-        name: str = None,
+        name: Optional[str] = None,
         vectorized: bool = False,
         recalculate: bool = False,
+        **kwargs,
     ):
         """
         Constructor for the ObjectiveFromLambda class
@@ -272,7 +282,7 @@ class ObjectiveFromLambda(ObjectiveFunc):
 
         self.obj_func = obj_func
 
-        super().__init__(constraint_handler=constraint_handler, mode=mode, name=name, vectorized=vectorized, recalculate=recalculate)
+        super().__init__(constraint_handler=constraint_handler, mode=mode, name=name, vectorized=vectorized, recalculate=recalculate, **kwargs)
 
-    def objective(self, solution):
-        return self.obj_func(solution)
+    def objective(self, solution: Any) -> VectorLike | ScalarLike:
+        return self.obj_func(solution, **self.current_kwargs)

@@ -1,11 +1,11 @@
 from __future__ import annotations
 import numpy as np
-from ...operators import VectorOperator
-from ...selection_methods import ParentSelection, SurvivorSelection
+from ...operators import create_mutation_operator
+from ...parent_selection import ParentSelection
+from ...survivor_selection import SurvivorSelection
 from ...initializer import Initializer
-from ...param_scheduler import ParamScheduler
 from ..variable_population import VariablePopulation
-from ...utils import RAND_GEN
+from ...utils import check_random_state
 
 
 class BernoulliPBIL(VariablePopulation):
@@ -19,15 +19,18 @@ class BernoulliPBIL(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
+        params: dict = None,
         name: str = "BernoulliPBIL",
+        random_state=None,
     ):
         if params is None:
             params = {}
 
+        self.random_state = check_random_state(random_state)
+
         self.p = params.get("p", None)
 
-        evolve_op = VectorOperator("RandSample", {"distrib": "bernoulli", "p": self.p})
+        evolve_op = create_mutation_operator("RandSample", distrib="bernoulli", p=self.p)
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
         self.lr = params.get("lr")
@@ -38,7 +41,7 @@ class BernoulliPBIL(VariablePopulation):
             evolve_op,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
+            offspring_size=offspring_size,
             params=params,
             name=name,
         )
@@ -53,12 +56,12 @@ class BernoulliPBIL(VariablePopulation):
         new_p = self._batch_fit(parents)
         if self.p is not None:
             self.p = (1 - self.lr) * self.p + self.lr * new_p
-            self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
+            self.p += self.random_state.normal(0, self.noise, size=self.p.shape)
             self.p = np.clip(self.p, 0, 1)
         else:
             self.p = new_p
 
-        self.operator = VectorOperator("RandSample", {"distrib": "bernoulli", "p": self.p})
+        self.operator = create_mutation_operator("RandSample", distrib="bernoulli", p=self.p)
 
         return super().perturb(parents, **kwargs)
 
@@ -74,11 +77,14 @@ class BinomialPBIL(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
+        params: dict = None,
         name: str = "BernoulliPBIL",
+        random_state=None,
     ):
         if params is None:
             params = {}
+
+        self.random_state = check_random_state(random_state)
 
         self.p = params.get("p", None)
 
@@ -87,7 +93,7 @@ class BinomialPBIL(VariablePopulation):
 
         self.n = params["n"]
 
-        evolve_op = VectorOperator("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
+        evolve_op = create_mutation_operator("RandSample", distrib="binomial", p=self.p, n=self.n)
         self.prob_vec_mutate = evolve_op
 
         offspring_size = params.get("offspringSize", initializer.pop_size)
@@ -100,7 +106,7 @@ class BinomialPBIL(VariablePopulation):
             evolve_op,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
+            offspring_size=offspring_size,
             params=params,
             name=name,
         )
@@ -115,12 +121,12 @@ class BinomialPBIL(VariablePopulation):
         new_p = self._batch_fit(parents)
         if self.p is not None:
             self.p = (1 - self.lr) * self.p + self.lr * new_p
-            self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
+            self.p += self.random_state.normal(0, self.noise, size=self.p.shape)
             self.p = np.clip(self.p, 0, 1)
         else:
             self.p = new_p
 
-        self.operator = VectorOperator("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
+        self.operator = create_mutation_operator("RandSample", distrib="binomial", p=self.p, n=self.n)
 
         return super().perturb(parents, **kwargs)
 
@@ -136,16 +142,19 @@ class GaussianPBIL(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
+        params: dict = None,
         name: str = "GaussianPBIL",
+        random_state=None,
     ):
         if params is None:
             params = {}
 
+        self.random_state = check_random_state(random_state)
+
         self.loc = params.get("loc", None)
         self.scale = params.get("scale", 1)
 
-        evolve_op = VectorOperator("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
+        evolve_op = create_mutation_operator("RandSample", distrib="gaussian", loc=self.loc, scale=self.scale)
         offspring_size = params.get("offspringSize", initializer.pop_size)
 
         self.lr = params.get("lr")
@@ -156,7 +165,7 @@ class GaussianPBIL(VariablePopulation):
             evolve_op,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
+            offspring_size=offspring_size,
             params=params,
             name=name,
         )
@@ -171,10 +180,10 @@ class GaussianPBIL(VariablePopulation):
         new_loc = self._batch_fit(parents)
         if self.loc is not None:
             self.loc = (1 - self.lr) * self.loc + self.lr * new_loc
-            self.loc += RAND_GEN.normal(0, self.noise, size=self.loc.shape)
+            self.loc += self.random_state.normal(0, self.noise, size=self.loc.shape)
         else:
             self.loc = new_loc
 
-        self.operator = VectorOperator("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
+        self.operator = create_mutation_operator("RandSample", distrib="gaussian", loc=self.loc, scale=self.scale)
 
         return super().perturb(parents, **kwargs)

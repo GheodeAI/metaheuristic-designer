@@ -3,6 +3,7 @@ from copy import copy
 from ..constraint_handler import ConstraintHandler
 from ..encodings import ParameterExtendingEncoding
 
+
 class ExtendedConstraintHandler(ConstraintHandler):
     def __init__(self, solution_handler: ConstraintHandler, param_handler_dict: dict, encoding: ParameterExtendingEncoding):
         assert isinstance(encoding, ParameterExtendingEncoding), "An `ExtendedEncoding` instance must be used with this type of ConstraintHandler"
@@ -10,11 +11,11 @@ class ExtendedConstraintHandler(ConstraintHandler):
         self.solution_handler = solution_handler
         self.param_handler_dict = param_handler_dict
         self.encoding = encoding
-    
+
     def repair_solution(self, solution):
         solution_vec = self.encoding.decode(solution[None, :])
         param = self.encoding.decode_params(solution[None, :])
-        
+
         solution_vec_fixed = self.solution_handler.repair_solution(solution_vec)
         param_fixed = copy(param)
         for param_name, _ in self.encoding.param_sizes:
@@ -26,7 +27,7 @@ class ExtendedConstraintHandler(ConstraintHandler):
     def penalty(self, solution):
         solution_vec = self.encoding.decode(solution[None, :])[0]
         param = self.encoding.decode_params(solution[None, :])
-        
+
         penalty = self.solution_handler.penalty(solution_vec)
         for param_name, _ in self.encoding.param_sizes:
             param_vec = param[param_name]

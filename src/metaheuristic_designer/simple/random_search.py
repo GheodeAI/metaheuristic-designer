@@ -4,7 +4,7 @@ from ..algorithm import Algorithm
 from ..initializers import UniformInitializer, PermInitializer
 from ..encodings import TypeCastEncoding
 from ..strategies import RandomSearch
-from ..algorithms import GeneralAlgorithm
+from ..algorithms import StandardAlgorithm
 
 
 def random_search(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
@@ -62,7 +62,7 @@ def _random_search_bin_vec(params, objfunc):
 
     search_strat = RandomSearch(pop_initializer)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)
 
 
 def _random_search_perm_vec(params, objfunc):
@@ -82,7 +82,7 @@ def _random_search_perm_vec(params, objfunc):
 
     search_strat = RandomSearch(pop_initializer)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)
 
 
 def _random_search_int_vec(params, objfunc):
@@ -104,7 +104,7 @@ def _random_search_int_vec(params, objfunc):
 
     search_strat = RandomSearch(pop_initializer)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)
 
 
 def _random_search_real_vec(params, objfunc):
@@ -126,4 +126,4 @@ def _random_search_real_vec(params, objfunc):
 
     search_strat = RandomSearch(pop_initializer)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strat, params=params)

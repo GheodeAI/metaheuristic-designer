@@ -3,11 +3,10 @@ from typing import Iterable
 from copy import copy
 import warnings
 from ...initializer import Initializer
-from ...param_scheduler import ParamScheduler
 from ...search_strategy import SearchStrategy
 from ...operator import Operator
-from ...operators import CompositeOperator
-from ...selection_methods import SurvivorSelection
+from ...operators import BranchOperator
+from ...survivor_selection import SurvivorSelection
 from .neighborhood_changes import *
 
 
@@ -25,7 +24,7 @@ class VND(SearchStrategy):
         op_list: Iterable[Operator],
         survivor_sel: SurvivorSelection = None,
         one_shot: bool = False,
-        params: ParamScheduler | dict = None,
+        params: dict = None,
         name: str = "VND",
     ):
 

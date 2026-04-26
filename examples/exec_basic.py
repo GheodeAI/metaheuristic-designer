@@ -1,20 +1,23 @@
 import argparse
+import logging
 
 import numpy as np
 
 from metaheuristic_designer import *
-from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import VectorOperator
+from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm
+from metaheuristic_designer.operators import create_operator
 from metaheuristic_designer.initializers import *
-from metaheuristic_designer.selection_methods import *
+from metaheuristic_designer.parent_selection_methods import create_parent_selection
+from metaheuristic_designer.survivor_selection_methods import create_survivor_selection
 from metaheuristic_designer.encodings import *
 from metaheuristic_designer.constraint_handlers import *
 from metaheuristic_designer.strategies import *
 from metaheuristic_designer.benchmarks import *
+from metaheuristic_designer.utils import check_random_state
 
 
-def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim):
-    params = {
+def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, random_state):
+    algorithm_params = {
         "stop_cond": "convergence or time_limit",
         "progress_metric": "time_limit",
         "time_limit": 120.0,
@@ -41,29 +44,29 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim):
     match alg_name:
         case "HILLCLIMB":
             search_strat = HillClimb(
-                initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1),
-                operator=VectorOperator("MutNoise", {"distrib": "Cauchy", "F": 1e-3, "N": 1}),
+                initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, random_state=random_state),
+                operator=create_operator("mutation.gaussian_mutation", F = 1e-2, N = 1, random_state=random_state),
             )
         case "LOCALSEARCH":
             search_strat = LocalSearch(
-                initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1),
-                operator=VectorOperator("MutNoise", {"distrib": "Cauchy", "F": 1e-3, "N": 1}),
+                initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, random_state=random_state),
+                operator=create_operator("mutation.noise_mutation", distrib = "Cauchy", f = 1e-3, N = 1, random_state=random_state),
                 params={"iters": 20},
             )
         case "SA":
             search_strat = SA(
-                initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1),
-                operator=VectorOperator("MutNoise", {"distrib": "Cauchy", "F": 1e-3, "N": 1}),
+                initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, random_state=random_state),
+                operator=create_operator("mutation.noise_mutation", distrib = "Cauchy", F = 1e-3, N = 1, random_state=random_state),
                 params={"iter": 100, "temp_init": 1, "alpha": 0.997},
             )
         case "ES":
             pop_size = 100
             lam = 150
             search_strat = ES(
-                initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size),
-                mutation_op=VectorOperator("MutNoise", {"distrib": "Gaussian", "F": 1e-3, "N": 1}),
-                cross_op=VectorOperator("Multipoint"),
-                survivor_sel=SurvivorSelection("(m+n)"),
+                initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, random_state=random_state),
+                mutation_op=create_operator("mutation.noise_mutation", distrib= "Gaussian", F= 1e-3, N= 1, random_state=random_state),
+                cross_op=create_operator("crossover.multipoint", random_state=random_state),
+                survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
                 params={"offspringSize": lam},
             )
         case "GA":
@@ -71,11 +74,11 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim):
             n_parents = 50
             n_elites = 20
             search_strat = GA(
-                initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size),
-                mutation_op=VectorOperator("MutNoise", {"distrib": "Cauchy", "F": 1e-3, "N": 1}),
-                cross_op=VectorOperator("Multipoint"),
-                parent_sel=ParentSelection("Best", {"amount": n_parents}),
-                survivor_sel=SurvivorSelection("Elitism", {"amount": n_elites}),
+                initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, random_state=random_state),
+                mutation_op=create_operator("MutNoise", distrib = "Cauchy", F = 1e-3, N = 1, random_state=random_state),
+                cross_op=create_operator("Multipoint", random_state=random_state),
+                parent_sel=create_parent_selection("Best", amount = n_parents, random_state=random_state),
+                survivor_sel=create_survivor_selection("Elitism", amount = n_elites, random_state=random_state),
                 params={"pcross": 0.8, "pmut": 0.2},
             )
         case "DE":
@@ -202,7 +205,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim):
         )
         alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=params)
     else:
-        alg = GeneralAlgorithm(objfunc, search_strat, params=params)
+        alg = StandardAlgorithm(objfunc, search_strat, **algorithm_params)
 
     population = alg.optimize()
     print(population.best_solution()[0])
@@ -231,6 +234,8 @@ def main():
     )
     parser.add_argument("-o", "--objective", dest="objective", help="Name of the objective function.", default="Sphere")
     parser.add_argument("-d", "--dim", dest="dim", help="Dimension of the vectors to optimize.", default=3, type=int)
+    parser.add_argument("-r", "--seed", dest="seed", help="Random seed to use", default=42, type=int)
+    parser.add_argument("--log", default="INFO", help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     parser.add_argument(
         "-p",
         "--plot",
@@ -240,8 +245,13 @@ def main():
     )
     args = parser.parse_args()
 
+    rng = check_random_state(args.seed)
+    logging.basicConfig()
+    logging.getLogger("metaheuristic_designer").setLevel(args.log.upper())
+
     run_algorithm(
-        alg_name=args.algorithm.upper(), memetic=args.mem, save_state=args.save_state, show_plots=args.plot, objective=args.objective, dim=args.dim
+        alg_name=args.algorithm.upper(), memetic=args.mem, save_state=args.save_state, show_plots=args.plot, objective=args.objective, dim=args.dim,
+        random_state=rng
     )
 
 

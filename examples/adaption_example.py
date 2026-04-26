@@ -4,7 +4,7 @@ from metaheuristic_designer import (
     InitializerFromLambda,
     NullOperator
 )
-from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
+from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import VectorOperator, AdaptativeOperator
 from metaheuristic_designer.initializers import UniformInitializer, ExtendedInitializer
 from metaheuristic_designer.selection_methods import ParentSelection, SurvivorSelection
@@ -67,7 +67,7 @@ def run_algorithm(alg_name, save_state, show_plots, objective, dim):
 
     search_strat = ES(pop_initializer, ada_mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": 250}, name="Adaptative-ES")
 
-    alg = GeneralAlgorithm(objfunc, search_strat, params=params)
+    alg = StandardAlgorithm(objfunc, search_strat, params=params)
 
     result = alg.optimize()
     ind, best_fitness = result.best_solution(decoded=True)

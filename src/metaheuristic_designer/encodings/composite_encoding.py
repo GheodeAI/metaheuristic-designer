@@ -4,6 +4,7 @@ import numpy as np
 from ..encoding import Encoding
 from .parameter_extending_encoding import ParameterExtendingEncoding
 
+
 class CompositeEncoding(ParameterExtendingEncoding):
     """
     Default encoder that uses the genotype directly as a solution.
@@ -24,16 +25,10 @@ class CompositeEncoding(ParameterExtendingEncoding):
         encoded = solution
         for encoding in reversed(self.encodings):
             if isinstance(encoding, ParameterExtendingEncoding):
-                if encoding.vectorized:
-                    encoded = encoding.encode_func([encoded], params)[0]
-                else:
-                    encoded = encoding.encode_func(encoded, params)
+                encoded = encoding.encode_func(encoded, params)
             else:
-                if encoding.vectorized:
-                    encoded = encoding.encode_func(encoded)
-                else:
-                    encoded = encoding.encode_func([encoded])[0]
-                    
+                encoded = encoding.encode_func(encoded)
+
         return encoded
 
     def encode(self, solutions: Iterable, params: dict = None) -> np.ndarray:
@@ -64,10 +59,7 @@ class CompositeEncoding(ParameterExtendingEncoding):
     def decode_func(self, indiv: Any) -> Any:
         decoded = indiv
         for encoding in reversed(self.encodings):
-            if encoding.vectorized:
-                decoded = encoding.decode_func(decoded[None, :])[0]
-            else:
-                decoded = encoding.decode_func(decoded)
+            decoded = encoding.decode_func(decoded)
         return decoded
 
     def decode(self, population: Any) -> Any:

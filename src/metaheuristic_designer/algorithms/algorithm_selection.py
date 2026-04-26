@@ -4,7 +4,6 @@ from collections import Counter
 import pandas as pd
 import enlighten
 from ..algorithm import Algorithm
-from ..param_scheduler import ParamScheduler
 
 
 class AlgorithmSelection:

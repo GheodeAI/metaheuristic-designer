@@ -1,17 +1,21 @@
 """
-Base class for the Population module. 
+Base class for the Population module.
 
 This module implements a data structure to hold the collection of solutions we are considering.
 """
 
 from __future__ import annotations
-from typing import Tuple, Any
+import logging
+from typing import Tuple, Any, Optional, Iterator
 from copy import copy
 import numpy as np
 from numpy import ndarray
 from .objective_function import ObjectiveFunc
 from .encoding import Encoding, DefaultEncoding
 from .encodings import ParameterExtendingEncoding
+from .utils import VectorLike, MatrixLike, MaskLike
+
+logger = logging.getLogger(__name__)
 
 
 class Population:
@@ -31,8 +35,8 @@ class Population:
     def __init__(
         self,
         objfunc: ObjectiveFunc,
-        genotype_matrix: ndarray,
-        encoding: Encoding = None,
+        genotype_matrix: MatrixLike,
+        encoding: Optional[Encoding] = None,
     ):
         """
         Constructor of the Individual class.
@@ -56,7 +60,7 @@ class Population:
         self.best = None
         self.best_fitness = None
 
-        # Best inidividual in each spot of the population
+        # Best individual in each spot of the population
         self.historical_best_matrix = genotype_matrix
         self.historical_best_fitness = np.full(self.pop_size, -np.inf)
 
@@ -67,21 +71,14 @@ class Population:
 
         self.index = 0
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.genotype_matrix.shape[0]
 
-    def __iter__(self):
-        self.index = 0
-        return self
+    def __iter__(self) -> Iterator[VectorLike]:
+        for row in self.genotype_matrix:
+            yield row
 
-    def __next__(self):
-        if self.index < len(self):
-            result = self.genotype_matrix[self.index]
-            self.index += 1
-            return result
-        raise StopIteration
-
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             "Population{"
             f"\n\tobjfunc = {self.objfunc.name}"
@@ -108,7 +105,7 @@ class Population:
 
         return copied_pop
 
-    def best_solution(self, decoded=False) -> Tuple[ndarray, float]:
+    def best_solution(self, decoded: bool = False) -> Tuple[Any, float]:
         """
         Returns the best solution.
 
@@ -119,7 +116,7 @@ class Population:
 
         Returns
         -------
-        best_solution : Tuple[ndarray, float]
+        best_solution : Tuple[Any, float]
             A pair of the best individual with its fitness.
         """
 
@@ -129,7 +126,7 @@ class Population:
 
         best_solution = self.best
         if decoded:
-            best_solution = self.encoding.decode(self.best[None, :])[0]
+            best_solution = self.encoding.decode(self.best[None, :]).squeeze()
 
         return best_solution, best_fitness
 
@@ -155,14 +152,17 @@ class Population:
             self.fitness_calculated = np.zeros(len(genotype_matrix))
             self.historical_best_fitness = np.full(len(genotype_matrix), -np.inf)
             self.historical_best_matrix = copy(genotype_matrix)
+            logger.debug("Genotype matrix will change size.")
         else:
             self.fitness_calculated = np.all(self.genotype_matrix == genotype_matrix, axis=1)
         self.genotype_matrix = genotype_matrix
         self.pop_size = genotype_matrix.shape[0]
 
+        logger.debug("Updated genotype matrix.")
+
         return self
 
-    def take_selection(self, selection_idx: ndarray) -> Population:
+    def take_selection(self, selection_idx: MaskLike) -> Population:
         """
         Takes a subset of the population given a mask.
 
@@ -187,9 +187,11 @@ class Population:
         selected_pop.best = copy(self.best)
         selected_pop.best_fitness = copy(self.best_fitness)
 
+        logger.debug("Taken selection from population.")
+
         return selected_pop
 
-    def apply_selection(self, selected_pop: Population, selection_idx: ndarray) -> Population:
+    def apply_selection(self, selected_pop: Population, selection_idx: MaskLike) -> Population:
         """
         Replaces the chosen individuals from the input population to the current population.
 
@@ -215,9 +217,11 @@ class Population:
             self.best = selected_pop.best
             self.best_fitness = selected_pop.best_fitness
 
+        logger.debug("Applied precomputed selection from population.")
+
         return self
 
-    def take_slice(self, mask: ndarray) -> Population:
+    def take_slice(self, mask: MaskLike) -> Population:
         """
         Takes a subset of the components in the population vectors.
 
@@ -243,9 +247,11 @@ class Population:
         sliced_pop.best = copy(self.best)
         sliced_pop.best_fitness = copy(self.best_fitness)
 
+        logger.debug("Taken slice from population.")
+
         return sliced_pop
 
-    def apply_slice(self, sliced_pop: Population, mask: ndarray) -> Population:
+    def apply_slice(self, sliced_pop: Population, mask: MaskLike) -> Population:
         """
         Apply the values of the population to a subset of the components of the population vectors.
 
@@ -268,10 +274,12 @@ class Population:
             self.best = sliced_pop.best
             self.best_fitness = sliced_pop.best_fitness
 
+        logger.debug("Applied precomputed slice from population.")
+
         return self
 
     @staticmethod
-    def join_populations(population1, population2):
+    def join_populations(population1: Population, population2: Population) -> Population:
         """
         Concatenates the individuals in both populations into a new one.
         """
@@ -290,6 +298,8 @@ class Population:
         else:
             joined_pop.best = population2.best
             joined_pop.best_fitness = population2.best_fitness
+
+        logger.debug("Merged two populations into one.")
 
         return joined_pop
 
@@ -320,6 +330,8 @@ class Population:
             self.best = other_population.best
             self.best_fitness = other_population.best_fitness
 
+        logger.debug("Merged one population into the current one.")
+
         return self
 
     def sort_population(self) -> Population:
@@ -339,6 +351,8 @@ class Population:
         self.fitness_calculated = self.fitness_calculated[fitness_order]
         self.fitness = self.fitness[fitness_order]
 
+        logger.debug("Sorted population.")
+
         return self
 
     def update_best_from_parents(self, parents: Population) -> Population:
@@ -357,9 +371,10 @@ class Population:
         if self.best is None or (parents.best is not None and self.best_fitness < parents.best_fitness):
             self.best = parents.best
             self.best_fitness = parents.best_fitness
+
         return self
 
-    def update(self) -> Population:
+    def step(self, progress: float = 0) -> Population:
         """
         Updates the best solution in the population.
 
@@ -371,8 +386,8 @@ class Population:
             best_idx = np.argmax(self.fitness)
             self.best = self.genotype_matrix[best_idx, :]
             self.best_fitness = self.fitness[best_idx]
-        
-        self.genotype_matrix = self.encoding.update(self)
+
+        self.genotype_matrix = self.encoding.step(self, progress)
 
         return self
 
@@ -391,16 +406,19 @@ class Population:
         """
 
         genotype_matrix = np.tile(self.genotype_matrix, (amount, 1))
+
+        logger.debug("Added %d copies of each individual to the population", amount)
+
         return Population(self.objfunc, genotype_matrix, encoding=self.encoding)
 
-    def calculate_fitness(self, parallel: bool = False, threads: int = 8) -> ndarray:
+    def calculate_fitness(self, parallel: bool = False, threads: int = 8) -> VectorLike:
         """
         Calculates the fitness of the individual if it has not been calculated before
 
         Parameters
         ----------
         parallel: bool, optional
-            Wheather to evaluate the individuals in the population in parallel.
+            Whether to evaluate the individuals in the population in parallel.
         threads: int, optional
             Number of processes to use at once if calculating the fitness in parallel.
 
@@ -421,6 +439,8 @@ class Population:
             self.best = self.genotype_matrix[best_idx]
             self.best_fitness = self.fitness[best_idx]
 
+        logger.debug("Updated the fitness of the individuals.")
+
         return self
 
     def repair_solutions(self) -> Population:
@@ -432,14 +452,14 @@ class Population:
         self: Population
         """
 
-        for idx, indiv in enumerate(self.genotype_matrix):
-            self.genotype_matrix[idx] = self.objfunc.repair_solution(indiv)
+        for idx, individual in enumerate(self.genotype_matrix):
+            self.genotype_matrix[idx] = self.objfunc.repair_solution(individual)
 
         return self
 
     def decode(self, encoding=None) -> Any:
         """
-        Return the population passed through the decoding funciton defined in the encoding.
+        Return the population passed through the decoding function defined in the encoding.
 
         Returns
         -------
@@ -453,7 +473,7 @@ class Population:
 
     def decode_params(self, encoding=None) -> Any:
         """
-        Return the population passed through the decoding funciton defined in the encoding.
+        Return the population passed through the decoding function defined in the encoding.
 
         Returns
         -------
@@ -466,8 +486,8 @@ class Population:
             return self.encoding.decode_params(self.genotype_matrix)
         else:
             return None
-    
-    def encode(self, encoding: Encoding = None):
+
+    def encode(self, encoding: Optional[Encoding] = None) -> MatrixLike:
         """
 
         Parameters
@@ -478,7 +498,7 @@ class Population:
 
         if encoding is None:
             encoding = self.encoding
-        
+
         return encoding.encode(self.genotype_matrix)
 
     def get_state(self) -> dict:
@@ -508,23 +528,20 @@ class Population:
 
         return data
 
-    def debug_repr(self, max_solutions=5, max_vars=5):
+    def debug_repr(self, max_solutions: int = 5, max_vars: int = 5):
         genotype_matrix = self.genotype_matrix
         shape = genotype_matrix.shape
-        
+
         if genotype_matrix.size == 0:
             matrix_preview = "[]"
         elif genotype_matrix.size > max_solutions * max_vars:
             n_sol = min(max_solutions, shape[0])
             n_vars = min(max_vars, shape[1])
             preview = genotype_matrix[:n_sol, :n_vars]
-            matrix_preview = (
-                f"array({preview}, shape={shape}) ... "
-                f"(showing first {n_sol} rows, {n_vars} cols)"
-            )
+            matrix_preview = f"array({preview}, shape={shape}) ... " f"(showing first {n_sol} rows, {n_vars} cols)"
         else:
             matrix_preview = f"array({genotype_matrix})"
-        
+
         return (
             f"Population(\n"
             f"  objfunc={self.objfunc.name},\n"

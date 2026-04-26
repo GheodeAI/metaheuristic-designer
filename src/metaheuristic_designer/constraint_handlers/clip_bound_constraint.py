@@ -1,10 +1,10 @@
 from __future__ import annotations
 import numpy as np
 from numpy import ndarray
-from ..constraint_handler import RepareConstraint
+from ..constraint_handler import RepairConstraint
 
 
-class ClipBoundConstraint(RepareConstraint):
+class ClipBoundConstraint(RepairConstraint):
     """
     Encodes a bound constraint by clipping solutions to the nearest point in the boundary.
 

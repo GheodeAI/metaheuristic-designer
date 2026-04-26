@@ -1,11 +1,10 @@
 from __future__ import annotations
 import numpy as np
-from ...operators import VectorOperator
-from ...selection_methods import ParentSelection, SurvivorSelection
+from ...parent_selection import ParentSelection
+from ...survivor_selection import SurvivorSelection
 from ...initializer import Initializer
-from ...param_scheduler import ParamScheduler
 from ..variable_population import VariablePopulation
-from ...utils import RAND_GEN
+from ...utils import check_random_state
 
 
 class BernoulliUMDA(VariablePopulation):
@@ -19,11 +18,14 @@ class BernoulliUMDA(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
+        params: dict = None,
         name: str = "BernoulliUMDA",
+        random_state=None,
     ):
         if params is None:
             params = {}
+
+        self.random_state = check_random_state(random_state)
 
         self.p = params.get("p", 0.5)
 
@@ -37,7 +39,7 @@ class BernoulliUMDA(VariablePopulation):
             evolve_op,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
+            offspring_size=offspring_size,
             params=params,
             name=name,
         )
@@ -50,7 +52,7 @@ class BernoulliUMDA(VariablePopulation):
 
     def perturb(self, parents, **kwargs):
         self.p = self._batch_fit(parents)
-        self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
+        self.p += self.random_state.normal(0, self.noise, size=self.p.shape)
         self.p = np.clip(self.p, 0, 1)
 
         self.operator = VectorOperator("RandSample", {"distrib": "Bernoulli", "p": self.p})
@@ -69,11 +71,14 @@ class BinomialUMDA(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
+        params: dict = None,
         name: str = "BinomialUMDA",
+        random_state=None,
     ):
         if params is None:
             params = {}
+
+        self.random_state = check_random_state(random_state)
 
         self.p = params.get("p", 0.5)
 
@@ -93,7 +98,7 @@ class BinomialUMDA(VariablePopulation):
             evolve_op,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
+            offspring_size=offspring_size,
             params=params,
             name=name,
         )
@@ -106,12 +111,13 @@ class BinomialUMDA(VariablePopulation):
 
     def perturb(self, parents, **kwargs):
         self.p = self._batch_fit(parents)
-        self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
+        self.p += self.random_state.normal(0, self.noise, size=self.p.shape)
         self.p = np.clip(self.p, 0, 1)
 
         self.operator = VectorOperator("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
 
         return super().perturb(parents, **kwargs)
+
 
 class GaussianUMDA(VariablePopulation):
     """
@@ -124,11 +130,14 @@ class GaussianUMDA(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
+        params: dict = None,
         name: str = "GaussianUMDA",
+        random_state=None,
     ):
         if params is None:
             params = {}
+
+        self.random_state = check_random_state(random_state)
 
         self.loc = params.get("loc", 0)
         self.scale = params.get("scale", 1)
@@ -143,7 +152,7 @@ class GaussianUMDA(VariablePopulation):
             evolve_op,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
+            offspring_size=offspring_size,
             params=params,
             name=name,
         )
@@ -156,7 +165,7 @@ class GaussianUMDA(VariablePopulation):
 
     def perturb(self, parents, **kwargs):
         self.loc = self._batch_fit(parents)
-        self.loc += RAND_GEN.normal(0, self.noise, size=self.loc.shape)
+        self.loc += self.random_state.normal(0, self.noise, size=self.loc.shape)
 
         self.operator = VectorOperator("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
 

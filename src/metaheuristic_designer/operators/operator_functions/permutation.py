@@ -1,5 +1,4 @@
-"""
-"""
+""" """
 
 import math
 import numpy as np
@@ -20,7 +19,9 @@ def permute_mutation(population_matrix, _fitness_array, random_state=None, **kwa
     mask_pos = random_state.permuted(mask_pos, axis=1)[:, :n]
 
     if n == 2:
-        population_matrix[np.arange(population_matrix.shape[0])[:, None], mask_pos] = population_matrix[np.arange(population_matrix.shape[0])[:, None], mask_pos][:, ::-1]
+        population_matrix[np.arange(population_matrix.shape[0])[:, None], mask_pos] = population_matrix[
+            np.arange(population_matrix.shape[0])[:, None], mask_pos
+        ][:, ::-1]
     else:
         population_matrix[np.arange(population_matrix.shape[0])[:, None], mask_pos] = random_state.permuted(
             population_matrix[np.arange(population_matrix.shape[0])[:, None], mask_pos], axis=1

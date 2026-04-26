@@ -1,29 +1,27 @@
 """
-Base class for the Search strategy module. 
+Base class for the Search strategy module.
 
 This module implements the procedure applied in each iteration of the algorithm.
 """
 
 from __future__ import annotations
-import logging 
-from typing import Tuple, Any
+import logging
+from typing import Tuple, Any, Optional
 from abc import ABC
-from .param_scheduler import ParamScheduler
-from .selection_methods import (
-    SurvivorSelection,
-    ParentSelection,
-    NullSurvivorSelection,
-    NullParentSelection,
-)
+import numpy
+from .parent_selection import ParentSelection, NullParentSelection
+from .survivor_selection import SurvivorSelection, NullSurvivorSelection
 from .population import Population
 from .initializer import Initializer
 from .objective_function import ObjectiveFunc
 from .operator import Operator, NullOperator
+from .parametrizable_mixin import ParametrizableMixin
+from .utils import check_random_state, RNGLike
 
 logger = logging.getLogger(__name__)
 
 
-class SearchStrategy:
+class SearchStrategy(ParametrizableMixin):
     """
     Abstract Search Strategy class.
 
@@ -39,7 +37,7 @@ class SearchStrategy:
         Parent selection method that will be applied to the population each iteration. Defaults to returning the entire population.
     survivor_sel: SurvivorSelection, optional
         Survivor selection method that will be applied to the population each iteration. Defaults to a generational selection.
-    params: ParamScheduler | dict, optional
+    params: dict, optional
         Dictionary of parameters to define the stopping condition and output of the search strategy.
     name: str, optional
         The name that will be displayed for this search strategy in the reports.
@@ -47,16 +45,19 @@ class SearchStrategy:
 
     def __init__(
         self,
-        initializer: Initializer = None,
-        operator: Operator = None,
-        parent_sel: ParentSelection = None,
-        survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
+        initializer: Initializer,
+        operator: Optional[Operator] = None,
+        parent_sel: Optional[ParentSelection] = None,
+        survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "some strategy",
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
     ):
         """
         Constructor of the SearchStrategy class
         """
+
+        super().__init__()
 
         self.name = name
         self._initializer = initializer
@@ -74,19 +75,10 @@ class SearchStrategy:
         self.survivor_sel = survivor_sel
 
         self.population = None
-
         self.best = None
-
-        self.param_scheduler = None
-        if params is None:
-            self.params = {}
-        elif isinstance(params, ParamScheduler):
-            self.param_scheduler = params
-            self.params = self.param_scheduler.get_params()
-        else:
-            self.params = params
-
         self.finish = False
+        self.random_state = check_random_state(random_state)
+        self.store_kwargs(**kwargs)
 
         self._find_operator_attributes()
 
@@ -123,9 +115,9 @@ class SearchStrategy:
                     self.operator_register += attr
 
     @property
-    def pop_size(self):
+    def pop_size(self) -> int:
         """
-        Gets the amount of inidividuals in the population.
+        Gets the amount of individuals in the population.
         """
 
         return self._initializer.pop_size
@@ -143,7 +135,7 @@ class SearchStrategy:
         return self.population.best_solution(decoded)
 
     @property
-    def initializer(self):
+    def initializer(self) -> Initializer:
         return self._initializer
 
     @initializer.setter
@@ -180,7 +172,7 @@ class SearchStrategy:
         ----------
         population: Population
         parallel: bool, optional
-            Wheather to evaluate the individuals in the population in parallel.
+            Whether to evaluate the individuals in the population in parallel.
         threads: int, optional
             Number of processes to use at once if calculating the fitness in parallel.
 
@@ -192,7 +184,7 @@ class SearchStrategy:
 
         return population.calculate_fitness(parallel=parallel, threads=threads)
 
-    def select_parents(self, population: Population, **kwargs) -> Population:
+    def select_parents(self, population: Population, amount: Optional[int] = None) -> Population:
         """
         Selects the individuals that will be perturbed in this generation to generate the offspring.
 
@@ -208,7 +200,7 @@ class SearchStrategy:
         """
 
         logger.info("Selected parents...")
-        return self.parent_sel(population)
+        return self.parent_sel(population, amount=amount)
 
     def perturb(self, parents: Population, **kwargs) -> Population:
         """
@@ -233,7 +225,7 @@ class SearchStrategy:
 
     def repair_population(self, population: Population) -> Population:
         """
-        Repairs the individuals in the population to make them fullfill the problem's restrictions.
+        Repairs the individuals in the population to make them fulfill the problem's restrictions.
 
         Parameters
         ----------
@@ -269,12 +261,12 @@ class SearchStrategy:
         logger.info("Selected survivors...")
         return self.survivor_sel(population, offspring)
 
-    def update_params(self, **kwargs):
-        """
-        Updates the parameters of the search strategy and the operators.
-        """
+    def step(self, progress: float):
+        super().step(progress)
 
-        self.population.update()
+        self.operator.step(progress)
+        self.parent_sel.step(progress)
+        self.survivor_sel.step(progress)
 
     def get_state(self, show_population: bool = False) -> dict:
         """
@@ -291,13 +283,9 @@ class SearchStrategy:
             The complete state of the search strategy.
         """
 
-        data = {"name": self.name, "intializer": type(self.initializer).__name__}
+        data = {"name": self.name, "initializer": type(self.initializer).__name__}
 
-        if self.param_scheduler:
-            data["param_scheduler"] = self.param_scheduler.get_state()
-            data["params"] = self.param_scheduler.get_params()
-        elif self.params:
-            data["params"] = self.params
+        data["params"] = self.get_params()
 
         if self.parent_sel_register:
             data["parent_sel"] = [par.get_state() for par in self.parent_sel_register]

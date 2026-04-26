@@ -1,21 +1,26 @@
 """
-Base class for the Operator module. 
+Base class for the Operator module.
 
 This module implements procedures to modify the current solutions so that we explore the search space.
 """
 
 from __future__ import annotations
 import inspect
+import logging
 from copy import copy
 from abc import ABC, abstractmethod
+from typing import Optional, Callable
 import numpy as np
 from .encoding import Encoding, DefaultEncoding
 from .population import Population
 from .initializer import Initializer
-from .utils import check_random_state
+from .parametrizable_mixin import ParametrizableMixin
+from .utils import check_random_state, RNGLike
+
+logger = logging.getLogger(__name__)
 
 
-class Operator(ABC):
+class Operator(ParametrizableMixin, ABC):
     """
     Abstract Operator class.
 
@@ -29,12 +34,13 @@ class Operator(ABC):
         Postprocessing to the operator output.
     """
 
-    _last_id = 0
+    _last_id: int = 0
 
-    def __init__(self, name: str = None, encoding: Encoding = None, random_state=None, **kwargs):
+    def __init__(self, name: Optional[str] = None, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs):
         """
         Constructor for the Operator class.
         """
+        super().__init__()
 
         self.id = Operator._last_id
         Operator._last_id += 1
@@ -47,17 +53,13 @@ class Operator(ABC):
             encoding = DefaultEncoding()
         self.encoding = encoding
 
-        if "method" in kwargs:
-            kwargs["method"] = kwargs["method"].lower()
-
         self.random_state = check_random_state(random_state)
-
-        self.kwargs = kwargs
+        self.store_kwargs(**kwargs)
 
     def __call__(
         self,
         population: Population,
-        initializer: Initializer = None,
+        initializer: Optional[Initializer] = None,
     ) -> Population:
         """
         A shorthand for calling the 'evolve' method.
@@ -65,45 +67,11 @@ class Operator(ABC):
 
         return self.evolve(population, initializer)
 
-    def step(self, progress: float):
-        """
-        Updates the parameters of the method using a paramater scheduler if it exists.
-
-        Parameters
-        ----------
-        progress: float
-            Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
-        """
-
-        raise NotImplementedError
-
-    def get_state(self) -> dict:
-        """
-        Gets the current state of the algorithm as a dictionary.
-
-        Returns
-        -------
-        state: dict
-            The complete state of the operator.
-        """
-
-        data = {"name": self.name}
-
-        data["encoding"] = self.encoding.get_state()
-
-        data["params"] = copy(self.kwargs)
-
-        # Serialization fails when encoding anonymous functions, we remove the function if available
-        if "function" in data["params"]:
-            data["params"].pop("function")
-
-        return data
-
     @abstractmethod
     def evolve(
         self,
         population: Population,
-        initializer: Initializer = None,
+        initializer: Optional[Initializer] = None,
     ) -> Population:
         """
         Evolves an population using a given strategy.
@@ -121,6 +89,36 @@ class Operator(ABC):
             The modified population.
         """
 
+    def step(self, progress: float = 0):
+        """
+        Updates the internal parameters.
+        """
+        super().step(progress)
+
+        self.encoding.step(progress)
+
+    def get_state(self) -> dict:
+        """
+        Gets the current state of the algorithm as a dictionary.
+
+        Returns
+        -------
+        state: dict
+            The complete state of the operator.
+        """
+
+        data = {"name": self.name}
+
+        data["encoding"] = self.encoding.get_state()
+
+        data["parameters"] = self.get_params()
+
+        # Serialization fails when encoding anonymous functions, we remove the function if available
+        if "function" in data["parameters"]:
+            data["parameters"].pop("function")
+
+        return data
+
 
 class NullOperator(Operator):
     """
@@ -133,7 +131,7 @@ class NullOperator(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, name: str = None):
+    def __init__(self, name: Optional[str] = None):
         """
         Constructor for the OperatorNull class
         """
@@ -143,7 +141,7 @@ class NullOperator(Operator):
 
         super().__init__(name)
 
-    def evolve(self, population, *args):
+    def evolve(self, population: Population, *args) -> Population:
         return copy(population)
 
 
@@ -153,49 +151,39 @@ class OperatorFromLambda(Operator):
 
     Parameters
     ----------
-    fn: callable
+    fn: Callable
         Function that will be applied when operating on an individual.
     name: str, optional
         Name that is associated with the operator.
-    vectorized: bool, optional
-        Whether to apply a single operation to the entire population or loop for each individual.
     """
 
-    def __init__(self, operator_fn: callable, name: str = None, encoding: Encoding = None, vectorized = True, random_state=None, **kwargs):
+    def __init__(
+        self, operator_fn: Callable, name: Optional[str] = None, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs
+    ):
         """
         Constructor for the OperatorLambda class
         """
 
-        self._validate_function(operator_fn, vectorized)
-
+        self._validate_function(operator_fn)
         if name is None:
             name = operator_fn.__name__
-
         super().__init__(name, encoding=encoding, random_state=random_state, **kwargs)
         self.operator_fn = operator_fn
-        self.vectorized = vectorized
 
-    
     @staticmethod
-    def _validate_function(operator_fn, vectorized):
+    def _validate_function(operator_fn: Callable):
         operator_sig = inspect.signature(operator_fn)
 
         count = 0
         for p in operator_sig.parameters.values():
-            if p.kind in inspect.Parameter.POSITIONAL_OR_KEYWORD:
+            if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD:
                 count += 1
             elif p.kind == inspect.Parameter.VAR_POSITIONAL:
                 return
-        
-        required_min_count = 3 if vectorized else 4
+
+        required_min_count = 3
         if count < required_min_count:
-            raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is{'' if vectorized else ' not'} vectorized.")
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is.")
 
-    def evolve(self, population: Population, initializer=None):
-        if self.vectorized:
-            population = self.operator_fn(population, initializer, self.random_state, **self.kwargs)
-        else:
-            population = np.asarray([self.operator_fn(copy(indiv), population, initializer, self.random_state, **self.kwargs) for indiv in population.genotype_matrix])
-
-        return population.update_genotype_matrix(population.encode(self.encoding))
-
+    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+        return self.operator_fn(population, initializer, self.random_state, **self.current_kwargs)

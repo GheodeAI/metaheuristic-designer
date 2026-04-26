@@ -1,9 +1,9 @@
-"""
-"""
+""" """
 
 import numpy as np
 from ...initializer import Initializer
 from ...utils import check_random_state
+
 
 def compute_statistic(population_matrix, stat_name="mean", weights=None):
     """
@@ -38,6 +38,7 @@ def compute_statistic(population_matrix, stat_name="mean", weights=None):
 
     return new_population
 
+
 def random_initialize(population_matrix, initializer: Initializer, random_state=None):
     """
 
@@ -59,6 +60,7 @@ def random_initialize(population_matrix, initializer: Initializer, random_state=
         random_population_marix[i, :] = initializer.generate_random()
 
     return random_population_marix
+
 
 def random_reset(population_matrix, initializer: Initializer, random_state=None, n: int = 1):
     """
