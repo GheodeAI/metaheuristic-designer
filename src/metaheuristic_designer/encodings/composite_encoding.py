@@ -1,8 +1,9 @@
 from __future__ import annotations
-from typing import Iterable, Any
+from typing import Iterable, Optional
 import numpy as np
 from ..encoding import Encoding
 from .parameter_extending_encoding import ParameterExtendingEncoding
+from ..utils import MatrixLike
 
 
 class CompositeEncoding(ParameterExtendingEncoding):
@@ -21,7 +22,7 @@ class CompositeEncoding(ParameterExtendingEncoding):
 
         super().__init__(vecsize=vecsize, param_sizes=param_sizes)
 
-    def encode_func(self, solution: Any, params: dict = None) -> Any:
+    def encode_func(self, solution: Iterable, params: Optional[dict] = None) -> MatrixLike:
         encoded = solution
         for encoding in reversed(self.encodings):
             if isinstance(encoding, ParameterExtendingEncoding):
@@ -31,7 +32,13 @@ class CompositeEncoding(ParameterExtendingEncoding):
 
         return encoded
 
-    def encode(self, solutions: Iterable, params: dict = None) -> np.ndarray:
+    def decode_func(self, solutions: Iterable) -> MatrixLike:
+        decoded = solutions
+        for encoding in reversed(self.encodings):
+            decoded = encoding.decode_func(decoded)
+        return decoded
+
+    def encode(self, solutions: Iterable, params: Optional[dict] = None) -> MatrixLike:
         encoded = solutions
         for encoding in reversed(self.encodings):
             if isinstance(encoding, ParameterExtendingEncoding):
@@ -40,7 +47,13 @@ class CompositeEncoding(ParameterExtendingEncoding):
                 encoded = encoding.encode(encoded)
         return encoded
 
-    def extract_solution(self, population_matrix: np.ndarray) -> np.ndarray:
+    def decode(self, population: Iterable) -> MatrixLike:
+        decoded = population
+        for encoding in self.encodings:
+            decoded = encoding.decode(decoded)
+        return decoded
+
+    def extract_solution(self, population_matrix: MatrixLike) -> MatrixLike:
         result_population = population_matrix
         for encoding in self.encodings:
             if isinstance(encoding, ParameterExtendingEncoding):
@@ -48,22 +61,10 @@ class CompositeEncoding(ParameterExtendingEncoding):
 
         return result_population
 
-    def extract_params(self, population_matrix: np.ndarray) -> np.ndarray:
+    def extract_params(self, population_matrix: MatrixLike) -> MatrixLike:
         result_params = population_matrix
         for encoding in self.encodings:
             if isinstance(encoding, ParameterExtendingEncoding):
                 result_params = encoding.extract_params(result_params)
 
         return result_params
-
-    def decode_func(self, indiv: Any) -> Any:
-        decoded = indiv
-        for encoding in reversed(self.encodings):
-            decoded = encoding.decode_func(decoded)
-        return decoded
-
-    def decode(self, population: Any) -> Any:
-        decoded = population
-        for encoding in self.encodings:
-            decoded = encoding.decode(decoded)
-        return decoded

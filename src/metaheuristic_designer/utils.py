@@ -71,3 +71,25 @@ def check_random_state(seed: Optional[RNGLike]) -> np.random.Generator:
     if isinstance(seed, np.random.Generator):
         return seed
     raise ValueError("%r cannot be used to seed a numpy.random.Generator instance" % seed)
+
+
+def per_individual(func):
+    """
+    Decorator that applies a row-wise function to a 2D array.
+    """
+
+    def wrapper(matrix, **kwargs):
+        return np.array([func(row, **kwargs) for row in matrix])
+
+    return wrapper
+
+
+def per_individual_list(func):
+    """
+    Decorator that applies a row-wise function to a 2D array.
+    """
+
+    def wrapper(values, **kwargs):
+        return [func(value, **kwargs) for value in values]
+
+    return wrapper

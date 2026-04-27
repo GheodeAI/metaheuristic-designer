@@ -7,13 +7,7 @@ from ...encodings import CMAEncoding
 
 
 class CMA_ES(StaticPopulation):
-    def __init__(
-        self,
-        initializer: Initializer,
-        parent_sel_op: ParentSelection,
-        selection_op: SurvivorSelection,
-        name: str = "ES",
-    ):
+    def __init__(self, initializer: Initializer, parent_sel_op: ParentSelection, selection_op: SurvivorSelection, name: str = "ES"):
         parent_select = ParentSelection("Nothing")
         selection = SurvivorSelection("(m+n)")
 

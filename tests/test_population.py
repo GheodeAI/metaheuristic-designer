@@ -127,7 +127,7 @@ def test_update_genotype_matrix(mock_objfunc, sample_genotype, new_size, same_si
     pop = Population(mock_objfunc, sample_genotype)
     new_genotype = np.random.rand(new_size, 3)
     
-    result = pop.update_genotype_matrix(new_genotype)
+    result = pop.update_genotype(new_genotype)
     
     assert result is pop
     assert np.array_equal(pop.genotype_matrix, new_genotype)
@@ -404,4 +404,4 @@ def test_update_genotype_matrix_invalid_size(mock_objfunc, sample_genotype):
     invalid_genotype = np.random.rand(3, 5)  # Different vector size
     
     with pytest.raises(ValueError, match="Individual vector size should not change"):
-        pop.update_genotype_matrix(invalid_genotype)
+        pop.update_genotype(invalid_genotype)

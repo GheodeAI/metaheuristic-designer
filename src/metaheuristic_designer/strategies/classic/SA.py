@@ -35,6 +35,7 @@ class SA(HillClimb):
         # we fix the p after the constructor.
         survivor_sel = create_survivor_selection("probabilistic_hillclimb", p=None, random_state=random_state)
 
+        self.iter_count = 0
         super().__init__(
             initializer,
             operator=operator,
@@ -48,7 +49,6 @@ class SA(HillClimb):
             **kwargs,
         )
 
-        self.iter_count = 0
         self.temperature = self.params.temperature_init
         survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
 
@@ -57,12 +57,12 @@ class SA(HillClimb):
 
         self.iter_count += 1
         if self.iter_count > self.params.iterations:
-            self.temperature = self.temperature * self.params.alpha
+            self.temperature *= self.params.alpha
             self.iter_count = 0
             self.survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
 
     def extra_step_info(self):
         print()
         print(f"\tTemp iters: {self.iter_count}/{self.params.iterations}")
-        print(f"\tTemperature: {self.temperature:0.3f}")
-        print(f"\tAccept prob: {np.exp(-1 / self.temperature):0.3f}")
+        print(f"\tTemperature: {self.temperature:0.4f}")
+        print(f"\tAccept prob: {np.exp(-1 / self.temperature):0.4f}")

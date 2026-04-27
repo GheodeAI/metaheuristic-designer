@@ -50,9 +50,6 @@ def _bayesian_optimization_real_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else -100)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    search_strategy = BayesianOptimization(
-        initializer=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size),
-        params=params,
-    )
+    search_strategy = BayesianOptimization(initializer=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size), params=params)
 
     return StandardAlgorithm(objfunc, search_strategy, params=params)

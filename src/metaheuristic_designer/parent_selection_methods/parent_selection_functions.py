@@ -189,10 +189,7 @@ def roulette(fitness, amount, random_state=None, method=None, f=None):
     weights = selection_distribution(fitness, method, f)
 
     if np.any(weights < 0):
-        warnings.warn(
-            "Some values of fitness resulted in negative selection probabilities in the parent selection step.",
-            stacklevel=2,
-        )
+        warnings.warn("Some values of fitness resulted in negative selection probabilities in the parent selection step.", stacklevel=2)
 
     return random_state.choice(np.arange(fitness.shape[0]), size=amount, p=weights, axis=0)
 

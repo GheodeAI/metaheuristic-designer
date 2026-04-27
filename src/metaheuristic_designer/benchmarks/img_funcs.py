@@ -30,15 +30,9 @@ class ImgApprox(VectorObjectiveFunc):
         image_size = np.prod(solution.shape[1:])
         match self.diff_func:
             case "MSE":
-                error = np.ndarray.astype(
-                    np.sum((solution - self.reference) ** 2, axis=(1, 2, 3)) / image_size,
-                    float,
-                )
+                error = np.ndarray.astype(np.sum((solution - self.reference) ** 2, axis=(1, 2, 3)) / image_size, float)
             case "MAE":
-                error = np.ndarray.astype(
-                    np.sum(np.abs(solution - self.reference), axis=(1, 2, 3)) / image_size,
-                    float,
-                )
+                error = np.ndarray.astype(np.sum(np.abs(solution - self.reference), axis=(1, 2, 3)) / image_size, float)
             case "SSIM":
                 for idx, s in enumerate(solution):
                     for s_ch, ref_ch in zip(s.transpose((2, 0, 1)), self.reference.transpose((2, 0, 1))):
@@ -113,10 +107,7 @@ class ImgExperimental(VectorObjectiveFunc):
         super().__init__(self.size, mode=mode, low_lim=0, up_lim=256, name="Image approx and std")
 
     def objective(self, solution):
-        dist = np.ndarray.astype(
-            np.sum((solution - self.reference) ** 2, axis=(1, 2, 3)) / self.size,
-            float,
-        )
+        dist = np.ndarray.astype(np.sum((solution - self.reference) ** 2, axis=(1, 2, 3)) / self.size, float)
         dist_norm = dist / (np.sqrt(self.size) * 255)
 
         solution_rounded = solution // 75

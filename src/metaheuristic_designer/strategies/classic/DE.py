@@ -20,9 +20,9 @@ class DE(StaticPopulation):
         survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "DE",
         random_state: Optional[RNGLike] = None,
-        f: float | SchedulableParameter = 0.5,
-        cr: float | SchedulableParameter = 0.5,
-        p: float | SchedulableParameter = 0.9,
+        F: float | SchedulableParameter = 0.8,
+        Cr: float | SchedulableParameter = 0.9,
+        p: float | SchedulableParameter = 0.1,
         **kwargs,
     ):
         # We need to do the check earlier since it will be injected into the operator
@@ -34,7 +34,7 @@ class DE(StaticPopulation):
 
         super().__init__(
             initializer,
-            operator=create_differential_evolution_operator(de_operator_name, random_state=random_state, f=f, cr=cr, p=p),
+            operator=create_differential_evolution_operator(de_operator_name, random_state=random_state, F=F, Cr=Cr, p=p),
             survivor_sel=survivor_sel,
             name=name,
             random_state=random_state,

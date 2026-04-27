@@ -56,11 +56,7 @@ class Operator(ParametrizableMixin, ABC):
         self.random_state = check_random_state(random_state)
         self.store_kwargs(**kwargs)
 
-    def __call__(
-        self,
-        population: Population,
-        initializer: Optional[Initializer] = None,
-    ) -> Population:
+    def __call__(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
         """
         A shorthand for calling the 'evolve' method.
         """
@@ -68,11 +64,7 @@ class Operator(ParametrizableMixin, ABC):
         return self.evolve(population, initializer)
 
     @abstractmethod
-    def evolve(
-        self,
-        population: Population,
-        initializer: Optional[Initializer] = None,
-    ) -> Population:
+    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
         """
         Evolves an population using a given strategy.
 
@@ -166,7 +158,7 @@ class OperatorFromLambda(Operator):
 
         self._validate_function(operator_fn)
         if name is None:
-            name = operator_fn.__name__
+            name = operator_fn.__name__ if hasattr(operator_fn, "__name__") else "lambda function"
         super().__init__(name, encoding=encoding, random_state=random_state, **kwargs)
         self.operator_fn = operator_fn
 

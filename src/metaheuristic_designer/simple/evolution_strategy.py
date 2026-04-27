@@ -71,14 +71,7 @@ def _evolution_strategy_bin_vec(params, objfunc):
     parent_sel_op = NullParentSelection()
     selection_op = create_survivor_selection("(m+n)")
 
-    search_strategy = ES(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"offspringSize": offspring_size},
-    )
+    search_strategy = ES(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": offspring_size})
 
     return StandardAlgorithm(objfunc, search_strategy, params=params)
 
@@ -107,14 +100,7 @@ def _evolution_strategy_int_vec(params, objfunc):
     parent_sel_op = NullParentSelection()
     selection_op = create_survivor_selection("(m+n)")
 
-    search_strategy = ES(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"offspringSize": offspring_size},
-    )
+    search_strategy = ES(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": offspring_size})
 
     return StandardAlgorithm(objfunc, search_strategy, params=params)
 
@@ -141,14 +127,7 @@ def _evolution_strategy_perm_vec(params, objfunc):
     parent_sel_op = NullParentSelection()
     selection_op = create_survivor_selection("(m+n)")
 
-    search_strategy = ES(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"offspringSize": offspring_size},
-    )
+    search_strategy = ES(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": offspring_size})
 
     return StandardAlgorithm(objfunc, search_strategy, params=params)
 
@@ -176,13 +155,6 @@ def _evolution_strategy_real_vec(params, objfunc):
     parent_sel_op = NullParentSelection()
     selection_op = create_survivor_selection("(m+n)")
 
-    search_strategy = ES(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"offspringSize": offspring_size},
-    )
+    search_strategy = ES(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": offspring_size})
 
     return StandardAlgorithm(objfunc, search_strategy, params=params)

@@ -3,6 +3,7 @@ from typing import Iterable
 from copy import copy
 import numpy as np
 from ..operator import Operator
+from ..utils import MaskLike
 
 
 class SplitOperator(Operator):
@@ -21,7 +22,7 @@ class SplitOperator(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, op_list: Iterable[Operator], name: str = None, **kwargs):
+    def __init__(self, op_list: Iterable[Operator], mask: MaskLike, name: str = None, **kwargs):
         """
         Constructor for the OperatorMeta class
         """
@@ -37,13 +38,13 @@ class SplitOperator(Operator):
             name = f"Split ({joined_names})"
 
         self.op_list = op_list
-        super().__init__(name, **kwargs)
+        super().__init__(name, mask=mask, **kwargs)
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)
 
         for idx_op, op in enumerate(self.op_list):
-            split_mask = self.mask == idx_op
+            split_mask = self.params.mask == idx_op
 
             if np.any(split_mask):
                 split_population = new_population.take_slice(split_mask)

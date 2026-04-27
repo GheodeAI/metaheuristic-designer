@@ -82,7 +82,7 @@ class Algorithm(ABC):
                 max_evaluations=neval,
                 max_iterations=ngen,
                 max_patience=patience,
-                optimization_mode=objfunc.mode
+                optimization_mode=objfunc.mode,
             )
         self.stopping_condition = stopping_condition
 
@@ -284,12 +284,7 @@ class Algorithm(ABC):
 
         return population
 
-    def get_state(
-        self,
-        show_fit_history: bool = False,
-        show_gen_history: bool = False,
-        show_population: bool = False,
-    ) -> dict:
+    def get_state(self, show_fit_history: bool = False, show_gen_history: bool = False, show_population: bool = False) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
 
@@ -363,15 +358,7 @@ class Algorithm(ABC):
             Save the detailed information of each individual.
         """
 
-        dumped = json.dumps(
-            self.get_state(
-                show_fit_history,
-                show_gen_history,
-                show_population,
-            ),
-            cls=NumpyEncoder,
-            indent=4 if readable else None,
-        )
+        dumped = json.dumps(self.get_state(show_fit_history, show_gen_history, show_population), cls=NumpyEncoder, indent=4 if readable else None)
 
         with open(file_name, "w", encoding="utf-8") as fp:
             fp.write(dumped)
@@ -433,11 +420,7 @@ class Algorithm(ABC):
             ax.axvline(x=0, color="black", alpha=0.9)
             ax.set_xlim(_xlim)
             ax.set_ylim(_ylim)
-            ax.set(
-                xlabel="Generations",
-                ylabel="Fitness",
-                title=f"{self.search_strategy.name} fitness",
-            )
+            ax.set(xlabel="Generations", ylabel="Fitness", title=f"{self.search_strategy.name} fitness")
             ax.grid()
             logger.debug("Generated summary plot.")
             plt.show()

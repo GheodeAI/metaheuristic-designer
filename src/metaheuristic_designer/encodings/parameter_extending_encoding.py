@@ -1,8 +1,9 @@
 from __future__ import annotations
 from abc import ABC
-from typing import Iterable, Tuple, Any
+from typing import Iterable, Tuple, Optional
 import numpy as np
 from ..encoding import Encoding, DefaultEncoding
+from ..utils import MatrixLike
 
 
 class ParameterExtendingEncoding(Encoding, ABC):
@@ -13,7 +14,9 @@ class ParameterExtendingEncoding(Encoding, ABC):
     This interface is intended to be used in swarm-based or adaptative algorithms.
     """
 
-    def __init__(self, vecsize: int, param_sizes: Iterable[Tuple[str, int]], base_encoding: Encoding = None, verify=False):
+    def __init__(
+        self, vecsize: int, param_sizes: Iterable[Tuple[str, int]], base_encoding: Optional[Encoding] = None, verify: bool = False, **kwargs
+    ):
         self.vecsize = vecsize
         self.param_sizes = param_sizes
         self.nparams = sum([param_size for _, param_size in param_sizes])
@@ -22,15 +25,37 @@ class ParameterExtendingEncoding(Encoding, ABC):
         self.base_encoding = base_encoding
         self.verify = verify
 
-        super().__init__()
+        super().__init__(**kwargs)
 
-    def extract_solution(self, population_matrix: np.ndarray) -> np.ndarray:
+    def encode(self, solution: Iterable, params: Optional[dict] = None) -> MatrixLike:
+        solution_encoded = self.base_encoding.encode(solution)
+        if params is None:
+            params_encoded = np.zeros((solution_encoded.shape[0], self.nparams))
+        else:
+            params_encoded = self.encode_params(params)
+
+        return np.hstack([solution_encoded, params_encoded])
+
+    def decode(self, population_matrix: MatrixLike) -> Iterable:
+        solution_matrix = self.extract_solution(population_matrix)
+        return self.base_encoding.decode(solution_matrix)
+
+    def decode_params(self, genotype: MatrixLike) -> dict:
+        param_dict = {}
+        param_vec = self.extract_params(genotype)
+        for name, length in self.param_sizes:
+            param_dict[name] = param_vec[:, :length]
+            param_vec = param_vec[:, length:]
+
+        return param_dict
+
+    def extract_solution(self, population_matrix: MatrixLike) -> MatrixLike:
         return population_matrix[:, : self.vecsize]
 
-    def extract_params(self, population_matrix: np.ndarray) -> np.ndarray:
+    def extract_params(self, population_matrix: MatrixLike) -> MatrixLike:
         return population_matrix[:, self.vecsize :]
 
-    def encode_params_func(self, param_dict: dict) -> np.ndarray:
+    def encode_params(self, param_dict: dict) -> MatrixLike:
         if self.verify:
             assert param_dict.keys() == {name for name, _ in self.param_sizes}
 
@@ -53,76 +78,3 @@ class ParameterExtendingEncoding(Encoding, ABC):
             vcounter += param_size
 
         return result
-
-    def decode_params_func(self, genotype: np.ndarray) -> dict:
-        param_dict = {}
-        param_vec = self.extract_params(genotype)
-        for name, length in self.param_sizes:
-            param_dict[name] = param_vec[:, :length]
-            param_vec = param_vec[:, length:]
-
-        return param_dict
-
-    def encode_params(self, param_dict: dict) -> Iterable:
-        """
-        Decodes a population matrix into a list/array of solutions.
-
-        Parameters
-        ----------
-        population: np.ndarray
-            Population that should be decoded.
-
-        Returns
-        -------
-        solutions: Iterable
-            List/array of solutions.
-        """
-
-        return self.encode_params_func(param_dict)
-
-    def decode_params(self, population: np.ndarray) -> Iterable:
-        """
-        Decodes a population matrix into a list/array of solutions.
-
-        Parameters
-        ----------
-        population: np.ndarray
-            Population that should be decoded.
-
-        Returns
-        -------
-        solutions: Iterable
-            List/array of solutions.
-        """
-
-        return self.decode_params_func(population)
-
-    def encode_func(self, solution: Any, params: dict = None) -> np.ndarray:
-        solution_encoded = self.base_encoding.encode_func(solution)
-        if params is None:
-            params_encoded = np.zeros((solution_encoded.shape[0], self.nparams))
-        else:
-            params_encoded = self.encode_params(params)
-
-        return np.hstack([solution_encoded, params_encoded])
-
-    def decode_func(self, indiv: np.ndarray) -> np.ndarray:
-        solution_matrix = self.extract_solution(indiv)
-        return self.base_encoding.decode_func(solution_matrix)
-
-    def encode(self, solutions: Iterable, params: dict = None) -> np.ndarray:
-        """
-        Encodes a list of solutions to our problem to an population matrix.
-
-        Parameters
-        ----------
-        solutions: Iterable
-            Solutions that should be encoded.
-
-        Returns
-        -------
-        population: np.ndarray
-            Population array.
-        """
-
-        return self.encode_func(solutions, params=params)

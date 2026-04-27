@@ -3,13 +3,7 @@ from .utils import check_random_state
 from .objective_function import ObjectiveFunc, NullObjectiveFunc, VectorObjectiveFunc, ObjectiveFromLambda
 from . import benchmarks
 
-from .constraint_handler import (
-    ConstraintHandler,
-    ConstraintHandlerFromLambda,
-    NullConstraint,
-    PenalizeConstraint,
-    RepairConstraint,
-)
+from .constraint_handler import ConstraintHandler, ConstraintHandlerFromLambda, NullConstraint, PenalizeConstraint, RepairConstraint
 from . import constraint_handlers
 
 from .parametrizable_mixin import ParametrizableMixin

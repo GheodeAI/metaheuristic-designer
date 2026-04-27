@@ -70,26 +70,14 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
         self.store_kwargs(**kwargs)
 
-    def __call__(
-        self,
-        population: Population,
-        adjusted: bool = True,
-        parallel: bool = False,
-        threads: int = 8,
-    ) -> VectorLike:
+    def __call__(self, population: Population, adjusted: bool = True, parallel: bool = False, threads: int = 8) -> VectorLike:
         """
         Shorthand for executing the objective function on a vector.
         """
 
         return self.fitness(population, adjusted)
 
-    def fitness(
-        self,
-        population: Population,
-        adjusted: bool = True,
-        parallel: bool = False,
-        threads: int = 8,
-    ) -> VectorLike:
+    def fitness(self, population: Population, adjusted: bool = True, parallel: bool = False, threads: int = 8) -> VectorLike:
         """
         Returns the value of the objective function given an individual.
         If the fitness is adjusted, the sign will be switched for minimization problems

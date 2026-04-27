@@ -68,8 +68,7 @@ class StoppingCondition:
         self.prev_best_fitness = best_fitness
 
         logger.debug(
-            "Updated stopping condition parameters:\nfunc. evaluations = %d\n"
-            "generations = %d\ntime = %f\ncpu_time = %f\nbest = %f\npatience = %d",
+            "Updated stopping condition parameters:\nfunc. evaluations = %d\n" "generations = %d\ntime = %f\ncpu_time = %f\nbest = %f\npatience = %d",
             self.evaluations,
             self.iterations,
             self.real_time_start,
@@ -126,13 +125,7 @@ class StoppingCondition:
         )
 
         return process_condition(
-            self.stop_cond_parsed,
-            neval_reached,
-            ngen_reached,
-            real_time_reached,
-            cpu_time_reached,
-            target_reached,
-            patience_reached,
+            self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_reached, patience_reached
         )
 
     def get_progress(self) -> float:
@@ -160,7 +153,9 @@ class StoppingCondition:
         ngen_reached = self.iterations / self.max_iterations
         real_time_reached = self.real_time_spent / self.time_limit
         cpu_time_reached = self.cpu_time_spent / self.cpu_time_limit
-        if self.first_best_fitness is not None and abs(self.first_best_fitness - self.target_fitness) <= tol * max(abs(self.first_best_fitness), abs(self.target_fitness), 1):
+        if self.first_best_fitness is not None and abs(self.first_best_fitness - self.target_fitness) <= tol * max(
+            abs(self.first_best_fitness), abs(self.target_fitness), 1
+        ):
             target_progress = 1
         elif self.first_best_fitness is not None:
             fit_init_dist = self.first_best_fitness - self.target_fitness
@@ -171,13 +166,7 @@ class StoppingCondition:
         patience_percentage = 1 - self.patience_left / self.max_patience
 
         return process_progress(
-            self.stop_cond_parsed,
-            neval_reached,
-            ngen_reached,
-            real_time_reached,
-            cpu_time_reached,
-            target_progress,
-            patience_percentage,
+            self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_progress, patience_percentage
         )
 
 
@@ -206,15 +195,7 @@ def parse_stopping_cond(condition_str: str) -> List[str | List]:
     return expr.parse_string(condition_str).as_list()
 
 
-def process_condition(
-    cond_parsed: List[str | List],
-    neval: int,
-    ngen: int,
-    real_time: float,
-    cpu_time: float,
-    target: float,
-    patience: int,
-) -> bool:
+def process_condition(cond_parsed: List[str | List], neval: int, ngen: int, real_time: float, cpu_time: float, target: float, patience: int) -> bool:
     """
     This function receives as an input an expression for the stopping condition
     and the truth variable of the possible stopping conditions and returns wether to stop or not.
@@ -281,15 +262,7 @@ def process_condition(
     return result
 
 
-def process_progress(
-    cond_parsed: List[str | List],
-    neval: int,
-    ngen: int,
-    real_time: float,
-    cpu_time: float,
-    target: float,
-    patience: int,
-) -> float:
+def process_progress(cond_parsed: List[str | List], neval: int, ngen: int, real_time: float, cpu_time: float, target: float, patience: int) -> float:
     """
     This function receives as an input an expression for the stopping condition
     and the truth variable of the possible stopping conditions and returns wether to stop or not.

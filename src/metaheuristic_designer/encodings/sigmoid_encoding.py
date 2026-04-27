@@ -1,8 +1,10 @@
 from __future__ import annotations
+from typing import Iterable
 import scipy as sp
 import numpy as np
 from numpy import ndarray
 from ..encoding import Encoding
+from ..utils import MatrixLike
 
 
 class SigmoidEncoding(Encoding):
@@ -23,7 +25,7 @@ class SigmoidEncoding(Encoding):
         When using `as_probability`, sets the limit at which the value is considered to be a 1.
     """
 
-    def __init__(self, as_probability=True, threshold=0.5):
+    def __init__(self, as_probability: bool = True, threshold: float = 0.5):
         assert as_probability or 0 < threshold < 1, "The threshold must be a number between 0 and 1"
 
         self.as_probability = as_probability
@@ -31,13 +33,19 @@ class SigmoidEncoding(Encoding):
 
         super().__init__(decode_as_array=True)
 
-    def encode_func(self, solutions: ndarray) -> ndarray:
-        if not self.as_probability:
-            return solutions
-        assert np.all((solutions > 0) & (solutions < 1)), "To encode solutions with the sigmoid encoding, the values must be in the range (0,1)."
-        return np.log(solutions / (1 - solutions))
+    def encode(self, solutions: Iterable) -> MatrixLike:
+        assert np.all((solutions >= 0) & (solutions <= 1)), "To encode solutions with the sigmoid encoding, the values must be in the range (0,1)."
 
-    def decode_func(self, population: ndarray) -> ndarray:
+        mask_zeros = solutions == 0
+        mask_ones = solutions == 1
+        result = np.log(1 - solutions) - np.log(solutions)
+        print(result)
+        result[mask_zeros] = -np.inf
+        result[mask_ones] = np.inf
+        print(result)
+        return result
+
+    def decode(self, population: MatrixLike) -> Iterable:
         result = sp.special.expit(population)
         if not self.as_probability:
             result = (result < self.threshold).astype(int)

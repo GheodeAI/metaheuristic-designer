@@ -144,25 +144,36 @@ def test_rgb_img(genotype, phenotype, shape):
         (np.array([[0.0]]), True, 0.5, np.array([[0.5]])), 
         (np.array([[999.0]]), True, 0.5, np.array([[1.0]])),  # high value → 1
         (np.array([[-999.0]]), True, 0.5, np.array([[0.0]])), # low value → 0
+
         # binary mode with threshold
-        (np.array([[0.0]]), False, 0.5, np.array([[False]])),
-        (np.array([[1.0]]), False, 0.5, np.array([[True]])),
-        (np.array([[-1.0]]), False, 0.5, np.array([[False]])),
+        (np.array([[0]]), False, 0.5, np.array([[0]])),
+        (np.array([[1.0]]), False, 0.5, np.array([[0]])),
+        (np.array([[-1.0]]), False, 0.5, np.array([[1]])),
     ],
 )
 def test_sigmoid_decode(genotype, as_prob, threshold, expected_decode):
     enc = SigmoidEncoding(as_probability=as_prob, threshold=threshold)
     decoded = enc.decode(genotype)
+    print(decoded)
     np.testing.assert_array_equal(decoded, expected_decode)
 
 
-def test_sigmoid_encode():
-    enc = SigmoidEncoding(as_probability=True)
+@pytest.mark.parametrize(
+    "solution, threshold, expected_encode",
+    [
+        # probability mode: sigmoid
+        (np.array([[0.5]]), 0.5, np.array([[0.0]])),
+        (np.array([[1.0]]), 0.5, np.array([[np.inf]])),
+        (np.array([[0.0]]), 0.5, np.array([[-np.inf]])),
+    ],
+)
+@pytest.mark.parametrize("as_prob", [True, False])
+def test_sigmoid_encode(solution, threshold, expected_encode, as_prob):
+    enc = SigmoidEncoding(as_probability=as_prob, threshold=threshold)
     # encode should be the identity (or pass‑through) for this encoding?
     # Check that it returns the input as an array
-    inp = np.array([[0.5], [0.2]])
-    encoded = enc.encode(inp)
-    np.testing.assert_array_equal(encoded, inp)
+    encoded = enc.encode(solution)
+    np.testing.assert_array_equal(encoded, expected_encode)
 
 
 # ============================================================================

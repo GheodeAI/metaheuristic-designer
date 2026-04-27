@@ -6,10 +6,8 @@ of the algorithm and the result of the procedure.
 """
 
 from __future__ import annotations
-from typing import Iterable, Any, Callable
+from typing import Iterable, Callable
 from abc import ABC, abstractmethod
-import numpy as np
-from numpy import ndarray
 from .parametrizable_mixin import ParametrizableMixin
 from .utils import MatrixLike
 
@@ -27,37 +25,6 @@ class Encoding(ParametrizableMixin, ABC):
         self.store_kwargs(**kwargs)
 
     @abstractmethod
-    def encode_func(self, solution: Iterable, **kwargs) -> MatrixLike:
-        """
-        Convert a solution into an individual. (If vectorized is set it converts a list of solutions into a matrix)
-
-        Parameters
-        ----------
-        solution: Any
-            Solutions that should be encoded.
-
-        Returns
-        -------
-        individual: ndarray
-            Individual vector.
-        """
-
-    @abstractmethod
-    def decode_func(self, population_matrix: MatrixLike) -> Iterable:
-        """
-        Convert an individual as a vector into an individual. (If vectorized is set it converts a list of solutions into a matrix)
-
-        Parameters
-        ----------
-        solution: Any
-            Solutions that should be encoded.
-
-        Returns
-        -------
-        individual: ndarray
-            Individual vector.
-        """
-
     def encode(self, solutions: Iterable) -> MatrixLike:
         """
         Encodes a list of solutions to our problem to an population matrix.
@@ -73,9 +40,8 @@ class Encoding(ParametrizableMixin, ABC):
             Population array.
         """
 
-        return self.encode_func(solutions)
-
-    def decode(self, population: ndarray) -> Iterable:
+    @abstractmethod
+    def decode(self, population: MatrixLike) -> Iterable:
         """
         Decodes a population matrix into a list/array of solutions.
 
@@ -90,13 +56,6 @@ class Encoding(ParametrizableMixin, ABC):
             List/array of solutions.
         """
 
-        solutions = self.decode_func(population)
-
-        if self.decode_as_array:
-            solutions = np.asarray(solutions)
-
-        return solutions
-
     def get_state(self) -> dict:
         return {}
 
@@ -109,10 +68,10 @@ class DefaultEncoding(Encoding):
     def __init__(self, decode_as_array: bool = True):
         super().__init__(decode_as_array=decode_as_array)
 
-    def encode_func(self, solution: Iterable) -> MatrixLike:
+    def encode(self, solution: Iterable) -> MatrixLike:
         return solution
 
-    def decode_func(self, population: MatrixLike) -> Iterable:
+    def decode(self, population: MatrixLike) -> Iterable:
         return population
 
 
@@ -126,8 +85,8 @@ class EncodingFromLambda(Encoding):
         self.encode_fn = encode_fn
         self.decode_fn = decode_fn
 
-    def encode_func(self, solution: Iterable) -> MatrixLike:
+    def encode(self, solution: Iterable) -> MatrixLike:
         return self.encode_fn(solution)
 
-    def decode_func(self, population: MatrixLike) -> Iterable:
+    def decode(self, population: MatrixLike) -> Iterable:
         return self.decode_fn(population)

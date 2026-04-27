@@ -28,22 +28,21 @@ dependencies = [
 Homepage = "https://github.com/eugenioLR/metaheuristic-designer"
 
 [project.optional-dependencies]
-dev = [
-    "nox>=2023.4.22",
-    "pytest>=7.4.0",
-    "coverage>=7.3.1",
-    "sphinx_material>=0.0.36",
-    "sphinx>=7.1.1",
-    "black[jupyter]>=23.10.1",
-    "pygame>=2.5.0",    
-    "networkx>=3.1",
-    "opencv-python>=4.8",
-]
-
 examples = [
     "pygame>=2.5.0",    
     "networkx>=3.1",
     "opencv-python>=4.8"
+]
+
+dev = [
+    "nox",
+    "pytest>=7.4.0",
+    "pytest-cov",
+    "coverage>=7.3.1",
+    "sphinx_material>=0.0.36",
+    "sphinx>=7.1.1",
+    "black[jupyter]>=23.10.1",
+    "metaheuristic-designer[examples]"
 ]
 
 [tool.black]

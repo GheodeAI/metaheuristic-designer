@@ -25,7 +25,7 @@ class LocalSearch(SearchStrategy):
         **kwargs,
     ):
         if survivor_sel is None:
-            survivor_sel = create_survivor_selection("many-to-one")
+            survivor_sel = create_survivor_selection("local_search")
 
         super().__init__(
             initializer,

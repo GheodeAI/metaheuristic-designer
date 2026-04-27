@@ -18,8 +18,11 @@ class PSO(StaticPopulation):
         population_size: int = 100,
         low_lim: float = -100,
         up_lim: float = 100,
-        params: dict = None,
         name: str = "PSO",
+        w=0.7,
+        c1=1.5,
+        c2=1.5,
+        **kwargs,
     ):
         if initializer is None:
             abs_up_lim = np.maximum(np.abs(low_lim), np.abs(up_lim))
@@ -33,9 +36,6 @@ class PSO(StaticPopulation):
             assert isinstance(initializer, ExtendedInitializer), "Using the PSO strategy needs an `ExtendedInitializer` with a `speed` extension."
             assert "speed" in initializer.param_init_dict
 
-        if params is None:
-            params = {}
+        pso_op = create_swarm_operator("PSO", encoding=encoding, w=w, c1=c1, c2=c2)
 
-        pso_op = create_swarm_operator("PSO", encoding=encoding, w=0.7, c1=1.5, c2=1.5)
-
-        super().__init__(initializer, operator=pso_op, params=params, name=name)
+        super().__init__(initializer, operator=pso_op, name=name, **kwargs)

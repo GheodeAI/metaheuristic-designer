@@ -1,6 +1,8 @@
 from __future__ import annotations
+from typing import Iterable
 from numpy import ndarray
 from ..encoding import Encoding
+from ..utils import MatrixLike
 
 
 class TypeCastEncoding(Encoding):
@@ -15,8 +17,8 @@ class TypeCastEncoding(Encoding):
 
         super().__init__(decode_as_array=True)
 
-    def encode_func(self, solutions: ndarray) -> ndarray:
+    def encode(self, solutions: Iterable) -> MatrixLike:
         return solutions.astype(self.encoded_dtype)
 
-    def decode_func(self, population: ndarray) -> ndarray:
+    def decode(self, population: MatrixLike) -> Iterable:
         return population.astype(self.decoded_dtype)

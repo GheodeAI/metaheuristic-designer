@@ -21,12 +21,7 @@ class BranchOpMethods(Enum):
         return branch_ops_map[str_input]
 
 
-branch_ops_map = {
-    "random": BranchOpMethods.RANDOM,
-    "rand": BranchOpMethods.RANDOM,
-    "pick": BranchOpMethods.PICK,
-    "choose": BranchOpMethods.PICK,
-}
+branch_ops_map = {"random": BranchOpMethods.RANDOM, "rand": BranchOpMethods.RANDOM, "pick": BranchOpMethods.PICK, "choose": BranchOpMethods.PICK}
 
 
 class BranchOperator(Operator):
@@ -45,7 +40,7 @@ class BranchOperator(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(self, op_list: Iterable[Operator], method: str = None, name: str = None, encoding=None, random_state=None, **kwargs):
+    def __init__(self, op_list: Iterable[Operator], method: str = None, name: str = None, encoding=None, random_state=None, idx=-1, p=0.5, **kwargs):
         """
         Constructor for the OperatorMeta class
         """
@@ -70,21 +65,14 @@ class BranchOperator(Operator):
         else:
             self.method = BranchOpMethods.from_str(method)
 
-        self.chosen_idx = kwargs.get("in_description_it_idx", -1)
-
-        # If we have a branch with 2 operators and "p" is given as an input
-        if "weights" not in kwargs and "p" in kwargs and len(op_list) == 2:
-            kwargs["weights"] = [kwargs["p"], 1 - kwargs["p"]]
+        self.chosen_idx = idx
+        self.weights = np.array([p, 1 - p])
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)
 
         if self.method == BranchOpMethods.RANDOM:
-            self.chosen_idx = self.random_state.choice(
-                np.arange(len(self.op_list)),
-                size=population.pop_size,
-                p=self.kwargs["weights"],
-            )
+            self.chosen_idx = self.random_state.choice(range(len(self.op_list)), size=(population.pop_size,), replace=True, p=self.weights)
 
         if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
             chosen_idx = self.chosen_idx

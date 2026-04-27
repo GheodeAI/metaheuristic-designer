@@ -346,3 +346,20 @@ def test_penalize_constraint_lambda(solution, expected_penalty):
     calculated_penalty = constraint.penalty(solution)
     
     assert expected_penalty == calculated_penalty
+
+def test_constraint_lambda_missing_functions():
+    with pytest.raises(ValueError):
+        ConstraintHandlerFromLambda(repair_solution_fn=None, penalty_fn=None)
+
+def test_constraints_lambda_fallback():
+    constraint = ConstraintHandlerFromLambda(repair_solution_fn=None, penalty_fn=lambda x: 1)
+    example_array = np.array([1,2,3])
+    fallback_array = constraint.repair_solution(example_array)
+    assert np.array_equal(example_array, fallback_array)
+
+    constraint = ConstraintHandlerFromLambda(repair_solution_fn=lambda x: np.zeros(3), penalty_fn=None)
+    fallback_penalty = constraint.penalty(example_array)
+    assert fallback_penalty == 0
+
+    
+    

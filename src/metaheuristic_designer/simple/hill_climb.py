@@ -103,15 +103,7 @@ def _hill_climb_int_vec(params, objfunc):
 
     pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=1, dtype=int)
 
-    mutation_op = VectorOperator(
-        "MutRand",
-        {
-            "distrib": "Uniform",
-            "Low": objfunc.low_lim,
-            "Up": objfunc.up_lim,
-            "N": mutstr,
-        },
-    )
+    mutation_op = VectorOperator("MutRand", {"distrib": "Uniform", "Low": objfunc.low_lim, "Up": objfunc.up_lim, "N": mutstr})
 
     search_strat = HillClimb(pop_initializer, mutation_op)
 

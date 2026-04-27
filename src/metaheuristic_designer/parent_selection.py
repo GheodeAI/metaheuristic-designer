@@ -7,6 +7,7 @@ This module implements the procedure applied in each iteration of the algorithm.
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional, Callable
+import inspect
 import numpy as np
 from .population import Population
 from .parametrizable_mixin import ParametrizableMixin
@@ -118,6 +119,21 @@ class ParentSelectionFromLambda(ParentSelection):
         super().__init__(name=name, amount=amount, random_state=random_state, **kwargs)
 
         self.selection_fn = selection_fn
+
+    @staticmethod
+    def _validate_function(operator_fn: Callable):
+        operator_sig = inspect.signature(operator_fn)
+
+        count = 0
+        for p in operator_sig.parameters.values():
+            if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                count += 1
+            elif p.kind == inspect.Parameter.VAR_POSITIONAL:
+                return
+
+        required_min_count = 3
+        if count < required_min_count:
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is.")
 
     def select(self, population: Population, amount: Optional[int] = None) -> Population:
         if amount is None:

@@ -32,12 +32,7 @@ class Population:
         The encoding to be used when calculating the objective function.
     """
 
-    def __init__(
-        self,
-        objfunc: ObjectiveFunc,
-        genotype_matrix: MatrixLike,
-        encoding: Optional[Encoding] = None,
-    ):
+    def __init__(self, objfunc: ObjectiveFunc, genotype_matrix: MatrixLike, encoding: Optional[Encoding] = None):
         """
         Constructor of the Individual class.
         """
@@ -130,7 +125,7 @@ class Population:
 
         return best_solution, best_fitness
 
-    def update_genotype_matrix(self, genotype_matrix: ndarray) -> Population:
+    def update_genotype(self, genotype_source: MatrixLike | Population) -> Population:
         """
         Replaces the solutions in the population with the ones inputted.
 
@@ -143,6 +138,10 @@ class Population:
         -------
         self: Population
         """
+        if isinstance(genotype_source, Population):
+            genotype_matrix = genotype_source.genotype_matrix
+        else:
+            genotype_matrix = genotype_source
 
         if genotype_matrix.shape[1] != self.vec_size:
             raise ValueError("Individual vector size should not change when updating the population.")
@@ -457,7 +456,7 @@ class Population:
 
         return self
 
-    def decode(self, encoding=None) -> Any:
+    def decode(self, encoding: Optional[Encoding] = None) -> Any:
         """
         Return the population passed through the decoding function defined in the encoding.
 
@@ -471,7 +470,7 @@ class Population:
 
         return self.encoding.decode(self.genotype_matrix)
 
-    def decode_params(self, encoding=None) -> Any:
+    def decode_params(self, encoding: Optional[Encoding] = None) -> Any:
         """
         Return the population passed through the decoding function defined in the encoding.
 
@@ -528,7 +527,7 @@ class Population:
 
         return data
 
-    def debug_repr(self, max_solutions: int = 5, max_vars: int = 5):
+    def debug_repr(self, max_solutions: int = 5, max_vars: int = 5) -> str:
         genotype_matrix = self.genotype_matrix
         shape = genotype_matrix.shape
 

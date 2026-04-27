@@ -64,11 +64,7 @@ def _simulated_annealing_bin_vec(params, objfunc):
 
     mutation_op = VectorOperator("Flip", {"N": mutstr})
 
-    search_strat = SA(
-        pop_initializer,
-        mutation_op,
-        {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
-    )
+    search_strat = SA(pop_initializer, mutation_op, {"iter": n_iter, "temp_init": temp_init, "alpha": alpha})
 
     return StandardAlgorithm(objfunc, search_strat, params=params)
 
@@ -92,11 +88,7 @@ def _simulated_annealing_perm_vec(params, objfunc):
 
     mutation_op = PermOperator("Perm", {"N": mutstr})
 
-    search_strat = SA(
-        pop_initializer,
-        mutation_op,
-        {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
-    )
+    search_strat = SA(pop_initializer, mutation_op, {"iter": n_iter, "temp_init": temp_init, "alpha": alpha})
 
     return StandardAlgorithm(objfunc, search_strat, params=params)
 
@@ -120,21 +112,9 @@ def _simulated_annealing_int_vec(params, objfunc):
 
     pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=1, dtype=int)
 
-    mutation_op = VectorOperator(
-        "MutRand",
-        {
-            "distrib": "Uniform",
-            "Low": objfunc.low_lim,
-            "Up": objfunc.up_lim,
-            "N": mutstr,
-        },
-    )
+    mutation_op = VectorOperator("MutRand", {"distrib": "Uniform", "Low": objfunc.low_lim, "Up": objfunc.up_lim, "N": mutstr})
 
-    search_strat = SA(
-        pop_initializer,
-        mutation_op,
-        {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
-    )
+    search_strat = SA(pop_initializer, mutation_op, {"iter": n_iter, "temp_init": temp_init, "alpha": alpha})
 
     return StandardAlgorithm(objfunc, search_strat, params=params)
 
@@ -160,10 +140,6 @@ def _simulated_annealing_real_vec(params, objfunc):
 
     mutation_op = VectorOperator("RandNoise", {"distrib": "Gauss", "F": mutstr})
 
-    search_strat = SA(
-        pop_initializer,
-        mutation_op,
-        {"iter": n_iter, "temp_init": temp_init, "alpha": alpha},
-    )
+    search_strat = SA(pop_initializer, mutation_op, {"iter": n_iter, "temp_init": temp_init, "alpha": alpha})
 
     return StandardAlgorithm(objfunc, search_strat, params=params)

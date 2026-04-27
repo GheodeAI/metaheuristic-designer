@@ -59,15 +59,7 @@ def _differential_evolution_real_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    if de_type not in [
-        "de/rand/1",
-        "de/best/1",
-        "de/rand/2",
-        "de/best/2",
-        "de/current-to-rand/1",
-        "de/current-to-best/1",
-        "de/current-to-pbest/1",
-    ]:
+    if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
         raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
 
     pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
@@ -96,27 +88,12 @@ def _differential_evolution_int_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else 0)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    if de_type not in [
-        "de/rand/1",
-        "de/best/1",
-        "de/rand/2",
-        "de/best/2",
-        "de/current-to-rand/1",
-        "de/current-to-best/1",
-        "de/current-to-pbest/1",
-    ]:
+    if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
         raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
 
     encoding = TypeCastEncoding(float, int)
 
-    pop_initializer = UniformInitializer(
-        vecsize,
-        min_val,
-        max_val,
-        pop_size=pop_size,
-        dtype=float,
-        encoding=encoding,
-    )
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float, encoding=encoding)
 
     de_op = create_operator(de_type, f=f, cr=cr)
 
@@ -142,27 +119,12 @@ def _differential_evolution_bin_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else -10)
     max_val = params.get("max", objfunc.up_lim if objfunc else 10)
 
-    if de_type not in [
-        "de/rand/1",
-        "de/best/1",
-        "de/rand/2",
-        "de/best/2",
-        "de/current-to-rand/1",
-        "de/current-to-best/1",
-        "de/current-to-pbest/1",
-    ]:
+    if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
         raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
 
     encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
 
-    pop_initializer = UniformInitializer(
-        vecsize,
-        min_val,
-        max_val,
-        pop_size=pop_size,
-        dtype=float,
-        encoding=encoding,
-    )
+    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float, encoding=encoding)
 
     de_op = create_operator(de_type, f=f, cr=cr)
 

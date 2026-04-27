@@ -28,7 +28,7 @@ all_ops_map = {
 bo_aliases = {"bo", "bayesian_optimization"}
 
 
-def create_operator(method, encoding=None, random_state=None, name=None, **kwargs):
+def create_operator(method, encoding=None, random_state=None, name=None, **kwargs) -> OperatorFromLambda:
     """
 
     Parameters
@@ -105,12 +105,15 @@ def add_operator_entry(operator_fn: callable, operator_name: str, operator_regis
     ----------
     operator_fn
         Callable that gets a population and a random_state to perturb the population. It is highly recommended to
-        use one of the avaliable wrappers OperatorVectorDef, OperatorRandomDef, ...
+        use one of the available wrappers OperatorVectorDef, OperatorRandomDef, ...
     operator_name
         Name to give the operator in the registry.
     operator_registry, optional
         Name of the registry to add this operator to. New names simply generate a new registry, by default "custom"
     """
+
+    OperatorFromLambda._validate_function(operator_fn)
+    
     if operator_registry not in all_ops_map:
         all_ops_map[operator_registry] = {}
         logger.info('Added a new operator registry named "%s"', operator_registry)

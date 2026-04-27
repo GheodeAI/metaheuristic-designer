@@ -86,10 +86,7 @@ def random_reset(population_matrix, initializer: Initializer, random_state=None,
     for i, _ in enumerate(population_matrix):
         random_population_marix[i, :] = initializer.generate_random()
 
-    mask_pos = np.tile(
-        np.arange(population_matrix.shape[1]) < n,
-        population_matrix.shape[0],
-    ).reshape(population_matrix.shape)
+    mask_pos = np.tile(np.arange(population_matrix.shape[1]) < n, population_matrix.shape[0]).reshape(population_matrix.shape)
 
     mask_pos = random_state.permuted(mask_pos, axis=1)
 

@@ -71,21 +71,14 @@ class BOOperator(Operator):
         samples = initializer.generate_population(objfunc, self.batch_size).genotype_matrix
         for x0 in samples:
             result = sp.optimize.minimize(
-                fun=lambda x_in: -_acquisition_function(self.gaussian_model, X, x_in, max_y),
-                x0=x0,
-                method="L-BFGS-B",
-                bounds=bounds,
+                fun=lambda x_in: -_acquisition_function(self.gaussian_model, X, x_in, max_y), x0=x0, method="L-BFGS-B", bounds=bounds
             )
             if result.fun < min_ei:
                 min_ei = result.fun
                 new_best_point = result.x
 
         # Create new population from the optimization result and merge it with the previous one
-        new_sample_population = Population(
-            objfunc,
-            genotype_matrix=new_best_point[None, :],
-            encoding=population.encoding,
-        )
+        new_sample_population = Population(objfunc, genotype_matrix=new_best_point[None, :], encoding=population.encoding)
         new_population = Population.join_populations(population, new_sample_population)
         new_population = new_population.repair_solutions()
 

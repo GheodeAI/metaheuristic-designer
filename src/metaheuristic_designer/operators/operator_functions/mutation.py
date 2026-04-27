@@ -256,6 +256,8 @@ def sample_distribution(shape, loc=None, scale=None, random_state=None, **kwargs
     result = None
 
     distrib = kwargs["distrib"]
+    if isinstance(distrib, str):
+        distrib = ProbDist.from_str(distrib.lower())
     loc = 0 if loc is None else loc
     scale = 1 if scale is None else scale
 
@@ -264,10 +266,7 @@ def sample_distribution(shape, loc=None, scale=None, random_state=None, **kwargs
             prob_distrib = sp.stats.norm(loc=loc, scale=scale)
         case ProbDist.MULTIGAUSS:
             mean = kwargs.get("mean", np.full(shape[1], loc) if np.asarray(loc).ndim <= 1 else loc)
-            cov = kwargs.get(
-                "cov",
-                (np.eye(shape[1]) * scale if np.asarray(scale).ndim <= 1 else np.diagflat(scale)),
-            )
+            cov = kwargs.get("cov", (np.eye(shape[1]) * scale if np.asarray(scale).ndim <= 1 else np.diagflat(scale)))
             if mean.ndim <= 1 and cov.ndim <= 2:
                 prob_distrib = sp.stats.multivariate_normal(mean=mean, cov=cov)
                 shape = shape[0]
@@ -374,10 +373,7 @@ def mutate_1_sigma(population, _fitness, random_state=None, **kwargs):
     epsilon = kwargs["epsilon"]
     tau = kwargs["tau"]
 
-    return np.maximum(
-        epsilon,
-        population * np.exp(tau * random_state.normal(0, 1, population.shape[0])[:, None]),
-    )
+    return np.maximum(epsilon, population * np.exp(tau * random_state.normal(0, 1, population.shape[0])[:, None]))
 
 
 def mutate_n_sigmas(population, _fitness, random_state=None, **kwargs):

@@ -24,5 +24,5 @@ class StaticPopulation(SearchStrategy):
         **kwargs,
     ):
         super().__init__(
-            initializer, operator=operator, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, random_state=random_state**kwargs
+            initializer, operator=operator, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs
         )

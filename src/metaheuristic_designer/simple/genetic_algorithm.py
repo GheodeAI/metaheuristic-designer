@@ -73,14 +73,7 @@ def _genetic_algorithm_bin_vec(params, objfunc):
     parent_sel_op = create_parent_selection("best", amount=n_parents)
     selection_op = create_survivor_selection("keep_best")
 
-    search_strategy = GA(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
-    )
+    search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
     return StandardAlgorithm(objfunc, search_strategy, params=params)
 
@@ -117,14 +110,7 @@ def _genetic_algorithm_int_vec(params, objfunc):
     parent_sel_op = create_parent_selection("best", amount=n_parents)
     selection_op = create_survivor_selection("keep_best")
 
-    search_strategy = GA(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
-    )
+    search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
     return StandardAlgorithm(objfunc, search_strategy, params=params)
 
@@ -154,14 +140,7 @@ def _genetic_algorithm_perm_vec(params, objfunc):
     parent_sel_op = create_parent_selection("best", amount=n_parents)
     selection_op = create_survivor_selection("keep_best")
 
-    search_strategy = GA(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
-    )
+    search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
     return StandardAlgorithm(objfunc, search_strategy, params=params)
 
@@ -193,13 +172,6 @@ def _genetic_algorithm_real_vec(params, objfunc):
     parent_sel_op = create_parent_selection("best", amount=n_parents)
     selection_op = create_survivor_selection("keep_best")
 
-    search_strategy = GA(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
-    )
+    search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
     return StandardAlgorithm(objfunc, search_strategy, params=params)

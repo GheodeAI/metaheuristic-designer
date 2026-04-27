@@ -71,9 +71,7 @@ def _particle_swarm_real_vec(params, objfunc):
     )
 
     constraint_handler = ExtendedConstraintHandler(
-        ClipBoundConstraint(vecsize, min_val, max_val),
-        {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)},
-        encoding=pso_encoding,
+        ClipBoundConstraint(vecsize, min_val, max_val), {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)}, encoding=pso_encoding
     )
     objfunc.constraint_handler = constraint_handler
 
@@ -101,12 +99,7 @@ def _particle_swarm_int_vec(params, objfunc):
     max_val = params.get("max", objfunc.up_lim if objfunc else 1)
     abs_max_val = np.maximum(np.abs(min_val), np.abs(max_val))
 
-    pso_encoding = CompositeEncoding(
-        [
-            PSOEncoding(vecsize),
-            TypeCastEncoding(float, int),
-        ]
-    )
+    pso_encoding = CompositeEncoding([PSOEncoding(vecsize), TypeCastEncoding(float, int)])
 
     pop_initializer = ExtendedInitializer(
         solution_init=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size),
@@ -115,9 +108,7 @@ def _particle_swarm_int_vec(params, objfunc):
     )
 
     constraint_handler = ExtendedConstraintHandler(
-        ClipBoundConstraint(vecsize, min_val, max_val),
-        {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)},
-        encoding=pso_encoding,
+        ClipBoundConstraint(vecsize, min_val, max_val), {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)}, encoding=pso_encoding
     )
     objfunc.constraint_handler = constraint_handler
 
@@ -154,9 +145,7 @@ def _particle_swarm_bin_vec(params, objfunc):
     )
 
     constraint_handler = ExtendedConstraintHandler(
-        ClipBoundConstraint(vecsize, min_val, max_val),
-        {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)},
-        encoding=pso_encoding,
+        ClipBoundConstraint(vecsize, min_val, max_val), {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)}, encoding=pso_encoding
     )
     objfunc.constraint_handler = constraint_handler
 
