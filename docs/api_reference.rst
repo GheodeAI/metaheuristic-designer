@@ -42,7 +42,7 @@ Classes that allow implementing optimization modules with a lambda function, avo
 
 Extended Encoding Classes
 --------------------------
-When the genotype vector encodes more information than just the solution – such as a speed vector for PSO or adaptive algorithm parameters – you need these interfaces to handle the extra data.
+When the genotype vector encodes more information than just the solution - such as a speed vector for PSO or adaptive algorithm parameters - you need these interfaces to handle the extra data.
 
 Note that concrete implementations for specific algorithms (e.g. PSO) already exist.
 
@@ -62,12 +62,12 @@ Many numerical parameters can be made schedulable by passing a :py:class:`~metah
    :header: "Module name", "Description"
 
    ":py:class:`parameter_schedules.LinearSchedule<metaheuristic_designer.parameter_schedules.linear_schedule.LinearSchedule>`", "Changes the value linearly between two values."
-   ":py:class:`parameter_schedules.LogisticSchedule<metaheuristic_designer.parameter_schedules.logistic_schedule.LogisticSchedule>`", "Sigmoid‑shaped transition between two values."
+   ":py:class:`parameter_schedules.LogisticSchedule<metaheuristic_designer.parameter_schedules.logistic_schedule.LogisticSchedule>`", "Sigmoid-shaped transition between two values."
    ":py:class:`parameter_schedules.ThresholdSchedule<metaheuristic_designer.parameter_schedules.threshold_schedule.ThresholdSchedule>`", "Keeps the initial value until progress crosses a threshold, then switches to the final value."
    ":py:class:`parameter_schedules.StepSchedule<metaheuristic_designer.parameter_schedules.step_schedule.StepSchedule>`", "Discrete steps defined by a list of (progress, value) pairs."
    ":py:class:`parameter_schedules.RandomSchedule<metaheuristic_designer.parameter_schedules.random_schedule.RandomSchedule>`", "Randomly picks a value between two bounds at each step."
 
-All schedules depend on the algorithm’s **progress** – a number between 0 and 1 – to decide parameter values.
+All schedules depend on the algorithm's **progress** - a number between 0 and 1 - to decide parameter values.
 
 Initializers
 ------------
@@ -98,19 +98,19 @@ Implemented encodings that transform between the internal genotype and the pheno
    ":py:class:`encodings.SigmoidEncoding<metaheuristic_designer.encodings.sigmoid_encoding.SigmoidEncoding>`", "Maps real numbers to probabilities via a sigmoid, enabling continuous operators on binary problems."
    ":py:class:`encodings.CompositeEncoding<metaheuristic_designer.encodings.composite_encoding.CompositeEncoding>`", "Applies a sequence of other encodings in order."
    ":py:class:`encodings.PSOEncoding<metaheuristic_designer.encodings.special.PSO_encoding.PSOEncoding>`", "Extended encoding that stores a speed vector for PSO."
-   ":py:class:`encodings.SelfAdaptingESEncoding<metaheuristic_designer.encodings.special.self_adapting_ES_encoding.SelfAdaptingESEncoding>`", "Extended encoding that stores mutation strength(s) for self‑adaptive evolution strategies."
+   ":py:class:`encodings.SelfAdaptingESEncoding<metaheuristic_designer.encodings.special.self_adapting_ES_encoding.SelfAdaptingESEncoding>`", "Extended encoding that stores mutation strength(s) for self-adaptive evolution strategies."
 
 Selection Methods
 -----------------
 Parent and survivor selection are created with dedicated **factory functions**:
 
-* :py:func:`~metaheuristic_designer.create_parent_selection` – returns a :py:class:`~metaheuristic_designer.ParentSelection` instance.
-* :py:func:`~metaheuristic_designer.create_survivor_selection` – returns a :py:class:`~metaheuristic_designer.SurvivorSelection` instance.
+* :py:func:`~metaheuristic_designer.create_parent_selection` - returns a :py:class:`~metaheuristic_designer.ParentSelection` instance.
+* :py:func:`~metaheuristic_designer.create_survivor_selection` - returns a :py:class:`~metaheuristic_designer.SurvivorSelection` instance.
 
 To skip a selection step entirely, use :py:class:`~metaheuristic_designer.NullParentSelection` / :py:class:`~metaheuristic_designer.NullSurvivorSelection`.
 
 The complete catalogue of available methods, their parameters, and instructions for
-registering custom ones are given on the :doc:`API reference – Implemented Operators & Selection <api_reference.methods>` page
+registering custom ones are given on the :doc:`API reference - Implemented Operators & Selection <api_reference.methods>` page
 (see :ref:`selection-methods`).
 
 Operators
@@ -125,7 +125,7 @@ keyword parameters.
     from metaheuristic_designer.operators import create_operator
     op = create_operator("mutation.gaussian_mutation", F=0.2, random_state=42)
 
-A few built‑in operators do **not** follow the factory pattern:
+A few built-in operators do **not** follow the factory pattern:
 
 .. csv-table::
    :header: "Class", "Description"
@@ -134,24 +134,24 @@ A few built‑in operators do **not** follow the factory pattern:
    ":py:class:`~metaheuristic_designer.operators.composite_operator.CompositeOperator`", "Combines multiple operators sequentially."
    ":py:class:`~metaheuristic_designer.operators.split_operator.SplitOperator`", "Applies different operators to disjoint parts of the genotype."
    ":py:class:`~metaheuristic_designer.operators.branch_operator.BranchOperator`", "Randomly selects one operator from a list each time it is applied."
-   ":py:class:`~metaheuristic_designer.operators.extended_operator.ExtendedOperator`", "Base class for operators that handle extra per‑individual parameters (e.g. self‑adaptation)."
+   ":py:class:`~metaheuristic_designer.operators.extended_operator.ExtendedOperator`", "Base class for operators that handle extra per-individual parameters (e.g. self-adaptation)."
    ":py:class:`~metaheuristic_designer.operators.BO_operator.BOOperator`", "Gaussian process regression operator for Bayesian Optimisation."
 
-For the full catalogue of factory‑available operators (mutation, crossover, permutation, DE,
+For the full catalogue of factory-available operators (mutation, crossover, permutation, DE,
 swarm, …) and the probability distributions they support, see the
 :doc:`Operator Methods <api_reference.methods>` page.
 
 Search Strategies
 -----------------
-Pre‑built strategies; all inherit from :py:class:`~metaheuristic_designer.SearchStrategy`.
+Pre-built strategies; all inherit from :py:class:`~metaheuristic_designer.SearchStrategy`.
 
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`strategies.NoSearch<metaheuristic_designer.strategies.no_search.NoSearch>`", "No‑op strategy (does nothing)."
+   ":py:class:`strategies.NoSearch<metaheuristic_designer.strategies.no_search.NoSearch>`", "No-op strategy (does nothing)."
    ":py:class:`strategies.RandomSearch<metaheuristic_designer.strategies.classic.random_search.RandomSearch>`", "Random search."
-   ":py:class:`strategies.StaticPopulation<metaheuristic_designer.strategies.static_population.StaticPopulation>`", "Fixed‑size population based evolution."
-   ":py:class:`strategies.VariablePopulation<metaheuristic_designer.strategies.variable_population.VariablePopulation>`", "Variable‑size population based evolution."
+   ":py:class:`strategies.StaticPopulation<metaheuristic_designer.strategies.static_population.StaticPopulation>`", "Fixed-size population based evolution."
+   ":py:class:`strategies.VariablePopulation<metaheuristic_designer.strategies.variable_population.VariablePopulation>`", "Variable-size population based evolution."
    ":py:class:`strategies.HillClimb<metaheuristic_designer.strategies.hill_climb.HillClimb>`", "Greedy hill climbing."
    ":py:class:`strategies.LocalSearch<metaheuristic_designer.strategies.local_search.LocalSearch>`", "Local search with a configurable number of iterations."
    ":py:class:`strategies.SA<metaheuristic_designer.strategies.classic.SA.SA>`", "Simulated annealing."
@@ -159,7 +159,7 @@ Pre‑built strategies; all inherit from :py:class:`~metaheuristic_designer.Sear
    ":py:class:`strategies.ES<metaheuristic_designer.strategies.classic.ES.ES>`", "Evolution Strategy."
    ":py:class:`strategies.DE<metaheuristic_designer.strategies.classic.DE.DE>`", "Differential Evolution."
    ":py:class:`strategies.PSO<metaheuristic_designer.strategies.swarm.PSO.PSO>`", "Particle Swarm Optimisation."
-   ":py:class:`strategies.BernoulliPBIL<metaheuristic_designer.strategies.EDA.PBIL.BernoulliPBIL>`", "Bernoulli Population‑Based Incremental Learning (EDA)."
+   ":py:class:`strategies.BernoulliPBIL<metaheuristic_designer.strategies.EDA.PBIL.BernoulliPBIL>`", "Bernoulli Population-Based Incremental Learning (EDA)."
    ":py:class:`strategies.BernoulliUMDA<metaheuristic_designer.strategies.EDA.UMDA.BernoulliUMDA>`", "Bernoulli Univariate Marginal Distribution Algorithm (EDA)."
    ":py:class:`strategies.BinomialPBIL<metaheuristic_designer.strategies.EDA.PBIL.BinomialPBIL>`", "Binomial PBIL."
    ":py:class:`strategies.BinomialUMDA<metaheuristic_designer.strategies.EDA.UMDA.BinomialUMDA>`", "Binomial UMDA."
@@ -195,7 +195,7 @@ Example: ``"neval or time_limit"``.
 
 Prepackaged Algorithms
 ----------------------
-For the most common optimisation scenarios, the `simple` module provides ready‑to‑run
+For the most common optimisation scenarios, the `simple` module provides ready-to-run
 **functions** that build a complete `Algorithm` from a dictionary of parameters.
 All of them share the same interface:
 
@@ -211,10 +211,10 @@ The ``"encoding"`` key accepts ``"bin"``, ``"int"`` or ``"real"``.
 .. csv-table::
    :header: "Function", "Parameters", "Description"
 
-   ":py:func:`simple.random_search<metaheuristic_designer.simple.random_search>`", "–", "Pure random search."
+   ":py:func:`simple.random_search<metaheuristic_designer.simple.random_search>`", "", "Pure random search."
    ":py:func:`simple.hill_climb<metaheuristic_designer.simple.hill_climb>`", "mut_str (0.1)", "Hill climbing. Mutation strength ``mut_str``: for binary it flips that many bits; for integer it samples from the range; for real it adds Gaussian noise with that standard deviation."
    ":py:func:`simple.simulated_annealing<metaheuristic_designer.simple.simulated_annealing>`", "mut_str (0.1), T0 (100), alpha (0.99)", "| Simulated annealing. Temperature decays as :math:`T_0 \\alpha^k`."
-   ":py:func:`simple.evolution_strategy<metaheuristic_designer.simple.evolution_strategy>`", "pop_size (100), offspring_size (100), mut_str (0.5)", "(μ+λ)‑ES with the same mutation interpretations as hill climbing."
-   ":py:func:`simple.genetic_algorithm<metaheuristic_designer.simple.genetic_algorithm>`", "pop_size (100), n_parents (50), pmut (0.1), pcross (0.9), mut_str (0.5)", "Genetic algorithm with tournament selection, one‑point crossover and mutation as above."
-   ":py:func:`simple.differential_evolution<metaheuristic_designer.simple.differential_evolution>`", "pop_size (30), F (0.8), Cr (0.9), DE_type (``de/best/1``)", "Differential evolution. Internally works with floating‑point numbers and uses an encoding to match the requested datatype."
+   ":py:func:`simple.evolution_strategy<metaheuristic_designer.simple.evolution_strategy>`", "pop_size (100), offspring_size (100), mut_str (0.5)", "(μ+λ)-ES with the same mutation interpretations as hill climbing."
+   ":py:func:`simple.genetic_algorithm<metaheuristic_designer.simple.genetic_algorithm>`", "pop_size (100), n_parents (50), pmut (0.1), pcross (0.9), mut_str (0.5)", "Genetic algorithm with tournament selection, one-point crossover and mutation as above."
+   ":py:func:`simple.differential_evolution<metaheuristic_designer.simple.differential_evolution>`", "pop_size (30), F (0.8), Cr (0.9), DE_type (``de/best/1``)", "Differential evolution. Internally works with floating-point numbers and uses an encoding to match the requested datatype."
    ":py:func:`simple.particle_swarm<metaheuristic_designer.simple.particle_swarm>`", "pop_size (30), w (0.7), c1 (1.5), c2 (1.5)", "Particle Swarm Optimisation. Works with real numbers internally and encodes to the target type."

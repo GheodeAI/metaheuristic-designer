@@ -212,8 +212,8 @@ Parent and survivor selection are created through dedicated **factory functions*
 * :py:func:`create_parent_selection<metaheuristic_designer.parent_selection_methods.parent_selection.create_parent_selection>` – returns a :py:class:`ParentSelection<metaheuristic_designer.parent_selection.ParentSelection>` instance.
 * :py:func:`create_survivor_selection<metaheuristic_designer.survivor_selection_methods.survivor_selection.create_survivor_selection>` – returns a :py:class:`SurvivorSelection<metaheuristic_designer.survivor_selection.SurvivorSelection>` instance.
 
-Both accept a case‑insensitive method name as the first argument, followed by any
-method‑specific parameters as keyword arguments.
+Both accept a case-insensitive method name as the first argument, followed by any
+method-specific parameters as keyword arguments.
 
 To **skip** a selection step entirely, use the
 :py:class:`NullParentSelection<metaheuristic_designer.parent_selection.NullParentSelection>` / :py:class:`NullSurvivorSelection<metaheuristic_designer.survivor_selection.NullSurvivorSelection>` classes.
@@ -223,7 +223,7 @@ Parent Selection
 
 .. function:: create_parent_selection(method, amount=None, ...)
 
-   Available method keys (case‑insensitive). The primary (recommended) name is listed first;
+   Available method keys (case-insensitive). The primary (recommended) name is listed first;
    aliases are shown in the second column. Parameters can be passed as keyword arguments.
 
    .. csv-table::
@@ -233,7 +233,7 @@ Parent Selection
       "``probabilistic_tournament``", "", "``amount`` (int), ``tournament_size`` (int, default 3), ``p`` (float, default 0.5)", "Tournament selection where the winner is chosen with probability ``p`` (default 0.5)."
       "``select_best``", "``best``, ``truncation``", "``amount`` (int)", "Select the ``amount`` individuals with the highest fitness."
       "``uniform``", "``random``", "``amount`` (int)", "Uniformly random selection without replacement."
-      "``roulette``", "", "``amount`` (int), ``method`` (str, see :ref:`roulette-weighting`), ``F`` (float)", "Fitness‑proportionate (roulette wheel) selection. The weighting method can be chosen via the ``method`` parameter."
+      "``roulette``", "", "``amount`` (int), ``method`` (str, see :ref:`roulette-weighting`), ``F`` (float)", "Fitness-proportionate (roulette wheel) selection. The weighting method can be chosen via the ``method`` parameter."
       "``fitness_proportional``", "", "``amount`` (int), ``F`` (float)", "Roulette selection with **fitness proportional** weighting (shortcut for ``roulette, method='fitness_prop'``)."
       "``sigma_scaling``", "``std_roulette``", "``amount`` (int), ``F`` (float)", "Roulette selection with **sigma scaling** weighting."
       "``linear_rank``", "``rank_roulette``", "``amount`` (int), ``F`` (float)", "Roulette selection with **linear rank** weighting."
@@ -257,14 +257,14 @@ Roulette & SUS weighting methods
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When using ``"roulette"`` or ``"sus"``, the ``method`` parameter selects how fitness is
-mapped to selection probabilities. The available values are **case‑insensitive**:
+mapped to selection probabilities. The available values are **case-insensitive**:
 
 .. csv-table::
    :header: "``method`` value", "Description"
 
    "``fitness_prop``", "Fitness proportional scaling. The minimum fitness is subtracted to avoid negative values, then an offset ``F`` is added."
    "``sigma_scaling``", "Sigma scaling: weights are based on standard deviations above the mean."
-   "``lin_rank``", "Linear ranking: the weight of the i‑th best individual is proportional to its rank."
+   "``lin_rank``", "Linear ranking: the weight of the i-th best individual is proportional to its rank."
    "``exp_rank``", "Exponential ranking: weights are exponentially decayed with rank."
 
 If no ``method`` is given, plain fitness proportional scaling is applied.
@@ -274,7 +274,7 @@ Survivor Selection
 
 .. function:: create_survivor_selection(method, ...)
 
-   Available method keys (case‑insensitive), with the recommended explicit name shown first.
+   Available method keys (case-insensitive), with the recommended explicit name shown first.
 
    .. csv-table::
       :header: "Method (primary)", "Aliases", "Parameters", "Description"
@@ -284,7 +284,7 @@ Survivor Selection
       "``generational``", "``nothing``", "", "Discard parents; the offspring becomes the new population."
       "``one_to_one``", "``hillclimb``, ``hill_climb``", "", "Each offspring competes against its corresponding parent; the winner stays."
       "``probabilistic_one_to_one``", "``prob_one_to_one``, ``prob_hillclimb``, ``prob_hill_climb``, ``probabilistic_hillclimb``, ``probabilistic_hill_climb``", "``p`` (float)", "Like ``one_to_one``, but the offspring wins with probability ``p`` regardless of fitness."
-      "``many_to_one``", "``local_search``", "", "Each parent is compared to the corresponding offspring (element‑wise) and the better one is kept."
+      "``many_to_one``", "``local_search``", "", "Each parent is compared to the corresponding offspring (element-wise) and the better one is kept."
       "``probabilistic_many_to_one``", "``prob_many_to_one``, ``prob_local_search``, ``probabilistic_local_search``", "``p`` (float)", "Like ``many_to_one``, but the offspring wins with probability ``p`` even if it is worse."
       "``keep_best``", "``(m+n)``, ``(mu+lambda)``, ``mu+lambda``", "", "Keep the best ``pop_size`` individuals from the union of parents and offspring."
       "``keep_offspring``", "``(m,n)``, ``(mu,lambda)``, ``mu,lambda``", "", "Replace the whole population with the best individuals from the offspring (offspring size must be ≥ population size)."
