@@ -36,9 +36,9 @@ from metaheuristic_designer.operators import create_operator
 from metaheuristic_designer.algorithms import StandardAlgorithm
 
 # Define the problem
-objfunc = Sphere(dim=5, mode="min")
+objfunc = Sphere(vecsize=5, mode="min")
 
-# Create an initialiser
+# Create an initializer
 init = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim,
                          pop_size=1, random_state=42)
 
@@ -49,9 +49,9 @@ mutation = create_operator("mutation.gaussian_mutation", F=0.5, N=1, random_stat
 strategy = HillClimb(init, mutation)
 
 # Wrap it in an algorithm and run
-alg = StandardAlgorithm(objfunc, strategy, stop_cond="neval", neval=1000, verbose=True)
+alg = StandardAlgorithm(objfunc, strategy, stop_cond="neval", neval=1000, verbose=True) # maximum function evaluations = 1000
 population = alg.optimize()
-best_sol, best_fit = population.best_solution()
+best_solution, best_fit = population.best_solution()
 print(f"Best fitness: {best_fit}")
 ```
 
@@ -64,7 +64,7 @@ More examples are available in the `examples/` directory.
 The framework is built around a small number of abstract, composable pieces.
 
 ### Algorithm
-An `Algorithm` orchestrates the optimization loop — initialization, stopping conditions, progress tracking, and logging. The concrete `StandardAlgorithm` implements the classic parent‑selection → perturbation → evaluation → survivor‑selection loop. `MemeticAlgorithm` supports hybrid schemes that embed a local search step.
+An `Algorithm` orchestrates the optimization loop — initialization, stopping conditions, progress tracking, and logging. The concrete `StandardAlgorithm` implements the classic parent‑selection --> perturbation --> evaluation --> survivor‑selection loop. `MemeticAlgorithm` supports hybrid schemes that embed a local search step.
 
 ### Search Strategy
 A `SearchStrategy` defines how the population evolves each generation. It holds an initializer, an operator, and optionally parent and survivor selection methods. Pre‑built strategies include:
@@ -72,7 +72,7 @@ A `SearchStrategy` defines how the population evolves each generation. It holds 
 - `HillClimb`, `LocalSearch`, `SA` (Simulated Annealing)
 - `GA`, `ES`, `DE`, `PSO`
 - `CrossEntropyMethod`, `GaussianUMDA`, `GaussianPBIL`, `BernoulliUMDA`, `BernoulliPBIL`
-- `RandomSearch`, `NoSearch`
+- `RandomSearch`
 
 All strategies can be extended or replaced with custom implementations.
 
@@ -142,6 +142,8 @@ All concrete classes inherit from abstract bases, making it straightforward to a
 - **Custom Encoding / Initializer / Constraint Handler** — implement the corresponding abstract class or use the `*FromLambda` wrappers.
 
 If you subclass any component, remember to call the parent’s implementation inside your implementation. For instance, if you override `encode(solutions)` in a custom encoding, always include `super().encode(solutions)` to keep the built‑in validation and bookkeeping logic intact.
+
+Make sure to pay attention to the type annotations in the parent class your overrides should respect the same parameter and return types.
 
 ---
 
