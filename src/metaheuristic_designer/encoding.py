@@ -80,8 +80,8 @@ class EncodingFromLambda(Encoding):
     Decoder that uses user specified functions.
     """
 
-    def __init__(self, encode_fn: Callable, decode_fn: Callable):
-        super().__init__()
+    def __init__(self, encode_fn: Callable, decode_fn: Callable, **kwargs):
+        super().__init__(**kwargs)
         self.encode_fn = encode_fn
         self.decode_fn = decode_fn
 

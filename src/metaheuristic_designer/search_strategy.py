@@ -6,7 +6,7 @@ This module implements the procedure applied in each iteration of the algorithm.
 
 from __future__ import annotations
 import logging
-from typing import Tuple, Any, Optional
+from typing import Tuple, Any, Optional, Callable
 from abc import ABC
 import numpy
 from .parent_selection import ParentSelection, NullParentSelection
@@ -315,3 +315,52 @@ class SearchStrategy(ParametrizableMixin):
         show_plots: bool
             Display plots specific to this search strategy.
         """
+
+from .initializer import InitializerFromLambda
+from .encoding import Encoding, EncodingFromLambda
+from .operator import Operator, OperatorFromLambda
+from .parent_selection import ParentSelectionFromLambda
+from .survivor_selection import SurvivorSelectionFromLambda
+
+class SearchStrategyFromLambda(SearchStrategy):
+    def __init__(
+        self,
+        initializer: Callable | Initializer,
+        operator: Optional[Callable | Operator] = None,
+        parent_sel: Optional[Callable | ParentSelection] = None,
+        survivor_sel: Optional[Callable | SurvivorSelection] = None,
+        name: str = "Strategy from lambda",
+        encoding: Optional[Encoding] = None,
+        encode_fn: Optional[Callable] = None,
+        decode_fn: Optional[Callable] = None,
+        parent_selection_amount: Optional[int] = None,
+        pop_size: int = 100,
+        random_state: Optional[RNGLike] = None,
+        **kwargs
+    ):
+        if encoding is None and callable(encode_fn) and callable(decode_fn):
+            encoding = EncodingFromLambda(encode_fn=encode_fn, decode_fn=decode_fn)
+            
+        if callable(initializer):
+            initializer = InitializerFromLambda(initializer, pop_size=pop_size, encoding=encoding, random_state=random_state)
+        
+        if callable(parent_sel):
+            if parent_selection_amount is None:
+                parent_selection_amount = initializer.pop_size
+            parent_sel = ParentSelectionFromLambda(selection_fn=parent_sel, amount=parent_selection_amount, random_state=random_state)
+
+        if callable(operator):
+            operator = OperatorFromLambda(operator_fn=operator, encoding=encoding, random_state=random_state)
+        
+        if callable(survivor_sel):
+            survivor_sel = SurvivorSelectionFromLambda(selection_fn=survivor_sel, random_state=random_state)
+        
+        super().__init__(
+            initializer=initializer,
+            operator=operator,
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
+            name=name,
+            random_state=random_state,
+            **kwargs
+        ) 

@@ -1,248 +1,156 @@
-# Metaheuristic-designer
+# Metaheuristic‑designer
+
 [![Documentation Status](https://readthedocs.org/projects/metaheuristic-designer/badge/?version=latest)](https://metaheuristic-designer.readthedocs.io/en/latest/?badge=latest)
 
-This is an object-oriented framework for the development, testing and analysis of metaheuristic optimization algorithms.
+Object‑oriented framework for the development, testing and analysis of metaheuristic optimization algorithms aimed at researchers and engineers working on optimization problems.
 
-It defines the components of a general evolutionary algorithm and offers some implementations of algorithms along with components
-that can be used directly. Those components will be explained below.
+It was inspired by the article [Metaheuristics "in the large"](https://doi.org/10.1016/j.ejor.2021.05.042) that discusses some of the issues in the research on metaheuristic optimization, suggesting the development of libraries for the standardization of metaheuristic algorithms.
 
-It was inspired by the article [Metaheuristics “in the large”](https://doi.org/10.1016/j.ejor.2021.05.042) that 
-discusses some of the issues in the research on metaheuristic optimization, sugesting the development of libraries for the standarization
-of metaheuristic algorithms.
+Most of the design decisions are based on the book [Introduction to Evolutionary Computing](https://doi.org/10.1007/978-3-662-44874-8) by Eiben and Smith, which is very well explained and is highly recommended to anyone willing to learn about the topic.
 
-Most of the design decisions are based on the book [Introduction to evolutionary computing by Eiben, Agoston E.,
-and James E. Smith](https://doi.org/10.1007/978-3-662-44874-8) which is very well expained and is highly recomended to anyone willing to learn about the topic.
+This framework doesn't claim to have high performance, especially since the chosen language is Python and the code has not been designed for speed. This  is rarely an issue since the highest amount of time spent in these kind of algorithms tends to be in the evaluation of the objective function. If you want to compare an algorithm made with this tool with another one that is available by other means, it is recommended to use the number of evaluations of the objective function as a metric instead of execution time.
 
-This framework doesn't claim to have a high performance, specially since the chosen language is Python and the code has not been 
-designed for speed. This shouldn't really be an issue since the highest amount of time spent in these kind of algorithms
-tends to be in the evaluation of the objective function. If you want to compare an algorithm made with this tool with another
-one that is available by other means, it is recomended to use the number of evaluations of the objective function as a metric instead of execution time.
+---
 
-## Instalation
+## Installation
 
-The package is available in the PyPi repository (https://pypi.org/project/metaheuristic-designer/).
-
-To install it, use the pip command as follows:
+Install the core package:
 
 ```bash
 pip install metaheuristic-designer
 ```
 
-## Examples
-- There are 2 scripts to test this repository:
-    - "examples/exec_basic.py": Optimize a simple function, in this case, the "sphere" function that calculates the squared norm of a vector, we want a vector that minmizes this function. There are two possible flags that can be added:
-        - "-a \[Alg\]" use one of the available algorithms, the choices are:
-            - HillClimb: simple hill climbing algorithm.
-            - LocalSearch: take the best of 20 randomly chosen neighbours.
-            - ES: (100+150)-ES, basic evolutionary strategy.
-            - HS: Harmony search algorithm.
-            - GA: genetic algorithm.
-            - SA: simulated annealing algorithm.
-            - DE: DE/best/1, differential evolution algorithm.
-            - PSO: simple particle swarm algorithm.
-            - NoSearch: no search is done.
-        - "-m" use a memetic search like structure, do local search after mutation.
-    - "examples/exec_basic.py": Evolve an image so that it matches the one given as an input. 
-        - The same parameters as the previous script.
-        - "-i \[Image path\]" read the image and evolve a random image into this one.
+---
 
-It is recomended that you create a virtual environment to test the examples.
+## Quick Start
 
-This is done with the following commands:
-```bash
-python -m venv venv
-source venv/bin/activate
-pip install .[examples]
+Optimise the classical *sphere* function with a (1+1)‑Evolution Strategy:
+
+```python
+import numpy as np
+from metaheuristic_designer import *
+from metaheuristic_designer.benchmarks import Sphere
+from metaheuristic_designer.strategies import HillClimb
+from metaheuristic_designer.initializers import UniformInitializer
+from metaheuristic_designer.operators import create_operator
+from metaheuristic_designer.algorithms import StandardAlgorithm
+
+# Define the problem
+objfunc = Sphere(dim=5, mode="min")
+
+# Create an initialiser
+init = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim,
+                         pop_size=1, random_state=42)
+
+# Build a mutation operator
+mutation = create_operator("mutation.gaussian_mutation", F=0.5, N=1, random_state=42)
+
+# Assemble the search strategy (Hill‑Climbing)
+strategy = HillClimb(init, mutation)
+
+# Wrap it in an algorithm and run
+alg = StandardAlgorithm(objfunc, strategy, stop_cond="neval", neval=1000, verbose=True)
+population = alg.optimize()
+best_sol, best_fit = population.best_solution()
+print(f"Best fitness: {best_fit}")
 ```
 
-Once you have activate the virtual environment, you can execute one of the examples like this:
-```
-python examples/example_basic.py
-``` 
+More examples are available in the `examples/` directory.
 
-or
+---
 
-```
-python examples/image_evolution.py
-``` 
+## Design Overview
 
-To run the tests you need to install nox, to execute the tests use the command
+The framework is built around a small number of abstract, composable pieces.
 
-```bash
-nox test
-```
+### Algorithm
+An `Algorithm` orchestrates the optimization loop — initialization, stopping conditions, progress tracking, and logging. The concrete `StandardAlgorithm` implements the classic parent‑selection → perturbation → evaluation → survivor‑selection loop. `MemeticAlgorithm` supports hybrid schemes that embed a local search step.
 
-## Implemented components
-This package comes with some already made components that can be used in any algorithm in this framework
+### Search Strategy
+A `SearchStrategy` defines how the population evolves each generation. It holds an initializer, an operator, and optionally parent and survivor selection methods. Pre‑built strategies include:
 
-### Search strategies
-The algorithms implemented are:
-| Class name | Strategy | Params | Other info |
-|------------|-----------|--------|------------|
-|NoSearch|Do nothing||For debugging purposes||
-|RandomSearch|Random Search|||
-|HillClimb|Hill climb |||
-|LocalSearch|Local seach |**iters** (number of neighbors to test each time)||
-|SA|Simulated annealing|**iter** (iterations per temperature change), **temp_init** (initial temperature), **alpha** (exponent of the temperature change) ||
-|GA|Genetic algorithm|**pmut** (probability of mutation), **pcross** (probability of crossover)||
-|ES|Evolution strategy|**offspringSize** (number of indiviuals to generate each generation)||
-|HS|Harmony search|**HSM**, **HMCR**, **BW**, **PAR**||
-|PSO|Particle Swarm optimization|**w**,**c1**,**c2**||
-|DE|Differential evolution|||
-|CRO|Coral Reef Optimization|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
-|CRO_SL|Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
-|PCRO_SL|probabilistic Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
-|DPCRO_SL|Dynamic probabilistic Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**,**group_subs**,**dyn_method**,**dyn_steps**,**prob_amp**||
-|VND| Variable neighborhood descent|||
-|RVNS| Restricted variable neighborhood search||In progress|
-|VNS| Variable neighborhood search||In progress|
-|CMA_ES| Covariance matrix adaptation - Evolution strategy|| Not implemented yet|
+- `HillClimb`, `LocalSearch`, `SA` (Simulated Annealing)
+- `GA`, `ES`, `DE`, `PSO`
+- `CrossEntropyMethod`, `GaussianUMDA`, `GaussianPBIL`, `BernoulliUMDA`, `BernoulliPBIL`
+- `RandomSearch`, `NoSearch`
 
-### Survivor selection methods
-These are methods of selecting the individuals to use in future generations.
-
-The methods implemented are:
-| Method name | Algorithm | Params | Other info |
-|-------------|-----------|--------|------------|
-|"Elitism"|Elitism|**amount**||
-|"CondElitism"|Conditional Elitism|**amount**||
-|"nothing" or "generational"|Replace all the parents with their children|| Needs the offspring size to be equal to the population size|
-|"One-to-one" or "HillClimb"|One to one (compare each parent with its child)||Needs the offspring size to be equal to the population size|
-|"Prob-one-to-one" or "ProbHillClimb"|Probabilitisc One to one (with a chance to always choose the child)|**p**|Needs the offspring size to be equal to the population size|
-|"(m+n)" or "keepbest"|(λ+μ), or choosing the λ best individuals taking parents and children|||
-|"(m,n)" or "keepoffspring"|(λ,μ), or taking the best λ children||λ must be smaller than μ|
-|"CRO"|A 2 step survivor selection method used in the CRO algorithm. Each individual attempts to enter the population K times and then a percentage of the worse individuals will be eliminated from the population|**Fd**,**Pd**,**attempts**,**maxPopSize**|Can return a population with a variable number of individuals|
-
-### Parent selection methods
-These are methods of selecting the individuals that will be mutated/perturbed in each generation
-
-The methods implemented are:
-| Method name | Algorithm | Params | Other info |
-|-------------|-----------|--------|------------|
-|"Torunament"|Choose parents by tournament|**amount**, **p**||
-|"Best"| Select the n best individuals|**amount**||
-|"Random"| Take n individuals at random|**amount**||
-|"Roulette"| Perform a selection with the roullette method|**amount**, **method**, **F**||
-|"SUS"| Stochastic universal sampling|**amount**, **method**, **F**||
-|"Nothing"| Take all the individuals from the population||
+All strategies can be extended or replaced with custom implementations.
 
 ### Operators
+Operators modify the genotype of individuals. They are created through **factories** that accept string keys and optional parameters:
 
-| Class name | Domain | Other info|
-|------------|--------|----|
-|OperatorReal|Real valued vectors||
-|OperatorInt|Integer valued vectors||
-|OperatorBinary|Binary vectors||
-|OperatorPerm|Permutations||
-|OperatorList|Variable length lists||
-|OperatorMeta|Other operators||
-|OperatorLambda|Any|Lets you specify a function as an operator|
+```python
+create_operator("mutation.gaussian_mutation", F=0.2, N=3, random_state=42)
+create_operator("crossover.one_point_crossover", random_state=42)
+create_operator("de.best.1", F=0.8, Cr=0.9)
+create_operator("permutation.swap", N=2)
+```
 
-The Operators functions available in the operator classes are:
-| Method name | Algorithm | Params | Domains |
-|-------------|-----------|--------|---------|
-|"1point"|1 point crossover||Real, Int, Bin|
-|"2point"|2 point crossover||Real, Int, Bin|
-|"Multipoint"|multipoint crossover||Real, Int, Bin|
-|"WeightedAvg"|Weighted average crossover|**F**|Real, Int|
-|"BLXalpha"|BLX-alpha crossover|**Cr**|Real|
-|"Multicross"|multi-individual multipoint crossover|**Nindiv**|Real, Int, Bin|
-|"XOR"|Bytewise XOR with a random vector|**N**|Int|
-|"XORCross"|Bytewise XOR between 2 vectors component by component||Int|
-|"sbx"|SBX crossover|**Cr**|Real|
-|"Perm"|Permutate vector components|**N**|Real, Int, Bin, Perm|
-|"Gauss"|Add Gaussian noise|**F**|Real, Int|
-|"Laplace"|Add noise following a Laplace distribution|**F**|Real, Int|
-|"Cauchy"|Add noise following a Cauchy distribution|**F**|Real, Int|
-|"Poisson"|Add noise following a Cauchy distribution|**F**|Int|
-|"Uniform"|Add Uniform noise|**Low**, **Up**|Real, Int|
-|"MutRand" or "MutNoise"|Add random noise to a number of vector components|**method**, **N**, optionaly: **Low**, **Up**, **F**|Real, Int|
-|"MutSample"|Take a sample from a probability distribution and put it on a number of vector components|**method**, **N**, optionaly: **Low**, **Up**, **F**|Real, Int|
-|"RandNoise"|Add random noise|**method**, optionaly: **Low**, **Up**, **F**|Real, Int|
-|"RandSample"|Sample from a probability distribution|**method**, optionaly: **Low**, **Up**, **F**|Real, Int|
-|"DE/Rand/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Best/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Rand/2"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Best/2"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Current-to-rand/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Current-to-best/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Current-to-pbest/1"|Sample from a probability distribution|**F**, **Cr**, **p**|Real, Int|
-|"PSO"|Sample from a probability distribution|**w**, **c1**, **c2**|Real, Int|
-|"Firefly"|Sample from a probability distribution|**a**,**b**,**c**,**g**|Real, Int|
-|"Random"|Sample from a probability distribution||Real, Int, Bin, Perm|
-|"RandomMask"|Randomly sample a number of vector components|**N**|Real, Int||
-|"Swap"|Swap two components||Perm||
-|"Insert"|Insert a component and shift to the left||Perm||
-|"Scramble"|Scramble permutation order|**N**|Perm||
-|"Invert"|Reverse order of components||Perm||
-|"Roll"|Roll components to the right|**N**|Perm||
-|"PMX"|Partially mapped crossover||Perm||
-|"OrderCross"|Ordered crossover||Perm||
-|"branch"|Choose one of the provided operators randomly||Operators|
-|"sequence"|Apply all the provided operators in order||Operators|
-|"split"|Apply each operator to a subset of vector components following the mask provided||Operators|
-|"pick"|Manually pick one of the operators provided (setting the ```chosen_idx``` attribute)||Operators|
-|"Dummy"|Assing the vector to a predefined value||All|
-|"Custom"|Provide a lambda function to apply as an operator|**function**|All|
-|"Nothing"|Do nothing||All|
+A generic factory supports dot‑notation (`"mutation.gaussian_mutation"`, `"crossover.one_point_crossover"`) and runtime registration of new operators via `add_operator_entry`.
 
-### Initializers
-Initializers create the initial population that will be evolved in the optimization process.
+### Selection Methods
+Parent and survivor selection are handled by separate interfaces (`ParentSelection`, `SurvivorSelection`) and created through dedicated factories:
 
-Some of the implemente Initializers are:
-| Class name | Description | Other info |
-|------------|-----------|------------|
-|DirectInitializer|Initialize the population to a preset list of individuals||
-|SeedProbInitializer|Initializes the population with another initializer and inserts user-specified individuals with a probability||
-|SeedDetermInitializer|Initializes the population with another initializer and inserts a number of user-specified individuals into the population||
-|GaussianVectorInitializer|Initialize individuals with normally distributed vectors||
-|UniformVectorInitializer|Initialize individuals with uniformly random distributed vectors||
-|PermInitializer|Initialize individuals with random permuations||
-|LambdaInitializer|Initialize individuals with a user-defined function||
+```python
+create_parent_selection("tournament", amount=20, tournament_size=3)
+create_survivor_selection("(m+n)")
+create_survivor_selection("elitism", amount=5)
+```
 
+Available keys include `"best"`, `"random"`, `"roulette"`, `"sus"`, `"one_to_one"`, `"prob_one_to_one"`, `"(m+n)"`, `"(m,n)"`, `"elitism"`, `"cond_elitism"`, `"generational"`, and others. The complete list is documented in the documentation page.
+
+### Population
+A `Population` holds the genotype matrix, fitness values, a record of the best individual, and per‑spot historical bests. Methods for slicing, joining, and updating the solution matrix are provided.
 
 ### Encodings
-Specifying the Encoding is optional but can be very helpful for some types of problems.
+An `Encoding` translates between the internal genotype and the phenotype evaluated by the objective function. Built‑in encodings include:
 
-An encoding will represent each solution differently in the optimization process and the evaluation of the fintess, since most algorithm work only with vectors, but we might need other types of datatypes for our optimization.
+- `DefaultEncoding` (identity)
+- `TypeCastEncoding` (convert between float / int / bool)
+- `MatrixEncoding` / `ImageEncoding`
+- `SigmoidEncoding` (binary problems with continuous operators)
+- `ParameterExtendingEncoding` — attach extra per‑individual parameters (e.g., velocity for PSO, sigma for self‑adaptation, ...)
 
-Some of the implemented Encodings are:
-| Class name | Encoding | Decoding | Other info |
-|------------|----------|----------|------------|
-|DefaultEncoding|Makes no changes to the input|Makes no changes to the input|
-|TypeCastEncoding|Changes the datatype of the vector from **T1** to **T2**|Changes the datatype of the vectorfrom **T1** to **T2**||
-|MatrixEncoding|Converts a vector into a matrix of size **NxM**|Converts a matrix to a vector with the ```.flatten()``` method||
-|ImageEncoding|Converts a vector into a matrix of size **NxMx1** or **NxMx3**, each component is an unsigned 8bit number|Converts a matrix to a vector with the ```.flatten()``` method|
-|LambdaEncoding|Applies the user-defined ```encode``` function|Applies the user-defined ```decode``` function||
+### Initializers
+Initializers generate the starting population. Examples: `UniformInitializer`, `GaussianInitializer`, `PermInitializer`, `SeedDetermInitializer`, and `ExtendedInitializer` (for parameter‑extending encodings).
 
+### Benchmarks
+A collection of test problems is included:
 
-### Benchmark functions
-The benchmark functions you can use to test the algorithms are:
-| Class name | Domain | Other info |
-|------------|--------|------------|
-|MaxOnes||Integer||
-|DiophantineEq||Integer||
-|MaxOnesReal||Real||
-|Sphere||Real||
-|HighCondElliptic||Real||
-|BentCigar||Real||
-|Discus||Real||
-|Rosenbrock||Real||
-|Ackley||Real||
-|Weistrass||Real||
-|Griewank||Real||
-|Rastrigin||Real||
-|ModSchwefel||Real||
-|Katsuura||Real||
-|HappyCat||Real||
-|HGBat||Real||
-|SumPowell||Real||
-|N4XinSheYang||Real||
-|ThreeSAT||Real||
-|BinKnapsack||Binary||
-|MaxClique||Permutation||
-|TSP||Permutation||
-|ImgApprox||Integer||
-|ImgStd||Integer||
-|ImgEntropy||Integer||
+- Continuous — `Sphere`, `Rastrigin`, `Rosenbrock`, `Ackley`, `Griewank`, `Weierstrass`, etc.
+- Binary — `MaxOnes`, `BinKnapsack`, `ThreeSAT`
+- Permutation — `MaxClique`
+- Image approximation — `ImgApprox`, `ImgEntropy`, `ImgStd`
 
+### Constraint Handling
+Constraint handlers implement repair or penalty strategies: `ClipBoundConstraint`, `BounceBoundConstraint`, `CycleBoundConstraint`, `CompositeConstraint`, and linear penalty methods. They can be composed and applied automatically during the optimization loop.
+
+### Parameter Scheduling
+Any numeric parameter of an operator, selection method, or strategy can be a **schedulable** value (e.g., a decay schedule). The library provides `LinearSchedule`, `ExponentialSchedule`, `LogisticSchedule`, `StepSchedule`, and `RandomSchedule`. Callable values are evaluated each generation via the `ParametrizableMixin`.
+
+Current parameter values can be obtained by calling `.get_params()` on any class inheriting from the mixin; it returns a dictionary mapping parameter names to their current values. You can also access individual parameters directly via the `.params` attribute, e.g., component.params.scale
+
+---
+
+## Extending the Framework
+
+All concrete classes inherit from abstract bases, making it straightforward to add custom components:
+
+- **Custom Operator** — subclass `Operator` or implement `my_operator(population_matrix, fitness, random_state, **kwargs)` and register it with `add_operator_entry`.
+- **Custom Selection** — subclass `ParentSelection` or `SurvivorSelection`, or use the `*FromLambda` wrappers.
+- **Custom Strategy** — subclass `SearchStrategy`and override the methods you need (`initialize`, `select_parents`, `perturb`, `select_individuals`, `step`) or use the `SearchStrategyFromLambda` wrappers.
+- **Custom Encoding / Initializer / Constraint Handler** — implement the corresponding abstract class or use the `*FromLambda` wrappers.
+
+If you subclass any component, remember to call the parent’s implementation inside your implementation. For instance, if you override `encode(solutions)` in a custom encoding, always include `super().encode(solutions)` to keep the built‑in validation and bookkeeping logic intact.
+
+---
+
+## Documentation
+
+Full API documentation is available at [https://metaheuristic-designer.readthedocs.io](https://metaheuristic-designer.readthedocs.io).
+
+---
+
+## License
+
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
