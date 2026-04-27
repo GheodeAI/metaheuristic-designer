@@ -1,3 +1,4 @@
+from .CMA_ES import CMA_ES
 from .random_search import RandomSearch
 from .SA import SA
 from .GA import GA

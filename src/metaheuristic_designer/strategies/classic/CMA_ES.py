@@ -3,11 +3,11 @@ from ...initializer import Initializer
 from ..static_population import StaticPopulation
 from ...survivor_selection import SurvivorSelection
 from ...parent_selection import ParentSelection
-from ...encodings import CMAEncoding
 
 
 class CMA_ES(StaticPopulation):
     def __init__(self, initializer: Initializer, parent_sel_op: ParentSelection, selection_op: SurvivorSelection, name: str = "ES"):
+        raise NotImplementedError()
         parent_select = ParentSelection("Nothing")
         selection = SurvivorSelection("(m+n)")
 
@@ -25,7 +25,7 @@ class CMA_ES(StaticPopulation):
         # super().__init__(initializer, mutate, cross, parent_select, selection, params, name)
 
     def initialize(self, objfunc):
-        objfunc.encoding = CMAEncoding(objfunc.vecsize**2, pre_encoding=objfunc.encoding)
+        # objfunc.encoding = CMAEncoding(objfunc.vecsize**2, pre_encoding=objfunc.encoding)
         super().initialize(objfunc)
 
     # def update_params(self, **kwargs):

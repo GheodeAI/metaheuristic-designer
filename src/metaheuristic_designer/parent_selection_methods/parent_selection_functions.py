@@ -22,10 +22,10 @@ class SelectionDist(Enum):
 
 
 select_dist_map = {
-    "fitnessprop": SelectionDist.FIT_PROP,
-    "sigmascaling": SelectionDist.SIGMA_SCALE,
-    "linrank": SelectionDist.LIN_RANK,
-    "exprank": SelectionDist.EXP_RANK,
+    "fitness_prop": SelectionDist.FIT_PROP,
+    "sigma_scaling": SelectionDist.SIGMA_SCALE,
+    "lin_rank": SelectionDist.LIN_RANK,
+    "exp_rank": SelectionDist.EXP_RANK,
 }
 
 

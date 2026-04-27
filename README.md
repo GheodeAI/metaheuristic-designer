@@ -24,7 +24,7 @@ pip install metaheuristic-designer
 
 ## Quick Start
 
-Optimise the classical *sphere* function with a (1+1)‑Evolution Strategy:
+Optimize the classical *sphere* function with a (1+1)‑Evolution Strategy:
 
 ```python
 import numpy as np

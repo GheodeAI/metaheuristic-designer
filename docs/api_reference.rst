@@ -1,212 +1,220 @@
-===============
-API reference
-===============
-
 Base Classes
 ------------
-These are the intefaces from which to inherit to implement a new component for any optimizaion algorithm.
+These are the interfaces from which to inherit to implement a new component for any optimization algorithm.
 
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`~metaheuristic_designer.ObjectiveFunc`", "Prototype of a data type agnostic objective function."
-   ":py:class:`~metaheuristic_designer.VectorObjectiveFunc`", "Prototype of an objective function with vector inputs."
-   ":py:class:`~metaheuristic_designer.ConstraintHandler`", "Prototype of a constraint handler class."
-   ":py:class:`~metaheuristic_designer.Initializer`", "Prototype of a population initializer."
-   ":py:class:`~metaheuristic_designer.Encoding`", "Prototype of an individual solution encoding."
-   ":py:class:`~metaheuristic_designer.SelectionMethod`", "Prototype of an individual selection method."
-   ":py:class:`~metaheuristic_designer.Operator`", "Prototype of an operator on individuals."
-   ":py:class:`~metaheuristic_designer.SearchStrategy`", "Prototype of a search strategy applied each generation."
-   ":py:class:`~metaheuristic_designer.Algorithm`", "Prototype of a full optimization algorithm."
+   ":py:class:`SchedulableParameter<metaheuristic_designer.schedulable_parameter.SchedulableParameter>`", "Prototype of a parameter that changes in value as iterations go on."
+   ":py:class:`ParametrizableMixin<metaheuristic_designer.parametrizable_mixin.ParametrizableMixin>`", "Mixin used by interfaces to hold schedulable parameters."
+   ":py:class:`ObjectiveFunc<metaheuristic_designer.objective_function.ObjectiveFunc>`", "Prototype of a data type agnostic objective function."
+   ":py:class:`VectorObjectiveFunc<metaheuristic_designer.objective_function.VectorObjectiveFunc>`", "Prototype of an objective function with vector inputs."
+   ":py:class:`ConstraintHandler<metaheuristic_designer.constraint_handler.ConstraintHandler>`", "Prototype of a constraint handler class."
+   ":py:class:`Initializer<metaheuristic_designer.initializer.Initializer>`", "Prototype of a population initializer."
+   ":py:class:`Encoding<metaheuristic_designer.encoding.Encoding>`", "Prototype of an encoding and decoding genotypes of the population."
+   ":py:class:`ParentSelection<metaheuristic_designer.parent_selection.ParentSelection>`", "Prototype of a parent selection method."
+   ":py:class:`SurvivorSelection<metaheuristic_designer.survivor_selection.SurvivorSelection>`", "Prototype of a survivor selection method."
+   ":py:class:`Operator<metaheuristic_designer.operator.Operator>`", "Prototype of an operator on individuals."
+   ":py:class:`SearchStrategy<metaheuristic_designer.search_strategy.SearchStrategy>`", "Prototype of a search strategy applied each generation."
+   ":py:class:`Algorithm<metaheuristic_designer.algorithm.Algorithm>`", "Prototype of a full optimization algorithm."
 
+Almost every interface works with the :py:class:`Population<metaheuristic_designer.population.Population>` class internally:
+
+.. csv-table::
+   :header: "Module name", "Description"
+
+   ":py:class:`Population<metaheuristic_designer.population.Population>`", "Data structure holding all the solutions and the best solution."
 
 Lambda Implementations
 ----------------------
-There are classes that allow the implementation of optimization modules with a lambda function, avoiding the need for inheriting from a base class
+Classes that allow implementing optimization modules with a lambda function, avoiding the need to inherit from a base class.
 
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`~metaheuristic_designer.ObjectiveFromLambda`", "Objective function from a function."
-   ":py:class:`~metaheuristic_designer.ConstraintHandlerFromLambda`", "Constraint Handler from a function."
-   ":py:class:`~metaheuristic_designer.InitializerFromLambda`", "Population initializer from a function."
-   ":py:class:`~metaheuristic_designer.EncodingFromLambda`", "Encoding from an encoding function and a decoding function."
-   ":py:class:`~metaheuristic_designer.SelectionFromLambda`", "Individual selection from a function."
-   ":py:class:`~metaheuristic_designer.OperatorFromLambda`", "Operator from a function."
+   ":py:class:`ObjectiveFromLambda<metaheuristic_designer.objective_function.ObjectiveFromLambda>`", "Objective function from a function."
+   ":py:class:`ConstraintHandlerFromLambda<metaheuristic_designer.constraint_handler.ConstraintHandlerFromLambda>`", "Constraint Handler from a function."
+   ":py:class:`InitializerFromLambda<metaheuristic_designer.initializer.InitializerFromLambda>`", "Population initializer from a function."
+   ":py:class:`EncodingFromLambda<metaheuristic_designer.encoding.EncodingFromLambda>`", "Encoding from an encoding function and a decoding function."
+   ":py:class:`ParentSelectionFromLambda<metaheuristic_designer.parent_selection.ParentSelectionFromLambda>`", "Parent selection from a function."
+   ":py:class:`SurvivorSelectionFromLambda<metaheuristic_designer.survivor_selection.SurvivorSelectionFromLambda>`", "Survivor selection from a function."
+   ":py:class:`OperatorFromLambda<metaheuristic_designer.operator.OperatorFromLambda>`", "Operator from a function."
 
-Extended encoding classes
--------------------------
-When the genotype vector encodes more information other than the soluion, like in the case of PSO with a speed vector and adaptative algorithms with 
-parameters of the algorithm, you need to use the following interfaces to handle the size difference of the solution vector.
+Extended Encoding Classes
+--------------------------
+When the genotype vector encodes more information than just the solution – such as a speed vector for PSO or adaptive algorithm parameters – you need these interfaces to handle the extra data.
 
-Note that there are also a number of implementations of these interfaces already available for specific algorithms like PSO.
+Note that concrete implementations for specific algorithms (e.g. PSO) already exist.
 
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`~metaheuristic_designer.ExtendedEncoding`", "Encoding that splits the vector into a solution and a dictionary with the necesary data."
-   ":py:class:`~metaheuristic_designer.ExtendedConstraintHandler`", "Split constraint handler that treats the solution and the rest of the data separately."
-   ":py:class:`~metaheuristic_designer.ExtendedInitializer`", "Split initializer that initializes the solution with a different distribution than other data."
-   ":py:class:`~metaheuristic_designer.ExtendedOperator`", "Split operator that applies a different operation to the solution and the other data."
+   ":py:class:`~metaheuristic_designer.encodings.parameter_extending_encoding.ParameterExtendingEncoding`", "Encoding that splits the vector into a solution and a dictionary with the necessary extra data."
+   ":py:class:`~metaheuristic_designer.constraint_handlers.extended_constraint.ExtendedConstraintHandler`", "Constraint handler that treats the solution and the extra data separately."
+   ":py:class:`~metaheuristic_designer.initializers.extended_initializer.ExtendedInitializer`", "Initializer that handles the solution and extra data with different distributions."
+   ":py:class:`~metaheuristic_designer.operators.extended_operator.ExtendedOperator`", "Operator that applies different operations to the solution and the extra data."
 
+Parameter Schedules
+--------------------
+Many numerical parameters can be made schedulable by passing a :py:class:`~metaheuristic_designer.SchedulableParameter` subclass instead of a constant. The available schedules are:
+
+.. csv-table::
+   :header: "Module name", "Description"
+
+   ":py:class:`parameter_schedules.LinearSchedule<metaheuristic_designer.parameter_schedules.linear_schedule.LinearSchedule>`", "Changes the value linearly between two values."
+   ":py:class:`parameter_schedules.LogisticSchedule<metaheuristic_designer.parameter_schedules.logistic_schedule.LogisticSchedule>`", "Sigmoid‑shaped transition between two values."
+   ":py:class:`parameter_schedules.ThresholdSchedule<metaheuristic_designer.parameter_schedules.threshold_schedule.ThresholdSchedule>`", "Keeps the initial value until progress crosses a threshold, then switches to the final value."
+   ":py:class:`parameter_schedules.StepSchedule<metaheuristic_designer.parameter_schedules.step_schedule.StepSchedule>`", "Discrete steps defined by a list of (progress, value) pairs."
+   ":py:class:`parameter_schedules.RandomSchedule<metaheuristic_designer.parameter_schedules.random_schedule.RandomSchedule>`", "Randomly picks a value between two bounds at each step."
+
+All schedules depend on the algorithm’s **progress** – a number between 0 and 1 – to decide parameter values.
 
 Initializers
 ------------
-
-The implemented initializers are listed below.
+Implemented population initializers:
 
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`initializers.UniformInitializer<metaheuristic_designer.initializers.UniformInitializer>`", "Initializer that uses an uniform distribution."
-   ":py:class:`initializers.GaussianInitializer<metaheuristic_designer.initializers.GaussianInitializer>`", "Initializer that uses an gaussian distribution."
-   ":py:class:`initializers.DirectInitializer<metaheuristic_designer.initializers.DirectInitializer>`", "Initializer with a predefined population of individuals."
-   ":py:class:`initializers.SeedDetermInitializer<metaheuristic_designer.initializers.SeedDetermInitializer>`", "Initializer with a fixed number of seeded solutions."
-   ":py:class:`initializers.SeedProbInitializer<metaheuristic_designer.initializers.SeedProbInitializer>`", "Initializer with randomly inserted seeded solutions."
-   ":py:class:`initializers.PermInitializer<metaheuristic_designer.initializers.PermInitializer>`", "Initializer that produces random permutations of n elements as vectors."
+   ":py:class:`initializers.UniformInitializer<metaheuristic_designer.initializers.uniform_initializer.UniformInitializer>`", "Initializer that uses a uniform distribution."
+   ":py:class:`initializers.GaussianInitializer<metaheuristic_designer.initializers.gaussian_initializer.GaussianInitializer>`", "Initializer that uses a Gaussian distribution."
+   ":py:class:`initializers.ExponentialInitializer<metaheuristic_designer.initializers.exponential_initializer.ExponentialInitializer>`", "Initializer that uses an exponential distribution."
+   ":py:class:`initializers.DirectInitializer<metaheuristic_designer.initializers.direct_initializer.DirectInitializer>`", "Initializer with a predefined population of individuals."
+   ":py:class:`initializers.SeedDetermInitializer<metaheuristic_designer.initializers.seed_initializer.SeedDetermInitializer>`", "Initializer that inserts a fixed number of seeded solutions."
+   ":py:class:`initializers.SeedProbInitializer<metaheuristic_designer.initializers.seed_initializer.SeedProbInitializer>`", "Initializer that randomly inserts seeded solutions with a given probability."
+   ":py:class:`initializers.PermInitializer<metaheuristic_designer.initializers.perm_initializer.PermInitializer>`", "Initializer that produces random permutations of n elements."
 
 Encodings
 ---------
-
-The implemented encodings are listed below.
+Implemented encodings that transform between the internal genotype and the phenotype evaluated by the objective function:
 
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`DefaultEncoding<metaheuristic_designer.DefaultEncoding>`", "Encoding that makes no changes while encoding or decoding."
-   ":py:class:`encodings.TypeCastEncoding<metaheuristic_designer.encodings.TypeCastEncoding>`", "Encoding that changes the datatype when encoding and decoding."
-   ":py:class:`encodings.MatrixEncoding<metaheuristic_designer.encodings.MatrixEncoding>`", "Encoding that reshapes a vector to a tensor with a different size."
-   ":py:class:`encodings.ImageEncoding<metaheuristic_designer.encodings.ImageEncoding>`", "Encoding that reshapes a vector to a NxMxC matrix of bytes that represents NxM images with C channels."
-   ":py:class:`encodings.SigmoidEncoding<metaheuristic_designer.encodings.SigmoidEncoding>`", "Encoding that allows algorithms for continuous problems to be applied to binary problems. Converts real numbers to probabilities."
-   ":py:class:`encodings.CompositeEncoding<metaheuristic_designer.encodings.CompositeEncoding>`", "Encoding that applies other encoders in sequence."
-   ":py:class:`encodings.CMAEncoding<metaheuristic_designer.encodings.CMAEncoding>`", "Encoding used by the CMA-ES algorithm."
+   ":py:class:`DefaultEncoding<metaheuristic_designer.DefaultEncoding>`", "No change (identity encoding)."
+   ":py:class:`encodings.TypeCastEncoding<metaheuristic_designer.encodings.type_cast_encoding.TypeCastEncoding>`", "Changes the datatype (e.g. float ↔ int ↔ boolean)."
+   ":py:class:`encodings.MatrixEncoding<metaheuristic_designer.encodings.matrix_encoding.MatrixEncoding>`", "Reshapes a vector to a tensor of a different shape."
+   ":py:class:`encodings.ImageEncoding<metaheuristic_designer.encodings.image_encoding.ImageEncoding>`", "Reshapes a vector to an N×M×C image representation (channels last)."
+   ":py:class:`encodings.SigmoidEncoding<metaheuristic_designer.encodings.sigmoid_encoding.SigmoidEncoding>`", "Maps real numbers to probabilities via a sigmoid, enabling continuous operators on binary problems."
+   ":py:class:`encodings.CompositeEncoding<metaheuristic_designer.encodings.composite_encoding.CompositeEncoding>`", "Applies a sequence of other encodings in order."
+   ":py:class:`encodings.PSOEncoding<metaheuristic_designer.encodings.special.PSO_encoding.PSOEncoding>`", "Extended encoding that stores a speed vector for PSO."
+   ":py:class:`encodings.SelfAdaptingESEncoding<metaheuristic_designer.encodings.special.self_adapting_ES_encoding.SelfAdaptingESEncoding>`", "Extended encoding that stores mutation strength(s) for self‑adaptive evolution strategies."
 
-Individual Selection Methods
-----------------------------
+Selection Methods
+-----------------
+Parent and survivor selection are created with dedicated **factory functions**:
 
-The implemented operators for each datatype are listed in the following section 
+* :py:func:`~metaheuristic_designer.create_parent_selection` – returns a :py:class:`~metaheuristic_designer.ParentSelection` instance.
+* :py:func:`~metaheuristic_designer.create_survivor_selection` – returns a :py:class:`~metaheuristic_designer.SurvivorSelection` instance.
 
-.. csv-table::
-   :header: "Module name", "Methods", "Description"
+To skip a selection step entirely, use :py:class:`~metaheuristic_designer.NullParentSelection` / :py:class:`~metaheuristic_designer.NullSurvivorSelection`.
 
-   ":py:class:`~metaheuristic_designer.selection_methods.ParentSelection`", ":ref:`implemented metods<Parent Selection>`","Selection methods for parent selection."
-   ":py:class:`~metaheuristic_designer.selection_methods.NullParentSelection`", "", "Selection methods for parent selection that returns the original population."
-   ":py:class:`~metaheuristic_designer.selection_methods.SurvivorSelection`", ":ref:`implemented metods<Survivor Selection>`", "Selection methods for survivor selection."
-   ":py:class:`~metaheuristic_designer.selection_methods.NullSurvivorSelection`", "", "Selection methods for survivor selection that returns the offspring."
-
+The complete catalogue of available methods, their parameters, and instructions for
+registering custom ones are given on the :doc:`API reference – Implemented Operators & Selection <api_reference.methods>` page
+(see :ref:`selection-methods`).
 
 Operators
-----------------------------
+---------
+Operators modify the genotype of individuals. They are created through the **factory function**
+:py:func:`~metaheuristic_designer.create_operator`, which accepts a string key
+in the format ``"category.method"`` (e.g. ``"mutation.gaussian_mutation"``) and optional
+keyword parameters.
 
-The implemented operators for each datatype are listed in the following section 
+.. code-block:: python
 
-.. toctree::
-   :maxdepth: 1
+    from metaheuristic_designer.operators import create_operator
+    op = create_operator("mutation.gaussian_mutation", F=0.2, random_state=42)
 
-   api_reference.methods
+A few built‑in operators do **not** follow the factory pattern:
 
 .. csv-table::
-   :header: "Module name", "Methods", "Description"
+   :header: "Class", "Description"
 
-   ":py:class:`NullOperator<metaheuristic_designer.NullOperator>`", "", "Operator that makes no changes to the individual."
-   ":py:class:`operators.VectorOperator<metaheuristic_designer.operators.VectorOperator>`", ":ref:`implemented metods<Operator Vector Methods>`", "Operator for vectors."
-   ":py:class:`operators.PermOperator<metaheuristic_designer.operators.PermOperator>`", ":ref:`implemented metods<Operator Perm Methods>`", "Operator for permutations."
-   ":py:class:`operators.MetaOperator<metaheuristic_designer.operators.MetaOperator>`", ":ref:`implemented metods<Operator Meta Methods>`", "Operator that combines other operators."
-   ":py:class:`operators.AdaptativeOperator<metaheuristic_designer.operators.AdaptativeOperator>`", "", "Operator that uses part of the individual as parameters for the operator."
-   ":py:class:`operators.BOOperator<metaheuristic_designer.operators.BOOperator>`", "", "Operator used in Bayesian Optimization."
+   ":py:class:`~metaheuristic_designer.NullOperator`", "Identity operator (no changes)."
+   ":py:class:`~metaheuristic_designer.operators.composite_operator.CompositeOperator`", "Combines multiple operators sequentially."
+   ":py:class:`~metaheuristic_designer.operators.split_operator.SplitOperator`", "Applies different operators to disjoint parts of the genotype."
+   ":py:class:`~metaheuristic_designer.operators.branch_operator.BranchOperator`", "Randomly selects one operator from a list each time it is applied."
+   ":py:class:`~metaheuristic_designer.operators.extended_operator.ExtendedOperator`", "Base class for operators that handle extra per‑individual parameters (e.g. self‑adaptation)."
+   ":py:class:`~metaheuristic_designer.operators.BO_operator.BOOperator`", "Gaussian process regression operator for Bayesian Optimisation."
 
+For the full catalogue of factory‑available operators (mutation, crossover, permutation, DE,
+swarm, …) and the probability distributions they support, see the
+:doc:`Operator Methods <api_reference.methods>` page.
 
 Search Strategies
 -----------------
-The implemented search strategies are listed below.
+Pre‑built strategies; all inherit from :py:class:`~metaheuristic_designer.SearchStrategy`.
 
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`strategies.NoSearch<metaheuristic_designer.strategies.NoSearch>`", "Search strategy that does nothing."
-   ":py:class:`strategies.RandomSearch<metaheuristic_designer.strategies.RandomSearch>`", "Random search strategy."
-   ":py:class:`strategies.StaticPopulation<metaheuristic_designer.strategies.StaticPopulation>`", "Basic population based search strategy with a fixed-size population."
-   ":py:class:`strategies.VariablePopulation<metaheuristic_designer.strategies.VariablePopulation>`", "Basic population based search strategy with a variable-size population."
-   ":py:class:`strategies.HillClimb<metaheuristic_designer.strategies.HillClimb>`", "Greedy Hill Climbing strategy."
-   ":py:class:`strategies.LocalSearch<metaheuristic_designer.strategies.LocalSearch>`", "Local search strategy."
-   ":py:class:`strategies.SA<metaheuristic_designer.strategies.SA>`", "Simulated annealing strategy."
-   ":py:class:`strategies.GA<metaheuristic_designer.strategies.GA>`", "Genetic Algorithm strategy."
-   ":py:class:`strategies.ES<metaheuristic_designer.strategies.ES>`", "Evolution Strategy."
-   ":py:class:`strategies.HS<metaheuristic_designer.strategies.HS>`", "Harmony Search strategy."
-   ":py:class:`strategies.DE<metaheuristic_designer.strategies.DE>`", "Differential Evolution strategy."
-   ":py:class:`strategies.PSO<metaheuristic_designer.strategies.swarm.PSO>`", "Particle Swarm Optimization strategy."
-   ":py:class:`strategies.BernoulliPBIL<metaheuristic_designer.strategies.EDA.BernoulliPBIL>`", "| Bernoulli distributed Population-based Incremental Learning.
-   | Estimation of Distribution Algorithm."
-   ":py:class:`strategies.BernoulliUMDA<metaheuristic_designer.strategies.EDA.BernoulliUMDA>`", "| Bernoulli distributed Univariate Marginal Distribution Algorithm.
-   | Estimation of Distribution Algorithm."
-   ":py:class:`strategies.BinomialPBIL<metaheuristic_designer.strategies.EDA.BinomialPBIL>`", "| Binomial distributed Population-based Incremental Learning.
-   | Estimation of Distribution Algorithm."
-   ":py:class:`strategies.BinomialUMDA<metaheuristic_designer.strategies.EDA.BinomialUMDA>`", "| Binomial distributed Univariate Marginal Distribution Algorithm.
-   | Estimation of Distribution Algorithm."
-   ":py:class:`strategies.BayesianOptimization<metaheuristic_designer.strategies.bayesian_optimization.BayesianOptimization>`", "Bayesian Optimization"
-   ":py:class:`strategies.VND<metaheuristic_designer.strategies.VNS.VND>`", "Variable Neighborhood Descent strategy."
-   ":py:class:`strategies.RVNS<metaheuristic_designer.strategies.VNS.RVNS>`", "Restricted Varaible Neighborhood Search strategy."
-   ":py:class:`strategies.VNS<metaheuristic_designer.strategies.VNS.VNS>`", "Variable Neighborhood Search strategy."
-   ":py:class:`strategies.CMA_ES<metaheuristic_designer.strategies.CMA_ES>`", "Covariance Matrix Adaption-Evolution Strategy."
-   ":py:class:`strategies.CRO<metaheuristic_designer.strategies.CRO>`", "Coral Reef Optimization strategy."
-   ":py:class:`strategies.CRO_SL<metaheuristic_designer.strategies.CRO_SL>`", "Coral Reef Optimization with Subtrate Layers strategy."
-   ":py:class:`strategies.PCRO_SL<metaheuristic_designer.strategies.PCRO_SL>`", "Probabilistic Coral Reef Optimization with Subtrate Layers strategy."
-   ":py:class:`strategies.DPCRO_SL<metaheuristic_designer.strategies.DPCRO_SL>`", "Dynamic Probabilistic Coral Reef Optimization with Subtrate Layers strategy."
+   ":py:class:`strategies.NoSearch<metaheuristic_designer.strategies.no_search.NoSearch>`", "No‑op strategy (does nothing)."
+   ":py:class:`strategies.RandomSearch<metaheuristic_designer.strategies.classic.random_search.RandomSearch>`", "Random search."
+   ":py:class:`strategies.StaticPopulation<metaheuristic_designer.strategies.static_population.StaticPopulation>`", "Fixed‑size population based evolution."
+   ":py:class:`strategies.VariablePopulation<metaheuristic_designer.strategies.variable_population.VariablePopulation>`", "Variable‑size population based evolution."
+   ":py:class:`strategies.HillClimb<metaheuristic_designer.strategies.hill_climb.HillClimb>`", "Greedy hill climbing."
+   ":py:class:`strategies.LocalSearch<metaheuristic_designer.strategies.local_search.LocalSearch>`", "Local search with a configurable number of iterations."
+   ":py:class:`strategies.SA<metaheuristic_designer.strategies.classic.SA.SA>`", "Simulated annealing."
+   ":py:class:`strategies.GA<metaheuristic_designer.strategies.classic.GA.GA>`", "Genetic Algorithm."
+   ":py:class:`strategies.ES<metaheuristic_designer.strategies.classic.ES.ES>`", "Evolution Strategy."
+   ":py:class:`strategies.DE<metaheuristic_designer.strategies.classic.DE.DE>`", "Differential Evolution."
+   ":py:class:`strategies.PSO<metaheuristic_designer.strategies.swarm.PSO.PSO>`", "Particle Swarm Optimisation."
+   ":py:class:`strategies.BernoulliPBIL<metaheuristic_designer.strategies.EDA.PBIL.BernoulliPBIL>`", "Bernoulli Population‑Based Incremental Learning (EDA)."
+   ":py:class:`strategies.BernoulliUMDA<metaheuristic_designer.strategies.EDA.UMDA.BernoulliUMDA>`", "Bernoulli Univariate Marginal Distribution Algorithm (EDA)."
+   ":py:class:`strategies.BinomialPBIL<metaheuristic_designer.strategies.EDA.PBIL.BinomialPBIL>`", "Binomial PBIL."
+   ":py:class:`strategies.BinomialUMDA<metaheuristic_designer.strategies.EDA.UMDA.BinomialUMDA>`", "Binomial UMDA."
+   ":py:class:`strategies.BayesianOptimization<metaheuristic_designer.strategies.bayesian_optimization.bayesian_optimization.BayesianOptimization>`", "Bayesian Optimisation with Gaussian processes."
+   ":py:class:`strategies.CMA_ES<metaheuristic_designer.strategies.classic.CMA_ES.CMA_ES>`", "Covariance Matrix Adaptation Evolution Strategy."
 
 Algorithms
 ----------
-These are classes that implement optimization algorithms using a specified search strategy.
+Classes that wrap a search strategy into a full optimization loop.
 
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`algorithms.GeneralAlgorithm<metaheuristic_designer.algorithms.GeneralAlgorithm>`", "Default algorithm implementation."
-   ":py:class:`algorithms.MemeticAlgorithm<metaheuristic_designer.algorithms.MemeticAlgorithm>`", "Algorithm that combines one search strategy with a local search procedure."
-   ":py:class:`algorithms.AlgorithmSelection<metaheuristic_designer.algorithms.AlgorithmSelection>`", "Algorithm that evaluates a given set of optimization algorithms."
-   ":py:class:`algorithms.StrategySelection<metaheuristic_designer.algorithms.StrategySelection>`", "Algorithm that evaluates a given set of search strategies."
+   ":py:class:`algorithms.StandardAlgorithm<metaheuristic_designer.algorithms.standard_algorithm.StandardAlgorithm>`", "Default algorithm with the classic parent → perturb → evaluate → survivor loop."
+   ":py:class:`algorithms.MemeticAlgorithm<metaheuristic_designer.algorithms.memetic_algorithm.MemeticAlgorithm>`", "Algorithm that embeds a local search step inside the main loop."
+   ":py:class:`algorithms.AlgorithmSelection<metaheuristic_designer.algorithms.algorithm_selection.AlgorithmSelection>`", "Benchmarks a set of algorithms."
+   ":py:class:`algorithms.StrategySelection<metaheuristic_designer.algorithms.strategy_selection.StrategySelection>`", "Benchmarks a set of search strategies."
 
-The stopping condition for any of the algorithms is specified as one of the following values:
+Stopping conditions can be defined as strings combining the following tokens with
+`and`, `or`, `not` and parentheses:
 
 .. csv-table::
-   :header: "Stopping condition", "Description"
+   :header: "Token", "Description"
 
-   "neval", "Number of objective function evaluations."
-   "ngen", "Number of generations or iterations of the algorithm."
-   "time_limit", "Maximum amount of time allowed to spent." 
-   "cpu_time_limit", "Maximum amount of CPU time allowed to spent." 
-   "fit_target", "Value of the objective function after which we stop optimizing." 
-   "convergence", "Maximum amount of iterations we allow the algorithm to pass without any improvement to the objective function. This amount is specified as 'patience'" 
+   ``"neval"``, "Maximum number of objective function evaluations."
+   ``"ngen"``, "Maximum number of generations (iterations)."
+   ``"time_limit"``, "Wall-clock time limit (seconds)."
+   ``"cpu_time_limit"``, "CPU time limit (seconds)."
+   ``"fit_target"``, "Target fitness value; stops when reached."
+   ``"convergence"``, "Stops after a number of generations without improvement (the `patience` parameter)."
 
-They can also be combined with logical operations, this way "ngen or time_limit" is a valid stopping condition. The "and", "or" and "not" operators are available and parenthesis are allowed.
+Example: ``"neval or time_limit"``.
 
-
-Prepackaged algorithms
+Prepackaged Algorithms
 ----------------------
-Here we list full algorithms that should work out of the box providing an objective function and a set of parameters. It is assumed that individuals will be represented by vectors.
+For the most common optimisation scenarios, the `simple` module provides ready‑to‑run
+**functions** that build a complete `Algorithm` from a dictionary of parameters.
+All of them share the same interface:
 
-All parameters are optional except for the encoding which is specified as 'encoding' having as possible values 'bin', 'int' or 'real'.
+.. code-block:: python
 
-In case an objective function is not specified, the 'vecsize', 'max' and 'min' arguments must be specified for the size of the vectors and their upper and lower limit respectively. In the case of binary encoding the 'max' and 'min' parameters are not necessary.
+    from metaheuristic_designer.simple import hill_climb
+    alg = hill_climb(params={"vecsize": 10, "encoding": "real"}, objfunc=None)
+
+If an objective function is not provided, the ``params`` dict must contain at least
+``"vecsize"`` (and optionally ``"low"``, ``"high"``) to construct a default `Sphere` problem.
+The ``"encoding"`` key accepts ``"bin"``, ``"int"`` or ``"real"``.
 
 .. csv-table::
-   :header: "Algorithm name", "Parameters", "Description"
+   :header: "Function", "Parameters", "Description"
 
-   ":py:class:`simple.random_search<metaheuristic_designer.simple.random_search>`", " ", "Random search algorithm."
-   ":py:class:`simple.hill_climb<metaheuristic_designer.simple.hill_climb>`", "mut_str (float | int | ndarray)", "| Hill climb algorithm. 
-   | - binary mutation: Bit flip of 'mut_str' components. 
-   | - integer mutation: Sample 'mut_str' component from an uniform distribution. 
-   | - real mutation: Add random gaussian noise with std 'mut_str'"
-   ":py:class:`simple.simulated_annealing<metaheuristic_designer.simple.simulated_annealing>`", "mut_str (float | int | ndarray)", "| Simulated annealing algorithm. 
-   | - binary mutation: Bit flip of 'mut_str' components. 
-   | - integer mutation: Sample 'mut_str' component from an uniform distribution. 
-   | - real mutation: Add random gaussian noise with std 'mut_str'"
-   ":py:class:`simple.evolution_strategy<metaheuristic_designer.simple.evolution_strategy>`", "pop_size (int), offspring_size (int), mut_str (float | int | ndarray)", "| Evolution strategy algorithm.
-   | - binary mutation: Bit flip of 'mut_str' components. 
-   | - integer mutation: Sample 'mut_str' component from an uniform distribution. 
-   | - real mutation: Add random gaussian noise with std 'mut_str'"
-   ":py:class:`simple.genetic_algorithm<metaheuristic_designer.simple.genetic_algorithm>`", "pop_size (int), n_parents (int), pmut (float), pcross (float), mut_str (float | int | ndarray)", "| Genetic algorithm.
-   | - binary mutation: Bit flip of 'mut_str' components. 
-   | - integer mutation: Sample 'mut_str' component from an uniform distribution. 
-   | - real mutation: Add random gaussian noise with std 'mut_str'"
-   ":py:class:`simple.differential_evolution<metaheuristic_designer.simple.differential_evolution>`", "pop_size (int), F (float), Cr (float), DE_type (str)", "Differential evolution algorithm. The algorithm works internaly with floating point solutions, but uses an encoding to transform to the specified datatype."
-   ":py:class:`simple.particle_swarm<metaheuristic_designer.simple.particle_swarm>`", "pop_size (int), w (float), c1 (float), c2 (float)", "Particle Swarm Optimization algorithm. The algorithm works internaly with floating point solutions, but uses an encoding to transform to the specified datatype."
+   ":py:func:`simple.random_search<metaheuristic_designer.simple.random_search>`", "–", "Pure random search."
+   ":py:func:`simple.hill_climb<metaheuristic_designer.simple.hill_climb>`", "mut_str (0.1)", "Hill climbing. Mutation strength ``mut_str``: for binary it flips that many bits; for integer it samples from the range; for real it adds Gaussian noise with that standard deviation."
+   ":py:func:`simple.simulated_annealing<metaheuristic_designer.simple.simulated_annealing>`", "mut_str (0.1), T0 (100), alpha (0.99)", "| Simulated annealing. Temperature decays as :math:`T_0 \\alpha^k`."
+   ":py:func:`simple.evolution_strategy<metaheuristic_designer.simple.evolution_strategy>`", "pop_size (100), offspring_size (100), mut_str (0.5)", "(μ+λ)‑ES with the same mutation interpretations as hill climbing."
+   ":py:func:`simple.genetic_algorithm<metaheuristic_designer.simple.genetic_algorithm>`", "pop_size (100), n_parents (50), pmut (0.1), pcross (0.9), mut_str (0.5)", "Genetic algorithm with tournament selection, one‑point crossover and mutation as above."
+   ":py:func:`simple.differential_evolution<metaheuristic_designer.simple.differential_evolution>`", "pop_size (30), F (0.8), Cr (0.9), DE_type (``de/best/1``)", "Differential evolution. Internally works with floating‑point numbers and uses an encoding to match the requested datatype."
+   ":py:func:`simple.particle_swarm<metaheuristic_designer.simple.particle_swarm>`", "pop_size (30), w (0.7), c1 (1.5), c2 (1.5)", "Particle Swarm Optimisation. Works with real numbers internally and encodes to the target type."
