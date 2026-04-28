@@ -67,7 +67,12 @@ html_theme_options = {
         {
             "href": "api_reference.methods",
             "title": "Operators and Selection methods",
-            "internal": "api_ref",
+            "internal": "api_methods",
+        },
+        {
+            "href": "api_reference.custom_components",
+            "title": "Creating Custom Components",
+            "internal": "api_custom",
         },
         {
             "href": "auto/metaheuristic_designer",

@@ -6,7 +6,7 @@ from ..operator import Operator
 from ..utils import MaskLike
 
 
-class SplitOperator(Operator):
+class MaskedOperator(Operator):
     """
     Operator class that utilizes a list of operators to modify individuals.
 

@@ -1,407 +1,490 @@
 import pytest
-import numpy as np
 from copy import copy
-import sys
-from unittest.mock import Mock
+import numpy as np
 
-# Mock the dependencies since we're testing in isolation
-sys.modules['.utils'] = Mock()
-sys.modules['.objective_function'] = Mock()
-sys.modules['.encoding'] = Mock()
+# Import the class to test
+from metaheuristic_designer.population import Population
+# conftest fixtures are automatically available
 
-from metaheuristic_designer import RAND_GEN, ObjectiveFunc, Encoding, DefaultEncoding, Population
-from metaheuristic_designer.encodings import ParameterExtendingEncoding
+# Import shared constants from conftest
+from conftest import SMALL_GENOTYPE, LARGE_GENOTYPE
 
+# ---------------------------------------------------------------
+# Initialisation and basic properties
+# ---------------------------------------------------------------
 
-# Fixtures for common test objects
-@pytest.fixture
-def mock_objfunc():
-    objfunc = Mock(spec=ObjectiveFunc)
-    objfunc.name = "Mock function"
-    objfunc.mode = "min"
-    objfunc.fitness.return_value = np.array([1.0, 2.0, 3.0])
-    objfunc.repair_solution.side_effect = lambda x: x  # Identity repair
-    return objfunc
-
-
-@pytest.fixture
-def sample_genotype():
-    return np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-
-
-@pytest.fixture
-def default_encoding():
-    return DefaultEncoding()
-
-
-# Test basic initialization and properties
-@pytest.mark.parametrize("pop_size, vec_size", [
-    (3, 3),
-    (5, 10),
-    (1, 1),
+@pytest.mark.parametrize("genotype, expected_shape", [
+    (np.array([[1,2],[3,4]]), (2, 2)),
+    (np.array([[5]]), (1, 1)),
+    (np.zeros((0, 2)), (0, 2)),
 ])
-def test_population_initialization(mock_objfunc, pop_size, vec_size):
-    genotype = np.random.rand(pop_size, vec_size)
-    pop = Population(mock_objfunc, genotype)
-    
-    assert pop.objfunc == mock_objfunc
-    assert pop.genotype_matrix.shape == (pop_size, vec_size)
-    assert pop.pop_size == pop_size
-    assert pop.vec_size == vec_size
-    assert len(pop.fitness) == pop_size
-    assert len(pop.fitness_calculated) == pop_size
-    assert np.all(pop.fitness == -np.inf)
+def test_initialisation_defaults(genotype, expected_shape, dummy_objfunc):
+    pop = Population(dummy_objfunc, genotype)
+    assert pop.pop_size == expected_shape[0]
+    assert pop.vec_size == expected_shape[1]
+    assert pop.fitness == pytest.approx(np.full(expected_shape[0], -np.inf))
     assert np.all(pop.fitness_calculated == 0)
     assert pop.best is None
     assert pop.best_fitness is None
+    np.testing.assert_array_equal(pop.historical_best_matrix, genotype)
+    np.testing.assert_array_equal(pop.historical_best_fitness, np.full(expected_shape[0], -np.inf))
 
+def test_init_uses_default_encoding(dummy_objfunc):
+    pop = Population(dummy_objfunc, np.eye(2))
+    # DefaultEncoding should be a DefaultEncoding instance (imported)
+    from metaheuristic_designer.encoding import DefaultEncoding
+    assert isinstance(pop.encoding, DefaultEncoding)
 
-def test_population_length(mock_objfunc, sample_genotype):
-    pop = Population(mock_objfunc, sample_genotype)
+def test_len(dummy_objfunc):
+    pop = Population(dummy_objfunc, SMALL_GENOTYPE)
     assert len(pop) == 3
 
-
-def test_population_iteration(mock_objfunc, sample_genotype):
-    pop = Population(mock_objfunc, sample_genotype)
-    genotypes = list(pop)
-    assert len(genotypes) == 3
-    assert np.array_equal(genotypes[0], sample_genotype[0])
-    assert np.array_equal(genotypes[1], sample_genotype[1])
-    assert np.array_equal(genotypes[2], sample_genotype[2])
+def test_iter(dummy_objfunc):
+    pop = Population(dummy_objfunc, SMALL_GENOTYPE)
+    rows = list(pop)
+    np.testing.assert_array_equal(rows[0], SMALL_GENOTYPE[0])
+    assert len(rows) == 3
 
 
-def test_population_copy(mock_objfunc, sample_genotype):
-    pop = Population(mock_objfunc, sample_genotype)
+# ---------------------------------------------------------------
+# __copy__
+# ---------------------------------------------------------------
+
+@pytest.mark.parametrize("genotype", [
+    SMALL_GENOTYPE,
+    LARGE_GENOTYPE,
+    np.zeros((0, 2)),
+])
+def test_copy_creates_independent_object(genotype, dummy_objfunc):
+    pop = Population(dummy_objfunc, genotype)
+    # Set some non‑default values
+    pop.fitness = np.array([1.0, 2.0, 3.0] if len(genotype) > 0 else [])
+    pop.best = np.array([9.9])
+    pop.best_fitness = 99.0
+    pop.historical_best_matrix = np.ones_like(genotype)
+    pop.historical_best_fitness = np.array([5.0]*len(genotype))
+
+    pop2 = copy(pop)
+    # Check equality of values
+    np.testing.assert_array_equal(pop2.genotype_matrix, pop.genotype_matrix)
+    np.testing.assert_array_equal(pop2.fitness, pop.fitness)
+    np.testing.assert_array_equal(pop2.historical_best_matrix, pop.historical_best_matrix)
+    assert pop2.best == pop.best
+    assert pop2.best_fitness == pop.best_fitness
+
+    # Modify the copy and ensure original is unaffected
+    if len(genotype) > 0:
+        pop2.genotype_matrix[0, 0] = -999.0
+        assert pop.genotype_matrix[0, 0] != -999.0
+        pop2.fitness[0] = -100.0
+        assert pop.fitness[0] != -100.0
+        pop2.historical_best_matrix[0, 0] = -555.0
+        assert pop.historical_best_matrix[0, 0] != -555.0
+
+
+# ---------------------------------------------------------------
+# best_solution
+# ---------------------------------------------------------------
+
+@pytest.fixture
+def pop_with_best(dummy_objfunc):
+    pop = Population(dummy_objfunc, np.array([[0,0],[1,1]]))
+    pop.fitness = np.array([10.0, 20.0])
+    pop.best = np.array([1.0, 1.0])
+    pop.best_fitness = 20.0
+    return pop
+
+def test_best_solution_max(pop_with_best):
+    sol, fit = pop_with_best.best_solution()
+    np.testing.assert_array_equal(sol, pop_with_best.best)
+    assert fit == 20.0
+
+def test_best_solution_min(dummy_objfunc_min):
+    pop = Population(dummy_objfunc_min, np.array([[0,0],[1,1]]))
+    pop.fitness = np.array([10.0, 20.0])
+    pop.best = np.array([0.0,0.0])
+    pop.best_fitness = 10.0   # the best in min mode would be 10, but stored raw
+    sol, fit = pop.best_solution()
+    # In min mode, the returned fitness is multiplied by -1
+    assert fit == -10.0
+    np.testing.assert_array_equal(sol, pop.best)
+
+def test_best_solution_decoded(dummy_objfunc):
+    pop = Population(dummy_objfunc, np.array([[2,3]]))
+    pop.fitness = np.array([42.0])
+    pop.best = np.array([2.0,3.0])
+    pop.best_fitness = 42.0
+    # DefaultEncoding returns the array unchanged when decoded
+    sol, fit = pop.best_solution(decoded=True)
+    np.testing.assert_array_equal(sol, pop.best)
+
+
+# ---------------------------------------------------------------
+# update_genotype
+# ---------------------------------------------------------------
+
+@pytest.fixture
+def pop_3(dummy_objfunc):
+    pop = Population(dummy_objfunc, SMALL_GENOTYPE.copy())
+    pop.fitness = np.array([-5.0, 0.0, 5.0])
+    pop.fitness_calculated = np.ones(3, dtype=bool)
+    return pop
+
+def test_update_genotype_same_shape(pop_3):
+    new_geno = np.array([[9,9],[9,9],[9,9]])
+    pop_3.update_genotype(new_geno)
+    np.testing.assert_array_equal(pop_3.genotype_matrix, new_geno)
+    # fitness_calculated should be all False because new_geno != old
+    assert not np.any(pop_3.fitness_calculated)
+    # fitness array stays the same
+    np.testing.assert_array_equal(pop_3.fitness, [-5.0, 0.0, 5.0])
+
+def test_update_genotype_same_values(pop_3):
+    # When the new matrix is identical, fitness_calculated becomes True
+    pop_3.update_genotype(SMALL_GENOTYPE.copy())
+    assert np.all(pop_3.fitness_calculated)
+
+def test_update_genotype_different_size(pop_3):
+    new_geno = np.array([[1,2],[3,4],[5,6],[7,8]])
+    pop_3.update_genotype(new_geno)
+    assert pop_3.pop_size == 4
+    np.testing.assert_array_equal(pop_3.genotype_matrix, new_geno)
+    np.testing.assert_array_equal(pop_3.fitness, np.full(4, -np.inf))
+    np.testing.assert_array_equal(pop_3.fitness_calculated, np.zeros(4, dtype=bool))
+    # historical best should be reset
+    np.testing.assert_array_equal(pop_3.historical_best_matrix, new_geno)
+
+def test_update_genotype_invalid_dim(pop_3):
+    wrong_geno = np.array([[1,2,3],[4,5,6],[7,8,9]])
+    with pytest.raises(ValueError):
+        pop_3.update_genotype(wrong_geno)
+
+def test_update_genotype_from_population(pop_3, dummy_objfunc):
+    other_pop = Population(dummy_objfunc, np.array([[0,0],[0,0],[0,0]]))
+    pop_3.update_genotype(other_pop)
+    np.testing.assert_array_equal(pop_3.genotype_matrix, other_pop.genotype_matrix)
+
+
+# ---------------------------------------------------------------
+# take_selection
+# ---------------------------------------------------------------
+
+@pytest.fixture
+def populated_fit(dummy_objfunc):
+    pop = Population(dummy_objfunc, np.arange(8).reshape(4, 2).astype(float))
+    pop.fitness = np.array([3.0, 1.0, 4.0, 2.0])
+    pop.historical_best_matrix = np.ones((4, 2))
+    pop.historical_best_fitness = np.array([10.0, 20.0, 30.0, 40.0])
+    pop.best = np.array([99.0, 99.0])
+    pop.best_fitness = 99.0
+    pop.fitness_calculated = np.array([True, False, True, False])
+    return pop
+
+@pytest.mark.parametrize("sel_idx, expected_geno, expected_fit, expected_hist_best, expected_hist_best_fit", [
+    # All rows in reverse order
+    ([3,2,1,0], 
+     np.array([[6,7],[4,5],[2,3],[0,1]]),
+     np.array([2.0, 4.0, 1.0, 3.0]),
+     np.ones((4,2)),
+     np.array([40.0, 30.0, 20.0, 10.0])),
+    # Single row
+    ([0],
+     np.array([[0,1]]),
+     np.array([3.0]),
+     np.ones((1,2)),
+     np.array([10.0])),
+    # Empty selection
+    ([], np.zeros((0, 2)), np.array([]), np.zeros((0,2)), np.array([])),
+    # Boolean mask
+    ([True, False, True, False],
+     np.array([[0,1],[4,5]]),
+     np.array([3.0, 4.0]),
+     np.ones((2,2)),
+     np.array([10.0, 30.0])),
+])
+def test_take_selection(populated_fit, sel_idx, expected_geno, expected_fit, expected_hist_best, expected_hist_best_fit):
+    result = populated_fit.take_selection(np.array(sel_idx))
+    assert result.pop_size == len(sel_idx)
+    np.testing.assert_array_equal(result.genotype_matrix, expected_geno)
+    np.testing.assert_array_equal(result.fitness, expected_fit)
+    np.testing.assert_array_equal(result.historical_best_matrix, expected_hist_best)
+    np.testing.assert_array_equal(result.historical_best_fitness, expected_hist_best_fit)
+    # best is always a copy of the original best
+    np.testing.assert_array_equal(result.best, np.array([99.0, 99.0]))
+    assert result.best_fitness == 99.0
+
+
+# ---------------------------------------------------------------
+# apply_selection
+# ---------------------------------------------------------------
+
+def test_apply_selection(populated_fit):
+    # Create a donor population
+    donor = Population(dummy_objfunc, np.array([[10,11], [12,13]]))
+    donor.fitness = np.array([100.0, 200.0])
+    donor.best = np.array([100.0, 200.0])
+    donor.best_fitness = 300.0
+    donor.historical_best_matrix = np.ones((2,2))
+    donor.historical_best_fitness = np.array([1.0, 2.0])
+    donor.fitness_calculated = np.array([True, False])
+
+    sel_idx = np.array([1, 3])   # replace second and fourth rows
+
+    populated_fit.apply_selection(donor, sel_idx)
+
+    # Check that rows are replaced
+    np.testing.assert_array_equal(populated_fit.genotype_matrix[1], donor.genotype_matrix[0])
+    np.testing.assert_array_equal(populated_fit.genotype_matrix[3], donor.genotype_matrix[1])
+    assert populated_fit.fitness[1] == 100.0
+    assert populated_fit.fitness[3] == 200.0
+    assert populated_fit.historical_best_fitness[1] == 1.0
+    assert populated_fit.historical_best_fitness[3] == 2.0
+    # best should be updated because donor's best_fitness > original
+    np.testing.assert_array_equal(populated_fit.best, np.array([100.0, 200.0]))
+    assert populated_fit.best_fitness == 300.0
+
+
+# ---------------------------------------------------------------
+# take_slice / apply_slice
+# ---------------------------------------------------------------
+
+def test_take_slice(populated_fit):
+    mask = np.array([1])   # keep only column 1
+    sliced = populated_fit.take_slice(mask)
+    assert sliced.vec_size == 1
+    np.testing.assert_array_equal(sliced.genotype_matrix[:, 0], populated_fit.genotype_matrix[:, 1])
+    # All other attributes are copied as row‑wise copies
+    np.testing.assert_array_equal(sliced.fitness, populated_fit.fitness)
+
+def test_apply_slice(populated_fit):
+    original = populated_fit.genotype_matrix.copy()
+    mask = np.array([0])   # replace column 0
+    donor = Population(dummy_objfunc, np.array([[100],[200],[300],[400]]))
+    donor.best = np.array([100.0])
+    donor.best_fitness = 999.0
+    populated_fit.apply_slice(donor, mask)
+    expected = original.copy()
+    expected[:, 0] = donor.genotype_matrix[:, 0]
+    np.testing.assert_array_equal(populated_fit.genotype_matrix, expected)
+    # best updated because donor best_fitness > current best
+    assert populated_fit.best_fitness == 999.0
+
+
+# ---------------------------------------------------------------
+# join_populations (static) and join (instance)
+# ---------------------------------------------------------------
+
+@pytest.fixture
+def pop_a(dummy_objfunc):
+    pop = Population(dummy_objfunc, np.array([[1,1],[2,2]]))
+    pop.fitness = np.array([10.0, 20.0])
+    pop.historical_best_matrix = np.ones((2,2))
+    pop.historical_best_fitness = np.array([30.0, 40.0])
+    pop.best = np.array([99.0, 99.0])
+    pop.best_fitness = 99.0
+    pop.fitness_calculated = np.array([True, False])
+    return pop
+
+@pytest.fixture
+def pop_b(dummy_objfunc):
+    pop = Population(dummy_objfunc, np.array([[3,3],[4,4],[5,5]]))
+    pop.fitness = np.array([50.0, 60.0, 70.0])
+    pop.historical_best_matrix = np.ones((3,2)) * 2
+    pop.historical_best_fitness = np.array([80.0, 90.0, 100.0])
+    pop.best = np.array([100.0, 100.0])
+    pop.best_fitness = 200.0
+    pop.fitness_calculated = np.array([False, True, False])
+    return pop
+
+@pytest.mark.parametrize("method", ["static", "instance"])
+def test_join_populations(pop_a, pop_b, method, dummy_objfunc):
+    if method == "static":
+        joined = Population.join_populations(pop_a, pop_b)
+    else:
+        # instance method modifies pop_a and returns it
+        pop_a_copy = copy(pop_a)
+        joined = pop_a_copy.join(pop_b)
+
+    assert len(joined) == 5
+    np.testing.assert_array_equal(joined.genotype_matrix[:2], pop_a.genotype_matrix)
+    np.testing.assert_array_equal(joined.genotype_matrix[2:], pop_b.genotype_matrix)
+    np.testing.assert_array_equal(joined.fitness, np.concatenate([pop_a.fitness, pop_b.fitness]))
+    np.testing.assert_array_equal(joined.historical_best_fitness, 
+                                  np.concatenate([pop_a.historical_best_fitness, pop_b.historical_best_fitness]))
+    # best should be the one with higher best_fitness (pop_b has 200 > 99)
+    np.testing.assert_array_equal(joined.best, pop_b.best)
+    assert joined.best_fitness == pop_b.best_fitness
+
+    if method == "instance":
+        # After instance join, pop_a_copy should be the same object as joined
+        assert pop_a_copy is joined
+
+
+def test_join_populations_best_tie(pop_a):
+    other = copy(pop_a)
+    other.fitness = np.array([5.0, 15.0])
+    other.best_fitness = pop_a.best_fitness   # same
+    joined = Population.join_populations(pop_a, other)
+    # keep first's best when tied
+    np.testing.assert_array_equal(joined.best, pop_a.best)
+
+
+# ---------------------------------------------------------------
+# sort_population
+# ---------------------------------------------------------------
+
+@pytest.fixture
+def pop_unsorted(dummy_objfunc):
+    pop = Population(dummy_objfunc, np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
+    pop.fitness = np.array([-1.0, 3.0, 0.0, 2.0])
+    pop.historical_best_fitness = np.array([10, 20, 30, 40])
+    pop.historical_best_matrix = np.arange(8).reshape(4, 2).astype(float)
+    pop.fitness_calculated = np.array([True, False, True, False])
+    return pop
+
+def test_sort_population(pop_unsorted):
+    pop_unsorted.sort_population()
+    # Expected: sorted by ascending fitness
+    expected_order = np.argsort([-1.0, 3.0, 0.0, 2.0])   # [-1, 0, 2, 3] -> [-1,0,2,3] but argsort default ascending gives indices [0,2,3,1]? Let's compute: values: -1,3,0,2. Argsort ascending: [0(-1), 2(0), 3(2), 1(3)].
+    expected_geno = np.array([[1,1], [3,3], [4,4], [2,2]])
+    np.testing.assert_array_equal(pop_unsorted.genotype_matrix, expected_geno)
+    np.testing.assert_array_equal(pop_unsorted.fitness, np.array([-1.0, 0.0, 2.0, 3.0]))
+    np.testing.assert_array_equal(pop_unsorted.historical_best_fitness, np.array([10, 30, 40, 20]))
+    np.testing.assert_array_equal(pop_unsorted.fitness_calculated, np.array([True, True, False, False]))
+
+
+# ---------------------------------------------------------------
+# update_best_from_parents
+# ---------------------------------------------------------------
+
+def test_update_best_from_parents(pop_a, pop_b):
+    # pop_a best_fitness 99, pop_b best_fitness 200 -> update to pop_b's best
+    pop_a.update_best_from_parents(pop_b)
+    np.testing.assert_array_equal(pop_a.best, np.array([100.0, 100.0]))
+    assert pop_a.best_fitness == 200.0
+
+def test_update_best_from_parents_no_better(pop_a):
+    worse = copy(pop_a)
+    worse.best_fitness = 50.0
+    original_best = pop_a.best.copy()
+    pop_a.update_best_from_parents(worse)
+    np.testing.assert_array_equal(pop_a.best, original_best)
+    assert pop_a.best_fitness == 99.0
+
+
+# ---------------------------------------------------------------
+# step
+# ---------------------------------------------------------------
+
+def test_step_updates_best_and_calls_encoding_step(dummy_objfunc, simple_encoding):
+    pop = Population(dummy_objfunc, np.array([[0,0],[1,1]]))
+    pop.fitness = np.array([5.0, 10.0])
+    pop.encoding = simple_encoding
+    # simple_encoding.step returns the same genotype (identity)
+    pop.step(progress=0.5)
+    # best should be the one with max fitness (index 1)
+    np.testing.assert_array_equal(pop.best, np.array([1.0, 1.0]))
+    assert pop.best_fitness == 10.0
+    # genotype not changed because encoding.step is identity
+    np.testing.assert_array_equal(pop.genotype_matrix, np.array([[0,0],[1,1]]))
+
+def test_step_no_current_best(dummy_objfunc, simple_encoding):
+    pop = Population(dummy_objfunc, np.array([[0,0]]))
+    pop.fitness = np.array([7.0])
+    pop.best = None
+    pop.best_fitness = None
+    pop.encoding = simple_encoding
+    pop.step()
+    np.testing.assert_array_equal(pop.best, np.array([0.0, 0.0]))
+    assert pop.best_fitness == 7.0
+
+
+# ---------------------------------------------------------------
+# repeat
+# ---------------------------------------------------------------
+
+@pytest.mark.parametrize("amount, expected_rows", [
+    (2, 6),
+    (3, 9),
+    (1, 3),   # amount=1 should still work (repeat once = original)
+])
+def test_repeat(amount, expected_rows, dummy_objfunc):
+    pop = Population(dummy_objfunc, SMALL_GENOTYPE)
     pop.fitness = np.array([1.0, 2.0, 3.0])
-    pop.best = sample_genotype[0]
-    pop.best_fitness = 1.0
-    
-    copied_pop = copy(pop)
-    
-    # Check it's a different object
-    assert copied_pop is not pop
-    # Check attributes are equal
-    assert np.array_equal(copied_pop.genotype_matrix, pop.genotype_matrix)
-    assert np.array_equal(copied_pop.fitness, pop.fitness)
-    assert np.array_equal(copied_pop.best, pop.best)
-    assert copied_pop.best_fitness == pop.best_fitness
-
-
-def test_population_repr(mock_objfunc, sample_genotype):
-    pop = Population(mock_objfunc, sample_genotype)
-    pop.fitness = np.array([1.0, 2.0, 3.0])
-    pop.best = sample_genotype[0]
-    pop.best_fitness = 1.0
-    
-    repr_str = repr(pop)
-    
-    assert "Population" in repr_str
-    assert "objfunc" in repr_str
-    assert "genotype_matrix" in repr_str
-    assert "fitness" in repr_str
-    assert "best" in repr_str
-    assert "best_fitness" in repr_str
-
-
-@pytest.mark.parametrize("mode,expected_fitness", [
-    ("min", -3.0),  # In min mode, best_fitness should be multiplied by -1
-    ("max", 3.0),
-])
-def test_best_solution(mock_objfunc, sample_genotype, mode, expected_fitness):
-    mock_objfunc.mode = mode
-    pop = Population(mock_objfunc, sample_genotype)
-    pop.best = sample_genotype[2]  # Set best to last individual
-    pop.best_fitness = 3.0
-    
-    best_sol, best_fit = pop.best_solution(decoded=False)
-    
-    assert np.array_equal(best_sol, sample_genotype[2])
-    assert best_fit == expected_fitness
-
-
-@pytest.mark.parametrize("new_size,same_size", [
-    (3, True),  # Same size update
-    (5, False),  # Different size update
-])
-def test_update_genotype_matrix(mock_objfunc, sample_genotype, new_size, same_size):
-    pop = Population(mock_objfunc, sample_genotype)
-    new_genotype = np.random.rand(new_size, 3)
-    
-    result = pop.update_genotype(new_genotype)
-    
-    assert result is pop
-    assert np.array_equal(pop.genotype_matrix, new_genotype)
-    assert pop.pop_size == new_size
-    
-    if same_size:
-        # Fitness calculated should be based on element-wise comparison
-        assert len(pop.fitness_calculated) == new_size
-    else:
-        # Fitness arrays should be reset
-        assert np.all(pop.fitness == -np.inf)
-        assert np.all(pop.fitness_calculated == 0)
-
-
-@pytest.mark.parametrize("selection_idx", [
-    [0, 2],           # List of indices
-    np.array([0, 2]), # Array of indices  
-    [True, False, True],  # Boolean mask
-])
-def test_take_selection(mock_objfunc, sample_genotype, selection_idx):
-    pop = Population(mock_objfunc, sample_genotype)
-    pop.fitness = np.array([1.0, 2.0, 3.0])
-    pop.best = sample_genotype[2]
-    pop.best_fitness = 3.0
-    
-    selected = pop.take_selection(selection_idx)
-    
-    expected_indices = np.array(selection_idx) if isinstance(selection_idx, list) and all(isinstance(x, bool) for x in selection_idx) else selection_idx
-    expected_genotype = pop.genotype_matrix[expected_indices]
-    
-    assert np.array_equal(selected.genotype_matrix, expected_genotype)
-    assert np.array_equal(selected.fitness, pop.fitness[expected_indices])
-    assert selected.best_fitness == pop.best_fitness
-
-
-@pytest.mark.parametrize("selection_idx", [
-    [0, 2],
-    [True, False, True],
-])
-def test_apply_selection(mock_objfunc, sample_genotype, selection_idx):
-    pop = Population(mock_objfunc, sample_genotype)
-    selected_pop = Population(mock_objfunc, np.array([[10, 11, 12], [13, 14, 15]]))
-    selected_pop.best = np.array([13, 14, 15])
-    selected_pop.best_fitness = 5.0
-    
-    result = pop.apply_selection(selected_pop, selection_idx)
-    
-    assert result is pop
-    expected_indices = selection_idx if isinstance(selection_idx, list) and all(isinstance(x, bool) for x in selection_idx) else selection_idx
-    
-    # Check that selected indices were updated
-    assert np.array_equal(pop.genotype_matrix[expected_indices], selected_pop.genotype_matrix)
-    assert np.array_equal(pop.fitness[expected_indices], selected_pop.fitness)
-    
-    # Best should be updated since selected_pop has better fitness
-    assert np.array_equal(pop.best, selected_pop.best)
-    assert pop.best_fitness == selected_pop.best_fitness
-
-
-@pytest.mark.parametrize("mask", [
-    [0, 2],           # List of indices
-    np.array([0, 2]), # Array of indices
-    [True, False, True],  # Boolean mask
-])
-def test_take_slice(mock_objfunc, sample_genotype, mask):
-    pop = Population(mock_objfunc, sample_genotype)
-    
-    sliced = pop.take_slice(mask)
-    
-    expected_mask = mask if isinstance(mask, list) and all(isinstance(x, bool) for x in mask) else mask
-    expected_genotype = pop.genotype_matrix[:, expected_mask]
-    
-    assert np.array_equal(sliced.genotype_matrix, expected_genotype)
-    if isinstance(mask[0], bool):
-        assert sliced.vec_size == sum(expected_mask)
-    else:
-        assert sliced.vec_size == len(expected_mask)
-
-
-def test_join_populations_static(mock_objfunc, sample_genotype):
-    pop1 = Population(mock_objfunc, sample_genotype)
-    pop1.fitness = np.array([1.0, 2.0, 3.0])
-    pop1.best = sample_genotype[2]
-    pop1.best_fitness = 3.0
-
-    # Make pop2 have the better best fitness
-    pop2 = Population(mock_objfunc, np.array([[10, 11, 12]]))
-    pop2.fitness = np.array([4.0])
-    pop2.best = np.array([10, 11, 12])
-    pop2.best_fitness = 4.0
-    
-    joined = Population.join_populations(pop1, pop2)
-    
-    expected_genotype = np.vstack([sample_genotype, [[10, 11, 12]]])
-    expected_fitness = np.array([1.0, 2.0, 3.0, 4.0])
-    
-    assert np.array_equal(joined.genotype_matrix, expected_genotype)
-    assert np.array_equal(joined.fitness, expected_fitness)
-    assert joined.pop_size == 4
-    # Best should come from pop2 since it has better fitness
-    assert np.array_equal(joined.best, pop2.best)
-    assert joined.best_fitness == pop2.best_fitness
-
-
-def test_join_method(mock_objfunc, sample_genotype):
-    pop1 = Population(mock_objfunc, sample_genotype)
-    pop2 = Population(mock_objfunc, np.array([[10, 11, 12]]))
-    
-    result = pop1.join(pop2)
-    
-    assert result is pop1
-    assert pop1.pop_size == 4
-    assert np.array_equal(pop1.genotype_matrix[-1], [10, 11, 12])
-
-
-def test_sort_population(mock_objfunc, sample_genotype):
-    pop = Population(mock_objfunc, sample_genotype)
-    pop.fitness = np.array([3.0, 1.0, 2.0])  # Unsorted fitness
-    
-    result = pop.sort_population()
-    
-    assert result is pop
-    # After sorting, genotype should be ordered by fitness
-    expected_order = np.argsort([3.0, 1.0, 2.0])
-    expected_genotype = sample_genotype[expected_order]
-    assert np.array_equal(pop.genotype_matrix, expected_genotype)
-    assert np.array_equal(pop.fitness, np.array([1.0, 2.0, 3.0]))
-
-def test_best_solution_decoded(mock_objfunc, sample_genotype, default_encoding):
-    pop = Population(mock_objfunc, sample_genotype, encoding=default_encoding)
-    pop.best = sample_genotype[1]  # Set best to second individual
-    pop.best_fitness = 2.0
-    
-    # Mock the decode method
-    decoded_value = np.array([[100, 200, 300]])
-    default_encoding.decode = Mock(return_value=decoded_value)
-    
-    best_sol, best_fit = pop.best_solution(decoded=True)
-    
-    assert np.array_equal(best_sol, decoded_value[0])
-    assert best_fit == -2.0  # Since mode is "min" in mock_objfunc, but we're checking the decoded path
-
-
-@pytest.mark.parametrize("encoding_type,expected_return", [
-    (ParameterExtendingEncoding, np.array([1, 2, 3])),  # Should return decoded params
-    (DefaultEncoding, None),  # Should return None
-])
-def test_decode_params(mock_objfunc, sample_genotype, encoding_type, expected_return):
-    encoding = Mock(spec=encoding_type)
-    if encoding_type == ParameterExtendingEncoding:
-        encoding.decode_params.return_value = expected_return
-    else:
-        # For non-ExtendedEncoding, the method shouldn't exist in the same way
-        pass
-    
-    pop = Population(mock_objfunc, sample_genotype, encoding=encoding)
-    
-    result = pop.decode_params()
-    
-    if encoding_type == ParameterExtendingEncoding:
-        assert np.array_equal(result, expected_return)
-        encoding.decode_params.assert_called_once_with(sample_genotype)
-    else:
-        assert result is None
-
-
-def test_update_best_from_parents(mock_objfunc, sample_genotype):
-    pop = Population(mock_objfunc, sample_genotype)
-    parents = Population(mock_objfunc, sample_genotype)
-    parents.best = np.array([10, 11, 12])
-    parents.best_fitness = 5.0  # Better than pop's current best (None)
-    
-    result = pop.update_best_from_parents(parents)
-    
-    assert result is pop
-    assert np.array_equal(pop.best, parents.best)
-    assert pop.best_fitness == parents.best_fitness
-
-
-def test_update(mock_objfunc, sample_genotype):
-    pop = Population(mock_objfunc, sample_genotype)
-    pop.fitness = np.array([1.0, 3.0, 2.0])  # Best is at index 1
-    
-    # Mock the encoding update to return the same matrix
-    pop.encoding.update = Mock(return_value=sample_genotype)
-    
-    result = pop.update()
-    
-    assert result is pop
-    # Best should be set to individual at index 1
-    assert np.array_equal(pop.best, sample_genotype[1])
-    assert pop.best_fitness == 3.0
-
-
-@pytest.mark.parametrize("amount", [1, 2, 3])
-def test_repeat(mock_objfunc, sample_genotype, amount):
-    pop = Population(mock_objfunc, sample_genotype)
-    
     repeated = pop.repeat(amount)
-    
-    expected_genotype = np.tile(sample_genotype, (amount, 1))
-    assert np.array_equal(repeated.genotype_matrix, expected_genotype)
-    assert repeated.pop_size == 3 * amount
+    assert repeated.pop_size == expected_rows
+    # Each original row repeated `amount` times sequentially
+    for i in range(3):
+        for j in range(amount):
+            np.testing.assert_array_equal(repeated.genotype_matrix[i*amount + j], SMALL_GENOTYPE[i])
 
 
-def test_calculate_fitness(mock_objfunc, sample_genotype):
-    pop = Population(mock_objfunc, sample_genotype)
-    
-    result = pop.calculate_fitness()
-    
-    assert result is pop
-    # Fitness should be set to what objfunc.fitness returns
-    assert np.array_equal(pop.fitness, np.array([1.0, 2.0, 3.0]))
-    # Historical best should be updated
-    assert np.array_equal(pop.historical_best_fitness, np.array([1.0, 2.0, 3.0]))
-    # Best individual should be set
-    assert np.array_equal(pop.best, sample_genotype[2])  # Index 2 has fitness 3.0
-    assert pop.best_fitness == 3.0
+# ---------------------------------------------------------------
+# calculate_fitness
+# ---------------------------------------------------------------
+
+def test_calculate_fitness_updates_historical_and_best(dummy_objfunc):
+    """Simulate the objective function returning new fitness values."""
+    pop = Population(dummy_objfunc, np.array([[0,0],[1,1]]))
+    pop.fitness = np.array([2.0, 5.0])
+    pop.best = np.array([1.0,1.0])
+    pop.best_fitness = 5.0
+    pop.historical_best_matrix = np.array([[0,0],[1,1]])
+    pop.historical_best_fitness = np.array([2.0, 5.0])
+
+    # Mock to return higher fitness for first individual, lower for second
+    dummy_objfunc._fitness_return = np.array([10.0, 1.0])
+    pop.calculate_fitness(parallel=False)
+
+    np.testing.assert_array_equal(pop.fitness, [10.0, 1.0])
+    # historical best should be updated for improved individuals (first only)
+    np.testing.assert_array_equal(pop.historical_best_matrix[0], [0,0])   # still
+    assert pop.historical_best_fitness[0] == 10.0
+    np.testing.assert_array_equal(pop.historical_best_matrix[1], [1,1])   # unchanged
+    assert pop.historical_best_fitness[1] == 5.0
+    # best updated because 10.0 > 5.0
+    np.testing.assert_array_equal(pop.best, np.array([0.0,0.0]))
+    assert pop.best_fitness == 10.0
 
 
-def test_repair_solutions(mock_objfunc, sample_genotype):
-    pop = Population(mock_objfunc, sample_genotype)
-    
-    result = pop.repair_solutions()
-    
-    assert result is pop
-    # Since repair_solution is identity mock, genotype should be unchanged
-    assert np.array_equal(pop.genotype_matrix, sample_genotype)
-    # Verify repair_solution was called for each individual
-    assert mock_objfunc.repair_solution.call_count == 3
+# ---------------------------------------------------------------
+# repair_solutions
+# ---------------------------------------------------------------
+
+def test_repair_solutions(dummy_objfunc):
+    dummy_objfunc._repair_return = lambda x: x * 2
+    pop = Population(dummy_objfunc, np.array([[1,2],[3,4]]))
+    pop.repair_solutions()
+    np.testing.assert_array_equal(pop.genotype_matrix, [[2,4],[6,8]])
 
 
-def test_decode(mock_objfunc, sample_genotype, default_encoding):
-    pop = Population(mock_objfunc, sample_genotype, encoding=default_encoding)
-    
-    # Mock the decode method
-    decoded_value = np.array([[1, 2], [3, 4], [5, 6]])
-    default_encoding.decode = Mock(return_value=decoded_value)
-    
-    result = pop.decode()
-    
-    assert np.array_equal(result, decoded_value)
-    default_encoding.decode.assert_called_once_with(sample_genotype)
+# ---------------------------------------------------------------
+# decode / encode / decode_params (delegation to encoding)
+# ---------------------------------------------------------------
+
+def test_decode_uses_default_encoding(dummy_objfunc):
+    pop = Population(dummy_objfunc, np.array([[0,0]]))
+    decoded = pop.decode()
+    np.testing.assert_array_equal(decoded, pop.genotype_matrix)
+
+def test_encode_uses_default_encoding(dummy_objfunc):
+    pop = Population(dummy_objfunc, np.array([[0,0]]))
+    encoded = pop.encode()
+    np.testing.assert_array_equal(encoded, pop.genotype_matrix)
 
 
-def test_get_state(mock_objfunc, sample_genotype):
-    pop = Population(mock_objfunc, sample_genotype)
+# ---------------------------------------------------------------
+# get_state
+# ---------------------------------------------------------------
+
+def test_get_state(dummy_objfunc):
+    pop = Population(dummy_objfunc, SMALL_GENOTYPE)
     pop.fitness = np.array([1.0, 2.0, 3.0])
-    pop.best = sample_genotype[0]
-    pop.best_fitness = 1.0
-    
+    pop.best = np.array([4.0, 5.0])
+    pop.best_fitness = 6.0
     state = pop.get_state()
-    
-    expected_state = {
-        "genotype_matrix": sample_genotype,
-        "fitness": np.array([1.0, 2.0, 3.0]),
-        "historical_best_matrix": sample_genotype,
-        "historical_best_fitness": pop.historical_best_fitness,
-        "best": sample_genotype[0],
-        "best_fitness": 1.0,
-        "encoding": "DefaultEncoding",
-    }
-    
-    for key in expected_state:
-        if isinstance(expected_state[key], np.ndarray):
-            assert np.array_equal(state[key], expected_state[key])
-        else:
-            assert state[key] == expected_state[key]
-
-
-# Test error cases
-def test_update_genotype_matrix_invalid_size(mock_objfunc, sample_genotype):
-    pop = Population(mock_objfunc, sample_genotype)
-    invalid_genotype = np.random.rand(3, 5)  # Different vector size
-    
-    with pytest.raises(ValueError, match="Individual vector size should not change"):
-        pop.update_genotype(invalid_genotype)
+    assert "genotype_matrix" in state
+    assert "fitness" in state
+    assert "best" in state
+    assert "encoding" in state
+    assert state["encoding"] == "DefaultEncoding"

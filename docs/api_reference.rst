@@ -18,12 +18,7 @@ These are the interfaces from which to inherit to implement a new component for 
    ":py:class:`SearchStrategy<metaheuristic_designer.search_strategy.SearchStrategy>`", "Prototype of a search strategy applied each generation."
    ":py:class:`Algorithm<metaheuristic_designer.algorithm.Algorithm>`", "Prototype of a full optimization algorithm."
 
-Almost every interface works with the :py:class:`Population<metaheuristic_designer.population.Population>` class internally:
-
-.. csv-table::
-   :header: "Module name", "Description"
-
-   ":py:class:`Population<metaheuristic_designer.population.Population>`", "Data structure holding all the solutions and the best solution."
+Almost every interface works with the :py:class:`Population<metaheuristic_designer.population.Population>` class internally.
 
 Lambda Implementations
 ----------------------
@@ -39,6 +34,11 @@ Classes that allow implementing optimization modules with a lambda function, avo
    ":py:class:`ParentSelectionFromLambda<metaheuristic_designer.parent_selection.ParentSelectionFromLambda>`", "Parent selection from a function."
    ":py:class:`SurvivorSelectionFromLambda<metaheuristic_designer.survivor_selection.SurvivorSelectionFromLambda>`", "Survivor selection from a function."
    ":py:class:`OperatorFromLambda<metaheuristic_designer.operator.OperatorFromLambda>`", "Operator from a function."
+   ":py:class:`SearchStrategyFromLambda<metaheuristic_designer.search_strategy.SearchStrategyFromLambda>`", "Full step of the algorithm defined componentwise by functions."
+
+For a complete walk‑through showing how to use these classes and the registration
+functions, see :doc:`Custom Components <api_reference.custom_components>`.
+
 
 Extended Encoding Classes
 --------------------------
@@ -67,7 +67,7 @@ Many numerical parameters can be made schedulable by passing a :py:class:`~metah
    ":py:class:`parameter_schedules.StepSchedule<metaheuristic_designer.parameter_schedules.step_schedule.StepSchedule>`", "Discrete steps defined by a list of (progress, value) pairs."
    ":py:class:`parameter_schedules.RandomSchedule<metaheuristic_designer.parameter_schedules.random_schedule.RandomSchedule>`", "Randomly picks a value between two bounds at each step."
 
-All schedules depend on the algorithm's **progress** - a number between 0 and 1 - to decide parameter values.
+All schedules depend on the algorithm's **progress**, a number between 0 and 1, to decide parameter values.
 
 Initializers
 ------------
@@ -91,7 +91,7 @@ Implemented encodings that transform between the internal genotype and the pheno
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`DefaultEncoding<metaheuristic_designer.DefaultEncoding>`", "No change (identity encoding)."
+   ":py:class:`DefaultEncoding<metaheuristic_designer.encoding.DefaultEncoding>`", "No change (identity encoding)."
    ":py:class:`encodings.TypeCastEncoding<metaheuristic_designer.encodings.type_cast_encoding.TypeCastEncoding>`", "Changes the datatype (e.g. float ↔ int ↔ boolean)."
    ":py:class:`encodings.MatrixEncoding<metaheuristic_designer.encodings.matrix_encoding.MatrixEncoding>`", "Reshapes a vector to a tensor of a different shape."
    ":py:class:`encodings.ImageEncoding<metaheuristic_designer.encodings.image_encoding.ImageEncoding>`", "Reshapes a vector to an N×M×C image representation (channels last)."
@@ -113,6 +113,9 @@ The complete catalogue of available methods, their parameters, and instructions 
 registering custom ones are given on the :doc:`API reference - Implemented Operators & Selection <api_reference.methods>` page
 (see :ref:`selection-methods`).
 
+To learn how to create custom parent or survivor selection methods and register them,
+consult the :doc:`Custom Components <api_reference.custom_components>` page.
+
 Operators
 ---------
 Operators modify the genotype of individuals. They are created through the **factory function**
@@ -130,16 +133,19 @@ A few built-in operators do **not** follow the factory pattern:
 .. csv-table::
    :header: "Class", "Description"
 
-   ":py:class:`~metaheuristic_designer.NullOperator`", "Identity operator (no changes)."
+   ":py:class:`~metaheuristic_designer.operator.NullOperator`", "Identity operator (no changes)."
    ":py:class:`~metaheuristic_designer.operators.composite_operator.CompositeOperator`", "Combines multiple operators sequentially."
-   ":py:class:`~metaheuristic_designer.operators.split_operator.SplitOperator`", "Applies different operators to disjoint parts of the genotype."
+   ":py:class:`~metaheuristic_designer.operators.masked_operator.MaskedOperator`", "Applies different operators to different sets of components of the genotype vectors."
    ":py:class:`~metaheuristic_designer.operators.branch_operator.BranchOperator`", "Randomly selects one operator from a list each time it is applied."
    ":py:class:`~metaheuristic_designer.operators.extended_operator.ExtendedOperator`", "Base class for operators that handle extra per-individual parameters (e.g. self-adaptation)."
    ":py:class:`~metaheuristic_designer.operators.BO_operator.BOOperator`", "Gaussian process regression operator for Bayesian Optimisation."
 
-For the full catalogue of factory-available operators (mutation, crossover, permutation, DE,
+**IMPORTANT**: For the full catalogue of factory-available operators (mutation, crossover, permutation, DE,
 swarm, …) and the probability distributions they support, see the
 :doc:`Operator Methods <api_reference.methods>` page.
+
+For writing and registering your own operators, refer to the
+:doc:`Custom Components <api_reference.custom_components>` guide.
 
 Search Strategies
 -----------------

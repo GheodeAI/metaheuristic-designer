@@ -1,7 +1,7 @@
 from ..operator import Operator, OperatorFromLambda, NullOperator
 from .composite_operator import CompositeOperator
 from .branch_operator import BranchOperator, BranchOpMethods, branch_ops_map
-from .split_operator import SplitOperator
+from .masked_operator import MaskedOperator
 from .extended_operator import ExtendedOperator
 from .adaptative_operator import AdaptativeOperator
 from .any_operator import all_ops_map, bo_aliases, null_aliases, create_operator, add_operator_entry

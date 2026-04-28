@@ -27,117 +27,117 @@ metaheuristic\_designer.algorithm module
 
 .. automodule:: metaheuristic_designer.algorithm
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.constraint\_handler module
 --------------------------------------------------
 
 .. automodule:: metaheuristic_designer.constraint_handler
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.encoding module
 ---------------------------------------
 
 .. automodule:: metaheuristic_designer.encoding
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.initializer module
 ------------------------------------------
 
 .. automodule:: metaheuristic_designer.initializer
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.objective\_function module
 --------------------------------------------------
 
 .. automodule:: metaheuristic_designer.objective_function
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.operator module
 ---------------------------------------
 
 .. automodule:: metaheuristic_designer.operator
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.parametrizable\_mixin module
 ----------------------------------------------------
 
 .. automodule:: metaheuristic_designer.parametrizable_mixin
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.parent\_selection module
 ------------------------------------------------
 
 .. automodule:: metaheuristic_designer.parent_selection
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.population module
 -----------------------------------------
 
 .. automodule:: metaheuristic_designer.population
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.schedulable\_parameter module
 -----------------------------------------------------
 
 .. automodule:: metaheuristic_designer.schedulable_parameter
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.search\_strategy module
 -----------------------------------------------
 
 .. automodule:: metaheuristic_designer.search_strategy
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.stopping\_condition module
 --------------------------------------------------
 
 .. automodule:: metaheuristic_designer.stopping_condition
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.survivor\_selection module
 --------------------------------------------------
 
 .. automodule:: metaheuristic_designer.survivor_selection
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 metaheuristic\_designer.utils module
 ------------------------------------
 
 .. automodule:: metaheuristic_designer.utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: metaheuristic_designer
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

@@ -37,7 +37,7 @@ Mutation
    :header: "Primary name", "Aliases", "Description", "Parameters"
 
    "mutation.gaussian_mutation", "gauss_mut, normal_mutation", "Add Gaussian noise to existing values.", "loc (0), scale (1), N (all)"
-   "mutation.uniform_mutation", "uniform_mut", "Replace components with uniform random numbers.", "low (-1), high (1), N (all)"
+   "mutation.uniform_mutation", "uniform_mut", "Add unform noise to components with uniform random numbers.", "low (-1), high (1), N (all)"
    "mutation.gaussian_noise", "gauss, normal, normal_noise", "Replace with new values from a Gaussian distribution.", "loc, scale"
    "mutation.laplace_mutation", "laplace_mut, laplace_mutation", "Add Laplace noise.", "loc (0), scale (1), N (all)"
    "mutation.cauchy_mutation", "cauchy_mut, cauchy_mutation", "Add Cauchy noise.", "loc (0), scale (1), N (all)"
@@ -74,7 +74,7 @@ Crossover
    "crossover.sbx_crossover", "sbx, simulated_binary, simulated_binary_crossover", "Simulated binary crossover for real values.", "F (1)"
    "crossover.bitwise_xor_crossover", "xorcross, xor_crossover, bitwise_xor, flipcross, bitflip_cross", "Bitwise XOR for binary genotypes.", ""
 
-All crossover methods work on pairs (or groups) of parents selected before the operation.
+Crossover methods will deterministically take half of each population and cross it with the other half.
 
 ----
 
@@ -106,11 +106,9 @@ Differential Evolution
    "DE/best/1", "de_best_1, de.best.1", "F, Cr"
    "DE/rand/2", "de_rand_2, de.rand.2", "F, Cr"
    "DE/best/2", "de_best_2, de.best.2", "F, Cr"
-   "DE/current-to-rand/1", "de_current_to_rand_1, DE.current-to-rand.1", "F, Cr"
-   "DE/current-to-best/1", "de_current_to_best_1, DE.current-to-best.1", "F, Cr"
-   "DE/current-to-pbest/1", "de_current_to_pbest_1, DE.current-to-pbest.1", "F (0.8), Cr (0.9), p (0.1)"
-
-Note: the string key can be written with dots or underscores.
+   "DE/current-to-rand/1", "de_current_to_rand_1, de.current-to-rand.1", "F, Cr"
+   "DE/current-to-best/1", "de_current_to_best_1, de.current-to-best.1", "F, Cr"
+   "DE/current-to-pbest/1", "de_current_to_pbest_1, de.current-to-pbest.1", "F (0.8), Cr (0.9), p (0.1)"
 
 ----
 
@@ -158,14 +156,42 @@ You can register your own operator functions and use them with the factory:
 
 .. code-block:: python
 
-    from metaheuristic_designer.operators import add_operator_entry
+    from metaheuristic_designer.operators import add_operator_entry, OperatorVectorDef
+    from metaheuristic_designer.utils import MatrixLike, VectorLike, RNGLike
 
-    def my_operator(population_matrix, fitness_array, random_state, **kwargs):
+    def my_operator(population_matrix: MatrixLike, fitness_array: VectorLike, random_state: RNGLike, **kwargs) -> MatrixLike:
         ...
 
-    add_operator_entry(my_operator, "myop", "custom")
+    add_operator_entry(OperatorVectorDef(my_operator), "myop", "custom")
 
     op = create_operator("custom.myop")
+
+
+We need the wrapper :py:class:`OperatorVectorDef<metaheuristic_designer.operators.operator_functions.utils.OperatorVectorDef>` since operators lambdas work on :py:class:`Population<metaheuristic_designer.population.Population>` objects, this wrapper
+manages the wiring so the population matrix is updated correctly into a new copy of the :py:class:`Population<metaheuristic_designer.population.Population>` object.
+
+In case you want to access the population object directly, the function signature must use the :py:class:`Population<metaheuristic_designer.population.Population>` class
+directly along with an instance of an :py:class:`Initializer<metaheuristic_designer.initializer.Initializer>`, 
+ensuring neither is modified in place. It is recommended to create a copy of the population at the start of the function. Initializers don't usually
+need to be copied since we would never modify them in an operator.
+The implementation would go like this:
+
+.. code-block:: python
+
+    from metaheuristic_designer.operators import add_operator_entry
+    from metaheuristic_designer.population import Population
+    from metaheuristic_designer.initializer import Initializer
+    from metaheuristic_designer.utils import RNGLike
+
+    def my_operator_on_population(population: Population, initializer: Initializer, random_state: RNGLike, **kwargs) -> Population:
+        ...
+
+    add_operator_entry(my_operator_on_population, "myop-on-population", "custom")
+
+    op = create_operator("custom.myop-on-population")
+
+For a complete walk‑through, including the required function signatures for every
+component, see the :doc:`Custom Components <api_reference.custom_components>` page.
 
 .. _probability-distributions:
 
@@ -175,23 +201,23 @@ Operator methods that involve randomness choose the underlying probability distr
 via the ``distrib`` parameter.  The name is a case-insensitive string.
 
 .. csv-table::
-   :header: "Distribution name", "Parameters", "Description"
+   :header: "Distribution name", "Aliases", "Parameters", "Description"
 
-   "Uniform", "min, max", "Uniform distribution between ``min`` and ``max`` (mapped internally to ``loc=min, scale=max-min``)."
-   "Gauss, Gaussian, Normal", "loc, scale", "Normal (Gaussian) distribution with mean ``loc`` and standard deviation ``scale``."
-   "Multivariate Normal, Multigauss, …", "mean, cov (or loc, scale)", "Multivariate normal distribution. If ``loc``/``scale`` are scalars, an isotropic covariance is built; otherwise pass ``mean`` and ``cov`` arrays."
-   "Cauchy", "loc, scale", "Cauchy distribution."
-   "Laplace", "loc, scale", "Laplace distribution."
-   "Gamma", "a, loc, scale", "Gamma distribution (shape ``a``)."
-   "Exp, Expon, Exponential", "loc, scale", "Exponential distribution."
-   "LevyStable, levy_stable", "a, b, loc, scale", "Lévy-stable distribution (stability ``a``, skewness ``b``)."
-   "Tikhonov, vonMises, vonMises-Fisher", "mu, scale", "von Mises-Fisher distribution (kappa = 1/``scale``). ``mu`` must be a direction vector."
-   "Poisson", "mu, loc", "Poisson distribution with mean ``mu``."
-   "Bernoulli", "p", "Bernoulli distribution (probability of success ``p``)."
-   "Binomial", "n, p, loc", "Binomial distribution (``n`` trials, success probability ``p``)."
-   "Categorical", "p", "Categorical distribution given by a probability vector ``p``."
-   "Multivariate Categorical, Multicategorical", "p", "Multivariate categorical distribution; ``p`` is a 2-D array of probabilities (rows sum to 1)."
-   "Custom", "distrib_class (any scipy distribution)", "Any user-provided probability distribution from ``scipy.stats`` (the class itself, not an instance)."
+   "Uniform", "", "min, max", "Uniform distribution between ``min`` and ``max`` (mapped internally to ``loc=min, scale=max-min``)."
+   "Gaussan", "Gauss, Normal", "loc, scale", "Normal (Gaussian) distribution with mean ``loc`` and standard deviation ``scale``."
+   "Multivariate Normal", "Multigauss", "mean, cov (or loc, scale)", "Multivariate normal distribution. If ``loc``/``scale`` are scalars, an isotropic covariance is built; otherwise pass ``mean`` and ``cov`` arrays."
+   "Cauchy", "", "loc, scale", "Cauchy distribution."
+   "Laplace", "", "loc, scale", "Laplace distribution."
+   "Gamma", "", "a, loc, scale", "Gamma distribution (shape ``a``)."
+   "Exponential", "Expon, Exp", "loc, scale", "Exponential distribution."
+   "LevyStable", "levy_stable", "a, b, loc, scale", "Lévy-stable distribution (stability ``a``, skewness ``b``)."
+   "Tikhonov", "vonMises, vonMises-Fisher", "mu, scale", "von Mises-Fisher distribution (kappa = 1/``scale``). ``mu`` must be a direction vector."
+   "Poisson", "", "mu, loc", "Poisson distribution with mean ``mu``."
+   "Bernoulli", "", "p", "Bernoulli distribution (probability of success ``p``)."
+   "Binomial", "", "n, p, loc", "Binomial distribution (``n`` trials, success probability ``p``)."
+   "Categorical", "", "p", "Categorical distribution given by a probability vector ``p``."
+   "Multivariate Categorical", "Multicategorical", "p", "Multivariate categorical distribution; ``p`` is a 2-D array of probabilities (rows sum to 1)."
+   "Custom", "", "distrib_class (any scipy distribution)", "Any user-provided probability distribution from ``scipy.stats`` (the class itself, not an instance)."
 
 When a parameter can be an array, its shape must be compatible with the population matrix
 (number of individuals x number of variables).
@@ -260,12 +286,12 @@ When using ``"roulette"`` or ``"sus"``, the ``method`` parameter selects how fit
 mapped to selection probabilities. The available values are **case-insensitive**:
 
 .. csv-table::
-   :header: "``method`` value", "Description"
+   :header: "``method`` value", "Aliases", "Description"
 
-   "``fitness_prop``", "Fitness proportional scaling. The minimum fitness is subtracted to avoid negative values, then an offset ``F`` is added."
-   "``sigma_scaling``", "Sigma scaling: weights are based on standard deviations above the mean."
-   "``lin_rank``", "Linear ranking: the weight of the i-th best individual is proportional to its rank."
-   "``exp_rank``", "Exponential ranking: weights are exponentially decayed with rank."
+   "``fitness_proportional``", "``fitness_prop``", "Fitness proportional scaling. The minimum fitness is subtracted to avoid negative values, then an offset ``F`` is added."
+   "``sigma_scaling``", "", "Sigma scaling: weights are based on standard deviations above the mean."
+   "``linear_rank``", "``lin_rank``", "Linear ranking: the weight of the i-th best individual is proportional to its rank."
+   "``exponential_rank``", "``exp_rank``", "Exponential ranking: weights are exponentially decayed with rank."
 
 If no ``method`` is given, plain fitness proportional scaling is applied.
 
@@ -284,7 +310,10 @@ Survivor Selection
       "``generational``", "``nothing``", "", "Discard parents; the offspring becomes the new population."
       "``one_to_one``", "``hillclimb``, ``hill_climb``", "", "Each offspring competes against its corresponding parent; the winner stays."
       "``probabilistic_one_to_one``", "``prob_one_to_one``, ``prob_hillclimb``, ``prob_hill_climb``, ``probabilistic_hillclimb``, ``probabilistic_hill_climb``", "``p`` (float)", "Like ``one_to_one``, but the offspring wins with probability ``p`` regardless of fitness."
-      "``many_to_one``", "``local_search``", "", "Each parent is compared to the corresponding offspring (element-wise) and the better one is kept."
+      "``many_to_one``", "``local_search``", "", "Each parent is compared to the corresponding offspring and the better one is kept."
       "``probabilistic_many_to_one``", "``prob_many_to_one``, ``prob_local_search``, ``probabilistic_local_search``", "``p`` (float)", "Like ``many_to_one``, but the offspring wins with probability ``p`` even if it is worse."
-      "``keep_best``", "``(m+n)``, ``(mu+lambda)``, ``mu+lambda``", "", "Keep the best ``pop_size`` individuals from the union of parents and offspring."
+      "``keep_best``", "``(m+n)``, ``(mu+lambda)``, ``mu+lambda``", "", "Keep the best ``pop_size`` individuals from the union of parents and offspring. The size of the population is determined by the size of the previous generation."
       "``keep_offspring``", "``(m,n)``, ``(mu,lambda)``, ``mu,lambda``", "", "Replace the whole population with the best individuals from the offspring (offspring size must be ≥ population size)."
+
+For guidance on writing your own parent or survivor selection functions and
+registering them with the factories, refer to the :doc:`Custom Components <api_reference.custom_components>` page.

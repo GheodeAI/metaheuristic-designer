@@ -3,7 +3,7 @@ import numpy as np
 from ..operator import Operator, NullOperator
 from ..encodings import ParameterExtendingEncoding
 from .composite_operator import CompositeOperator
-from .split_operator import SplitOperator
+from .masked_operator import MaskedOperator
 
 
 class ExtendedOperator(Operator):
@@ -48,7 +48,7 @@ class ExtendedOperator(Operator):
         self.param_operators = param_operators
         operator_list = [base_operator] + [param_operators[param_name] for idx, (param_name, _) in enumerate(encoding.param_sizes)]
 
-        self.main_operator = SplitOperator(operator_list, mask=mask)
+        self.main_operator = MaskedOperator(operator_list, mask=mask)
         self.mask = mask
         self.param_encoding = encoding
 

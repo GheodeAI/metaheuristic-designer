@@ -22,9 +22,12 @@ class SelectionDist(Enum):
 
 
 select_dist_map = {
+    "fitness_proportional": SelectionDist.FIT_PROP,
     "fitness_prop": SelectionDist.FIT_PROP,
     "sigma_scaling": SelectionDist.SIGMA_SCALE,
+    "linear_rank": SelectionDist.LIN_RANK,
     "lin_rank": SelectionDist.LIN_RANK,
+    "exponential_rank": SelectionDist.EXP_RANK,
     "exp_rank": SelectionDist.EXP_RANK,
 }
 
@@ -51,6 +54,9 @@ def selection_distribution(fitness, method, f=None):
 
     if f is None:
         f = 2
+
+    if isinstance(method, str):
+        method = select_dist_map[method.lower()]
 
     match method:
         case SelectionDist.FIT_PROP:

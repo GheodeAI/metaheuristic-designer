@@ -110,4 +110,5 @@ Indices and tables
 
     API reference <api_reference>
     Operators and selection methods <api_reference.methods>
+    Custom components <api_reference.custom_components>
     Module Details <auto/modules>

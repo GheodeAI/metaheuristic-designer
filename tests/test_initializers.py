@@ -1,406 +1,425 @@
 import pytest
 import numpy as np
-from metaheuristic_designer import InitializerFromLambda
-from metaheuristic_designer.initializers import *
-from metaheuristic_designer.encodings import ParameterExtendingEncoding
 
-
-@pytest.mark.parametrize("vec_size", [1, 2, 10, 100])
-@pytest.mark.parametrize("min_val, max_val", [(0, 1), (-1, 1), (-100, 2), (2, 24)])
-@pytest.mark.parametrize("pop_size", [1, 10, 100])
-def test_uniform_vec_init(vec_size, min_val, max_val, pop_size):
-    pop_init = UniformInitializer(vec_size, min_val, max_val, pop_size)
-
-    for _ in range(30):
-        rand_inidv = pop_init.generate_random()
-        assert rand_inidv.max() <= max_val
-        assert rand_inidv.min() >= min_val
-        assert rand_inidv.size == vec_size
-
-        rand_inidv = pop_init.generate_individual()
-        assert rand_inidv.max() <= max_val
-        assert rand_inidv.min() >= min_val
-        assert rand_inidv.size == vec_size
-
-    rand_pop = pop_init.generate_population(None)
-    assert len(rand_pop) == pop_size
-
-    for indiv in rand_pop:
-        assert indiv.max() <= max_val
-        assert indiv.min() >= min_val
-        assert indiv.size == vec_size
-
-
-@pytest.mark.parametrize(
-    "min_val, max_val",
-    [
-        (np.zeros(10), np.ones(10)),
-        (np.full(10, -1), np.ones(10)),
-        (np.full(10, -100), np.full(10, 2)),
-        (np.full(10, 2), np.full(10, 24)),
-    ],
+# Adjust imports to your actual project
+from metaheuristic_designer.initializers import (
+    ExponentialInitializer,
+    GaussianInitializer,
+    UniformInitializer,
+    PermInitializer,
+    SeedProbInitializer,
+    SeedDetermInitializer,
+    DirectInitializer,
+    ExtendedInitializer,
 )
-@pytest.mark.parametrize("pop_size", [1, 10, 100])
-def test_uniform_arr_param_vec_init(min_val, max_val, pop_size):
-    pop_init = UniformInitializer(10, min_val, max_val, pop_size)
-
-    for _ in range(30):
-        rand_inidv = pop_init.generate_random()
-        assert np.all(rand_inidv <= max_val)
-        assert np.all(rand_inidv >= min_val)
-        assert rand_inidv.size == 10
-
-        rand_inidv = pop_init.generate_individual()
-        assert np.all(rand_inidv <= max_val)
-        assert np.all(rand_inidv >= min_val)
-        assert rand_inidv.size == 10
-
-    rand_pop = pop_init.generate_population(None)
-    assert len(rand_pop) == pop_size
-
-    for indiv in rand_pop:
-        assert np.all(indiv <= max_val)
-        assert np.all(indiv >= min_val)
-        assert indiv.size == 10
+from metaheuristic_designer.initializer import InitializerFromLambda
+from metaheuristic_designer.population import Population
 
 
-def test_uniform_int_vec_init():
-    pop_init = UniformInitializer(200, 0, 1, 100, dtype=int)
-    rand_inidv = pop_init.generate_random()
-    assert 0 in rand_inidv
-    assert 1 in rand_inidv
+# -------------------------------------------------------------------
+#  Helpers that return expected arrays for a known seed (42)
+# -------------------------------------------------------------------
+
+def _expected_exponential(beta, size, rng_seed=42):
+    rng = np.random.default_rng(rng_seed)
+    return rng.exponential(beta, size=size)
+
+def _expected_normal(mean, std, size, rng_seed=42):
+    rng = np.random.default_rng(rng_seed)
+    return rng.normal(mean, std, size=size)
+
+def _expected_uniform(low, high, size, rng_seed=42):
+    rng = np.random.default_rng(rng_seed)
+    return rng.uniform(low, high, size=size)
+
+def _expected_permutation(n, rng_seed=42):
+    rng = np.random.default_rng(rng_seed)
+    return rng.permutation(n)
 
 
-def test_uniform_err_vec_init():
+# ===================================================================
+#  ExponentialInitializer
+# ===================================================================
+
+@pytest.mark.parametrize("genotype_size, beta, dtype, pop_size", [
+    (3, 1.0, float, 1),
+    (5, 2.0, float, 4),
+    (4, 0.5, int, 1),
+    (3, 1.5, int, 2),
+    (1, 10.0, float, 1),
+])
+def test_exponential_generate_random_shape_and_type(genotype_size, beta, dtype, pop_size, rng):
+    init = ExponentialInitializer(genotype_size, beta, pop_size=pop_size, dtype=dtype, random_state=rng)
+    vec = init.generate_random()
+    assert vec.shape == (genotype_size,)
+    assert vec.dtype == np.dtype(dtype)
+    assert np.all(vec >= 0)   # exponential is always non‑negative
+
+
+@pytest.mark.parametrize("genotype_size, beta, dtype, pop_size", [
+    (3, 1.0, float, 1),
+    (2, 2.5, int, 1),
+])
+def test_exponential_generate_random_deterministic(genotype_size, beta, dtype, pop_size, rng):
+    init = ExponentialInitializer(genotype_size, beta, pop_size=pop_size, dtype=dtype, random_state=rng)
+    expected = _expected_exponential(beta, genotype_size)
+    if dtype is int:
+        expected = np.round(expected).astype(dtype)
+    else:
+        expected = expected.astype(dtype)
+    np.testing.assert_array_almost_equal(init.generate_random(), expected)
+
+
+def test_exponential_generate_individual_same_as_random(rng):
+    init = ExponentialInitializer(3, 1.0, random_state=rng)
+    np.testing.assert_array_equal(init.generate_individual(), init.generate_random())
+
+
+@pytest.mark.parametrize("pop_size", [1, 4])
+def test_exponential_generate_population(pop_size, rng, objfunc, encoding):
+    init = ExponentialInitializer(2, 1.0, pop_size=pop_size, encoding=encoding, random_state=rng)
+    pop = init.generate_population(objfunc)
+    assert len(pop) == pop_size
+    assert pop.genotype_matrix.shape == (pop_size, 2)
+    assert pop.objfunc is objfunc
+    assert pop.encoding is encoding
+
+
+# ===================================================================
+#  GaussianInitializer
+# ===================================================================
+
+@pytest.mark.parametrize("genotype_size, g_mean, g_std, dtype, pop_size", [
+    (3, 0.0, 1.0, float, 1),
+    (4, 5.0, 0.5, float, 2),
+    (2, 10.0, 0.1, int, 1),
+    (1, 0.0, 2.0, float, 1),
+])
+def test_gaussian_generate_random_shape_and_type(genotype_size, g_mean, g_std, dtype, pop_size, rng):
+    init = GaussianInitializer(genotype_size, g_mean, g_std, pop_size=pop_size, dtype=dtype, random_state=rng)
+    vec = init.generate_random()
+    assert vec.shape == (genotype_size,)
+    assert vec.dtype == np.dtype(dtype)
+
+
+@pytest.mark.parametrize("genotype_size, g_mean, g_std, dtype", [
+    (2, 0.0, 1.0, float),
+    (3, 2.0, 0.5, int),
+])
+def test_gaussian_generate_random_deterministic(genotype_size, g_mean, g_std, dtype, rng):
+    init = GaussianInitializer(genotype_size, g_mean, g_std, pop_size=1, dtype=dtype, random_state=rng)
+    expected = _expected_normal(g_mean, g_std, genotype_size)
+    if dtype is int:
+        expected = np.round(expected).astype(dtype)
+    else:
+        expected = expected.astype(dtype)
+    np.testing.assert_array_almost_equal(init.generate_random(), expected)
+
+
+def test_gaussian_generate_individual_same_as_random(rng):
+    init = GaussianInitializer(3, 0, 1, random_state=rng)
+    np.testing.assert_array_equal(init.generate_individual(), init.generate_random())
+
+
+def test_gaussian_sequence_parameters(rng):
+    # Array mean/std must match genotype_size
+    GaussianInitializer(3, [1, 2, 3], [0.1, 0.2, 0.3], random_state=rng)
     with pytest.raises(ValueError):
-        UniformInitializer(10, np.zeros(10), np.ones(9))
-
+        GaussianInitializer(3, [1, 2], [0.1, 0.2, 0.3], random_state=rng)
     with pytest.raises(ValueError):
-        UniformInitializer(10, np.zeros(9), np.ones(10))
+        GaussianInitializer(3, [1, 2, 3], [0.1, 0.2], random_state=rng)
 
 
-@pytest.mark.parametrize("vec_size", [1, 2, 10, 100])
-@pytest.mark.parametrize(
-    "mean_val, std_val",
-    [
-        (0, 1),
-        (-1, 1),
-        (-100, 2),
-        (2, 24),
-    ],
-)
-@pytest.mark.parametrize("pop_size", [1, 10, 100])
-def test_gaussian_vec_init(vec_size, mean_val, std_val, pop_size):
-    pop_init = GaussianInitializer(vec_size, mean_val, std_val, pop_size)
-
-    for _ in range(30):
-        rand_inidv = pop_init.generate_random()
-        assert rand_inidv.size == vec_size
-
-        rand_inidv = pop_init.generate_individual()
-        assert rand_inidv.size == vec_size
-
-    rand_pop = pop_init.generate_population(None)
-    assert len(rand_pop) == pop_size
-
-    for indiv in rand_pop:
-        assert indiv.size == vec_size
+def test_gaussian_generate_population(rng, objfunc):
+    init = GaussianInitializer(2, 1.0, 0.2, pop_size=5, random_state=rng)
+    pop = init.generate_population(objfunc)
+    assert len(pop) == 5
+    assert pop.genotype_matrix.shape == (5, 2)
 
 
-@pytest.mark.parametrize(
-    "min_val, max_val",
-    [
-        (np.zeros(10), np.ones(10)),
-        (np.full(10, -1), np.ones(10)),
-        (np.full(10, -100), np.full(10, 2)),
-        (np.full(10, 2), np.full(10, 24)),
-    ],
-)
-@pytest.mark.parametrize("pop_size", [1, 10, 100])
-def test_gaussian_arr_param_vec_init(min_val, max_val, pop_size):
-    pop_init = GaussianInitializer(10, min_val, max_val, pop_size)
+# ===================================================================
+#  UniformInitializer
+# ===================================================================
 
-    for _ in range(30):
-        rand_inidv = pop_init.generate_random()
-        assert rand_inidv.size == 10
-
-        rand_inidv = pop_init.generate_individual()
-        assert rand_inidv.size == 10
-
-    rand_pop = pop_init.generate_population(None)
-    assert len(rand_pop) == pop_size
-
-    for indiv in rand_pop:
-        assert indiv.size == 10
+@pytest.mark.parametrize("genotype_size, low, high, dtype, pop_size", [
+    (3, -1.0, 1.0, float, 1),
+    (4, 0.0, 10.0, float, 3),
+    (2, 2.0, 5.0, int, 1),
+    (1, 0.0, 100.0, float, 1),
+])
+def test_uniform_generate_random_shape_and_type(genotype_size, low, high, dtype, pop_size, rng):
+    init = UniformInitializer(genotype_size, low, high, pop_size=pop_size, dtype=dtype, random_state=rng)
+    vec = init.generate_random()
+    assert vec.shape == (genotype_size,)
+    assert vec.dtype == np.dtype(dtype)
+    # Check bounds (float will be within, int after rounding may hit edges)
+    assert np.all(vec >= low)
+    assert np.all(vec <= high)
 
 
-def test_gaussian_int_vec_init():
-    pop_init = GaussianInitializer(200, 0, 1, 100, dtype=int)
-    rand_inidv = pop_init.generate_random()
+@pytest.mark.parametrize("genotype_size, low, high, dtype", [
+    (2, 0.0, 1.0, float),
+    (3, 5.0, 10.0, int),
+])
+def test_uniform_generate_random_deterministic(genotype_size, low, high, dtype, rng):
+    init = UniformInitializer(genotype_size, low, high, pop_size=1, dtype=dtype, random_state=rng)
+    expected = _expected_uniform(low, high, genotype_size)
+    if dtype is int:
+        expected = np.round(expected).astype(dtype)
+    else:
+        expected = expected.astype(dtype)
+    np.testing.assert_array_almost_equal(init.generate_random(), expected)
 
 
-def test_gaussian_err_vec_init():
+def test_uniform_generate_individual_same_as_random(rng):
+    init = UniformInitializer(3, 0, 1, random_state=rng)
+    np.testing.assert_array_equal(init.generate_individual(), init.generate_random())
+
+
+def test_uniform_sequence_parameters(rng):
+    UniformInitializer(3, [0, 0, 0], [1, 2, 3], random_state=rng)
     with pytest.raises(ValueError):
-        GaussianInitializer(10, np.zeros(10), np.ones(9))
-
+        UniformInitializer(3, [0, 0], [1, 2, 3], random_state=rng)
     with pytest.raises(ValueError):
-        GaussianInitializer(10, np.zeros(9), np.ones(10))
+        UniformInitializer(3, [0, 0, 0], [1, 2], random_state=rng)
 
 
-@pytest.mark.parametrize("vec_size", [2, 10, 100])
-@pytest.mark.parametrize("pop_size", [1, 10, 100])
-def test_perm_init(vec_size, pop_size):
-    pop_init = PermInitializer(vec_size, pop_size)
-
-    for _ in range(30):
-        rand_inidv = pop_init.generate_random()
-        assert np.all(np.isin(np.arange(vec_size), rand_inidv))
-
-        rand_inidv = pop_init.generate_individual()
-        assert np.all(np.isin(np.arange(vec_size), rand_inidv))
-
-    rand_pop = pop_init.generate_population(None)
-    assert len(rand_pop) == pop_size
-
-    for indiv in rand_pop:
-        assert np.all(np.isin(np.arange(vec_size), indiv))
+def test_uniform_generate_population(rng, objfunc):
+    init = UniformInitializer(2, -1, 1, pop_size=4, random_state=rng)
+    pop = init.generate_population(objfunc)
+    assert len(pop) == 4
+    assert pop.genotype_matrix.shape == (4, 2)
 
 
-@pytest.mark.parametrize("pop_size", [1, 10, 100])
-@pytest.mark.parametrize("vec_size", [1, 10, 100])
-def test_initialize_lambda(pop_size, vec_size):
-    pop_init = InitializerFromLambda(lambda _: np.zeros(vec_size), pop_size)
+# ===================================================================
+#  PermInitializer
+# ===================================================================
 
-    rand_inidv = pop_init.generate_random()
-    assert rand_inidv.shape[0] == vec_size
-    assert np.all(rand_inidv == 0)
-
-    rand_inidv = pop_init.generate_random()
-    assert rand_inidv.shape[0] == vec_size
-    assert np.all(rand_inidv == 0)
-
-    rand_population_matrix = pop_init.generate_population(None).genotype_matrix
-    assert rand_population_matrix.shape == (pop_size, vec_size)
-    assert np.all(rand_population_matrix == 0)
+@pytest.mark.parametrize("n", [1, 5, 10])
+def test_perm_generate_random(n, rng):
+    init = PermInitializer(n, random_state=rng)
+    perm = init.generate_random()
+    assert perm.shape == (n,)
+    # Must be a permutation of 0..n-1
+    np.testing.assert_array_equal(np.sort(perm), np.arange(n))
 
 
-@pytest.mark.parametrize("vec_size", [1, 2, 10, 100])
-@pytest.mark.parametrize("beta", [0.5, 1.0, 2.0])
-@pytest.mark.parametrize("pop_size", [1, 10, 100])
-def test_exponential_vec_init(vec_size, beta, pop_size):
-    pop_init = ExponentialInitializer(vec_size, beta, pop_size)
-
-    for _ in range(30):
-        for method in [pop_init.generate_random, pop_init.generate_individual]:
-            indiv = method()
-            assert indiv.shape == (vec_size,)
-            # exponential distribution produces non‑negative values
-            assert indiv.min() >= 0.0
-
-    rand_pop = pop_init.generate_population(None)
-    assert len(rand_pop) == pop_size
-    assert rand_pop.genotype_matrix.shape == (pop_size, vec_size)
-    # All individuals from population should also be non‑negative
-    for indiv in rand_pop:
-        assert indiv.min() >= 0.0
+def test_perm_generate_random_deterministic(rng):
+    init = PermInitializer(5, random_state=rng)
+    expected = _expected_permutation(5)
+    np.testing.assert_array_equal(init.generate_random(), expected)
 
 
-def test_exponential_int_dtype():
-    pop_init = ExponentialInitializer(10, 0.5, 100, dtype=int)
-    indiv = pop_init.generate_random()
-    assert indiv.shape == (10,)
-    assert indiv.dtype == int
+def test_perm_generate_individual_same_as_random(rng):
+    init = PermInitializer(4, random_state=rng)
+    np.testing.assert_array_equal(init.generate_individual(), init.generate_random())
 
 
-def test_direct_initializer_uses_provided_solutions():
-    # Create a default initializer that always produces zeros
-    default_init = InitializerFromLambda(lambda _: np.zeros(5), pop_size=1)
-    # Provide a few distinct solutions
-    sol_list = np.vstack([np.arange(5), np.arange(5) + 10, np.arange(5) + 20])
-    direct_init = DirectInitializer(default_init, sol_list)
+def test_perm_generate_population(rng, objfunc):
+    init = PermInitializer(3, pop_size=5, random_state=rng)
+    pop = init.generate_population(objfunc)
+    assert len(pop) == 5
+    assert pop.genotype_matrix.shape == (5, 3)
+    # Each row must be a permutation
+    for row in pop.genotype_matrix:
+        np.testing.assert_array_equal(np.sort(row), np.arange(3))
 
-    for _ in range(30):
-        rand = direct_init.generate_random()
-        print(rand)
-        assert all(rand == 0)
 
-    # generate_individual likely returns a solution as well
-    indiv = direct_init.generate_individual()
-    assert any(np.array_equal(indiv, s) for s in sol_list)
+# ===================================================================
+#  SeedProbInitializer
+# ===================================================================
 
-    # generate_population: we request a population of size 10
-    pop = direct_init.generate_population(None, n_individuals=10)
+def test_seed_prob_generate_random_uses_default(rng):
+    default_init = UniformInitializer(2, 0, 1, random_state=rng)
+    seed_init = SeedProbInitializer(default_init, solutions=np.array([[9,9]]), insert_prob=0.0, random_state=rng)
+    # When prob is 0, generate_random still calls default
+    np.testing.assert_array_equal(seed_init.generate_random(), default_init.generate_random())
+
+
+@pytest.mark.parametrize("insert_prob", [0.0, 1.0])
+def test_seed_prob_individual_insertion(insert_prob, rng):
+    default_init = UniformInitializer(2, 0, 1, random_state=rng)
+    solutions = np.array([[42.0, 42.0]])
+    seed_init = SeedProbInitializer(default_init, solutions=solutions, insert_prob=insert_prob, random_state=rng)
+    indiv = seed_init.generate_individual()
+    if insert_prob == 0.0:
+        # Should be uniform, not the seed
+        assert not np.allclose(indiv, [42.0, 42.0])
+    else:
+        np.testing.assert_array_equal(indiv, [42.0, 42.0])
+
+
+def test_seed_prob_generate_population_mixed(rng, objfunc):
+    # Use a relatively high prob so we almost certainly get a mix
+    solutions = np.array([[100, 100]])
+    default_init = UniformInitializer(2, 0, 1, random_state=rng)
+    seed_init = SeedProbInitializer(default_init, solutions=solutions, insert_prob=0.5, random_state=rng)
+    pop = seed_init.generate_population(objfunc, n_individuals=10)
     assert len(pop) == 10
-    # Some individuals should be from the seed list, others from default (zeros)
-    # We can't guarantee exact distribution, but at least all shapes are (5,)
-    for ind in pop:
-        assert ind.shape == (5,)
+    assert pop.genotype_matrix.shape == (10, 2)
 
 
-# ============================================================================
-# SeedProbInitializer
-# ============================================================================
-def test_seed_prob_initializer_shape():
-    default_init = InitializerFromLambda(lambda _: np.ones(3), pop_size=1)
-    seeds = [np.zeros(3), np.full(3, 2.0)]
-    seed_init = SeedProbInitializer(default_init, seeds, insert_prob=0.3)
+# ===================================================================
+#  SeedDetermInitializer
+# ===================================================================
 
-    for _ in range(20):
-        indiv = seed_init.generate_random()
-        assert indiv.shape == (3,)
-
-    pop = seed_init.generate_population(None, n_individuals=8)
-    assert len(pop) == 8
-    for ind in pop:
-        assert ind.shape == (3,)
-
-
-# ============================================================================
-# SeedDetermInitializer
-# ============================================================================
-def test_seed_determ_initializer_shape():
-    default_init = InitializerFromLambda(lambda _: np.ones(3), pop_size=1)
-    seeds = [np.zeros(3), np.full(3, -1.0)]
-    seed_init = SeedDetermInitializer(default_init, seeds, n_to_insert=2)
-
-    for _ in range(20):
-        indiv = seed_init.generate_random()
-        assert indiv.shape == (3,)
-
-    pop = seed_init.generate_population(None, n_individuals=6)
-    assert len(pop) == 6
-    for ind in pop:
-        assert ind.shape == (3,)
+def test_seed_determ_inserts_exact_number(rng, objfunc):
+    solutions = np.array([[10, 20], [30, 40]])
+    default_init = UniformInitializer(2, 0, 1, random_state=rng)
+    init = SeedDetermInitializer(default_init, solutions=solutions, n_to_insert=2, random_state=rng)
+    pop = init.generate_population(objfunc, n_individuals=5)
+    # First 2 individuals must be the solutions in order
+    np.testing.assert_array_equal(pop.genotype_matrix[0], [10, 20])
+    np.testing.assert_array_equal(pop.genotype_matrix[1], [30, 40])
+    # The rest (3) are random (not from solutions)
+    assert len(pop) == 5
+    # generate_population resets the counter; repeat call should behave the same
+    pop2 = init.generate_population(objfunc, n_individuals=5)
+    np.testing.assert_array_equal(pop2.genotype_matrix[0], [10, 20])
 
 
-# ============================================================================
-# ExtendedInitializer (requires a ParameterExtendingEncoding)
-# ============================================================================
-def test_extended_initializer_concatenates():
-    # Simple encoding: 5 solution genes + 3 "speed" parameter genes
-    encoding = ParameterExtendingEncoding(
-        vecsize=5,
-        param_sizes=[("speed", 3)],
-        base_encoding=None
-    )
-    solution_init = UniformInitializer(5, -1, 1)
-    param_init_dict = {"speed": GaussianInitializer(3, 0, 1)}
-    ext_init = ExtendedInitializer(
-        solution_init, param_init_dict, encoding
-    )
-
-    indiv = ext_init.generate_random()
-    # Total length = 5 (solution) + 3 (speed) = 8
-    assert indiv.shape == (8,)
-
-    indiv2 = ext_init.generate_individual()
-    assert indiv2.shape == (8,)
-
-    pop = ext_init.generate_population(None)
-    assert len(pop) == 20
-    assert pop.genotype_matrix.shape == (20, 8)
-
-# ============================================================================
-# Reproducibility tests
-# ============================================================================
-
-def test_uniform_reproducible():
-    seed = 42
-    p1 = UniformInitializer(10, -5, 5, 100, random_state=seed)
-    p2 = UniformInitializer(10, -5, 5, 100, random_state=seed)
-    for _ in range(5):
-        assert np.array_equal(p1.generate_random(), p2.generate_random())
-        assert np.array_equal(p1.generate_individual(), p2.generate_individual())
-
-    # different seeds should (almost certainly) give different values
-    p3 = UniformInitializer(10, -5, 5, 100, random_state=seed+1)
-    assert not np.array_equal(p1.generate_random(), p3.generate_random())
+def test_seed_determ_wraps_around_seed_list(rng, objfunc):
+    solutions = np.array([[1, 1]])
+    default_init = UniformInitializer(2, 0, 1, random_state=rng)
+    init = SeedDetermInitializer(default_init, solutions=solutions, n_to_insert=3, random_state=rng)
+    pop = init.generate_population(objfunc, n_individuals=3)
+    # Only one solution, so it repeats
+    expected = np.tile([1, 1], (3, 1))
+    np.testing.assert_array_equal(pop.genotype_matrix, expected)
 
 
-def test_gaussian_reproducible():
-    seed = 123
-    p1 = GaussianInitializer(10, 0, 1, 50, random_state=seed)
-    p2 = GaussianInitializer(10, 0, 1, 50, random_state=seed)
-    for _ in range(5):
-        assert np.array_equal(p1.generate_random(), p2.generate_random())
-        assert np.array_equal(p1.generate_individual(), p2.generate_individual())
-
-    p3 = GaussianInitializer(10, 0, 1, 50, random_state=seed+1)
-    assert not np.array_equal(p1.generate_random(), p3.generate_random())
+def test_seed_determ_no_insert_inserts_default(rng, objfunc):
+    solutions = np.array([[7, 7]])
+    default_init = UniformInitializer(2, 0, 1, random_state=rng)
+    init = SeedDetermInitializer(default_init, solutions=solutions, n_to_insert=0, random_state=rng)
+    pop = init.generate_population(objfunc, n_individuals=4)
+    # None should be the seed
+    assert not np.any(np.all(pop.genotype_matrix == [7, 7], axis=1))
 
 
-def test_exponential_reproducible():
-    seed = 7
-    p1 = ExponentialInitializer(10, 0.5, 30, random_state=seed)
-    p2 = ExponentialInitializer(10, 0.5, 30, random_state=seed)
-    for _ in range(5):
-        assert np.array_equal(p1.generate_random(), p2.generate_random())
-        assert np.array_equal(p1.generate_individual(), p2.generate_individual())
+# ===================================================================
+#  DirectInitializer
+# ===================================================================
 
-    p3 = ExponentialInitializer(10, 0.5, 30, random_state=seed+1)
-    assert not np.array_equal(p1.generate_random(), p3.generate_random())
-
-
-def test_perm_reproducible():
-    seed = 99
-    p1 = PermInitializer(10, 20, random_state=seed)
-    p2 = PermInitializer(10, 20, random_state=seed)
-    for _ in range(5):
-        assert np.array_equal(p1.generate_random(), p2.generate_random())
-        assert np.array_equal(p1.generate_individual(), p2.generate_individual())
-
-    p3 = PermInitializer(10, 20, random_state=seed+1)
-    assert not np.array_equal(p1.generate_random(), p3.generate_random())
+def test_direct_individual_from_array(rng):
+    solutions = np.array([[5, 6], [7, 8]])
+    default_init = UniformInitializer(2, 0, 1, random_state=rng)
+    init = DirectInitializer(default_init, solutions, random_state=rng)
+    indiv = init.generate_individual()
+    # It should be one of the rows (random choice with fixed seed)
+    assert indiv.shape == (2,)
+    assert any(np.array_equal(indiv, row) for row in solutions)
 
 
-def test_lambda_init_reproducible():
-    # Lambda that uses the random state (but returns zeros regardless)
-    p1 = InitializerFromLambda(lambda rng: np.zeros(5), pop_size=100, random_state=42)
-    p2 = InitializerFromLambda(lambda rng: np.zeros(5), pop_size=100, random_state=42)
-    for _ in range(5):
-        assert np.array_equal(p1.generate_random(), p2.generate_random())
-        assert np.array_equal(p1.generate_individual(), p2.generate_individual())
-    # with different seeds the output is still zero, so no difference test needed
+def test_direct_individual_from_population(rng):
+    solutions = np.array([[1, 2], [3, 4]])
+    pop = Population(DummyObjectiveFunction("dummy"), solutions)
+    default_init = UniformInitializer(2, 0, 1, random_state=rng)
+    init = DirectInitializer(default_init, pop, random_state=rng)
+    indiv = init.generate_individual()
+    assert any(np.array_equal(indiv, row) for row in solutions)
 
 
-def test_direct_init_reproducible():
-    seed = 11
-    seeds = np.vstack([np.arange(5), np.full(5, -1)])
-    p1 = DirectInitializer(UniformInitializer(5, -1, 1, 1, random_state=seed), seeds, random_state=seed)
-    p2 = DirectInitializer(UniformInitializer(5, -1, 1, 1, random_state=seed), seeds, random_state=seed)
-    for _ in range(10):
-        assert np.array_equal(p1.generate_random(), p2.generate_random())
-        assert np.array_equal(p1.generate_individual(), p2.generate_individual())
+def test_direct_generate_population_from_array(rng, objfunc):
+    solutions = np.array([[10, 20], [30, 40], [50, 60]])
+    default_init = UniformInitializer(2, 0, 1, random_state=rng)
+    init = DirectInitializer(default_init, solutions, random_state=rng)
+    pop = init.generate_population(objfunc, n_individuals=5)
+    # Population size should be 5, but solutions only 3 → they cycle
+    assert len(pop) == 5
+    # First three should be the solutions in order (cycling)
+    np.testing.assert_array_equal(pop.genotype_matrix[0], [10, 20])
+    np.testing.assert_array_equal(pop.genotype_matrix[1], [30, 40])
+    np.testing.assert_array_equal(pop.genotype_matrix[2], [50, 60])
+    np.testing.assert_array_equal(pop.genotype_matrix[3], [10, 20])  # wraps
+    np.testing.assert_array_equal(pop.genotype_matrix[4], [30, 40])
 
 
-def test_seed_prob_reproducible():
-    seed = 22
-    seeds = np.vstack([np.zeros(3), np.ones(3)])
-    p1 = SeedProbInitializer(UniformInitializer(3, 0, 1, 1, random_state=seed), seeds, insert_prob=0.5, random_state=seed)
-    p2 = SeedProbInitializer(UniformInitializer(3, 0, 1, 1, random_state=seed), seeds, insert_prob=0.5, random_state=seed)
-    for _ in range(10):
-        assert np.array_equal(p1.generate_random(), p2.generate_random())
-        assert np.array_equal(p1.generate_individual(), p2.generate_individual())
+def test_direct_generate_population_from_population_exact(rng, objfunc):
+    solutions = np.array([[1, 1], [2, 2]])
+    pop_in = Population(objfunc, solutions)
+    pop_in.fitness = np.array([10.0, 20.0])  # some state
+    default_init = UniformInitializer(2, 0, 1, random_state=rng)
+    init = DirectInitializer(default_init, pop_in, random_state=rng)
+    pop_out = init.generate_population(objfunc, n_individuals=2)
+    assert len(pop_out) == 2
+    np.testing.assert_array_equal(pop_out.genotype_matrix, solutions)
+    # Should have copied the fitness from the input population
+    np.testing.assert_array_equal(pop_out.fitness, pop_in.fitness)
 
 
-def test_seed_determ_reproducible():
-    seed = 33
-    seeds = np.vstack([np.zeros(3), np.ones(3)])
-    p1 = SeedDetermInitializer(UniformInitializer(3, 0, 1, 1, random_state=seed), seeds, n_to_insert=2, random_state=seed)
-    p2 = SeedDetermInitializer(UniformInitializer(3, 0, 1, 1, random_state=seed), seeds, n_to_insert=2, random_state=seed)
-    for _ in range(10):
-        assert np.array_equal(p1.generate_random(), p2.generate_random())
-        assert np.array_equal(p1.generate_individual(), p2.generate_individual())
+# ===================================================================
+#  ExtendedInitializer
+# ===================================================================
+
+# To test ExtendedInitializer we need a mock ParameterExtendingEncoding.
+# We'll create a minimal one without importing the real one to avoid side effects.
+
+class MockParameterExtendingEncoding:
+    def __init__(self, param_sizes):
+        self.param_sizes = param_sizes  # list of (name, size)
 
 
-def test_extended_init_reproducible():
-    seed = 44
-    encoding = ParameterExtendingEncoding(
-        vecsize=5, param_sizes=[("speed", 3)], base_encoding=None
-    )
-    param_init = {"speed": GaussianInitializer(3, 0, 1, random_state=seed+1)}
-    p1 = ExtendedInitializer(UniformInitializer(5, -1, 1, random_state=seed), param_init, encoding, pop_size=20, random_state=seed)
-    p2 = ExtendedInitializer(UniformInitializer(5, -1, 1, random_state=seed), param_init, encoding, pop_size=20, random_state=seed)
-    for _ in range(5):
-        assert np.array_equal(p1.generate_random(), p2.generate_random())
-        assert np.array_equal(p1.generate_individual(), p2.generate_individual())
+def test_extended_generate_random(rng):
+    encoding = MockParameterExtendingEncoding([("a", 2), ("b", 1)])
+    solution_init = UniformInitializer(3, 0, 1, random_state=rng)
+    param_inits = {
+        "a": UniformInitializer(2, 0, 1, random_state=rng),
+        "b": UniformInitializer(1, 0, 1, random_state=rng),
+    }
+    init = ExtendedInitializer(solution_init, param_inits, encoding, random_state=rng)
+    vec = init.generate_random()
+    assert vec.shape == (3 + 2 + 1,)
+    # Just check it was built by stacking three parts (we can test exact with seeds)
+    # Using known seed we can recompose expected value
+    expected_sol = solution_init.generate_random()
+    expected_a = param_inits["a"].generate_random()
+    expected_b = param_inits["b"].generate_random()
+    expected = np.hstack([expected_sol, expected_a, expected_b])
+    np.testing.assert_array_almost_equal(vec, expected)
+
+
+def test_extended_generate_individual_same_structure(rng):
+    encoding = MockParameterExtendingEncoding([("c", 2)])
+    solution_init = GaussianInitializer(2, 0, 1, random_state=rng)
+    param_inits = {"c": GaussianInitializer(2, 5, 0.1, random_state=rng)}
+    init = ExtendedInitializer(solution_init, param_inits, encoding, random_state=rng)
+    indiv = init.generate_individual()
+    assert indiv.shape == (2 + 2,)
+    expected_sol = solution_init.generate_individual()
+    expected_c = param_inits["c"].generate_individual()
+    np.testing.assert_array_almost_equal(indiv, np.hstack([expected_sol, expected_c]))
+
+
+# ===================================================================
+#  InitializerFromLambda
+# ===================================================================
+
+def test_lambda_generate_random(rng):
+    def my_gen(rs):
+        return rs.uniform(10, 20, size=3)
+    init = InitializerFromLambda(my_gen, pop_size=2, random_state=rng)
+    vec = init.generate_random()
+    assert vec.shape == (3,)
+    assert np.all(vec >= 10) and np.all(vec <= 20)
+
+
+def test_lambda_generate_individual_calls_same(rng):
+    # A deterministic lambda
+    def my_gen(rs):
+        return np.array([1.0, 2.0])
+    init = InitializerFromLambda(my_gen, random_state=rng)
+    np.testing.assert_array_equal(init.generate_individual(), np.array([1.0, 2.0]))
+
+
+def test_lambda_generate_population(rng, objfunc):
+    def my_gen(rs):
+        return rs.integers(0, 100, size=2)
+    init = InitializerFromLambda(my_gen, pop_size=5, random_state=rng)
+    pop = init.generate_population(objfunc)
+    assert len(pop) == 5
+    assert pop.genotype_matrix.shape == (5, 2)
+    # all values should be integers between 0 and 99
+    assert np.issubdtype(pop.genotype_matrix.dtype, np.integer)
+    assert np.all(pop.genotype_matrix >= 0)
+    assert np.all(pop.genotype_matrix < 100)

@@ -7,8 +7,6 @@ This module implements the procedure applied in each iteration of the algorithm.
 from __future__ import annotations
 import logging
 from typing import Tuple, Any, Optional, Callable
-from abc import ABC
-import numpy
 from .parent_selection import ParentSelection, NullParentSelection
 from .survivor_selection import SurvivorSelection, NullSurvivorSelection
 from .population import Population

@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 from metaheuristic_designer import Population
-from metaheuristic_designer.operators import VectorOperator, CompositeOperator, BranchOperator, SplitOperator
+from metaheuristic_designer.operators import VectorOperator, CompositeOperator, BranchOperator, MaskedOperator
 from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
 from metaheuristic_designer.initializers import UniformInitializer
 import metaheuristic_designer as mhd
@@ -118,7 +118,7 @@ def test_pick_op(population, op_list, values):
 def test_split_op(population, op_list, values, mask):
     pop_init = UniformInitializer(population.vec_size, 0, 1, pop_size)
     mask = mask[:population.vec_size]
-    operator = SplitOperator(op_list, params={"mask": mask})
+    operator = MaskedOperator(op_list, params={"mask": mask})
     new_population = operator.evolve(population, pop_init)
 
     assert isinstance(new_population.genotype_matrix, np.ndarray)

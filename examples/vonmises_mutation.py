@@ -1,7 +1,7 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.encodings import ParameterExtendingEncoding
 from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import VectorOperator, AdaptativeOperator, SplitOperator
+from metaheuristic_designer.operators import VectorOperator, AdaptativeOperator, MaskedOperator
 from metaheuristic_designer.initializers import UniformInitializer, ExponentialInitializer, ExtendedInitializer
 from metaheuristic_designer.selection_methods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.strategies import *
