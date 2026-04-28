@@ -1,44 +1,116 @@
 import pytest
 import numpy as np
+from numpy.testing import assert_array_equal
+
+# Conftest fixtures and helpers
+from conftest import dummy_objfunc, rng
+from conftest import make_pop   # plain function, NOT a fixture
+
+# Factory and related classes
+from metaheuristic_designer.survivor_selection_methods import (
+    SurvivorSelectionDef,
+    SurvivorSelectionFromLambda,
+    NullSurvivorSelection,
+    create_survivor_selection,
+)
+
 from metaheuristic_designer import Population
-from metaheuristic_designer.selection_methods import SurvivorSelection, surv_method_map
-from metaheuristic_designer.benchmarks import Sphere
-import metaheuristic_designer as mhd
-
-mhd.reset_seed(0)
-
-surv_methods = [i for i in surv_method_map]
-
-pop_size = 100
-example_population1 = Population(Sphere(3), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 3)))
-example_population1.fitness = np.arange(pop_size)
-example_offspring1 = Population(Sphere(3), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 3)))
-example_offspring1.fitness = np.arange(pop_size) + pop_size
-
-example_population2 = Population(Sphere(20), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 20)))
-example_population2.fitness = np.arange(pop_size)
-example_offspring2 = Population(Sphere(20), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 20)))
-example_offspring2.fitness = np.arange(pop_size) + pop_size
-
-example_population3 = Population(Sphere(100), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 100)))
-example_population3.fitness = np.arange(pop_size)
-example_offspring3 = Population(Sphere(100), mhd.RAND_GEN.uniform(-100, 100, (pop_size, 100)))
-example_offspring3.fitness = np.arange(pop_size) + pop_size
 
 
-@pytest.mark.parametrize("population, offspring", [
-        (example_population1, example_offspring1),
-        (example_population2, example_offspring2),
-        (example_population3, example_offspring3)
+# -------------------------------------------------------------------
+#  SurvivorSelectionDef – direct call
+# -------------------------------------------------------------------
+def test_survivor_selection_def_calls_wrapped_function():
+    def dummy(pop_fit, off_fit, rng):
+        return np.array([0, 2])
+
+    def_obj = SurvivorSelectionDef(dummy)
+    pop = make_pop([1.0, 2.0], dummy_objfunc)
+    off = make_pop([3.0, 4.0], dummy_objfunc)
+    result = def_obj(pop, off, random_state=rng)
+    assert_array_equal(result, [0, 2])
+
+
+def test_survivor_selection_def_passes_fitness_and_kwargs():
+    captured = {}
+
+    def spy(pop_fit, off_fit, rng, **kw):
+        captured["pop_fit"] = pop_fit
+        captured["off_fit"] = off_fit
+        captured["kw"] = kw
+        return np.array([0])
+
+    def_obj = SurvivorSelectionDef(spy, params={"extra": 5})
+    pop = make_pop([10.0], dummy_objfunc)
+    off = make_pop([20.0], dummy_objfunc)
+    def_obj(pop, off, random_state=rng)
+
+    assert_array_equal(captured["pop_fit"], [10.0])
+    assert_array_equal(captured["off_fit"], [20.0])
+    assert captured["kw"]["extra"] == 5
+
+
+# -------------------------------------------------------------------
+#  create_survivor_selection – type and name
+# -------------------------------------------------------------------
+@pytest.mark.parametrize("method, expected_type", [
+    ("elitism", SurvivorSelectionFromLambda),
+    ("generational", SurvivorSelectionFromLambda),
+    ("(mu+lambda)", SurvivorSelectionFromLambda),
+    ("nothing", NullSurvivorSelection),
 ])
-@pytest.mark.parametrize("op_method", surv_methods)
-def test_basic_working(population, offspring, op_method):
-    surv_sel = SurvivorSelection(op_method, {"Fd": 0.1, "Pd": 0.1, "attempts": 3, "maxPopSize": pop_size, "amount": 10, "p": 0.5})
-    
-    selected_population = surv_sel.select(population, offspring)
-    population_set = set(tuple(tuple(i for i in r) for r in population.genotype_matrix))
-    offspring_set = set(tuple(tuple(i for i in r) for r in offspring.genotype_matrix))
-    selected_set = set(tuple(tuple(i for i in r) for r in selected_population.genotype_matrix))
+def test_create_returns_correct_type(method, expected_type, rng):
+    sel = create_survivor_selection(method, random_state=rng)
+    assert isinstance(sel, expected_type)
 
-    assert isinstance(selected_population, Population)
-    assert selected_set <= offspring_set.union(population_set) # Is selected population a subset of the population joined with the offspring
+
+def test_create_uses_given_name(rng):
+    sel = create_survivor_selection("one_to_one", name="custom_name", random_state=rng)
+    assert sel.name == "custom_name"
+
+
+def test_create_default_name_is_method(rng):
+    sel = create_survivor_selection("hillclimb", random_state=rng)
+    assert sel.name == "hillclimb"
+
+
+# -------------------------------------------------------------------
+#  Integration: select() returns correct indices (using distinct genotypes)
+# -------------------------------------------------------------------
+@pytest.mark.parametrize("method, kwargs", [
+    ("elitism", {"amount": 1}),
+    ("generational", {}),
+    ("one_to_one", {}),
+    ("(mu+lambda)", {}),
+    ("(mu,lambda)", {}),
+])
+def test_factory_select_returns_valid_survivors(method, kwargs, rng, dummy_objfunc):
+    # Build parents and offspring with DIFFERENT genotype matrices
+    # so we can identify their origin by genotype content.
+    parents = Population(dummy_objfunc, np.array([[1, 2], [3, 4]]))
+    parents.fitness = np.array([5.0, 1.0])
+
+    offspring = Population(dummy_objfunc, np.array([[5, 6], [7, 8]]))
+    offspring.fitness = np.array([10.0, 2.0])
+    offspring.best = offspring.genotype_matrix[0]
+    offspring.best_fitness = 10.0
+
+    sel = create_survivor_selection(method, random_state=rng, **kwargs)
+    survivors = sel.select(parents, offspring)
+
+    # Must be a Population with same length as parents
+    assert len(survivors) == len(parents)
+
+    # All survivors must come from the union of parents and offspring
+    full_geno = np.concatenate([parents.genotype_matrix, offspring.genotype_matrix], axis=0)
+    for row in survivors.genotype_matrix:
+        assert any(np.array_equal(row, full_geno[i]) for i in range(len(full_geno)))
+
+    # Method‑specific checks (now genotype‑based, not index‑based)
+    if method == "elitism":
+        # Best parent (fitness 5) must survive
+        assert np.any(np.all(survivors.genotype_matrix == parents.genotype_matrix[0], axis=1))
+    if method == "generational" or method == "(mu,lambda)":
+        # No parent genotype should appear in survivors
+        for row in survivors.genotype_matrix:
+            assert not any(np.array_equal(row, parents.genotype_matrix[i]) for i in range(len(parents)))

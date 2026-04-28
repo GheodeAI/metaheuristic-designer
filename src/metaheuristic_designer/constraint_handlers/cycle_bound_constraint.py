@@ -28,7 +28,7 @@ class CycleBoundConstraint(RepairConstraint):
 
     def repair_solution(self, solution: ndarray) -> ndarray:
         if np.all(self.up_lim == self.low_lim):
-            return self.up_lim
+            return np.asarray(self.up_lim)
 
         fixed_solution = np.mod(solution - self.low_lim, self.range_lim) + self.low_lim
 

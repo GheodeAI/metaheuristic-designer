@@ -1,0 +1,88 @@
+import numpy as np
+from numpy.testing import assert_array_equal
+
+from conftest import (
+    dummy_objfunc,
+    dummy_initializer,
+    rng,
+    make_pop,
+)
+
+from metaheuristic_designer.constraint_handler import NullConstraint
+from metaheuristic_designer.operator import NullOperator
+from metaheuristic_designer.parent_selection import NullParentSelection
+from metaheuristic_designer.survivor_selection import NullSurvivorSelection
+from metaheuristic_designer.encoding import DefaultEncoding
+from metaheuristic_designer.initializer import Initializer, InitializerFromLambda
+from metaheuristic_designer.schedulable_parameter import SchedulableParameter
+
+
+# ===================================================================
+#  NullConstraint
+# ===================================================================
+def test_null_constraint_repair_does_nothing():
+    handler = NullConstraint()
+    orig = np.array([1.0, -5.0])
+    repaired = handler.repair_solution(orig)
+    assert_array_equal(repaired, orig)
+    assert repaired is not orig
+
+def test_null_constraint_penalty_zero():
+    handler = NullConstraint()
+    assert handler.penalty(np.array([100.0, -200.0])) == 0.0
+
+
+# ===================================================================
+#  NullOperator
+# ===================================================================
+def test_null_operator_returns_copy(rng, dummy_objfunc):
+    pop = make_pop([1.0, 2.0], dummy_objfunc)
+    op = NullOperator()
+    result = op.evolve(pop)
+    # result should be a copy, not the same object
+    assert result is not pop
+    assert_array_equal(result.genotype_matrix, pop.genotype_matrix)
+
+
+# ===================================================================
+#  NullParentSelection
+# ===================================================================
+def test_null_parent_selection_returns_same_population(rng, dummy_objfunc):
+    pop = make_pop([5.0, 1.0], dummy_objfunc)
+    sel = NullParentSelection()
+    result = sel.select(pop)
+    assert result is pop
+
+
+# ===================================================================
+#  NullSurvivorSelection
+# ===================================================================
+def test_null_survivor_selection_returns_offspring(rng, dummy_objfunc):
+    parents = make_pop([10.0, 1.0], dummy_objfunc)
+    offspring = make_pop([5.0, 5.0], dummy_objfunc)
+    sel = NullSurvivorSelection()
+    result = sel.select(parents, offspring)
+    # NullSurvivorSelection returns the offspring
+    assert result is offspring
+
+
+# ===================================================================
+#  DefaultEncoding
+# ===================================================================
+def test_default_encoding_encode_decode_identity():
+    enc = DefaultEncoding()
+    arr = np.array([1, 2, 3])
+    assert_array_equal(enc.encode(arr), arr)
+    assert_array_equal(enc.decode(arr), arr)
+
+
+# ===================================================================
+#  SchedulableParameter (abstract, placeholder test)
+# ===================================================================
+def test_schedulable_parameter_call_calls_evaluate():
+    # Minimal concrete subclass for testing
+    class TestParam(SchedulableParameter):
+        def evaluate(self, progress):
+            return progress * 2
+    param = TestParam(random_state=42)
+    assert param(0.5) == 1.0

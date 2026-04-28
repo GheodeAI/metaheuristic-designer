@@ -188,9 +188,9 @@ def parse_stopping_cond(condition_str: str) -> List[str | List]:
 
     orop = pp.Literal("or")
     andop = pp.Literal("and")
-    condition = pp.oneOf(["neval", "ngen", "time_limit", "cpu_time_limit", "fit_target", "convergence"])
+    condition = pp.one_of(["neval", "ngen", "time_limit", "cpu_time_limit", "fit_target", "convergence"])
 
-    expr = pp.infixNotation(condition, [(orop, 2, pp.opAssoc.RIGHT), (andop, 2, pp.opAssoc.RIGHT)])
+    expr = pp.infix_notation(condition, [(orop, 2, pp.opAssoc.RIGHT), (andop, 2, pp.opAssoc.RIGHT)])
 
     return expr.parse_string(condition_str).as_list()
 

@@ -1,34 +1,85 @@
-import pytest
-
 import numpy as np
-from metaheuristic_designer.operators.operator_functions.permutation import *
-import metaheuristic_designer as mhd
+from numpy.testing import assert_array_equal
 
-rng = mhd.reset_seed(0)
+from conftest import rng, perm_pop
 
-n_indiv = 10
-n_components = 5
-sample_pop1 = np.tile(np.arange(n_components), n_indiv).reshape((n_indiv, n_components))
-sample_pop1 = rng.permuted(sample_pop1, axis=1)
+from metaheuristic_designer.operators.operator_functions.permutation import (
+    permute_mutation,
+    roll_mutation,
+    invert_mutation,
+    pmx,
+    order_cross,
+)
 
 
-def test_swap():
-    result_arr = permute_mutation(sample_pop1, None, N=2)
-    assert result_arr.shape == sample_pop1.shape
+# ===================================================================
+#  permute_mutation
+# ===================================================================
+def test_permute_mutation_N2(rng, perm_pop):
+    res = permute_mutation(perm_pop.copy(), None, random_state=rng, N=2)
+    assert res.shape == perm_pop.shape
 
-def test_roll():
-    result_arr = roll_mutation(sample_pop1, None, N=1)
-    assert result_arr.shape == sample_pop1.shape
+    # reproducibility
+    rng2 = np.random.default_rng(42)
+    exp = permute_mutation(perm_pop.copy(), None, random_state=rng2, N=2)
+    assert_array_equal(res, exp)
 
-def test_invert():
-    result_arr = invert_mutation(sample_pop1, None)
-    assert result_arr.shape == sample_pop1.shape
 
-def test_pmx():
-    result_arr = pmx(sample_pop1, None)
-    assert result_arr.shape == sample_pop1.shape
+def test_permute_mutation_N4(rng, perm_pop):
+    res = permute_mutation(perm_pop.copy(), None, random_state=rng, N=4)
+    assert res.shape == perm_pop.shape
 
-def test_order_cross():
-    result_arr = order_cross(sample_pop1, None)
-    assert result_arr.shape == sample_pop1.shape
+    rng2 = np.random.default_rng(42)
+    exp = permute_mutation(perm_pop.copy(), None, random_state=rng2, N=4)
+    assert_array_equal(res, exp)
 
+
+# ===================================================================
+#  roll_mutation
+# ===================================================================
+def test_roll_mutation(rng, perm_pop):
+    res = roll_mutation(perm_pop.copy(), None, random_state=rng, N=1)
+    assert res.shape == perm_pop.shape
+
+    rng2 = np.random.default_rng(42)
+    exp = roll_mutation(perm_pop.copy(), None, random_state=rng2, N=1)
+    assert_array_equal(res, exp)
+
+
+# ===================================================================
+#  invert_mutation
+# ===================================================================
+def test_invert_mutation(rng, perm_pop):
+    res = invert_mutation(perm_pop.copy(), None, random_state=rng)
+    assert res.shape == perm_pop.shape
+
+    rng2 = np.random.default_rng(42)
+    exp = invert_mutation(perm_pop.copy(), None, random_state=rng2)
+    assert_array_equal(res, exp)
+
+
+# ===================================================================
+#  pmx
+# ===================================================================
+def test_pmx(rng, perm_pop):
+    res = pmx(perm_pop.copy(), None, random_state=rng)
+    assert res.shape == perm_pop.shape
+    # pmx output is integer
+    assert np.issubdtype(res.dtype, np.integer)
+
+    rng2 = np.random.default_rng(42)
+    exp = pmx(perm_pop.copy(), None, random_state=rng2)
+    assert_array_equal(res, exp)
+
+
+# ===================================================================
+#  order_cross
+# ===================================================================
+def test_order_cross(rng, perm_pop):
+    res = order_cross(perm_pop.copy(), None, random_state=rng)
+    assert res.shape == perm_pop.shape
+    assert np.issubdtype(res.dtype, np.integer)
+
+    rng2 = np.random.default_rng(42)
+    exp = order_cross(perm_pop.copy(), None, random_state=rng2)
+    assert_array_equal(res, exp)

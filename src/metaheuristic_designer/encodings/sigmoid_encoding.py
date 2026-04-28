@@ -38,7 +38,7 @@ class SigmoidEncoding(Encoding):
 
         mask_zeros = solutions == 0
         mask_ones = solutions == 1
-        result = np.log(1 - solutions) - np.log(solutions)
+        result = np.log(solutions) - np.log(1 - solutions)
         print(result)
         result[mask_zeros] = -np.inf
         result[mask_ones] = np.inf
@@ -48,6 +48,6 @@ class SigmoidEncoding(Encoding):
     def decode(self, population: MatrixLike) -> Iterable:
         result = sp.special.expit(population)
         if not self.as_probability:
-            result = (result < self.threshold).astype(int)
+            result = (result >= self.threshold).astype(int)
 
         return result

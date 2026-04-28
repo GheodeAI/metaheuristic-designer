@@ -29,7 +29,7 @@ class BounceBoundConstraint(RepairConstraint):
 
     def repair_solution(self, vector: ndarray) -> ndarray:
         if np.all(self.up_lim == self.low_lim):
-            return self.up_lim
+            return np.asarray(self.up_lim)
 
         shifted_vector = vector - self.low_lim
         bounce_times = np.floor_divide(shifted_vector, self.range_lim)

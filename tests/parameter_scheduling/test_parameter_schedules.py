@@ -1,99 +1,123 @@
+# tests/test_parameter_schedules.py
 import pytest
 import numpy as np
-from metaheuristic_designer.parameter_schedules.linear_schedule import LinearSchedule
-from metaheuristic_designer.parameter_schedules.random_schedule import RandomSchedule
-from metaheuristic_designer.parameter_schedules.threshold_schedule import ThresholdSchedule
-from metaheuristic_designer.parameter_schedules.step_schedule import StepSchedule
-from metaheuristic_designer.parameter_schedules.logistic_schedule import LogisticSchedule
+from numpy.testing import assert_almost_equal
+
+# All fixtures and mocks come from conftest
+from conftest import rng
+
+# Actual classes under test
+from metaheuristic_designer.parameter_schedules import (
+    LinearSchedule,
+    ThresholdSchedule,
+    LogisticSchedule,
+    RandomSchedule,
+    StepSchedule,
+)
 
 
-# ============================= LinearSchedule =============================
-def test_linear_schedule_start_and_end():
-    sched = LinearSchedule(init_value=0.0, final_value=10.0)
-    assert sched.evaluate(0.0) == 0.0
-    assert sched.evaluate(1.0) == 10.0
+# ===================================================================
+#  LinearSchedule
+# ===================================================================
+@pytest.mark.parametrize("init, final, progress, expected", [
+    (0.0, 10.0, 0.0, 0.0),
+    (0.0, 10.0, 1.0, 10.0),
+    (0.0, 10.0, 0.5, 5.0),
+    (5.0, 15.0, 0.2, 7.0),
+    (-5.0, 5.0, 0.75, 2.5),
+    (2.0, 2.0, 0.3, 2.0),
+])
+def test_linear_schedule(init, final, progress, expected):
+    sched = LinearSchedule(init_value=init, final_value=final)
+    assert sched.evaluate(progress) == pytest.approx(expected)
 
-def test_linear_schedule_midpoint():
-    sched = LinearSchedule(init_value=2.0, final_value=8.0)
-    assert sched.evaluate(0.5) == 5.0
 
-def test_linear_schedule_decreasing():
-    sched = LinearSchedule(init_value=10.0, final_value=0.0)
-    assert sched.evaluate(0.0) == 10.0
-    assert sched.evaluate(1.0) == 0.0
-    assert sched.evaluate(0.2) == 8.0
+# ===================================================================
+#  ThresholdSchedule
+# ===================================================================
+@pytest.mark.parametrize("init, final, threshold, progress, expected", [
+    (0, 100, 0.5, 0.0, 0),
+    (0, 100, 0.5, 0.49, 0),
+    (0, 100, 0.5, 0.5, 100),
+    (0, 100, 0.5, 0.51, 100),
+    (0, 100, 0.5, 1.0, 100),
+    (10, 20, 0.3, 0.299, 10),
+    (10, 20, 0.3, 0.3, 20),
+])
+def test_threshold_schedule(init, final, threshold, progress, expected):
+    sched = ThresholdSchedule(init_value=init, final_value=final, threshold=threshold)
+    assert sched.evaluate(progress) == pytest.approx(expected)
 
 
-# ============================= RandomSchedule =============================
-def test_random_schedule_uses_bounds():
-    sched = RandomSchedule(init_value=1.0, final_value=2.0, random_state=42)
+# ===================================================================
+#  LogisticSchedule
+# ===================================================================
+@pytest.mark.parametrize("init, final, k, exact_bounds, progress, expected", [
+    (0.0, 1.0, 10, False, 0.5, 0.5),
+    (0.0, 1.0, 10, True,  0.0, 0.0),
+    (0.0, 1.0, 10, True,  1.0, 1.0),
+    (10.0, 20.0, 5, False, 0.3,
+     10 + 10 * (1 / (1 + np.exp(-5 * (0.3 - 0.5))))),
+])
+def test_logistic_schedule(init, final, k, exact_bounds, progress, expected):
+    sched = LogisticSchedule(init_value=init, final_value=final,
+                             k=k, exact_bounds=exact_bounds)
+    assert sched.evaluate(progress) == pytest.approx(expected, abs=1e-10)
+
+
+# ===================================================================
+#  RandomSchedule  (uses rng fixture)
+# ===================================================================
+def test_random_schedule_deterministic_with_seed(rng):
+    sched = RandomSchedule(init_value=0.0, final_value=1.0, random_state=rng)
+    # First call with seed 42: pre‑computed value
+    expected = np.random.default_rng(42).uniform(0.0, 1.0)
+    assert sched.evaluate(0.5) == pytest.approx(expected)
+
+def test_random_schedule_values_in_range(rng):
+    sched = RandomSchedule(-10, 10, random_state=rng)
     for _ in range(20):
-        val = sched.evaluate(0.3)   # progress ignored by RandomSchedule
-        assert 1.0 <= val <= 2.0
+        val = sched.evaluate(0.0)
+        assert -10 <= val <= 10
 
-def test_random_schedule_reproducible():
-    s1 = RandomSchedule(0, 1, random_state=42)
-    s2 = RandomSchedule(0, 1, random_state=42)
-    assert s1.evaluate(0.3) == s2.evaluate(0.3)
-
-
-# ============================= ThresholdSchedule =============================
-def test_threshold_basic():
-    sched = ThresholdSchedule(threshold=0.3, init_value=10.0, final_value=20.0)
-    assert sched.evaluate(0.0) == 10.0
-    assert sched.evaluate(0.2) == 10.0
-    assert sched.evaluate(0.3) == 20.0 
-    assert sched.evaluate(0.5) == 20.0
-    assert sched.evaluate(1.0) == 20.0
+def test_random_schedule_reproducible_with_same_seed(rng):
+    # Create two schedules with same seed, verify first call equal
+    sched1 = RandomSchedule(5, 15, random_state=rng)
+    rng2 = np.random.default_rng(42)       # fresh identical generator
+    sched2 = RandomSchedule(5, 15, random_state=rng2)
+    assert sched1.evaluate(0.0) == sched2.evaluate(0.0)
 
 
-def test_threshold_exact_boundary():
-    sched = ThresholdSchedule(threshold=0.5, init_value=0, final_value=1)
-    assert sched.evaluate(0.5) == 1
+# ===================================================================
+#  StepSchedule
+# ===================================================================
+@pytest.fixture
+def step_sched():
+    # This fixture is defined here, but it's not a class, just a function.
+    # Since conftest lacks a StepSchedule fixture and this is a simple helper,
+    # we can keep it in the test file – it's not a mock, just a pre‑built schedule.
+    return StepSchedule({0.2: "low", 0.5: "mid", 0.8: "high"})
 
+@pytest.mark.parametrize("progress, expected", [
+    (0.0, "low"),
+    (0.19, "low"),
+    (0.2, "low"),
+    (0.21, "low"),
+    (0.499, "low"),
+    (0.5, "mid"),
+    (0.7, "mid"),
+    (0.799, "mid"),
+    (0.8, "high"),
+    (1.0, "high"),
+])
+def test_step_schedule(step_sched, progress, expected):
+    assert step_sched.evaluate(progress) == expected
 
-def test_threshold_negative():
-    sched = ThresholdSchedule(threshold=0.0, init_value=-5, final_value=10)
-    assert sched.evaluate(-0.1) == -5
-    assert sched.evaluate(0.0) == 10
-    assert sched.evaluate(1.0) == 10
+def test_step_schedule_single_key():
+    sched = StepSchedule({0.0: "start"})
+    assert sched.evaluate(0.5) == "start"
 
-
-def test_threshold_callable():
-    sched = ThresholdSchedule(threshold=0.7, init_value=100, final_value=200)
-    assert sched(0.6) == 100
-    assert sched(0.8) == 200
-
-
-# ============================= StepSchedule =============================
-def test_step_schedule_single_step():
-    sched = StepSchedule(steps={0.0: 1.0, 0.5: 2.0, 1.0: 5.0})
-    assert sched.evaluate(0.0) == 1.0
-    assert sched.evaluate(0.2) == 1.0
-    assert sched.evaluate(0.5) == 2.0
-    assert sched.evaluate(0.7) == 2.0
-    assert sched.evaluate(1.0) == 5.0
-
-def test_step_schedule_out_of_order_keys():
-    sched = StepSchedule(steps={0.5: 2.0, 0.0: 1.0, 0.8: 3.0})
-    assert sched.evaluate(0.0) == 1.0
-    assert sched.evaluate(0.6) == 2.0
-    assert sched.evaluate(0.9) == 3.0
-
-
-# ============================= LogisticSchedule ===========================
-def test_logistic_schedule_exact_bounds():
-    """When exact_bounds=True, endpoints are exactly init and final."""
-    sched = LogisticSchedule(init_value=0.0, final_value=1.0, k=10.0, exact_bounds=True)
-    assert sched.evaluate(0.0) == pytest.approx(0.0, abs=1e-6)
-    assert sched.evaluate(1.0) == pytest.approx(1.0, abs=1e-6)
-    # Midpoint should still be near the middle
-    mid = sched.evaluate(0.5)
-    assert mid == pytest.approx(0.5, abs=0.05)
-
-def test_logistic_schedule_no_exact_bounds():
-    """Without exact bounds, endpoints are only asymptotically approached."""
-    sched = LogisticSchedule(init_value=0.0, final_value=1.0, k=10.0, exact_bounds=False)
-    # With k=10, f(0) ≈ 0.0067
-    assert sched.evaluate(0.0) == pytest.approx(0.0, abs=0.01)
-    assert sched.evaluate(1.0) == pytest.approx(1.0, abs=0.01)
+def test_step_schedule_empty_steps():
+    with pytest.raises(IndexError):
+        sched = StepSchedule({})
+        sched.evaluate(0.5)

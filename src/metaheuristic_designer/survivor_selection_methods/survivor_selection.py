@@ -33,7 +33,7 @@ class SurvivorSelectionDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return self.selection_fn(population.fitness, offspring.fitness, random_state, **kwargs)
+        return self.selection_fn(population.fitness, offspring.fitness, random_state, **modified_kwargs)
 
 
 surv_method_map = {

@@ -100,7 +100,7 @@ class NullConstraint(ConstraintHandler):
     def repair_solution(self, solution: Any) -> Any:
         return copy(solution)
 
-    def penalty(self, solution: Any) -> ScalarLike:
+    def penalty(self, _solution: Any) -> ScalarLike:
         return 0
 
 

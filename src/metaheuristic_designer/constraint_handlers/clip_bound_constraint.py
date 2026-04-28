@@ -24,4 +24,6 @@ class ClipBoundConstraint(RepairConstraint):
         self.up_lim = up_lim
 
     def repair_solution(self, solution: ndarray) -> ndarray:
+        if np.all(self.up_lim == self.low_lim):
+            return self.up_lim
         return np.clip(solution, self.low_lim, self.up_lim)

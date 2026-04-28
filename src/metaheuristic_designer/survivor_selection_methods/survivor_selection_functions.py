@@ -4,7 +4,7 @@ from ..utils import check_random_state
 
 
 def generational(population_fitness, offspring_fitness, _random_state):
-    return np.arange(population_fitness.shape[0], offspring_fitness.shape[0])
+    return np.arange(offspring_fitness.shape[0]) + population_fitness.shape[0]
 
 
 def one_to_one(population_fitness, offspring_fitness, _random_state):
