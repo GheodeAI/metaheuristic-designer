@@ -1,7 +1,8 @@
 from __future__ import annotations
+from typing import Iterable, Tuple
 import numpy as np
-from numpy import ndarray
 from ..encoding import Encoding
+from ..utils import MatrixLike
 
 
 class ImageEncoding(Encoding):
@@ -9,7 +10,7 @@ class ImageEncoding(Encoding):
     Decoder used to evolve images.
     """
 
-    def __init__(self, shape, color=True):
+    def __init__(self, shape: Tuple[int, int], color: bool = True):
         if len(shape) == 2:
             shape = tuple(shape)
             if color:
@@ -18,10 +19,10 @@ class ImageEncoding(Encoding):
                 shape = shape + (1,)
 
         self.shape = shape
-        super().__init__(vectorized=True, decode_as_array=True)
+        super().__init__(decode_as_array=True)
 
-    def encode_func(self, solutions: ndarray) -> ndarray:
-        return solutions.reshape(solutions.shape[:1] + (-1,))
+    def encode(self, solution: Iterable) -> MatrixLike:
+        return solution.reshape(solution.shape[:1] + (-1,))
 
-    def decode_func(self, population: ndarray) -> ndarray:
+    def decode(self, population: MatrixLike) -> Iterable:
         return np.reshape(population, population.shape[:1] + self.shape).astype(np.uint8)

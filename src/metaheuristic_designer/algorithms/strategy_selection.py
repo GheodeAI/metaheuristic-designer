@@ -1,10 +1,9 @@
 from __future__ import annotations
 from typing import Tuple, Any, Iterable
 import pandas as pd
-from ..param_scheduler import ParamScheduler
 from ..search_strategy import SearchStrategy
 from ..objective_function import ObjectiveFunc
-from .general_algorithm import GeneralAlgorithm
+from .standard_algorithm import StandardAlgorithm
 from .algorithm_selection import AlgorithmSelection
 
 
@@ -33,7 +32,7 @@ class StrategySelection:
         params: ParamScheduler | dict = None,
     ):
         self.strategy_list = strategy_list
-        algorithm_list = [GeneralAlgorithm(objfunc, strategy, algorithm_params) for strategy in strategy_list]
+        algorithm_list = [StandardAlgorithm(objfunc, strategy, algorithm_params) for strategy in strategy_list]
 
         self.algorithm_selection = AlgorithmSelection(algorithm_list, params)
 

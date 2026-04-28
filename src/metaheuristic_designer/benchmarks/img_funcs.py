@@ -1,8 +1,5 @@
 from ..objective_function import VectorObjectiveFunc
-from ..encodings import ImageEncoding
 import numpy as np
-
-# from numba import jit
 from skimage import metrics
 
 
@@ -28,27 +25,21 @@ class ImgApprox(VectorObjectiveFunc):
 
         super().__init__(self.size, mode=mode, low_lim=0, up_lim=256, name=name, vectorized=True)
 
-    def objective(self, solutions):
-        error = np.zeros(solutions.shape[0])
-        image_size = np.prod(solutions.shape[1:])
+    def objective(self, solution):
+        error = np.zeros(solution.shape[0])
+        image_size = np.prod(solution.shape[1:])
         match self.diff_func:
             case "MSE":
-                error = np.astype(
-                    np.sum((solutions - self.reference) ** 2, axis=(1, 2, 3)) / image_size,
-                    float,
-                )
+                error = np.ndarray.astype(np.sum((solution - self.reference) ** 2, axis=(1, 2, 3)) / image_size, float)
             case "MAE":
-                error = np.astype(
-                    np.sum(np.abs(solutions - self.reference), axis=(1, 2, 3)) / image_size,
-                    float,
-                )
+                error = np.ndarray.astype(np.sum(np.abs(solution - self.reference), axis=(1, 2, 3)) / image_size, float)
             case "SSIM":
-                for idx, s in enumerate(solutions):
+                for idx, s in enumerate(solution):
                     for s_ch, ref_ch in zip(s.transpose((2, 0, 1)), self.reference.transpose((2, 0, 1))):
                         error[idx] += metrics.structural_similarity(s_ch, ref_ch)
                     error[idx] /= 3
             case "NMI":
-                for idx, s in enumerate(solutions):
+                for idx, s in enumerate(solution):
                     for s_ch, ref_ch in zip(s.transpose((2, 0, 1)), self.reference.transpose((2, 0, 1))):
                         error[idx] += metrics.normalized_mutual_information(s_ch, ref_ch, bins=256)
                     error[idx] /= 3
@@ -116,7 +107,7 @@ class ImgExperimental(VectorObjectiveFunc):
         super().__init__(self.size, mode=mode, low_lim=0, up_lim=256, name="Image approx and std")
 
     def objective(self, solution):
-        dist = imgdistance_mse(solution, self.reference)
+        dist = np.ndarray.astype(np.sum((solution - self.reference) ** 2, axis=(1, 2, 3)) / self.size, float)
         dist_norm = dist / (np.sqrt(self.size) * 255)
 
         solution_rounded = solution // 75

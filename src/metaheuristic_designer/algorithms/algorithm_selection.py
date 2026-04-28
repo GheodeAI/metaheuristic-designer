@@ -4,7 +4,6 @@ from collections import Counter
 import pandas as pd
 import enlighten
 from ..algorithm import Algorithm
-from ..param_scheduler import ParamScheduler
 
 
 class AlgorithmSelection:
@@ -20,11 +19,7 @@ class AlgorithmSelection:
         Indicates whether to show progress bars with 'verbose' and the number of times to repeat each algorithm with 'repetitions'
     """
 
-    def __init__(
-        self,
-        algorithm_list: Iterable[Algorithm],
-        params: ParamScheduler | dict = None,
-    ):
+    def __init__(self, algorithm_list: Iterable[Algorithm], params: ParamScheduler | dict = None):
         if params is None:
             params = {}
 
@@ -63,12 +58,7 @@ class AlgorithmSelection:
         for algorithm in self.algorithm_list:
             # Create new progress bar for the new algorithm
             if self.verbose:
-                repetition_bar = bar_manager.counter(
-                    total=self.repetitions,
-                    desc=f"Evaluating {algorithm.name}",
-                    color="green",
-                    leave=False,
-                )
+                repetition_bar = bar_manager.counter(total=self.repetitions, desc=f"Evaluating {algorithm.name}", color="green", leave=False)
 
             for _ in range(self.repetitions):
                 # Optimize using the algorithm

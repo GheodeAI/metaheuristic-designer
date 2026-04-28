@@ -5,8 +5,7 @@ from enum import Enum
 from copy import copy
 import numpy as np
 from ..operator import Operator
-from ..param_scheduler import ParamScheduler
-from ..utils import RAND_GEN
+
 
 class BranchOpMethods(Enum):
     RANDOM = enum.auto()
@@ -21,12 +20,9 @@ class BranchOpMethods(Enum):
 
         return branch_ops_map[str_input]
 
-branch_ops_map = {
-    "random": BranchOpMethods.RANDOM,
-    "rand": BranchOpMethods.RANDOM,
-    "pick": BranchOpMethods.PICK,
-    "choose": BranchOpMethods.PICK,
-}
+
+branch_ops_map = {"random": BranchOpMethods.RANDOM, "rand": BranchOpMethods.RANDOM, "pick": BranchOpMethods.PICK, "choose": BranchOpMethods.PICK}
+
 
 class BranchOperator(Operator):
     """
@@ -44,13 +40,7 @@ class BranchOperator(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(
-        self,
-        op_list: Iterable[Operator],
-        method: str = None, 
-        params: ParamScheduler | dict = None,
-        name: str = None,
-    ):
+    def __init__(self, op_list: Iterable[Operator], method: str = None, name: str = None, encoding=None, random_state=None, idx=-1, p=0.5, **kwargs):
         """
         Constructor for the OperatorMeta class
         """
@@ -68,37 +58,21 @@ class BranchOperator(Operator):
             joined_names = ", ".join(op_names)
             name = f"{method}({joined_names})"
 
-        if params is None or params == "default":
-            # Default parameters
-            params = {
-                "p": 0.5,
-                "weights": [1] * len(op_list),
-                "init_idx": -1,
-            }
-        
+        super().__init__(name=name, encoding=encoding, random_state=random_state, **kwargs)
+
         if method is None:
             self.method = BranchOpMethods.RANDOM
         else:
             self.method = BranchOpMethods.from_str(method)
 
-
-        super().__init__(params, name)
-
-        self.chosen_idx = params.get("in_description_it_idx", -1)
-
-        # If we have a branch with 2 operators and "p" is given as an input
-        if "weights" not in params and "p" in params and len(op_list) == 2:
-            params["weights"] = [params["p"], 1 - params["p"]]
+        self.chosen_idx = idx
+        self.weights = np.array([p, 1 - p])
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)
 
         if self.method == BranchOpMethods.RANDOM:
-            self.chosen_idx = RAND_GEN.choice(
-                np.arange(len(self.op_list)),
-                size=population.pop_size,
-                p=self.params["weights"],
-            )
+            self.chosen_idx = self.random_state.choice(range(len(self.op_list)), size=(population.pop_size,), replace=True, p=self.weights)
 
         if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
             chosen_idx = self.chosen_idx
@@ -114,8 +88,8 @@ class BranchOperator(Operator):
                 new_population = new_population.apply_selection(split_population, split_mask)
 
         return new_population
-    
-    def choose_index(idx: int):
+
+    def choose_index(self, idx: int):
         """
         Manually chooses the operator to use next
 
@@ -124,15 +98,15 @@ class BranchOperator(Operator):
         idx : int
             Index of the operator in the list.
         """
-        
+
         self.chosen_idx = idx
 
-    def step(self, progress: float):
-        super().step(progress)
+    def update(self, progress: float):
+        super().update(progress)
 
         for op in self.op_list:
             if isinstance(op, Operator):
-                op.step(progress)
+                op.update(progress)
 
     def get_state(self) -> dict:
         data = super().get_state()
@@ -146,4 +120,3 @@ class BranchOperator(Operator):
                 data["op_list"].append("lambda_func")
 
         return data
-

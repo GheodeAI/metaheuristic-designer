@@ -1,3 +1,5 @@
+from ..search_strategy import SearchStrategy
+
 from .hill_climb import HillClimb
 from .local_search import LocalSearch
 
@@ -8,7 +10,5 @@ from .no_search import NoSearch
 
 from .classic import *
 from .swarm import *
-from .CRO import *
-from .VNS import *
 from .EDA import *
 from .bayesian_optimization import *

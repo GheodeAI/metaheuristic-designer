@@ -2,10 +2,10 @@ from __future__ import annotations
 from copy import copy
 import numpy as np
 from numpy import ndarray
-from ..constraint_handler import RepareConstraint
+from ..constraint_handler import RepairConstraint
 
 
-class BounceBoundConstraint(RepareConstraint):
+class BounceBoundConstraint(RepairConstraint):
     """
     Encodes a bound constraint by bouncing through the bounds, substracting the leftover part of the vector
     that lies outisde the bounds. If the substraction still lies outside the bounds, the leftover part is added,
@@ -29,7 +29,7 @@ class BounceBoundConstraint(RepareConstraint):
 
     def repair_solution(self, vector: ndarray) -> ndarray:
         if np.all(self.up_lim == self.low_lim):
-            return self.up_lim
+            return np.asarray(self.up_lim)
 
         shifted_vector = vector - self.low_lim
         bounce_times = np.floor_divide(shifted_vector, self.range_lim)

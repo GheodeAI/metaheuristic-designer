@@ -1,27 +1,22 @@
-from metaheuristic_designer import (
-    ObjectiveFunc,
-    ParamScheduler,
-    InitializerFromLambda,
-    ExtendedEncoding,
-    ExtendedInitializer,
-    NullOperator
-)
-from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import VectorOperator, AdaptativeOperator
-from metaheuristic_designer.initializers import UniformInitializer
-from metaheuristic_designer.selection_methods import ParentSelection, SurvivorSelection
-from metaheuristic_designer.strategies import *
-
-from metaheuristic_designer.benchmarks import *
-
 import argparse
+import logging
 
-from copy import copy
-import scipy as sp
 import numpy as np
+import scipy as sp
 
-def run_algorithm(alg_name, save_state, show_plots, objective, dim):
-    params = {
+from metaheuristic_designer.algorithms import StandardAlgorithm
+from metaheuristic_designer.operators import create_operator, AdaptativeOperator, NullOperator
+from metaheuristic_designer.initializers import UniformInitializer, ExtendedInitializer, InitializerFromLambda
+from metaheuristic_designer.parent_selection_methods import NullParentSelection
+from metaheuristic_designer.survivor_selection_methods import create_survivor_selection
+from metaheuristic_designer.encodings import ParameterExtendingEncoding
+from metaheuristic_designer.strategies import ES
+from metaheuristic_designer.benchmarks import *
+from metaheuristic_designer.utils import check_random_state
+
+
+def run_algorithm(save_state, show_plots, objective, dim, random_state):
+    algorithm_params = {
         "stop_cond": "convergence or time_limit",
         "progress_metric": "time_limit",
         "time_limit": 100.0,
@@ -29,82 +24,119 @@ def run_algorithm(alg_name, save_state, show_plots, objective, dim):
         "ngen": 1000,
         "neval": 3e6,
         "fit_target": 1e-10,
-        "patience": 10,
+        "patience": 50,
         "verbose": True,
         "v_timer": 0.5,
     }
 
+    # ---- Objective function ----
+    objective_map = {
+        "sphere": Sphere(dim, mode="min"),
+        "rastrigin": Rastrigin(dim, mode="min"),
+        "rosenbrock": Rosenbrock(dim, mode="min"),
+        "weierstrass": Weierstrass(dim, mode="min"),
+    }
+    if objective.lower() not in objective_map:
+        raise ValueError(f'Objective function "{objective}" does not exist.')
+    objfunc = objective_map[objective.lower()]
 
-    match objective:
-        case "Sphere":
-            objfunc = Sphere(dim, "min")
-        case "Rastrigin":
-            objfunc = Rastrigin(dim, "min")
-        case "Rosenbrock":
-            objfunc = Rosenbrock(dim, "min")
-        case "Weierstrass":
-            objfunc = Weierstrass(dim, "min")
-        case _:
-            raise Exception(f'Objective function "{objective}" doesn\'t exist.')
+    # ---- Self‑adaption encoding ----
+    adaption_encoding = ParameterExtendingEncoding(
+        objfunc.vecsize,
+        param_sizes=[("F", 1)],      # each individual carries its own mutation strength
+    )
 
-    adaption_encoding = ExtendedEncoding(objfunc.vecsize, param_sizes=(("F", 1),))
-
+    # ---- Extended initializer ----
     pop_initializer = ExtendedInitializer(
-        solution_init=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding),
-        param_init_dict={"F": InitializerFromLambda(lambda: sp.stats.expon(scale=0.01).rvs(size=1), pop_size=5, encoding=adaption_encoding)},
-        encoding=adaption_encoding
+        solution_init=UniformInitializer(
+            objfunc.vecsize, objfunc.low_lim, objfunc.up_lim,
+            pop_size=100, encoding=adaption_encoding, random_state=random_state
+        ),
+        param_init_dict={
+            "F": InitializerFromLambda(
+                generator=lambda rng: sp.stats.expon(scale=0.02).rvs(size=1, random_state=rng),
+                pop_size=100, encoding=adaption_encoding, random_state=random_state
+            )
+        },
+        encoding=adaption_encoding,
+        random_state=random_state,
     )
 
+    # ---- Adaptive operator ----
+    # The base operator applies Gaussian noise to the solution part.
+    # The "F" parameter operator mutates the mutation strength itself (1/√dim rule).
     ada_mutation_op = AdaptativeOperator(
-        base_operator=VectorOperator("MutNoise", {"distrib": "Gauss", "N": 1}),
-        param_operators={"F": VectorOperator("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-7})},
-        encoding=adaption_encoding
+        base_operator=create_operator("mutation.gaussian_mutation", N=1, random_state=random_state),
+        param_operators={
+            "F": create_operator(
+                "mutation.mutate_1_sigma",
+                tau=1.0 / np.sqrt(2*objfunc.vecsize),
+                epsilon=1e-7,
+                random_state=random_state,
+            )
+            # "F": create_operator("dummy", f=1e-4)
+        },
+        encoding=adaption_encoding,
     )
 
-    cross_op = VectorOperator("Multipoint")
+    # Crossover (can be null or a real crossover)
+    cross_op = create_operator("crossover.multipoint", random_state=random_state)
+    # cross_op = None
 
-    parent_sel_op = ParentSelection("Nothing")
-    selection_op = SurvivorSelection("(m+n)")
+    # ---- Build the ES strategy ----
+    search_strategy = ES(
+        pop_initializer,
+        mutation_op=ada_mutation_op,
+        cross_op=cross_op,
+        parent_sel=NullParentSelection(),
+        survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
+        offspring_size=250,
+        name="Adaptative-ES",
+        random_state=random_state,
+    )
 
-    search_strat = ES(pop_initializer, ada_mutation_op, cross_op, parent_sel_op, selection_op, {"offspringSize": 250}, name="Adaptative-ES")
+    # ---- Wrap in algorithm and optimize ----
+    alg = StandardAlgorithm(objfunc, search_strategy, **algorithm_params)
 
-    alg = GeneralAlgorithm(objfunc, search_strat, params=params)
+    population = alg.optimize()
+    decoded_solution, best_fitness = population.best_solution(decoded=True)
+    genotype, _ = population.best_solution(decoded=False)
 
-    result = alg.optimize()
-    ind, best_fitness = result.best_solution(decoded=True)
-    ind_full, best_fitness = result.best_solution(decoded=False)
-    print(f"solution vector: {ind}")
-    print(f"solution genotype: {ind_full}")
-    alg.display_report(show_plots=True)
+    print(f"Decoded solution vector: {decoded_solution}")
+    print(f"Genotype (includes self-adapted F): {genotype}")
+    print(f"Best fitness: {best_fitness}")
+    alg.display_report(show_plots=show_plots)
 
     if save_state:
         alg.store_state("./examples/results/test.json", readable=True, show_population=True)
 
 
-
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="algorithm", help="specify an algorithm", default="es")
-    parser.add_argument(
-        "-s",
-        "--save-state",
-        dest="save_state",
-        action="store_true",
-        help="saves the state of the search strategy",
-    )
-    parser.add_argument("-o", "--objective", dest="objective", help="name of the objective function.", default="Sphere")
-    parser.add_argument("-d", "--dim", dest="dim", help="dimension of the vectors to optimize.", default=3, type=int)
-    parser.add_argument(
-        "-p",
-        "--plot",
-        dest="plot",
-        action="store_true",
-        help="saves the state of the search strategy",
-    )
+    parser.add_argument("-o", "--objective", default="Sphere",
+                        help="Objective function name (Sphere, Rastrigin, Rosenbrock, Weierstrass).")
+    parser.add_argument("-d", "--dim", type=int, default=3,
+                        help="Dimensionality of the problem.")
+    parser.add_argument("-s", "--save-state", dest="save_state", action="store_true",
+                        help="Save algorithm state to JSON.")
+    parser.add_argument("-p", "--plot", dest="plot", action="store_true",
+                        help="Show convergence plot.")
+    parser.add_argument("-r", "--seed", type=int, default=42,
+                        help="Random seed.")
+    parser.add_argument("--log", default="WARNING",
+                        help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     args = parser.parse_args()
 
+    logging.basicConfig()
+    logging.getLogger("metaheuristic_designer").setLevel(args.log.upper())
+    rng = check_random_state(args.seed)
+
     run_algorithm(
-        alg_name=args.algorithm.upper(), save_state=args.save_state, show_plots=args.plot, objective=args.objective, dim=args.dim
+        save_state=args.save_state,
+        show_plots=args.plot,
+        objective=args.objective,
+        dim=args.dim,
+        random_state=rng,
     )
 
 

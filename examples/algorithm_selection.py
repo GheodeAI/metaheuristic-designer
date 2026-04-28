@@ -1,5 +1,5 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler, simple
-from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm, AlgorithmSelection
+from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm, AlgorithmSelection
 from metaheuristic_designer.initializers import *
 from metaheuristic_designer.selection_methods import *
 from metaheuristic_designer.strategies import *

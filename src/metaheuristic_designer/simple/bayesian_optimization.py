@@ -3,7 +3,7 @@ from ..objective_function import VectorObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer
 from ..strategies import BayesianOptimization
-from ..algorithms import GeneralAlgorithm
+from ..algorithms import StandardAlgorithm
 
 
 def bayesian_optimization(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
@@ -50,9 +50,6 @@ def _bayesian_optimization_real_vec(params, objfunc):
     min_val = params.get("min", objfunc.low_lim if objfunc else -100)
     max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    search_strat = BayesianOptimization(
-        initializer=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size),
-        params=params,
-    )
+    search_strategy = BayesianOptimization(initializer=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size), params=params)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)

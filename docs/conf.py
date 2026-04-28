@@ -24,9 +24,7 @@ copyright = "2023, Eugenio Lorente-Ramos"
 author = "Eugenio Lorente-Ramos"
 
 # The full version, including alpha/beta/rc tags
-release = "0.3.0"
-
-
+release = "0.4.0"
 
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -67,7 +65,17 @@ html_theme_options = {
             "internal": "api_ref",
         },
         {
-            "href": "metaheuristic_designer",
+            "href": "api_reference.methods",
+            "title": "Operators and Selection methods",
+            "internal": "api_methods",
+        },
+        {
+            "href": "api_reference.custom_components",
+            "title": "Creating Custom Components",
+            "internal": "api_custom",
+        },
+        {
+            "href": "auto/metaheuristic_designer",
             "title": "Documentation",
             "internal": "docs",
         },

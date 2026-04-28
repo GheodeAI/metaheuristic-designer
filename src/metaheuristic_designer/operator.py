@@ -1,16 +1,26 @@
+"""
+Base class for the Operator module.
+
+This module implements procedures to modify the current solutions so that we explore the search space.
+"""
+
 from __future__ import annotations
-from typing import Any
+import inspect
+import logging
 from copy import copy
 from abc import ABC, abstractmethod
+from typing import Optional, Callable
 import numpy as np
-from .param_scheduler import ParamScheduler
 from .encoding import Encoding, DefaultEncoding
-from .objective_function import ObjectiveFunc
 from .population import Population
 from .initializer import Initializer
+from .parametrizable_mixin import ParametrizableMixin
+from .utils import check_random_state, RNGLike
+
+logger = logging.getLogger(__name__)
 
 
-class Operator(ABC):
+class Operator(ParametrizableMixin, ABC):
     """
     Abstract Operator class.
 
@@ -18,20 +28,19 @@ class Operator(ABC):
 
     Parameters
     ----------
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the operator.
     name: str, optional
         Name that is associated with the operator.
     encoding: Encoding, optional
         Postprocessing to the operator output.
     """
 
-    _last_id = 0
+    _last_id: int = 0
 
-    def __init__(self, params: ParamScheduler | dict = None, name: str = None, use_params : bool = False, encoding: Encoding = None):
+    def __init__(self, name: Optional[str] = None, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs):
         """
         Constructor for the Operator class.
         """
+        super().__init__()
 
         self.id = Operator._last_id
         Operator._last_id += 1
@@ -40,77 +49,22 @@ class Operator(ABC):
 
         self.name = name
 
-        self.use_params = use_params
-
         if encoding is None:
             encoding = DefaultEncoding()
         self.encoding = encoding
 
-        if params is None:
-            self.params = {}
-        else:
-            if "method" in params:
-                params["method"] = params["method"].lower()
+        self.random_state = check_random_state(random_state)
+        self.store_kwargs(**kwargs)
 
-            if isinstance(params, ParamScheduler):
-                self.param_scheduler = params
-                self.params = self.param_scheduler.get_params()
-            else:
-                self.params = params
-
-    def __call__(
-        self,
-        population: Population,
-        initializer: Initializer = None,
-    ) -> Population:
+    def __call__(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
         """
         A shorthand for calling the 'evolve' method.
         """
 
         return self.evolve(population, initializer)
 
-    def step(self, progress: float):
-        """
-        Updates the parameters of the method using a paramater scheduler if it exists.
-
-        Parameters
-        ----------
-        progress: float
-            Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
-        """
-
-        if self.param_scheduler:
-            self.param_scheduler.step(progress)
-            self.params = self.param_scheduler.get_params()
-
-    def get_state(self) -> dict:
-        """
-        Gets the current state of the algorithm as a dictionary.
-
-        Returns
-        -------
-        state: dict
-            The complete state of the operator.
-        """
-
-        data = {"name": self.name}
-
-        if self.param_scheduler:
-            data["param_scheduler"] = self.param_scheduler.get_state()
-            data["params"] = self.param_scheduler.get_params()
-            data["params"].pop("function", None)
-        elif self.params:
-            data["params"] = self.params
-            data["params"].pop("function", None)
-
-        return data
-
     @abstractmethod
-    def evolve(
-        self,
-        population: Population,
-        initializer: Initializer = None,
-    ) -> Population:
+    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
         """
         Evolves an population using a given strategy.
 
@@ -127,6 +81,36 @@ class Operator(ABC):
             The modified population.
         """
 
+    def step(self, progress: float = 0):
+        """
+        Updates the internal parameters.
+        """
+        super().step(progress)
+
+        self.encoding.step(progress)
+
+    def get_state(self) -> dict:
+        """
+        Gets the current state of the algorithm as a dictionary.
+
+        Returns
+        -------
+        state: dict
+            The complete state of the operator.
+        """
+
+        data = {"name": self.name}
+
+        data["encoding"] = self.encoding.get_state()
+
+        data["parameters"] = self.get_params()
+
+        # Serialization fails when encoding anonymous functions, we remove the function if available
+        if "function" in data["parameters"]:
+            data["parameters"].pop("function")
+
+        return data
+
 
 class NullOperator(Operator):
     """
@@ -135,15 +119,11 @@ class NullOperator(Operator):
 
     Parameters
     ----------
-    fn: callable
-        Function that will be applied when operating on an individual.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the operator.
     name: str, optional
         Name that is associated with the operator.
     """
 
-    def __init__(self, name: str = None):
+    def __init__(self, name: Optional[str] = None):
         """
         Constructor for the OperatorNull class
         """
@@ -151,9 +131,9 @@ class NullOperator(Operator):
         if name is None:
             name = "Nothing"
 
-        super().__init__({}, name)
+        super().__init__(name)
 
-    def evolve(self, population, *args):
+    def evolve(self, population: Population, *args) -> Population:
         return copy(population)
 
 
@@ -163,33 +143,39 @@ class OperatorFromLambda(Operator):
 
     Parameters
     ----------
-    fn: callable
+    fn: Callable
         Function that will be applied when operating on an individual.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the operator.
     name: str, optional
         Name that is associated with the operator.
     """
 
-    def __init__(self, operator_fn: callable, params: ParamScheduler | dict = None, name: str = None, vectorized: bool = True):
+    def __init__(
+        self, operator_fn: Callable, name: Optional[str] = None, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs
+    ):
         """
         Constructor for the OperatorLambda class
         """
 
-        self.operator_fn = operator_fn
-        self.vectorized = vectorized
-
+        self._validate_function(operator_fn)
         if name is None:
-            name = operator_fn.__name__
+            name = operator_fn.__name__ if hasattr(operator_fn, "__name__") else "lambda function"
+        super().__init__(name, encoding=encoding, random_state=random_state, **kwargs)
+        self.operator_fn = operator_fn
 
-        super().__init__(params, name)
+    @staticmethod
+    def _validate_function(operator_fn: Callable):
+        operator_sig = inspect.signature(operator_fn)
 
-    def evolve(self, population, initializer=None):
-        if self.vectorized:
-            population_matrix = copy(population.genotype_matrix)
-            population_matrix = self.operator_fn(population_matrix, **self.params)
-        else:
-            population_cpy = copy(population)
-            population_matrix = np.asarray([self.operator_fn(indiv, population, initializer) for indiv in population_cpy])
+        count = 0
+        for p in operator_sig.parameters.values():
+            if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                count += 1
+            elif p.kind == inspect.Parameter.VAR_POSITIONAL:
+                return
 
-        return population.update_genotype_matrix(population_matrix)
+        required_min_count = 3
+        if count < required_min_count:
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is.")
+
+    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+        return self.operator_fn(population, initializer, self.random_state, **self.current_kwargs)

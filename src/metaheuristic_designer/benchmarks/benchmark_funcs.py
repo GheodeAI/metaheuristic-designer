@@ -1,14 +1,10 @@
-import numpy as np
-
-# from numba import jit
-from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
-from ..utils import RAND_GEN
-from ..constraint_handlers import ClipBoundConstraint
 import time
+import numpy as np
+from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
 
 
 class MaxOnes(VectorObjectiveFunc):
-    def __init__(self, vecsize, mode="max", constraint_handler = None):
+    def __init__(self, vecsize, mode="max", constraint_handler=None):
         super().__init__(constraint_handler=constraint_handler, vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")
 
     def objective(self, solution):
@@ -45,8 +41,8 @@ class SleepTest(VectorObjectiveFunc):
 
 ### Benchmark functions
 class Sphere(VectorObjectiveFunc):
-    def __init__(self, vecsize, mode="min", constraint_handler = None):
-        super().__init__(constraint_handler=constraint_handler,vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Sphere function")
+    def __init__(self, vecsize, mode="min", constraint_handler=None):
+        super().__init__(constraint_handler=constraint_handler, vecsize=vecsize, mode=mode, low_lim=-100, up_lim=100, name="Sphere function")
 
     def objective(self, solution):
         return _sphere(solution)

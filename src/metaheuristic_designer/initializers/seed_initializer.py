@@ -1,9 +1,7 @@
 from __future__ import annotations
 from typing import List
-import random
 import numpy as np
 from ..initializer import Initializer
-from ..utils import RAND_GEN
 
 
 class SeedProbInitializer(Initializer):
@@ -21,13 +19,8 @@ class SeedProbInitializer(Initializer):
         Probability of inserting one of the predefined solutions into the population.
     """
 
-    def __init__(
-        self,
-        default_init: Initializer,
-        solutions: List | np.ndarray,
-        insert_prob: float = 0.1,
-    ):
-        super().__init__(default_init.pop_size)
+    def __init__(self, default_init: Initializer, solutions: List | np.ndarray, insert_prob: float = 0.1, random_state=None):
+        super().__init__(default_init.pop_size, random_state=random_state)
 
         self.default_init = default_init
         self.solutions = solutions
@@ -38,8 +31,8 @@ class SeedProbInitializer(Initializer):
 
     def generate_individual(self):
         new_indiv = None
-        if RAND_GEN.random() < self.insert_prob:
-            new_solution = random.choice(self.solutions)
+        if self.random_state.random() < self.insert_prob:
+            new_solution = self.random_state.choice(self.solutions, axis=0)
             new_indiv = new_solution
         else:
             new_indiv = self.default_init.generate_individual()
@@ -62,13 +55,8 @@ class SeedDetermInitializer(Initializer):
         Amount of predefined individuals to insert in the population.
     """
 
-    def __init__(
-        self,
-        default_init: Initializer,
-        solutions: List,
-        n_to_insert: int = None,
-    ):
-        super().__init__(default_init.pop_size)
+    def __init__(self, default_init: Initializer, solutions: List, n_to_insert: int = None, random_state=None):
+        super().__init__(default_init.pop_size, random_state=random_state)
 
         self.default_init = default_init
         self.solutions = solutions
@@ -93,7 +81,7 @@ class SeedDetermInitializer(Initializer):
         self.inserted += 1
         return new_indiv
 
-    def generate_population(self, objfunc, n_indiv=None):
+    def generate_population(self, objfunc, n_individuals=None):
         self.inserted = 0
 
-        return super().generate_population(objfunc, n_indiv)
+        return super().generate_population(objfunc, n_individuals)

@@ -1,5 +1,6 @@
+from ..encoding import Encoding, EncodingFromLambda, DefaultEncoding
 from .composite_encoding import CompositeEncoding
-from .extended_encoding import ExtendedEncoding
+from .parameter_extending_encoding import ParameterExtendingEncoding
 from .image_encoding import ImageEncoding
 from .matrix_encoding import MatrixEncoding
 from .sigmoid_encoding import SigmoidEncoding

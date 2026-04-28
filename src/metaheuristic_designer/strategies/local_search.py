@@ -1,9 +1,12 @@
 from __future__ import annotations
+from typing import Optional
 from ..initializer import Initializer
-from ..param_scheduler import ParamScheduler
 from ..search_strategy import SearchStrategy
 from ..operator import Operator
-from ..selection_methods import SurvivorSelection
+from ..population import Population
+from ..survivor_selection import SurvivorSelection
+from ..survivor_selection_methods import create_survivor_selection
+from ..utils import check_random_state, RNGLike
 
 
 class LocalSearch(SearchStrategy):
@@ -14,35 +17,27 @@ class LocalSearch(SearchStrategy):
     def __init__(
         self,
         initializer: Initializer,
-        operator: Operator = None,
-        survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
+        operator: Optional[Operator] = None,
+        survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "LocalSearch",
+        iterations: int = 100,
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
     ):
-        if params is None:
-            params = {}
-
         if survivor_sel is None:
-            survivor_sel = SurvivorSelection("Many-to-one")
+            survivor_sel = create_survivor_selection("local_search")
 
         super().__init__(
             initializer,
             operator=operator,
             survivor_sel=survivor_sel,
-            params=params,
             name=name,
+            random_state=random_state,
+            # Forced kwargs
+            iterations=iterations,
+            **kwargs,
         )
 
-        self.iterations = params.get("iters", 100)
-
-    def perturb(self, parents, **kwargs):
-        new_population = parents.repeat(self.iterations)
+    def perturb(self, parents: Population, **kwargs) -> Population:
+        new_population = parents.repeat(self.params.iterations)
         return super().perturb(new_population, **kwargs)
-
-    def update_params(self, **kwargs):
-        super().update_params(**kwargs)
-
-        progress = kwargs["progress"]
-
-        if isinstance(self.operator, Operator):
-            self.operator.step(progress)

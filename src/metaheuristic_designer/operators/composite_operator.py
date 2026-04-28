@@ -1,12 +1,7 @@
 from __future__ import annotations
 from typing import Iterable
-import enum
-from enum import Enum
 from copy import copy
-import numpy as np
 from ..operator import Operator
-from ..param_scheduler import ParamScheduler
-from ..utils import RAND_GEN
 
 
 class CompositeOperator(Operator):
@@ -25,16 +20,10 @@ class CompositeOperator(Operator):
         Name that is associated with the operator.
     """
 
-    def __init__(
-        self,
-        op_list: Iterable[Operator],
-        name: str = None,
-    ):
+    def __init__(self, op_list: Iterable[Operator], name: str = None, encoding=None, random_state=None):
         """
         Constructor for the OperatorMeta class
         """
-
-        self.op_list = op_list
 
         if name is None:
             op_names = []
@@ -47,7 +36,10 @@ class CompositeOperator(Operator):
             joined_names = ", ".join(op_names)
             name = f"Sequence ({joined_names})"
 
-        super().__init__(name=name)
+        # We need to define the op_list before the constructor since it's used in the update method
+        self.op_list = op_list
+
+        super().__init__(name=name, encoding=encoding, random_state=random_state)
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)
@@ -57,12 +49,12 @@ class CompositeOperator(Operator):
 
         return new_population
 
-    def step(self, progress: float):
-        super().step(progress)
+    def update(self, progress):
+        super().update(progress)
 
         for op in self.op_list:
             if isinstance(op, Operator):
-                op.step(progress)
+                op.update(progress)
 
     def get_state(self) -> dict:
         data = super().get_state()

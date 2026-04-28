@@ -1,10 +1,10 @@
 from __future__ import annotations
 import numpy as np
 from numpy import ndarray
-from ..constraint_handler import RepareConstraint
+from ..constraint_handler import RepairConstraint
 
 
-class ClipBoundConstraint(RepareConstraint):
+class ClipBoundConstraint(RepairConstraint):
     """
     Encodes a bound constraint by clipping solutions to the nearest point in the boundary.
 
@@ -23,5 +23,7 @@ class ClipBoundConstraint(RepareConstraint):
         self.low_lim = low_lim
         self.up_lim = up_lim
 
-    def repair_solution(self, vector: ndarray) -> ndarray:
-        return np.clip(vector, self.low_lim, self.up_lim)
+    def repair_solution(self, solution: ndarray) -> ndarray:
+        if np.all(self.up_lim == self.low_lim):
+            return self.up_lim
+        return np.clip(solution, self.low_lim, self.up_lim)

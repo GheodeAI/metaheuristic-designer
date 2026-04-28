@@ -22,15 +22,7 @@ class MemeticAlgorithm(Algorithm):
         Dictionary of parameters to define the stopping condition and output of the algorithm.
     """
 
-    def __init__(
-        self,
-        objfunc,
-        search_strategy,
-        local_search,
-        improve_choice,
-        params=None,
-        name=None,
-    ):
+    def __init__(self, objfunc, search_strategy, local_search, improve_choice, params=None, name=None):
         """
         Constructor of the Metaheuristic class
         """
@@ -109,17 +101,8 @@ class MemeticAlgorithm(Algorithm):
 
         return new_population
 
-    def get_state(
-        self,
-        show_fit_history: bool = False,
-        show_gen_history: bool = False,
-        show_population: bool = False,
-    ):
-        data = super().get_state(
-            show_fit_history,
-            show_gen_history,
-            show_population,
-        )
+    def get_state(self, show_fit_history: bool = False, show_gen_history: bool = False, show_population: bool = False):
+        data = super().get_state(show_fit_history, show_gen_history, show_population)
 
         # Add parent selection method for local search
         data["improve_selection"] = self.improve_choice.get_state()

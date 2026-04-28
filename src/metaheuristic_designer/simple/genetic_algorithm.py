@@ -2,11 +2,12 @@ from __future__ import annotations
 from ..objective_function import VectorObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer, PermInitializer
-from ..operators import VectorOperator, PermOperator
-from ..selection_methods import SurvivorSelection, ParentSelection
+from ..operators import create_operator, create_permutation_operator, create_crossover_operator
+from ..parent_selection_methods import create_parent_selection
+from ..survivor_selection_methods import create_survivor_selection
 from ..encodings import TypeCastEncoding
 from ..strategies import GA
-from ..algorithms import GeneralAlgorithm
+from ..algorithms import StandardAlgorithm
 
 
 def genetic_algorithm(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
@@ -66,22 +67,15 @@ def _genetic_algorithm_bin_vec(params, objfunc):
 
     pop_initializer = UniformInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
 
-    cross_op = VectorOperator(cross_method)
-    mutation_op = VectorOperator("Flip", {"N": mutstr})
+    cross_op = create_crossover_operator(cross_method)
+    mutation_op = create_operator("mutation.bitflip", N=mutstr)
 
-    parent_sel_op = ParentSelection("Best", {"amount": n_parents})
-    selection_op = SurvivorSelection("KeepBest")
+    parent_sel_op = create_parent_selection("best", amount=n_parents)
+    selection_op = create_survivor_selection("keep_best")
 
-    search_strat = GA(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
-    )
+    search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)
 
 
 def _genetic_algorithm_int_vec(params, objfunc):
@@ -105,30 +99,20 @@ def _genetic_algorithm_int_vec(params, objfunc):
 
     pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=int)
 
-    cross_op = VectorOperator(cross_method)
-    mutation_op = VectorOperator(
-        "MutRand",
-        {
-            "distrib": "Uniform",
-            "min": objfunc.low_lim if objfunc is not None else min_val,
-            "max": objfunc.up_lim if objfunc is not None else max_val,
-            "N": mutstr,
-        },
+    cross_op = create_crossover_operator(cross_method)
+    mutation_op = create_operator(
+        "mutation.uniform_mutation",
+        min=objfunc.low_lim if objfunc is not None else min_val,
+        max=objfunc.up_lim if objfunc is not None else max_val,
+        N=mutstr,
     )
 
-    parent_sel_op = ParentSelection("Best", {"amount": n_parents})
-    selection_op = SurvivorSelection("KeepBest")
+    parent_sel_op = create_parent_selection("best", amount=n_parents)
+    selection_op = create_survivor_selection("keep_best")
 
-    search_strat = GA(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
-    )
+    search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)
 
 
 def _genetic_algorithm_perm_vec(params, objfunc):
@@ -150,22 +134,15 @@ def _genetic_algorithm_perm_vec(params, objfunc):
 
     pop_initializer = PermInitializer(vecsize, pop_size=pop_size)
 
-    cross_op = PermOperator(cross_method)
-    mutation_op = PermOperator("Perm", {"N": mutstr})
+    cross_op = create_permutation_operator(cross_method)
+    mutation_op = create_permutation_operator("scramble", N=mutstr)
 
-    parent_sel_op = ParentSelection("Best", {"amount": n_parents})
-    selection_op = SurvivorSelection("KeepBest")
+    parent_sel_op = create_parent_selection("best", amount=n_parents)
+    selection_op = create_survivor_selection("keep_best")
 
-    search_strat = GA(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
-    )
+    search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)
 
 
 def _genetic_algorithm_real_vec(params, objfunc):
@@ -189,19 +166,12 @@ def _genetic_algorithm_real_vec(params, objfunc):
 
     pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
 
-    cross_op = VectorOperator(cross_method)
-    mutation_op = VectorOperator("MutNoise", {"distrib": "Gauss", "F": mutstr, "N": 1})
+    cross_op = create_operator(cross_method)
+    mutation_op = create_operator("mutation.gaussian_mutation", f=mutstr, N=1)
 
-    parent_sel_op = ParentSelection("Best", {"amount": n_parents})
-    selection_op = SurvivorSelection("KeepBest")
+    parent_sel_op = create_parent_selection("best", amount=n_parents)
+    selection_op = create_survivor_selection("keep_best")
 
-    search_strat = GA(
-        pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
-    )
+    search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return StandardAlgorithm(objfunc, search_strategy, params=params)

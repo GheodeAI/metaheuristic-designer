@@ -2,7 +2,7 @@ from metaheuristic_designer import (
     ObjectiveFunc,
     ParamScheduler,
 )
-from metaheuristic_designer.algorithms import GeneralAlgorithm, MemeticAlgorithm
+from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import OperatorVector
 from metaheuristic_designer.strategies import *
 from metaheuristic_designer.initializers import *
@@ -350,7 +350,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         )
         alg = MemeticAlgorithm(objfunc, search_strat, local_search, mem_select, params=params)
     else:
-        alg = GeneralAlgorithm(objfunc, search_strat, params=params)
+        alg = StandardAlgorithm(objfunc, search_strat, params=params)
 
     # Optimize with display of image
     real_time_start = time.time()

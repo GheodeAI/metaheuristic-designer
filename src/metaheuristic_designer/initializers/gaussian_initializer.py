@@ -1,7 +1,7 @@
 from __future__ import annotations
+from numbers import Integral
 import numpy as np
 from ..initializer import Initializer
-from ..utils import RAND_GEN
 
 
 class GaussianInitializer(Initializer):
@@ -14,7 +14,7 @@ class GaussianInitializer(Initializer):
         The dimension of the vectors accepted by the objective function.
     g_mean: ndarray or float
         Mean of the probability distribution used to generate the individuals.
-    g_str: ndarray or float
+    g_std: ndarray or float
         Standard deviation of the probability distribution used to generate the individuals.
     pop_size: int, optional
         Number of individuals to be generated.
@@ -24,8 +24,8 @@ class GaussianInitializer(Initializer):
         Data type used in each of the components of the vector in the individual.
     """
 
-    def __init__(self, genotype_size, g_mean, g_std, pop_size=1, encoding=None, dtype=float):
-        super().__init__(pop_size, encoding)
+    def __init__(self, genotype_size, g_mean, g_std, pop_size=1, encoding=None, dtype=float, random_state=None):
+        super().__init__(pop_size, encoding, random_state=random_state)
 
         self.genotype_size = genotype_size
 
@@ -48,8 +48,8 @@ class GaussianInitializer(Initializer):
         self.dtype = dtype
 
     def generate_random(self):
-        new_vector_float = RAND_GEN.normal(self.g_mean, self.g_std, size=self.genotype_size)
-        if self.dtype is int:
+        new_vector_float = self.random_state.normal(self.g_mean, self.g_std, size=self.genotype_size)
+        if isinstance(self.dtype, Integral):
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:
             new_vector = new_vector_float.astype(self.dtype)

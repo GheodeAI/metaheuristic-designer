@@ -1,11 +1,13 @@
 from __future__ import annotations
+from typing import Optional
 import numpy as np
-from ...operators import VectorOperator
-from ...selection_methods import ParentSelection, SurvivorSelection
+from ...parent_selection import ParentSelection
+from ...survivor_selection import SurvivorSelection
 from ...initializer import Initializer
-from ...param_scheduler import ParamScheduler
 from ..variable_population import VariablePopulation
-from ...utils import RAND_GEN
+from ...operators import create_operator, ProbDist
+from ...schedulable_parameter import SchedulableParameter
+from ...utils import check_random_state, RNGLike, VectorLike, ScalarLike
 
 
 class BernoulliUMDA(VariablePopulation):
@@ -19,27 +21,25 @@ class BernoulliUMDA(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
         name: str = "BernoulliUMDA",
+        offspring_size: Optional[int | SchedulableParameter] = None,
+        random_state=None,
+        p: ScalarLike | SchedulableParameter = 0.5,
+        noise: ScalarLike | SchedulableParameter = 0,
+        **kwargs,
     ):
-        if params is None:
-            params = {}
-
-        self.p = params.get("p", 0.5)
-
-        evolve_op = VectorOperator("RandSample", {"distrib": "Bernoulli", "p": self.p})
-        offspring_size = params.get("offspringSize", initializer.pop_size)
-
-        self.noise = params.get("noise", 0)
+        self.random_state = check_random_state(random_state)
 
         super().__init__(
             initializer,
-            evolve_op,
+            operator=create_operator("full_resampling", distrib="Bernoulli", p=np.asarray(p), random_state=random_state),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
-            params=params,
+            offspring_size=offspring_size,
             name=name,
+            # Forced kwargs
+            noise=noise,
+            **kwargs,
         )
 
     def _batch_fit(self, population):
@@ -49,11 +49,13 @@ class BernoulliUMDA(VariablePopulation):
         return p_hat
 
     def perturb(self, parents, **kwargs):
-        self.p = self._batch_fit(parents)
-        self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
-        self.p = np.clip(self.p, 0, 1)
+        old_p = self.operator.params.p
 
-        self.operator = VectorOperator("RandSample", {"distrib": "Bernoulli", "p": self.p})
+        new_p = self._batch_fit(parents)
+        new_p += self.random_state.normal(0, self.params.noise, size=old_p.shape)
+        new_p = np.clip(new_p, 0, 1)
+
+        self.operator.update_kwargs(p=new_p)
 
         return super().perturb(parents, **kwargs)
 
@@ -69,49 +71,49 @@ class BinomialUMDA(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
         name: str = "BinomialUMDA",
+        offspring_size: Optional[int | SchedulableParameter] = None,
+        random_state: Optional[RNGLike] = None,
+        p: ScalarLike | SchedulableParameter = 0.5,
+        n: ScalarLike | SchedulableParameter = None,
+        noise=0,
+        **kwargs,
     ):
-        if params is None:
-            params = {}
+        self.random_state = check_random_state(random_state)
 
-        self.p = params.get("p", 0.5)
-
-        if "n" not in params:
-            raise Exception("A parameter 'n' must be specified which indicates the maximum value of the Binomial distribution.")
-
-        self.n = params["n"]
-
-        evolve_op = VectorOperator("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
-
-        offspring_size = params.get("offspringSize", initializer.pop_size)
-
-        self.noise = params.get("noise", 0)
+        if n is None:
+            raise ValueError("You must specify the value for the parameters `n`, usually it will be the number of possible categorical values.")
 
         super().__init__(
             initializer,
-            evolve_op,
+            operator=create_operator("full_resampling", distrib="Binomial", p=np.asarray(p), n=np.asarray(n), random_state=random_state),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
-            params=params,
+            offspring_size=offspring_size,
             name=name,
+            # Forced kwargs
+            noise=noise,
+            **kwargs,
         )
 
     def _batch_fit(self, population):
+        n = self.operator.params.n
         population_matrix = population.genotype_matrix
-        p_hat = population_matrix.sum(axis=0) / (self.n * population_matrix.shape[0])
+        p_hat = population_matrix.sum(axis=0) / (n * population_matrix.shape[0])
 
         return p_hat
 
     def perturb(self, parents, **kwargs):
-        self.p = self._batch_fit(parents)
-        self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
-        self.p = np.clip(self.p, 0, 1)
+        old_p = self.operator.params.p
 
-        self.operator = VectorOperator("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
+        new_p = self._batch_fit(parents)
+        new_p += self.random_state.normal(0, self.params.noise, size=old_p.shape)
+        new_p = np.clip(new_p, 0, 1)
+
+        self.operator.update_kwargs(p=new_p)
 
         return super().perturb(parents, **kwargs)
+
 
 class GaussianUMDA(VariablePopulation):
     """
@@ -124,28 +126,26 @@ class GaussianUMDA(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
         name: str = "GaussianUMDA",
+        offspring_size: Optional[int | SchedulableParameter] = None,
+        random_state=None,
+        loc: ScalarLike | VectorLike | SchedulableParameter = 0,
+        scale: ScalarLike | VectorLike | SchedulableParameter = 1,
+        noise: ScalarLike | SchedulableParameter = 0,
+        **kwargs,
     ):
-        if params is None:
-            params = {}
-
-        self.loc = params.get("loc", 0)
-        self.scale = params.get("scale", 1)
-
-        evolve_op = VectorOperator("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
-        offspring_size = params.get("offspringSize", initializer.pop_size)
-
-        self.noise = params.get("noise", 0)
+        self.random_state = check_random_state(random_state)
 
         super().__init__(
-            initializer,
-            evolve_op,
+            initializer=initializer,
+            operator=create_operator("full_resampling", distrib="gaussian", loc=np.asarray(loc), scale=np.asarray(scale), random_state=random_state),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
-            params=params,
+            offspring_size=offspring_size,
             name=name,
+            # Forced Kwargs
+            noise=noise,
+            **kwargs,
         )
 
     def _batch_fit(self, population):
@@ -155,9 +155,11 @@ class GaussianUMDA(VariablePopulation):
         return loc_hat
 
     def perturb(self, parents, **kwargs):
-        self.loc = self._batch_fit(parents)
-        self.loc += RAND_GEN.normal(0, self.noise, size=self.loc.shape)
+        old_loc = self.operator.params.loc
 
-        self.operator = VectorOperator("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
+        new_loc = self._batch_fit(parents)
+        new_loc += self.random_state.normal(0, self.params.noise, size=old_loc.shape)
+
+        self.operator.update_kwargs(loc=new_loc)
 
         return super().perturb(parents, **kwargs)

@@ -3,18 +3,17 @@ import metaheuristic_designer as mhd
 
 pso_encoding = mhd.encodings.PSOEncoding(10)
 
-initializer = mhd.ExtendedInitializer(
+initializer = mhd.initializers.ExtendedInitializer(
     solution_init=mhd.initializers.UniformInitializer(10, -100, 100, pop_size=100),
     param_init_dict={"speed": mhd.initializers.UniformInitializer(10, -10, 10)},
     encoding=pso_encoding,
 )
 
-constraint_handler = mhd.ExtendedConstraintHandler(
+constraint_handler = mhd.constraint_handlers.ExtendedConstraintHandler(
     mhd.constraint_handlers.ClipBoundConstraint(10, -100, 100),
     {"speed": mhd.constraint_handlers.BounceBoundConstraint(10, -100, 100)},
     encoding=pso_encoding,
 )
-# constraint_handler = None
 
 objfunc = mhd.benchmarks.Sphere(10, constraint_handler=constraint_handler)
 
@@ -22,7 +21,7 @@ operator = mhd.operators.SwarmOperator("PSO", {"w": 0.9, "c1":0.9, "c2":0.9}, en
 
 strategy = mhd.strategies.PSO(initializer=initializer, encoding=pso_encoding)
 
-algorithm = mhd.algorithms.GeneralAlgorithm(
+algorithm = mhd.algorithms.StandardAlgorithm(
     objfunc,
     strategy,
     {"stop_cond": "time_limit", "time_limit": 3}
