@@ -28,13 +28,14 @@ class SurvivorSelection(ParametrizableMixin, ABC):
         The name that will be assigned to this selection method.
     """
 
-    def __init__(self, name: Optional[str] = None, random_state: Optional[RNGLike] = None, **kwargs):
+    def __init__(self, name: Optional[str] = None, preserves_order: bool = False, random_state: Optional[RNGLike] = None, **kwargs):
         """
         Constructor for the SurvivorSelection class
         """
         super().__init__()
 
         self.name = name
+        self.preserves_order = preserves_order 
         self.random_state = check_random_state(random_state)
         self.store_kwargs(**kwargs)
 
@@ -103,7 +104,7 @@ class NullSurvivorSelection(SurvivorSelection):
         if name is None:
             name = "Nothing"
 
-        super().__init__(name, random_state=None, **kwargs)
+        super().__init__(name, preserves_order=True, random_state=None, **kwargs)
 
     def select(self, population: Population, offspring: Population) -> Population:
         self.last_selection_idx = np.arange(population.pop_size, population.pop_size + offspring.pop_size)
@@ -112,11 +113,11 @@ class NullSurvivorSelection(SurvivorSelection):
 
 
 class SurvivorSelectionFromLambda(SurvivorSelection):
-    def __init__(self, selection_fn: Callable, name: Optional[str] = None, **kwargs):
+    def __init__(self, selection_fn: Callable, name: Optional[str] = None, preserves_order: bool = False, random_state: Optional[RNGLike] = None, **kwargs):
         if name is None:
             name = selection_fn.__name__
         self.selection_fn = selection_fn
-        super().__init__(name, **kwargs)
+        super().__init__(name, preserves_order=preserves_order, random_state=random_state, **kwargs)
 
     @staticmethod
     def _validate_function(operator_fn: Callable):

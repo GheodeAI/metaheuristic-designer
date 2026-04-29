@@ -9,7 +9,8 @@ from conftest import (
 from metaheuristic_designer.algorithms.standard_algorithm import StandardAlgorithm
 from metaheuristic_designer.algorithms.memetic_algorithm import MemeticAlgorithm
 from metaheuristic_designer.algorithms.algorithm_selection import AlgorithmSelection
-from metaheuristic_designer.parent_selection import NullParentSelection
+from metaheuristic_designer.parent_selection_methods import NullParentSelection, create_parent_selection
+from metaheuristic_designer.strategies import GA, LocalSearch
 
 
 def test_full_pipeline_one_generation(sphere_objfunc, simple_strategy):
@@ -37,15 +38,32 @@ def test_full_pipeline_five_generations(sphere_objfunc, simple_strategy):
     assert len(algo.fit_history) == 5
 
 
-def test_memetic_pipeline(sphere_objfunc, simple_strategy):
-    local_search = simple_strategy
-    improve_choice = NullParentSelection()
+def test_memetic_pipeline(sphere_objfunc, dummy_strategy, dummy_initializer, rng):
+    # Create a separate local searcher – using dummy components plus an order‑preserving survivor selection
+    from metaheuristic_designer.search_strategy import SearchStrategy
+    from metaheuristic_designer.survivor_selection_methods import create_survivor_selection
+    from metaheuristic_designer.operators import create_operator
+
+    # Operator that preserves order (NullOperator does nothing, but it's order‑preserving)
+    operator = create_operator("nothing")  # NullOperator is order‑preserving
+    survivor_sel = create_survivor_selection("one_to_one")  # order‑preserving
+
+    local_searcher = SearchStrategy(
+        initializer=dummy_initializer,
+        operator=operator,
+        survivor_sel=survivor_sel,
+        name="local_searcher",
+    )
+
+    # Improvement selector (any parent selection works; we don't care about order here)
+    improvement_selector = NullParentSelection()
+
     algo = MemeticAlgorithm(
-        sphere_objfunc, simple_strategy,
-        local_search=local_search,
-        improve_choice=improve_choice,
-        ngen=2, neval=200, verbose=False,
-        stop_cond="ngen",
+        sphere_objfunc,
+        search_strategy=dummy_strategy,       # global search (simple Null strategy)
+        local_search=local_searcher,          # completely separate instance
+        improvement_selection=improvement_selector,
+        ngen=2, neval=200, verbose=False, stop_cond="ngen",
     )
     algo.optimize()
     _, best_fit = algo.best_solution()

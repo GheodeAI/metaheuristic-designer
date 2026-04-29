@@ -216,7 +216,7 @@ def cond_elitism(population_fitness, offspring_fitness, _random_state, amount):
     return np.concatenate((parent_order, offspring_order + n_parents))
 
 
-def lamb_plus_mu(population_fitness, offspring_fitness, _random_state):
+def keep_best(population_fitness, offspring_fitness, _random_state):
     """
     Both the parents and the offspring are considered and the best
     of them will pass to the next generation.
@@ -242,7 +242,7 @@ def lamb_plus_mu(population_fitness, offspring_fitness, _random_state):
     return fitness_order
 
 
-def lamb_comma_mu(population_fitness, offspring_fitness, _random_state):
+def keep_best_offspring(population_fitness, offspring_fitness, _random_state):
     """
     Only the best individuals in the offsping are selected.
 

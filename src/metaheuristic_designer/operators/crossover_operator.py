@@ -82,4 +82,4 @@ def create_crossover_operator(method, encoding=None, random_state=None, name=Non
     if name is None:
         name = method
 
-    return OperatorFromLambda(operator_fn=crossover_ops_map[method.lower()], name=method, encoding=encoding, random_state=random_state, **kwargs)
+    return OperatorFromLambda(operator_fn=crossover_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=False, random_state=random_state, **kwargs)

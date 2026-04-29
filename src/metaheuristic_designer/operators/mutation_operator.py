@@ -105,7 +105,6 @@ mutation_ops_map = {
 }
 # fmt: on
 
-
 def create_mutation_operator(method, encoding=None, name=None, **kwargs):
     """_summary_
 
@@ -124,4 +123,4 @@ def create_mutation_operator(method, encoding=None, name=None, **kwargs):
     if name is None:
         name = method
 
-    return OperatorFromLambda(operator_fn=mutation_ops_map[method.lower()], name=method, encoding=encoding, **kwargs)
+    return OperatorFromLambda(operator_fn=mutation_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=True, **kwargs)

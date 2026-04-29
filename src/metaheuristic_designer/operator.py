@@ -36,7 +36,7 @@ class Operator(ParametrizableMixin, ABC):
 
     _last_id: int = 0
 
-    def __init__(self, name: Optional[str] = None, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs):
+    def __init__(self, name: Optional[str] = None, encoding: Optional[Encoding] = None, preserves_order:bool = False, random_state: Optional[RNGLike] = None, **kwargs):
         """
         Constructor for the Operator class.
         """
@@ -52,6 +52,8 @@ class Operator(ParametrizableMixin, ABC):
         if encoding is None:
             encoding = DefaultEncoding()
         self.encoding = encoding
+
+        self.preserves_order = preserves_order
 
         self.random_state = check_random_state(random_state)
         self.store_kwargs(**kwargs)
@@ -131,7 +133,7 @@ class NullOperator(Operator):
         if name is None:
             name = "Nothing"
 
-        super().__init__(name)
+        super().__init__(name, preserves_order=True)
 
     def evolve(self, population: Population, *args) -> Population:
         return copy(population)
@@ -150,7 +152,7 @@ class OperatorFromLambda(Operator):
     """
 
     def __init__(
-        self, operator_fn: Callable, name: Optional[str] = None, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs
+        self, operator_fn: Callable, name: Optional[str] = None, encoding: Optional[Encoding] = None,  preserves_order: bool = False, random_state: Optional[RNGLike] = None, **kwargs
     ):
         """
         Constructor for the OperatorLambda class
@@ -159,7 +161,7 @@ class OperatorFromLambda(Operator):
         self._validate_function(operator_fn)
         if name is None:
             name = operator_fn.__name__ if hasattr(operator_fn, "__name__") else "lambda function"
-        super().__init__(name, encoding=encoding, random_state=random_state, **kwargs)
+        super().__init__(name, encoding=encoding, preserves_order=preserves_order, random_state=random_state, **kwargs)
         self.operator_fn = operator_fn
 
     @staticmethod

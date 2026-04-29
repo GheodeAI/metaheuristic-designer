@@ -11,8 +11,8 @@ from .survivor_selection_functions import (
     prob_one_to_one,
     many_to_one,
     prob_many_to_one,
-    lamb_plus_mu,
-    lamb_comma_mu,
+    keep_best,
+    keep_best_offspring,
 )
 from ..utils import null_aliases
 
@@ -26,6 +26,7 @@ class SurvivorSelectionDef:
     selection_fn: callable
     params: dict = field(default_factory=dict)
     forced_params: dict = field(default_factory=dict)
+    preserves_order: bool = False
 
     def __call__(self, population: Population, offspring: Population, random_state=None, **kwargs):
         modified_kwargs = {}
@@ -36,37 +37,58 @@ class SurvivorSelectionDef:
         return self.selection_fn(population.fitness, offspring.fitness, random_state, **modified_kwargs)
 
 
+# fmt: off
 surv_method_map = {
-    "elitism": SurvivorSelectionDef(elitism),
-    "cond_elitism": SurvivorSelectionDef(cond_elitism),
-    "conditional_elitism": SurvivorSelectionDef(cond_elitism),
-    "generational": SurvivorSelectionDef(generational),
-    "nothing": SurvivorSelectionDef(generational),
-    "one_to_one": SurvivorSelectionDef(one_to_one),
-    "hillclimb": SurvivorSelectionDef(one_to_one),
-    "hill_climb": SurvivorSelectionDef(one_to_one),
-    "prob_one_to_one": SurvivorSelectionDef(prob_one_to_one),
-    "prob_hillclimb": SurvivorSelectionDef(prob_one_to_one),
-    "prob_hill_climb": SurvivorSelectionDef(prob_one_to_one),
-    "probabilistic_one_to_one": SurvivorSelectionDef(prob_one_to_one),
-    "probabilistic_hillclimb": SurvivorSelectionDef(prob_one_to_one),
-    "probabilistic_hill_climb": SurvivorSelectionDef(prob_one_to_one),
-    "many_to_one": SurvivorSelectionDef(many_to_one),
-    "local_search": SurvivorSelectionDef(many_to_one),
-    "prob_many_to_one": SurvivorSelectionDef(prob_many_to_one),
-    "prob_local_search": SurvivorSelectionDef(prob_many_to_one),
-    "probabilistic_many_to_one": SurvivorSelectionDef(prob_many_to_one),
-    "probabilistic_local_search": SurvivorSelectionDef(prob_many_to_one),
-    "(m+n)": SurvivorSelectionDef(lamb_plus_mu),
-    "(mu+lambda)": SurvivorSelectionDef(lamb_plus_mu),
-    "mu+lambda": SurvivorSelectionDef(lamb_plus_mu),
-    "keep_best": SurvivorSelectionDef(lamb_plus_mu),
-    "(m,n)": SurvivorSelectionDef(lamb_comma_mu),
-    "(mu,lambda)": SurvivorSelectionDef(lamb_comma_mu),
-    "mu,lambda": SurvivorSelectionDef(lamb_comma_mu),
-    "keep_offspring": SurvivorSelectionDef(lamb_comma_mu),
-}
+    # Elitism
+    "elitism":                      SurvivorSelectionDef(elitism),
 
+    # Conditional elitism
+    "cond_elitism":                 SurvivorSelectionDef(cond_elitism),
+    "conditional_elitism":          SurvivorSelectionDef(cond_elitism),
+
+    # Generational
+    "generational":                 SurvivorSelectionDef(generational, preserves_order=True),
+    "nothing":                      SurvivorSelectionDef(generational, preserves_order=True),
+
+    # Hill climb
+    "one_to_one":                   SurvivorSelectionDef(one_to_one, preserves_order=True),
+    "hillclimb":                    SurvivorSelectionDef(one_to_one, preserves_order=True),
+    "hill_climb":                   SurvivorSelectionDef(one_to_one, preserves_order=True),
+
+    # Probabilistic hill climb
+    "prob_one_to_one":              SurvivorSelectionDef(prob_one_to_one, preserves_order=True),
+    "prob_hillclimb":               SurvivorSelectionDef(prob_one_to_one, preserves_order=True),
+    "prob_hill_climb":              SurvivorSelectionDef(prob_one_to_one, preserves_order=True),
+    "probabilistic_one_to_one":     SurvivorSelectionDef(prob_one_to_one, preserves_order=True),
+    "probabilistic_hillclimb":      SurvivorSelectionDef(prob_one_to_one, preserves_order=True),
+    "probabilistic_hill_climb":     SurvivorSelectionDef(prob_one_to_one, preserves_order=True),
+
+    # Local search
+    "many_to_one":                  SurvivorSelectionDef(many_to_one, preserves_order=True),
+    "local_search":                 SurvivorSelectionDef(many_to_one, preserves_order=True),
+
+    # Probabilistic Local search
+    "prob_many_to_one":             SurvivorSelectionDef(prob_many_to_one, preserves_order=True),
+    "prob_local_search":            SurvivorSelectionDef(prob_many_to_one, preserves_order=True),
+    "probabilistic_many_to_one":    SurvivorSelectionDef(prob_many_to_one, preserves_order=True),
+    "probabilistic_local_search":   SurvivorSelectionDef(prob_many_to_one, preserves_order=True),
+
+    # (mu + lambda)
+    "(m+n)":                        SurvivorSelectionDef(keep_best),
+    "(mu+lambda)":                  SurvivorSelectionDef(keep_best),
+    "mu+lambda":                    SurvivorSelectionDef(keep_best),
+    "keep_best":                    SurvivorSelectionDef(keep_best),
+
+    # (mu, lambda)
+    "(m,n)":                        SurvivorSelectionDef(keep_best_offspring),
+    "(mu,lambda)":                  SurvivorSelectionDef(keep_best_offspring),
+    "mu,lambda":                    SurvivorSelectionDef(keep_best_offspring),
+    "keep_offspring":               SurvivorSelectionDef(keep_best_offspring),
+    "keep_best_offspring":          SurvivorSelectionDef(keep_best_offspring),
+}
+# fmt: on
+
+order_preserving_selections = {}
 
 def create_survivor_selection(method, name=None, random_state=None, **kwargs):
     if name is None:
@@ -75,9 +97,11 @@ def create_survivor_selection(method, name=None, random_state=None, **kwargs):
     if method in null_aliases:
         return NullSurvivorSelection(name=name, **kwargs)
 
-    return SurvivorSelectionFromLambda(selection_fn=surv_method_map[method.lower()], name=name, random_state=random_state, **kwargs)
+    selection_fn_wrapper = surv_method_map[method.lower()]
+    preserves_order = selection_fn_wrapper.preserves_order or (method.lower() in order_preserving_selections)
+    return SurvivorSelectionFromLambda(selection_fn=selection_fn_wrapper, name=name, preserves_order=preserves_order, random_state=random_state, **kwargs)
 
-def add_survivor_selection_entry(selection_fn: callable, selection_method_name: str):
+def add_survivor_selection_entry(selection_fn: callable, selection_method_name: str, preserves_order=False):
     """
     Adds an operator so it can be generated by a the operator factory.
 
@@ -97,5 +121,8 @@ def add_survivor_selection_entry(selection_fn: callable, selection_method_name: 
     if selection_method_name in surv_method_map:
         logger.warning('Overwritten survivor selection method "%s".', selection_method_name)
     surv_method_map[selection_method_name] = selection_fn
+
+    if preserves_order:
+        order_preserving_selections.add(selection_method_name)
 
     logger.info('Added a new survivor selection method "%s".', selection_method_name)

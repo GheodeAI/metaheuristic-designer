@@ -67,4 +67,4 @@ def create_differential_evolution_operator(method, encoding=None, vectorized=Tru
     if name is None:
         name = method
 
-    return OperatorFromLambda(operator_fn=de_ops_map[method.lower()], name=method, encoding=encoding, **kwargs)
+    return OperatorFromLambda(operator_fn=de_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=True, **kwargs)

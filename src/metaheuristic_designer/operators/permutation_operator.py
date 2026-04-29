@@ -51,4 +51,4 @@ def create_permutation_operator(method, encoding=None, name=None, **kwargs):
     if name is None:
         name = method
 
-    return OperatorFromLambda(operator_fn=perm_ops_map[method.lower()], name=method, encoding=encoding, **kwargs)
+    return OperatorFromLambda(operator_fn=perm_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=False, **kwargs)

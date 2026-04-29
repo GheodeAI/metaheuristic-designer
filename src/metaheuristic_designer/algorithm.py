@@ -6,7 +6,6 @@ This module implements the main loop of the optimization algorithm using a searc
 
 from __future__ import annotations
 import logging
-import sys
 from typing import Tuple, Any, Optional
 from abc import ABC, abstractmethod
 import time
@@ -316,7 +315,6 @@ class Algorithm(ABC):
             "evaluations": self.objfunc.counter,
             "real_time_spent": self.real_time_spent,
             "cpu_time_spent": self.cpu_time_spent,
-            "params": self.params,
         }
 
         if show_fit_history:

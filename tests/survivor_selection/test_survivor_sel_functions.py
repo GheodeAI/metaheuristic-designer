@@ -22,8 +22,8 @@ from metaheuristic_designer.survivor_selection_methods.survivor_selection_functi
     prob_many_to_one,
     elitism,
     cond_elitism,
-    lamb_plus_mu,
-    lamb_comma_mu,
+    keep_best,
+    keep_best_offspring,
 )
 
 
@@ -184,7 +184,7 @@ def test_cond_elitism(population_fitness, offspring_fitness, amount):
     OFFSPRING_FITNESS_MIXED,
 ])
 def test_lamb_plus_mu(population_fitness, offspring_fitness):
-    result = lamb_plus_mu(population_fitness, offspring_fitness, None)
+    result = keep_best(population_fitness, offspring_fitness, None)
     assert result.max() < 16
     assert result.min() >= 0
     assert len(result) == 8
@@ -201,7 +201,7 @@ def test_lamb_plus_mu(population_fitness, offspring_fitness):
     OFFSPRING_FITNESS_MIXED,
 ])
 def test_lamb_comma_mu(population_fitness, offspring_fitness):
-    result = lamb_comma_mu(population_fitness, offspring_fitness, None)
+    result = keep_best_offspring(population_fitness, offspring_fitness, None)
     assert result.max() < 16
     assert result.min() >= 8   # only offspring indices
     assert len(result) == 8

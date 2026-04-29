@@ -29,4 +29,4 @@ def create_random_operator(method, encoding=None, name=None, **kwargs):
     if name is None:
         name = method
 
-    return OperatorFromLambda(operator_fn=random_ops_map[method.lower()], name=method, encoding=encoding, **kwargs)
+    return OperatorFromLambda(operator_fn=random_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=True, **kwargs)
