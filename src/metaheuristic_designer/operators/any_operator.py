@@ -75,7 +75,9 @@ def create_operator(method, encoding=None, random_state=None, name=None, **kwarg
         op_map = all_ops_map[op_reg_name]
         if op_name in op_map:
             preserves_order = (op_reg_name in order_preserving_registries) or (op_name in order_preserving_operators)
-            new_operator = OperatorFromLambda(operator_fn=op_map[op_name], name=name, encoding=encoding, preserves_order=preserves_order, random_state=random_state, **kwargs)
+            new_operator = OperatorFromLambda(
+                operator_fn=op_map[op_name], name=name, encoding=encoding, preserves_order=preserves_order, random_state=random_state, **kwargs
+            )
         else:
             raise ValueError(f"Operator {op_name} not found in the operator registry {op_reg_name}.")
         logger.debug("Created operator from %s registry.", op_reg_name)
@@ -86,7 +88,12 @@ def create_operator(method, encoding=None, random_state=None, name=None, **kwarg
                 if new_operator is None:
                     preserves_order = (op_reg_name in order_preserving_registries) or (method_lower in order_preserving_operators)
                     new_operator = OperatorFromLambda(
-                        operator_fn=op_map[method_lower], name=name, encoding=encoding, preserves_order=preserves_order, random_state=random_state, **kwargs
+                        operator_fn=op_map[method_lower],
+                        name=name,
+                        encoding=encoding,
+                        preserves_order=preserves_order,
+                        random_state=random_state,
+                        **kwargs,
                     )
                     possible_collision = op_reg_name
                     logger.debug("Created operator from %s registry.", op_reg_name)
@@ -117,7 +124,7 @@ def add_operator_entry(operator_fn: callable, operator_name: str, operator_regis
     """
 
     OperatorFromLambda._validate_function(operator_fn)
-    
+
     if operator_registry not in all_ops_map:
         all_ops_map[operator_registry] = {}
         logger.info('Added a new operator registry named "%s"', operator_registry)

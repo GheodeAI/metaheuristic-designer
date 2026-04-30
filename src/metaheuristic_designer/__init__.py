@@ -14,7 +14,7 @@ from .algorithm import Algorithm
 from . import algorithms
 from .algorithms import StandardAlgorithm, MemeticAlgorithm
 
-from .search_strategy import SearchStrategy
+from .search_strategy import SearchStrategy, SearchStrategyFromLambda
 from . import strategies
 
 from .population import Population

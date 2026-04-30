@@ -314,11 +314,13 @@ class SearchStrategy(ParametrizableMixin):
             Display plots specific to this search strategy.
         """
 
+
 from .initializer import InitializerFromLambda
 from .encoding import Encoding, EncodingFromLambda
 from .operator import Operator, OperatorFromLambda
 from .parent_selection import ParentSelectionFromLambda
 from .survivor_selection import SurvivorSelectionFromLambda
+
 
 class SearchStrategyFromLambda(SearchStrategy):
     def __init__(
@@ -334,14 +336,14 @@ class SearchStrategyFromLambda(SearchStrategy):
         parent_selection_amount: Optional[int] = None,
         pop_size: int = 100,
         random_state: Optional[RNGLike] = None,
-        **kwargs
+        **kwargs,
     ):
         if encoding is None and callable(encode_fn) and callable(decode_fn):
             encoding = EncodingFromLambda(encode_fn=encode_fn, decode_fn=decode_fn)
-            
+
         if callable(initializer):
             initializer = InitializerFromLambda(initializer, pop_size=pop_size, encoding=encoding, random_state=random_state)
-        
+
         if callable(parent_sel):
             if parent_selection_amount is None:
                 parent_selection_amount = initializer.pop_size
@@ -349,10 +351,10 @@ class SearchStrategyFromLambda(SearchStrategy):
 
         if callable(operator):
             operator = OperatorFromLambda(operator_fn=operator, encoding=encoding, random_state=random_state)
-        
+
         if callable(survivor_sel):
             survivor_sel = SurvivorSelectionFromLambda(selection_fn=survivor_sel, random_state=random_state)
-        
+
         super().__init__(
             initializer=initializer,
             operator=operator,
@@ -360,5 +362,5 @@ class SearchStrategyFromLambda(SearchStrategy):
             survivor_sel=survivor_sel,
             name=name,
             random_state=random_state,
-            **kwargs
-        ) 
+            **kwargs,
+        )

@@ -20,11 +20,12 @@ from ..algorithm import Algorithm
 
 logger = logging.getLogger(__name__)
 
+
 class MemeticAlgorithm(Algorithm):
     """
 
     Iterative search algorithm based on a standard loop with a local search improvement after perturbing
-    the individuals. 
+    the individuals.
 
     Parameters
     ----------
@@ -105,10 +106,16 @@ class MemeticAlgorithm(Algorithm):
         self.lamarckian = lamarckian
 
         if not local_search.operator.preserves_order:
-            logger.warning("Local search implements an operator that doesn't preserve order (%s). The fitness calculation might be corrupted.", local_search.operator.name)
+            logger.warning(
+                "Local search implements an operator that doesn't preserve order (%s). The fitness calculation might be corrupted.",
+                local_search.operator.name,
+            )
 
         if not local_search.survivor_sel.preserves_order:
-            logger.warning("Local search implements a survivos selection method that doesn't preserve order (%s). The fitness calculation might be corrupted.", local_search.survivor_sel.name)
+            logger.warning(
+                "Local search implements a survivos selection method that doesn't preserve order (%s). The fitness calculation might be corrupted.",
+                local_search.survivor_sel.name,
+            )
 
         self.local_search_counter = 0
 
@@ -131,7 +138,7 @@ class MemeticAlgorithm(Algorithm):
             parallel=parallel,
             threads=threads,
         )
-    
+
     @property
     def name(self):
         backup_name = f"Memetic {self.search_strategy.name}"
@@ -202,12 +209,11 @@ class MemeticAlgorithm(Algorithm):
         offspring_memetic = copy(offspring)
         if self.local_search_counter % self.local_search_frequency == 0:
             offspring_memetic, chosen_idx = self._do_local_search(offspring_memetic)
-            
+
             if not self.lamarckian:
                 fitness_obtained = offspring_memetic.fitness
                 offspring_memetic = offspring
                 offspring_memetic.fitness[chosen_idx] = fitness_obtained[chosen_idx]
-
 
         self.local_search_counter += 1
 

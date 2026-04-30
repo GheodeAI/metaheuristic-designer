@@ -36,7 +36,14 @@ class Operator(ParametrizableMixin, ABC):
 
     _last_id: int = 0
 
-    def __init__(self, name: Optional[str] = None, encoding: Optional[Encoding] = None, preserves_order:bool = False, random_state: Optional[RNGLike] = None, **kwargs):
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        encoding: Optional[Encoding] = None,
+        preserves_order: bool = False,
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
+    ):
         """
         Constructor for the Operator class.
         """
@@ -152,7 +159,13 @@ class OperatorFromLambda(Operator):
     """
 
     def __init__(
-        self, operator_fn: Callable, name: Optional[str] = None, encoding: Optional[Encoding] = None,  preserves_order: bool = False, random_state: Optional[RNGLike] = None, **kwargs
+        self,
+        operator_fn: Callable,
+        name: Optional[str] = None,
+        encoding: Optional[Encoding] = None,
+        preserves_order: bool = False,
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
     ):
         """
         Constructor for the OperatorLambda class
@@ -160,7 +173,8 @@ class OperatorFromLambda(Operator):
 
         self._validate_function(operator_fn)
         if name is None:
-            name = operator_fn.__name__ if hasattr(operator_fn, "__name__") else "lambda function"
+            name = operator_fn.__name__ if hasattr(operator_fn, "__name__") else "Custom operator"
+
         super().__init__(name, encoding=encoding, preserves_order=preserves_order, random_state=random_state, **kwargs)
         self.operator_fn = operator_fn
 

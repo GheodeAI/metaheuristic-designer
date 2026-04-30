@@ -35,8 +35,6 @@ class ExtendedOperator(Operator):
         if name is None:
             name = f"{base_operator.name}"
 
-        super().__init__(name=name, encoding=encoding, **kwargs)
-
         mask = np.zeros(encoding.vecsize + encoding.nparams)
 
         counter = encoding.vecsize
@@ -44,22 +42,25 @@ class ExtendedOperator(Operator):
             mask[counter : counter + param_num] = idx + 1
             counter = counter + param_num
 
-        self.base_operator = base_operator
-        self.param_operators = param_operators
         operator_list = [base_operator] + [param_operators[param_name] for idx, (param_name, _) in enumerate(encoding.param_sizes)]
 
         self.main_operator = MaskedOperator(operator_list, mask=mask)
         self.mask = mask
+
+        self.base_operator = base_operator
+        self.param_operators = param_operators
         self.param_encoding = encoding
+
+        super().__init__(name=name, encoding=encoding, **kwargs)
 
     def evolve(self, population, initializer=None):
         return self.main_operator.evolve(population, initializer=initializer)
 
-    def update(self, progress: float):
-        super().update(progress)
+    def step(self, progress: float):
+        super().step(progress)
 
-        self.base_operator.update(progress)
+        self.base_operator.step(progress)
 
         for _, op in self.param_operators.items():
             if isinstance(op, Operator):
-                op.update(progress)
+                op.step(progress)
