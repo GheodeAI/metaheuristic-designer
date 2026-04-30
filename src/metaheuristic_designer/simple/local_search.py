@@ -2,12 +2,13 @@ from __future__ import annotations
 import numpy as np
 from ..initializers import UniformInitializer, PermInitializer
 from ..encodings import TypeCastEncoding
-from ..strategies import RandomSearch
+from ..strategies import LocalSearch
 from ..algorithms import StandardAlgorithm
+from ..operators import create_operator
 from ..utils import check_random_state
 
 
-def random_search_binary(objfunc, encoding=None, random_state=None, **kwargs):
+def local_search_binary(objfunc, mutated_bits=1, samples_per_iteration=100, encoding=None, random_state=None, **kwargs):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept binary coded vectors.
@@ -16,11 +17,12 @@ def random_search_binary(objfunc, encoding=None, random_state=None, **kwargs):
     random_state = check_random_state(random_state)
     encoding = TypeCastEncoding(int, bool) if encoding is None else encoding
     pop_initializer = UniformInitializer(objfunc.vecsize, 0, 1, pop_size=1, dtype=np.uint8, encoding=encoding, random_state=random_state)
-    search_strat = RandomSearch(pop_initializer, random_state=random_state)
+    mutation_op = create_operator("mutation.bitflip", N=mutated_bits, random_state=None)
+    search_strat = LocalSearch(pop_initializer, mutation_op, iterations=samples_per_iteration, random_state=None)
     return StandardAlgorithm(objfunc, search_strat, **kwargs)
 
 
-def random_search_permutation(objfunc, encoding=None, random_state=None, **kwargs):
+def local_search_permutation(objfunc, swapped_positions=2, samples_per_iteration=100, encoding=None, random_state=None, **kwargs):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept integer coded vectors.
@@ -28,11 +30,12 @@ def random_search_permutation(objfunc, encoding=None, random_state=None, **kwarg
 
     random_state = check_random_state(random_state)
     pop_initializer = PermInitializer(objfunc.vecsize, pop_size=1, encoding=encoding, random_state=random_state)
-    search_strat = RandomSearch(pop_initializer, random_state=random_state)
+    mutation_op = create_operator("permutation.swap", N=swapped_positions, random_state=random_state)
+    search_strat = LocalSearch(pop_initializer, mutation_op, iterations=samples_per_iteration, random_state=random_state)
     return StandardAlgorithm(objfunc, search_strat, **kwargs)
 
 
-def random_search_discrete(objfunc, encoding=None, random_state=None, **kwargs):
+def local_search_discrete(objfunc, resampled_components=1, samples_per_iteration=100, encoding=None, random_state=None, **kwargs):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept integer coded vectors.
@@ -40,11 +43,12 @@ def random_search_discrete(objfunc, encoding=None, random_state=None, **kwargs):
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int, encoding=encoding, random_state=random_state)
-    search_strat = RandomSearch(pop_initializer, random_state=random_state)
+    mutation_op = create_operator("random.reset", N=resampled_components, random_state=random_state)
+    search_strat = LocalSearch(pop_initializer, mutation_op, iterations=samples_per_iteration, random_state=random_state)
     return StandardAlgorithm(objfunc, search_strat, **kwargs)
 
 
-def random_search_real(objfunc, encoding=None, random_state=None, **kwargs):
+def local_search_real(objfunc, mutation_strength=1e-5, mutated_components=1, samples_per_iteration=100, encoding=None, random_state=None, **kwargs):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept real coded vectors.
@@ -52,5 +56,6 @@ def random_search_real(objfunc, encoding=None, random_state=None, **kwargs):
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float, encoding=encoding, random_state=random_state)
-    search_strat = RandomSearch(pop_initializer, random_state=random_state)
+    mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
+    search_strat = LocalSearch(pop_initializer, mutation_op, iterations=samples_per_iteration, random_state=random_state)
     return StandardAlgorithm(objfunc, search_strat, **kwargs)

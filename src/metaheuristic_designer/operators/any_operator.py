@@ -7,7 +7,7 @@ from .random_operator import random_ops_map
 from .crossover_operator import crossover_ops_map
 from .mutation_operator import mutation_ops_map
 from .differential_evolution_operator import de_ops_map
-from .permutation_operator import perm_ops_map
+from .permutation_operator import permutation_ops_map
 from .swarm_operator import swarm_ops_map
 from .BO_operator import BOOperator
 from ..utils import null_aliases
@@ -18,7 +18,7 @@ all_ops_map = {
     "random": random_ops_map,
     "mutation": mutation_ops_map,
     "crossover": crossover_ops_map,
-    "permutation": perm_ops_map,
+    "permutation": permutation_ops_map,
     "de": de_ops_map,
     "swarm": swarm_ops_map,
     "debug": debug_ops_map,

@@ -206,7 +206,7 @@ class Population:
         self: Population
         """
 
-        self.genotype_matrix[:, selection_idx] = selected_pop.genotype_matrix
+        self.genotype_matrix[selection_idx, :] = selected_pop.genotype_matrix
         self.fitness_calculated[selection_idx] = False
 
         self.historical_best_matrix[selection_idx, :] = selected_pop.historical_best_matrix
