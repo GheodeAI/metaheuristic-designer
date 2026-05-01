@@ -3,7 +3,7 @@ from .operator_functions.permutation import *
 from .operator_functions.utils import OperatorVectorDef
 
 # fmt: off
-perm_ops_map = {
+permutation_ops_map = {
     # Swap components
     "swap": OperatorVectorDef(permute_mutation, forced_params={"N": 2}),
     "swap_mutation": OperatorVectorDef(permute_mutation, forced_params={"N": 2}),
@@ -51,4 +51,4 @@ def create_permutation_operator(method, encoding=None, name=None, **kwargs):
     if name is None:
         name = method
 
-    return OperatorFromLambda(operator_fn=perm_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=False, **kwargs)
+    return OperatorFromLambda(operator_fn=permutation_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=False, **kwargs)

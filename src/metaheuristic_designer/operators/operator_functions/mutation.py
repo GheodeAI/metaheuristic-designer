@@ -3,6 +3,7 @@ Mutation operator implementations based on probability distributions.
 """
 
 import logging
+from copy import copy
 import enum
 from enum import Enum
 import numpy as np
@@ -203,7 +204,7 @@ def rand_sample(population, _fitness, random_state=None, **kwargs):
 
     if loc is None or (isinstance(loc, str) and loc == "calculated"):
         loc = population.mean(axis=0)
-    if scale is None or (isinstance(loc, str) and scale == "calculated"):
+    if scale is None or (isinstance(scale, str) and scale == "calculated"):
         scale = population.std(axis=0)
 
     rand_population = sample_distribution(population.shape, loc, scale, random_state, **kwargs)

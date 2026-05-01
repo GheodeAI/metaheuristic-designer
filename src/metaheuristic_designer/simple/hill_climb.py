@@ -1,133 +1,61 @@
 from __future__ import annotations
-from ..objective_function import VectorObjectiveFunc
-from ..algorithm import Algorithm
+import numpy as np
 from ..initializers import UniformInitializer, PermInitializer
 from ..encodings import TypeCastEncoding
 from ..strategies import HillClimb
 from ..algorithms import StandardAlgorithm
+from ..operators import create_operator
+from ..utils import check_random_state
 
 
-def hill_climb(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-
-    Parameters
-    ----------
-    objfunc: ObjectiveFunc
-        Objective function to be optimized.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters of the algorithm.
-
-    Returns
-    -------
-    algorithm: Algorithm
-        Configured optimization algorithm.
-    """
-
-    if "encoding" not in params:
-        raise ValueError('You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
-
-    encoding_str = params["encoding"]
-
-    if encoding_str.lower() == "bin":
-        alg = _hill_climb_bin_vec(params, objfunc)
-    elif encoding_str.lower() == "int":
-        alg = _hill_climb_int_vec(params, objfunc)
-    elif encoding_str.lower() == "perm":
-        alg = _hill_climb_perm_vec(params, objfunc)
-    elif encoding_str.lower() == "real":
-        alg = _hill_climb_real_vec(params, objfunc)
-    else:
-        raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"')
-
-    return alg
-
-
-def _hill_climb_bin_vec(params, objfunc):
+def hill_climb_binary(objfunc, mutated_bits=1, encoding=None, random_state=None, **kwargs):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept binary coded vectors.
     """
 
-    mutstr = params.get("mutstr", 1)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-
-    encoding = TypeCastEncoding(int, bool)
-
-    pop_initializer = UniformInitializer(vecsize, 0, 1, pop_size=1, dtype=int, encoding=encoding)
-
-    mutation_op = VectorOperator("Flip", {"N": mutstr})
-
-    search_strat = HillClimb(pop_initializer, mutation_op)
-
-    return StandardAlgorithm(objfunc, search_strat, params=params)
+    random_state = check_random_state(random_state)
+    encoding = TypeCastEncoding(int, bool) if encoding is None else encoding
+    pop_initializer = UniformInitializer(objfunc.vecsize, 0, 1, pop_size=1, dtype=np.uint8, encoding=encoding, random_state=random_state)
+    mutation_op = create_operator("mutation.bitflip", N=mutated_bits, random_state=random_state)
+    search_strat = HillClimb(pop_initializer, mutation_op, random_state=random_state)
+    return StandardAlgorithm(objfunc, search_strat, **kwargs)
 
 
-def _hill_climb_perm_vec(params, objfunc):
+def hill_climb_permutation(objfunc, swapped_positions=2, encoding=None, random_state=None, **kwargs):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept integer coded vectors.
     """
 
-    mutstr = params.get("mutstr", 1)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-
-    pop_initializer = PermInitializer(vecsize, pop_size=1)
-
-    mutation_op = PermOperator("Perm", {"N": mutstr})
-
-    search_strat = HillClimb(pop_initializer, mutation_op)
-
-    return StandardAlgorithm(objfunc, search_strat, params=params)
+    random_state = check_random_state(random_state)
+    pop_initializer = PermInitializer(objfunc.vecsize, pop_size=1, encoding=encoding, random_state=random_state)
+    mutation_op = create_operator("permutation.swap", N=swapped_positions, random_state=random_state)
+    search_strat = HillClimb(pop_initializer, mutation_op, random_state=random_state)
+    return StandardAlgorithm(objfunc, search_strat, **kwargs)
 
 
-def _hill_climb_int_vec(params, objfunc):
+def hill_climb_discrete(objfunc, resampled_components=1, encoding=None, random_state=None, **kwargs):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept integer coded vectors.
     """
 
-    mutstr = params.get("mutstr", 1)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
-
-    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=1, dtype=int)
-
-    mutation_op = VectorOperator("MutRand", {"distrib": "Uniform", "Low": objfunc.low_lim, "Up": objfunc.up_lim, "N": mutstr})
-
-    search_strat = HillClimb(pop_initializer, mutation_op)
-
-    return StandardAlgorithm(objfunc, search_strat, params=params)
+    random_state = check_random_state(random_state)
+    pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int, encoding=encoding, random_state=random_state)
+    mutation_op = create_operator("random.reset", N=resampled_components, random_state=random_state)
+    search_strat = HillClimb(pop_initializer, mutation_op, random_state=random_state)
+    return StandardAlgorithm(objfunc, search_strat, **kwargs)
 
 
-def _hill_climb_real_vec(params, objfunc):
+def hill_climb_real(objfunc, mutation_strength=1e-5, mutated_components=1, encoding=None, random_state=None, **kwargs):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept real coded vectors.
     """
 
-    mutstr = params.get("mutstr", 1e-5)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
-
-    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=1, dtype=float)
-
-    mutation_op = VectorOperator("RandNoise", {"distrib": "Gauss", "F": mutstr})
-
-    search_strat = HillClimb(pop_initializer, mutation_op)
-
-    return StandardAlgorithm(objfunc, search_strat, params=params)
+    random_state = check_random_state(random_state)
+    pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float, encoding=encoding, random_state=random_state)
+    mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
+    search_strat = HillClimb(pop_initializer, mutation_op, random_state=random_state)
+    return StandardAlgorithm(objfunc, search_strat, **kwargs)

@@ -21,14 +21,6 @@ class DiophantineEq(ObjectiveFunc):
         return abs((solution * self.coeff).sum() - self.target)
 
 
-class MaxOnesReal(VectorObjectiveFunc):
-    def __init__(self, vecsize, mode="max"):
-        super().__init__(vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")
-
-    def objective(self, solution):
-        return solution.sum()
-
-
 class SleepTest(VectorObjectiveFunc):
     def __init__(self, vecsize, sleep_time=2, mode="min"):
         self.sleep_time = sleep_time

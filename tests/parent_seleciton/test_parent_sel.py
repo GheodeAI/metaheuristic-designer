@@ -6,7 +6,7 @@ from numpy.testing import assert_array_equal
 from conftest import dummy_objfunc, rng
 from conftest import make_pop   # plain function from conftest
 
-from metaheuristic_designer.parent_selection_methods import (
+from metaheuristic_designer.parent_selection import (
     ParentSelectionDef,
     ParentSelectionFromLambda,
     NullParentSelection,

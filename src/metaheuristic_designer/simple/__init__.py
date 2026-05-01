@@ -1,8 +1,8 @@
 from .genetic_algorithm import genetic_algorithm
-from .hill_climb import hill_climb
+from .hill_climb import hill_climb_binary, hill_climb_permutation, hill_climb_discrete, hill_climb_real
 from .particle_swarm import particle_swarm
-from .random_search import random_search
-from .evolution_strategy import evolution_strategy
+from .random_search import random_search_binary, random_search_permutation, random_search_discrete, random_search_real
+from .evolution_strategy import evolution_strategy_binary, evolution_strategy_permutation, evolution_strategy_discrete, evolution_strategy_real
 from .differential_evolution import differential_evolution
-from .simulated_annealing import simulated_annealing
+from .simulated_annealing import simulated_annealing_binary, simulated_annealing_permutation, simulated_annealing_discrete, simulated_annealing_real
 from .bayesian_optimization import bayesian_optimization

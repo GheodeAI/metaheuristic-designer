@@ -105,6 +105,7 @@ mutation_ops_map = {
 }
 # fmt: on
 
+
 def create_mutation_operator(method, encoding=None, name=None, **kwargs):
     """_summary_
 

@@ -207,8 +207,8 @@ class Population:
         """
 
         self.genotype_matrix[selection_idx, :] = selected_pop.genotype_matrix
-        self.fitness[selection_idx] = selected_pop.fitness
-        self.fitness_calculated[selection_idx] = selected_pop.fitness_calculated
+        self.fitness_calculated[selection_idx] = False
+
         self.historical_best_matrix[selection_idx, :] = selected_pop.historical_best_matrix
         self.historical_best_fitness[selection_idx] = selected_pop.historical_best_fitness
 
@@ -268,6 +268,7 @@ class Population:
         """
 
         self.genotype_matrix[:, mask] = sliced_pop.genotype_matrix
+        self.fitness_calculated[:] = False
 
         if self.best is None or (sliced_pop.best is not None and self.best_fitness < sliced_pop.best_fitness):
             self.best = sliced_pop.best

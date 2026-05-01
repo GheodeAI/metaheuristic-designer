@@ -4,8 +4,8 @@ from ..initializer import Initializer
 from ..search_strategy import SearchStrategy
 from ..operator import Operator
 from ..population import Population
-from ..survivor_selection import SurvivorSelection
-from ..survivor_selection_methods import create_survivor_selection
+from ..survivor_selection_base import SurvivorSelection
+from ..survivor_selection import create_survivor_selection
 from ..utils import check_random_state, RNGLike
 
 

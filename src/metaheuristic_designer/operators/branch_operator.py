@@ -58,7 +58,7 @@ class BranchOperator(Operator):
             joined_names = ", ".join(op_names)
             name = f"{method}({joined_names})"
 
-        super().__init__(name=name, encoding=encoding, random_state=random_state, **kwargs)
+        super().__init__(name=name, encoding=encoding, random_state=random_state, p=p, **kwargs)
 
         if method is None:
             self.method = BranchOpMethods.RANDOM
@@ -66,7 +66,7 @@ class BranchOperator(Operator):
             self.method = BranchOpMethods.from_str(method)
 
         self.chosen_idx = idx
-        self.weights = np.array([p, 1 - p])
+        self.weights = np.array([self.params.p, 1 - self.params.p])
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)
@@ -101,12 +101,14 @@ class BranchOperator(Operator):
 
         self.chosen_idx = idx
 
-    def update(self, progress: float):
-        super().update(progress)
+    def step(self, progress: float):
+        super().step(progress)
 
         for op in self.op_list:
             if isinstance(op, Operator):
-                op.update(progress)
+                op.step(progress)
+
+        self.weights = np.array([self.params.p, 1 - self.params.p])
 
     def get_state(self) -> dict:
         data = super().get_state()

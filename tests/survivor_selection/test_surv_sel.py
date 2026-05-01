@@ -7,7 +7,7 @@ from conftest import dummy_objfunc, rng
 from conftest import make_pop   # plain function, NOT a fixture
 
 # Factory and related classes
-from metaheuristic_designer.survivor_selection_methods import (
+from metaheuristic_designer.survivor_selection import (
     SurvivorSelectionDef,
     SurvivorSelectionFromLambda,
     NullSurvivorSelection,

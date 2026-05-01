@@ -12,10 +12,10 @@ from conftest import (
 )
 
 from metaheuristic_designer.algorithms.memetic_algorithm import MemeticAlgorithm
-from metaheuristic_designer.survivor_selection_methods import create_survivor_selection
+from metaheuristic_designer.survivor_selection import create_survivor_selection
 from metaheuristic_designer.operators import create_operator
 from metaheuristic_designer.search_strategy import SearchStrategy
-from metaheuristic_designer.parent_selection import NullParentSelection
+from metaheuristic_designer.parent_selection_base import NullParentSelection
 from metaheuristic_designer.operator import OperatorFromLambda
 
 
@@ -33,7 +33,7 @@ def test_memetic_algorithm_creation(dummy_objfunc, dummy_strategy, dummy_parent_
     assert algo.name == "Memetic dummy_strategy"
     assert algo.local_search is dummy_strategy
     assert algo.improvement_selection is dummy_parent_selection
-    assert algo.lamarckian is True
+    assert algo.keep_improved_solutions is True
     assert algo.local_search_frequency == 1
     assert algo.local_search_depth == 1
 
@@ -84,7 +84,7 @@ def test_step_lamarckian_records_history(dummy_objfunc, dummy_strategy, dummy_in
         local_search=local_search,
         improvement_selection=improvement_sel,
         ngen=1, neval=50, verbose=False, stop_cond="ngen",
-        lamarckian=True,
+        keep_improved_solutions=True,
     )
     algo.initialize()
     new_pop = algo.step()
@@ -111,7 +111,7 @@ def test_baldwinian_does_not_change_genotype(dummy_objfunc, dummy_strategy, dumm
         local_search=local_search,
         improvement_selection=improvement_sel,
         ngen=1, neval=50, verbose=False, stop_cond="ngen",
-        lamarckian=False,
+        keep_improved_solutions=False,
     )
     algo.initialize()
     original_geno = algo.search_strategy.population.genotype_matrix.copy()

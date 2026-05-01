@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import Optional
 import numpy as np
 from ...operators import create_operator
-from ...parent_selection import ParentSelection
-from ...survivor_selection import SurvivorSelection
+from ...parent_selection_base import ParentSelection
+from ...survivor_selection_base import SurvivorSelection
 from ...initializer import Initializer
 from ..variable_population import VariablePopulation
 from ...schedulable_parameter import SchedulableParameter

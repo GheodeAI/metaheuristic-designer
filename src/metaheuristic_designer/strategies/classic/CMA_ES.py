@@ -1,8 +1,8 @@
 from __future__ import annotations
 from ...initializer import Initializer
 from ..static_population import StaticPopulation
-from ...survivor_selection import SurvivorSelection
-from ...parent_selection import ParentSelection
+from ...survivor_selection_base import SurvivorSelection
+from ...parent_selection_base import ParentSelection
 
 
 class CMA_ES(StaticPopulation):

@@ -2,7 +2,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from ..population import Population
-from ..survivor_selection import SurvivorSelectionFromLambda, NullSurvivorSelection
+from ..survivor_selection_base import SurvivorSelectionFromLambda, NullSurvivorSelection
 from .survivor_selection_functions import (
     generational,
     elitism,
@@ -90,6 +90,7 @@ surv_method_map = {
 
 order_preserving_selections = {}
 
+
 def create_survivor_selection(method, name=None, random_state=None, **kwargs):
     if name is None:
         name = method
@@ -99,7 +100,10 @@ def create_survivor_selection(method, name=None, random_state=None, **kwargs):
 
     selection_fn_wrapper = surv_method_map[method.lower()]
     preserves_order = selection_fn_wrapper.preserves_order or (method.lower() in order_preserving_selections)
-    return SurvivorSelectionFromLambda(selection_fn=selection_fn_wrapper, name=name, preserves_order=preserves_order, random_state=random_state, **kwargs)
+    return SurvivorSelectionFromLambda(
+        selection_fn=selection_fn_wrapper, name=name, preserves_order=preserves_order, random_state=random_state, **kwargs
+    )
+
 
 def add_survivor_selection_entry(selection_fn: callable, selection_method_name: str, preserves_order=False):
     """

@@ -35,7 +35,7 @@ class SurvivorSelection(ParametrizableMixin, ABC):
         super().__init__()
 
         self.name = name
-        self.preserves_order = preserves_order 
+        self.preserves_order = preserves_order
         self.random_state = check_random_state(random_state)
         self.store_kwargs(**kwargs)
 
@@ -113,9 +113,12 @@ class NullSurvivorSelection(SurvivorSelection):
 
 
 class SurvivorSelectionFromLambda(SurvivorSelection):
-    def __init__(self, selection_fn: Callable, name: Optional[str] = None, preserves_order: bool = False, random_state: Optional[RNGLike] = None, **kwargs):
+    def __init__(
+        self, selection_fn: Callable, name: Optional[str] = None, preserves_order: bool = False, random_state: Optional[RNGLike] = None, **kwargs
+    ):
         if name is None:
-            name = selection_fn.__name__
+            name = selection_fn.__name__ if hasattr(selection_fn, "__name__") else "Custom survivor selection"
+
         self.selection_fn = selection_fn
         super().__init__(name, preserves_order=preserves_order, random_state=random_state, **kwargs)
 

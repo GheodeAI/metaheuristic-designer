@@ -2,8 +2,7 @@ from __future__ import annotations
 from typing import Optional
 import numpy as np
 from ...initializer import Initializer
-from ...survivor_selection import SurvivorSelection
-from ...survivor_selection_methods import create_survivor_selection
+from ...survivor_selection import create_survivor_selection
 from ...operator import Operator
 from ..hill_climb import HillClimb
 from ...schedulable_parameter import SchedulableParameter

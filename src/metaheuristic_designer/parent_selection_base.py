@@ -115,7 +115,8 @@ class ParentSelectionFromLambda(ParentSelection):
         self, selection_fn: Callable, name: Optional[str] = None, amount: Optional[int] = None, random_state: Optional[RNGLike] = None, **kwargs
     ):
         if name is None:
-            name = selection_fn.__name__
+            name = selection_fn.__name__ if hasattr(selection_fn, "__name__") else "Custom parent selection"
+
         super().__init__(name=name, amount=amount, random_state=random_state, **kwargs)
 
         self.selection_fn = selection_fn

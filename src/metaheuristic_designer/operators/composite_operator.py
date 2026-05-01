@@ -49,12 +49,12 @@ class CompositeOperator(Operator):
 
         return new_population
 
-    def update(self, progress):
-        super().update(progress)
+    def step(self, progress):
+        super().step(progress)
 
         for op in self.op_list:
             if isinstance(op, Operator):
-                op.update(progress)
+                op.step(progress)
 
     def get_state(self) -> dict:
         data = super().get_state()

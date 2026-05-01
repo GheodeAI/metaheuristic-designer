@@ -1,12 +1,10 @@
 from typing import Optional
 from ...initializer import Initializer
-from ...parent_selection import ParentSelection
-from ...parent_selection_methods import create_parent_selection
-from ...survivor_selection import SurvivorSelection
+from ...parent_selection import create_parent_selection
 from ...operators import create_mutation_operator
 from ..static_population import StaticPopulation
 from ...schedulable_parameter import SchedulableParameter
-from ...utils import check_random_state, RNGLike
+from ...utils import VectorLike, check_random_state, RNGLike
 
 
 class CrossEntropyMethod(StaticPopulation):
@@ -16,11 +14,12 @@ class CrossEntropyMethod(StaticPopulation):
         name: str = "CrossEntropyMethod",
         random_state: Optional[RNGLike] = None,
         elite_amount: Optional[int | SchedulableParameter] = None,
+        scale: VectorLike | str = "calculated",
         **kwargs,
     ):
         random_state = check_random_state(random_state)
 
-        operator = create_mutation_operator("RandSample", distrib="Normal", loc="calculated", scale="calculated", random_state=random_state)
+        operator = create_mutation_operator("RandSample", distrib="Normal", loc="calculated", scale=scale, random_state=random_state)
         parent_sel = create_parent_selection("best", amount=elite_amount)
 
         super().__init__(initializer=initializer, operator=operator, parent_sel=parent_sel, name=name, **kwargs)

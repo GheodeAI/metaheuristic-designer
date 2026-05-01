@@ -13,8 +13,8 @@ class SelfAdaptingESEncoding(ParameterExtendingEncoding):
     def __init__(self, vecsize: int, single_sigma: bool = True, base_encoding: Optional[Encoding] = None):
         self.single_sigma = single_sigma
         if single_sigma:
-            named_params = [("sigma", 1)]
+            named_params = [("F", 1)]
         else:
-            named_params = [("sigma", vecsize)]
+            named_params = [("F", vecsize)]
 
         super().__init__(vecsize, named_params, base_encoding)

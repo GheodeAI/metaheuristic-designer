@@ -17,7 +17,7 @@ from metaheuristic_designer.strategies.no_search import NoSearch
 from metaheuristic_designer.strategies.static_population import StaticPopulation
 from metaheuristic_designer.strategies.variable_population import VariablePopulation
 
-from metaheuristic_designer.survivor_selection import SurvivorSelection
+from metaheuristic_designer.survivor_selection_base import SurvivorSelection
 from metaheuristic_designer.operator import OperatorFromLambda
 
 
@@ -33,7 +33,7 @@ def test_hill_climb_default_survivor(rng, dummy_initializer):
 
 
 def test_hill_climb_custom_survivor(rng, dummy_initializer):
-    from metaheuristic_designer.survivor_selection_methods import create_survivor_selection
+    from metaheuristic_designer.survivor_selection import create_survivor_selection
     custom_sel = create_survivor_selection("generational", random_state=rng)
     algo = HillClimb(initializer=dummy_initializer, survivor_sel=custom_sel, random_state=rng)
     assert algo.survivor_sel is custom_sel
@@ -75,7 +75,7 @@ def test_static_population_requires_operator(rng, dummy_initializer, dummy_opera
 
 
 def test_static_population_accepts_parent_sel(rng, dummy_initializer, dummy_operator):
-    from metaheuristic_designer.parent_selection import NullParentSelection
+    from metaheuristic_designer.parent_selection_base import NullParentSelection
     parent_sel = NullParentSelection()
     algo = StaticPopulation(initializer=dummy_initializer, operator=dummy_operator,
                             parent_sel=parent_sel, random_state=rng)

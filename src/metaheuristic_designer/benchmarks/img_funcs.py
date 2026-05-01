@@ -41,7 +41,7 @@ class ImgApprox(VectorObjectiveFunc):
             case "NMI":
                 for idx, s in enumerate(solution):
                     for s_ch, ref_ch in zip(s.transpose((2, 0, 1)), self.reference.transpose((2, 0, 1))):
-                        error[idx] += metrics.normalized_mutual_information(s_ch, ref_ch, bins=256)
+                        error[idx] += metrics.normalized_mutual_information(s_ch, ref_ch, bins=32)
                     error[idx] /= 3
 
         return error

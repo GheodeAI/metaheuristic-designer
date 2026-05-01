@@ -7,7 +7,7 @@ from numpy.testing import assert_array_equal
 from conftest import EXAMPLE_FITNESS, make_pop, dummy_objfunc, rng
 
 # Functions under test
-from metaheuristic_designer.parent_selection_methods import (
+from metaheuristic_designer.parent_selection import (
     select_best,
     prob_tournament,
     uniform_selection,
