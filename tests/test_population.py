@@ -218,7 +218,7 @@ def test_take_selection(populated_fit, sel_idx, expected_geno, expected_fit, exp
 # apply_selection
 # ---------------------------------------------------------------
 
-def test_apply_selection(populated_fit):
+def test_apply_selection(populated_fit, dummy_objfunc):
     # Create a donor population
     donor = Population(dummy_objfunc, np.array([[10,11], [12,13]]))
     donor.fitness = np.array([100.0, 200.0])

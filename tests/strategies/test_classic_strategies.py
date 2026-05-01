@@ -17,7 +17,7 @@ from metaheuristic_designer.strategies.classic.random_search import RandomSearch
 from metaheuristic_designer.strategies.classic.CMA_ES import CMA_ES
 
 from metaheuristic_designer.operator import Operator
-from metaheuristic_designer.survivor_selection import SurvivorSelection
+from metaheuristic_designer.survivor_selection_base import SurvivorSelection
 
 
 # ===================================================================

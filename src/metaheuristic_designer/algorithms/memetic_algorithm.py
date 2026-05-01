@@ -15,7 +15,7 @@ from ..parametrizable_mixin import ParametrizableMixin
 from ..stopping_condition import StoppingCondition
 from ..initializer import Initializer
 from ..utils import NumpyEncoder
-from ..parent_selection import ParentSelection
+from ..parent_selection_base import ParentSelection
 from ..algorithm import Algorithm
 
 logger = logging.getLogger(__name__)
@@ -41,6 +41,9 @@ class MemeticAlgorithm(Algorithm):
         _description_, by default 1
     local_search_depth : int, optional
         _description_, by default 1
+    keep_improved_solutions : bool, optional
+        Whether to keep the individuals improved by the local search heuristic or to only use their fitness.
+        When `False` we have a Lamarckian memetic algorithm and when `True` we have the Baldwinian variant.
     name : Optional[str], optional
         _description_, by default None
     init_info : bool, optional
@@ -81,7 +84,7 @@ class MemeticAlgorithm(Algorithm):
         improvement_selection: ParentSelection,
         local_search_frequency: int = 1,
         local_search_depth: int = 1,
-        lamarckian: bool = True,
+        keep_improved_solutions: bool = True,
         name: Optional[str] = None,
         init_info: bool = True,
         verbose: bool = True,
@@ -103,7 +106,7 @@ class MemeticAlgorithm(Algorithm):
         self.improvement_selection = improvement_selection
         self.local_search_frequency = local_search_frequency
         self.local_search_depth = local_search_depth
-        self.lamarckian = lamarckian
+        self.keep_improved_solutions = keep_improved_solutions
 
         if not local_search.operator.preserves_order:
             logger.warning(
@@ -210,7 +213,7 @@ class MemeticAlgorithm(Algorithm):
         if self.local_search_counter % self.local_search_frequency == 0:
             offspring_memetic, chosen_idx = self._do_local_search(offspring_memetic)
 
-            if not self.lamarckian:
+            if not self.keep_improved_solutions:
                 fitness_obtained = offspring_memetic.fitness
                 offspring_memetic = offspring
                 offspring_memetic.fitness[chosen_idx] = fitness_obtained[chosen_idx]

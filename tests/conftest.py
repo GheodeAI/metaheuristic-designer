@@ -26,11 +26,11 @@ from metaheuristic_designer.objective_function import (
 )
 from metaheuristic_designer.initializer import Initializer
 from metaheuristic_designer.operator import Operator, NullOperator
-from metaheuristic_designer.parent_selection import (
+from metaheuristic_designer.parent_selection_base import (
     ParentSelection,
     NullParentSelection,
 )
-from metaheuristic_designer.survivor_selection import (
+from metaheuristic_designer.survivor_selection_base import (
     SurvivorSelection,
     NullSurvivorSelection,
 )
@@ -299,7 +299,7 @@ from metaheuristic_designer import SearchStrategy
 from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
 from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.operators.mutation_operator import create_mutation_operator
-from metaheuristic_designer.survivor_selection_methods import create_survivor_selection
+from metaheuristic_designer.survivor_selection import create_survivor_selection
 
 @pytest.fixture
 def sphere_objfunc():

@@ -3,18 +3,39 @@ import logging
 
 import numpy as np
 
-from metaheuristic_designer import *
+# from metaheuristic_designer import *
 from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import create_operator
-from metaheuristic_designer.initializers import *
-from metaheuristic_designer.parent_selection_methods import create_parent_selection
-from metaheuristic_designer.survivor_selection_methods import create_survivor_selection
-from metaheuristic_designer.encodings import *
-from metaheuristic_designer.constraint_handlers import *
-from metaheuristic_designer.strategies import *
-from metaheuristic_designer.benchmarks import *
+from metaheuristic_designer.initializers import UniformInitializer, ExtendedInitializer
+from metaheuristic_designer.parent_selection import create_parent_selection
+from metaheuristic_designer.survivor_selection import create_survivor_selection
+from metaheuristic_designer.encodings import PSOEncoding
+from metaheuristic_designer.constraint_handlers import BounceBoundConstraint, ExtendedConstraintHandler
+from metaheuristic_designer.strategies import (
+    HillClimb,
+    LocalSearch,
+    SA,
+    ES,
+    GA,
+    DE,
+    PSO,
+    GaussianUMDA,
+    GaussianPBIL,
+    CrossEntropyMethod,
+    BayesianOptimization,
+    RandomSearch,
+    NoSearch
+)
+from metaheuristic_designer.benchmarks import (
+    Sphere,
+    Rastrigin,
+    Rosenbrock,
+    Weierstrass
+)
 from metaheuristic_designer.utils import check_random_state
 
+available_objectives = {"sphere", "rastrigin", "rosenbrock", "weierstrass"}
+available_algorithms = {"hillclimb", "localsearch", "sa", "es", "ga", "de", "gaussianumda", "gaussianpbil", "crossentropy", "randomsearch"}
 
 def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, random_state):
     algorithm_params = {
@@ -138,11 +159,18 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, ran
 
     if memetic:
         local_search = LocalSearch(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=search_strategy.population.pop_size),
-            operator=create_operator("RandNoise", distrib="Cauchy", F=0.0002),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=search_strategy.initializer.pop_size),
+            operator=create_operator("mutation.gaussian_noise", F=2e-4),
             params={"iters": 20},
         )
-        alg = MemeticAlgorithm(objfunc, search_strategy, local_search, create_parent_selection("Best", amount=5), **algorithm_params)
+        alg = MemeticAlgorithm(
+            objfunc=objfunc,
+            search_strategy=search_strategy,
+            local_search=local_search,
+            improvement_selection=create_parent_selection("Best", amount=5),
+            keep_improved_solutions=True,
+            **algorithm_params
+        )
     else:
         alg = StandardAlgorithm(objfunc, search_strategy, **algorithm_params)
 
@@ -156,7 +184,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, ran
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="algorithm", help="Specify an algorithm", default="ES")
+    parser.add_argument("-a", "--algorithm", dest="algorithm", help=f"Specify an algorithm. Available options are {available_algorithms}.", default="ES")
     parser.add_argument(
         "-m",
         "--memetic",
@@ -171,7 +199,7 @@ def main():
         action="store_true",
         help="Saves the state of the search strategy",
     )
-    parser.add_argument("-o", "--objective", dest="objective", help="Name of the objective function.", default="Sphere")
+    parser.add_argument("-o", "--objective", dest="objective", help=f"Name of the objective function. Available options are {available_objectives}", default="Sphere")
     parser.add_argument("-d", "--dim", dest="dim", help="Dimension of the vectors to optimize.", default=3, type=int)
     parser.add_argument("-r", "--seed", dest="seed", help="Random seed to use", default=42, type=int)
     parser.add_argument("--log", default="WARNING", help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")

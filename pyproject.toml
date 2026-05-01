@@ -49,3 +49,13 @@ dev = [
 [tool.black]
 line-length = 150
 target-version = ['py310']
+
+[tool.coverage.run]
+source = ["metaheuristic_designer"]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80

@@ -14,7 +14,7 @@ from conftest import (
 )
 
 # Functions under test
-from metaheuristic_designer.survivor_selection_methods.survivor_selection_functions import (
+from metaheuristic_designer.survivor_selection.survivor_selection_functions import (
     generational,
     one_to_one,
     prob_one_to_one,

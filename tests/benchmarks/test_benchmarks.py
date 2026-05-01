@@ -6,7 +6,6 @@ import metaheuristic_designer as mhd
 
 real_benchmarks = [
     MaxOnes,
-    MaxOnesReal,
     Sphere,
     HighCondElliptic,
     BentCigar,

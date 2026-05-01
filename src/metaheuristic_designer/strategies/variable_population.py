@@ -2,9 +2,9 @@ from __future__ import annotations
 from typing import Optional
 from ..population import Population
 from ..initializer import Initializer
-from ..parent_selection import ParentSelection
-from ..survivor_selection import SurvivorSelection
-from ..parent_selection_methods import create_parent_selection
+from ..parent_selection_base import ParentSelection
+from ..survivor_selection_base import SurvivorSelection
+from ..parent_selection import create_parent_selection
 from ..search_strategy import SearchStrategy
 from ..operator import Operator
 from ..utils import check_random_state, RNGLike

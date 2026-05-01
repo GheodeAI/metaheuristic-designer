@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 import logging
-from ..parent_selection import ParentSelectionFromLambda, NullParentSelection
+from ..parent_selection_base import ParentSelectionFromLambda, NullParentSelection
 from ..population import Population
 from .parent_selection_functions import SelectionDist, prob_tournament, select_best, roulette, uniform_selection, sus
 from ..utils import null_aliases

@@ -11,8 +11,8 @@ from PIL import Image
 from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import create_operator
 from metaheuristic_designer.initializers import *
-from metaheuristic_designer.parent_selection_methods import create_parent_selection
-from metaheuristic_designer.survivor_selection_methods import create_survivor_selection
+from metaheuristic_designer.parent_selection import create_parent_selection
+from metaheuristic_designer.survivor_selection import create_survivor_selection
 from metaheuristic_designer.encodings import ImageEncoding
 from metaheuristic_designer.strategies import *
 from metaheuristic_designer.benchmarks import *
@@ -79,7 +79,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         ),
         "SA": SA(
             UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, encoding=encoding),
-            operator=create_operator("mutation.gaussian_mutation", F=10, N=5),
+            operator=create_operator("mutation.gaussian_mutation", F=10, N=20),
             iterations=100,
             temperature_init=1,
             alpha=0.997,

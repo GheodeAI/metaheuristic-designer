@@ -2,7 +2,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from ..population import Population
-from ..survivor_selection import SurvivorSelectionFromLambda, NullSurvivorSelection
+from ..survivor_selection_base import SurvivorSelectionFromLambda, NullSurvivorSelection
 from .survivor_selection_functions import (
     generational,
     elitism,

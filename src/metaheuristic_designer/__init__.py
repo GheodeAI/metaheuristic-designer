@@ -25,17 +25,17 @@ from . import encodings
 from .initializer import Initializer, InitializerFromLambda
 from . import initializers
 
-from .parent_selection import ParentSelection, NullParentSelection, ParentSelectionFromLambda
-from .parent_selection_methods import create_parent_selection, add_parent_selection_entry, ParentSelectionDef
-from . import parent_selection_methods
+from .parent_selection_base import ParentSelection, NullParentSelection, ParentSelectionFromLambda
+from .parent_selection import create_parent_selection, add_parent_selection_entry, ParentSelectionDef
+from . import parent_selection
 
 from .operator import Operator, OperatorFromLambda, NullOperator
 from .operators import create_operator, add_operator_entry, OperatorVectorDef
 from . import operators
 
-from .survivor_selection import SurvivorSelection, NullSurvivorSelection, SurvivorSelectionFromLambda
-from .survivor_selection_methods import create_survivor_selection, add_survivor_selection_entry, SurvivorSelectionDef
-from . import survivor_selection_methods
+from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection, SurvivorSelectionFromLambda
+from .survivor_selection import create_survivor_selection, add_survivor_selection_entry, SurvivorSelectionDef
+from . import survivor_selection
 
 from . import simple
 

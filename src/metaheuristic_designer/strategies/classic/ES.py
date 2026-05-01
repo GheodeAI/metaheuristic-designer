@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import Optional
 from ...initializer import Initializer
 from ...operator import Operator
-from ...survivor_selection import SurvivorSelection
-from ...parent_selection import ParentSelection
+from ...survivor_selection_base import SurvivorSelection
+from ...parent_selection_base import ParentSelection
 from ...operators import CompositeOperator
 from ..variable_population import VariablePopulation
 

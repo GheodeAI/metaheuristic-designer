@@ -10,8 +10,8 @@ from conftest import (
 
 from metaheuristic_designer.constraint_handler import NullConstraint
 from metaheuristic_designer.operator import NullOperator
-from metaheuristic_designer.parent_selection import NullParentSelection
-from metaheuristic_designer.survivor_selection import NullSurvivorSelection
+from metaheuristic_designer.parent_selection_base import NullParentSelection
+from metaheuristic_designer.survivor_selection_base import NullSurvivorSelection
 from metaheuristic_designer.encoding import DefaultEncoding
 from metaheuristic_designer.initializer import Initializer, InitializerFromLambda
 from metaheuristic_designer.schedulable_parameter import SchedulableParameter

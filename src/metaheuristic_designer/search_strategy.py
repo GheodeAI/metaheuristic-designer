@@ -7,8 +7,8 @@ This module implements the procedure applied in each iteration of the algorithm.
 from __future__ import annotations
 import logging
 from typing import Tuple, Any, Optional, Callable
-from .parent_selection import ParentSelection, NullParentSelection
-from .survivor_selection import SurvivorSelection, NullSurvivorSelection
+from .parent_selection_base import ParentSelection, NullParentSelection
+from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection
 from .population import Population
 from .initializer import Initializer
 from .objective_function import ObjectiveFunc
@@ -318,8 +318,8 @@ class SearchStrategy(ParametrizableMixin):
 from .initializer import InitializerFromLambda
 from .encoding import Encoding, EncodingFromLambda
 from .operator import Operator, OperatorFromLambda
-from .parent_selection import ParentSelectionFromLambda
-from .survivor_selection import SurvivorSelectionFromLambda
+from .parent_selection_base import ParentSelectionFromLambda
+from .survivor_selection_base import SurvivorSelectionFromLambda
 
 
 class SearchStrategyFromLambda(SearchStrategy):

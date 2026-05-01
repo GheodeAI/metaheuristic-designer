@@ -3,7 +3,7 @@ from typing import Optional
 from ...initializer import Initializer
 from ..static_population import StaticPopulation
 from ...operators import create_differential_evolution_operator
-from ...survivor_selection_methods import SurvivorSelection, create_survivor_selection
+from ...survivor_selection import SurvivorSelection, create_survivor_selection
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import check_random_state, RNGLike
 

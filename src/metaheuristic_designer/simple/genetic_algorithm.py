@@ -3,8 +3,8 @@ from ..objective_function import VectorObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer, PermInitializer
 from ..operators import create_operator, create_permutation_operator, create_crossover_operator
-from ..parent_selection_methods import create_parent_selection
-from ..survivor_selection_methods import create_survivor_selection
+from ..parent_selection import create_parent_selection
+from ..survivor_selection import create_survivor_selection
 from ..encodings import TypeCastEncoding
 from ..strategies import GA
 from ..algorithms import StandardAlgorithm
