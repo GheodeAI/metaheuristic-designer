@@ -2,6 +2,29 @@ import time
 import numpy as np
 from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
 
+__all__ = [
+    "MaxOnes",
+    "DiophantineEq",
+    "SleepTest",
+    "MaxOnes",
+    "Sphere",
+    "HighCondElliptic",
+    "BentCigar",
+    "Discus",
+    "Rosenbrock",
+    "Ackley",
+    "Weierstrass",
+    "Griewank",
+    "Rastrigin",
+    "ModSchwefel",
+    "Katsuura",
+    "HappyCat",
+    "HGBat",
+    "ExpandedGriewankPlusRosenbrock",
+    "ExpandedShafferF6",
+    "SumPowell",
+    "N4XinSheYang",
+]
 
 class MaxOnes(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="max", constraint_handler=None):

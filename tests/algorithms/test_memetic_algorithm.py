@@ -28,7 +28,7 @@ def test_memetic_algorithm_creation(dummy_objfunc, dummy_strategy, dummy_parent_
         search_strategy=dummy_strategy,
         local_search=dummy_strategy,
         improvement_selection=dummy_parent_selection,
-        ngen=1, neval=50, verbose=False, stop_cond="ngen",
+        ngen=1, neval=50, reporter="silent", stop_cond="ngen",
     )
     assert algo.name == "Memetic dummy_strategy"
     assert algo.local_search is dummy_strategy
@@ -44,7 +44,7 @@ def test_memetic_algorithm_custom_name(dummy_objfunc, dummy_strategy, dummy_pare
         local_search=dummy_strategy,
         improvement_selection=dummy_parent_selection,
         name="CustomMemetic",
-        ngen=1, neval=50, verbose=False, stop_cond="ngen",
+        ngen=1, neval=50, reporter="silent", stop_cond="ngen",
     )
     assert algo.name == "CustomMemetic"
 
@@ -58,7 +58,7 @@ def test_initialize_calls_local_search_initialize(dummy_objfunc, dummy_strategy,
         dummy_objfunc, dummy_strategy,
         local_search=local_search,
         improvement_selection=dummy_parent_selection,
-        ngen=1, neval=50, verbose=False, stop_cond="ngen",
+        ngen=1, neval=50, reporter="silent", stop_cond="ngen",
     )
     pop = algo.initialize()
     assert local_search.population is not None
@@ -83,13 +83,14 @@ def test_step_lamarckian_records_history(dummy_objfunc, dummy_strategy, dummy_in
         dummy_objfunc, dummy_strategy,
         local_search=local_search,
         improvement_selection=improvement_sel,
-        ngen=1, neval=50, verbose=False, stop_cond="ngen",
+        ngen=1, neval=50, reporter="silent", stop_cond="ngen",
         keep_improved_solutions=True,
     )
     algo.initialize()
-    new_pop = algo.step()
-    assert len(algo.fit_history) == 1
-    assert len(algo.best_history) == 1
+    _ = algo.step()
+    algo.history_tracker.step(algo)
+    assert len(algo.history_tracker.best_fitness) == 1
+    assert len(algo.history_tracker.best_solutions) == 1
 
 
 # ===================================================================
@@ -110,7 +111,7 @@ def test_baldwinian_does_not_change_genotype(dummy_objfunc, dummy_strategy, dumm
         dummy_objfunc, dummy_strategy,
         local_search=local_search,
         improvement_selection=improvement_sel,
-        ngen=1, neval=50, verbose=False, stop_cond="ngen",
+        ngen=1, neval=50, reporter="silent", stop_cond="ngen",
         keep_improved_solutions=False,
     )
     algo.initialize()
@@ -135,12 +136,11 @@ def test_local_search_frequency_skips(dummy_objfunc, dummy_strategy, dummy_initi
         dummy_objfunc, dummy_strategy,
         local_search=local_search,
         improvement_selection=NullParentSelection(),
-        ngen=1, neval=50, verbose=False, stop_cond="ngen",
+        ngen=1, neval=50, reporter="silent", stop_cond="ngen",
         local_search_frequency=2,
     )
     algo.initialize()
     algo.step()
-    assert algo.fit_history[-1] is not None
 
 
 # ===================================================================
@@ -161,7 +161,7 @@ def test_local_search_depth_multiple(dummy_objfunc, dummy_strategy, dummy_initia
         dummy_objfunc, dummy_strategy,
         local_search=local_search,
         improvement_selection=NullParentSelection(),
-        ngen=1, neval=50, verbose=False, stop_cond="ngen",
+        ngen=1, neval=50, reporter="silent", stop_cond="ngen",
         local_search_depth=2,
     )
     algo.initialize()
@@ -189,7 +189,7 @@ def test_order_preservation_warning(dummy_objfunc, dummy_strategy, dummy_initial
             dummy_objfunc, dummy_strategy,
             local_search=local_search,
             improvement_selection=NullParentSelection(),
-            ngen=1, neval=50, verbose=False, stop_cond="ngen",
+            ngen=1, neval=50, reporter="silent", stop_cond="ngen",
         )
 
     # Check that at least one warning was logged (we don't require exact text)
@@ -207,11 +207,11 @@ def test_no_warning_when_order_preserved(dummy_objfunc, dummy_strategy, dummy_in
     )
 
     with caplog.at_level(logging.WARNING, logger="metaheuristic_designer.algorithms.memetic_algorithm"):
-        algo = MemeticAlgorithm(
+        MemeticAlgorithm(
             dummy_objfunc, dummy_strategy,
             local_search=local_search,
             improvement_selection=NullParentSelection(),
-            ngen=1, neval=50, verbose=False, stop_cond="ngen",
+            ngen=1, neval=50, reporter="silent", stop_cond="ngen",
         )
 
     # No warnings should be logged

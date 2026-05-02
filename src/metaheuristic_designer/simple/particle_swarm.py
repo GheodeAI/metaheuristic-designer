@@ -5,7 +5,7 @@ from ..algorithm import Algorithm
 from ..initializers import UniformInitializer, ExtendedInitializer
 from ..encodings import CompositeEncoding, TypeCastEncoding, SigmoidEncoding, PSOEncoding
 from ..strategies import PSO
-from ..algorithms import StandardAlgorithm
+from ..algorithms import Algorithm
 from ..constraint_handlers import ClipBoundConstraint, BounceBoundConstraint, ExtendedConstraintHandler
 
 
@@ -77,7 +77,7 @@ def _particle_swarm_real_vec(params, objfunc):
 
     search_strat = PSO(initializer=pop_initializer, encoding=pso_encoding, params={"w": w, "c1": c1, "c2": c2})
 
-    return StandardAlgorithm(objfunc, search_strat, params=params)
+    return Algorithm(objfunc, search_strat, params=params)
 
 
 def _particle_swarm_int_vec(params, objfunc):
@@ -114,7 +114,7 @@ def _particle_swarm_int_vec(params, objfunc):
 
     search_strat = PSO(initializer=pop_initializer, encoding=pso_encoding, params={"w": w, "c1": c1, "c2": c2})
 
-    return StandardAlgorithm(objfunc, search_strat, params=params)
+    return Algorithm(objfunc, search_strat, params=params)
 
 
 def _particle_swarm_bin_vec(params, objfunc):
@@ -151,4 +151,4 @@ def _particle_swarm_bin_vec(params, objfunc):
 
     search_strat = PSO(initializer=pop_initializer, encoding=pso_encoding, params={"w": w, "c1": c1, "c2": c2})
 
-    return StandardAlgorithm(objfunc, search_strat, params=params)
+    return Algorithm(objfunc, search_strat, params=params)

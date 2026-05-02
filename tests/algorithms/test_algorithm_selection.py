@@ -4,15 +4,15 @@ from conftest import (
     rng,
 )
 
-from metaheuristic_designer.algorithms.standard_algorithm import StandardAlgorithm
+from metaheuristic_designer.algorithms import Algorithm
 from metaheuristic_designer.algorithms.algorithm_selection import AlgorithmSelection
 from metaheuristic_designer.algorithms.strategy_selection import StrategySelection
 
 
 def test_algorithm_selection_optimize(dummy_objfunc, dummy_strategy):
     return
-    algo1 = StandardAlgorithm(dummy_objfunc, dummy_strategy, ngen=1, neval=1, verbose=False, name="alg1")
-    algo2 = StandardAlgorithm(dummy_objfunc, dummy_strategy, ngen=1, neval=1, verbose=False, name="alg2")
+    algo1 = Algorithm(dummy_objfunc, dummy_strategy, ngen=1, neval=1, verbose=False, name="alg1")
+    algo2 = Algorithm(dummy_objfunc, dummy_strategy, ngen=1, neval=1, verbose=False, name="alg2")
 
     sel = AlgorithmSelection([algo1, algo2], params={"repetitions": 2, "verbose": False})
     best_sol, best_fit, report = sel.optimize()

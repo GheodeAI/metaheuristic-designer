@@ -5,7 +5,7 @@ from numpy.testing import assert_array_equal
 from conftest import rng, DummyParameterExtendingEncoding, dummy_objfunc
 
 from metaheuristic_designer.operators.extended_operator import ExtendedOperator
-from metaheuristic_designer.operators.adaptative_operator import AdaptativeOperator
+from metaheuristic_designer.operators.adaptive_operator import AdaptiveOperator
 from metaheuristic_designer.operator import OperatorFromLambda
 from metaheuristic_designer.population import Population
 
@@ -72,7 +72,7 @@ def test_adaptative_operator_updates_base_operator_kwargs(rng, dummy_objfunc):
     # Param operator (identity)
     param_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop, random_state=rng)
 
-    adapt = AdaptativeOperator(base_op, {"speed": param_op}, enc)
+    adapt = AdaptiveOperator(base_op, {"speed": param_op}, enc)
 
     pop = Population(dummy_objfunc,
                      np.array([[1.0, 2.0, 5.0, 6.0],

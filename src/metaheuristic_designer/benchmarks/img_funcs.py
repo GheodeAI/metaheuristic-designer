@@ -2,6 +2,12 @@ from ..objective_function import VectorObjectiveFunc
 import numpy as np
 from skimage import metrics
 
+__all__ = [
+    "ImgApprox",
+    "ImgEntropy",
+    "ImgStd",
+    "ImgExperimental"
+]
 
 class ImgApprox(VectorObjectiveFunc):
     def __init__(self, img_dim, reference, mode=None, img_name="", diff_func="MSE", name=None):

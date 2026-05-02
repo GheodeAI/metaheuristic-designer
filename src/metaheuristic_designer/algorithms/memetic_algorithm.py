@@ -1,22 +1,14 @@
 from __future__ import annotations
 from copy import copy
 import logging
-from threading import local
-from typing import Tuple, Any, Optional
-from abc import ABC, abstractmethod
-import time
-import json
-import numpy as np
-import matplotlib.pyplot as plt
+from typing import Optional
 from ..objective_function import ObjectiveFunc
 from ..search_strategy import SearchStrategy
-from ..population import Population
-from ..parametrizable_mixin import ParametrizableMixin
 from ..stopping_condition import StoppingCondition
-from ..initializer import Initializer
-from ..utils import NumpyEncoder
 from ..parent_selection_base import ParentSelection
 from ..algorithm import Algorithm
+from ..reporter import Reporter
+from ..history_tracker import HistoryTracker
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +67,6 @@ class MemeticAlgorithm(Algorithm):
     threads : int, optional
         _description_, by default 8
     """
-
     def __init__(
         self,
         objfunc: ObjectiveFunc,
@@ -86,9 +77,7 @@ class MemeticAlgorithm(Algorithm):
         local_search_depth: int = 1,
         keep_improved_solutions: bool = True,
         name: Optional[str] = None,
-        init_info: bool = True,
-        verbose: bool = True,
-        v_timer: float = 1,
+        # New parameters (copied from Algorithm)
         stop_cond: str = "time_limit",
         progress_metric: Optional[str] = None,
         ngen: int = 1000,
@@ -97,10 +86,19 @@ class MemeticAlgorithm(Algorithm):
         cpu_time_limit: float = 60.0,
         fit_target: float = 1e-10,
         patience: int = 100,
+        track_median: bool = False,
+        track_worst: bool = False,
+        track_complete: bool = False,
+        track_diversity: bool = False,
         stopping_condition: Optional[StoppingCondition] = None,
+        reporter: Optional[str | Reporter] = None,
+        history_tracker: Optional[HistoryTracker] = None,
         parallel: bool = False,
         threads: int = 8,
     ):
+
+        if name is None:
+            name = f"Memetic {search_strategy.name}"
 
         self.local_search = local_search
         self.improvement_selection = improvement_selection
@@ -126,9 +124,6 @@ class MemeticAlgorithm(Algorithm):
             objfunc=objfunc,
             search_strategy=search_strategy,
             name=name,
-            init_info=init_info,
-            verbose=verbose,
-            v_timer=v_timer,
             stop_cond=stop_cond,
             progress_metric=progress_metric,
             ngen=ngen,
@@ -137,23 +132,21 @@ class MemeticAlgorithm(Algorithm):
             cpu_time_limit=cpu_time_limit,
             fit_target=fit_target,
             patience=patience,
+            track_median=track_median,
+            track_worst=track_worst,
+            track_complete=track_complete,
+            track_diversity=track_diversity,
             stopping_condition=stopping_condition,
+            reporter=reporter,
+            history_tracker=history_tracker,
             parallel=parallel,
             threads=threads,
         )
 
-    @property
-    def name(self):
-        backup_name = f"Memetic {self.search_strategy.name}"
-        return self._name if self._name else backup_name
-
-    @name.setter
-    def name(self, new_name: str):
-        self._name = new_name
-
     def initialize(self):
         population = super().initialize()
-        self.local_search.initialize(self.objfunc)
+        # self.local_search.initialize(self.objfunc)
+        self.local_search.population = population
         return population
 
     def _do_local_search(self, offspring):
@@ -176,7 +169,7 @@ class MemeticAlgorithm(Algorithm):
             offspring = offspring.apply_selection(improved_offspring, chosen_idx)
             offspring = self.search_strategy.evaluate_population(offspring, self.parallel, self.threads)
             next_selected_population = offspring
-
+        
         self._log_debug("Applied local search\n%s", offspring)
 
         return offspring, chosen_idx
@@ -229,12 +222,11 @@ class MemeticAlgorithm(Algorithm):
 
         # Get information about the algorithm to track it's progress
         self.search_strategy.step(self.progress)
+        self.local_search.step(self.progress)
         self._log_debug("Updated end\n%s", new_population)
 
         # Store information
         best_individual, best_fitness = self.search_strategy.best_solution()
-        self.best_history.append(best_individual)
-        self.fit_history.append(best_fitness)
 
         return new_population
 

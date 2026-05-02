@@ -21,7 +21,8 @@ dependencies = [
     "scikit-image>=0.21",
     "pandas>=2.1.2",
     "enlighten>=1.12.2",
-    "scikit-learn"
+    "scikit-learn",
+    "tqdm"
 ]
 
 [project.urls]

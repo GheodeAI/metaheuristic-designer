@@ -4,7 +4,7 @@ from numpy.testing import assert_array_equal
 
 from conftest import rng, dummy_objfunc, simple_encoding, make_pop
 
-from metaheuristic_designer.operators.crossover_operator import create_crossover_operator
+from metaheuristic_designer.operators.factories.crossover import create_crossover_operator
 from metaheuristic_designer.operator import OperatorFromLambda
 from metaheuristic_designer.population import Population
 

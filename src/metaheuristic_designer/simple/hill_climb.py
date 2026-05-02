@@ -3,7 +3,7 @@ import numpy as np
 from ..initializers import UniformInitializer, PermInitializer
 from ..encodings import TypeCastEncoding
 from ..strategies import HillClimb
-from ..algorithms import StandardAlgorithm
+from ..algorithms import Algorithm
 from ..operators import create_operator
 from ..utils import check_random_state
 
@@ -19,7 +19,7 @@ def hill_climb_binary(objfunc, mutated_bits=1, encoding=None, random_state=None,
     pop_initializer = UniformInitializer(objfunc.vecsize, 0, 1, pop_size=1, dtype=np.uint8, encoding=encoding, random_state=random_state)
     mutation_op = create_operator("mutation.bitflip", N=mutated_bits, random_state=random_state)
     search_strat = HillClimb(pop_initializer, mutation_op, random_state=random_state)
-    return StandardAlgorithm(objfunc, search_strat, **kwargs)
+    return Algorithm(objfunc, search_strat, **kwargs)
 
 
 def hill_climb_permutation(objfunc, swapped_positions=2, encoding=None, random_state=None, **kwargs):
@@ -32,7 +32,7 @@ def hill_climb_permutation(objfunc, swapped_positions=2, encoding=None, random_s
     pop_initializer = PermInitializer(objfunc.vecsize, pop_size=1, encoding=encoding, random_state=random_state)
     mutation_op = create_operator("permutation.swap", N=swapped_positions, random_state=random_state)
     search_strat = HillClimb(pop_initializer, mutation_op, random_state=random_state)
-    return StandardAlgorithm(objfunc, search_strat, **kwargs)
+    return Algorithm(objfunc, search_strat, **kwargs)
 
 
 def hill_climb_discrete(objfunc, resampled_components=1, encoding=None, random_state=None, **kwargs):
@@ -45,7 +45,7 @@ def hill_climb_discrete(objfunc, resampled_components=1, encoding=None, random_s
     pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int, encoding=encoding, random_state=random_state)
     mutation_op = create_operator("random.reset", N=resampled_components, random_state=random_state)
     search_strat = HillClimb(pop_initializer, mutation_op, random_state=random_state)
-    return StandardAlgorithm(objfunc, search_strat, **kwargs)
+    return Algorithm(objfunc, search_strat, **kwargs)
 
 
 def hill_climb_real(objfunc, mutation_strength=1e-5, mutated_components=1, encoding=None, random_state=None, **kwargs):
@@ -58,4 +58,4 @@ def hill_climb_real(objfunc, mutation_strength=1e-5, mutated_components=1, encod
     pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float, encoding=encoding, random_state=random_state)
     mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
     search_strat = HillClimb(pop_initializer, mutation_op, random_state=random_state)
-    return StandardAlgorithm(objfunc, search_strat, **kwargs)
+    return Algorithm(objfunc, search_strat, **kwargs)

@@ -108,15 +108,12 @@ class Operator(ParametrizableMixin, ABC):
             The complete state of the operator.
         """
 
-        data = {"name": self.name}
-
-        data["encoding"] = self.encoding.get_state()
-
-        data["parameters"] = self.get_params()
-
-        # Serialization fails when encoding anonymous functions, we remove the function if available
-        if "function" in data["parameters"]:
-            data["parameters"].pop("function")
+        data = {
+            "class_name": self.__class__.__name__,
+            "name": self.name,
+            "encoding": self.encoding.get_state(),
+            **self.get_params()
+        }
 
         return data
 

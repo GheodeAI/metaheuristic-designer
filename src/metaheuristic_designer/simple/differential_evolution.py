@@ -5,7 +5,7 @@ from ..initializers import UniformInitializer
 from ..operators import create_operator
 from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import DE
-from ..algorithms import StandardAlgorithm
+from ..algorithms import Algorithm
 
 
 def differential_evolution(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
@@ -68,7 +68,7 @@ def _differential_evolution_real_vec(params, objfunc):
 
     search_strategy = DE(pop_initializer, de_op)
 
-    return StandardAlgorithm(objfunc, search_strategy, params=params)
+    return Algorithm(objfunc, search_strategy, params=params)
 
 
 def _differential_evolution_int_vec(params, objfunc):
@@ -99,7 +99,7 @@ def _differential_evolution_int_vec(params, objfunc):
 
     search_strategy = DE(pop_initializer, de_op)
 
-    return StandardAlgorithm(objfunc, search_strategy, params=params)
+    return Algorithm(objfunc, search_strategy, params=params)
 
 
 def _differential_evolution_bin_vec(params, objfunc):
@@ -130,4 +130,4 @@ def _differential_evolution_bin_vec(params, objfunc):
 
     search_strategy = DE(pop_initializer, de_op)
 
-    return StandardAlgorithm(objfunc, search_strategy, params=params)
+    return Algorithm(objfunc, search_strategy, params=params)

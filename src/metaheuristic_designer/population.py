@@ -6,10 +6,9 @@ This module implements a data structure to hold the collection of solutions we a
 
 from __future__ import annotations
 import logging
-from typing import Tuple, Any, Optional, Iterator
+from typing import Iterable, Tuple, Any, Optional, Iterator
 from copy import copy
 import numpy as np
-from numpy import ndarray
 from .objective_function import ObjectiveFunc
 from .encoding import Encoding, DefaultEncoding
 from .encodings import ParameterExtendingEncoding
@@ -457,7 +456,7 @@ class Population:
 
         return self
 
-    def decode(self, encoding: Optional[Encoding] = None) -> Any:
+    def decode(self, encoding: Optional[Encoding] = None) -> Iterable:
         """
         Return the population passed through the decoding function defined in the encoding.
 
@@ -471,7 +470,7 @@ class Population:
 
         return self.encoding.decode(self.genotype_matrix)
 
-    def decode_params(self, encoding: Optional[Encoding] = None) -> Any:
+    def decode_params(self, encoding: Optional[Encoding] = None) -> Iterable:
         """
         Return the population passed through the decoding function defined in the encoding.
 

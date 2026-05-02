@@ -1,7 +1,7 @@
 from metaheuristic_designer import ObjectiveFunc, ParamScheduler
 from metaheuristic_designer.encodings import ParameterExtendingEncoding
 from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm
-from metaheuristic_designer.operators import VectorOperator, AdaptativeOperator, MaskedOperator
+from metaheuristic_designer.operators import VectorOperator, AdaptiveOperator, MaskedOperator
 from metaheuristic_designer.initializers import UniformInitializer, ExponentialInitializer, ExtendedInitializer
 from metaheuristic_designer.selection_methods import ParentSelection, SurvivorSelection
 from metaheuristic_designer.strategies import *
@@ -52,7 +52,7 @@ def run_algorithm(save_state, objective, dim):
 
     adaption_encoding = STDAdaptEncoding(objfunc.vecsize, param_sizes=(("mu", objfunc.vecsize), ("F", 1)))
 
-    ada_mutation_op = AdaptativeOperator(
+    ada_mutation_op = AdaptiveOperator(
         VectorOperator("RandNoise", {"distrib": "VonMises"}),
         {
             "mu": VectorOperator("MutateNSigmas", {"tau": 1 / np.sqrt(objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-8}),

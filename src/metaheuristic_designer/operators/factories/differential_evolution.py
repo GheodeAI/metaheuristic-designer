@@ -4,8 +4,8 @@ Implementation of generic vector operators.
 Provides a factory method to generate the operator from a name.
 """
 
-from .operator_functions.utils import OperatorVectorDef
-from .operator_functions.differential_evolution import (
+from ..operator_functions.utils import OperatorVectorDef
+from ..operator_functions.differential_evolution import (
     differential_evolution_best1,
     differential_evolution_rand1,
     differential_evolution_best2,
@@ -14,7 +14,7 @@ from .operator_functions.differential_evolution import (
     differential_evolution_current_to_best1,
     differential_evolution_current_to_pbest1,
 )
-from ..operator import OperatorFromLambda
+from ...operator import OperatorFromLambda
 
 # fmt: off
 de_ops_map = {
