@@ -2,6 +2,12 @@ import numpy as np
 import warnings
 from ..objective_function import VectorObjectiveFunc
 
+__all__ = [
+    "ThreeSAT",
+    "BinKnapsack",
+    "MaxClique",
+    "TSP"
+]
 
 class ThreeSAT(VectorObjectiveFunc):
     """

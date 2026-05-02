@@ -3,8 +3,6 @@ import logging
 import time
 from dataclasses import dataclass
 import pyparsing as pp
-import numpy as np
-from .objective_function import ObjectiveFunc
 from .population import Population
 
 logger = logging.getLogger(__name__)
@@ -23,6 +21,7 @@ class StoppingCondition:
     optimization_mode: str = "max"
 
     def __post_init__(self):
+        self.condition_str = self.condition_str
         self.stop_cond_parsed = parse_stopping_cond(self.condition_str)
 
         if self.progress_metric_str is None:
@@ -47,22 +46,22 @@ class StoppingCondition:
         self.prev_best_fitness = None
         self.first_best_fitness = None
 
-    def step(self, current_population: Population, skip_step=False):
+    def step(self, current_population: Population, skip_increment=False):
         objfunc = current_population.objfunc
         _, best_fitness = current_population.best_solution()
 
-        if not skip_step or self.optimization_mode not in {"max", "min"}:
+        if not skip_increment or self.optimization_mode not in {"max", "min"}:
             if self.prev_best_fitness is not None and ((best_fitness >= self.prev_best_fitness) != (self.optimization_mode == "max")):
                 self.patience_left -= 1
             else:
                 self.patience_left = self.max_patience
 
-        if not skip_step:
+        if not skip_increment:
             self.iterations += 1
         self.evaluations = objfunc.counter
         self.best_fitness = best_fitness
         self.real_time_spent = time.time() - self.real_time_start
-        self.cpu_time_spent = time.time() - self.cpu_time_start
+        self.cpu_time_spent = time.process_time() - self.cpu_time_start
         if self.first_best_fitness is None:
             self.first_best_fitness = best_fitness
         self.prev_best_fitness = best_fitness
@@ -168,6 +167,27 @@ class StoppingCondition:
         return process_progress(
             self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_progress, patience_percentage
         )
+    
+    def get_state(self):
+        data = {
+            "class_name": self.__class__.__name__,
+            "stopped": self.is_finished(),
+            "progress": self.get_progress(),
+            "stop_condition": self.condition_str,
+            "progress_metric": self.progress_metric_str,
+            "max_patience": self.max_patience,
+            "max_iterations": self.max_iterations,
+            "max_evaluations": self.max_evaluations,
+            "time_limit": self.time_limit,
+            "cpu_time_limit": self.cpu_time_limit,
+            "patience_left": self.patience_left,
+            "iterations": self.iterations,
+            "evaluations": self.evaluations,
+            "time_spent": self.real_time_spent,
+            "cpu_time_spent": self.cpu_time_spent,
+        }
+
+        return data
 
 
 def parse_stopping_cond(condition_str: str) -> List[str | List]:

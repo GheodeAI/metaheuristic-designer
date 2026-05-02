@@ -1,6 +1,6 @@
-from ..operator import OperatorFromLambda
-from .operator_functions.permutation import *
-from .operator_functions.utils import OperatorVectorDef
+from ...operator import OperatorFromLambda
+from ..operator_functions.permutation import *
+from ..operator_functions.utils import OperatorVectorDef
 
 # fmt: off
 permutation_ops_map = {

@@ -9,7 +9,7 @@ from metaheuristic_designer.operators.operator_functions.random_generation impor
     random_initialize,
     random_reset,
 )
-from metaheuristic_designer.operators.random_operator import create_random_operator
+from metaheuristic_designer.operators.factories.random import create_random_operator
 from metaheuristic_designer.operator import OperatorFromLambda
 from metaheuristic_designer.population import Population
 

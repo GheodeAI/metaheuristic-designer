@@ -1,8 +1,8 @@
 from __future__ import annotations
-from .operator_functions.swarm import pso_operator_wrapper, firefly_operator
-from ..encodings import ParameterExtendingEncoding
-from .operator_functions.utils import OperatorSwarmDef, OperatorVectorDef
-from ..operator import OperatorFromLambda
+from ..operator_functions.swarm import pso_operator_wrapper, firefly_operator
+from ...encodings import ParameterExtendingEncoding
+from ..operator_functions.utils import OperatorSwarmDef, OperatorVectorDef
+from ...operator import OperatorFromLambda
 
 swarm_ops_map = {
     "pso": OperatorSwarmDef(pso_operator_wrapper),

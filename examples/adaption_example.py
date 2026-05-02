@@ -5,7 +5,7 @@ import numpy as np
 import scipy as sp
 
 from metaheuristic_designer.algorithms import StandardAlgorithm
-from metaheuristic_designer.operators import create_operator, AdaptativeOperator, NullOperator
+from metaheuristic_designer.operators import create_operator, AdaptiveOperator, NullOperator
 from metaheuristic_designer.initializers import UniformInitializer, ExtendedInitializer, InitializerFromLambda
 from metaheuristic_designer.parent_selection_methods import NullParentSelection
 from metaheuristic_designer.survivor_selection_methods import create_survivor_selection
@@ -65,7 +65,7 @@ def run_algorithm(save_state, show_plots, objective, dim, random_state):
     # ---- Adaptive operator ----
     # The base operator applies Gaussian noise to the solution part.
     # The "F" parameter operator mutates the mutation strength itself (1/√dim rule).
-    ada_mutation_op = AdaptativeOperator(
+    ada_mutation_op = AdaptiveOperator(
         base_operator=create_operator("mutation.gaussian_mutation", N=1, random_state=random_state),
         param_operators={
             "F": create_operator(

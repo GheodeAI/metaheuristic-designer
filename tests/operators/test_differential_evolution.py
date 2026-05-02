@@ -4,7 +4,7 @@ from numpy.testing import assert_array_equal
 
 from conftest import rng, dummy_objfunc, simple_encoding, make_pop
 
-from metaheuristic_designer.operators.differential_evolution_operator import create_differential_evolution_operator
+from metaheuristic_designer.operators.factories.differential_evolution import create_differential_evolution_operator
 from metaheuristic_designer.operator import OperatorFromLambda
 
 

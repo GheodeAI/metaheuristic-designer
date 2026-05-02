@@ -6,14 +6,16 @@ This module implements the objective function that will measure the quality of t
 
 from __future__ import annotations
 import logging
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, TYPE_CHECKING
 from abc import ABC, abstractmethod
 import numpy as np
-from numpy import ndarray
 from .constraint_handler import ConstraintHandler, NullConstraint
 from .constraint_handlers import ClipBoundConstraint, CompositeConstraint
 from .parametrizable_mixin import ParametrizableMixin
 from .utils import check_random_state, RNGLike, VectorLike, ScalarLike
+
+if TYPE_CHECKING:
+    from metaheuristic_designer.population import Population
 
 logger = logging.getLogger(__name__)
 
@@ -174,6 +176,15 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
     def restart(self):
         self.counter = 0
+    
+    def get_state(self):
+        data = {
+            "class_name": self.__class__.name,
+            "constraint": self.constraint_handler.get_state(),
+            **self.get_params()
+        }
+
+        return data
 
 
 class VectorObjectiveFunc(ObjectiveFunc):

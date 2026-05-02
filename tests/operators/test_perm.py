@@ -4,7 +4,7 @@ from numpy.testing import assert_array_equal
 
 from conftest import rng, dummy_objfunc, simple_encoding, make_pop
 
-from metaheuristic_designer.operators.permutation_operator import create_permutation_operator
+from metaheuristic_designer.operators.factories.permutation import create_permutation_operator
 from metaheuristic_designer.operator import OperatorFromLambda
 from metaheuristic_designer.population import Population
 

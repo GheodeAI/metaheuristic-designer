@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from conftest import rng, simple_encoding
 
-from metaheuristic_designer.operators.any_operator import create_operator, add_operator_entry
+from metaheuristic_designer.operators import create_operator, add_operator_entry
 from metaheuristic_designer.operator import OperatorFromLambda, NullOperator
 from metaheuristic_designer.operators.BO_operator import BOOperator
 
@@ -88,5 +88,5 @@ def test_add_and_retrieve_custom_operator(rng, simple_encoding):
     op = create_operator("custom.my_custom_op", encoding=simple_encoding, random_state=rng)
     assert isinstance(op, OperatorFromLambda)
     # Clean up so other tests aren't affected
-    from metaheuristic_designer.operators.any_operator import all_ops_map
+    from metaheuristic_designer.operators.global_factory import all_ops_map
     del all_ops_map["custom"]["my_custom_op"]

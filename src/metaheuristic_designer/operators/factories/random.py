@@ -1,8 +1,8 @@
 """ """
 
-from .operator_functions.random_generation import *
-from .operator_functions.utils import OperatorVectorDef, OperatorRandomDef
-from ..operator import OperatorFromLambda
+from ..operator_functions.random_generation import *
+from ..operator_functions.utils import OperatorVectorDef, OperatorRandomDef
+from ...operator import OperatorFromLambda
 
 # fmt: off
 random_ops_map = {

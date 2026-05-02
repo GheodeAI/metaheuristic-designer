@@ -72,8 +72,11 @@ class SurvivorSelection(ParametrizableMixin, ABC):
         Gets the current state of the algorithm as a dictionary.
         """
 
-        data = {"name": self.name}
-        data["parameters"] = self.get_params()
+        data = {
+            "class_name": self.__class__.__name__,
+            "name": self.name
+            **self.get_params()
+        }
 
         return data
 

@@ -4,8 +4,8 @@ Implementation of generic vector operators.
 Provides a factory method to generate the operator from a name.
 """
 
-from .operator_functions.utils import OperatorVectorDef
-from .operator_functions.mutation import (
+from ..operator_functions.utils import OperatorVectorDef
+from ..operator_functions.mutation import (
     ProbDist,
     xor_mask,
     rand_noise,
@@ -16,7 +16,7 @@ from .operator_functions.mutation import (
     mutate_n_sigmas,
     sample_1_sigma,
 )
-from ..operator import OperatorFromLambda
+from ...operator import OperatorFromLambda
 
 # fmt: off
 mutation_ops_map = {

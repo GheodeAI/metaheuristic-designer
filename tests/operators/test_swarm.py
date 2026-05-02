@@ -4,7 +4,7 @@ from numpy.testing import assert_array_equal
 
 from conftest import rng, dummy_objfunc, simple_encoding, pso_population
 
-from metaheuristic_designer.operators.swarm_operator import create_swarm_operator
+from metaheuristic_designer.operators.factories.swarm import create_swarm_operator
 from metaheuristic_designer.operator import OperatorFromLambda
 from metaheuristic_designer.encodings import ParameterExtendingEncoding
 

@@ -7,14 +7,16 @@ This module implements the procedure applied in each iteration of the algorithm.
 from __future__ import annotations
 import logging
 from typing import Tuple, Any, Optional, Callable
-from .parent_selection_base import ParentSelection, NullParentSelection
-from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection
+from .parent_selection_base import ParentSelection, NullParentSelection, ParentSelectionFromLambda
+from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection, SurvivorSelectionFromLambda
 from .population import Population
 from .initializer import Initializer
 from .objective_function import ObjectiveFunc
-from .operator import Operator, NullOperator
+from .operator import Operator, NullOperator, OperatorFromLambda
 from .parametrizable_mixin import ParametrizableMixin
 from .utils import check_random_state, RNGLike
+from .initializer import InitializerFromLambda
+from .encoding import Encoding, EncodingFromLambda
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +60,7 @@ class SearchStrategy(ParametrizableMixin):
         super().__init__()
 
         self.name = name
-        self._initializer = initializer
+        self.initializer = initializer
 
         if operator is None:
             operator = NullOperator()
@@ -78,47 +80,13 @@ class SearchStrategy(ParametrizableMixin):
         self.random_state = check_random_state(random_state)
         self.store_kwargs(**kwargs)
 
-        self._find_operator_attributes()
-
-    def _find_operator_attributes(self):
-        """
-        Saves the attributes that represent operators or other relevant information
-        about the search strategy.
-        """
-
-        attr_dict = vars(self).copy()
-
-        self.parent_sel_register = []
-        self.operator_register = []
-        self.survivor_sel_register = []
-
-        for var_key in attr_dict:
-            attr = attr_dict[var_key]
-
-            if attr:
-                # We have a parent selection method
-                if isinstance(attr, ParentSelection):
-                    self.parent_sel_register.append(attr)
-
-                # We have an operator
-                if isinstance(attr, Operator):
-                    self.operator_register.append(attr)
-
-                # We have a survivor selection method
-                if isinstance(attr, SurvivorSelection):
-                    self.survivor_sel_register.append(attr)
-
-                # We have a list of operators
-                if isinstance(attr, list) and isinstance(attr[0], Operator):
-                    self.operator_register += attr
-
     @property
     def pop_size(self) -> int:
         """
         Gets the amount of individuals in the population.
         """
 
-        return self._initializer.pop_size
+        return self.initializer.pop_size
 
     def best_solution(self, decoded: bool = False) -> Tuple[Any, float]:
         """
@@ -131,14 +99,6 @@ class SearchStrategy(ParametrizableMixin):
         """
 
         return self.population.best_solution(decoded)
-
-    @property
-    def initializer(self) -> Initializer:
-        return self._initializer
-
-    @initializer.setter
-    def initializer(self, new_initializer: Initializer):
-        self._initializer = new_initializer
 
     def initialize(self, objfunc: ObjectiveFunc) -> Population:
         """
@@ -155,12 +115,7 @@ class SearchStrategy(ParametrizableMixin):
             The initial population to be used in the algoritm.
         """
 
-        if self._initializer is None:
-            raise ValueError("Initializer not indicated.")
-
-        self.population = self._initializer.generate_population(objfunc)
-
-        return self.population
+        return self.initializer.generate_population(objfunc)
 
     def evaluate_population(self, population: Population, parallel: bool = False, threads: int = 8) -> Population:
         """
@@ -281,21 +236,16 @@ class SearchStrategy(ParametrizableMixin):
             The complete state of the search strategy.
         """
 
-        data = {"name": self.name, "initializer": type(self.initializer).__name__}
-
-        data["params"] = self.get_params()
-
-        if self.parent_sel_register:
-            data["parent_sel"] = [par.get_state() for par in self.parent_sel_register]
-
-        if self.operator_register:
-            data["operators"] = [op.get_state() for op in self.operator_register]
-
-        if self.survivor_sel_register:
-            data["survivor_sel"] = [surv.get_state() for surv in self.survivor_sel_register]
-
-        if show_population:
-            data["population"] = self.population.get_state()
+        data = {
+            "class_name": self.__class__.__name__,
+            "name": self.name,
+            "initializer": self.initializer.get_state(),
+            "parent_sel": self.parent_sel.get_state(),
+            "operators": self.operator.get_state(),
+            "survivor_sel": self.survivor_sel.get_state(),
+            "population": self.population.get_state() if show_population else None,
+            **self.get_params()
+        }
 
         return data
 
@@ -313,13 +263,6 @@ class SearchStrategy(ParametrizableMixin):
         show_plots: bool
             Display plots specific to this search strategy.
         """
-
-
-from .initializer import InitializerFromLambda
-from .encoding import Encoding, EncodingFromLambda
-from .operator import Operator, OperatorFromLambda
-from .parent_selection_base import ParentSelectionFromLambda
-from .survivor_selection_base import SurvivorSelectionFromLambda
 
 
 class SearchStrategyFromLambda(SearchStrategy):

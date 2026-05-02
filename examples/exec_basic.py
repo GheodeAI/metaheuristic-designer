@@ -46,8 +46,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, ran
         "neval": 3e6,
         "fit_target": 1e-10,
         "patience": 500,
-        "verbose": True,
-        "v_timer": 0.5,
+        "verbose_timer": 0.5,
     }
 
     functions_map = {
@@ -175,8 +174,10 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, ran
         alg = StandardAlgorithm(objfunc, search_strategy, **algorithm_params)
 
     population = alg.optimize()
-    print(population.best_solution()[0])
-    alg.display_report(show_plots=show_plots)
+    best_solution, _ = population.best_solution()
+    print()
+    print(f"Solution: {[float(i) for i in best_solution]}")
+    # alg.display_report(show_plots=show_plots)
 
     if save_state:
         alg.store_state("./examples/results/test.json", readable=True, show_pop=True)

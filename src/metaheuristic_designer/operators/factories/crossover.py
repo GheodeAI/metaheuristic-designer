@@ -4,8 +4,8 @@ Implementation of generic vector operators.
 Provides a factory method to generate the operator from a name.
 """
 
-from .operator_functions.utils import OperatorVectorDef
-from .operator_functions.crossover import (
+from ..operator_functions.utils import OperatorVectorDef
+from ..operator_functions.crossover import (
     one_point_crossover,
     two_point_crossover,
     uniform_crossover,
@@ -16,7 +16,7 @@ from .operator_functions.crossover import (
     bitwise_xor_crossover,
     cross_inter_avg,
 )
-from ..operator import OperatorFromLambda
+from ...operator import OperatorFromLambda
 
 # fmt: off
 crossover_ops_map = {

@@ -1,5 +1,5 @@
-from ..operator import OperatorFromLambda
-from .operator_functions.utils import OperatorVectorDef, dummy_op
+from ...operator import OperatorFromLambda
+from ..operator_functions.utils import OperatorVectorDef, dummy_op
 
 debug_ops_map = {
     "debug": OperatorVectorDef(dummy_op),

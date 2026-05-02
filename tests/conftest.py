@@ -298,7 +298,7 @@ def dummy_strategy(dummy_initializer, dummy_operator, dummy_parent_selection, du
 from metaheuristic_designer import SearchStrategy
 from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
 from metaheuristic_designer.initializers import UniformInitializer
-from metaheuristic_designer.operators.mutation_operator import create_mutation_operator
+from metaheuristic_designer.operators.factories.mutation import create_mutation_operator
 from metaheuristic_designer.survivor_selection import create_survivor_selection
 
 @pytest.fixture
