@@ -19,11 +19,8 @@ class AlgorithmSelection:
         Indicates whether to show progress bars with 'verbose' and the number of times to repeat each algorithm with 'repetitions'
     """
 
-    def __init__(self, algorithm_list: Iterable[Algorithm], params: ParamScheduler | dict = None):
-        if params is None:
-            params = {}
-
-        self.repetitions = params.get("repetitions", 10)
+    def __init__(self, algorithm_list: Iterable[Algorithm], repetitions: int = 10, verbose: bool = True, **kwargs):
+        self.repetitions = repetitions
 
         self.algorithm_list = algorithm_list
 
@@ -36,7 +33,7 @@ class AlgorithmSelection:
             name_counter.update([prev_name])
 
         self.solutions = []
-        self.verbose = params.get("verbose", True)
+        self.verbose = verbose
 
     def optimize(self) -> Tuple[Any, float, pd.DataFrame]:
         """
@@ -48,6 +45,7 @@ class AlgorithmSelection:
 
         best_solution = None
         best_fitness = 0
+        best_objective = 0
         report_raw = pd.DataFrame(columns=["name", "realtime", "cputime", "fitness"])
 
         # Create progress bar manager and global progress bar
@@ -63,7 +61,8 @@ class AlgorithmSelection:
             for _ in range(self.repetitions):
                 # Optimize using the algorithm
                 population = algorithm.optimize()
-                solution, fitness = population.best_solution()
+                solution, objective = population.best_solution(problem_space=True)
+                _, fitness = population.best_solution(problem_space=False)
 
                 # Get the dataframe row
                 report_raw.loc[len(report_raw.index)] = {
@@ -74,13 +73,10 @@ class AlgorithmSelection:
                 }
 
                 # Save the solution if it improves the previous one
-                if (
-                    best_solution is None
-                    or (algorithm.objfunc.mode == "min" and best_fitness > fitness)
-                    or (algorithm.objfunc.mode == "max" and best_fitness < fitness)
-                ):
+                if best_solution is None or fitness > best_fitness:
                     best_solution = solution
                     best_fitness = fitness
+                    best_objective = objective
 
                 # Update progress bar
                 if self.verbose:
@@ -124,4 +120,4 @@ class AlgorithmSelection:
                 ]
             )
 
-        return best_solution, best_fitness, report.reset_index(drop=True)
+        return best_solution, best_objective, report.reset_index(drop=True)

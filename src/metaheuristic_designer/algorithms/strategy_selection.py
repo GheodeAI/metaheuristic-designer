@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import Tuple, Any, Iterable
+from typing import Optional, Tuple, Any, Iterable
 import pandas as pd
 from ..search_strategy import SearchStrategy
 from ..objective_function import ObjectiveFunc
 from .algorithm_selection import AlgorithmSelection
+from ..algorithm import Algorithm
 
 
 class StrategySelection:
@@ -27,13 +28,13 @@ class StrategySelection:
         self,
         objfunc: ObjectiveFunc,
         strategy_list: Iterable[SearchStrategy],
-        algorithm_params: ParamScheduler | dict = None,
-        params: ParamScheduler | dict = None,
+        algorithm_params: Optional[dict] = None,
+        **kwargs
     ):
         self.strategy_list = strategy_list
         algorithm_list = [Algorithm(objfunc, strategy, algorithm_params) for strategy in strategy_list]
 
-        self.algorithm_selection = AlgorithmSelection(algorithm_list, params)
+        self.algorithm_selection = AlgorithmSelection(algorithm_list, **kwargs)
 
     def optimize(self) -> Tuple[Any, float, pd.DataFrame]:
         """

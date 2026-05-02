@@ -48,11 +48,13 @@ class Population:
 
         # Fitness of each individual in the population
         self.fitness = np.full(self.pop_size, -np.inf)
+        self.objective = np.full(self.pop_size, -np.inf)
         self.fitness_calculated = np.zeros(self.pop_size)
 
         # Best solution found so far
         self.best = None
         self.best_fitness = None
+        self.best_objective = None
 
         # Best individual in each spot of the population
         self.historical_best_matrix = genotype_matrix
@@ -80,26 +82,30 @@ class Population:
             f"\n\tpop_size = {self.pop_size}"
             f"\n\tvec_size = {self.vec_size}"
             f"\n\tfitness = {self.fitness}"
+            f"\n\tobjective = {self.objective}"
             f"\n\tfitness_calculated = {self.fitness_calculated}"
             f"\n\thistorical_best_matrix = {self.historical_best_matrix}"
             f"\n\thistorical_best_fitness = {self.historical_best_fitness}"
             f"\n\tbest = {self.best}"
             f"\n\tbest_fitness = {self.best_fitness}"
+            f"\n\tbest_objective = {self.best_objective}"
             "\n}"
         )
 
     def __copy__(self) -> Population:
         copied_pop = Population(self.objfunc, copy(self.genotype_matrix), encoding=self.encoding)
         copied_pop.fitness = copy(self.fitness)
+        copied_pop.objective = copy(self.objective)
         copied_pop.fitness_calculated = copy(self.fitness_calculated)
         copied_pop.historical_best_matrix = copy(self.historical_best_matrix)
         copied_pop.historical_best_fitness = copy(self.historical_best_fitness)
         copied_pop.best = copy(self.best)
         copied_pop.best_fitness = copy(self.best_fitness)
+        copied_pop.best_objective = copy(self.best_objective)
 
         return copied_pop
 
-    def best_solution(self, decoded: bool = False) -> Tuple[Any, float]:
+    def best_solution(self, problem_space: bool = False) -> Tuple[Any, float]:
         """
         Returns the best solution.
 
@@ -114,15 +120,16 @@ class Population:
             A pair of the best individual with its fitness.
         """
 
-        best_fitness = self.best_fitness
-        if self.objfunc.mode == "min":
-            best_fitness *= -1
+        if problem_space:
+            best_evaluation = self.best_objective 
+        else:
+            best_evaluation = self.best_fitness 
 
         best_solution = self.best
-        if decoded:
+        if problem_space:
             best_solution = self.encoding.decode(self.best[None, :]).squeeze()
 
-        return best_solution, best_fitness
+        return best_solution, best_evaluation
 
     def update_genotype(self, genotype_source: MatrixLike | Population) -> Population:
         """
@@ -147,6 +154,7 @@ class Population:
 
         if len(genotype_matrix) != len(self.genotype_matrix):
             self.fitness = np.full(len(genotype_matrix), -np.inf)
+            self.objective = np.full(len(genotype_matrix), -np.inf)
             self.fitness_calculated = np.zeros(len(genotype_matrix))
             self.historical_best_fitness = np.full(len(genotype_matrix), -np.inf)
             self.historical_best_matrix = copy(genotype_matrix)
@@ -179,11 +187,13 @@ class Population:
 
         selected_pop = Population(self.objfunc, selected_genotype_matrix, encoding=self.encoding)
         selected_pop.fitness = copy(self.fitness[selection_idx])
+        selected_pop.objective = copy(self.objective[selection_idx])
         selected_pop.fitness_calculated = copy(self.fitness_calculated[selection_idx])
         selected_pop.historical_best_matrix = copy(self.historical_best_matrix[selection_idx, :])
         selected_pop.historical_best_fitness = copy(self.historical_best_fitness[selection_idx])
         selected_pop.best = copy(self.best)
         selected_pop.best_fitness = copy(self.best_fitness)
+        selected_pop.best_objective = copy(self.best_objective)
 
         logger.debug("Taken selection from population.")
 
@@ -207,6 +217,8 @@ class Population:
 
         self.genotype_matrix[selection_idx, :] = selected_pop.genotype_matrix
         self.fitness_calculated[selection_idx] = False
+        self.fitness[selection_idx] = selected_pop.fitness
+        self.objective[selection_idx] = selected_pop.objective
 
         self.historical_best_matrix[selection_idx, :] = selected_pop.historical_best_matrix
         self.historical_best_fitness[selection_idx] = selected_pop.historical_best_fitness
@@ -214,6 +226,7 @@ class Population:
         if self.best is None or (selected_pop.best is not None and self.best_fitness < selected_pop.best_fitness):
             self.best = selected_pop.best
             self.best_fitness = selected_pop.best_fitness
+            self.best_objective = selected_pop.best_objective
 
         logger.debug("Applied precomputed selection from population.")
 
@@ -242,8 +255,10 @@ class Population:
         sliced_pop.historical_best_fitness = copy(self.historical_best_fitness)
         sliced_pop.fitness_calculated = copy(self.fitness_calculated)
         sliced_pop.fitness = copy(self.fitness)
+        sliced_pop.objective = copy(self.objective)
         sliced_pop.best = copy(self.best)
         sliced_pop.best_fitness = copy(self.best_fitness)
+        sliced_pop.best_objective = copy(self.best_objective)
 
         logger.debug("Taken slice from population.")
 
@@ -272,6 +287,7 @@ class Population:
         if self.best is None or (sliced_pop.best is not None and self.best_fitness < sliced_pop.best_fitness):
             self.best = sliced_pop.best
             self.best_fitness = sliced_pop.best_fitness
+            self.best_objective = sliced_pop.best_objective
 
         logger.debug("Applied precomputed slice from population.")
 
@@ -290,13 +306,16 @@ class Population:
         joined_pop.historical_best_fitness = np.concatenate((population1.historical_best_fitness, population2.historical_best_fitness))
         joined_pop.fitness_calculated = np.concatenate((population1.fitness_calculated, population2.fitness_calculated))
         joined_pop.fitness = np.concatenate((population1.fitness, population2.fitness))
+        joined_pop.objective = np.concatenate((population1.objective, population2.objective))
 
         if population1.best is None or (population2.best is not None and population1.best_fitness > population2.best_fitness):
             joined_pop.best = population1.best
             joined_pop.best_fitness = population1.best_fitness
+            joined_pop.best_objective = population1.best_objective
         else:
             joined_pop.best = population2.best
             joined_pop.best_fitness = population2.best_fitness
+            joined_pop.best_objective = population2.best_objective
 
         logger.debug("Merged two populations into one.")
 
@@ -324,10 +343,12 @@ class Population:
         self.historical_best_fitness = np.concatenate((self.historical_best_fitness, other_population.historical_best_fitness))
         self.fitness_calculated = np.concatenate((self.fitness_calculated, other_population.fitness_calculated), axis=0)
         self.fitness = np.concatenate((self.fitness, other_population.fitness))
+        self.objective = np.concatenate((self.objective, other_population.objective))
 
         if self.best is None or (other_population.best is not None and self.best_fitness < other_population.best_fitness):
             self.best = other_population.best
             self.best_fitness = other_population.best_fitness
+            self.best_objective = other_population.best_objective
 
         logger.debug("Merged one population into the current one.")
 
@@ -349,6 +370,7 @@ class Population:
         self.historical_best_fitness = self.historical_best_fitness[fitness_order]
         self.fitness_calculated = self.fitness_calculated[fitness_order]
         self.fitness = self.fitness[fitness_order]
+        self.objective = self.objective[fitness_order]
 
         logger.debug("Sorted population.")
 
@@ -370,6 +392,7 @@ class Population:
         if self.best is None or (parents.best is not None and self.best_fitness < parents.best_fitness):
             self.best = parents.best
             self.best_fitness = parents.best_fitness
+            self.best_objective = parents.best_objective
 
         return self
 
@@ -385,6 +408,7 @@ class Population:
             best_idx = np.argmax(self.fitness)
             self.best = self.genotype_matrix[best_idx, :]
             self.best_fitness = self.fitness[best_idx]
+            self.best_objective = self.objective[best_idx]
 
         self.genotype_matrix = self.encoding.step(self, progress)
 
@@ -405,10 +429,24 @@ class Population:
         """
 
         genotype_matrix = np.tile(self.genotype_matrix, (amount, 1))
+        fitness_calculated = np.tile(self.fitness_calculated, (amount))
+        fitness = np.tile(self.fitness, (amount))
+        objective = np.tile(self.objective, (amount))
+        best = self.best
+        best_fitness = self.best_fitness
+        best_objective = self.best_objective
+
+        new_population = Population(self.objfunc, genotype_matrix, encoding=self.encoding)
+        new_population.fitness_calculated = fitness_calculated
+        new_population.fitness = fitness
+        new_population.objective = objective
+        new_population.best = best
+        new_population.best_fitness = best_fitness
+        new_population.best_objective = best_objective
 
         logger.debug("Added %d copies of each individual to the population", amount)
 
-        return Population(self.objfunc, genotype_matrix, encoding=self.encoding)
+        return new_population
 
     def calculate_fitness(self, parallel: bool = False, threads: int = 8) -> VectorLike:
         """
@@ -427,7 +465,9 @@ class Population:
         """
 
         prev_fitness = copy(self.fitness)
-        self.fitness = self.objfunc.fitness(self, parallel=parallel, threads=threads)
+
+        # Objective values and fitness values are modified in place after the call
+        self.objfunc.fitness(self, parallel=parallel, threads=threads)
 
         improved_mask = prev_fitness < self.fitness
         self.historical_best_fitness[improved_mask] = self.fitness[improved_mask]
@@ -437,6 +477,7 @@ class Population:
             best_idx = np.argmax(self.fitness)
             self.best = self.genotype_matrix[best_idx]
             self.best_fitness = self.fitness[best_idx]
+            self.best_objective = self.objective[best_idx]
 
         logger.debug("Updated the fitness of the individuals.")
 
@@ -518,10 +559,12 @@ class Population:
         data = {
             "genotype_matrix": self.genotype_matrix,
             "fitness": self.fitness,
+            "objective": self.objective,
             "historical_best_matrix": self.genotype_matrix,
             "historical_best_fitness": self.historical_best_fitness,
             "best": self.best,
             "best_fitness": self.best_fitness,
+            "best_objective": self.best_objective,
             "encoding": type(self.encoding).__name__,
         }
 
@@ -546,7 +589,9 @@ class Population:
             f"  objfunc={self.objfunc.name},\n"
             f"  size={self.pop_size}, dims={self.vec_size},\n"
             f"  fitness=[{self.fitness.min():.3e}, {self.fitness.max():.3e}],\n"
+            f"  objective=[{self.objective.min():.3e}, {self.objective.max():.3e}],\n"
             f"  best_fitness={self.best_fitness:.3e},\n"
+            f"  best_objective={self.best_objective:.3e},\n"
             f"  genotype_matrix={matrix_preview}\n"
             f")"
         )

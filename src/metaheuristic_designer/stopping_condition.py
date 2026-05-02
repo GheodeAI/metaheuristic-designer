@@ -60,9 +60,9 @@ class StoppingCondition:
         self.cpu_time_spent = time.process_time() - self.cpu_time_start
 
         if self.optimization_mode in {"max", "min"}:
-            _, best_fitness = current_population.best_solution()
+            _, best_fitness = current_population.best_solution(problem_space=False)
 
-            if (self.prev_best_fitness is not None) and ((best_fitness >= self.prev_best_fitness) != (self.optimization_mode == "max")):
+            if (self.prev_best_fitness is not None) and (best_fitness >= self.prev_best_fitness):
                 self.patience_left -= 1
             else:
                 self.patience_left = self.max_patience

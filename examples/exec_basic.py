@@ -35,10 +35,10 @@ from metaheuristic_designer.benchmarks import (
 )
 from metaheuristic_designer.utils import check_random_state
 
-available_objectives = {"sphere", "rastrigin", "rosenbrock", "weierstrass"}
-available_algorithms = {"hillclimb", "localsearch", "sa", "es", "ga", "de", "gaussianumda", "gaussianpbil", "crossentropy", "randomsearch"}
+available_objectives = ("sphere", "rastrigin", "rosenbrock", "weierstrass")
+available_algorithms = ("hillclimb", "localsearch", "sa", "es", "ga", "de", "gaussianumda", "gaussianpbil", "crossentropy", "randomsearch")
 
-def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, verbose, random_state):
+def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, reporter, random_state):
     algorithm_params = {
         "stop_cond": "convergence or time_limit",
         "progress_metric": "time_limit",
@@ -172,12 +172,13 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, ver
             **algorithm_params
         )
     else:
-        alg = Algorithm(objfunc, search_strategy, reporter=verbose, **algorithm_params)
+        alg = Algorithm(objfunc, search_strategy, reporter=reporter, **algorithm_params)
 
     population = alg.optimize()
-    best_solution, _ = population.best_solution()
+    best_solution, best_objective = population.best_solution(problem_space=True)
     print()
     print(f"Solution: {[float(i) for i in best_solution]}")
+    print(f"Objective value: {best_objective}")
     # alg.display_report(show_plots=show_plots)
 
     if save_state:
@@ -208,7 +209,7 @@ def main():
     parser.add_argument("-d", "--dim", dest="dim", help="Dimension of the vectors to optimize.", default=3, type=int)
     parser.add_argument("-r", "--seed", dest="seed", help="Random seed to use", default=42, type=int)
     parser.add_argument("--log", default="WARNING", help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
-    parser.add_argument("-v", "--verbose", default="tqdm", help="Reporter to use for progress tracking.")
+    parser.add_argument("-v", "--reporter", default="tqdm", help="Reporter to use for progress tracking. Avaliable options are")
     parser.add_argument(
         "-p",
         "--plot",
@@ -229,7 +230,7 @@ def main():
         show_plots=args.plot,
         objective=args.objective.lower(),
         dim=args.dim,
-        verbose=args.verbose,
+        reporter=args.reporter,
         random_state=rng,
     )
 
