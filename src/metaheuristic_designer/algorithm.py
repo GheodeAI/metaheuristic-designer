@@ -9,6 +9,7 @@ import logging
 from typing import Tuple, Any, Optional
 import json
 import numpy as np
+import signal
 
 from metaheuristic_designer.history_tracker import HistoryTracker
 from metaheuristic_designer.reporters import create_reporter
@@ -19,10 +20,15 @@ from .search_strategy import SearchStrategy
 from .population import Population
 from .stopping_condition import StoppingCondition
 from .initializer import Initializer
+from .checkpointer import Checkpointer
 from .utils import NumpyEncoder
 
 logger = logging.getLogger(__name__)
 
+class TerminationException(Exception):
+    """
+    Custom exception to handle SIGTERM
+    """
 
 class Algorithm:
     """
@@ -84,9 +90,13 @@ class Algorithm:
         track_worst: bool = False,
         track_complete: bool = False,
         track_diversity: bool = False,
+        checkpoint_file: Optional[str] = None,
+        checkpoint_time_frequency: Optional[float] = None,
+        checkpoint_iteration_frequency: Optional[float] = None,
         stopping_condition: Optional[StoppingCondition] = None,
         reporter: Optional[str | Reporter] = None,
         history_tracker: Optional[HistoryTracker] = None,
+        checkpointer: Optional[Checkpointer] = None,
         parallel: bool = False,
         threads: int = 8,
     ):
@@ -98,15 +108,11 @@ class Algorithm:
             name = self.search_strategy.name
         self.name = name
 
-        # Verbose parameters
-        if reporter is None:
-            reporter = VerboseReporter(
-                verbose_timer=verbose_timer
-            )
-        elif isinstance(reporter, str):
-            reporter = create_reporter(reporter)
-        self.reporter = reporter
+        # Parallel parameters
+        self.parallel = parallel
+        self.threads = threads
 
+        # Stopping conditions
         if stopping_condition is None:
             stopping_condition = StoppingCondition(
                 condition_str=stop_cond,
@@ -121,11 +127,16 @@ class Algorithm:
             )
         self.stopping_condition = stopping_condition
 
-        # Parallel parameters
-        self.parallel = parallel
-        self.threads = threads
+        # Reporter
+        if reporter is None:
+            reporter = VerboseReporter(
+                verbose_timer=verbose_timer
+            )
+        elif isinstance(reporter, str):
+            reporter = create_reporter(reporter)
+        self.reporter = reporter
 
-        # Metrics
+        # History Tracker
         if history_tracker is None:
             history_tracker = HistoryTracker(
                 track_best=True,
@@ -135,6 +146,25 @@ class Algorithm:
                 track_diversity=track_diversity,
             )
         self.history_tracker = history_tracker
+
+        # Checkpointer
+        if checkpointer is not None or checkpoint_file is not None:
+            if checkpointer is None:
+                checkpointer = Checkpointer(
+                    checkpoint_file=checkpoint_file,
+                    iteration_frequency=checkpoint_iteration_frequency,
+                    time_frequency=checkpoint_time_frequency,
+                )
+            self.checkpointer = checkpointer
+        else:
+            logger.info("Checkpointing is disabled since no checkpoint file was indicated.")
+            self.checkpointer = None
+
+        self._stop_requested = False
+        signal.signal(signal.SIGTERM, self._signal_handler)
+
+    def _signal_handler(self, signum, frame):
+        self._stop_requested = True
 
     @property
     def initializer(self) -> Initializer:
@@ -185,6 +215,8 @@ class Algorithm:
             self.objfunc.restart()
         self.stopping_condition.restart()
         self.history_tracker.restart()
+        if self.checkpointer is not None:
+            self.checkpointer.restart()
 
         logger.debug("Reset the data of the algorithm.")
 
@@ -280,21 +312,34 @@ class Algorithm:
 
         # Search until the stopping condition is met
         logger.info("Starting main optimization loop...")
-        while not self.stopping_condition.is_finished(self.search_strategy.finish):
-            logger.info("Started iteration %d...", self.iterations)
+        try:
+            while not self.stopping_condition.is_finished(self.search_strategy.finish):
+                logger.info("Started iteration %d...", self.iterations)
 
-            population = self.step(population=population)
+                population = self.step(population=population)
 
-            self.history_tracker.step(self)
-            self.reporter.log_step(self)
-            self.stopping_condition.step(self.population)
+                self.history_tracker.step(self)
+                self.reporter.log_step(self)
+                self.stopping_condition.step(self.population)
+                if self.checkpointer is not None:
+                    self.checkpointer.checkpoint(self)
+                
+                if self._stop_requested:
+                    raise TerminationException
+
+        except (KeyboardInterrupt, TerminationException) as e:
+            if self.checkpointer is not None:
+                self.checkpointer.save(self)
+            self.reporter.log_end(self)
+            logger.info("Optimization aborted by an OS signal.")
+            raise e
 
         self.reporter.log_end(self)
         logger.info("Optimization finished.")
 
         return population
 
-    def get_state(self, show_population: bool = False) -> dict:
+    def get_state(self, store_population: bool = False) -> dict:
         """
         Gets the current state of the algorithm as a dictionary.
 
@@ -322,7 +367,7 @@ class Algorithm:
             "name": self.name,
             "objfunc": self.objfunc.get_state(),
             "stopping_condition": self.stopping_condition.get_state(),
-            "search_strategy": self.search_strategy.get_state(show_population),
+            "search_strategy": self.search_strategy.get_state(store_population),
             "history": self.history_tracker.get_state(),
         }
 

@@ -67,7 +67,7 @@ def test_survivor_selection_get_state(dummy_survivor_selection):
 #  SearchStrategy
 # ===================================================================
 def test_search_strategy_get_state(dummy_strategy):
-    state = dummy_strategy.get_state(show_population=False)
+    state = dummy_strategy.get_state(store_population=False)
     assert state["class_name"] == SearchStrategy.__name__
     assert state["name"] == "dummy_strategy"
     assert "initializer" in state

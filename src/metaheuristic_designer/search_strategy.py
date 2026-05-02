@@ -221,7 +221,7 @@ class SearchStrategy(ParametrizableMixin):
         self.parent_sel.step(progress)
         self.survivor_sel.step(progress)
 
-    def get_state(self, show_population: bool = False) -> dict:
+    def get_state(self, store_population: bool = False) -> dict:
         """
         Gets the current state of the search strategy as a dictionary.
 
@@ -245,7 +245,7 @@ class SearchStrategy(ParametrizableMixin):
             "parent_sel": self.parent_sel.get_state(),
             "operators": self.operator.get_state(),
             "survivor_sel": self.survivor_sel.get_state(),
-            "population": self.population.get_state() if show_population else None,
+            "population": self.population.get_state() if store_population else None,
             **self.get_params()
         }
 

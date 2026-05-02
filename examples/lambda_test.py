@@ -1,7 +1,7 @@
 import numpy as np
 
 from metaheuristic_designer import ConstraintHandlerFromLambda, ObjectiveFromLambda, InitializerFromLambda, OperatorFromLambda
-from metaheuristic_designer.algorithms import StandardAlgorithm
+from metaheuristic_designer.algorithms import Algorithm
 from metaheuristic_designer.strategies import *
 from metaheuristic_designer.operators import OperatorVectorDef
 
@@ -37,7 +37,7 @@ def run_algorithm():
     pop_init = InitializerFromLambda(initializer_fn, pop_size=100)
     mutation_op = OperatorFromLambda(OperatorVectorDef(mutate_fn))
     search_strategy = HillClimb(pop_init, mutation_op)
-    alg = StandardAlgorithm(objfunc, search_strategy, **params)
+    alg = Algorithm(objfunc, search_strategy, **params)
 
     population = alg.optimize()
     print(population.best_solution())

@@ -22,6 +22,7 @@ dependencies = [
     "pandas>=2.1.2",
     "enlighten>=1.12.2",
     "scikit-learn",
+    "cloudpickle",
     "tqdm"
 ]
 
