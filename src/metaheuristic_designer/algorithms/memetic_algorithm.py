@@ -225,9 +225,6 @@ class MemeticAlgorithm(Algorithm):
         self.local_search.step(self.progress)
         self._log_debug("Updated end\n%s", new_population)
 
-        # Store information
-        best_individual, best_fitness = self.search_strategy.best_solution()
-
         return new_population
 
     def get_state(self, show_fit_history: bool = False, show_gen_history: bool = False, show_population: bool = False):

@@ -25,9 +25,9 @@ class HistoryTracker:
         self.median_solutions = []
         self.worst_solutions = []
 
-        self.best_fitness = []
-        self.median_fitness = []
-        self.worst_fitness = []
+        self.best_objective = []
+        self.median_objective = []
+        self.worst_objective = []
 
         self.complete_population = []
         self.diversity = []
@@ -39,9 +39,9 @@ class HistoryTracker:
         self.median_solutions = []
         self.worst_solutions = []
 
-        self.best_fitness = []
-        self.median_fitness = []
-        self.worst_fitness = []
+        self.best_objective = []
+        self.median_objective = []
+        self.worst_objective = []
 
         self.complete_population = []
         self.diversity = []
@@ -52,6 +52,7 @@ class HistoryTracker:
         population = algorithm.population
         solutions = population.decode()
         fitness_array = population.fitness
+        objective_array = population.objective
         fitness_order = np.argsort(fitness_array)
 
         self.iterations += 1
@@ -62,7 +63,7 @@ class HistoryTracker:
         if self.track_best:
             best_idx = fitness_order[0]
             self.best_solutions.append(solutions[best_idx])
-            self.best_fitness.append(fitness_array[best_idx])
+            self.best_objective.append(objective_array[best_idx])
 
         if self.track_median:
             half_size = len(fitness_array)//2
@@ -71,12 +72,12 @@ class HistoryTracker:
             else:
                 median_idx = fitness_order[half_size]
             self.median_solutions.append(solutions[median_idx])
-            self.median_fitness.append(fitness_array[median_idx])
+            self.median_objective.append(objective_array[median_idx])
 
         if self.track_worst:
             worst_idx = fitness_order[-1]
             self.worst_solutions.append(solutions[worst_idx])
-            self.worst_fitness.append(fitness_array[worst_idx])
+            self.worst_objective.append(objective_array[worst_idx])
         
         if self.track_diversity:
             raise NotImplementedError()
@@ -93,13 +94,13 @@ class HistoryTracker:
         }
 
         if self.track_best:
-            data_dict["best_fitness"] = self.best_fitness
+            data_dict["best_objective"] = self.best_objective
 
         if self.track_median:
-            data_dict["median_fitness"] = self.median_fitness
+            data_dict["median_objective"] = self.median_objective
 
         if self.track_worst:
-            data_dict["worst_fitness"] = self.worst_fitness
+            data_dict["worst_objective"] = self.worst_objective
 
         if self.track_diversity:
             data_dict["diversity"] = self.diversity
@@ -114,15 +115,15 @@ class HistoryTracker:
 
         if self.track_best:
             data["best_solutions"] = self.best_solutions
-            data["best_fitness"] = self.best_fitness
+            data["best_objective"] = self.best_objective
 
         if self.track_median:
             data["median_solutions"] = self.median_solutions
-            data["median_fitness"] = self.median_fitness
+            data["median_objective"] = self.median_objective
 
         if self.track_worst:
             data["worst_solutions"] = self.worst_solutions
-            data["worst_fitness"] = self.worst_fitness
+            data["worst_objective"] = self.worst_objective
         
         if self.track_complete:
             data["populations"] = self.complete_population

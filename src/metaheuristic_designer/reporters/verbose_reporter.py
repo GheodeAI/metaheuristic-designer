@@ -37,7 +37,7 @@ class VerboseReporter(Reporter):
         iterations = algorithm.iterations
         evaluations = algorithm.stopping_condition.evaluations
 
-        _, best_fitness = algorithm.best_solution()
+        _, best_fitness = algorithm.best_solution(problem_space=True)
         print(f"Optimizing {objfunc_name} using {alg_name}:")
         print(f"\tReal time Spent: {spent_time:.4f}s")
         print(f"\tCPU time Spent:  {spent_cpu_time:.4f}s")
@@ -63,7 +63,7 @@ class VerboseReporter(Reporter):
         spent_time = algorithm.stopping_condition.real_time_spent
         spent_cpu_time = algorithm.stopping_condition.cpu_time_spent
         evaluations = algorithm.stopping_condition.evaluations
-        _, best_fitness = algorithm.best_solution()
+        _, best_fitness = algorithm.best_solution(problem_space=True)
 
         print(f"--------------------{'-'*len(objfunc_name)}-------{'-'*len(alg_name)}-")
         print(f"Finished optimizing {objfunc_name} using {alg_name}:")

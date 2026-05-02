@@ -34,7 +34,9 @@ examples = [
     "pygame>=2.5.0",    
     "networkx>=3.1",
     "opencv-python>=4.8",
-    "jupyter-notebook"
+    "seaborn",
+    "jupyter-notebook",
+    "ipywidgets"
 ]
 
 dev = [

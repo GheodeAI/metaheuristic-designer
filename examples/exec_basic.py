@@ -175,9 +175,10 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, ver
         alg = Algorithm(objfunc, search_strategy, reporter=verbose, **algorithm_params)
 
     population = alg.optimize()
-    best_solution, _ = population.best_solution()
+    best_solution, best_objective = population.best_solution(problem_space=True)
     print()
     print(f"Solution: {[float(i) for i in best_solution]}")
+    print(f"Objective value: {best_objective}")
     # alg.display_report(show_plots=show_plots)
 
     if save_state:

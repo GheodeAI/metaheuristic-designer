@@ -5,6 +5,7 @@ This module implements the procedure applied in each iteration of the algorithm.
 """
 
 from __future__ import annotations
+from curses import raw
 import logging
 from typing import Tuple, Any, Optional, Callable
 from .parent_selection_base import ParentSelection, NullParentSelection, ParentSelectionFromLambda
@@ -88,7 +89,7 @@ class SearchStrategy(ParametrizableMixin):
 
         return self.initializer.pop_size
 
-    def best_solution(self, decoded: bool = False) -> Tuple[Any, float]:
+    def best_solution(self, problem_space=True) -> Tuple[Any, float]:
         """
         Returns the best solution found by the search strategy and its fitness.
 
@@ -98,7 +99,7 @@ class SearchStrategy(ParametrizableMixin):
             A pair of the best individual with its fitness.
         """
 
-        return self.population.best_solution(decoded)
+        return self.population.best_solution(problem_space=problem_space)
 
     def initialize(self, objfunc: ObjectiveFunc) -> Population:
         """

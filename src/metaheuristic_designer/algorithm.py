@@ -194,7 +194,7 @@ class Algorithm:
     def population(self) -> Population:
         return self.search_strategy.population
 
-    def best_solution(self, decoded: bool = False) -> Tuple[Any, float]:
+    def best_solution(self, problem_space: bool = False) -> Tuple[Any, float]:
         """
         Returns the best solution so far in the population.
 
@@ -204,7 +204,7 @@ class Algorithm:
             A pair of the best individual with its fitness.
         """
 
-        return self.search_strategy.best_solution(decoded)
+        return self.search_strategy.best_solution(problem_space=problem_space)
 
     def restart(self, restart_objfunc: bool = True):
         """
@@ -231,8 +231,8 @@ class Algorithm:
             Path to the file where the solution will be stored.
         """
 
-        ind, _ = self.search_strategy.best_solution(decoded=False)
-        np.savetxt(file_name, ind.reshape([1, -1]), delimiter=",")
+        individual, _ = self.search_strategy.best_solution(problem_space=True)
+        np.savetxt(file_name, individual.reshape([1, -1]), delimiter=",")
         logger.info("Successfully saved the optimization history to %s", file_name)
 
     def initialize(self, reset_objfunc=True) -> Population:
@@ -345,16 +345,8 @@ class Algorithm:
 
         Parameters
         ----------
-        show_best_solution: bool, optional
-            Save the best solution found by the algorithm.
-        show_fit_history: bool, optional
-            Save the fitness of the best individual of each iteration.
-        show_gen_history: bool, optional
-            Save the best individual for each iteration.
-        show_pop: bool, optional
+        store_population: bool, optional
             Save the entire population of the last iteration.
-        show_pop_details:bool, optional
-            Save the detailed information of each individual.
 
         Returns
         -------
@@ -387,12 +379,6 @@ class Algorithm:
             Path to the file where the json file will be stored.
         readable: bool, optional
             Indent the JSON file to make it human-readable (comes at the cost of a higher file size).
-        show_best_solution: bool, optional
-            Save the best solution found by the algorithm.
-        show_fit_history: bool, optional
-            Save the fitness of the best individual of each iteration.
-        show_gen_history: bool, optional
-            Save the best individual for each iteration.
         """
 
         dumped = json.dumps(self.get_state(), cls=NumpyEncoder, indent=4 if readable else None)

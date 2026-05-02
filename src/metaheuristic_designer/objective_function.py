@@ -79,7 +79,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
         return self.fitness(population, adjusted)
 
-    def fitness(self, population: Population, adjusted: bool = True, parallel: bool = False, threads: int = 8) -> VectorLike:
+    def fitness(self, population: Population, parallel: bool = False, threads: int = 8) -> VectorLike:
         """
         Returns the value of the objective function given an individual.
         If the fitness is adjusted, the sign will be switched for minimization problems
@@ -107,29 +107,31 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
         logger.info("Calculating fitness of the population...")
         fitness = population.fitness
+        objective = population.objective
         solutions = population.decode()
         if self.vectorized:
-            if self.recalculate:
+            if not self.recalculate:
                 solutions = solutions[population.fitness_calculated == 0, :]
 
-            fitness_new = self.objective(solutions)
-            if adjusted:
-                fitness_new = self.factor * (fitness_new - self.constraint_handler.penalty(solutions))
+            objective_values = self.objective(solutions)
+            fitness_values = self.factor * (objective_values - self.constraint_handler.penalty(solutions))
 
             if self.recalculate:
-                fitness[population.fitness_calculated == 0] = fitness_new
+                # Using a slice we overwrite fitness values
+                fitness[:] = fitness_values 
+                objective[:] = objective_values
             else:
-                fitness = fitness_new
+                fitness[population.fitness_calculated == 0] = fitness_values
+                objective[population.fitness_calculated == 0] = objective_values
 
         else:
             for idx, (solution, already_calculated) in enumerate(zip(solutions, population.fitness_calculated)):
                 if self.recalculate or not already_calculated:
-                    value = self.objective(solution)
+                    objective_value = self.objective(solution)
+                    fitness_value = self.factor * (objective_value - self.constraint_handler.penalty(solution))
 
-                    if adjusted:
-                        value = self.factor * (value - self.constraint_handler.penalty(solution))
-
-                    fitness[idx] = value
+                    fitness[idx] = fitness_value
+                    objective[idx] = objective_value
 
         if self.recalculate:
             self.counter += int(population.pop_size)
