@@ -1,10 +1,11 @@
 import argparse
 import logging
+from pathlib import Path
 
 import numpy as np
 
 # from metaheuristic_designer import *
-from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm
+from metaheuristic_designer.algorithms import Algorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import create_operator
 from metaheuristic_designer.initializers import UniformInitializer, ExtendedInitializer
 from metaheuristic_designer.parent_selection import create_parent_selection
@@ -37,7 +38,7 @@ from metaheuristic_designer.utils import check_random_state
 available_objectives = {"sphere", "rastrigin", "rosenbrock", "weierstrass"}
 available_algorithms = {"hillclimb", "localsearch", "sa", "es", "ga", "de", "gaussianumda", "gaussianpbil", "crossentropy", "randomsearch"}
 
-def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, random_state):
+def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, verbose, random_state):
     algorithm_params = {
         "stop_cond": "convergence or time_limit",
         "progress_metric": "time_limit",
@@ -171,7 +172,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, ran
             **algorithm_params
         )
     else:
-        alg = StandardAlgorithm(objfunc, search_strategy, **algorithm_params)
+        alg = Algorithm(objfunc, search_strategy, reporter=verbose, **algorithm_params)
 
     population = alg.optimize()
     best_solution, _ = population.best_solution()
@@ -180,7 +181,10 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, ran
     # alg.display_report(show_plots=show_plots)
 
     if save_state:
-        alg.store_state("./examples/results/test.json", readable=True, show_pop=True)
+        script_dir = Path(__file__).parent.absolute()
+        result_dir = script_dir / "results"
+        result_dir.mkdir(parents=True, exist_ok = True)
+        alg.store_state(result_dir / "test.json", readable=True)
 
 
 def main():
@@ -204,6 +208,7 @@ def main():
     parser.add_argument("-d", "--dim", dest="dim", help="Dimension of the vectors to optimize.", default=3, type=int)
     parser.add_argument("-r", "--seed", dest="seed", help="Random seed to use", default=42, type=int)
     parser.add_argument("--log", default="WARNING", help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
+    parser.add_argument("-v", "--verbose", default="tqdm", help="Reporter to use for progress tracking.")
     parser.add_argument(
         "-p",
         "--plot",
@@ -224,6 +229,7 @@ def main():
         show_plots=args.plot,
         objective=args.objective.lower(),
         dim=args.dim,
+        verbose=args.verbose,
         random_state=rng,
     )
 

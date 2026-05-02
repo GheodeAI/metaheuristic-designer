@@ -179,7 +179,8 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
     
     def get_state(self):
         data = {
-            "class_name": self.__class__.name,
+            "class_name": self.__class__.__name__,
+            "name": self.name,
             "constraint": self.constraint_handler.get_state(),
             **self.get_params()
         }

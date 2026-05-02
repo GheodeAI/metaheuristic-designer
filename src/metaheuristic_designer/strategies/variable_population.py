@@ -46,16 +46,16 @@ class VariablePopulation(SearchStrategy):
 
         self.population_shuffler = create_parent_selection("Random", amount=offspring_size, random_state=self.random_state)
 
-    @property
-    def initializer(self):
-        return self._initializer
+    # @property
+    # def initializer(self):
+    #     return self._initializer
 
-    @initializer.setter
-    def initializer(self, new_initializer):
-        if not self.using_custom_offspring_size:
-            self.update_kwargs(n_offspring=new_initializer.pop_size)
-            self.population_shuffler = create_parent_selection("Random", amount=self.params.n_offspring, random_state=self.random_state)
-        self._initializer = new_initializer
+    # @initializer.setter
+    # def initializer(self, new_initializer):
+    #     if not self.using_custom_offspring_size:
+    #         self.update_kwargs(n_offspring=new_initializer.pop_size)
+    #         self.population_shuffler = create_parent_selection("Random", amount=self.params.n_offspring, random_state=self.random_state)
+    #     self._initializer = new_initializer
 
     def select_parents(self, population: Population) -> Population:
         next_population = super().select_parents(population)

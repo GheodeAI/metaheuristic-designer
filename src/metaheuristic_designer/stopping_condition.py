@@ -35,36 +35,42 @@ class StoppingCondition:
         self.evaluations = 0
         self.real_time_start = time.time()
         self.cpu_time_start = time.process_time()
+        self.real_time_spent = 0
+        self.cpu_time_spent = 0
         self.prev_best_fitness = None
         self.first_best_fitness = None
+        self.best_fitness = None
 
     def restart(self):
         self.iterations = 0
         self.evaluations = 0
         self.real_time_start = time.time()
         self.cpu_time_start = time.process_time()
+        self.real_time_spent = 0
+        self.cpu_time_spent = 0
         self.prev_best_fitness = None
         self.first_best_fitness = None
 
-    def step(self, current_population: Population, skip_increment=False):
+    def step(self, current_population: Population):
         objfunc = current_population.objfunc
-        _, best_fitness = current_population.best_solution()
 
-        if not skip_increment or self.optimization_mode not in {"max", "min"}:
-            if self.prev_best_fitness is not None and ((best_fitness >= self.prev_best_fitness) != (self.optimization_mode == "max")):
+        self.iterations += 1
+        self.evaluations = objfunc.counter
+        self.real_time_spent = time.time() - self.real_time_start
+        self.cpu_time_spent = time.process_time() - self.cpu_time_start
+
+        if self.optimization_mode in {"max", "min"}:
+            _, best_fitness = current_population.best_solution()
+
+            if (self.prev_best_fitness is not None) and ((best_fitness >= self.prev_best_fitness) != (self.optimization_mode == "max")):
                 self.patience_left -= 1
             else:
                 self.patience_left = self.max_patience
 
-        if not skip_increment:
-            self.iterations += 1
-        self.evaluations = objfunc.counter
-        self.best_fitness = best_fitness
-        self.real_time_spent = time.time() - self.real_time_start
-        self.cpu_time_spent = time.process_time() - self.cpu_time_start
-        if self.first_best_fitness is None:
-            self.first_best_fitness = best_fitness
-        self.prev_best_fitness = best_fitness
+            if self.first_best_fitness is None:
+                self.first_best_fitness = best_fitness
+            self.prev_best_fitness = best_fitness
+            self.best_fitness = best_fitness
 
         logger.debug(
             "Updated stopping condition parameters:\nfunc. evaluations = %d\n" "generations = %d\ntime = %f\ncpu_time = %f\nbest = %f\npatience = %d",
@@ -100,11 +106,18 @@ class StoppingCondition:
         ngen_reached = self.iterations >= self.max_iterations
         real_time_reached = self.real_time_spent >= self.time_limit
         cpu_time_reached = self.cpu_time_spent >= self.cpu_time_limit
+
         if self.optimization_mode == "max":
-            target_reached = self.best_fitness >= self.target_fitness
+            target_reached = (self.best_fitness is not None) and (self.best_fitness >= self.target_fitness)
         elif self.optimization_mode == "min":
-            target_reached = self.best_fitness <= self.target_fitness
-        patience_reached = self.patience_left <= 0
+            target_reached = (self.best_fitness is not None) and (self.best_fitness <= self.target_fitness)
+        else:
+            target_reached = False
+
+        if self.optimization_mode in {"min", "max"}:
+            patience_reached = self.patience_left <= 0
+        else:
+            patience_reached = False
 
         logger.debug(
             "Evaluating stopping condition:\n\tcondition: %s\n\tfunc. evaluations = %d / %d"
@@ -152,17 +165,22 @@ class StoppingCondition:
         ngen_reached = self.iterations / self.max_iterations
         real_time_reached = self.real_time_spent / self.time_limit
         cpu_time_reached = self.cpu_time_spent / self.cpu_time_limit
-        if self.first_best_fitness is not None and abs(self.first_best_fitness - self.target_fitness) <= tol * max(
-            abs(self.first_best_fitness), abs(self.target_fitness), 1
-        ):
-            target_progress = 1
-        elif self.first_best_fitness is not None:
-            fit_init_dist = self.first_best_fitness - self.target_fitness
-            fit_dist = self.best_fitness - self.target_fitness
-            target_progress = 1 - fit_dist / fit_init_dist
+
+        if self.optimization_mode in {"min", "max"}:
+            if self.first_best_fitness is not None and abs(self.first_best_fitness - self.target_fitness) <= tol * max(
+                abs(self.first_best_fitness), abs(self.target_fitness), 1
+            ):
+                target_progress = 1
+            elif self.first_best_fitness is not None:
+                fit_init_dist = self.first_best_fitness - self.target_fitness
+                fit_dist = self.best_fitness - self.target_fitness
+                target_progress = 1 - fit_dist / fit_init_dist
+            else:
+                target_progress = 0
+            patience_percentage = 1 - self.patience_left / self.max_patience
         else:
             target_progress = 0
-        patience_percentage = 1 - self.patience_left / self.max_patience
+            patience_percentage = 0
 
         return process_progress(
             self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_progress, patience_percentage

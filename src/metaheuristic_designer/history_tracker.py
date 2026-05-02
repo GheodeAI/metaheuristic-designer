@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import numpy as np
+import pandas as pd
 
 if TYPE_CHECKING:
     from .algorithm import Algorithm
@@ -31,11 +32,29 @@ class HistoryTracker:
         self.complete_population = []
         self.diversity = []
 
+        self.iterations = 0
+
+    def restart(self):
+        self.best_solutions = []
+        self.median_solutions = []
+        self.worst_solutions = []
+
+        self.best_fitness = []
+        self.median_fitness = []
+        self.worst_fitness = []
+
+        self.complete_population = []
+        self.diversity = []
+
+        self.iterations = 0
+    
     def step(self, algorithm: Algorithm):
         population = algorithm.population
         solutions = population.decode()
         fitness_array = population.fitness
         fitness_order = np.argsort(fitness_array)
+
+        self.iterations += 1
 
         if self.track_complete:
             self.complete_population.append(solutions)
@@ -61,6 +80,31 @@ class HistoryTracker:
         
         if self.track_diversity:
             raise NotImplementedError()
+        
+    def to_pandas(self):
+        """
+        Return a pandas dataframe containing the recorded fitness values.
+
+        No solution data is recorded into the dataframe.
+        """
+
+        data_dict = {
+            "iteration": np.arange(self.iterations)
+        }
+
+        if self.track_best:
+            data_dict["best_fitness"] = self.best_fitness
+
+        if self.track_median:
+            data_dict["median_fitness"] = self.median_fitness
+
+        if self.track_worst:
+            data_dict["worst_fitness"] = self.worst_fitness
+
+        if self.track_diversity:
+            data_dict["diversity"] = self.diversity
+        
+        return pd.DataFrame.from_dict(data_dict)
 
 
     def get_state(self):

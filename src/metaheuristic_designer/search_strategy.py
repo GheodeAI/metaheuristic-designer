@@ -237,8 +237,10 @@ class SearchStrategy(ParametrizableMixin):
         """
 
         data = {
-            "class_name": self.__class__.__name__,
+            "class_name": type(self).__name__,
             "name": self.name,
+            "random_generator": type(self.random_state).__name__,
+            "random_state": self.random_state.bit_generator.state,
             "initializer": self.initializer.get_state(),
             "parent_sel": self.parent_sel.get_state(),
             "operators": self.operator.get_state(),
@@ -254,7 +256,7 @@ class SearchStrategy(ParametrizableMixin):
         Specific information to report relevant to this search strategy each iteration.
         """
 
-    def extra_report(self, show_plots: bool):
+    def extra_report(self):
         """
         Specific information to display relevant to this search strategy at the end of the algorithm.
 

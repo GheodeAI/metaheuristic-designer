@@ -11,6 +11,7 @@ import json
 import numpy as np
 
 from metaheuristic_designer.history_tracker import HistoryTracker
+from metaheuristic_designer.reporters import create_reporter
 from .reporter import Reporter
 from .reporters import VerboseReporter
 from .objective_function import ObjectiveFunc
@@ -82,9 +83,9 @@ class Algorithm:
         track_median: bool = False,
         track_worst: bool = False,
         track_complete: bool = False,
-        track_diversity: bool = True,
+        track_diversity: bool = False,
         stopping_condition: Optional[StoppingCondition] = None,
-        reporter: Optional[Reporter] = None,
+        reporter: Optional[str | Reporter] = None,
         history_tracker: Optional[HistoryTracker] = None,
         parallel: bool = False,
         threads: int = 8,
@@ -102,6 +103,8 @@ class Algorithm:
             reporter = VerboseReporter(
                 verbose_timer=verbose_timer
             )
+        elif isinstance(reporter, str):
+            reporter = create_reporter(reporter)
         self.reporter = reporter
 
         if stopping_condition is None:
@@ -181,6 +184,7 @@ class Algorithm:
         if restart_objfunc:
             self.objfunc.restart()
         self.stopping_condition.restart()
+        self.history_tracker.restart()
 
         logger.debug("Reset the data of the algorithm.")
 
@@ -272,12 +276,7 @@ class Algorithm:
 
         # Initialize search strategy
         logger.info("Generating initial solutions...")
-        if initialize:
-            population = self.initialize()
-        else:
-            population = self.search_strategy.population
-
-        self.stopping_condition.step(population, skip_increment=True)
+        population = self.initialize() if initialize else self.population
 
         # Search until the stopping condition is met
         logger.info("Starting main optimization loop...")
@@ -333,9 +332,6 @@ class Algorithm:
         self,
         file_name: str = "dumped_state.json",
         readable: bool = False,
-        show_fit_history: bool = False,
-        show_gen_history: bool = False,
-        show_population: bool = False,
     ):
         """
         Dumps the current state of the algorithm to a JSON file.
@@ -354,7 +350,7 @@ class Algorithm:
             Save the best individual for each iteration.
         """
 
-        dumped = json.dumps(self.get_state(show_fit_history, show_gen_history, show_population), cls=NumpyEncoder, indent=4 if readable else None)
+        dumped = json.dumps(self.get_state(), cls=NumpyEncoder, indent=4 if readable else None)
 
         with open(file_name, "w", encoding="utf-8") as fp:
             fp.write(dumped)

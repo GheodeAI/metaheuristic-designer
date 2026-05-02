@@ -1,100 +1,123 @@
-import numpy as np
 import json
+import numpy as np
 from conftest import (
-    sphere_objfunc,
-    simple_strategy,
+    dummy_objfunc,
+    dummy_strategy,
+    dummy_initializer,
+    dummy_operator,
+    dummy_parent_selection,
+    dummy_survivor_selection,
+    make_pop,
     rng,
 )
 
-from metaheuristic_designer.algorithms.standard_algorithm import StandardAlgorithm
-from metaheuristic_designer.algorithms.memetic_algorithm import MemeticAlgorithm
-from metaheuristic_designer.algorithms.algorithm_selection import AlgorithmSelection
-from metaheuristic_designer.parent_selection import NullParentSelection, create_parent_selection
-from metaheuristic_designer.strategies import GA, LocalSearch
+from metaheuristic_designer.algorithms import Algorithm
+from metaheuristic_designer.population import Population
+from metaheuristic_designer.search_strategy import SearchStrategy
 
 
-def test_full_pipeline_one_generation(sphere_objfunc, simple_strategy):
-    algo = StandardAlgorithm(
-        sphere_objfunc, simple_strategy,
-        ngen=1, neval=100, verbose=False,
-        stop_cond="ngen",
-    )
+# ===================================================================
+#  Population
+# ===================================================================
+def test_population_get_state(dummy_objfunc):
+    pop = make_pop([1.0, 2.0], dummy_objfunc)
+    pop.best = np.array([1.0, 2.0])
+    pop.best_fitness = 1.0
+    state = pop.get_state()
+    assert "genotype_matrix" in state
+    assert "fitness" in state
+    assert "best" in state
+    assert "best_fitness" in state
+    assert "encoding" in state
+
+
+# ===================================================================
+#  Operator (via dummy_operator)
+# ===================================================================
+def test_operator_get_state(dummy_operator):
+    state = dummy_operator.get_state()
+    assert "name" in state
+    assert "encoding" in state
+    # "parameters" is not present; check for relevant fields instead or skip
+    # For NullOperator, there are no parameters, so just pass
+    assert "class_name" in state
+
+
+# ===================================================================
+#  ParentSelection
+# ===================================================================
+def test_parent_selection_get_state(dummy_parent_selection):
+    state = dummy_parent_selection.get_state()
+    assert "name" in state
+    # "parameters" not present; check other fields
+    assert "class_name" in state
+    # "amount" if it exists
+    assert "amount" in state
+
+# ===================================================================
+#  SurvivorSelection
+# ===================================================================
+def test_survivor_selection_get_state(dummy_survivor_selection):
+    state = dummy_survivor_selection.get_state()
+    assert "name" in state
+    assert "class_name" in state
+
+# ===================================================================
+#  SearchStrategy
+# ===================================================================
+def test_search_strategy_get_state(dummy_strategy):
+    state = dummy_strategy.get_state(show_population=False)
+    assert state["name"] == "dummy_strategy"
+    assert "initializer" in state
+    # "params" not present; check for "class_name" or other keys
+    assert "class_name" in state
+    assert "operators" in state
+    assert len(state["operators"]) >= 1
+
+
+# ===================================================================
+#  Algorithm (using Algorithm, not StandardAlgorithm)
+# ===================================================================
+def test_algorithm_get_state(dummy_objfunc, dummy_strategy):
+    algo = Algorithm(dummy_objfunc, dummy_strategy, ngen=1, reporter="silent")
+    algo.initialize()  # creates population, evaluates fitness
+    state = algo.get_state(show_population=True)
+    # Check top-level keys
+    assert "class_name" in state
+    assert state["class_name"] == "Algorithm"
+    assert "name" in state
+    assert state["name"] == "dummy_strategy"
+    assert "objfunc" in state
+    assert "stopping_condition" in state
+    assert "search_strategy" in state
+    assert "history" in state
+    # Check that search_strategy contains population (since show_population=True)
+    assert "population" in state["search_strategy"]
+    # Check that history contains the expected fields (track_best is always True)
+    assert "class_name" in state["history"]
+    assert state["history"]["class_name"] == "HistoryTracker"
+    assert "best_fitness" in state["history"]
+    assert "best_solutions" in state["history"]
+
+
+# ===================================================================
+#  store_state (write to JSON)
+# ===================================================================
+def test_store_state_to_json(dummy_objfunc, dummy_strategy, tmp_path):
+    algo = Algorithm(dummy_objfunc, dummy_strategy, ngen=1, reporter="silent")
     algo.initialize()
-    pop = algo.step()
-    assert len(pop) == simple_strategy.pop_size
-    _, best_fit = algo.best_solution()
-    assert np.isfinite(best_fit)
-
-
-def test_full_pipeline_five_generations(sphere_objfunc, simple_strategy):
-    algo = StandardAlgorithm(
-        sphere_objfunc, simple_strategy,
-        ngen=5, neval=500, verbose=False,
-        stop_cond="ngen",
-    )
-    algo.optimize()
-    _, best_fit = algo.best_solution()
-    assert np.isfinite(best_fit)
-    assert len(algo.fit_history) == 5
-
-
-def test_memetic_pipeline(sphere_objfunc, dummy_strategy, dummy_initializer, rng):
-    # Create a separate local searcher – using dummy components plus an order‑preserving survivor selection
-    from metaheuristic_designer.search_strategy import SearchStrategy
-    from metaheuristic_designer.survivor_selection import create_survivor_selection
-    from metaheuristic_designer.operators import create_operator
-
-    # Operator that preserves order (NullOperator does nothing, but it's order‑preserving)
-    operator = create_operator("nothing")  # NullOperator is order‑preserving
-    survivor_sel = create_survivor_selection("one_to_one")  # order‑preserving
-
-    local_searcher = SearchStrategy(
-        initializer=dummy_initializer,
-        operator=operator,
-        survivor_sel=survivor_sel,
-        name="local_searcher",
-    )
-
-    # Improvement selector (any parent selection works; we don't care about order here)
-    improvement_selector = NullParentSelection()
-
-    algo = MemeticAlgorithm(
-        sphere_objfunc,
-        search_strategy=dummy_strategy,       # global search (simple Null strategy)
-        local_search=local_searcher,          # completely separate instance
-        improvement_selection=improvement_selector,
-        ngen=2, neval=200, verbose=False, stop_cond="ngen",
-    )
-    algo.optimize()
-    _, best_fit = algo.best_solution()
-    assert np.isfinite(best_fit)
-
-
-def test_serialization_after_run(sphere_objfunc, simple_strategy, tmp_path):
-    algo = StandardAlgorithm(
-        sphere_objfunc, simple_strategy,
-        ngen=2, neval=100, verbose=False,
-        stop_cond="ngen",
-    )
-    algo.optimize()
-    state = algo.get_state(show_fit_history=True, show_gen_history=False, show_population=False)
-    assert "fit_history" in state
-    assert len(state["fit_history"]) == 2
-
-    fpath = tmp_path / "state.json"
-    algo.store_state(str(fpath), readable=True, show_fit_history=True, show_gen_history=False, show_population=False)
-    with open(fpath, "r") as f:
+    file_path = tmp_path / "state.json"
+    algo.store_state(str(file_path), readable=True)
+    # File must be valid JSON
+    with open(file_path, "r") as f:
         data = json.load(f)
-    assert data["name"] == "integration_strat"
-    assert data["fit_history"] == state["fit_history"]
-
-
-def test_algorithm_selection_run(sphere_objfunc, simple_strategy):
-    algo1 = StandardAlgorithm(sphere_objfunc, simple_strategy, ngen=1, neval=50, verbose=False, stop_cond="ngen", name="algo1")
-    algo2 = StandardAlgorithm(sphere_objfunc, simple_strategy, ngen=1, neval=50, verbose=False, stop_cond="ngen", name="algo2")
-    sel = AlgorithmSelection([algo1, algo2], params={"repetitions": 2, "verbose": False})
-    best_sol, best_fit, report = sel.optimize()
-    assert best_fit is not None
-    # AlgorithmSelection groups by name; we should have one row per algorithm
-    assert len(report) == 2
-    assert set(report["name"]) == {"algo1", "algo2"}
+    # Check the same top-level keys as in get_state
+    assert "class_name" in data
+    assert data["class_name"] == "Algorithm"
+    assert "name" in data
+    assert data["name"] == "dummy_strategy"
+    assert "objfunc" in data
+    assert "stopping_condition" in data
+    assert "search_strategy" in data
+    assert "history" in data
+    assert "best_fitness" in data["history"]

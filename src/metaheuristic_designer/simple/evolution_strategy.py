@@ -4,7 +4,7 @@ import numpy as np
 from ..initializers import UniformInitializer, PermInitializer
 from ..encodings import TypeCastEncoding
 from ..strategies import ES
-from ..algorithms import StandardAlgorithm
+from ..algorithms import Algorithm
 from ..operators import create_operator
 from ..survivor_selection import create_survivor_selection
 from ..utils import check_random_state
@@ -22,7 +22,7 @@ def evolution_strategy_binary(objfunc, mutated_bits=1, population_size=100, offs
     method = "keep_best" if elitist else "keep_offspring"
     survivor_sel = create_survivor_selection(method, random_state=random_state)
     search_strat = ES(pop_initializer, mutation_op, survivor_selection=survivor_sel, offspring_size=offspring_size, random_state=random_state)
-    return StandardAlgorithm(objfunc, search_strat, **kwargs)
+    return Algorithm(objfunc, search_strat, **kwargs)
 
 
 def evolution_strategy_permutation(objfunc, swapped_positions=2, population_size=100, offspring_size=500, elitist=False, encoding=None, random_state=None, **kwargs):
@@ -37,7 +37,7 @@ def evolution_strategy_permutation(objfunc, swapped_positions=2, population_size
     method = "keep_best" if elitist else "keep_offspring"
     survivor_sel = create_survivor_selection(method, random_state=random_state)
     search_strat = ES(pop_initializer, mutation_op, survivor_selection=survivor_sel, offspring_size=offspring_size, random_state=random_state)
-    return StandardAlgorithm(objfunc, search_strat, **kwargs)
+    return Algorithm(objfunc, search_strat, **kwargs)
 
 
 def evolution_strategy_discrete(objfunc, resampled_components=1, population_size=100, offspring_size=500, elitist=False, encoding=None, random_state=None, **kwargs):
@@ -52,7 +52,7 @@ def evolution_strategy_discrete(objfunc, resampled_components=1, population_size
     method = "keep_best" if elitist else "keep_offspring"
     survivor_sel = create_survivor_selection(method, random_state=random_state)
     search_strat = ES(pop_initializer, mutation_op, survivor_selection=survivor_sel, offspring_size=offspring_size, random_state=random_state)
-    return StandardAlgorithm(objfunc, search_strat, **kwargs)
+    return Algorithm(objfunc, search_strat, **kwargs)
 
 
 def evolution_strategy_real(objfunc, mutation_strength=1e-5, mutated_components=1, population_size=100, elitist=False, offspring_size=500, encoding=None, random_state=None, **kwargs):
@@ -67,4 +67,4 @@ def evolution_strategy_real(objfunc, mutation_strength=1e-5, mutated_components=
     method = "keep_best" if elitist else "keep_offspring"
     survivor_sel = create_survivor_selection(method, random_state=random_state)
     search_strat = ES(pop_initializer, mutation_op, survivor_selection=survivor_sel, offspring_size=offspring_size, random_state=random_state)
-    return StandardAlgorithm(objfunc, search_strat, **kwargs)
+    return Algorithm(objfunc, search_strat, **kwargs)

@@ -12,7 +12,7 @@ from . import parameter_schedules
 
 from .algorithm import Algorithm
 from . import algorithms
-from .algorithms import StandardAlgorithm, MemeticAlgorithm
+from .algorithms import MemeticAlgorithm, Algorithm
 
 from .search_strategy import SearchStrategy, SearchStrategyFromLambda
 from . import strategies

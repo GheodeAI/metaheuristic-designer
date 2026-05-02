@@ -3,7 +3,6 @@ from typing import Tuple, Any, Iterable
 import pandas as pd
 from ..search_strategy import SearchStrategy
 from ..objective_function import ObjectiveFunc
-from .standard_algorithm import StandardAlgorithm
 from .algorithm_selection import AlgorithmSelection
 
 
@@ -32,7 +31,7 @@ class StrategySelection:
         params: ParamScheduler | dict = None,
     ):
         self.strategy_list = strategy_list
-        algorithm_list = [StandardAlgorithm(objfunc, strategy, algorithm_params) for strategy in strategy_list]
+        algorithm_list = [Algorithm(objfunc, strategy, algorithm_params) for strategy in strategy_list]
 
         self.algorithm_selection = AlgorithmSelection(algorithm_list, params)
 

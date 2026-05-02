@@ -74,7 +74,7 @@ class ParentSelection(ParametrizableMixin, ABC):
 
         data = {
             "class_name": self.__class__.__name__,
-            "name": self.name
+            "name": self.name,
             **self.get_params()
         }
 
@@ -99,13 +99,10 @@ class NullParentSelection(ParentSelection):
         The name that will be assigned to this selection method.
     """
 
-    def __init__(self, name: Optional[str] = None, **kwargs):
+    def __init__(self, name: Optional[str] = "Nothing", **kwargs):
         """
         Constructor for the ParentSelection class
         """
-
-        if name is None:
-            name = "Nothing"
 
         super().__init__(name, amount=None, **kwargs)
 

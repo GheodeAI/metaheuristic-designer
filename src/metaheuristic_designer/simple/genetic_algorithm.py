@@ -7,7 +7,6 @@ from ..parent_selection import create_parent_selection
 from ..survivor_selection import create_survivor_selection
 from ..encodings import TypeCastEncoding
 from ..strategies import GA
-from ..algorithms import StandardAlgorithm
 
 
 def genetic_algorithm(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
@@ -75,7 +74,7 @@ def _genetic_algorithm_bin_vec(params, objfunc):
 
     search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
-    return StandardAlgorithm(objfunc, search_strategy, params=params)
+    return Algorithm(objfunc, search_strategy, params=params)
 
 
 def _genetic_algorithm_int_vec(params, objfunc):
@@ -112,7 +111,7 @@ def _genetic_algorithm_int_vec(params, objfunc):
 
     search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
-    return StandardAlgorithm(objfunc, search_strategy, params=params)
+    return Algorithm(objfunc, search_strategy, params=params)
 
 
 def _genetic_algorithm_perm_vec(params, objfunc):
@@ -142,7 +141,7 @@ def _genetic_algorithm_perm_vec(params, objfunc):
 
     search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
-    return StandardAlgorithm(objfunc, search_strategy, params=params)
+    return Algorithm(objfunc, search_strategy, params=params)
 
 
 def _genetic_algorithm_real_vec(params, objfunc):
@@ -174,4 +173,4 @@ def _genetic_algorithm_real_vec(params, objfunc):
 
     search_strategy = GA(pop_initializer, mutation_op, cross_op, parent_sel_op, selection_op, {"pcross": pcross, "pmut": pmut})
 
-    return StandardAlgorithm(objfunc, search_strategy, params=params)
+    return Algorithm(objfunc, search_strategy, params=params)

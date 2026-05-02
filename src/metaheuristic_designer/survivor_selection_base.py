@@ -74,7 +74,7 @@ class SurvivorSelection(ParametrizableMixin, ABC):
 
         data = {
             "class_name": self.__class__.__name__,
-            "name": self.name
+            "name": self.name,
             **self.get_params()
         }
 
@@ -99,13 +99,10 @@ class NullSurvivorSelection(SurvivorSelection):
         The name that will be assigned to this selection method.
     """
 
-    def __init__(self, name: Optional[str] = None, **kwargs):
+    def __init__(self, name: Optional[str] = "Nothing", **kwargs):
         """
         Constructor for the SurvivorSelection class
         """
-
-        if name is None:
-            name = "Nothing"
 
         super().__init__(name, preserves_order=True, random_state=None, **kwargs)
 

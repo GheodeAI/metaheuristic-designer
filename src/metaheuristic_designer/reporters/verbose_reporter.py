@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 class VerboseReporter(Reporter):
-    def __init__(self, verbose_timer=0):
+    def __init__(self, verbose_timer=0.5, **kwargs):
         self.verbose_timer = verbose_timer
         self.verbose_start = time.time()
 
@@ -23,7 +23,6 @@ class VerboseReporter(Reporter):
         print(f"Initializing optimization of {objfunc_name} using {alg_name}")
         print(f"-----------------------------{'-'*len(objfunc_name)}-------{'-'*len(alg_name)}")
         print()
-        self.log_step(algorithm)
 
     def log_step(self, algorithm: Algorithm):
         if time.time() - self.verbose_start < self.verbose_timer:
@@ -60,16 +59,17 @@ class VerboseReporter(Reporter):
 
         objfunc_name = algorithm.objfunc.name
         alg_name = algorithm.name
-        iterations_accurate = len(algorithm.fit_history)
+        iterations_accurate = algorithm.history_tracker.iterations
         spent_time = algorithm.stopping_condition.real_time_spent
         spent_cpu_time = algorithm.stopping_condition.cpu_time_spent
         evaluations = algorithm.stopping_condition.evaluations
         _, best_fitness = algorithm.best_solution()
 
+        print(f"--------------------{'-'*len(objfunc_name)}-------{'-'*len(alg_name)}-")
         print(f"Finished optimizing {objfunc_name} using {alg_name}:")
         print(f"\tNumber of generations: {iterations_accurate}")
         print(f"\tReal time spent: {spent_time:.4f}s")
         print(f"\tCPU time spent: {spent_cpu_time:.4f}s")
         print(f"\tNumber of fitness evaluations: {evaluations}")
         print(f"\tBest fitness: {best_fitness}")
-        algorithm.search_strategy.extra_report(show_plots=False)
+        algorithm.search_strategy.extra_report()
