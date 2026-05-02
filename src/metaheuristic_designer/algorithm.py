@@ -11,8 +11,8 @@ import json
 import numpy as np
 import signal
 
-from metaheuristic_designer.history_tracker import HistoryTracker
-from metaheuristic_designer.reporters import create_reporter
+from .history_tracker import HistoryTracker
+from .reporters import create_reporter
 from .reporter import Reporter
 from .reporters import VerboseReporter
 from .objective_function import ObjectiveFunc
