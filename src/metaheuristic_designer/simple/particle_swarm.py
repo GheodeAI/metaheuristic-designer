@@ -1,12 +1,8 @@
 from __future__ import annotations
-import numpy as np
-from ..objective_function import VectorObjectiveFunc
 from ..algorithm import Algorithm
-from ..initializers import UniformInitializer, ExtendedInitializer
-from ..encodings import CompositeEncoding, TypeCastEncoding, SigmoidEncoding, PSOEncoding
+from ..initializers import UniformInitializer
+from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import PSO
-from ..algorithms import Algorithm
-from ..constraint_handlers import ClipBoundConstraint, BounceBoundConstraint, ExtendedConstraintHandler
 from ..utils import check_random_state
 
 def particle_swarm_binary(

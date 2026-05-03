@@ -140,7 +140,6 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
         alg = Algorithm(objfunc, search_strategy, **algorithm_params)
 
     population = alg.optimize()
-    # Use problem_space=True to get decoded solution and raw objective
     best_solution, best_objective = population.best_solution(problem_space=True)
     print("Best solution:", best_solution.astype(int))
     print("Best objective:", best_objective)

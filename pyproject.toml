@@ -36,7 +36,9 @@ examples = [
     "matplotlib>=3.5",
     "seaborn",
     "jupyter-notebook",
-    "ipywidgets"
+    "ipywidgets",
+    "plotly",
+    "anywidget"
 ]
 
 dev = [
@@ -48,8 +50,6 @@ dev = [
     "sphinx>=7.1.1",
     "black[jupyter]>=23.10.1",
     "metaheuristic-designer[examples]",
-    "plotly",
-    "anywidget"
 ]
 
 [tool.black]
