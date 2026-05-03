@@ -33,7 +33,8 @@ class VariablePopulation(SearchStrategy):
             offspring_size = initializer.pop_size
 
         # We need to set up the random state beforehand to handle the initializer correctly
-        self.random_state = None
+        self.random_state = check_random_state(random_state)
+        self.population_shuffler = create_parent_selection("Random", amount=offspring_size, random_state=self.random_state)
 
         super().__init__(
             initializer,
@@ -47,7 +48,6 @@ class VariablePopulation(SearchStrategy):
             **kwargs,
         )
 
-        self.population_shuffler = create_parent_selection("Random", amount=offspring_size, random_state=self.random_state)
 
     @property
     def initializer(self):

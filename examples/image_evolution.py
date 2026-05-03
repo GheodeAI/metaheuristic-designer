@@ -97,14 +97,14 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         "es": ES(
             initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=encoding, random_state=random_state),
             mutation_op=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
-            cross_op=create_operator("crossover.uniform", random_state=random_state),
+            crossover_op=create_operator("crossover.uniform", random_state=random_state),
             survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
             offspring_size=150,
         ),
         "ga": GA(
             initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=encoding, random_state=random_state),
             mutation_op=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
-            cross_op=create_operator("crossover.uniform", random_state=random_state),
+            crossover_op=create_operator("crossover.uniform", random_state=random_state),
             parent_sel=create_parent_selection("best", amount=50, random_state=random_state),
             survivor_sel=create_survivor_selection("elitism", amount=20, random_state=random_state),
             mutation_prob=0.2,

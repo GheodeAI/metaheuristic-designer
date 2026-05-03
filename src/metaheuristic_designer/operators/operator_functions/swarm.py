@@ -65,7 +65,7 @@ def pso_operator_wrapper(population: Population, _initializer: Initializer, rand
     from ...encodings import ParameterExtendingEncoding
 
     population_encoding: ParameterExtendingEncoding = population.encoding
-    population_genotype = population_encoding.decode(population.genotype_matrix)
+    population_genotype = population_encoding.extract_solution(population.genotype_matrix)
     population_params = population_encoding.decode_params(population.genotype_matrix)
     historical_best_solution = population_encoding.extract_solution(population.historical_best_matrix)
     global_best_solution = population_encoding.extract_solution(population.best[None, :])[0]

@@ -9,6 +9,10 @@ import logging
 from typing import Any, Callable, Optional, TYPE_CHECKING
 from abc import ABC, abstractmethod
 import numpy as np
+
+from metaheuristic_designer.constraint_handlers.bounce_bound_constraint import BounceBoundConstraint
+from metaheuristic_designer.constraint_handlers.extended_constraint import ExtendedConstraintHandler
+from metaheuristic_designer.encodings.parameter_extending_encoding import ParameterExtendingEncoding
 from .constraint_handler import ConstraintHandler, NullConstraint
 from .constraint_handlers import ClipBoundConstraint, CompositeConstraint
 from .parametrizable_mixin import ParametrizableMixin
@@ -230,6 +234,15 @@ class VectorObjectiveFunc(ObjectiveFunc):
             constraint_handler = CompositeConstraint([constraint_handler, bound_constraint_handler])
 
         super().__init__(constraint_handler=constraint_handler, mode=mode, name=name, vectorized=vectorized, recalculate=recalculate, **kwargs)
+    
+    def add_parameter_constraints(self, parameter_extending_encoding: ParameterExtendingEncoding, param_handlers: dict[str, ConstraintHandler]):
+        base_constraint_handler = self.constraint_handler
+        
+        self.constraint_handler = ExtendedConstraintHandler(
+            solution_handler=base_constraint_handler,
+            param_handler_dict=param_handlers,
+            encoding=parameter_extending_encoding
+        )
 
 
 class NullObjectiveFunc(ObjectiveFunc):
