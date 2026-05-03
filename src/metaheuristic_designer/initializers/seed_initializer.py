@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import List
-import numpy as np
+from typing import Iterable
+
+from metaheuristic_designer.population import Population
+from ..utils import MatrixLike, VectorLike
 from ..initializer import Initializer
 
 
@@ -19,8 +21,16 @@ class SeedProbInitializer(Initializer):
         Probability of inserting one of the predefined solutions into the population.
     """
 
-    def __init__(self, default_init: Initializer, solutions: List | np.ndarray, insert_prob: float = 0.1, random_state=None):
-        super().__init__(default_init.pop_size, random_state=random_state)
+    def __init__(
+        self, default_init: Initializer, solutions: Population | Iterable[VectorLike] | MatrixLike, insert_prob: float = 0.1, random_state=None
+    ):
+        assert len(solutions) > 0, "The solution set should not be empty."
+        if isinstance(solutions, Population):
+            infered_vecsize = solutions.genotype_matrix.shape[1]
+        else:
+            infered_vecsize = solutions[0].shape[0]
+
+        super().__init__(vecsize=infered_vecsize, pop_size=default_init.pop_size, random_state=random_state)
 
         self.default_init = default_init
         self.solutions = solutions
@@ -55,8 +65,15 @@ class SeedDetermInitializer(Initializer):
         Amount of predefined individuals to insert in the population.
     """
 
-    def __init__(self, default_init: Initializer, solutions: List, n_to_insert: int = None, random_state=None):
-        super().__init__(default_init.pop_size, random_state=random_state)
+    def __init__(
+        self, default_init: Initializer, solutions: Population | Iterable[VectorLike] | MatrixLike, n_to_insert: int = None, random_state=None
+    ):
+        assert len(solutions) > 0, "The solution set should not be empty."
+        if isinstance(solutions, Population):
+            infered_vecsize = solutions.genotype_matrix.shape[1]
+        else:
+            infered_vecsize = solutions[0].shape[0]
+        super().__init__(vecsize=infered_vecsize, pop_size=default_init.pop_size, random_state=random_state)
 
         self.default_init = default_init
         self.solutions = solutions

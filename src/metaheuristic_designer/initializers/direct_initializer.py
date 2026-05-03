@@ -22,7 +22,13 @@ class DirectInitializer(Initializer):
     """
 
     def __init__(self, default_init: Initializer, solutions: Population | List | np.ndarray, encoding: Encoding = None, random_state=None):
-        super().__init__(len(solutions), encoding=encoding, random_state=random_state)
+        assert len(solutions) > 0, "The solution set should not be empty."
+        if isinstance(solutions, Population):
+            infered_vecsize = solutions.genotype_matrix.shape[1]
+        else:
+            infered_vecsize = solutions[0].shape[0]
+
+        super().__init__(vecsize=infered_vecsize, pop_size=default_init.pop_size, random_state=random_state)
         self.solutions = solutions
         self.default_init = default_init
 

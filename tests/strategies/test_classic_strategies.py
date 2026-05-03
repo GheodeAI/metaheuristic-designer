@@ -46,8 +46,7 @@ def test_de_default_creation(rng, dummy_initializer):
 
 
 def test_de_custom_name_and_params(rng, dummy_initializer):
-    algo = DE(initializer=dummy_initializer, de_operator_name="DE/rand/1",
-              name="MyDE", F=0.5, Cr=0.7, random_state=rng)
+    algo = DE(initializer=dummy_initializer, de_operator_name="DE/rand/1", name="MyDE", F=0.5, Cr=0.7, random_state=rng)
     assert algo.name == "MyDE"
 
 
@@ -61,17 +60,16 @@ def test_es_mutation_only(rng, dummy_initializer, dummy_operator):
 
 
 def test_es_with_crossover(rng, dummy_initializer, dummy_operator):
-    algo = ES(initializer=dummy_initializer, mutation_op=dummy_operator,
-              crossover_op=dummy_operator, random_state=rng)
+    algo = ES(initializer=dummy_initializer, mutation_op=dummy_operator, crossover_op=dummy_operator, random_state=rng)
     from metaheuristic_designer.operators.composite_operator import CompositeOperator
+
     assert isinstance(algo.operator, CompositeOperator)
 
 
 # ===================================================================
 #  GA
 # ===================================================================
-def test_ga_creation(rng, dummy_initializer, dummy_operator,
-                     dummy_parent_selection, dummy_survivor_selection):
+def test_ga_creation(rng, dummy_initializer, dummy_operator, dummy_parent_selection, dummy_survivor_selection):
     algo = GA(
         initializer=dummy_initializer,
         mutation_op=dummy_operator,
@@ -86,8 +84,7 @@ def test_ga_creation(rng, dummy_initializer, dummy_operator,
     assert isinstance(algo.operator, Operator)
 
 
-def test_ga_default_names(rng, dummy_initializer, dummy_operator,
-                          dummy_parent_selection, dummy_survivor_selection):
+def test_ga_default_names(rng, dummy_initializer, dummy_operator, dummy_parent_selection, dummy_survivor_selection):
     algo = GA(
         initializer=dummy_initializer,
         mutation_op=dummy_operator,
@@ -112,14 +109,12 @@ def test_random_search_creation(rng, dummy_initializer):
 #  Simulated Annealing
 # ===================================================================
 def test_sa_initial_temperature(rng, dummy_initializer, dummy_operator):
-    algo = SA(initializer=dummy_initializer, operator=dummy_operator,
-              temperature_init=200, random_state=rng)
+    algo = SA(initializer=dummy_initializer, operator=dummy_operator, temperature_init=200, random_state=rng)
     assert algo.temperature == 200
 
 
 def test_sa_temperature_decreases_after_many_steps(rng, dummy_initializer, dummy_operator):
-    algo = SA(initializer=dummy_initializer, operator=dummy_operator,
-              iterations=2, temperature_init=100, alpha=0.5, random_state=rng)
+    algo = SA(initializer=dummy_initializer, operator=dummy_operator, iterations=2, temperature_init=100, alpha=0.5, random_state=rng)
     # Initial temperature
     assert algo.temperature == 100
     # Call step many times to guarantee temperature drops

@@ -43,19 +43,20 @@ def run_algorithm(save_state, show_plots, objective, dim, random_state):
     # ---- Self‑adaption encoding ----
     adaption_encoding = ParameterExtendingEncoding(
         objfunc.vecsize,
-        param_sizes=[("F", 1)],      # each individual carries its own mutation strength
+        param_sizes=[("F", 1)],  # each individual carries its own mutation strength
     )
 
     # ---- Extended initializer ----
     pop_initializer = ExtendedInitializer(
         solution_init=UniformInitializer(
-            objfunc.vecsize, objfunc.low_lim, objfunc.up_lim,
-            pop_size=100, encoding=adaption_encoding, random_state=random_state
+            objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding, random_state=random_state
         ),
         param_init_dict={
             "F": InitializerFromLambda(
                 generator=lambda rng: sp.stats.expon(scale=0.02).rvs(size=1, random_state=rng),
-                pop_size=100, encoding=adaption_encoding, random_state=random_state
+                pop_size=100,
+                encoding=adaption_encoding,
+                random_state=random_state,
             )
         },
         encoding=adaption_encoding,
@@ -70,7 +71,7 @@ def run_algorithm(save_state, show_plots, objective, dim, random_state):
         param_operators={
             "F": create_operator(
                 "mutation.mutate_1_sigma",
-                tau=1.0 / np.sqrt(2*objfunc.vecsize),
+                tau=1.0 / np.sqrt(2 * objfunc.vecsize),
                 epsilon=1e-7,
                 random_state=random_state,
             )
@@ -113,18 +114,12 @@ def run_algorithm(save_state, show_plots, objective, dim, random_state):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-o", "--objective", default="Sphere",
-                        help="Objective function name (Sphere, Rastrigin, Rosenbrock, Weierstrass).")
-    parser.add_argument("-d", "--dim", type=int, default=3,
-                        help="Dimensionality of the problem.")
-    parser.add_argument("-s", "--save-state", dest="save_state", action="store_true",
-                        help="Save algorithm state to JSON.")
-    parser.add_argument("-p", "--plot", dest="plot", action="store_true",
-                        help="Show convergence plot.")
-    parser.add_argument("-r", "--seed", type=int, default=42,
-                        help="Random seed.")
-    parser.add_argument("--log", default="WARNING",
-                        help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
+    parser.add_argument("-o", "--objective", default="Sphere", help="Objective function name (Sphere, Rastrigin, Rosenbrock, Weierstrass).")
+    parser.add_argument("-d", "--dim", type=int, default=3, help="Dimensionality of the problem.")
+    parser.add_argument("-s", "--save-state", dest="save_state", action="store_true", help="Save algorithm state to JSON.")
+    parser.add_argument("-p", "--plot", dest="plot", action="store_true", help="Show convergence plot.")
+    parser.add_argument("-r", "--seed", type=int, default=42, help="Random seed.")
+    parser.add_argument("--log", default="WARNING", help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     args = parser.parse_args()
 
     logging.basicConfig()

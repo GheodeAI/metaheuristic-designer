@@ -27,11 +27,7 @@ def evolution_strategy_binary(
     method = "keep_best" if elitist else "keep_offspring"
     survivor_sel = create_survivor_selection(method, random_state=random_state)
     search_strat = ES(
-        initializer=pop_initializer,
-        mutation_op=mutation_op,
-        survivor_sel=survivor_sel,
-        offspring_size=offspring_size,
-        random_state=random_state
+        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, random_state=random_state
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -50,11 +46,7 @@ def evolution_strategy_permutation(
     method = "keep_best" if elitist else "keep_offspring"
     survivor_sel = create_survivor_selection(method, random_state=random_state)
     search_strat = ES(
-        initializer=pop_initializer,
-        mutation_op=mutation_op,
-        survivor_sel=survivor_sel,
-        offspring_size=offspring_size,
-        random_state=random_state
+        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, random_state=random_state
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -75,11 +67,7 @@ def evolution_strategy_discrete(
     method = "keep_best" if elitist else "keep_offspring"
     survivor_sel = create_survivor_selection(method, random_state=random_state)
     search_strat = ES(
-        initializer=pop_initializer,
-        mutation_op=mutation_op,
-        survivor_sel=survivor_sel,
-        offspring_size=offspring_size,
-        random_state=random_state
+        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, random_state=random_state
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -108,10 +96,6 @@ def evolution_strategy_real(
     method = "keep_best" if elitist else "keep_offspring"
     survivor_sel = create_survivor_selection(method, random_state=random_state)
     search_strat = ES(
-        initializer=pop_initializer,
-        mutation_op=mutation_op,
-        survivor_sel=survivor_sel,
-        offspring_size=offspring_size,
-        random_state=random_state
+        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, random_state=random_state
     )
     return Algorithm(objfunc, search_strat, **kwargs)

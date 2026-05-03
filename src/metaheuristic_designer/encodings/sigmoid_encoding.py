@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import Iterable
 import scipy as sp
 import numpy as np
-from numpy import ndarray
 from ..encoding import Encoding
 from ..utils import MatrixLike
 
@@ -36,13 +35,7 @@ class SigmoidEncoding(Encoding):
     def encode(self, solutions: Iterable) -> MatrixLike:
         assert np.all((solutions >= 0) & (solutions <= 1)), "To encode solutions with the sigmoid encoding, the values must be in the range (0,1)."
 
-        mask_zeros = solutions == 0
-        mask_ones = solutions == 1
-        result = np.log(solutions) - np.log(1 - solutions)
-        print(result)
-        result[mask_zeros] = -np.inf
-        result[mask_ones] = np.inf
-        print(result)
+        result = sp.special.logit(solutions)
         return result
 
     def decode(self, population: MatrixLike) -> Iterable:

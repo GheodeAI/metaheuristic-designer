@@ -40,9 +40,9 @@ def test_record_after_one_step(algo_with_full_tracker):
     pop = algo.initialize()
 
     # Simulate the initial generation record (should be done by optimize)
-    algo.history_tracker.step(algo)           # generation 0
+    algo.history_tracker.step(algo)  # generation 0
     pop = algo.step(population=pop)
-    algo.history_tracker.step(algo)           # generation 1
+    algo.history_tracker.step(algo)  # generation 1
 
     tracker = algo.history_tracker
     assert tracker.iterations == 2
@@ -59,15 +59,15 @@ def test_best_solution_is_feasible(algo_with_full_tracker):
     algo.history_tracker.step(algo)
 
     best = algo.history_tracker.best_solutions[-1]
-    assert best.shape == (3,)          # vecsize of dummy_objfunc
+    assert best.shape == (3,)  # vecsize of dummy_objfunc
     assert np.all(best >= 0) and np.all(best <= 1)
 
 
 def test_to_pandas_output(algo_with_full_tracker):
     algo = algo_with_full_tracker
     algo.initialize()
-    algo.history_tracker.step(algo)       # gen 0
-    pop = algo.step()                     # gen 1
+    algo.history_tracker.step(algo)  # gen 0
+    pop = algo.step()  # gen 1
     algo.history_tracker.step(algo)
 
     df = algo.history_tracker.to_pandas()
@@ -86,7 +86,7 @@ def test_get_state(algo_with_full_tracker):
     assert "class_name" in state
     assert "best_solutions" in state
     assert "best_objective" in state
-    assert "populations" in state          # from track_complete
+    assert "populations" in state  # from track_complete
     assert "median_solutions" in state
     assert "worst_solutions" in state
 
@@ -112,13 +112,7 @@ def test_correctness_best_median_worst(dummy_objfunc, algo_with_full_tracker):
     tracker = algo.history_tracker
 
     # Build a known population
-    genotypes = np.array([
-        [10, 20],
-        [30, 40],
-        [50, 60],
-        [70, 80],
-        [90, 95]
-    ], dtype=float)
+    genotypes = np.array([[10, 20], [30, 40], [50, 60], [70, 80], [90, 95]], dtype=float)
     pop = make_pop([1.0, 5.0, 2.0, 4.0, 3.0], dummy_objfunc)
     pop.genotype_matrix = genotypes
     pop.fitness = np.array([1.0, 5.0, 2.0, 4.0, 3.0])

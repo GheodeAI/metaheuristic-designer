@@ -20,6 +20,7 @@ def test_acquisition_function_expected_improvement():
     std_y = 0.1
     z = (mean_y - max_y) / std_y  # (0.5 - 0.6)/0.1 = -1.0
     from scipy.stats import norm
+
     expected = (mean_y - max_y) * norm.cdf(z) + std_y * norm.pdf(z)
     assert_almost_equal(ei, expected)
 
@@ -33,5 +34,6 @@ def test_acquisition_function_zero_std_clamped():
     ei = _acquisition_function(model, X, x_in, max_y)
     # z = (0 - 0)/1e-10 = 0, EI = (0)*0.5 + 1e-10*0.3989 ≈ 3.989e-11
     from scipy.stats import norm
+
     expected = 1e-10 * norm.pdf(0.0)
     assert_almost_equal(ei, expected, decimal=10)

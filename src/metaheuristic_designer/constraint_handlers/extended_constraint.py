@@ -1,7 +1,9 @@
 from __future__ import annotations
 from copy import copy
+import numpy as np
 from ..constraint_handler import ConstraintHandler
 from ..encodings import ParameterExtendingEncoding
+from ..utils import MatrixLike, ScalarLike
 
 
 class ExtendedConstraintHandler(ConstraintHandler):
@@ -12,25 +14,27 @@ class ExtendedConstraintHandler(ConstraintHandler):
         self.param_handler_dict = param_handler_dict
         self.encoding = encoding
 
-    def repair_solution(self, solution):
-        solution_vec = self.encoding.decode(solution[None, :])
-        param = self.encoding.decode_params(solution[None, :])
+    def repair_solution(self, genotype_matrix: MatrixLike) -> MatrixLike:
+        solution_matrix = self.encoding.extract_solution(genotype_matrix)
+        params = self.encoding.decode_params(genotype_matrix)
 
-        solution_vec_fixed = self.solution_handler.repair_solution(solution_vec)
-        param_fixed = copy(param)
+        solution_matrix_repaired = self.solution_handler.repair_solution(solution_matrix)
+
+        param_fixed = copy(params)
         for param_name, _ in self.encoding.param_sizes:
-            param_vec = param[param_name]
-            param_fixed[param_name] = self.param_handler_dict[param_name].repair_solution(param_vec)
+            param_matrix = params[param_name]
+            param_fixed[param_name] = self.param_handler_dict[param_name].repair_solution(param_matrix)
 
-        return self.encoding.encode(solution_vec_fixed, param_fixed)
+        # In repair_solution, before the encode call
+        return self.encoding.encode(solution_matrix_repaired, param_fixed)
 
-    def penalty(self, solution):
-        solution_vec = self.encoding.decode(solution[None, :])[0]
-        param = self.encoding.decode_params(solution[None, :])
+    def penalty(self, genotype_matrix: MatrixLike) -> ScalarLike:
+        solution_matrix = self.encoding.extract_solution(genotype_matrix)
+        params = self.encoding.decode_params(genotype_matrix)
 
-        penalty = self.solution_handler.penalty(solution_vec)
+        penalty = self.solution_handler.penalty(solution_matrix)
         for param_name, _ in self.encoding.param_sizes:
-            param_vec = param[param_name]
-            penalty += self.param_handler_dict[param_name].penalty(param_vec)
+            param_matrix = params[param_name]
+            penalty += self.param_handler_dict[param_name].penalty(param_matrix)
 
         return penalty

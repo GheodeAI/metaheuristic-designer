@@ -14,6 +14,7 @@ from metaheuristic_designer.operators.operator_functions.differential_evolution 
     differential_evolution_current_to_pbest1,
 )
 
+
 # ===================================================================
 #  Minimum size validation
 # ===================================================================
@@ -21,25 +22,31 @@ def test_de_rand1_raises_on_too_small():
     with pytest.raises(ValueError):
         differential_evolution_rand1(np.zeros((3, 2)), None)
 
+
 def test_de_best1_raises_on_too_small():
     with pytest.raises(ValueError):
         differential_evolution_best1(np.zeros((2, 2)), None)
+
 
 def test_de_rand2_raises_on_too_small():
     with pytest.raises(ValueError):
         differential_evolution_rand2(np.zeros((5, 2)), None)
 
+
 def test_de_best2_raises_on_too_small():
     with pytest.raises(ValueError):
         differential_evolution_best2(np.zeros((4, 2)), None)
+
 
 def test_de_current_to_rand1_raises_on_too_small():
     with pytest.raises(ValueError):
         differential_evolution_current_to_rand1(np.zeros((3, 2)), None)
 
+
 def test_de_current_to_best1_raises_on_too_small():
     with pytest.raises(ValueError):
         differential_evolution_current_to_best1(np.zeros((2, 2)), None)
+
 
 def test_de_current_to_pbest1_raises_on_too_small():
     with pytest.raises(ValueError):
@@ -54,6 +61,7 @@ def test_de_rand1_value(rng, de_pop):
     rng2 = np.random.default_rng(42)
     expected = differential_evolution_rand1(de_pop.copy(), None, random_state=rng2, F=0.8, Cr=0.9)
     assert_array_equal(result, expected)
+
 
 def test_de_rand1_preserves_shape(rng, de_pop):
     result = differential_evolution_rand1(de_pop.copy(), None, random_state=rng)

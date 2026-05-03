@@ -1,6 +1,8 @@
 import pytest
 from metaheuristic_designer.parametrizable_mixin import ParametrizableMixin
 from metaheuristic_designer.parameter_schedules.linear_schedule import LinearSchedule
+
+
 class DummyComponent(ParametrizableMixin):
     def __init__(self, **kwargs):
         super().__init__()
@@ -15,7 +17,7 @@ def test_store_static_kwargs():
 def test_store_callable_kwarg_evaluated_immediately():
     comp = DummyComponent(scale=lambda p: p * 10)
     params = comp.get_params()
-    assert params["scale"] == 0.0   # progress 0 → 0
+    assert params["scale"] == 0.0  # progress 0 → 0
 
 
 def test_step_updates_callable():
@@ -34,7 +36,7 @@ def test_get_params_returns_copy():
     comp = DummyComponent(scale=2.0)
     params = comp.get_params()
     params["scale"] = 999
-    assert comp.get_params()["scale"] == 2.0   # original untouched
+    assert comp.get_params()["scale"] == 2.0  # original untouched
 
 
 def test_schedule_object_as_callable():
@@ -45,10 +47,7 @@ def test_schedule_object_as_callable():
 
 
 def test_multiple_mixed_params():
-    comp = DummyComponent(
-        static=42,
-        dynamic=lambda p: 100 - p * 100
-    )
+    comp = DummyComponent(static=42, dynamic=lambda p: 100 - p * 100)
     comp.step(progress=0.2)
     params = comp.get_params()
     assert params["static"] == 42
@@ -56,7 +55,7 @@ def test_multiple_mixed_params():
 
 
 def test_step_called_multiple_times():
-    comp = DummyComponent(value=lambda p: 2.0 ** p)
+    comp = DummyComponent(value=lambda p: 2.0**p)
     for p in [0.0, 0.5, 1.0]:
         comp.step(progress=p)
     assert comp.get_params()["value"] == 2.0

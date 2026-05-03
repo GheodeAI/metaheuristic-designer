@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Iterable
 from copy import copy
-import numpy as np
 from ..constraint_handler import ConstraintHandler
+from ..utils import MatrixLike, ScalarLike
 
 
 class CompositeConstraint(ConstraintHandler):
@@ -18,12 +18,12 @@ class CompositeConstraint(ConstraintHandler):
     def __init__(self, constraints: Iterable):
         self.constraints = constraints
 
-    def repair_solution(self, solution: np.ndarray):
+    def repair_solution(self, solution: MatrixLike) -> MatrixLike:
         repaired_solution = copy(solution)
         for c in self.constraints:
             repaired_solution = c.repair_solution(repaired_solution)
 
         return repaired_solution
 
-    def penalty(self, solution):
+    def penalty(self, solution: MatrixLike) -> ScalarLike:
         return sum(c.penalty(solution) for c in self.constraints)

@@ -12,9 +12,7 @@ from metaheuristic_designer.population import Population
 # -------------------------------------------------------------------
 #  Factory: method lookup and type
 # -------------------------------------------------------------------
-@pytest.mark.parametrize("method", [
-    "swap", "scramble", "invert", "roll", "pmx", "order_cross"
-])
+@pytest.mark.parametrize("method", ["swap", "scramble", "invert", "roll", "pmx", "order_cross"])
 def test_create_permutation_operator_returns_operator(method, rng, simple_encoding):
     op = create_permutation_operator(method, encoding=simple_encoding, random_state=rng)
     assert isinstance(op, OperatorFromLambda)
@@ -36,7 +34,7 @@ def test_create_permutation_operator_invalid_method():
 # -------------------------------------------------------------------
 def test_swap_operator_modifies_genotype(rng, dummy_objfunc, simple_encoding):
     # Use an integer genotype matrix
-    geno = np.array([[1,2,3,4], [3,4,2,1], [4,1,3,2], [2,3,1,4]])
+    geno = np.array([[1, 2, 3, 4], [3, 4, 2, 1], [4, 1, 3, 2], [2, 3, 1, 4]])
     pop = Population(dummy_objfunc, geno)
     pop.fitness = np.zeros(4)
 
@@ -49,7 +47,7 @@ def test_swap_operator_modifies_genotype(rng, dummy_objfunc, simple_encoding):
 
 
 def test_permutation_operator_reproducible(rng, dummy_objfunc, simple_encoding):
-    geno = np.array([[1,2,3,4], [3,4,2,1], [4,1,3,2], [2,3,1,4]])
+    geno = np.array([[1, 2, 3, 4], [3, 4, 2, 1], [4, 1, 3, 2], [2, 3, 1, 4]])
     pop1 = Population(dummy_objfunc, geno.copy())
     pop2 = Population(dummy_objfunc, geno.copy())
 

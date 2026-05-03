@@ -16,10 +16,8 @@ from metaheuristic_designer.utils import check_random_state
 
 def run_algorithm(save_report, random_state):
     objfunc = HappyCat(3, "min")
-    single_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim,
-                                            pop_size=1, random_state=random_state)
-    pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim,
-                                         pop_size=100, random_state=random_state)
+    single_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, random_state=random_state)
+    pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, random_state=random_state)
 
     # Define algorithms to be tested (all strategies instantiated upfront)
     strategies = [
@@ -143,8 +141,7 @@ def run_algorithm(save_report, random_state):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--save-report", dest="save_report", action="store_true",
-                        help="Save report as CSV.")
+    parser.add_argument("-s", "--save-report", dest="save_report", action="store_true", help="Save report as CSV.")
     parser.add_argument("-r", "--seed", type=int, default=42, help="Random seed.")
     parser.add_argument("--log", default="WARNING", help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     args = parser.parse_args()

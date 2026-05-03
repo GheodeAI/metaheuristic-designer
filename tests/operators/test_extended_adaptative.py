@@ -15,10 +15,10 @@ from metaheuristic_designer.population import Population
 # ===================================================================
 def test_extended_operator_rejects_non_extending_encoding(rng):
     from metaheuristic_designer.encoding import DefaultEncoding
+
     regular_enc = DefaultEncoding()
     with pytest.raises(TypeError):
-        ExtendedOperator(OperatorFromLambda(lambda p, i, rng, **kw: p, random_state=rng),
-                         {}, regular_enc)
+        ExtendedOperator(OperatorFromLambda(lambda p, i, rng, **kw: p, random_state=rng), {}, regular_enc)
 
 
 def test_extended_operator_applies_masked_ops(rng, dummy_objfunc):
@@ -27,30 +27,20 @@ def test_extended_operator_applies_masked_ops(rng, dummy_objfunc):
     enc.vecsize = 2
 
     # Base operator: adds 10 to the solution part (it receives only solution columns)
-    base_op = OperatorFromLambda(
-        lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix + 10),
-        random_state=rng
-    )
+    base_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix + 10), random_state=rng)
     # Param operator: multiplies param part by 2
-    param_op = OperatorFromLambda(
-        lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix * 2),
-        random_state=rng
-    )
+    param_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix * 2), random_state=rng)
 
     ext = ExtendedOperator(base_op, {"speed": param_op}, enc)
 
     # Build population with known genotype
-    pop = Population(dummy_objfunc,
-                     np.array([[1.0, 2.0, 3.0, 4.0],
-                               [5.0, 6.0, 7.0, 8.0]]),
-                     encoding=enc)
+    pop = Population(dummy_objfunc, np.array([[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0]]), encoding=enc)
     pop.fitness = np.zeros(2)
 
     result = ext.evolve(pop)
 
     # Expected: solution part +10, param part *2
-    expected = np.array([[11.0, 12.0, 6.0, 8.0],
-                         [15.0, 16.0, 14.0, 16.0]])
+    expected = np.array([[11.0, 12.0, 6.0, 8.0], [15.0, 16.0, 14.0, 16.0]])
     assert_array_equal(result.genotype_matrix, expected)
 
 
@@ -63,10 +53,12 @@ def test_adaptative_operator_updates_base_operator_kwargs(rng, dummy_objfunc):
 
     # Base operator that records kwargs and does nothing else
     recorded_kwargs = {}
+
     def record_kwargs(pop, init, rng, **kw):
         for k, v in kw.items():
             recorded_kwargs[k] = v
         return pop
+
     base_op = OperatorFromLambda(record_kwargs, random_state=rng)
 
     # Param operator (identity)
@@ -74,10 +66,7 @@ def test_adaptative_operator_updates_base_operator_kwargs(rng, dummy_objfunc):
 
     adapt = AdaptiveOperator(base_op, {"speed": param_op}, enc)
 
-    pop = Population(dummy_objfunc,
-                     np.array([[1.0, 2.0, 5.0, 6.0],
-                               [3.0, 4.0, 7.0, 8.0]]),
-                     encoding=enc)
+    pop = Population(dummy_objfunc, np.array([[1.0, 2.0, 5.0, 6.0], [3.0, 4.0, 7.0, 8.0]]), encoding=enc)
     pop.fitness = np.zeros(2)
     adapt.evolve(pop)
 

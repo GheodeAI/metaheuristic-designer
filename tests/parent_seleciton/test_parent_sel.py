@@ -4,7 +4,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 from conftest import dummy_objfunc, rng
-from conftest import make_pop   # plain function from conftest
+from conftest import make_pop  # plain function from conftest
 
 from metaheuristic_designer.parent_selection import (
     ParentSelectionDef,
@@ -49,14 +49,17 @@ def test_parent_selection_def_passes_fitness_and_kwargs():
 # ===================================================================
 #  create_parent_selection – type and name
 # ===================================================================
-@pytest.mark.parametrize("method, expected_type", [
-    ("best", ParentSelectionFromLambda),
-    ("tournament", ParentSelectionFromLambda),
-    ("random", ParentSelectionFromLambda),
-    ("roulette", ParentSelectionFromLambda),
-    ("sus", ParentSelectionFromLambda),
-    ("nothing", NullParentSelection),
-])
+@pytest.mark.parametrize(
+    "method, expected_type",
+    [
+        ("best", ParentSelectionFromLambda),
+        ("tournament", ParentSelectionFromLambda),
+        ("random", ParentSelectionFromLambda),
+        ("roulette", ParentSelectionFromLambda),
+        ("sus", ParentSelectionFromLambda),
+        ("nothing", NullParentSelection),
+    ],
+)
 def test_create_returns_correct_type(method, expected_type, rng):
     sel = create_parent_selection(method, random_state=rng)
     assert isinstance(sel, expected_type)
@@ -75,13 +78,16 @@ def test_create_default_name_is_method(rng):
 # ===================================================================
 #  Integration: select() returns a valid subset of the population
 # ===================================================================
-@pytest.mark.parametrize("method, kwargs", [
-    ("best", {}),
-    ("tournament", {"tournament_size": 2}),
-    ("random", {}),
-    ("roulette", {}),
-    ("sus", {}),
-])
+@pytest.mark.parametrize(
+    "method, kwargs",
+    [
+        ("best", {}),
+        ("tournament", {"tournament_size": 2}),
+        ("random", {}),
+        ("roulette", {}),
+        ("sus", {}),
+    ],
+)
 def test_factory_select_returns_valid_parents(method, kwargs, rng, dummy_objfunc):
     population = make_pop([5.0, 1.0, 3.0, 2.0], dummy_objfunc)
     amount = 3
@@ -105,13 +111,16 @@ def test_factory_select_returns_valid_parents(method, kwargs, rng, dummy_objfunc
 # ===================================================================
 #  Integration: select() returns a valid subset of the population
 # ===================================================================
-@pytest.mark.parametrize("method, kwargs", [
-    ("best", {}),
-    ("tournament", {"tournament_size": 2}),
-    ("random", {}),
-    ("roulette", {}),
-    ("sus", {}),
-])
+@pytest.mark.parametrize(
+    "method, kwargs",
+    [
+        ("best", {}),
+        ("tournament", {"tournament_size": 2}),
+        ("random", {}),
+        ("roulette", {}),
+        ("sus", {}),
+    ],
+)
 def test_factory_select_returns_valid_parents(method, kwargs, rng, dummy_objfunc):
     population = make_pop([5.0, 1.0, 3.0, 2.0], dummy_objfunc)
     amount = 3

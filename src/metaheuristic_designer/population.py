@@ -490,9 +490,7 @@ class Population:
         self: Population
         """
 
-        for idx, individual in enumerate(self.genotype_matrix):
-            self.genotype_matrix[idx] = self.objfunc.repair_solution(individual)
-
+        self.genotype_matrix = self.objfunc.repair_solution(self.genotype_matrix)
         return self
 
     def decode(self, encoding: Optional[Encoding] = None) -> Iterable:

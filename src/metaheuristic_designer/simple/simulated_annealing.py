@@ -7,7 +7,9 @@ from ..algorithms import Algorithm
 from ..operators import create_operator
 
 
-def simulated_annealing_binary(objfunc, mutated_bits=1, initial_temperature=1.0, alpha=0.997, iterations=100, encoding=None, random_state=None, **kwargs):
+def simulated_annealing_binary(
+    objfunc, mutated_bits=1, initial_temperature=1.0, alpha=0.997, iterations=100, encoding=None, random_state=None, **kwargs
+):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept binary coded vectors.
@@ -16,11 +18,15 @@ def simulated_annealing_binary(objfunc, mutated_bits=1, initial_temperature=1.0,
     encoding = TypeCastEncoding(int, bool) if encoding is None else encoding
     pop_initializer = UniformInitializer(objfunc.vecsize, 0, 1, pop_size=1, dtype=np.uint8, encoding=encoding, random_state=random_state)
     mutation_op = create_operator("mutation.bitflip", N=mutated_bits, random_state=random_state)
-    search_strat = SA(pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, random_state=random_state)
+    search_strat = SA(
+        pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, random_state=random_state
+    )
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def simulated_annealing_permutation(objfunc, swapped_positions=2, initial_temperature=1.0, alpha=0.997, iterations=100, encoding=None, random_state=None, **kwargs):
+def simulated_annealing_permutation(
+    objfunc, swapped_positions=2, initial_temperature=1.0, alpha=0.997, iterations=100, encoding=None, random_state=None, **kwargs
+):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept integer coded vectors.
@@ -28,31 +34,51 @@ def simulated_annealing_permutation(objfunc, swapped_positions=2, initial_temper
 
     pop_initializer = PermInitializer(objfunc.vecsize, pop_size=1, encoding=encoding, random_state=random_state)
     mutation_op = create_operator("permutation.swap", N=swapped_positions, random_state=random_state)
-    search_strat = SA(pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, random_state=random_state)
+    search_strat = SA(
+        pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, random_state=random_state
+    )
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def simulated_annealing_discrete(objfunc, resampled_components=1, initial_temperature=1.0, alpha=0.997, iterations=100, encoding=None, random_state=None, **kwargs):
+def simulated_annealing_discrete(
+    objfunc, resampled_components=1, initial_temperature=1.0, alpha=0.997, iterations=100, encoding=None, random_state=None, **kwargs
+):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept integer coded vectors.
     """
 
-    pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int, encoding=encoding, random_state=random_state)
+    pop_initializer = UniformInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int, encoding=encoding, random_state=random_state
+    )
     mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
-    search_strat = SA(pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, random_state=random_state)
+    search_strat = SA(
+        pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, random_state=random_state
+    )
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
 def simulated_annealing_real(
-    objfunc, mutation_strength=1e-2, mutated_components=1, initial_temperature=1.0, alpha=0.997, iterations=100, encoding=None, random_state=None, **kwargs
+    objfunc,
+    mutation_strength=1e-2,
+    mutated_components=1,
+    initial_temperature=1.0,
+    alpha=0.997,
+    iterations=100,
+    encoding=None,
+    random_state=None,
+    **kwargs,
 ):
     """
     Instantiates a hill climbing algorithm to optimize the given objective function.
     This objective function should accept real coded vectors.
     """
 
-    pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float, encoding=encoding, random_state=random_state)
+    pop_initializer = UniformInitializer(
+        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float, encoding=encoding, random_state=random_state
+    )
     mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
-    search_strat = SA(pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, random_state=random_state)
+    search_strat = SA(
+        pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, random_state=random_state
+    )
     return Algorithm(objfunc, search_strat, **kwargs)

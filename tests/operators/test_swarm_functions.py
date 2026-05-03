@@ -24,8 +24,7 @@ def test_pso_operator_deterministic(rng):
 
     # Reproducibility
     rng2 = np.random.default_rng(42)
-    exp_pop, exp_speed = pso_operator(pop.copy(), speed.copy(), hist_best.copy(), global_best.copy(),
-                                      random_state=rng2, w=0.7, c1=1.5, c2=1.5)
+    exp_pop, exp_speed = pso_operator(pop.copy(), speed.copy(), hist_best.copy(), global_best.copy(), random_state=rng2, w=0.7, c1=1.5, c2=1.5)
     assert_array_equal(new_pop, exp_pop)
     assert_array_equal(new_speed, exp_speed)
 

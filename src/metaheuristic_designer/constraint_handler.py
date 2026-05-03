@@ -6,10 +6,10 @@ This module implements ways to enforce constraints on the objective function.
 
 from __future__ import annotations
 from copy import copy
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Iterable, Optional
 from abc import ABC, abstractmethod
 from .parametrizable_mixin import ParametrizableMixin
-from .utils import ScalarLike
+from .utils import ScalarLike, VectorLike, MatrixLike
 
 
 class ConstraintHandler(ParametrizableMixin, ABC):
@@ -17,12 +17,13 @@ class ConstraintHandler(ParametrizableMixin, ABC):
     Class responsible for enforcing restrictions of the optimization problem.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, encoding=None, **kwargs):
         super().__init__()
+        self.encoding = encoding
         self.store_kwargs(**kwargs)
 
     @abstractmethod
-    def repair_solution(self, solution: Any) -> Any:
+    def repair_solution(self, population_matrix: MatrixLike) -> MatrixLike:
         """
         Modifies the incoming solution so that it follows the problem's constraints.
 
@@ -38,7 +39,7 @@ class ConstraintHandler(ParametrizableMixin, ABC):
         """
 
     @abstractmethod
-    def penalty(self, solution: Any) -> ScalarLike:
+    def penalty(self, population_matrix: MatrixLike) -> VectorLike:
         """
         Offset to the objective value for the solution corresponding to violations of the problem's constraints.
 
@@ -86,7 +87,7 @@ class ConstraintHandlerFromLambda(ConstraintHandler):
         self.repair_solution_fn = repair_solution_fn
         self.penalty_fn = penalty_fn
 
-    def repair_solution(self, solution: Any) -> Any:
+    def repair_solution(self, solution: Iterable) -> Iterable:
         if self.repair_solution_fn is None:
             return copy(solution)
 
@@ -104,7 +105,7 @@ class NullConstraint(ConstraintHandler):
     Constraint handler that enforces no constraints. The penalty is 0 and repairing the solution does nothing.
     """
 
-    def repair_solution(self, solution: Any) -> Any:
+    def repair_solution(self, solution: MatrixLike) -> MatrixLike:
         return copy(solution)
 
     def penalty(self, _solution: Any) -> ScalarLike:
@@ -118,7 +119,7 @@ class PenalizeConstraint(ConstraintHandler, ABC):
     The `penalty` function must be implemented.
     """
 
-    def repair_solution(self, solution: Any) -> Any:
+    def repair_solution(self, solution: Iterable) -> Iterable:
         return copy(solution)
 
 
@@ -129,5 +130,5 @@ class RepairConstraint(ConstraintHandler, ABC):
     The `repair_solution` function must be implemented.
     """
 
-    def penalty(self, _solution: Any) -> ScalarLike:
+    def penalty(self, _solution: Iterable) -> VectorLike:
         return 0

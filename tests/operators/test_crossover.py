@@ -12,9 +12,7 @@ from metaheuristic_designer.population import Population
 # -------------------------------------------------------------------
 #  Factory: method lookup and type
 # -------------------------------------------------------------------
-@pytest.mark.parametrize("method", [
-    "one_point", "uniform", "sbx", "xor_crossover"
-])
+@pytest.mark.parametrize("method", ["one_point", "uniform", "sbx", "xor_crossover"])
 def test_create_crossover_operator_returns_operator(method, rng, simple_encoding):
     op = create_crossover_operator(method, encoding=simple_encoding, random_state=rng)
     assert isinstance(op, OperatorFromLambda)

@@ -7,151 +7,106 @@ from ..encodings import CompositeEncoding, TypeCastEncoding, SigmoidEncoding, PS
 from ..strategies import PSO
 from ..algorithms import Algorithm
 from ..constraint_handlers import ClipBoundConstraint, BounceBoundConstraint, ExtendedConstraintHandler
+from ..utils import check_random_state
 
-particle_swarm_binary = lambda *args, **kwargs: None
-particle_swarm_discrete = lambda *args, **kwargs: None
-particle_swarm_real = lambda *args, **kwargs: None
-
-def particle_swarm(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
+def particle_swarm_binary(
+    objfunc,
+    population_size: int = 100,
+    w = 0.7,
+    c1=1.5,
+    c2=1.5,
+    encoding=None,
+    random_state=None,
+    **kwargs,
+):
     """
-    Instantiates a particle swarm algorithm to optimize the given objective function.
-
-    Parameters
-    ----------
-    objfunc: ObjectiveFunc
-        Objective function to be optimized.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters of the algorithm.
-
-    Returns
-    -------
-    algorithm: Algorithm
-        Configured optimization algorithm.
+    Differential Evolution for binary-coded vectors.
     """
-
-    if "encoding" not in params:
-        raise ValueError('You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
-
-    encoding_str = params["encoding"]
-
-    if encoding_str.lower() == "real":
-        alg = _particle_swarm_real_vec(params, objfunc)
-    elif encoding_str.lower() == "int":
-        alg = _particle_swarm_int_vec(params, objfunc)
-    elif encoding_str.lower() == "bin":
-        alg = _particle_swarm_bin_vec(params, objfunc)
-    else:
-        raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"')
-
-    return alg
-
-
-def _particle_swarm_real_vec(params, objfunc):
-    """
-    Instantiates a particle swarm algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
-    """
-
-    pop_size = params.get("pop_size", 100)
-    w = params.get("w", 0.7)
-    c1 = params.get("c1", 1.5)
-    c2 = params.get("c2", 1.5)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
-    abs_max_val = np.maximum(np.abs(min_val), np.abs(max_val))
-
-    pso_encoding = PSOEncoding(vecsize)
-
-    pop_initializer = ExtendedInitializer(
-        solution_init=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size),
-        param_init_dict={"speed": UniformInitializer(vecsize, -abs_max_val, abs_max_val)},
-        encoding=pso_encoding,
+    random_state = check_random_state(random_state)
+    if encoding is None:
+        encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
+    pop_initializer = UniformInitializer(
+        objfunc.vecsize,
+        objfunc.low_lim,
+        objfunc.up_lim,
+        pop_size=population_size,
+        dtype=float,
+        encoding=encoding,
+        random_state=random_state,
     )
-
-    constraint_handler = ExtendedConstraintHandler(
-        ClipBoundConstraint(vecsize, min_val, max_val), {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)}, encoding=pso_encoding
+    search_strat = PSO(
+        initializer=pop_initializer,
+        w=w,
+        c1=c1,
+        c2=c2,
+        random_state=random_state,
     )
-    objfunc.constraint_handler = constraint_handler
-
-    search_strat = PSO(initializer=pop_initializer, encoding=pso_encoding, params={"w": w, "c1": c1, "c2": c2})
-
-    return Algorithm(objfunc, search_strat, params=params)
+    return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def _particle_swarm_int_vec(params, objfunc):
+def particle_swarm_discrete(
+    objfunc,
+    population_size: int = 100,
+    w = 0.7,
+    c1=1.5,
+    c2=1.5,
+    encoding=None,
+    random_state=None,
+    **kwargs,
+):
     """
-    Instantiates a particle swarm algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
+    Differential Evolution for integer-coded vectors.
     """
-
-    pop_size = params.get("pop_size", 100)
-    w = params.get("w", 0.7)
-    c1 = params.get("c1", 1.5)
-    c2 = params.get("c2", 1.5)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 1)
-    abs_max_val = np.maximum(np.abs(min_val), np.abs(max_val))
-
-    pso_encoding = CompositeEncoding([PSOEncoding(vecsize), TypeCastEncoding(float, int)])
-
-    pop_initializer = ExtendedInitializer(
-        solution_init=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size),
-        param_init_dict={"speed": UniformInitializer(vecsize, -abs_max_val, abs_max_val)},
-        encoding=pso_encoding,
+    random_state = check_random_state(random_state)
+    if encoding is None:
+        encoding = TypeCastEncoding(float, int)
+    pop_initializer = UniformInitializer(
+        objfunc.vecsize,
+        objfunc.low_lim,
+        objfunc.up_lim,
+        pop_size=population_size,
+        dtype=float,
+        encoding=encoding,
+        random_state=random_state,
     )
-
-    constraint_handler = ExtendedConstraintHandler(
-        ClipBoundConstraint(vecsize, min_val, max_val), {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)}, encoding=pso_encoding
+    search_strat = PSO(
+        initializer=pop_initializer,
+        w=w,
+        c1=c1,
+        c2=c2,
+        random_state=random_state,
     )
-    objfunc.constraint_handler = constraint_handler
-
-    search_strat = PSO(initializer=pop_initializer, encoding=pso_encoding, params={"w": w, "c1": c1, "c2": c2})
-
-    return Algorithm(objfunc, search_strat, params=params)
+    return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def _particle_swarm_bin_vec(params, objfunc):
+def particle_swarm_real(
+    objfunc,
+    population_size: int = 100,
+    w = 0.7,
+    c1=1.5,
+    c2=1.5,
+    encoding=None,
+    random_state=None,
+    **kwargs,
+):
     """
-    Instantiates a particle swarm algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
+    Differential Evolution for real-coded vectors.
     """
-
-    pop_size = params.get("pop_size", 100)
-    w = params.get("w", 0.7)
-    c1 = params.get("c1", 1.5)
-    c2 = params.get("c2", 1.5)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 1)
-    abs_max_val = np.maximum(np.abs(min_val), np.abs(max_val))
-
-    pso_encoding = CompositeEncoding([PSOEncoding(vecsize), SigmoidEncoding(as_probability=False, threshold=0.5)])
-
-    pop_initializer = ExtendedInitializer(
-        solution_init=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size),
-        param_init_dict={"speed": UniformInitializer(vecsize, -abs_max_val, abs_max_val)},
-        encoding=pso_encoding,
+    random_state = check_random_state(random_state)
+    pop_initializer = UniformInitializer(
+        objfunc.vecsize,
+        objfunc.low_lim,
+        objfunc.up_lim,
+        pop_size=population_size,
+        dtype=float,
+        encoding=encoding,
+        random_state=random_state,
     )
-
-    constraint_handler = ExtendedConstraintHandler(
-        ClipBoundConstraint(vecsize, min_val, max_val), {"speed": BounceBoundConstraint(vecsize, -abs_max_val, abs_max_val)}, encoding=pso_encoding
+    search_strat = PSO(
+        initializer=pop_initializer,
+        w=w,
+        c1=c1,
+        c2=c2,
+        random_state=random_state,
     )
-    objfunc.constraint_handler = constraint_handler
-
-    search_strat = PSO(initializer=pop_initializer, encoding=pso_encoding, params={"w": w, "c1": c1, "c2": c2})
-
-    return Algorithm(objfunc, search_strat, params=params)
+    return Algorithm(objfunc, search_strat, **kwargs)
