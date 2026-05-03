@@ -89,7 +89,7 @@ def test_step_lamarckian_records_history(dummy_objfunc, dummy_strategy, dummy_in
     algo.initialize()
     _ = algo.step()
     algo.history_tracker.step(algo)
-    assert len(algo.history_tracker.best_fitness) == 1
+    assert len(algo.history_tracker.best_objective) == 1
     assert len(algo.history_tracker.best_solutions) == 1
 
 

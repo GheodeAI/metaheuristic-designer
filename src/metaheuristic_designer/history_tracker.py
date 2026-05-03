@@ -62,7 +62,7 @@ class HistoryTracker:
             self.complete_population.append(solutions)
 
         if self.track_best:
-            best_idx = fitness_order[0]
+            best_idx = fitness_order[-1]
             self.best_solutions.append(solutions[best_idx])
             self.best_objective.append(objective_array[best_idx])
 
@@ -76,7 +76,7 @@ class HistoryTracker:
             self.median_objective.append(objective_array[median_idx])
 
         if self.track_worst:
-            worst_idx = fitness_order[-1]
+            worst_idx = fitness_order[0]
             self.worst_solutions.append(solutions[worst_idx])
             self.worst_objective.append(objective_array[worst_idx])
 

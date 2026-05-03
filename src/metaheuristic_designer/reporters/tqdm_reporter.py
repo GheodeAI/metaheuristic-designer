@@ -25,7 +25,7 @@ class TQDMReporter(Reporter):
         alg_name = algorithm.name
 
         self.bar_tracker = tqdm(total=self.resolution, bar_format="{l_bar}{bar}| {percentage:3.0f}% [{elapsed}<{remaining}, {rate_fmt}{postfix}]")
-        self.bar_tracker.set_description(f"Optimizing {objfunc_name} using {alg_name}, Iteration 0: ")
+        self.bar_tracker.set_description(f"Optimizing {objfunc_name} using {alg_name}, Iteration 0")
         self.bar_tracker.set_postfix(evals=0)
 
         self.rounded_progress = 0
@@ -40,7 +40,7 @@ class TQDMReporter(Reporter):
         evaluations = algorithm.stopping_condition.evaluations
         _, best_objective = algorithm.best_solution(problem_space=True)
 
-        self.bar_tracker.set_description(f"Optimizing {objfunc_name} using {alg_name}, Iteration {iterations}: ")
+        self.bar_tracker.set_description(f"Optimizing {objfunc_name} using {alg_name}, Iteration {iterations}")
         self.bar_tracker.set_postfix(evals=evaluations, fitness=best_objective)
 
         if next_rounded_progress > self.rounded_progress:
@@ -55,7 +55,7 @@ class TQDMReporter(Reporter):
         remaining = self.resolution - self.rounded_progress
         _, best_objective = algorithm.best_solution(problem_space=True)
 
-        self.bar_tracker.set_description(f"Done optimizing {objfunc_name} using {alg_name}, Iteration {iterations}: ")
+        self.bar_tracker.set_description(f"Done optimizing {objfunc_name} using {alg_name}, Iteration {iterations}")
         self.bar_tracker.set_postfix(evals=evaluations, fitness=best_objective)
 
         if remaining > 0:

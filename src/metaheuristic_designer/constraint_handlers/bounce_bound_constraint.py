@@ -23,13 +23,16 @@ class BounceBoundConstraint(RepairConstraint):
 
     def __init__(self, vecsize, low_lim: float = -100, up_lim: float = 100):
         self.vecsize = vecsize
-        self.low_lim = low_lim
-        self.up_lim = up_lim
+        self.low_lim = np.asarray(low_lim)
+        self.up_lim = np.asarray(up_lim)
         self.range_lim = up_lim - low_lim
 
     def repair_solution(self, vector: ndarray) -> ndarray:
         if np.all(self.up_lim == self.low_lim):
-            return np.asarray(self.up_lim)
+            if self.up_lim.ndim == 1:
+                return np.full_like(self.up_lim)
+            else:
+                return np.full(self.vecsize, self.up_lim)
 
         shifted_vector = vector - self.low_lim
         bounce_times = np.floor_divide(shifted_vector, self.range_lim)

@@ -11,6 +11,7 @@ from typing import Optional, Iterable, Any, Tuple, List
 # -------------------------------------------------------------------
 # Imports from the package
 # -------------------------------------------------------------------
+from metaheuristic_designer.algorithm import Algorithm
 from metaheuristic_designer.encoding import (
     Encoding,
     DefaultEncoding,
@@ -19,6 +20,7 @@ from metaheuristic_designer.encoding import (
 from metaheuristic_designer.encodings.parameter_extending_encoding import (
     ParameterExtendingEncoding,
 )
+from metaheuristic_designer.history_tracker import HistoryTracker
 from metaheuristic_designer.population import Population
 from metaheuristic_designer.objective_function import (
     ObjectiveFunc,
@@ -98,7 +100,6 @@ class DummyObjectiveFunction(ObjectiveFunc):
     def fitness(
         self,
         population: Population,
-        adjusted: bool = False,
         parallel: bool = False,
         threads: int = 8,
     ) -> np.ndarray:
@@ -382,3 +383,29 @@ def run_and_get_best(wrapper_func, objfunc, seed, **kwargs):
     population = algo.optimize()
     _, best = population.best_solution(problem_space=True)
     return best
+
+# ===================================================================
+#  HistoryTracker fixtures
+# ===================================================================
+@pytest.fixture
+def full_tracker():
+    """Tracker that records best, median, worst, and complete population."""
+    return HistoryTracker(
+        track_best=True,
+        track_median=True,
+        track_worst=True,
+        track_complete=True,
+    )
+
+
+@pytest.fixture
+def algo_with_full_tracker(dummy_objfunc, dummy_strategy, full_tracker):
+    """Algorithm with a pre-configured HistoryTracker and minimal stopping."""
+    return Algorithm(
+        dummy_objfunc,
+        dummy_strategy,
+        stop_cond="ngen",
+        ngen=1,
+        reporter="silent",
+        history_tracker=full_tracker,
+    )

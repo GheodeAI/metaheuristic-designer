@@ -115,7 +115,7 @@ def test_best_solution_decoded(dummy_objfunc):
     pop.best = np.array([2.0,3.0])
     pop.best_fitness = 42.0
     # DefaultEncoding returns the array unchanged when decoded
-    sol, fit = pop.best_solution(decoded=True)
+    sol, _ = pop.best_solution(problem_space=True)
     np.testing.assert_array_equal(sol, pop.best)
 
 

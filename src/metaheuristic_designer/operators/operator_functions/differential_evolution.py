@@ -2,8 +2,12 @@
 Differential evolution operator implementations.
 """
 
+import logging
+from multiprocessing import Value
 import numpy as np
 from ...utils import check_random_state
+
+logger = logging.getLogger(__name__)
 
 
 def differential_evolution_rand1(population_matrix, _fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
@@ -21,8 +25,12 @@ def differential_evolution_rand1(population_matrix, _fitness_array, random_state
     -------
         _description_
     """
+
     random_state = check_random_state(random_state)
     popsize = population_matrix.shape[0]
+
+    if popsize < 4:
+        raise ValueError("Cannot apply DE/rand/1 with a population size smaller than 4.")
 
     rand = random_state.random((popsize, popsize))
     np.fill_diagonal(rand, np.inf) # Set diagonal unreachable random number
@@ -53,6 +61,9 @@ def differential_evolution_best1(population_matrix, fitness_array, random_state=
 
     random_state = check_random_state(random_state)
     popsize = population_matrix.shape[0]
+
+    if popsize < 3:
+        raise ValueError("Cannot apply DE/best/1 with a population size smaller than 3.")
 
     r_best = np.argmax(fitness_array)
 
@@ -88,6 +99,9 @@ def differential_evolution_rand2(population_matrix, _fitness_array, random_state
     random_state = check_random_state(random_state)
     popsize = population_matrix.shape[0]
 
+    if popsize < 6:
+        raise ValueError("Cannot apply DE/rand/2 with a population size smaller than 6.")
+
     rand = random_state.random((popsize, popsize))
     np.fill_diagonal(rand, np.inf) # Set diagonal unreachable random number
     r = np.argpartition(rand, 4, axis=1)[:, :5] # The index with lowest random number wins
@@ -117,6 +131,9 @@ def differential_evolution_best2(population_matrix, fitness_array, random_state=
 
     random_state = check_random_state(random_state)
     popsize = population_matrix.shape[0]
+
+    if popsize < 5:
+        raise ValueError("Cannot apply DE/best/2 with a population size smaller than 5.")
 
     r_best = np.argmax(fitness_array)
     rand = random_state.random((popsize, popsize))
@@ -150,6 +167,9 @@ def differential_evolution_current_to_rand1(population_matrix, _fitness_array, r
     random_state = check_random_state(random_state)
     popsize = population_matrix.shape[0]
 
+    if popsize < 4:
+        raise ValueError("Cannot apply DE/current-to-rand/1 with a population size smaller than 4.")
+
     rand = random_state.random((popsize, popsize))
     np.fill_diagonal(rand, np.inf) # Set diagonal unreachable random number
     r = np.argpartition(rand, 2, axis=1)[:, :3] # The index with lowest random number wins
@@ -180,6 +200,9 @@ def differential_evolution_current_to_best1(population_matrix, fitness_array, ra
 
     random_state = check_random_state(random_state)
     popsize = population_matrix.shape[0]
+
+    if popsize < 3:
+        raise ValueError("Cannot apply DE/current-to-best/1 with a population size smaller than 3.")
 
     r_best = np.argmax(fitness_array)
     rand = random_state.random((popsize, popsize))
@@ -212,8 +235,12 @@ def differential_evolution_current_to_pbest1(population_matrix, fitness_array, r
         _description_
     """
 
+
     random_state = check_random_state(random_state)
     popsize = population_matrix.shape[0]
+
+    if popsize < 3:
+        raise ValueError("Cannot apply DE/current-to-pbest/1 with a population size smaller than 3.")
 
     n_best_max_idx = np.ceil(population_matrix.shape[0] * p).astype(int)
     n_best_idx = np.argsort(fitness_array)[::-1][:n_best_max_idx]

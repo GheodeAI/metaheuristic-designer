@@ -396,7 +396,7 @@ class Population:
 
         return self
 
-    def step(self, progress: float = 0) -> Population:
+    def step(self, _progress: float = 0) -> Population:
         """
         Updates the best solution in the population.
 
@@ -409,8 +409,6 @@ class Population:
             self.best = self.genotype_matrix[best_idx, :]
             self.best_fitness = self.fitness[best_idx]
             self.best_objective = self.objective[best_idx]
-
-        self.genotype_matrix = self.encoding.step(self, progress)
 
         return self
 

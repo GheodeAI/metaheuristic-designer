@@ -1,6 +1,7 @@
 import time
 import numpy as np
 from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
+from ..utils import per_individual
 
 __all__ = [
     "MaxOnes",
@@ -204,23 +205,20 @@ def _sphere(solution):
     return (solution**2).sum()
 
 
-# @jit(nopython=True)
+
 def _high_cond_elipt_f(vect):
     c = 1.0e6 ** ((np.arange(vect.shape[0]) / (vect.shape[0] - 1)))
     return np.sum(c * vect * vect)
 
 
-# @jit(nopython=True)
 def _bent_cigar(solution):
     return solution[0] ** 2 + 1e6 * (solution[1:] ** 2).sum()
 
 
-# @jit(nopython=True)
 def _discus(solution):
     return 1e6 * solution[0] ** 2 + (solution[1:] ** 2).sum()
 
 
-# @jit(nopython=True)
 def _rosenbrock(solution):
     term1 = solution[1:] - solution[:-1] ** 2
     term2 = 1 - solution[:-1]
@@ -228,7 +226,6 @@ def _rosenbrock(solution):
     return result.sum()
 
 
-# @jit(nopython=True)
 def _ackley(solution):
     term1 = (solution**2).sum()
     term1 = -0.2 * np.sqrt(term1 / solution.size)
@@ -236,24 +233,20 @@ def _ackley(solution):
     return np.exp(1) - 20 * np.exp(term1) - np.exp(term2) + 20
 
 
-# @jit(nopython=False)
 def _weierstrass(solution, iter=20):
     return np.sum(np.array([0.5**k * np.cos(2 * np.pi * 3**k * (solution + 0.5)) for k in range(iter)]))
 
 
-# @jit(nopython=True)
 def _griewank(solution):
     term1 = (solution**2).sum()
     term2 = np.prod(np.cos(solution / np.sqrt(np.arange(1, solution.size + 1))))
     return 1 + term1 / 4000 - term2
 
 
-# @jit(nopython=True)
 def _rastrigin(solution, A=10):
     return A * len(solution) + (solution**2 - A * np.cos(2 * np.pi * solution)).sum()
 
 
-# @jit(nopython=True)
 def _mod_schwefel(solution):
     fit = 0
     for i in range(solution.size):
@@ -271,7 +264,6 @@ def _mod_schwefel(solution):
     return fit + 4.189828872724338e2 * solution.size
 
 
-# @jit(nopython=True)
 def _katsuura(solution):
     A = 10 / solution.size**2
 
@@ -291,7 +283,6 @@ def _katsuura(solution):
     return A * prod_val - A
 
 
-# @jit(nopython=True)
 def _happy_cat(solution):
     z = solution + 4.189828872724338e2
     r2 = (z * solution).sum()
@@ -299,7 +290,6 @@ def _happy_cat(solution):
     return np.abs(r2 - solution.size) ** 0.25 + (0.5 * r2 + s) / solution.size + 0.5
 
 
-# @jit(nopython=True)
 def _hgbat(solution):
     z = solution + 4.189828872724338e2
     r2 = (z * solution).sum()
@@ -307,7 +297,6 @@ def _hgbat(solution):
     return np.abs((r2**2 - s**2)) ** 0.5 + (0.5 * r2 + s) / solution.size + 0.5
 
 
-# @jit(nopython=True)
 def _exp_griewank_plus_rosenbrock(solution):
     z = solution[:-1] + 4.189828872724338e2
     tmp1 = solution[:-1] ** 2 - solution[1:]
@@ -322,7 +311,6 @@ def _exp_griewank_plus_rosenbrock(solution):
     return grw + ros**2 / 4000 - np.cos(ros) + 1
 
 
-# @jit(nopython=True)
 def _exp_shafferF6(solution):
     term1 = np.sin(np.sqrt(np.sum(solution[:-1] ** 2 + solution[1:] ** 2))) ** 2 - 0.5
     term2 = 1 + 0.001 * (solution[:-1] ** 2 + solution[1:] ** 2).sum()
@@ -334,12 +322,10 @@ def _exp_shafferF6(solution):
     return temp + 0.5 + term1 / term2
 
 
-# @jit(nopython=True)
 def _sum_powell(solution):
     return (np.abs(solution) ** np.arange(2, solution.shape[0] + 2)).sum()
 
 
-# @jit(nopython=True)
 def _n4xinshe_yang(solution):
     sum_1 = np.exp(-(solution**2).sum())
     sum_2 = np.exp(-(np.sin(np.sqrt(np.abs(solution))) ** 2).sum())

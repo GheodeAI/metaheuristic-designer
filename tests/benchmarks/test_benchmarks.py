@@ -53,5 +53,5 @@ def test_fitness(vecsize, bench_class):
     pop_init = UniformInitializer(vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, random_state=42)
 
     population = pop_init.generate_population(objfunc)
-    objfunc.fitness(population, adjusted=False)
-    objfunc.fitness(population, adjusted=True)
+    objfunc.objective(population.genotype_matrix)
+    objfunc.fitness(population)
