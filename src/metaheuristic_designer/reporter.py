@@ -5,10 +5,10 @@ from abc import ABC, abstractmethod
 if TYPE_CHECKING:
     from metaheuristic_designer.algorithm import Algorithm
 
+
 class Reporter(ABC):
     def __init__(self, **kwargs):
-        """_summary_
-        """
+        """_summary_"""
 
     @abstractmethod
     def log_init(self, algorithm: Algorithm):

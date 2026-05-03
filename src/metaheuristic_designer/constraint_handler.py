@@ -52,7 +52,7 @@ class ConstraintHandler(ParametrizableMixin, ABC):
         penalty: float
             The amount of penalty to apply to the current solution.
         """
-    
+
     def get_state(self):
         data = {
             "class_name": self.__class__.__name__,

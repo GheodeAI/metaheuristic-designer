@@ -92,11 +92,9 @@ class Initializer(ABC):
 
         population_matrix = np.asarray([self.generate_individual() for _ in range(n_individuals)])
         return Population(objfunc, genotype_matrix=population_matrix, encoding=self.encoding)
-    
+
     def get_state(self):
-        data = {
-            "class_name": self.__class__.__name__
-        }
+        data = {"class_name": self.__class__.__name__}
 
         return data
 

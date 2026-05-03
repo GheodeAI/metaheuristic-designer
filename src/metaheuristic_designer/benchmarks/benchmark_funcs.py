@@ -26,6 +26,7 @@ __all__ = [
     "N4XinSheYang",
 ]
 
+
 class MaxOnes(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="max", constraint_handler=None):
         super().__init__(constraint_handler=constraint_handler, vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")

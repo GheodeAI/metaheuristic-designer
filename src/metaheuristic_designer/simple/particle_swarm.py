@@ -8,6 +8,9 @@ from ..strategies import PSO
 from ..algorithms import Algorithm
 from ..constraint_handlers import ClipBoundConstraint, BounceBoundConstraint, ExtendedConstraintHandler
 
+particle_swarm_binary = lambda *args, **kwargs: None
+particle_swarm_discrete = lambda *args, **kwargs: None
+particle_swarm_real = lambda *args, **kwargs: None
 
 def particle_swarm(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
     """

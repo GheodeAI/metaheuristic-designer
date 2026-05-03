@@ -12,13 +12,13 @@ from .parent_selection_functions import (
 )
 
 __all__ = [
-    'NullParentSelection',
-    'ParentSelection',
-    'ParentSelectionDef',
-    'ParentSelectionFromLambda',
-    'add_parent_selection_entry',
-    'create_parent_selection',
-    'parent_sel_map',
+    "NullParentSelection",
+    "ParentSelection",
+    "ParentSelectionDef",
+    "ParentSelectionFromLambda",
+    "add_parent_selection_entry",
+    "create_parent_selection",
+    "parent_sel_map",
     "SelectionDist",
     "selection_distribution",
     "select_dist_map",

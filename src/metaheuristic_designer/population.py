@@ -121,9 +121,9 @@ class Population:
         """
 
         if problem_space:
-            best_evaluation = self.best_objective 
+            best_evaluation = self.best_objective
         else:
-            best_evaluation = self.best_fitness 
+            best_evaluation = self.best_fitness
 
         best_solution = self.best
         if problem_space:

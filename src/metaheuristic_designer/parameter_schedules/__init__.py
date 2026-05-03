@@ -6,10 +6,10 @@ from .threshold_schedule import ThresholdSchedule
 from .step_schedule import StepSchedule
 
 __all__ = [
-    'LinearSchedule',
-    'LogisticSchedule',
-    'RandomSchedule',
-    'SchedulableParameter',
-    'StepSchedule',
-    'ThresholdSchedule',
+    "LinearSchedule",
+    "LogisticSchedule",
+    "RandomSchedule",
+    "SchedulableParameter",
+    "StepSchedule",
+    "ThresholdSchedule",
 ]

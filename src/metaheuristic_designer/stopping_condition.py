@@ -62,15 +62,14 @@ class StoppingCondition:
         if self.optimization_mode in {"max", "min"}:
             _, best_fitness = current_population.best_solution(problem_space=False)
 
-            if (self.prev_best_fitness is not None) and (best_fitness >= self.prev_best_fitness):
+            if (self.prev_best_fitness is not None) and (best_fitness <= self.prev_best_fitness):
                 self.patience_left -= 1
             else:
                 self.patience_left = self.max_patience
-
-            if self.first_best_fitness is None:
-                self.first_best_fitness = best_fitness
-            self.prev_best_fitness = best_fitness
-            self.best_fitness = best_fitness
+                if self.first_best_fitness is None:
+                    self.first_best_fitness = best_fitness
+                self.prev_best_fitness = best_fitness
+                self.best_fitness = best_fitness
 
         logger.debug(
             "Updated stopping condition parameters:\nfunc. evaluations = %d\n" "generations = %d\ntime = %f\ncpu_time = %f\nbest = %f\npatience = %d",
@@ -185,7 +184,7 @@ class StoppingCondition:
         return process_progress(
             self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_progress, patience_percentage
         )
-    
+
     def get_state(self):
         data = {
             "class_name": self.__class__.__name__,

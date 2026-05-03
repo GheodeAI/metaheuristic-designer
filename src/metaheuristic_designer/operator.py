@@ -108,12 +108,7 @@ class Operator(ParametrizableMixin, ABC):
             The complete state of the operator.
         """
 
-        data = {
-            "class_name": self.__class__.__name__,
-            "name": self.name,
-            "encoding": self.encoding.get_state(),
-            **self.get_params()
-        }
+        data = {"class_name": self.__class__.__name__, "name": self.name, "encoding": self.encoding.get_state(), **self.get_params()}
 
         return data
 

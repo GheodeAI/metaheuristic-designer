@@ -8,14 +8,14 @@ from .direct_initializer import DirectInitializer
 from .perm_initializer import PermInitializer
 
 __all__ = [
-    'DirectInitializer',
-    'ExponentialInitializer',
-    'ExtendedInitializer',
-    'GaussianInitializer',
-    'Initializer',
-    'InitializerFromLambda',
-    'PermInitializer',
-    'SeedDetermInitializer',
-    'SeedProbInitializer',
-    'UniformInitializer',
+    "DirectInitializer",
+    "ExponentialInitializer",
+    "ExtendedInitializer",
+    "GaussianInitializer",
+    "Initializer",
+    "InitializerFromLambda",
+    "PermInitializer",
+    "SeedDetermInitializer",
+    "SeedProbInitializer",
+    "UniformInitializer",
 ]

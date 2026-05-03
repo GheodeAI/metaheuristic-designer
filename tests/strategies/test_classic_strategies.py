@@ -62,7 +62,7 @@ def test_es_mutation_only(rng, dummy_initializer, dummy_operator):
 
 def test_es_with_crossover(rng, dummy_initializer, dummy_operator):
     algo = ES(initializer=dummy_initializer, mutation_op=dummy_operator,
-              cross_op=dummy_operator, random_state=rng)
+              crossover_op=dummy_operator, random_state=rng)
     from metaheuristic_designer.operators.composite_operator import CompositeOperator
     assert isinstance(algo.operator, CompositeOperator)
 
@@ -75,7 +75,7 @@ def test_ga_creation(rng, dummy_initializer, dummy_operator,
     algo = GA(
         initializer=dummy_initializer,
         mutation_op=dummy_operator,
-        cross_op=dummy_operator,
+        crossover_op=dummy_operator,
         parent_sel=dummy_parent_selection,
         survivor_sel=dummy_survivor_selection,
         mutation_prob=0.1,
@@ -91,7 +91,7 @@ def test_ga_default_names(rng, dummy_initializer, dummy_operator,
     algo = GA(
         initializer=dummy_initializer,
         mutation_op=dummy_operator,
-        cross_op=dummy_operator,
+        crossover_op=dummy_operator,
         parent_sel=dummy_parent_selection,
         survivor_sel=dummy_survivor_selection,
         random_state=rng,

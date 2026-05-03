@@ -9,14 +9,14 @@ from .special import *
 from . import special
 
 __all__ = [
-    'CompositeEncoding',
-    'DefaultEncoding',
-    'Encoding',
-    'EncodingFromLambda',
-    'ImageEncoding',
-    'MatrixEncoding',
-    'ParameterExtendingEncoding',
-    'SigmoidEncoding',
-    'TypeCastEncoding',
+    "CompositeEncoding",
+    "DefaultEncoding",
+    "Encoding",
+    "EncodingFromLambda",
+    "ImageEncoding",
+    "MatrixEncoding",
+    "ParameterExtendingEncoding",
+    "SigmoidEncoding",
+    "TypeCastEncoding",
     *special.__all__,
 ]

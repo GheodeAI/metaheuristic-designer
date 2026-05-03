@@ -24,13 +24,7 @@ class StrategySelection:
         Indicates whether to show progress bars with 'verbose' and the number of times to repeat each algorithm with 'repetitions'
     """
 
-    def __init__(
-        self,
-        objfunc: ObjectiveFunc,
-        strategy_list: Iterable[SearchStrategy],
-        algorithm_params: Optional[dict] = None,
-        **kwargs
-    ):
+    def __init__(self, objfunc: ObjectiveFunc, strategy_list: Iterable[SearchStrategy], algorithm_params: Optional[dict] = None, **kwargs):
         self.strategy_list = strategy_list
         algorithm_list = [Algorithm(objfunc, strategy, algorithm_params) for strategy in strategy_list]
 

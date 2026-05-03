@@ -1,55 +1,60 @@
 from __future__ import annotations
-from ..objective_function import VectorObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer
 from ..strategies import BayesianOptimization
-from ..algorithms import Algorithm
+from ..utils import check_random_state
 
 
-def bayesian_optimization(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
+def bayesian_optimization_binary(
+    objfunc,
+    population_size: int = 50,
+    acquisition_function: str = "EI",
+    encoding=None,
+    random_state=None,
+    **kwargs,
+):
     """
-    Instantiates a bayesian optimization algorithm to optimize the given objective function.
-
-    Parameters
-    ----------
-    objfunc: ObjectiveFunc
-        Objective function to be optimized.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters of the algorithm.
-
-    Returns
-    -------
-    algorithm: Algorithm
-        Configured optimization algorithm.
+    Bayesian Optimisation for binary-coded vectors (not supported yet).
     """
-
-    if "encoding" not in params:
-        raise ValueError('You must specify the encoding in the params structure, the algorithm is just implemented for the "real" encoding.')
-
-    encoding_str = params["encoding"]
-
-    if encoding_str.lower() == "real":
-        alg = _bayesian_optimization_real_vec(params, objfunc)
-    else:
-        raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real"')
-
-    return alg
+    raise NotImplementedError("Bayesian Optimisation is only available for real-coded vectors.")
 
 
-def _bayesian_optimization_real_vec(params, objfunc):
+def bayesian_optimization_discrete(
+    objfunc,
+    population_size: int = 50,
+    acquisition_function: str = "EI",
+    encoding=None,
+    random_state=None,
+    **kwargs,
+):
     """
-    Instantiates a bayesian optimization algorithm to optimize the given objective function.
-    This objective function should accept binary coded vectors.
+    Bayesian Optimisation for integer-coded vectors (not supported yet).
     """
+    raise NotImplementedError("Bayesian Optimisation is only available for real-coded vectors.")
 
-    pop_size = params.get("pop_size", 100)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else -100)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    search_strategy = BayesianOptimization(initializer=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size), params=params)
-
-    return Algorithm(objfunc, search_strategy, params=params)
+def bayesian_optimization_real(
+    objfunc,
+    population_size: int = 50,
+    encoding=None,
+    random_state=None,
+    **kwargs,
+):
+    """
+    Bayesian Optimisation for real-coded vectors.
+    """
+    random_state = check_random_state(random_state)
+    pop_initializer = UniformInitializer(
+        objfunc.vecsize,
+        objfunc.low_lim,
+        objfunc.up_lim,
+        pop_size=population_size,
+        dtype=float,
+        encoding=encoding,
+        random_state=random_state,
+    )
+    search_strategy = BayesianOptimization(
+        initializer=pop_initializer,
+        random_state=random_state,
+    )
+    return Algorithm(objfunc, search_strategy, **kwargs)

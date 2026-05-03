@@ -19,7 +19,7 @@ class GA(VariablePopulation):
         self,
         initializer: Initializer,
         mutation_op: Operator,
-        cross_op: Operator,
+        crossover_op: Operator,
         parent_sel: ParentSelection,
         survivor_sel: SurvivorSelection,
         name: str = "GA",
@@ -33,7 +33,7 @@ class GA(VariablePopulation):
         random_state = check_random_state(random_state)
 
         prob_mut_op = BranchOperator([mutation_op, NullOperator()], method="Random", p=mutation_prob, random_state=random_state)
-        prob_cross_op = BranchOperator([cross_op, NullOperator()], method="Random", p=crossover_prob, random_state=random_state)
+        prob_cross_op = BranchOperator([crossover_op, NullOperator()], method="Random", p=crossover_prob, random_state=random_state)
 
         evolve_op = CompositeOperator([prob_cross_op, prob_mut_op])
 

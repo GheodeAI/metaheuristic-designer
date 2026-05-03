@@ -9,17 +9,17 @@ from .survivor_selection_functions import (
     elitism,
     cond_elitism,
     keep_best,
-    keep_best_offspring
+    keep_best_offspring,
 )
 
 __all__ = [
-    'NullSurvivorSelection',
-    'SurvivorSelection',
-    'SurvivorSelectionDef',
-    'SurvivorSelectionFromLambda',
-    'add_survivor_selection_entry',
-    'create_survivor_selection',
-    'surv_method_map',
+    "NullSurvivorSelection",
+    "SurvivorSelection",
+    "SurvivorSelectionDef",
+    "SurvivorSelectionFromLambda",
+    "add_survivor_selection_entry",
+    "create_survivor_selection",
+    "surv_method_map",
     "generational",
     "one_to_one",
     "prob_one_to_one",
@@ -28,5 +28,5 @@ __all__ = [
     "elitism",
     "cond_elitism",
     "keep_best",
-    "keep_best_offspring"
+    "keep_best_offspring",
 ]

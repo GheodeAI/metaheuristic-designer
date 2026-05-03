@@ -21,14 +21,14 @@ from .bayesian_optimization import *
 from . import bayesian_optimization
 
 __all__ = [
-    'HillClimb',
-    'LocalSearch',
-    'NoSearch',
-    'SearchStrategy',
-    'StaticPopulation',
-    'VariablePopulation',
+    "HillClimb",
+    "LocalSearch",
+    "NoSearch",
+    "SearchStrategy",
+    "StaticPopulation",
+    "VariablePopulation",
     *classic.__all__,
     *swarm.__all__,
     *EDA.__all__,
-    *bayesian_optimization.__all__
+    *bayesian_optimization.__all__,
 ]

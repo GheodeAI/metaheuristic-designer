@@ -118,7 +118,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
             if self.recalculate:
                 # Using a slice we overwrite fitness values
-                fitness[:] = fitness_values 
+                fitness[:] = fitness_values
                 objective[:] = objective_values
             else:
                 fitness[population.fitness_calculated == 0] = fitness_values
@@ -178,14 +178,9 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
     def restart(self):
         self.counter = 0
-    
+
     def get_state(self):
-        data = {
-            "class_name": self.__class__.__name__,
-            "name": self.name,
-            "constraint": self.constraint_handler.get_state(),
-            **self.get_params()
-        }
+        data = {"class_name": self.__class__.__name__, "name": self.name, "constraint": self.constraint_handler.get_state(), **self.get_params()}
 
         return data
 

@@ -6,14 +6,15 @@ import pandas as pd
 if TYPE_CHECKING:
     from .algorithm import Algorithm
 
+
 class HistoryTracker:
     def __init__(
         self,
-        track_best = True,
-        track_median = False,
-        track_worst = False,
-        track_complete = False,
-        track_diversity = False,
+        track_best=True,
+        track_median=False,
+        track_worst=False,
+        track_complete=False,
+        track_diversity=False,
     ):
         self.track_best = track_best
         self.track_median = track_median
@@ -47,7 +48,7 @@ class HistoryTracker:
         self.diversity = []
 
         self.iterations = 0
-    
+
     def step(self, algorithm: Algorithm):
         population = algorithm.population
         solutions = population.decode()
@@ -66,9 +67,9 @@ class HistoryTracker:
             self.best_objective.append(objective_array[best_idx])
 
         if self.track_median:
-            half_size = len(fitness_array)//2
+            half_size = len(fitness_array) // 2
             if len(fitness_array) % 2 == 0:
-                median_idx = fitness_order[half_size-1] 
+                median_idx = fitness_order[half_size - 1]
             else:
                 median_idx = fitness_order[half_size]
             self.median_solutions.append(solutions[median_idx])
@@ -78,10 +79,10 @@ class HistoryTracker:
             worst_idx = fitness_order[-1]
             self.worst_solutions.append(solutions[worst_idx])
             self.worst_objective.append(objective_array[worst_idx])
-        
+
         if self.track_diversity:
             raise NotImplementedError()
-        
+
     def to_pandas(self):
         """
         Return a pandas dataframe containing the recorded fitness values.
@@ -89,9 +90,7 @@ class HistoryTracker:
         No solution data is recorded into the dataframe.
         """
 
-        data_dict = {
-            "iteration": np.arange(self.iterations)
-        }
+        data_dict = {"iteration": np.arange(self.iterations)}
 
         if self.track_best:
             data_dict["best_objective"] = self.best_objective
@@ -104,9 +103,8 @@ class HistoryTracker:
 
         if self.track_diversity:
             data_dict["diversity"] = self.diversity
-        
-        return pd.DataFrame.from_dict(data_dict)
 
+        return pd.DataFrame.from_dict(data_dict)
 
     def get_state(self):
         data = {
@@ -124,13 +122,11 @@ class HistoryTracker:
         if self.track_worst:
             data["worst_solutions"] = self.worst_solutions
             data["worst_objective"] = self.worst_objective
-        
+
         if self.track_complete:
             data["populations"] = self.complete_population
-        
+
         if self.track_diversity:
             data["divesity"] = self.diversity
-        
+
         return data
-
-

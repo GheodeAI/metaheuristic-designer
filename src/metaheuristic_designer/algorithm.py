@@ -25,10 +25,12 @@ from .utils import NumpyEncoder
 
 logger = logging.getLogger(__name__)
 
+
 class TerminationException(Exception):
     """
     Custom exception to handle SIGTERM
     """
+
 
 class Algorithm:
     """
@@ -129,9 +131,7 @@ class Algorithm:
 
         # Reporter
         if reporter is None:
-            reporter = VerboseReporter(
-                verbose_timer=verbose_timer
-            )
+            reporter = VerboseReporter(verbose_timer=verbose_timer)
         elif isinstance(reporter, str):
             reporter = create_reporter(reporter)
         self.reporter = reporter
@@ -283,7 +283,7 @@ class Algorithm:
 
         self.search_strategy.population = new_population
 
-        # Update in cascade all the objects involved in the optimization  
+        # Update in cascade all the objects involved in the optimization
         self.search_strategy.step(progress=self.progress)
         self._log_debug("Updated end\n%s", new_population)
 
@@ -302,7 +302,7 @@ class Algorithm:
         """
 
         self.reporter.log_init(self)
-        
+
         # initialize clocks
         self.stopping_condition.restart()
 
@@ -323,7 +323,7 @@ class Algorithm:
                 self.stopping_condition.step(self.population)
                 if self.checkpointer is not None:
                     self.checkpointer.checkpoint(self)
-                
+
                 if self._stop_requested:
                     raise TerminationException
 

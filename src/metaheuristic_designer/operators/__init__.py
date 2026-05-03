@@ -14,17 +14,17 @@ from .factories import *
 from . import factories
 
 __all__ = [
-    'NullOperator',
-    'Operator',
-    'OperatorFromLambda',
-    'AdaptiveOperator',
-    'BOOperator',
-    'BranchOpMethods',
-    'BranchOperator',
-    'CompositeOperator',
-    'ExtendedOperator',
-    'MaskedOperator',
-    'branch_ops_map',
+    "NullOperator",
+    "Operator",
+    "OperatorFromLambda",
+    "AdaptiveOperator",
+    "BOOperator",
+    "BranchOpMethods",
+    "BranchOperator",
+    "CompositeOperator",
+    "ExtendedOperator",
+    "MaskedOperator",
+    "branch_ops_map",
     *operator_functions.__all__,
-    *factories.__all__
+    *factories.__all__,
 ]

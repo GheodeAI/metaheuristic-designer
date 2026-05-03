@@ -9,7 +9,7 @@ from copy import copy
 from typing import Optional, Iterable, Any, Tuple, List
 
 # -------------------------------------------------------------------
-#  Adjust imports to your actual package layout
+# Imports from the package
 # -------------------------------------------------------------------
 from metaheuristic_designer.encoding import (
     Encoding,
@@ -35,11 +35,15 @@ from metaheuristic_designer.survivor_selection_base import (
     NullSurvivorSelection,
 )
 from metaheuristic_designer.utils import check_random_state
-from metaheuristic_designer.encodings import PSOEncoding  # real encoding with speed param
-from metaheuristic_designer.population import Population
+from metaheuristic_designer.encodings import PSOEncoding
+from metaheuristic_designer.search_strategy import SearchStrategy
+from metaheuristic_designer.benchmarks.benchmark_funcs import MaxOnes, Sphere
+from metaheuristic_designer.initializers import UniformInitializer
+from metaheuristic_designer.operators.factories.mutation import create_mutation_operator
+from metaheuristic_designer.survivor_selection import create_survivor_selection
 
 # ===================================================================
-#  Fixed‑seed random generator fixture
+#  Random generator fixture
 # ===================================================================
 @pytest.fixture(scope="function")
 def rng():
@@ -48,7 +52,7 @@ def rng():
 
 
 # ===================================================================
-#  Shared genotype / fitness constants
+#  Constants (genotype / fitness arrays)
 # ===================================================================
 SMALL_GENOTYPE = np.array([[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]])
 LARGE_GENOTYPE = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0]])
@@ -59,17 +63,16 @@ OFFSPRING_FITNESS_EQUAL = EXAMPLE_FITNESS.copy()
 OFFSPRING_FITNESS_MIXED = np.array([-9, -5, 34, -1, 100, 2, 100, -10.1])
 OFFSPRING_FITNESS_LOCAL_SEARCH = np.array([
     -11, -3,  2, -1,  0,  0,  3, 10,
-     -9,  4,  1, -1,  0,  1,  4, 80,
-     -1, -5,  0, -1,  0,  0,  5, 80,
+    -9,  4,  1, -1,  0,  1,  4, 80,
+    -1, -5,  0, -1,  0,  0,  5, 80,
 ])
-# DE test data
 DE_POP = np.array([[0.0, 1.0], [2.0, 3.0], [4.0, 5.0], [6.0, 7.0]])
 DE_FITNESS = np.array([0.1, 0.5, 0.3, 0.9])
 DE_SMALL_POP = np.array([[0.0, 0.0], [1.0, 1.0]])
 
 
 # ===================================================================
-#  Dummy objective function (configurable)
+#  Dummy objective function and fixtures for simple wrappers
 # ===================================================================
 class DummyObjectiveFunction(ObjectiveFunc):
     """A stub that returns fixed fitness values and can track calls."""
@@ -81,7 +84,6 @@ class DummyObjectiveFunction(ObjectiveFunc):
         repair_return=None,
         **kwargs,
     ):
-        # Pass minimal required arguments to ABC
         super().__init__(mode=mode, name=name, **kwargs)
         self._fitness_return = (
             fitness_return if fitness_return is not None else np.ones(1)
@@ -115,12 +117,50 @@ class DummyObjectiveFunction(ObjectiveFunc):
 
 @pytest.fixture
 def dummy_objfunc():
-    return DummyObjectiveFunction(name="dummy", mode="max")
+    obj = DummyObjectiveFunction(name="dummy", mode="max")
+    obj.vecsize = 3
+    obj.low_lim = 0
+    obj.up_lim = 1
+    return obj
 
 
 @pytest.fixture
 def dummy_objfunc_min():
     return DummyObjectiveFunction(name="dummy_min", mode="min")
+
+
+# -------------------------------------------------------------------
+#  Discrete and permutation objective classes (for simple wrapper tests)
+# -------------------------------------------------------------------
+class DiscreteSumObjective(VectorObjectiveFunc):
+    def __init__(self, vecsize=3, mode="max"):
+        super().__init__(vecsize, low_lim=0, up_lim=5, mode=mode, name="DiscreteSum")
+    def objective(self, solution):
+        return np.sum(solution)
+
+
+class PermutationObjective(VectorObjectiveFunc):
+    def __init__(self, vecsize=4, mode="min"):
+        super().__init__(vecsize, low_lim=0, up_lim=vecsize-1, mode=mode, name="Permutation")
+    def objective(self, solution):
+        diff = np.abs(np.diff(solution))
+        total = np.sum(diff) + np.abs(solution[0] - solution[-1])
+        return total
+
+
+@pytest.fixture
+def binary_objfunc():
+    return MaxOnes(vecsize=5, mode="max")
+
+
+@pytest.fixture
+def discrete_objfunc():
+    return DiscreteSumObjective(vecsize=4, mode="max")
+
+
+@pytest.fixture
+def permutation_objfunc():
+    return PermutationObjective(vecsize=5, mode="min")
 
 
 # ===================================================================
@@ -136,7 +176,7 @@ class DummyParameterExtendingEncoding(ParameterExtendingEncoding):
     """Minimal parameter‑extending encoding for tests that need one."""
     def __init__(self, param_sizes):
         super().__init__(
-            vecsize=1,                  # not used by most tests
+            vecsize=1,
             param_sizes=param_sizes,
             base_encoding=DefaultEncoding(),
         )
@@ -164,7 +204,7 @@ def example_population(dummy_objfunc):
 
 
 # ===================================================================
-#  Dummy operators, selections (trivial implementations)
+#  Dummy operators and selections (trivial implementations)
 # ===================================================================
 @pytest.fixture
 def dummy_operator():
@@ -185,17 +225,16 @@ def dummy_survivor_selection():
 
 
 # ===================================================================
-#  Dummy initializer (a simple fixed‑size initializer)
+#  Dummy initializer
 # ===================================================================
 @pytest.fixture
 def dummy_initializer(rng):
     """Initializer that produces a population of 10 vectors of length 3 (uniform)."""
-    from metaheuristic_designer.initializers import UniformInitializer
     return UniformInitializer(genotype_size=3, low_lim=0, up_lim=1, pop_size=10, random_state=rng)
 
 
 # ===================================================================
-#  Helper: expected random arrays for key initialisers (using seed 42)
+#  Helper functions for expected random arrays (using seed 42)
 # ===================================================================
 def _expected_exponential(beta, size, seed=42):
     from metaheuristic_designer.initializers import ExponentialInitializer
@@ -203,11 +242,13 @@ def _expected_exponential(beta, size, seed=42):
     init = ExponentialInitializer(size, beta, random_state=rng_fresh)
     return init.generate_random()
 
+
 def _expected_normal(mean, std, size, seed=42):
     from metaheuristic_designer.initializers import GaussianInitializer
     rng_fresh = np.random.default_rng(seed)
     init = GaussianInitializer(size, mean, std, random_state=rng_fresh)
     return init.generate_random()
+
 
 def _expected_uniform(low, high, size, seed=42):
     from metaheuristic_designer.initializers import UniformInitializer
@@ -215,30 +256,36 @@ def _expected_uniform(low, high, size, seed=42):
     init = UniformInitializer(size, low, high, random_state=rng_fresh)
     return init.generate_random()
 
+
 def _expected_permutation(n, seed=42):
     from metaheuristic_designer.initializers import PermInitializer
     rng_fresh = np.random.default_rng(seed)
     init = PermInitializer(n, random_state=rng_fresh)
     return init.generate_random()
 
-# Helper to quickly create a Population with given fitness
+
+# ===================================================================
+#  Helper: quick population with given fitness
+# ===================================================================
 def make_pop(fitness_list, objfunc):
     """Return a Population with pre‑set fitness, shape (len, 2)."""
     pop = Population(objfunc, np.arange(len(fitness_list) * 2).reshape(len(fitness_list), 2).astype(float))
     pop.fitness = np.array(fitness_list)
     return pop
 
-# Small arrays for DE operator tests
+
+# ===================================================================
+#  Fixtures for DE, permutation operator, and PSO tests
+# ===================================================================
 @pytest.fixture
 def de_pop():
-    return np.array([[0.0, 1.0],
-                     [2.0, 3.0],
-                     [4.0, 5.0],
-                     [6.0, 7.0]])
+    return np.array([[0.0, 1.0], [2.0, 3.0], [4.0, 5.0], [6.0, 7.0]])
+
 
 @pytest.fixture
 def de_fitness():
-    return np.array([0.1, 0.5, 0.3, 0.9])   # best is index 3
+    return np.array([0.1, 0.5, 0.3, 0.9])
+
 
 @pytest.fixture
 def perm_pop():
@@ -248,20 +295,21 @@ def perm_pop():
                      [4, 1, 3, 2],
                      [2, 3, 1, 4]])
 
+
 @pytest.fixture
 def pso_population(dummy_objfunc):
     """A small population with PSOEncoding, fitness, historical best, and speed."""
     enc = PSOEncoding(vecsize=2, base_encoding=DefaultEncoding())
-    geno = np.array([[1.0, 2.0, 0.1, 0.2],   # solution (1,2) + speed (0.1,0.2)
-                     [3.0, 4.0, 0.3, 0.4]])
+    geno = np.array([[1.0, 2.0, 0.1, 0.2], [3.0, 4.0, 0.3, 0.4]])
     pop = Population(dummy_objfunc, geno, encoding=enc)
     pop.fitness = np.array([0.5, 0.8])
     pop.historical_best_matrix = np.array([[1.0, 2.0, 0.1, 0.2],
                                            [3.0, 4.0, 0.3, 0.4]])
     pop.historical_best_fitness = np.array([0.5, 0.8])
-    pop.best = np.array([3.0, 4.0, 0.3, 0.4])  # best solution with its speed
+    pop.best = np.array([3.0, 4.0, 0.3, 0.4])
     pop.best_fitness = 0.8
     return pop
+
 
 @pytest.fixture
 def sample_population_matrix():
@@ -271,8 +319,11 @@ def sample_population_matrix():
                      [7.0, 8.0, 9.0],
                      [10.0, 11.0, 12.0]])
 
+
+# ===================================================================
+#  Mock for sklearn GaussianProcessRegressor
+# ===================================================================
 class MockGaussianModel:
-    """Mock for sklearn GaussianProcessRegressor."""
     def __init__(self, mean=0.0, std=1.0):
         self.mean = mean
         self.std = std
@@ -284,9 +335,12 @@ class MockGaussianModel:
             return mean, std
         return mean
 
+
+# ===================================================================
+#  Dummy search strategy fixture
+# ===================================================================
 @pytest.fixture
 def dummy_strategy(dummy_initializer, dummy_operator, dummy_parent_selection, dummy_survivor_selection):
-    from metaheuristic_designer.search_strategy import SearchStrategy
     return SearchStrategy(
         initializer=dummy_initializer,
         operator=dummy_operator,
@@ -295,23 +349,36 @@ def dummy_strategy(dummy_initializer, dummy_operator, dummy_parent_selection, du
         name="dummy_strategy",
     )
 
-from metaheuristic_designer import SearchStrategy
-from metaheuristic_designer.benchmarks.benchmark_funcs import Sphere
-from metaheuristic_designer.initializers import UniformInitializer
-from metaheuristic_designer.operators.factories.mutation import create_mutation_operator
-from metaheuristic_designer.survivor_selection import create_survivor_selection
 
+# ===================================================================
+#  Sphere objective and simple integration strategy
+# ===================================================================
 @pytest.fixture
 def sphere_objfunc():
     return Sphere(vecsize=2, mode="min")
 
+
 @pytest.fixture
 def simple_strategy(sphere_objfunc, rng):
-    # Initializer: small population, 2D, bounds [-10,10]
     init = UniformInitializer(2, -10, 10, pop_size=10, random_state=rng)
-    # Operator: Gaussian noise mutation with small noise
     mut = create_mutation_operator("gauss", random_state=rng, N=1, loc=0, scale=0.1)
-    # Survivor selection: generational (replace parents with offspring)
     surv = create_survivor_selection("generational", random_state=rng)
-    strat = SearchStrategy(initializer=init, operator=mut, survivor_sel=surv, name="integration_strat")
-    return strat
+    return SearchStrategy(initializer=init, operator=mut, survivor_sel=surv, name="integration_strat")
+
+
+# ===================================================================
+#  Helper: run a simple wrapper and return best objective
+# ===================================================================
+def run_and_get_best(wrapper_func, objfunc, seed, **kwargs):
+    """Run a simple wrapper for 5 generations and return the best objective."""
+    run_kwargs = {
+        "reporter": "silent",
+        "stop_cond": "ngen",
+        "ngen": 5,
+        "neval": 1000,
+        **kwargs,
+    }
+    algo = wrapper_func(objfunc, random_state=seed, **run_kwargs)
+    population = algo.optimize()
+    _, best = population.best_solution(problem_space=True)
+    return best

@@ -5,7 +5,6 @@ This module implements the procedure applied in each iteration of the algorithm.
 """
 
 from __future__ import annotations
-from curses import raw
 import logging
 from typing import Tuple, Any, Optional, Callable
 from .parent_selection_base import ParentSelection, NullParentSelection, ParentSelectionFromLambda
@@ -247,7 +246,7 @@ class SearchStrategy(ParametrizableMixin):
             "operators": self.operator.get_state(),
             "survivor_sel": self.survivor_sel.get_state(),
             "population": self.population.get_state() if store_population else None,
-            **self.get_params()
+            **self.get_params(),
         }
 
         return data

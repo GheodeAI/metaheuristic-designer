@@ -14,20 +14,21 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+
 class Checkpointer:
     def __init__(self, checkpoint_file: str, iteration_frequency: Optional[int] = None, time_frequency: Optional[float] = None):
         self.checkpoint_file = checkpoint_file
-            
+
         if iteration_frequency is None and time_frequency is None:
             logger.warning("Checkpointing frequency not configured. No checkpoints will happen.")
 
         self.iteration_frequency = iteration_frequency
         self.time_frequency = time_frequency
         self.timer = time.time()
-    
+
     def restart(self):
         self.timer = time.time()
-    
+
     def checkpoint(self, algorithm: Algorithm):
         iterations = algorithm.stopping_condition.iterations
 
@@ -35,10 +36,10 @@ class Checkpointer:
         saving_time = self.time_frequency is not None and time.time() - self.timer > self.time_frequency
         if not (saving_iteration or saving_time):
             return
-        
+
         if saving_time:
             self.timer = time.time()
-        
+
         self.save(algorithm)
 
     def save(self, algorithm: Algorithm):
@@ -78,14 +79,15 @@ class Checkpointer:
             algorithm.parallel = is_parallel
             algorithm.checkpointer = checkpointer
 
-    
-    def load(self, file_name: str = None, history_tracker: Optional[HistoryTracker] = None, reporter: Reporter | str = "silent", parallel: bool = False) -> Algorithm:
+    def load(
+        self, file_name: str = None, history_tracker: Optional[HistoryTracker] = None, reporter: Reporter | str = "silent", parallel: bool = False
+    ) -> Algorithm:
         if file_name is None:
             file_name = self.checkpoint_file
 
         with open(file_name, "rb") as f:
             algorithm: Algorithm = cloudpickle.load(f)
-        
+
         if history_tracker is None:
             history_tracker = HistoryTracker()
         algorithm.history_tracker = history_tracker
@@ -96,4 +98,3 @@ class Checkpointer:
         algorithm.parallel = parallel
 
         return algorithm
-

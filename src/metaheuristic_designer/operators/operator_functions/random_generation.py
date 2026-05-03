@@ -90,6 +90,6 @@ def random_reset(population_matrix, initializer: Initializer, random_state=None,
 
     mask_pos = random_state.permuted(mask_pos, axis=1)
 
-    population_matrix[mask_pos] = random_population_marix
+    population_matrix[mask_pos] = random_population_marix[mask_pos]
 
     return population_matrix

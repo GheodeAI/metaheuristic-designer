@@ -3,11 +3,11 @@ from .PBIL import BernoulliPBIL, BinomialPBIL, GaussianPBIL
 from .cross_entropy_method import CrossEntropyMethod
 
 __all__ = [
-    'BernoulliPBIL',
-    'BernoulliUMDA',
-    'BinomialPBIL',
-    'BinomialUMDA',
-    'CrossEntropyMethod',
-    'GaussianPBIL',
-    'GaussianUMDA',
+    "BernoulliPBIL",
+    "BernoulliUMDA",
+    "BinomialPBIL",
+    "BinomialUMDA",
+    "CrossEntropyMethod",
+    "GaussianPBIL",
+    "GaussianUMDA",
 ]

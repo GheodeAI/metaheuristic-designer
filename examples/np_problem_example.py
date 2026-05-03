@@ -4,18 +4,18 @@ import logging
 import numpy as np
 import networkx as nx
 
-from metaheuristic_designer.algorithms import StandardAlgorithm, MemeticAlgorithm
+from metaheuristic_designer.algorithms import Algorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import create_operator
 from metaheuristic_designer.initializers import UniformInitializer, PermInitializer
 from metaheuristic_designer.encodings import TypeCastEncoding
 from metaheuristic_designer.strategies import *
-from metaheuristic_designer.parent_selection_methods import create_parent_selection
-from metaheuristic_designer.survivor_selection_methods import create_survivor_selection
+from metaheuristic_designer.parent_selection import create_parent_selection
+from metaheuristic_designer.survivor_selection import create_survivor_selection
 from metaheuristic_designer.benchmarks import *
 from metaheuristic_designer.utils import check_random_state
 
 
-def run_algorithm(alg_name, problem_name, memetic, save_state, random_state):
+def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_state):
     # Common algorithm parameters
     algorithm_params = {
         "stop_cond": "time_limit",
@@ -26,8 +26,8 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, random_state):
         "neval": 3e6,
         "fit_target": 1e-10,
         "patience": 200,
-        "verbose": True,
-        "v_timer": 0.5,
+        "verbose_timer": 0.5,
+        "reporter": reporter,
     }
 
     if problem_name == "Knapsack":
@@ -137,16 +137,16 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, random_state):
         )
         alg = MemeticAlgorithm(objfunc, search_strategy, local_search, mem_select, **algorithm_params)
     else:
-        alg = StandardAlgorithm(objfunc, search_strategy, **algorithm_params)
+        alg = Algorithm(objfunc, search_strategy, **algorithm_params)
 
     population = alg.optimize()
-    best_solution, best_fitness = population.best_solution(decoded=True)
-    print("Best solution:", best_solution)
-    print("Best fitness:", best_fitness)
-    alg.display_report(show_plots=True)
+    # Use problem_space=True to get decoded solution and raw objective
+    best_solution, best_objective = population.best_solution(problem_space=True)
+    print("Best solution:", best_solution.astype(int))
+    print("Best objective:", best_objective)
 
     if save_state:
-        alg.store_state("./examples/results/test.json", readable=True, show_population=True)
+        alg.store_state("./examples/results/test.json", readable=True)
 
 
 def main():
@@ -157,6 +157,7 @@ def main():
     parser.add_argument("-s", "--save-state", dest="save_state", action="store_true", help="Save algorithm state.")
     parser.add_argument("-r", "--seed", type=int, default=42, help="Random seed.")
     parser.add_argument("--log", default="WARNING", help="Log level.")
+    parser.add_argument("-v", "--reporter", default="verbose", help="Reporter to use for progress tracking.")
     args = parser.parse_args()
 
     # Set up logging and random state
@@ -169,6 +170,7 @@ def main():
         problem_name=args.objective,
         memetic=args.memetic,
         save_state=args.save_state,
+        reporter=args.reporter,
         random_state=rng,
     )
 

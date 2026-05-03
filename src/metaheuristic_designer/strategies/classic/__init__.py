@@ -6,10 +6,10 @@ from .ES import ES
 from .DE import DE
 
 __all__ = [
-    'CMA_ES',
-    'DE',
-    'ES',
-    'GA',
-    'RandomSearch',
-    'SA',
+    "CMA_ES",
+    "DE",
+    "ES",
+    "GA",
+    "RandomSearch",
+    "SA",
 ]

@@ -67,17 +67,19 @@ class MemeticAlgorithm(Algorithm):
     threads : int, optional
         _description_, by default 8
     """
+
     def __init__(
         self,
         objfunc: ObjectiveFunc,
         search_strategy: SearchStrategy,
+
         local_search: SearchStrategy,
         improvement_selection: ParentSelection,
         local_search_frequency: int = 1,
         local_search_depth: int = 1,
         keep_improved_solutions: bool = True,
+
         name: Optional[str] = None,
-        # New parameters (copied from Algorithm)
         stop_cond: str = "time_limit",
         progress_metric: Optional[str] = None,
         ngen: int = 1000,
@@ -124,6 +126,7 @@ class MemeticAlgorithm(Algorithm):
             objfunc=objfunc,
             search_strategy=search_strategy,
             name=name,
+
             stop_cond=stop_cond,
             progress_metric=progress_metric,
             ngen=ngen,
@@ -169,7 +172,7 @@ class MemeticAlgorithm(Algorithm):
             offspring = offspring.apply_selection(improved_offspring, chosen_idx)
             offspring = self.search_strategy.evaluate_population(offspring, self.parallel, self.threads)
             next_selected_population = offspring
-        
+
         self._log_debug("Applied local search\n%s", offspring)
 
         return offspring, chosen_idx
@@ -179,8 +182,6 @@ class MemeticAlgorithm(Algorithm):
             logger.debug(text, population.debug_repr())
 
     def step(self, population=None, time_start=0, verbose=False):
-        self.local_search_counter += 1
-
         # Get the population of this generation
         if population is None:
             population = self.search_strategy.population
@@ -203,6 +204,7 @@ class MemeticAlgorithm(Algorithm):
 
         # Perform a local search on the best individuals
         offspring_memetic = copy(offspring)
+        self.local_search_counter += 1
         if self.local_search_counter % self.local_search_frequency == 0:
             offspring_memetic, chosen_idx = self._do_local_search(offspring_memetic)
 
@@ -211,7 +213,6 @@ class MemeticAlgorithm(Algorithm):
                 offspring_memetic = offspring
                 offspring_memetic.fitness[chosen_idx] = fitness_obtained[chosen_idx]
 
-        self.local_search_counter += 1
 
         # Select the individuals that remain for the next generation
         new_population = self.search_strategy.select_individuals(population, offspring_memetic)
@@ -227,20 +228,15 @@ class MemeticAlgorithm(Algorithm):
 
         return new_population
 
-    def get_state(self, show_fit_history: bool = False, show_gen_history: bool = False, show_population: bool = False):
-        data = super().get_state(show_fit_history, show_gen_history, show_population)
+    def get_state(self, store_population: bool = False):
+        data = super().get_state(store_population)
 
         # Add parent selection method for local search
         data["improvement_selection"] = self.improvement_selection.get_state()
 
         # Add local search data
-        local_search_data = self.local_search.get_state(show_population=False)
-        local_search_data.pop("population", None)
+        local_search_data = self.local_search.get_state(store_population=False)
         data["local_search_state"] = local_search_data
-
-        # push search strategy data to the bottom
-        search_strat_data = data.pop("search_strat_state", None)
-        data["search_strat_state"] = search_strat_data
 
         return data
 

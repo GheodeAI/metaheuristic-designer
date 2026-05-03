@@ -1,5 +1,4 @@
 from __future__ import annotations
-import numpy as np
 from ..initializer import Initializer
 
 
@@ -15,8 +14,8 @@ class PermInitializer(Initializer):
         Number of individuals to be generated.
     """
 
-    def __init__(self, genotype_size, pop_size=1, random_state=None):
-        super().__init__(pop_size, encoding=None, random_state=random_state)
+    def __init__(self, genotype_size, pop_size=1, encoding=None, random_state=None):
+        super().__init__(pop_size, encoding=encoding, random_state=random_state)
 
         self.genotype_size = genotype_size
 

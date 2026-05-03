@@ -9,16 +9,16 @@ from .mutation import ProbDist
 from .utils import OperatorVectorDef, OperatorRandomDef, OperatorSwarmDef, ObtainStatisticDef
 
 __all__ = [
-    'ObtainStatisticDef',
-    'OperatorRandomDef',
-    'OperatorSwarmDef',
-    'OperatorVectorDef',
-    'ProbDist',
-    'crossover',
-    'differential_evolution',
-    'mutation',
-    'permutation',
-    'random_generation',
-    'swarm',
-    'utils',
+    "ObtainStatisticDef",
+    "OperatorRandomDef",
+    "OperatorSwarmDef",
+    "OperatorVectorDef",
+    "ProbDist",
+    "crossover",
+    "differential_evolution",
+    "mutation",
+    "permutation",
+    "random_generation",
+    "swarm",
+    "utils",
 ]

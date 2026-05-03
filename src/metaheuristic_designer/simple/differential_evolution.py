@@ -1,133 +1,109 @@
 from __future__ import annotations
 from ..algorithm import Algorithm
-from ..objective_function import VectorObjectiveFunc
 from ..initializers import UniformInitializer
-from ..operators import create_operator
 from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import DE
-from ..algorithms import Algorithm
+from ..utils import check_random_state
 
 
-def differential_evolution(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
+def differential_evolution_binary(
+    objfunc,
+    population_size: int = 100,
+    F: float = 0.8,
+    Cr: float = 0.9,
+    de_operator_name: str = "de/rand/1",
+    encoding=None,
+    random_state=None,
+    **kwargs,
+):
     """
-    Instantiates a differential evolution algorithm to optimize the given objective function.
-
-    Parameters
-    ----------
-    objfunc: ObjectiveFunc
-        Objective function to be optimized.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters of the algorithm.
-
-    Returns
-    -------
-    algorithm: Algorithm
-        Configured optimization algorithm.
+    Differential Evolution for binary-coded vectors.
     """
+    random_state = check_random_state(random_state)
+    if encoding is None:
+        encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
+    pop_initializer = UniformInitializer(
+        objfunc.vecsize,
+        objfunc.low_lim,
+        objfunc.up_lim,
+        pop_size=population_size,
+        dtype=float,
+        encoding=encoding,
+        random_state=random_state,
+    )
+    search_strat = DE(
+        initializer=pop_initializer,
+        de_operator_name=de_operator_name,
+        F=F,
+        Cr=Cr,
+        random_state=random_state,
+    )
+    return Algorithm(objfunc, search_strat, **kwargs)
 
-    if "encoding" not in params:
-        raise ValueError('You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
 
-    encoding_str = params["encoding"]
-
-    if encoding_str.lower() == "real":
-        alg = _differential_evolution_real_vec(params, objfunc)
-    elif encoding_str.lower() == "int":
-        alg = _differential_evolution_int_vec(params, objfunc)
-    elif encoding_str.lower() == "bin":
-        alg = _differential_evolution_bin_vec(params, objfunc)
-    else:
-        raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"')
-
-    return alg
-
-
-def _differential_evolution_real_vec(params, objfunc):
+def differential_evolution_discrete(
+    objfunc,
+    population_size: int = 100,
+    F: float = 0.8,
+    Cr: float = 0.9,
+    de_operator_name: str = "de/rand/1",
+    encoding=None,
+    random_state=None,
+    **kwargs,
+):
     """
-    Instantiates a differential evolution algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
+    Differential Evolution for integer-coded vectors.
     """
-
-    pop_size = params.get("pop_size", 100)
-    f = params.get("F", 0.8)
-    cr = params.get("Cr", 0.9)
-    de_type = params.get("DE_type", "de/best/1")
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
-
-    if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
-        raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
-
-    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
-
-    de_op = create_operator(de_type, f=f, cr=cr)
-
-    search_strategy = DE(pop_initializer, de_op)
-
-    return Algorithm(objfunc, search_strategy, params=params)
+    random_state = check_random_state(random_state)
+    if encoding is None:
+        encoding = TypeCastEncoding(float, int)
+    pop_initializer = UniformInitializer(
+        objfunc.vecsize,
+        objfunc.low_lim,
+        objfunc.up_lim,
+        pop_size=population_size,
+        dtype=float,
+        encoding=encoding,
+        random_state=random_state,
+    )
+    search_strat = DE(
+        initializer=pop_initializer,
+        de_operator_name=de_operator_name,
+        F=F,
+        Cr=Cr,
+        random_state=random_state,
+    )
+    return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def _differential_evolution_int_vec(params, objfunc):
+def differential_evolution_real(
+    objfunc,
+    population_size: int = 100,
+    F: float = 0.8,
+    Cr: float = 0.9,
+    de_operator_name: str = "de/rand/1",
+    encoding=None,
+    random_state=None,
+    **kwargs,
+):
     """
-    Instantiates a differential evolution algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
+    Differential Evolution for real-coded vectors.
     """
-
-    pop_size = params.get("pop_size", 100)
-    f = params.get("F", 0.8)
-    cr = params.get("Cr", 0.9)
-    de_type = params.get("DE_type", "de/best/1")
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
-
-    if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
-        raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
-
-    encoding = TypeCastEncoding(float, int)
-
-    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float, encoding=encoding)
-
-    de_op = create_operator(de_type, f=f, cr=cr)
-
-    search_strategy = DE(pop_initializer, de_op)
-
-    return Algorithm(objfunc, search_strategy, params=params)
-
-
-def _differential_evolution_bin_vec(params, objfunc):
-    """
-    Instantiates a differential evolution algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
-    """
-
-    pop_size = params.get("pop_size", 100)
-    f = params.get("F", 0.8)
-    cr = params.get("Cr", 0.9)
-    de_type = params.get("DE_type", "de/best/1")
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else -10)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 10)
-
-    if de_type not in ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-rand/1", "de/current-to-best/1", "de/current-to-pbest/1"]:
-        raise ValueError(f'Differential evolution strategy "{de_type}" does not exist.')
-
-    encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
-
-    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float, encoding=encoding)
-
-    de_op = create_operator(de_type, f=f, cr=cr)
-
-    search_strategy = DE(pop_initializer, de_op)
-
-    return Algorithm(objfunc, search_strategy, params=params)
+    random_state = check_random_state(random_state)
+    pop_initializer = UniformInitializer(
+        objfunc.vecsize,
+        objfunc.low_lim,
+        objfunc.up_lim,
+        pop_size=population_size,
+        dtype=float,
+        encoding=encoding,
+        random_state=random_state,
+    )
+    search_strat = DE(
+        initializer=pop_initializer,
+        de_operator_name=de_operator_name,
+        F=F,
+        Cr=Cr,
+        random_state=random_state,
+    )
+    return Algorithm(objfunc, search_strat, **kwargs)
