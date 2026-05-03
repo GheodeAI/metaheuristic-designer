@@ -40,11 +40,13 @@ class ParameterExtendingEncoding(Encoding, ABC):
         solution_matrix = self.extract_solution(population_matrix)
         return self.base_encoding.decode(solution_matrix)
 
-    def decode_params(self, genotype: MatrixLike) -> dict:
+    def decode_params(self, genotype: MatrixLike, copy: bool = True) -> dict:
         param_dict = {}
         param_vec = self.extract_params(genotype)
+
         for name, length in self.param_sizes:
-            param_dict[name] = param_vec[:, :length]
+            param_matrix = param_vec[:, :length]
+            param_dict[name] = param_matrix
             param_vec = param_vec[:, length:]
 
         return param_dict
@@ -62,17 +64,18 @@ class ParameterExtendingEncoding(Encoding, ABC):
         # check the first available parameter to obtain the population size
         sample_param_name, _ = self.param_sizes[0]
         sample_param_vector = param_dict[sample_param_name]
-        if sample_param_vector.ndim == 2:
-            population_size, nparams = sample_param_vector.shape
-        else:
-            population_size = 1
-            nparams = sample_param_vector.shape[0]
+        population_size, _ = sample_param_vector.shape
 
         if self.verify:
-            assert nparams == self.nparams
+            assert param_dict.keys() == {name for name, _ in self.param_sizes}
+            for name, size in self.param_sizes:
+                arr = param_dict[name]
+                assert arr.ndim == 2, f"Parameter '{name}' must be a 2D array"
+                assert arr.shape[0] == population_size, f"Population size mismatch for '{name}'"
+                assert arr.shape[1] == size, f"Wrong block size for '{name}'"
 
         vcounter = 0
-        result = np.empty((population_size, nparams))
+        result = np.empty((population_size, self.nparams))
         for param_name, param_size in self.param_sizes:
             result[:, vcounter : vcounter + param_size] = param_dict[param_name]
             vcounter += param_size

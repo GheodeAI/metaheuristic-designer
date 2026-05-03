@@ -15,10 +15,8 @@ from metaheuristic_designer.operator import OperatorFromLambda
 # ===================================================================
 def test_composite_operator_applies_sequence(rng):
     # Two operators: first adds 10, second multiplies by 2
-    op1 = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix + 10),
-                             name="add10", random_state=rng)
-    op2 = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix * 2),
-                             name="mul2", random_state=rng)
+    op1 = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix + 10), name="add10", random_state=rng)
+    op2 = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix * 2), name="mul2", random_state=rng)
     comp = CompositeOperator([op1, op2])
 
     pop = make_pop([0.0, 0.0], dummy_objfunc)
@@ -45,10 +43,8 @@ def test_composite_operator_empty_list_does_nothing(rng):
 # ===================================================================
 def test_branch_operator_random_mode(rng):
     # Two operators: one sets genotype to 0, other sets genotype to 1
-    op_zero = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(np.zeros_like(pop.genotype_matrix)),
-                                 random_state=rng)
-    op_one = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(np.ones_like(pop.genotype_matrix)),
-                                random_state=rng)
+    op_zero = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(np.zeros_like(pop.genotype_matrix)), random_state=rng)
+    op_one = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(np.ones_like(pop.genotype_matrix)), random_state=rng)
     branch = BranchOperator([op_zero, op_one], method="random", random_state=rng, p=0.5)
 
     pop = make_pop([0.0, 0.0, 0.0, 0.0], dummy_objfunc)
@@ -62,10 +58,8 @@ def test_branch_operator_random_mode(rng):
 
 
 def test_branch_operator_pick_mode(rng):
-    op_a = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix + 1),
-                              random_state=rng)
-    op_b = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix - 1),
-                              random_state=rng)
+    op_a = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix + 1), random_state=rng)
+    op_b = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix - 1), random_state=rng)
     branch = BranchOperator([op_a, op_b], method="pick", random_state=rng, idx=1)
 
     pop = make_pop([0.0, 0.0], dummy_objfunc)
@@ -82,10 +76,8 @@ def test_branch_operator_pick_mode(rng):
 def test_masked_operator_applies_different_ops_per_column(rng):
     # Mask: first column (0) gets op_zero, second column (1) gets op_one
     mask = np.array([0, 1])
-    op_zero = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(np.zeros_like(pop.genotype_matrix)),
-                                 random_state=rng)
-    op_one = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(np.ones_like(pop.genotype_matrix)),
-                                random_state=rng)
+    op_zero = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(np.zeros_like(pop.genotype_matrix)), random_state=rng)
+    op_one = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(np.ones_like(pop.genotype_matrix)), random_state=rng)
     masked = MaskedOperator([op_zero, op_one], mask=mask)
 
     pop = make_pop([0.0, 0.0], dummy_objfunc)

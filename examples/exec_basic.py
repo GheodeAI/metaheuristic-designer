@@ -25,18 +25,14 @@ from metaheuristic_designer.strategies import (
     CrossEntropyMethod,
     BayesianOptimization,
     RandomSearch,
-    NoSearch
+    NoSearch,
 )
-from metaheuristic_designer.benchmarks import (
-    Sphere,
-    Rastrigin,
-    Rosenbrock,
-    Weierstrass
-)
+from metaheuristic_designer.benchmarks import Sphere, Rastrigin, Rosenbrock, Weierstrass
 from metaheuristic_designer.utils import check_random_state
 
 available_objectives = ("sphere", "rastrigin", "rosenbrock", "weierstrass")
 available_algorithms = ("hillclimb", "localsearch", "sa", "es", "ga", "de", "gaussianumda", "gaussianpbil", "crossentropy", "randomsearch")
+
 
 def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, reporter, random_state):
     algorithm_params = {
@@ -99,6 +95,14 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
             initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, random_state=random_state),
             F=0.8,
             Cr=0.8,
+            random_state=random_state,
+        ),
+        "pso": PSO(
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, random_state=random_state),
+            w=0.7,
+            c1=1.5,
+            c2=1.5,
+            random_state=random_state,
         ),
         "gaussianumda": GaussianUMDA(
             initializer=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, random_state=random_state),
@@ -130,29 +134,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
         "randomsearch": RandomSearch(UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, random_state=random_state)),
         "nosearch": NoSearch(UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, random_state=random_state)),
     }
-    if alg_name == "pso":
-        pop_size = 100
-        encoding = PSOEncoding(objfunc.vecsize)
-        base_constraint_handler = objfunc.constraint_handler
-        objfunc.constraint_handler = ExtendedConstraintHandler(
-            solution_handler=base_constraint_handler,
-            param_handler_dict={"speed": BounceBoundConstraint(objfunc.vecsize)},
-            encoding=encoding
-        )
-        abs_up_lim = np.maximum(np.abs(objfunc.low_lim), np.abs(objfunc.up_lim))
-        initializer = ExtendedInitializer(
-            solution_init=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, random_state=random_state),
-            param_init_dict={"speed": UniformInitializer(objfunc.vecsize, -abs_up_lim, abs_up_lim)},
-            encoding=encoding,
-        )
-        search_strategy = PSO(
-            initializer=initializer,
-            encoding=encoding,
-            w=0.7,
-            c1=1.5,
-            c2=1.5
-        )
-    elif alg_name not in search_strategy_map:
+    if alg_name not in search_strategy_map:
         raise ValueError(f'Algorithm "{alg_name}" not recognized.')
     else:
         search_strategy = search_strategy_map[alg_name]
@@ -169,7 +151,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
             local_search=local_search,
             improvement_selection=create_parent_selection("Best", amount=5),
             keep_improved_solutions=True,
-            **algorithm_params
+            **algorithm_params,
         )
     else:
         alg = Algorithm(objfunc, search_strategy, reporter=reporter, **algorithm_params)
@@ -184,13 +166,15 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
     if save_state:
         script_dir = Path(__file__).parent.absolute()
         result_dir = script_dir / "results"
-        result_dir.mkdir(parents=True, exist_ok = True)
+        result_dir.mkdir(parents=True, exist_ok=True)
         alg.store_state(result_dir / "test.json", readable=True)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", dest="algorithm", help=f"Specify an algorithm. Available options are {available_algorithms}.", default="ES")
+    parser.add_argument(
+        "-a", "--algorithm", dest="algorithm", help=f"Specify an algorithm. Available options are {available_algorithms}.", default="ES"
+    )
     parser.add_argument(
         "-m",
         "--memetic",
@@ -205,9 +189,11 @@ def main():
         action="store_true",
         help="Saves the state of the search strategy",
     )
-    parser.add_argument("-o", "--objective", dest="objective", help=f"Name of the objective function. Available options are {available_objectives}", default="Sphere")
+    parser.add_argument(
+        "-o", "--objective", dest="objective", help=f"Name of the objective function. Available options are {available_objectives}", default="Sphere"
+    )
     parser.add_argument("-d", "--dim", dest="dim", help="Dimension of the vectors to optimize.", default=3, type=int)
-    parser.add_argument("-r", "--seed", dest="seed", help="Random seed to use", default=42, type=int)
+    parser.add_argument("-r", "--seed", dest="seed", help="Random seed to use", default=None, type=int)
     parser.add_argument("--log", default="WARNING", help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     parser.add_argument("-v", "--reporter", default="tqdm", help="Reporter to use for progress tracking. Avaliable options are")
     parser.add_argument(

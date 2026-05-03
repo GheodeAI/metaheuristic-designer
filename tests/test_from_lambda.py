@@ -48,6 +48,7 @@ def test_objective_from_lambda():
 def test_initializer_from_lambda(rng):
     def my_gen(rs):
         return rs.uniform(10, 20, size=3)
+
     init = InitializerFromLambda(my_gen, pop_size=2, random_state=rng)
     vec = init.generate_random()
     assert vec.shape == (3,)
@@ -60,8 +61,10 @@ def test_initializer_from_lambda(rng):
 def test_operator_from_lambda_applies_function(rng, dummy_objfunc):
     pop = make_pop([1.0, 2.0], dummy_objfunc)
     original = pop.genotype_matrix.copy()
+
     def add_ten(p, init, rng, **kw):
         return p.update_genotype(p.genotype_matrix + 10)
+
     op = OperatorFromLambda(add_ten, random_state=rng)
     result = op.evolve(pop)
     expected = original + 10
@@ -73,10 +76,12 @@ def test_operator_from_lambda_applies_function(rng, dummy_objfunc):
 # ===================================================================
 def test_parent_selection_from_lambda_selects_correctly(rng, dummy_objfunc):
     pop = make_pop([5.0, 1.0, 3.0, 2.0], dummy_objfunc)
+
     # Select the two best individuals
     def select_best_two(population, amount, rng):
         fitness = population.fitness
         return np.argsort(fitness)[::-1][:amount]
+
     sel = ParentSelectionFromLambda(select_best_two, amount=2, random_state=rng)
     result = sel.select(pop, 2)
     assert len(result) == 2
@@ -94,9 +99,11 @@ def test_parent_selection_from_lambda_selects_correctly(rng, dummy_objfunc):
 def test_survivor_selection_from_lambda(rng, dummy_objfunc):
     parents = make_pop([5.0, 1.0], dummy_objfunc)
     offspring = make_pop([10.0, 2.0], dummy_objfunc)
+
     # A lambda that always returns offspring indices [0,1] (so the offspring becomes the new population)
     def select_all_offspring(pop_fit, off_fit, rng):
         return np.array([0, 1]) + len(pop_fit)
+
     sel = SurvivorSelectionFromLambda(select_all_offspring, random_state=rng)
     result = sel.select(parents, offspring)
     assert len(result) == 2
@@ -114,7 +121,9 @@ def test_constraint_handler_from_lambda():
     assert_array_equal(handler.repair_solution(np.array([0.0])), [1.0])
     assert handler.penalty(np.array([0.0])) == 2.0
 
+
 def test_constraint_handler_from_lambda_missing_both_raises():
     import pytest
+
     with pytest.raises(ValueError):
         ConstraintHandlerFromLambda()

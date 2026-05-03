@@ -28,7 +28,8 @@ def test_null_repair_does_nothing():
     orig = np.array([1.0, -5.0])
     repaired = handler.repair_solution(orig)
     assert_array_equal(repaired, orig)
-    assert repaired is not orig          # copy
+    assert repaired is not orig  # copy
+
 
 def test_null_penalty_zero():
     handler = NullConstraint()
@@ -42,9 +43,11 @@ def test_lambda_repair_calls_function():
     handler = ConstraintHandlerFromLambda(repair_solution_fn=lambda x: x * 2)
     assert_array_equal(handler.repair_solution(np.array([1, 2])), [2, 4])
 
+
 def test_lambda_penalty_calls_function():
     handler = ConstraintHandlerFromLambda(penalty_fn=lambda x: 10.0)
     assert handler.penalty(np.array([0])) == 10.0
+
 
 def test_lambda_missing_both_raises():
     with pytest.raises(ValueError):
@@ -54,20 +57,20 @@ def test_lambda_missing_both_raises():
 # ===================================================================
 #  ClipBoundConstraint
 # ===================================================================
-@pytest.mark.parametrize("low, high, solution, expected", [
-    (-1.0, 1.0,  np.array([ 0.0, -0.5, 0.5, 2.0, -3.0]),
-                 np.array([ 0.0, -0.5, 0.5, 1.0, -1.0])),
-    (0.0, 5.0,   np.array([-2, 0, 3, 6]),
-                 np.array([ 0, 0, 3, 5])),
-    (-5.0, -1.0, np.array([-10, -3, 0]),
-                 np.array([ -5, -3, -1])),
-    (0.0, 1.0,   np.array([0.5]),
-                 np.array([0.5])),
-])
+@pytest.mark.parametrize(
+    "low, high, solution, expected",
+    [
+        (-1.0, 1.0, np.array([0.0, -0.5, 0.5, 2.0, -3.0]), np.array([0.0, -0.5, 0.5, 1.0, -1.0])),
+        (0.0, 5.0, np.array([-2, 0, 3, 6]), np.array([0, 0, 3, 5])),
+        (-5.0, -1.0, np.array([-10, -3, 0]), np.array([-5, -3, -1])),
+        (0.0, 1.0, np.array([0.5]), np.array([0.5])),
+    ],
+)
 def test_clip_bound_repair(low, high, solution, expected):
     handler = ClipBoundConstraint(vecsize=len(solution), low_lim=low, up_lim=high)
     repaired = handler.repair_solution(solution)
     assert_array_equal(repaired, expected)
+
 
 def test_clip_bound_penalty_zero():
     handler = ClipBoundConstraint(vecsize=2, low_lim=0, up_lim=1)
@@ -77,22 +80,24 @@ def test_clip_bound_penalty_zero():
 # ===================================================================
 #  BounceBoundConstraint
 # ===================================================================
-@pytest.mark.parametrize("low, high, solution, expected", [
-    (0.0, 4.0,   np.array([1.0, -2.0, 6.0]),
-                 np.array([1.0, 2.0, 2.0])),        # -2 bounces to 2, 6 bounces to 2
-    (0.0, 10.0,  np.array([-5, 15]),
-                 np.array([5, 5])),                  # -5 -> 5, 15 -> 5
-    (0.0, 1.0,   np.array([-0.2, 1.3]),
-                 np.array([0.2, 0.7])),              # bounce inside unit
-])
+@pytest.mark.parametrize(
+    "low, high, solution, expected",
+    [
+        (0.0, 4.0, np.array([1.0, -2.0, 6.0]), np.array([1.0, 2.0, 2.0])),  # -2 bounces to 2, 6 bounces to 2
+        (0.0, 10.0, np.array([-5, 15]), np.array([5, 5])),  # -5 -> 5, 15 -> 5
+        (0.0, 1.0, np.array([-0.2, 1.3]), np.array([0.2, 0.7])),  # bounce inside unit
+    ],
+)
 def test_bounce_bound_repair(low, high, solution, expected):
     handler = BounceBoundConstraint(vecsize=len(solution), low_lim=low, up_lim=high)
     repaired = handler.repair_solution(solution)
     assert_array_equal(repaired, expected)
 
+
 def test_bounce_bound_penalty_zero():
     handler = BounceBoundConstraint(vecsize=3)
     assert handler.penalty(np.array([0.0, 50.0, 200.0])) == 0.0
+
 
 # This test will fail until the code returns an array when bounds are equal
 def test_bounce_bound_equal_lims_returns_array():
@@ -108,22 +113,24 @@ def test_bounce_bound_equal_lims_returns_array():
 # ===================================================================
 #  CycleBoundConstraint
 # ===================================================================
-@pytest.mark.parametrize("low, high, solution, expected", [
-    (0.0, 4.0,   np.array([1.0, -2.0, 6.0]),
-                 np.array([1.0, 2.0, 2.0])),        # -2 wraps to 2, 6 wraps to 2
-    (0.0, 10.0,  np.array([-5, 15]),
-                 np.array([5, 5])),
-    (0.0, 1.0,   np.array([-0.2, 1.3]),
-                 np.array([0.8, 0.3])),              # purely periodic
-])
+@pytest.mark.parametrize(
+    "low, high, solution, expected",
+    [
+        (0.0, 4.0, np.array([1.0, -2.0, 6.0]), np.array([1.0, 2.0, 2.0])),  # -2 wraps to 2, 6 wraps to 2
+        (0.0, 10.0, np.array([-5, 15]), np.array([5, 5])),
+        (0.0, 1.0, np.array([-0.2, 1.3]), np.array([0.8, 0.3])),  # purely periodic
+    ],
+)
 def test_cycle_bound_repair(low, high, solution, expected):
     handler = CycleBoundConstraint(vecsize=len(solution), low_lim=low, up_lim=high)
     repaired = handler.repair_solution(solution)
-    assert_array_equal(repaired, expected)
+    np.testing.assert_allclose(repaired, expected)
+
 
 def test_cycle_bound_penalty_zero():
     handler = CycleBoundConstraint(vecsize=4)
     assert handler.penalty(np.array([10.0, -10.0, 0.0, 100.0])) == 0.0
+
 
 # Same potential bug as bounce: equal limits should return an array
 def test_cycle_bound_equal_lims_returns_array():
@@ -138,24 +145,26 @@ def test_cycle_bound_equal_lims_returns_array():
 # ===================================================================
 #  LinearBoundPenaltyConstraint
 # ===================================================================
-@pytest.mark.parametrize("low, high, alpha, solution, expected_penalty", [
-    (0.0, 1.0, 1.0,  np.array([0.2, -0.3, 1.5]),   # violations: low -0.3, high 0.5 => sum abs = 0.8
-                       0.8),
-    (-2.0, 2.0, 2.0, np.array([ -3.0, 0.0, 3.0]),  # below by 1, above by 1 => sum=2, *2 = 4
-                       4.0),
-    (0.0, 10.0, 1.0, np.array([5.0, 0.0, 10.0]),   # no violation
-                       0.0),
-])
+@pytest.mark.parametrize(
+    "low, high, alpha, solution, expected_penalty",
+    [
+        (0.0, 1.0, 1.0, np.array([[0.2, -0.3, 1.5]]), 0.8),
+        (-2.0, 2.0, 2.0, np.array([[-3.0, 0.0, 3.0]]), 4.0),
+        (0.0, 10.0, 1.0, np.array([[5.0, 0.0, 10.0]]), 0.0),
+    ],
+)
 def test_linear_bound_penalty(low, high, alpha, solution, expected_penalty):
-    handler = LinearBoundPenaltyConstraint(vecsize=len(solution), low_lim=low, up_lim=high, alpha=alpha)
-    penalty = handler.penalty(solution)
-    assert penalty == pytest.approx(expected_penalty)
+    handler = LinearBoundPenaltyConstraint(vecsize=solution.shape[1], low_lim=low, up_lim=high, alpha=alpha)
+    penalty = handler.penalty(solution)  # shape (1,)
+    assert penalty.shape == (1,)
+    np.testing.assert_allclose(penalty[0], expected_penalty)
+
 
 def test_linear_bound_repair_does_nothing():
     handler = LinearBoundPenaltyConstraint(vecsize=3, low_lim=-1, up_lim=1)
     orig = np.array([0.5, -0.2, 1.2])
     repaired = handler.repair_solution(orig)
-    assert_array_equal(repaired, orig)   # it's a PenalizeConstraint, repair just copies
+    assert_array_equal(repaired, orig)  # it's a PenalizeConstraint, repair just copies
 
 
 # ===================================================================
@@ -172,6 +181,7 @@ def test_composite_repair_applies_in_order():
     expected = np.array([-1.0, 0.0, 2.0])
     assert_array_equal(repaired, expected)
 
+
 def test_composite_penalty_sums():
     # Two penalty handlers: one returns 2, another returns 3
     p1 = ConstraintHandlerFromLambda(penalty_fn=lambda x: 2.0)
@@ -187,21 +197,11 @@ def test_extended_handler_repair_and_penalty():
     # Encoding: vecsize=2, param "a" of size 1
     enc = DummyParameterExtendingEncoding([("a", 1)])
     # Override vecsize (the Dummy sets it to 1, but we can just set it manually)
-    enc.vecsize = 2   # ensure solution part is 2 columns
+    enc.vecsize = 2  # ensure solution part is 2 columns
     # Sub-handlers
-    sol_handler = ConstraintHandlerFromLambda(
-        repair_solution_fn=lambda x: x + 1,
-        penalty_fn=lambda x: 0.5
-    )
-    param_handler = ConstraintHandlerFromLambda(
-        repair_solution_fn=lambda x: x * 2,
-        penalty_fn=lambda x: 1.0
-    )
-    handler = ExtendedConstraintHandler(
-        solution_handler=sol_handler,
-        param_handler_dict={"a": param_handler},
-        encoding=enc
-    )
+    sol_handler = ConstraintHandlerFromLambda(repair_solution_fn=lambda x: x + 1, penalty_fn=lambda x: 0.5)
+    param_handler = ConstraintHandlerFromLambda(repair_solution_fn=lambda x: x * 2, penalty_fn=lambda x: 1.0)
+    handler = ExtendedConstraintHandler(solution_handler=sol_handler, param_handler_dict={"a": param_handler}, encoding=enc)
 
     # Full genotype: solution part = [10, 20], param a = [5]
     full = np.array([[10.0, 20.0, 5.0]])

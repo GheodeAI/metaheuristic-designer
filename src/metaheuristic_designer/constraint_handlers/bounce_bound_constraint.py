@@ -1,8 +1,8 @@
 from __future__ import annotations
 from copy import copy
 import numpy as np
-from numpy import ndarray
 from ..constraint_handler import RepairConstraint
+from ..utils import MatrixLike, ScalarLike, VectorLike
 
 
 class BounceBoundConstraint(RepairConstraint):
@@ -21,25 +21,24 @@ class BounceBoundConstraint(RepairConstraint):
         upper limit of the bounds.
     """
 
-    def __init__(self, vecsize, low_lim: float = -100, up_lim: float = 100):
+    def __init__(self, vecsize, low_lim: ScalarLike | VectorLike = -100, up_lim: ScalarLike | VectorLike = 100):
         self.vecsize = vecsize
         self.low_lim = np.asarray(low_lim)
         self.up_lim = np.asarray(up_lim)
-        self.range_lim = up_lim - low_lim
+        self.range_lim = self.up_lim - self.low_lim
 
-    def repair_solution(self, vector: ndarray) -> ndarray:
+    def repair_solution(self, population_matrix: MatrixLike) -> MatrixLike:
         if np.all(self.up_lim == self.low_lim):
-            if self.up_lim.ndim == 1:
-                return np.full_like(self.up_lim)
-            else:
-                return np.full(self.vecsize, self.up_lim)
+            if self.up_lim.ndim == 0:
+                return np.full_like(population_matrix, self.up_lim)
+            return np.tile(self.up_lim, (population_matrix.shape[0], 1))
 
-        shifted_vector = vector - self.low_lim
+        shifted_vector = population_matrix - self.low_lim
         bounce_times = np.floor_divide(shifted_vector, self.range_lim)
         fixed_solution = np.mod((-1.0) ** bounce_times * shifted_vector, self.range_lim) + self.low_lim
 
-        ouside_bound_mask = (vector < self.low_lim) | (vector > self.up_lim)
-        vector = copy(vector)
-        vector[ouside_bound_mask] = fixed_solution[ouside_bound_mask]
+        ouside_bound_mask = (population_matrix < self.low_lim) | (population_matrix > self.up_lim)
+        population_matrix = copy(population_matrix)
+        population_matrix[ouside_bound_mask] = fixed_solution[ouside_bound_mask]
 
-        return vector
+        return population_matrix

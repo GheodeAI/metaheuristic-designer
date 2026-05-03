@@ -55,15 +55,17 @@ def run_algorithm(save_state, objective, dim):
     ada_mutation_op = AdaptiveOperator(
         VectorOperator("RandNoise", {"distrib": "VonMises"}),
         {
-            "mu": VectorOperator("MutateNSigmas", {"tau": 1 / np.sqrt(objfunc.vecsize), "tau_multiple": 0.5/np.sqrt(objfunc.vecsize), "epsilon": 1e-8}),
-            "F": VectorOperator("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-8})
+            "mu": VectorOperator(
+                "MutateNSigmas", {"tau": 1 / np.sqrt(objfunc.vecsize), "tau_multiple": 0.5 / np.sqrt(objfunc.vecsize), "epsilon": 1e-8}
+            ),
+            "F": VectorOperator("Mutate1Sigma", {"tau": 1 / np.sqrt(objfunc.vecsize), "epsilon": 1e-8}),
         },
-        encoding=adaption_encoding
+        encoding=adaption_encoding,
     )
 
     pop_initializer = ExtendedInitializer(
-        solution_init = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding),
-        param_init_dict = {
+        solution_init=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=adaption_encoding),
+        param_init_dict={
             "mu": ExponentialInitializer(objfunc.vecsize, beta=100),
             "F": ExponentialInitializer(1, beta=100),
         },
@@ -108,4 +110,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -1,8 +1,8 @@
 from __future__ import annotations
 from copy import copy
 import numpy as np
-from numpy import ndarray
 from ..constraint_handler import RepairConstraint
+from ..utils import ScalarLike, VectorLike, MatrixLike
 
 
 class CycleBoundConstraint(RepairConstraint):
@@ -20,23 +20,22 @@ class CycleBoundConstraint(RepairConstraint):
         upper limit of the bounds.
     """
 
-    def __init__(self, vecsize, low_lim: float = -100, up_lim: float = 100):
+    def __init__(self, vecsize, low_lim: ScalarLike | VectorLike = -100, up_lim: ScalarLike | VectorLike = 100):
         self.vecsize = vecsize
         self.low_lim = np.asarray(low_lim)
         self.up_lim = np.asarray(up_lim)
-        self.range_lim = up_lim - low_lim
+        self.range_lim = self.up_lim - self.low_lim
 
-    def repair_solution(self, solution: ndarray) -> ndarray:
+    def repair_solution(self, population_matrix: MatrixLike) -> MatrixLike:
         if np.all(self.up_lim == self.low_lim):
-            if self.up_lim.ndim == 1:
-                return np.full_like(self.up_lim)
-            else:
-                return np.full(self.vecsize, self.up_lim)
+            if self.up_lim.ndim == 0:
+                return np.full_like(population_matrix, self.up_lim)
+            return np.tile(self.up_lim, (population_matrix.shape[0], 1))
 
-        fixed_solution = np.mod(solution - self.low_lim, self.range_lim) + self.low_lim
+        fixed_solution = np.mod(population_matrix - self.low_lim, self.range_lim) + self.low_lim
 
-        ouside_bound_mask = (solution < self.low_lim) | (solution > self.up_lim)
-        solution = copy(solution)
-        solution[ouside_bound_mask] = fixed_solution[ouside_bound_mask]
+        ouside_bound_mask = (population_matrix < self.low_lim) | (population_matrix > self.up_lim)
+        population_matrix = copy(population_matrix)
+        population_matrix[ouside_bound_mask] = fixed_solution[ouside_bound_mask]
 
-        return solution
+        return population_matrix

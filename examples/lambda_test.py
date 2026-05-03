@@ -9,16 +9,20 @@ from metaheuristic_designer.operators import OperatorVectorDef
 def objective_fn(vector):
     return np.sum(vector**2)
 
+
 def constraint_repair_fn(vector):
     return np.clip(vector, -100, 100)
+
 
 def initializer_fn(random_state=None):
     return random_state.uniform(-100, 100, 10)
 
+
 def mutate_fn(population_matrix, _fitness_array=None, random_state=None, **_):
-    mask = random_state.uniform(0,1,size=population_matrix.shape) > 0.3
+    mask = random_state.uniform(0, 1, size=population_matrix.shape) > 0.3
     population_matrix[mask] += random_state.normal(0, 1e-2, np.count_nonzero(mask))
     return population_matrix
+
 
 def run_algorithm():
     params = {

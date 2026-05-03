@@ -42,38 +42,30 @@ def run_algorithm(alg_name, memetic, save_state, objective, dim):
         "patience": 200,
         "verbose": True,
         "v_timer": 0.5,
-
         # General
         "encoding": "real",
         "mutstr": 1e-3,
         "min": objfunc.low_lim,
         "max": objfunc.up_lim,
-
         # Population based algorithms
         "pop_size": 100,
-
         # GA
         "pcross": 0.8,
         "pmut": 0.1,
         "cross": "multipoint",
-
         # ES
         "offspring_size": 150,
-
         # PSO
         "w": 0.7,
         "c1": 1.5,
         "c2": 1.5,
-
         # DE
         "F": 0.7,
         "Cr": 0.9,
-
         # SA
         "iter": 100,
         "temp_init": 1,
         "alpha": 0.997,
-
         # BO
         "batch_size": 50,
         "max_samples": 100,

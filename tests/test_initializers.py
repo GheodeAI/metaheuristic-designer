@@ -31,13 +31,16 @@ from metaheuristic_designer.population import Population
 # ===================================================================
 #  ExponentialInitializer
 # ===================================================================
-@pytest.mark.parametrize("genotype_size, beta, dtype, pop_size", [
-    (3, 1.0, float, 1),
-    (5, 2.0, float, 4),
-    (4, 0.5, int, 1),
-    (3, 1.5, int, 2),
-    (1, 10.0, float, 1),
-])
+@pytest.mark.parametrize(
+    "genotype_size, beta, dtype, pop_size",
+    [
+        (3, 1.0, float, 1),
+        (5, 2.0, float, 4),
+        (4, 0.5, int, 1),
+        (3, 1.5, int, 2),
+        (1, 10.0, float, 1),
+    ],
+)
 def test_exponential_generate_random_shape_and_type(genotype_size, beta, dtype, pop_size, rng):
     init = ExponentialInitializer(genotype_size, beta, pop_size=pop_size, dtype=dtype, random_state=rng)
     vec = init.generate_random()
@@ -46,10 +49,13 @@ def test_exponential_generate_random_shape_and_type(genotype_size, beta, dtype, 
     assert np.all(vec >= 0)
 
 
-@pytest.mark.parametrize("genotype_size, beta, dtype", [
-    (3, 1.0, float),
-    (2, 2.5, int),
-])
+@pytest.mark.parametrize(
+    "genotype_size, beta, dtype",
+    [
+        (3, 1.0, float),
+        (2, 2.5, int),
+    ],
+)
 def test_exponential_generate_random_deterministic(genotype_size, beta, dtype, rng):
     init = ExponentialInitializer(genotype_size, beta, pop_size=1, dtype=dtype, random_state=rng)
     rng_expected = np.random.default_rng(42)
@@ -70,12 +76,15 @@ def test_exponential_generate_population(rng, dummy_objfunc, simple_encoding):
 # ===================================================================
 #  GaussianInitializer
 # ===================================================================
-@pytest.mark.parametrize("genotype_size, g_mean, g_std, dtype, pop_size", [
-    (3, 0.0, 1.0, float, 1),
-    (4, 5.0, 0.5, float, 2),
-    (2, 10.0, 0.1, int, 1),
-    (1, 0.0, 2.0, float, 1),
-])
+@pytest.mark.parametrize(
+    "genotype_size, g_mean, g_std, dtype, pop_size",
+    [
+        (3, 0.0, 1.0, float, 1),
+        (4, 5.0, 0.5, float, 2),
+        (2, 10.0, 0.1, int, 1),
+        (1, 0.0, 2.0, float, 1),
+    ],
+)
 def test_gaussian_generate_random_shape_and_type(genotype_size, g_mean, g_std, dtype, pop_size, rng):
     init = GaussianInitializer(genotype_size, g_mean, g_std, pop_size=pop_size, dtype=dtype, random_state=rng)
     vec = init.generate_random()
@@ -83,10 +92,13 @@ def test_gaussian_generate_random_shape_and_type(genotype_size, g_mean, g_std, d
     assert vec.dtype == np.dtype(dtype)
 
 
-@pytest.mark.parametrize("genotype_size, g_mean, g_std, dtype", [
-    (2, 0.0, 1.0, float),
-    (3, 2.0, 0.5, int),
-])
+@pytest.mark.parametrize(
+    "genotype_size, g_mean, g_std, dtype",
+    [
+        (2, 0.0, 1.0, float),
+        (3, 2.0, 0.5, int),
+    ],
+)
 def test_gaussian_generate_random_deterministic(genotype_size, g_mean, g_std, dtype, rng):
     init = GaussianInitializer(genotype_size, g_mean, g_std, pop_size=1, dtype=dtype, random_state=rng)
     rng_expected = np.random.default_rng(42)
@@ -113,12 +125,15 @@ def test_gaussian_generate_population(rng, dummy_objfunc):
 # ===================================================================
 #  UniformInitializer
 # ===================================================================
-@pytest.mark.parametrize("genotype_size, low, high, dtype, pop_size", [
-    (3, -1.0, 1.0, float, 1),
-    (4, 0.0, 10.0, float, 3),
-    (2, 2.0, 5.0, int, 1),
-    (1, 0.0, 100.0, float, 1),
-])
+@pytest.mark.parametrize(
+    "genotype_size, low, high, dtype, pop_size",
+    [
+        (3, -1.0, 1.0, float, 1),
+        (4, 0.0, 10.0, float, 3),
+        (2, 2.0, 5.0, int, 1),
+        (1, 0.0, 100.0, float, 1),
+    ],
+)
 def test_uniform_generate_random_shape_and_type(genotype_size, low, high, dtype, pop_size, rng):
     init = UniformInitializer(genotype_size, low, high, pop_size=pop_size, dtype=dtype, random_state=rng)
     vec = init.generate_random()
@@ -128,10 +143,13 @@ def test_uniform_generate_random_shape_and_type(genotype_size, low, high, dtype,
     assert np.all(vec <= high)
 
 
-@pytest.mark.parametrize("genotype_size, low, high, dtype", [
-    (2, 0.0, 1.0, float),
-    (3, 5.0, 10.0, int),
-])
+@pytest.mark.parametrize(
+    "genotype_size, low, high, dtype",
+    [
+        (2, 0.0, 1.0, float),
+        (3, 5.0, 10.0, int),
+    ],
+)
 def test_uniform_generate_random_deterministic(genotype_size, low, high, dtype, rng):
     init = UniformInitializer(genotype_size, low, high, pop_size=1, dtype=dtype, random_state=rng)
     rng_expected = np.random.default_rng(42)
@@ -349,6 +367,7 @@ def test_extended_generate_individual_same_structure(rng):
 def test_lambda_generate_random(rng):
     def my_gen(rs):
         return rs.uniform(10, 20, size=3)
+
     init = InitializerFromLambda(my_gen, pop_size=2, random_state=rng)
     vec = init.generate_random()
     assert vec.shape == (3,)
@@ -358,6 +377,7 @@ def test_lambda_generate_random(rng):
 def test_lambda_generate_individual_calls_same(rng):
     def my_gen(rs):
         return np.array([1.0, 2.0])
+
     init = InitializerFromLambda(my_gen, random_state=rng)
     assert_array_equal(init.generate_individual(), np.array([1.0, 2.0]))
 
@@ -365,6 +385,7 @@ def test_lambda_generate_individual_calls_same(rng):
 def test_lambda_generate_population(rng, dummy_objfunc):
     def my_gen(rs):
         return rs.integers(0, 100, size=2)
+
     init = InitializerFromLambda(my_gen, pop_size=5, random_state=rng)
     pop = init.generate_population(dummy_objfunc)
     assert len(pop) == 5
@@ -377,33 +398,36 @@ def test_lambda_generate_population(rng, dummy_objfunc):
 # -------------------------------------------------------------------
 #  Reproducibility suite
 # -------------------------------------------------------------------
-@pytest.mark.parametrize("init_factory", [
-    lambda rng: ExponentialInitializer(3, 1.0, random_state=rng),
-    lambda rng: GaussianInitializer(3, 0.0, 1.0, random_state=rng),
-    lambda rng: UniformInitializer(3, -1.0, 1.0, random_state=rng),
-    lambda rng: PermInitializer(5, random_state=rng),
-    lambda rng: SeedProbInitializer(
-        UniformInitializer(3, -1.0, 1.0, random_state=np.random.default_rng(999)),
-        solutions=np.array([[9, 9, 9]]),
-        insert_prob=0.5,
-        random_state=rng,
-    ),
-    lambda rng: DirectInitializer(
-        UniformInitializer(3, -1.0, 1.0, random_state=np.random.default_rng(888)),
-        solutions=np.array([[1, 2, 3], [4, 5, 6]]),
-        random_state=rng,
-    ),
-    lambda rng: ExtendedInitializer(
-        UniformInitializer(3, 0, 1, random_state=rng),
-        {"sigma": GaussianInitializer(1, 0, 1, random_state=np.random.default_rng(777))},
-        DummyParameterExtendingEncoding([("sigma", 1)]),
-        random_state=rng,
-    ),
-    lambda rng: InitializerFromLambda(
-        lambda rs: rs.uniform(10, 20, size=3),
-        random_state=rng,
-    ),
-])
+@pytest.mark.parametrize(
+    "init_factory",
+    [
+        lambda rng: ExponentialInitializer(3, 1.0, random_state=rng),
+        lambda rng: GaussianInitializer(3, 0.0, 1.0, random_state=rng),
+        lambda rng: UniformInitializer(3, -1.0, 1.0, random_state=rng),
+        lambda rng: PermInitializer(5, random_state=rng),
+        lambda rng: SeedProbInitializer(
+            UniformInitializer(3, -1.0, 1.0, random_state=np.random.default_rng(999)),
+            solutions=np.array([[9, 9, 9]]),
+            insert_prob=0.5,
+            random_state=rng,
+        ),
+        lambda rng: DirectInitializer(
+            UniformInitializer(3, -1.0, 1.0, random_state=np.random.default_rng(888)),
+            solutions=np.array([[1, 2, 3], [4, 5, 6]]),
+            random_state=rng,
+        ),
+        lambda rng: ExtendedInitializer(
+            UniformInitializer(3, 0, 1, random_state=rng),
+            {"sigma": GaussianInitializer(1, 0, 1, random_state=np.random.default_rng(777))},
+            DummyParameterExtendingEncoding([("sigma", 1)]),
+            random_state=rng,
+        ),
+        lambda rng: InitializerFromLambda(
+            lambda rs: rs.uniform(10, 20, size=3),
+            random_state=rng,
+        ),
+    ],
+)
 def test_reproducible_initializers(init_factory, rng):
     init1 = init_factory(rng)
     init2 = init_factory(np.random.default_rng(42))

@@ -48,7 +48,6 @@ class VariablePopulation(SearchStrategy):
             **kwargs,
         )
 
-
     @property
     def initializer(self):
         return self._initializer

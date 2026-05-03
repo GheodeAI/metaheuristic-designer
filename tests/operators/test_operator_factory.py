@@ -89,4 +89,5 @@ def test_add_and_retrieve_custom_operator(rng, simple_encoding):
     assert isinstance(op, OperatorFromLambda)
     # Clean up so other tests aren't affected
     from metaheuristic_designer.operators.factories.generic import all_ops_map
+
     del all_ops_map["custom"]["my_custom_op"]

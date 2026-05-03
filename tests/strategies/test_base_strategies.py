@@ -34,6 +34,7 @@ def test_hill_climb_default_survivor(rng, dummy_initializer):
 
 def test_hill_climb_custom_survivor(rng, dummy_initializer):
     from metaheuristic_designer.survivor_selection import create_survivor_selection
+
     custom_sel = create_survivor_selection("generational", random_state=rng)
     algo = HillClimb(initializer=dummy_initializer, survivor_sel=custom_sel, random_state=rng)
     assert algo.survivor_sel is custom_sel
@@ -45,6 +46,7 @@ def test_hill_climb_custom_survivor(rng, dummy_initializer):
 def test_local_search_perturb_repeats_parents(rng, dummy_initializer, dummy_objfunc):
     # Use a small initializer for simplicity
     from metaheuristic_designer.initializers import UniformInitializer
+
     init = UniformInitializer(2, -1, 1, pop_size=2, random_state=rng)
     algo = LocalSearch(initializer=init, iterations=3, random_state=rng)
     parents = init.generate_population(dummy_objfunc)
@@ -76,9 +78,9 @@ def test_static_population_requires_operator(rng, dummy_initializer, dummy_opera
 
 def test_static_population_accepts_parent_sel(rng, dummy_initializer, dummy_operator):
     from metaheuristic_designer.parent_selection_base import NullParentSelection
+
     parent_sel = NullParentSelection()
-    algo = StaticPopulation(initializer=dummy_initializer, operator=dummy_operator,
-                            parent_sel=parent_sel, random_state=rng)
+    algo = StaticPopulation(initializer=dummy_initializer, operator=dummy_operator, parent_sel=parent_sel, random_state=rng)
     assert algo.parent_sel is parent_sel
 
 
@@ -99,8 +101,7 @@ def test_variable_population_shuffles_parents(rng, dummy_initializer, dummy_oper
 
 
 def test_variable_population_custom_offspring_size(rng, dummy_initializer, dummy_operator, dummy_objfunc):
-    algo = VariablePopulation(initializer=dummy_initializer, operator=dummy_operator,
-                              offspring_size=5, random_state=rng)
+    algo = VariablePopulation(initializer=dummy_initializer, operator=dummy_operator, offspring_size=5, random_state=rng)
     parents = dummy_initializer.generate_population(dummy_objfunc)
     shuffled = algo.select_parents(parents)
     assert len(shuffled) == 5  # custom size
@@ -110,6 +111,7 @@ def test_variable_population_initializer_update_changes_offspring_size(rng, dumm
     algo = VariablePopulation(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
     # Change initializer with a different pop_size
     from metaheuristic_designer.initializers import UniformInitializer
+
     new_init = UniformInitializer(2, 0, 1, pop_size=6, random_state=rng)
     algo.initializer = new_init
     # Since we didn't set custom offspring size originally, it should update offspring_size to 6

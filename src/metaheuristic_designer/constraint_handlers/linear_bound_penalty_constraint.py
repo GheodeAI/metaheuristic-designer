@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
-from numpy import ndarray
 from ..constraint_handler import PenalizeConstraint
+from ..utils import ScalarLike, VectorLike, MatrixLike
 
 
 class LinearBoundPenaltyConstraint(PenalizeConstraint):
@@ -21,23 +21,25 @@ class LinearBoundPenaltyConstraint(PenalizeConstraint):
         upper limit of the bounds.
     """
 
-    def __init__(self, vecsize, alpha=1, low_lim: float = -100, up_lim: float = 100):
+    def __init__(self, vecsize, alpha: ScalarLike = 1, low_lim: ScalarLike | VectorLike = -100, up_lim: ScalarLike | VectorLike = 100):
         self.vecsize = vecsize
         self.alpha = alpha
-
-        if np.ndim(low_lim) < 1:
-            low_lim = np.repeat(low_lim, vecsize)
-        self.low_lim = low_lim
-
         if np.ndim(up_lim) < 1:
             up_lim = np.repeat(up_lim, vecsize)
         self.up_lim = up_lim
+        if np.ndim(low_lim) < 1:
+            low_lim = np.repeat(low_lim, vecsize)
+        self.low_lim = low_lim
+        self.range_lim = self.up_lim - self.low_lim
 
-    def penalty(self, solution: ndarray) -> ndarray:
-        low_bound_diff = solution - self.low_lim
-        low_bound_diff[low_bound_diff > 0] = 0
+    def penalty(self, population_matrix: MatrixLike) -> VectorLike:
+        if np.all(self.up_lim == self.low_lim):
+            if self.up_lim.ndim == 0:
+                return np.full_like(population_matrix, self.up_lim)
+            return np.tile(self.up_lim, (population_matrix.shape[0], 1))
 
-        up_bound_diff = solution - self.up_lim
-        up_bound_diff[up_bound_diff < 0] = 0
+        low_bound_diff = np.maximum(self.low_lim - population_matrix, 0)
+        up_bound_diff = np.maximum(population_matrix - self.up_lim, 0)
+        total_violation = np.sum(low_bound_diff + up_bound_diff, axis=1)
 
-        return self.alpha * np.sum(np.abs(low_bound_diff - up_bound_diff))
+        return self.alpha * total_violation

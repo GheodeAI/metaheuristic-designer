@@ -17,15 +17,11 @@ constraint_handler = mhd.constraint_handlers.ExtendedConstraintHandler(
 
 objfunc = mhd.benchmarks.Sphere(10, constraint_handler=constraint_handler)
 
-operator = mhd.operators.SwarmOperator("PSO", {"w": 0.9, "c1":0.9, "c2":0.9}, encoding=pso_encoding)
+operator = mhd.operators.SwarmOperator("PSO", {"w": 0.9, "c1": 0.9, "c2": 0.9}, encoding=pso_encoding)
 
 strategy = mhd.strategies.PSO(initializer=initializer, encoding=pso_encoding)
 
-algorithm = mhd.algorithms.StandardAlgorithm(
-    objfunc,
-    strategy,
-    {"stop_cond": "time_limit", "time_limit": 3}
-)
+algorithm = mhd.algorithms.StandardAlgorithm(objfunc, strategy, {"stop_cond": "time_limit", "time_limit": 3})
 
 single_vector = initializer.generate_random()
 # print(single_vector)
@@ -70,5 +66,3 @@ next_population = strategy.select_individuals(initial_population, evolved_popula
 algorithm.optimize()
 
 algorithm.display_report()
-
-

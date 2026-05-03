@@ -72,13 +72,11 @@ class MemeticAlgorithm(Algorithm):
         self,
         objfunc: ObjectiveFunc,
         search_strategy: SearchStrategy,
-
         local_search: SearchStrategy,
         improvement_selection: ParentSelection,
         local_search_frequency: int = 1,
         local_search_depth: int = 1,
         keep_improved_solutions: bool = True,
-
         name: Optional[str] = None,
         stop_cond: str = "time_limit",
         progress_metric: Optional[str] = None,
@@ -126,7 +124,6 @@ class MemeticAlgorithm(Algorithm):
             objfunc=objfunc,
             search_strategy=search_strategy,
             name=name,
-
             stop_cond=stop_cond,
             progress_metric=progress_metric,
             ngen=ngen,
@@ -212,7 +209,6 @@ class MemeticAlgorithm(Algorithm):
                 fitness_obtained = offspring_memetic.fitness
                 offspring_memetic = offspring
                 offspring_memetic.fitness[chosen_idx] = fitness_obtained[chosen_idx]
-
 
         # Select the individuals that remain for the next generation
         new_population = self.search_strategy.select_individuals(population, offspring_memetic)

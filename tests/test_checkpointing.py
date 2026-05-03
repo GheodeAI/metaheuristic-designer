@@ -45,7 +45,7 @@ def test_checkpoint_split_vs_continuous(tmp_path, rng, dummy_objfunc):
         dummy_objfunc,
         strat_b,
         checkpoint_file=str(checkpoint),
-        checkpoint_iteration_frequency=5,   # save at gen 5
+        checkpoint_iteration_frequency=5,  # save at gen 5
         stop_cond="ngen",
         ngen=5,
         reporter="silent",
@@ -80,7 +80,7 @@ def test_checkpoint_iteration_frequency(tmp_path, rng, dummy_objfunc):
         dummy_objfunc,
         strat,
         checkpoint_file=str(checkpoint),
-        checkpoint_iteration_frequency=2,   # save every 2 iterations
+        checkpoint_iteration_frequency=2,  # save every 2 iterations
         stop_cond="ngen",
         ngen=5,
         reporter="silent",
@@ -109,7 +109,7 @@ def test_checkpoint_time_frequency(tmp_path, rng):
         sleepy,
         strat,
         checkpoint_file=str(checkpoint),
-        checkpoint_time_frequency=0.05,   # 50 ms
+        checkpoint_time_frequency=0.05,  # 50 ms
         stop_cond="ngen",
         ngen=3,
         reporter="silent",

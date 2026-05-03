@@ -30,10 +30,10 @@ __all__ = [
 
 class MaxOnes(VectorObjectiveFunc):
     def __init__(self, vecsize, mode="max", constraint_handler=None):
-        super().__init__(constraint_handler=constraint_handler, vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones")
+        super().__init__(constraint_handler=constraint_handler, vecsize=vecsize, low_lim=0, up_lim=1, mode=mode, name="Max ones", vectorized=True)
 
-    def objective(self, solution):
-        return solution.sum()
+    def objective(self, population_matrix):
+        return population_matrix.sum(axis=1)
 
 
 class DiophantineEq(ObjectiveFunc):
@@ -205,8 +205,8 @@ def _sphere(solution):
     return (solution**2).sum()
 
 
-
 def _high_cond_elipt_f(vect):
+    print(vect)
     c = 1.0e6 ** ((np.arange(vect.shape[0]) / (vect.shape[0] - 1)))
     return np.sum(c * vect * vect)
 

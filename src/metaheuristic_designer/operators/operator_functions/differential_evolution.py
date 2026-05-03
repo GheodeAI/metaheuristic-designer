@@ -33,9 +33,9 @@ def differential_evolution_rand1(population_matrix, _fitness_array, random_state
         raise ValueError("Cannot apply DE/rand/1 with a population size smaller than 4.")
 
     rand = random_state.random((popsize, popsize))
-    np.fill_diagonal(rand, np.inf) # Set diagonal unreachable random number
-    r = np.argpartition(rand, 2, axis=1)[:, :3] # The index with lowest random number wins
-    r1, r2, r3 = r.T # is of size (popsize, 3), so r.T will be (3, popsize)
+    np.fill_diagonal(rand, np.inf)  # Set diagonal unreachable random number
+    r = np.argpartition(rand, 2, axis=1)[:, :3]  # The index with lowest random number wins
+    r1, r2, r3 = r.T  # is of size (popsize, 3), so r.T will be (3, popsize)
 
     v = population_matrix[r1] + F * (population_matrix[r2] - population_matrix[r3])
     mask_pos = random_state.random(population_matrix.shape) <= Cr
@@ -69,10 +69,10 @@ def differential_evolution_best1(population_matrix, fitness_array, random_state=
 
     rand = random_state.random((popsize, popsize))
 
-    np.fill_diagonal(rand, np.inf) # Set diagonal to an unreachable random number
-    rand[:, r_best] = np.inf # Set the r_best column to an unreachable random number
-    r = np.argpartition(rand, 1, axis=1)[:, :2] # The index with lowest random number wins
-    r1, r2 = r.T # is of size (popsize, 2), so r.T will be (2, popsize)
+    np.fill_diagonal(rand, np.inf)  # Set diagonal to an unreachable random number
+    rand[:, r_best] = np.inf  # Set the r_best column to an unreachable random number
+    r = np.argpartition(rand, 1, axis=1)[:, :2]  # The index with lowest random number wins
+    r1, r2 = r.T  # is of size (popsize, 2), so r.T will be (2, popsize)
 
     v = population_matrix[r_best] + F * (population_matrix[r1] - population_matrix[r2])
     mask_pos = random_state.random(population_matrix.shape) <= Cr
@@ -103,9 +103,9 @@ def differential_evolution_rand2(population_matrix, _fitness_array, random_state
         raise ValueError("Cannot apply DE/rand/2 with a population size smaller than 6.")
 
     rand = random_state.random((popsize, popsize))
-    np.fill_diagonal(rand, np.inf) # Set diagonal unreachable random number
-    r = np.argpartition(rand, 4, axis=1)[:, :5] # The index with lowest random number wins
-    r1, r2, r3, r4, r5 = r.T # is of size (popsize, 5), so r.T will be (5, popsize)
+    np.fill_diagonal(rand, np.inf)  # Set diagonal unreachable random number
+    r = np.argpartition(rand, 4, axis=1)[:, :5]  # The index with lowest random number wins
+    r1, r2, r3, r4, r5 = r.T  # is of size (popsize, 5), so r.T will be (5, popsize)
 
     v = population_matrix[r1] + F * (population_matrix[r2] - population_matrix[r3]) + F * (population_matrix[r4] - population_matrix[r5])
     mask_pos = random_state.random(population_matrix.shape) <= Cr
@@ -137,10 +137,10 @@ def differential_evolution_best2(population_matrix, fitness_array, random_state=
 
     r_best = np.argmax(fitness_array)
     rand = random_state.random((popsize, popsize))
-    np.fill_diagonal(rand, np.inf) # Set diagonal to an unreachable random number
-    rand[:, r_best] = np.inf # Set the r_best column to an unreachable random number
-    r = np.argpartition(rand, 3, axis=1)[:, :4] # The index with lowest random number wins
-    r1, r2, r3, r4 = r.T # is of size (popsize, 4), so r.T will be (4, popsize)
+    np.fill_diagonal(rand, np.inf)  # Set diagonal to an unreachable random number
+    rand[:, r_best] = np.inf  # Set the r_best column to an unreachable random number
+    r = np.argpartition(rand, 3, axis=1)[:, :4]  # The index with lowest random number wins
+    r1, r2, r3, r4 = r.T  # is of size (popsize, 4), so r.T will be (4, popsize)
 
     v = population_matrix[r_best] + F * (population_matrix[r1] - population_matrix[r2]) + F * (population_matrix[r3] - population_matrix[r4])
     mask_pos = random_state.random(population_matrix.shape) <= Cr
@@ -171,9 +171,9 @@ def differential_evolution_current_to_rand1(population_matrix, _fitness_array, r
         raise ValueError("Cannot apply DE/current-to-rand/1 with a population size smaller than 4.")
 
     rand = random_state.random((popsize, popsize))
-    np.fill_diagonal(rand, np.inf) # Set diagonal unreachable random number
-    r = np.argpartition(rand, 2, axis=1)[:, :3] # The index with lowest random number wins
-    r1, r2, r3 = r.T # is of size (popsize, 3), so r.T will be (3, popsize)
+    np.fill_diagonal(rand, np.inf)  # Set diagonal unreachable random number
+    r = np.argpartition(rand, 2, axis=1)[:, :3]  # The index with lowest random number wins
+    r1, r2, r3 = r.T  # is of size (popsize, 3), so r.T will be (3, popsize)
 
     K = random_state.random((popsize, 1))
     v = population_matrix + K * (population_matrix[r1] - population_matrix) + F * (population_matrix[r2] - population_matrix[r3])
@@ -206,10 +206,10 @@ def differential_evolution_current_to_best1(population_matrix, fitness_array, ra
 
     r_best = np.argmax(fitness_array)
     rand = random_state.random((popsize, popsize))
-    np.fill_diagonal(rand, np.inf) # Set diagonal to an unreachable random number
-    rand[:, r_best] = np.inf # Set the r_best column to an unreachable random number
-    r = np.argpartition(rand, 1, axis=1)[:, :2] # The index with lowest random number wins
-    r1, r2 = r.T # is of size (popsize, 2), so r.T will be (2, popsize)
+    np.fill_diagonal(rand, np.inf)  # Set diagonal to an unreachable random number
+    rand[:, r_best] = np.inf  # Set the r_best column to an unreachable random number
+    r = np.argpartition(rand, 1, axis=1)[:, :2]  # The index with lowest random number wins
+    r1, r2 = r.T  # is of size (popsize, 2), so r.T will be (2, popsize)
 
     K = random_state.random((popsize, 1))
     v = population_matrix + K * (population_matrix[r_best] - population_matrix) + F * (population_matrix[r1] - population_matrix[r2])
@@ -235,7 +235,6 @@ def differential_evolution_current_to_pbest1(population_matrix, fitness_array, r
         _description_
     """
 
-
     random_state = check_random_state(random_state)
     popsize = population_matrix.shape[0]
 
@@ -247,10 +246,10 @@ def differential_evolution_current_to_pbest1(population_matrix, fitness_array, r
     r_pbest = random_state.choice(n_best_idx, replace=True, size=population_matrix.shape[0])
 
     rand = random_state.random((popsize, popsize))
-    np.fill_diagonal(rand, np.inf) # Set diagonal to an unreachable random number
-    rand[:, r_pbest] = np.inf # Set the r_best column to an unreachable random number
-    r = np.argpartition(rand, 1, axis=1)[:, :2] # The index with lowest random number wins
-    r1, r2 = r.T # is of size (popsize, 2), so r.T will be (2, popsize)
+    np.fill_diagonal(rand, np.inf)  # Set diagonal to an unreachable random number
+    rand[:, r_pbest] = np.inf  # Set the r_best column to an unreachable random number
+    r = np.argpartition(rand, 1, axis=1)[:, :2]  # The index with lowest random number wins
+    r1, r2 = r.T  # is of size (popsize, 2), so r.T will be (2, popsize)
 
     K = random_state.random((popsize, 1))
     v = population_matrix + K * (population_matrix[r_pbest] - population_matrix) + F * (population_matrix[r1] - population_matrix[r2])

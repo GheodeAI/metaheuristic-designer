@@ -27,7 +27,7 @@ def test_population_get_state(dummy_objfunc):
     assert "genotype_matrix" in state
     assert "fitness" in state
     assert "best" in state
-    assert "best_fitness" in state
+    assert "best_objective" in state
     assert "encoding" in state
 
 
@@ -54,6 +54,7 @@ def test_parent_selection_get_state(dummy_parent_selection):
     # "amount" if it exists
     assert "amount" in state
 
+
 # ===================================================================
 #  SurvivorSelection
 # ===================================================================
@@ -61,6 +62,7 @@ def test_survivor_selection_get_state(dummy_survivor_selection):
     state = dummy_survivor_selection.get_state()
     assert "name" in state
     assert "class_name" in state
+
 
 # ===================================================================
 #  SearchStrategy
@@ -96,7 +98,7 @@ def test_algorithm_get_state(dummy_objfunc, dummy_strategy):
     # Check that history contains the expected fields (track_best is always True)
     assert "class_name" in state["history"]
     assert state["history"]["class_name"] == "HistoryTracker"
-    assert "best_fitness" in state["history"]
+    assert "best_objective" in state["history"]
     assert "best_solutions" in state["history"]
 
 
@@ -120,4 +122,4 @@ def test_store_state_to_json(dummy_objfunc, dummy_strategy, tmp_path):
     assert "stopping_condition" in data
     assert "search_strategy" in data
     assert "history" in data
-    assert "best_fitness" in data["history"]
+    assert "best_objective" in data["history"]

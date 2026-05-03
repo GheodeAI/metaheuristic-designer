@@ -16,7 +16,7 @@ from metaheuristic_designer.encodings.parameter_extending_encoding import Parame
 from .constraint_handler import ConstraintHandler, NullConstraint
 from .constraint_handlers import ClipBoundConstraint, CompositeConstraint
 from .parametrizable_mixin import ParametrizableMixin
-from .utils import check_random_state, RNGLike, VectorLike, ScalarLike
+from .utils import MatrixLike, check_random_state, RNGLike, VectorLike, ScalarLike
 
 if TYPE_CHECKING:
     from metaheuristic_designer.population import Population
@@ -113,36 +113,41 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         fitness = population.fitness
         objective = population.objective
         solutions = population.decode()
-        if self.vectorized:
-            if not self.recalculate:
-                solutions = solutions[population.fitness_calculated == 0, :]
+        genotypes = population.genotype_matrix
 
-            objective_values = self.objective(solutions)
-            fitness_values = self.factor * (objective_values - self.constraint_handler.penalty(solutions))
+        if not self.recalculate and np.all(population.fitness_calculated == 1):
+            logger.debug("Fitness was not calculated. Every individual is duplicated.")
+            return population.fitness
 
-            if self.recalculate:
-                # Using a slice we overwrite fitness values
-                fitness[:] = fitness_values
-                objective[:] = objective_values
-            else:
-                fitness[population.fitness_calculated == 0] = fitness_values
-                objective[population.fitness_calculated == 0] = objective_values
-
+        if self.recalculate:
+            fitness_mask = np.ones(population.pop_size, dtype=bool)
         else:
-            for idx, (solution, already_calculated) in enumerate(zip(solutions, population.fitness_calculated)):
-                if self.recalculate or not already_calculated:
+            fitness_mask = population.fitness_calculated == 0
+
+        # Penalty is always vectorized. We use the genotype instead of the decoded solutions
+        penalty_vector = self.constraint_handler.penalty(genotypes[fitness_mask])
+
+        if self.vectorized:
+            objective_values = self.objective(solutions[fitness_mask])
+            fitness_values = self.factor * (objective_values - penalty_vector)
+            fitness[fitness_mask] = fitness_values
+            objective[fitness_mask] = objective_values
+        else:
+            # Expand the penalty to have the size `pop_size`
+            penalty_vector_aux = np.zeros(population.pop_size)
+            penalty_vector_aux[fitness_mask] = penalty_vector
+            penalty_vector = penalty_vector_aux
+
+            for idx, (solution, do_calculation) in enumerate(zip(solutions, fitness_mask)):
+                if self.recalculate or do_calculation:
                     objective_value = self.objective(solution)
-                    fitness_value = self.factor * (objective_value - self.constraint_handler.penalty(solution))
+                    fitness_value = self.factor * (objective_value - penalty_vector[idx])
 
                     fitness[idx] = fitness_value
                     objective[idx] = objective_value
 
-        if self.recalculate:
-            self.counter += int(population.pop_size)
-        else:
-            self.counter += int(population.pop_size - population.fitness_calculated.sum())
-
-        population.fitness_calculated = np.ones_like(population.fitness_calculated)
+        self.counter += np.count_nonzero(fitness_mask)
+        population.fitness_calculated = np.ones_like(fitness_mask)
 
         logger.debug("Done calculating the fitness.")
         return fitness
@@ -163,7 +168,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             Value of the objective function given a solution.
         """
 
-    def repair_solution(self, solution: Any) -> Any:
+    def repair_solution(self, solution: MatrixLike) -> MatrixLike:
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
 
@@ -234,14 +239,15 @@ class VectorObjectiveFunc(ObjectiveFunc):
             constraint_handler = CompositeConstraint([constraint_handler, bound_constraint_handler])
 
         super().__init__(constraint_handler=constraint_handler, mode=mode, name=name, vectorized=vectorized, recalculate=recalculate, **kwargs)
-    
+
     def add_parameter_constraints(self, parameter_extending_encoding: ParameterExtendingEncoding, param_handlers: dict[str, ConstraintHandler]):
+        if isinstance(self.constraint_handler, ExtendedConstraintHandler):
+            assert self.constraint_handler.param_handler_dict.keys() == param_handlers.keys()
+
         base_constraint_handler = self.constraint_handler
-        
+
         self.constraint_handler = ExtendedConstraintHandler(
-            solution_handler=base_constraint_handler,
-            param_handler_dict=param_handlers,
-            encoding=parameter_extending_encoding
+            solution_handler=base_constraint_handler, param_handler_dict=param_handlers, encoding=parameter_extending_encoding
         )
 
 

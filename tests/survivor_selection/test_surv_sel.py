@@ -4,7 +4,7 @@ from numpy.testing import assert_array_equal
 
 # Conftest fixtures and helpers
 from conftest import dummy_objfunc, rng
-from conftest import make_pop   # plain function, NOT a fixture
+from conftest import make_pop  # plain function, NOT a fixture
 
 # Factory and related classes
 from metaheuristic_designer.survivor_selection import (
@@ -53,12 +53,15 @@ def test_survivor_selection_def_passes_fitness_and_kwargs():
 # -------------------------------------------------------------------
 #  create_survivor_selection – type and name
 # -------------------------------------------------------------------
-@pytest.mark.parametrize("method, expected_type", [
-    ("elitism", SurvivorSelectionFromLambda),
-    ("generational", SurvivorSelectionFromLambda),
-    ("(mu+lambda)", SurvivorSelectionFromLambda),
-    ("nothing", NullSurvivorSelection),
-])
+@pytest.mark.parametrize(
+    "method, expected_type",
+    [
+        ("elitism", SurvivorSelectionFromLambda),
+        ("generational", SurvivorSelectionFromLambda),
+        ("(mu+lambda)", SurvivorSelectionFromLambda),
+        ("nothing", NullSurvivorSelection),
+    ],
+)
 def test_create_returns_correct_type(method, expected_type, rng):
     sel = create_survivor_selection(method, random_state=rng)
     assert isinstance(sel, expected_type)
@@ -77,13 +80,16 @@ def test_create_default_name_is_method(rng):
 # -------------------------------------------------------------------
 #  Integration: select() returns correct indices (using distinct genotypes)
 # -------------------------------------------------------------------
-@pytest.mark.parametrize("method, kwargs", [
-    ("elitism", {"amount": 1}),
-    ("generational", {}),
-    ("one_to_one", {}),
-    ("(mu+lambda)", {}),
-    ("(mu,lambda)", {}),
-])
+@pytest.mark.parametrize(
+    "method, kwargs",
+    [
+        ("elitism", {"amount": 1}),
+        ("generational", {}),
+        ("one_to_one", {}),
+        ("(mu+lambda)", {}),
+        ("(mu,lambda)", {}),
+    ],
+)
 def test_factory_select_returns_valid_survivors(method, kwargs, rng, dummy_objfunc):
     # Build parents and offspring with DIFFERENT genotype matrices
     # so we can identify their origin by genotype content.

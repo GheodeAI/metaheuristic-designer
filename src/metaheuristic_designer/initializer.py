@@ -26,11 +26,12 @@ class Initializer(ABC):
         Encoding that will be passed to each individual.
     """
 
-    def __init__(self, pop_size: int = 1, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None):
+    def __init__(self, vecsize: int, pop_size: int = 1, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None):
         """
         Constructor for the Initializer class.
         """
 
+        self.vecsize = vecsize
         self.pop_size = pop_size
         if encoding is None:
             encoding = DefaultEncoding()
@@ -113,10 +114,12 @@ class InitializerFromLambda(Initializer):
         Encoding that will be passed to each individual.
     """
 
-    def __init__(self, generator: Callable, pop_size: int = 1, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None):
+    def __init__(
+        self, generator: Callable, vecsize: int, pop_size: int = 1, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None
+    ):
         self.generator = generator
 
-        super().__init__(pop_size=pop_size, encoding=encoding, random_state=random_state)
+        super().__init__(vecsize=vecsize, pop_size=pop_size, encoding=encoding, random_state=random_state)
 
     def generate_random(self) -> Any:
         return self.generator(self.random_state)

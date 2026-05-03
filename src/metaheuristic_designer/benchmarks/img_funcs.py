@@ -81,7 +81,7 @@ class ImgEntropy(VectorObjectiveFunc):
         if mode is None:
             mode = "max"
 
-        super().__init__(self.size, mode=mode, low_lim=0, up_lim=256, name="Image entropy")
+        super().__init__(self.size, mode=mode, low_lim=0, up_lim=256, name="Image entropy", vectorized=False)
 
     def objective(self, solution):
         solution_channels = solution.reshape([3, -1])

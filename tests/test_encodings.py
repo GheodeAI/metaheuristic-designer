@@ -23,12 +23,15 @@ from metaheuristic_designer.encodings import (
 # ===================================================================
 #  DefaultEncoding (already covered by simple_encoding fixture)
 # ===================================================================
-@pytest.mark.parametrize("arr", [
-    np.array([1, 2, 3]),
-    np.array([[1, 2], [3, 4]]),
-    np.array([[0.5]]),
-    np.zeros((0, 2)),
-])
+@pytest.mark.parametrize(
+    "arr",
+    [
+        np.array([1, 2, 3]),
+        np.array([[1, 2], [3, 4]]),
+        np.array([[0.5]]),
+        np.zeros((0, 2)),
+    ],
+)
 def test_default_encode_decode_identity(arr, simple_encoding):
     assert_array_equal(simple_encoding.encode(arr), arr)
     assert_array_equal(simple_encoding.decode(arr), arr)
@@ -60,11 +63,14 @@ def test_encoding_from_lambda():
 # ===================================================================
 #  TypeCastEncoding
 # ===================================================================
-@pytest.mark.parametrize("inp, encoded_dtype, decoded_dtype, expected_enc_dtype, expected_dec_dtype", [
-    (np.array([1.5, 2.7]), int, float, np.dtype(int), np.dtype(float)),
-    (np.array([1, 2]),     float, int, np.dtype(float), np.dtype(int)),
-    (np.array([[0.1, 0.2]]), int, float, np.dtype(int), np.dtype(float)),
-])
+@pytest.mark.parametrize(
+    "inp, encoded_dtype, decoded_dtype, expected_enc_dtype, expected_dec_dtype",
+    [
+        (np.array([1.5, 2.7]), int, float, np.dtype(int), np.dtype(float)),
+        (np.array([1, 2]), float, int, np.dtype(float), np.dtype(int)),
+        (np.array([[0.1, 0.2]]), int, float, np.dtype(int), np.dtype(float)),
+    ],
+)
 def test_typecast_encode_decode_types(inp, encoded_dtype, decoded_dtype, expected_enc_dtype, expected_dec_dtype):
     enc = TypeCastEncoding(encoded_dtype=encoded_dtype, decoded_dtype=decoded_dtype)
     encoded = enc.encode(inp)
@@ -93,12 +99,14 @@ def test_sigmoid_encode_extreme_values():
     assert np.isneginf(encoded[0])
     assert np.isposinf(encoded[1])
 
+
 def test_sigmoid_encode_roundtrip():
     enc = SigmoidEncoding()
     original = np.array([[0.1, 0.5, 0.9]])
     encoded = enc.encode(original)
     decoded = enc.decode(encoded)
     assert_array_almost_equal(decoded, original, decimal=6)
+
 
 def test_sigmoid_decode_as_probability():
     enc = SigmoidEncoding(as_probability=True)
@@ -107,6 +115,7 @@ def test_sigmoid_decode_as_probability():
     expected = sp_special.expit(inp)
     assert_array_almost_equal(decoded, expected)
 
+
 def test_sigmoid_decode_not_as_probability():
     enc = SigmoidEncoding(as_probability=False, threshold=0.5)
     # expit(-1)=0.2689, expit(0)=0.5, expit(1)=0.7311
@@ -114,6 +123,7 @@ def test_sigmoid_decode_not_as_probability():
     expected = np.array([0, 1, 1])
     assert_array_equal(decoded, expected)
     assert decoded.dtype == int
+
 
 def test_sigmoid_encode_invalid_range():
     enc = SigmoidEncoding()
@@ -126,11 +136,14 @@ def test_sigmoid_encode_invalid_range():
 # ===================================================================
 #  MatrixEncoding
 # ===================================================================
-@pytest.mark.parametrize("shape, input_shape", [
-    ((2, 3), (4, 6)),
-    ((3, 1), (5, 3)),
-    ((1, 5), (3, 5)),
-])
+@pytest.mark.parametrize(
+    "shape, input_shape",
+    [
+        ((2, 3), (4, 6)),
+        ((3, 1), (5, 3)),
+        ((1, 5), (3, 5)),
+    ],
+)
 def test_matrix_encode_decode_roundtrip(shape, input_shape):
     enc = MatrixEncoding(shape)
     original = np.arange(np.prod(input_shape)).reshape(input_shape).astype(float)
@@ -148,18 +161,21 @@ def test_image_encoding_shape_greyscale():
     enc = ImageEncoding((3, 4), color=False)
     assert enc.shape == (3, 4, 1)
 
+
 def test_image_encoding_shape_color():
     enc = ImageEncoding((3, 4), color=True)
     assert enc.shape == (3, 4, 3)
 
+
 def test_image_encode_flattens():
-    enc = ImageEncoding((2, 2), color=False)   # shape (2,2,1)
+    enc = ImageEncoding((2, 2), color=False)  # shape (2,2,1)
     samples = np.arange(8).reshape(2, 4).astype(np.uint8)
     encoded = enc.encode(samples)
     assert encoded.shape == (2, 4)
 
+
 def test_image_decode_reshapes_and_casts_to_uint8():
-    enc = ImageEncoding((2, 2), color=True)    # shape (2,2,3)
+    enc = ImageEncoding((2, 2), color=True)  # shape (2,2,3)
     encoded = np.arange(24).reshape(2, 12).astype(np.float64)
     decoded = enc.decode(encoded)
     assert decoded.shape == (2, 2, 2, 3)
@@ -176,24 +192,30 @@ def test_image_decode_reshapes_and_casts_to_uint8():
 def pso_enc_4():
     return PSOEncoding(vecsize=4, base_encoding=DefaultEncoding())
 
+
 def test_pso_encoding_extract_solution(pso_enc_4):
-    full = np.array([
-        [1., 2, 3, 4, 0.1, 0.2, 0.3, 0.4],
-        [5, 6, 7, 8, 0.5, 0.6, 0.7, 0.8],
-    ])
+    full = np.array(
+        [
+            [1.0, 2, 3, 4, 0.1, 0.2, 0.3, 0.4],
+            [5, 6, 7, 8, 0.5, 0.6, 0.7, 0.8],
+        ]
+    )
     sol = pso_enc_4.extract_solution(full)
     assert_array_equal(sol, [[1, 2, 3, 4], [5, 6, 7, 8]])
+
 
 def test_pso_encoding_extract_params(pso_enc_4):
     full = np.array([[1, 2, 3, 4, 10, 11, 12, 13]])
     params = pso_enc_4.extract_params(full)
     assert_array_equal(params, [[10, 11, 12, 13]])
 
+
 def test_pso_encoding_decode_params(pso_enc_4):
     full = np.array([[1, 2, 3, 4, 0.1, 0.2, 0.3, 0.4]])
     param_dict = pso_enc_4.decode_params(full)
     assert "speed" in param_dict
     assert_array_equal(param_dict["speed"], [[0.1, 0.2, 0.3, 0.4]])
+
 
 def test_pso_encoding_encode_with_params(pso_enc_4):
     solution = np.array([[0, 0, 0, 0], [1, 1, 1, 1]])
@@ -203,10 +225,12 @@ def test_pso_encoding_encode_with_params(pso_enc_4):
     assert_array_equal(encoded[:, :4], solution)
     assert_array_equal(encoded[:, 4:], params["speed"])
 
+
 def test_pso_encoding_encode_params_none(pso_enc_4):
     solution = np.array([[9, 8, 7, 6]])
     encoded = pso_enc_4.encode(solution, params=None)
     assert_array_equal(encoded[:, 4:], np.zeros((1, 4)))
+
 
 def test_pso_decode_returns_solution(pso_enc_4):
     full = np.array([[0, 0, 0, 0, 9, 9, 9, 9]])
@@ -219,19 +243,20 @@ def test_pso_decode_returns_solution(pso_enc_4):
 # ===================================================================
 def test_self_adapting_es_single_sigma():
     enc = SelfAdaptingESEncoding(vecsize=5, single_sigma=True, base_encoding=DefaultEncoding())
-    assert enc.param_sizes == [("sigma", 1)]
+    assert enc.param_sizes == [("F", 1)]
     full = np.array([[1, 2, 3, 4, 5, 0.1]])
     sol = enc.extract_solution(full)
     params = enc.extract_params(full)
     assert_array_equal(sol, [[1, 2, 3, 4, 5]])
     assert_array_equal(params, [[0.1]])
 
+
 def test_self_adapting_es_multiple_sigma():
     enc = SelfAdaptingESEncoding(vecsize=3, single_sigma=False, base_encoding=DefaultEncoding())
-    assert enc.param_sizes == [("sigma", 3)]
+    assert enc.param_sizes == [("F", 3)]
     full = np.array([[5, 6, 7, 0.2, 0.3, 0.4]])
     param_dict = enc.decode_params(full)
-    assert_array_equal(param_dict["sigma"], [[0.2, 0.3, 0.4]])
+    assert_array_equal(param_dict["F"], [[0.2, 0.3, 0.4]])
 
 
 # ===================================================================
@@ -243,6 +268,7 @@ def create_composite_encoding_for_test():
     pso = PSOEncoding(vecsize=2)
     return CompositeEncoding([tc, pso]), tc, pso
 
+
 def test_composite_encode_decode_chain():
     comp, tc, pso = create_composite_encoding_for_test()
     solution = np.array([[1.1, 2.2], [3.3, 4.4]])
@@ -253,18 +279,20 @@ def test_composite_encode_decode_chain():
     # then tc.encode casts the whole thing to int. So speed values get truncated to 0.
     # This is what we observed: speed part is zeros.
     # So the actual result is solution part truncated to int, speed part truncated to int (0s).
-    expected_sol = solution.astype(int)          # [[1,2],[3,4]]
-    expected_full = np.hstack([expected_sol, np.zeros((2,2))])
+    expected_sol = solution.astype(int)  # [[1,2],[3,4]]
+    expected_full = np.hstack([expected_sol, np.zeros((2, 2))])
     assert_array_equal(encoded, expected_full)
     # Decode: tc.decode (to float) then pso.decode (extracts solution part) → float ints
     decoded = comp.decode(encoded)
     assert_array_equal(decoded, expected_sol.astype(float))
+
 
 def test_composite_extract_solution():
     comp, _, _ = create_composite_encoding_for_test()
     full = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])
     sol = comp.extract_solution(full)
     assert_array_equal(sol, [[1, 2], [5, 6]])
+
 
 def test_composite_extract_params():
     comp, _, _ = create_composite_encoding_for_test()

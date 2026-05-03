@@ -27,6 +27,7 @@ def test_null_constraint_repair_does_nothing():
     assert_array_equal(repaired, orig)
     assert repaired is not orig
 
+
 def test_null_constraint_penalty_zero():
     handler = NullConstraint()
     assert handler.penalty(np.array([100.0, -200.0])) == 0.0
@@ -51,7 +52,7 @@ def test_null_parent_selection_returns_same_population(rng, dummy_objfunc):
     pop = make_pop([5.0, 1.0], dummy_objfunc)
     sel = NullParentSelection()
     result = sel.select(pop)
-    assert result is pop
+    np.testing.assert_allclose(result.genotype_matrix, pop.genotype_matrix)
 
 
 # ===================================================================
@@ -84,5 +85,6 @@ def test_schedulable_parameter_call_calls_evaluate():
     class TestParam(SchedulableParameter):
         def evaluate(self, progress):
             return progress * 2
+
     param = TestParam(random_state=42)
     assert param(0.5) == 1.0

@@ -44,6 +44,7 @@ from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.operators.factories.mutation import create_mutation_operator
 from metaheuristic_designer.survivor_selection import create_survivor_selection
 
+
 # ===================================================================
 #  Random generator fixture
 # ===================================================================
@@ -63,11 +64,34 @@ OFFSPRING_FITNESS_BETTER = np.array([-9, 10, 34, 2, 100, 2, 10, 100])
 OFFSPRING_FITNESS_WORSE = np.array([-20, -5, -2, -1, -10, -90, -100, -10.1])
 OFFSPRING_FITNESS_EQUAL = EXAMPLE_FITNESS.copy()
 OFFSPRING_FITNESS_MIXED = np.array([-9, -5, 34, -1, 100, 2, 100, -10.1])
-OFFSPRING_FITNESS_LOCAL_SEARCH = np.array([
-    -11, -3,  2, -1,  0,  0,  3, 10,
-    -9,  4,  1, -1,  0,  1,  4, 80,
-    -1, -5,  0, -1,  0,  0,  5, 80,
-])
+OFFSPRING_FITNESS_LOCAL_SEARCH = np.array(
+    [
+        -11,
+        -3,
+        2,
+        -1,
+        0,
+        0,
+        3,
+        10,
+        -9,
+        4,
+        1,
+        -1,
+        0,
+        1,
+        4,
+        80,
+        -1,
+        -5,
+        0,
+        -1,
+        0,
+        0,
+        5,
+        80,
+    ]
+)
 DE_POP = np.array([[0.0, 1.0], [2.0, 3.0], [4.0, 5.0], [6.0, 7.0]])
 DE_FITNESS = np.array([0.1, 0.5, 0.3, 0.9])
 DE_SMALL_POP = np.array([[0.0, 0.0], [1.0, 1.0]])
@@ -78,6 +102,7 @@ DE_SMALL_POP = np.array([[0.0, 0.0], [1.0, 1.0]])
 # ===================================================================
 class DummyObjectiveFunction(ObjectiveFunc):
     """A stub that returns fixed fitness values and can track calls."""
+
     def __init__(
         self,
         name: str = "dummy",
@@ -87,9 +112,7 @@ class DummyObjectiveFunction(ObjectiveFunc):
         **kwargs,
     ):
         super().__init__(mode=mode, name=name, **kwargs)
-        self._fitness_return = (
-            fitness_return if fitness_return is not None else np.ones(1)
-        )
+        self._fitness_return = fitness_return if fitness_return is not None else np.ones(1)
         self._repair_return = repair_return
         self.fitness_called = 0
         self.repair_called = 0
@@ -136,13 +159,15 @@ def dummy_objfunc_min():
 class DiscreteSumObjective(VectorObjectiveFunc):
     def __init__(self, vecsize=3, mode="max"):
         super().__init__(vecsize, low_lim=0, up_lim=5, mode=mode, name="DiscreteSum")
+
     def objective(self, solution):
         return np.sum(solution)
 
 
 class PermutationObjective(VectorObjectiveFunc):
     def __init__(self, vecsize=4, mode="min"):
-        super().__init__(vecsize, low_lim=0, up_lim=vecsize-1, mode=mode, name="Permutation")
+        super().__init__(vecsize, low_lim=0, up_lim=vecsize - 1, mode=mode, name="Permutation")
+
     def objective(self, solution):
         diff = np.abs(np.diff(solution))
         total = np.sum(diff) + np.abs(solution[0] - solution[-1])
@@ -175,6 +200,7 @@ def simple_encoding():
 
 class DummyParameterExtendingEncoding(ParameterExtendingEncoding):
     """Minimal parameter‑extending encoding for tests that need one."""
+
     def __init__(self, param_sizes):
         super().__init__(
             vecsize=1,
@@ -200,6 +226,7 @@ def example_population(dummy_objfunc):
     pop.historical_best_fitness = np.array([10.0, 20.0, 30.0, 40.0])
     pop.best = np.array([99.0, 99.0])
     pop.best_fitness = 99.0
+    pop.best_objective = 99.0
     pop.fitness_calculated = np.array([True, False, True, False])
     return pop
 
@@ -231,7 +258,7 @@ def dummy_survivor_selection():
 @pytest.fixture
 def dummy_initializer(rng):
     """Initializer that produces a population of 10 vectors of length 3 (uniform)."""
-    return UniformInitializer(genotype_size=3, low_lim=0, up_lim=1, pop_size=10, random_state=rng)
+    return UniformInitializer(vecsize=3, low_lim=0, up_lim=1, pop_size=10, random_state=rng)
 
 
 # ===================================================================
@@ -239,6 +266,7 @@ def dummy_initializer(rng):
 # ===================================================================
 def _expected_exponential(beta, size, seed=42):
     from metaheuristic_designer.initializers import ExponentialInitializer
+
     rng_fresh = np.random.default_rng(seed)
     init = ExponentialInitializer(size, beta, random_state=rng_fresh)
     return init.generate_random()
@@ -246,6 +274,7 @@ def _expected_exponential(beta, size, seed=42):
 
 def _expected_normal(mean, std, size, seed=42):
     from metaheuristic_designer.initializers import GaussianInitializer
+
     rng_fresh = np.random.default_rng(seed)
     init = GaussianInitializer(size, mean, std, random_state=rng_fresh)
     return init.generate_random()
@@ -253,6 +282,7 @@ def _expected_normal(mean, std, size, seed=42):
 
 def _expected_uniform(low, high, size, seed=42):
     from metaheuristic_designer.initializers import UniformInitializer
+
     rng_fresh = np.random.default_rng(seed)
     init = UniformInitializer(size, low, high, random_state=rng_fresh)
     return init.generate_random()
@@ -260,6 +290,7 @@ def _expected_uniform(low, high, size, seed=42):
 
 def _expected_permutation(n, seed=42):
     from metaheuristic_designer.initializers import PermInitializer
+
     rng_fresh = np.random.default_rng(seed)
     init = PermInitializer(n, random_state=rng_fresh)
     return init.generate_random()
@@ -291,10 +322,7 @@ def de_fitness():
 @pytest.fixture
 def perm_pop():
     """Small 4x4 integer matrix for permutation operator tests."""
-    return np.array([[1, 2, 3, 4],
-                     [3, 4, 2, 1],
-                     [4, 1, 3, 2],
-                     [2, 3, 1, 4]])
+    return np.array([[1, 2, 3, 4], [3, 4, 2, 1], [4, 1, 3, 2], [2, 3, 1, 4]])
 
 
 @pytest.fixture
@@ -304,21 +332,18 @@ def pso_population(dummy_objfunc):
     geno = np.array([[1.0, 2.0, 0.1, 0.2], [3.0, 4.0, 0.3, 0.4]])
     pop = Population(dummy_objfunc, geno, encoding=enc)
     pop.fitness = np.array([0.5, 0.8])
-    pop.historical_best_matrix = np.array([[1.0, 2.0, 0.1, 0.2],
-                                           [3.0, 4.0, 0.3, 0.4]])
+    pop.historical_best_matrix = np.array([[1.0, 2.0, 0.1, 0.2], [3.0, 4.0, 0.3, 0.4]])
     pop.historical_best_fitness = np.array([0.5, 0.8])
     pop.best = np.array([3.0, 4.0, 0.3, 0.4])
     pop.best_fitness = 0.8
+    pop.best_objective = 0.8
     return pop
 
 
 @pytest.fixture
 def sample_population_matrix():
     """4x3 float array for operator tests."""
-    return np.array([[1.0, 2.0, 3.0],
-                     [4.0, 5.0, 6.0],
-                     [7.0, 8.0, 9.0],
-                     [10.0, 11.0, 12.0]])
+    return np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0], [10.0, 11.0, 12.0]])
 
 
 # ===================================================================
@@ -383,6 +408,7 @@ def run_and_get_best(wrapper_func, objfunc, seed, **kwargs):
     population = algo.optimize()
     _, best = population.best_solution(problem_space=True)
     return best
+
 
 # ===================================================================
 #  HistoryTracker fixtures
