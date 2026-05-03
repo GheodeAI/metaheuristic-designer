@@ -8,6 +8,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional, Callable
 import inspect
+from copy import copy
 import numpy as np
 from .population import Population
 from .parametrizable_mixin import ParametrizableMixin
@@ -104,7 +105,7 @@ class NullParentSelection(ParentSelection):
 
     def select(self, population: Population, _amount: Optional[int] = None) -> Population:
         self.last_selection_idx = np.arange(population.pop_size)
-        return population
+        return population.take_selection(self.last_selection_idx)
 
 
 class ParentSelectionFromLambda(ParentSelection):
