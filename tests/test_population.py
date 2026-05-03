@@ -281,7 +281,7 @@ def test_take_slice(populated_fit):
     np.testing.assert_array_equal(sliced.fitness, populated_fit.fitness)
 
 
-def test_apply_slice(populated_fit):
+def test_apply_slice(populated_fit, dummy_objfunc):
     original = populated_fit.genotype_matrix.copy()
     mask = np.array([0])  # replace column 0
     donor = Population(dummy_objfunc, np.array([[100], [200], [300], [400]]))
@@ -415,7 +415,7 @@ def test_step_updates_best_and_calls_encoding_step(dummy_objfunc, simple_encodin
     pop.fitness = np.array([5.0, 10.0])
     pop.encoding = simple_encoding
     # simple_encoding.step returns the same genotype (identity)
-    pop.step(progress=0.5)
+    pop.step()
     # best should be the one with max fitness (index 1)
     np.testing.assert_array_equal(pop.best, np.array([1.0, 1.0]))
     assert pop.best_fitness == 10.0

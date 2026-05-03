@@ -203,9 +203,9 @@ def test_differential_evolution_real_different_seeds(sphere_objfunc):
 # -------------------------------------------------------------------
 # Particle Swarm
 # -------------------------------------------------------------------
-def test_particle_swarm_bin_reproducible(dummy_objfunc):
-    b1 = run_and_get_best(simple.particle_swarm_binary, dummy_objfunc, seed=42)
-    b2 = run_and_get_best(simple.particle_swarm_binary, dummy_objfunc, seed=42)
+def test_particle_swarm_bin_reproducible(sphere_objfunc):
+    b1 = run_and_get_best(simple.particle_swarm_binary, sphere_objfunc, seed=42)
+    b2 = run_and_get_best(simple.particle_swarm_binary, sphere_objfunc, seed=42)
     assert b1 == b2
 
 

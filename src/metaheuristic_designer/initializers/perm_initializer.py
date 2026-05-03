@@ -15,4 +15,4 @@ class PermInitializer(Initializer):
     """
 
     def generate_random(self):
-        return self.random_state.permutation(self.genotype_size)
+        return self.random_state.permutation(self.vecsize)

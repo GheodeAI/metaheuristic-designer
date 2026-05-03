@@ -176,16 +176,17 @@ def test_uniform_generate_population(rng, dummy_objfunc):
 # ===================================================================
 #  PermInitializer
 # ===================================================================
+@pytest.mark.parametrize("vecsize", [1, 5, 10])
 @pytest.mark.parametrize("n", [1, 5, 10])
-def test_perm_generate_random(n, rng):
-    init = PermInitializer(n, random_state=rng)
+def test_perm_generate_random(vecsize, n, rng):
+    init = PermInitializer(vecsize, n, random_state=rng)
     perm = init.generate_random()
     assert perm.shape == (n,)
     np.testing.assert_array_equal(np.sort(perm), np.arange(n))
 
 
 def test_perm_generate_random_deterministic(rng):
-    init = PermInitializer(5, random_state=rng)
+    init = PermInitializer(5, 5, random_state=rng)
     rng_expected = np.random.default_rng(42)
     expected_init = PermInitializer(5, random_state=rng_expected)
     expected = expected_init.generate_random()
@@ -368,7 +369,7 @@ def test_lambda_generate_random(rng):
     def my_gen(rs):
         return rs.uniform(10, 20, size=3)
 
-    init = InitializerFromLambda(my_gen, pop_size=2, random_state=rng)
+    init = InitializerFromLambda(my_gen, vecsize=3, pop_size=2, random_state=rng)
     vec = init.generate_random()
     assert vec.shape == (3,)
     assert np.all(vec >= 10) and np.all(vec <= 20)
@@ -378,7 +379,7 @@ def test_lambda_generate_individual_calls_same(rng):
     def my_gen(rs):
         return np.array([1.0, 2.0])
 
-    init = InitializerFromLambda(my_gen, random_state=rng)
+    init = InitializerFromLambda(my_gen, vecsize=2, random_state=rng)
     assert_array_equal(init.generate_individual(), np.array([1.0, 2.0]))
 
 
@@ -386,7 +387,7 @@ def test_lambda_generate_population(rng, dummy_objfunc):
     def my_gen(rs):
         return rs.integers(0, 100, size=2)
 
-    init = InitializerFromLambda(my_gen, pop_size=5, random_state=rng)
+    init = InitializerFromLambda(my_gen, vecsize=2, pop_size=5, random_state=rng)
     pop = init.generate_population(dummy_objfunc)
     assert len(pop) == 5
     assert pop.genotype_matrix.shape == (5, 2)
@@ -424,6 +425,7 @@ def test_lambda_generate_population(rng, dummy_objfunc):
         ),
         lambda rng: InitializerFromLambda(
             lambda rs: rs.uniform(10, 20, size=3),
+            vecsize=3,
             random_state=rng,
         ),
     ],

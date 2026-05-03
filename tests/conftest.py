@@ -292,7 +292,7 @@ def _expected_permutation(n, seed=42):
     from metaheuristic_designer.initializers import PermInitializer
 
     rng_fresh = np.random.default_rng(seed)
-    init = PermInitializer(n, random_state=rng_fresh)
+    init = PermInitializer(10, n, random_state=rng_fresh)
     return init.generate_random()
 
 
