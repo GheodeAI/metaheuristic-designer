@@ -82,7 +82,7 @@ def selection_distribution(fitness, method, f=None):
     return weights / weight_norm
 
 
-def select_best(fitness, amount, _random_state=None):
+def select_best(fitness, amount, random_state=None):
     """
     Selects the best parent of the population as parents.
 
