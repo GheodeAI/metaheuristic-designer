@@ -68,3 +68,8 @@ directory = "htmlcov"
 [tool.coverage.report]
 show_missing = true
 fail_under = 80
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::sklearn.exceptions.ConvergenceWarning",
+]

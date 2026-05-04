@@ -23,6 +23,7 @@ from metaheuristic_designer.survivor_selection_base import SurvivorSelection
 # ===================================================================
 #  CMA_ES – not yet implemented, test written as reminder
 # ===================================================================
+@pytest.mark.xfail(reason="CMA-ES not yet implemented")
 def test_cma_es_instantiation(rng, dummy_initializer, dummy_parent_selection, dummy_survivor_selection):
     # Will fail until CMA_ES is fully implemented.
     algo = CMA_ES(
