@@ -74,7 +74,7 @@ def evolution_strategy_discrete(
 
 def evolution_strategy_real(
     objfunc,
-    mutation_strength=1e-5,
+    mutation_strength=1e-2,
     mutated_components=1,
     population_size=100,
     elitist=False,

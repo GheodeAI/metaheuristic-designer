@@ -5,10 +5,11 @@ from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import PSO
 from ..utils import check_random_state
 
+
 def particle_swarm_binary(
     objfunc,
     population_size: int = 100,
-    w = 0.7,
+    w=0.7,
     c1=1.5,
     c2=1.5,
     encoding=None,
@@ -43,7 +44,7 @@ def particle_swarm_binary(
 def particle_swarm_discrete(
     objfunc,
     population_size: int = 100,
-    w = 0.7,
+    w=0.7,
     c1=1.5,
     c2=1.5,
     encoding=None,
@@ -78,7 +79,7 @@ def particle_swarm_discrete(
 def particle_swarm_real(
     objfunc,
     population_size: int = 100,
-    w = 0.7,
+    w=0.7,
     c1=1.5,
     c2=1.5,
     encoding=None,

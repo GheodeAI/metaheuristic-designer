@@ -128,7 +128,8 @@ class DummyObjectiveFunction(ObjectiveFunc):
     ) -> np.ndarray:
         self.fitness_called += 1
         if callable(self._fitness_return):
-            return self._fitness_return(population)
+            fitness = self._fitness_return(population)
+            return fitness
         shape = (len(population.genotype_matrix),)
         return np.broadcast_to(self._fitness_return, shape).copy()
 

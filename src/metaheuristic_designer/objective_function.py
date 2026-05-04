@@ -149,6 +149,10 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         self.counter += np.count_nonzero(fitness_mask)
         population.fitness_calculated = np.ones_like(fitness_mask)
 
+        # Write the fitness and objective values in-place
+        population.fitness = fitness
+        population.objective = objective
+
         logger.debug("Done calculating the fitness.")
         return fitness
 

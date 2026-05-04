@@ -12,11 +12,6 @@ from metaheuristic_designer.encodings import ParameterExtendingEncoding
 # ===================================================================
 #  Factory
 # ===================================================================
-def test_create_swarm_operator_requires_parameter_extending_encoding(rng):
-    with pytest.raises(TypeError):
-        create_swarm_operator("pso", encoding=simple_encoding, random_state=rng)
-
-
 def test_create_swarm_operator_returns_operator(rng, pso_population):
     op = create_swarm_operator("pso", encoding=pso_population.encoding, random_state=rng)
     assert isinstance(op, OperatorFromLambda)

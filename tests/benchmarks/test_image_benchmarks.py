@@ -49,19 +49,6 @@ def test_img_approx_single_vs_batch(img_size):
     assert batch[0] == pytest.approx(single0.item())
     assert batch[1] == pytest.approx(single1.item())
 
-
-# ---------- Repair clips extremes ----------
-@pytest.mark.parametrize("img_size", [(8, 8), (10, 10)])
-def test_repair_clips_extremes(img_size):
-    ref = _random_reference_img(img_size)
-    objfunc = ImgApprox(img_dim=img_size, reference=ref, diff_func="MSE")
-    vecsize = objfunc.vecsize
-    init = UniformInitializer(vecsize, -1e6, 1e6, pop_size=1, dtype=float)
-    vec = init.generate_random()
-    repaired = objfunc.repair_solution(vec)
-    assert np.all((repaired >= 0) & (repaired <= 255))
-
-
 # ---------- Repair preserves already valid values ----------
 @pytest.mark.parametrize("img_size", [(8, 8), (10, 10)])
 def test_repair_preserves_valid_values(img_size):

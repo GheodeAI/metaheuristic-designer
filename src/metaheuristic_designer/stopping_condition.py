@@ -182,7 +182,7 @@ class StoppingCondition:
             patience_percentage = 0
 
         return process_progress(
-            self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_progress, patience_percentage
+            self.progress_metric_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_progress, patience_percentage
         )
 
     def get_state(self):

@@ -52,13 +52,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         "reporter": reporter,
     }
 
-    display_dim = [600, 600]
     image_shape = tuple(map(int, img_size.split(",")))
-
-    if display:
-        pygame.init()
-        src = pygame.display.set_mode(display_dim)
-        pygame.display.set_caption("Evo graphics")
 
     if objfunc_name in ("MSE", "MAE", "SSIM", "NMI"):
         reference_img = Image.open(img_file_name)
@@ -93,7 +87,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
                 objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, encoding=encoding, random_state=random_state
             ),
             operator=create_operator("mutation.gaussian_mutation", F=10, N=20, random_state=random_state),
-            iterations=100,
+            iterations=250,
             temperature_init=1,
             alpha=0.997,
         ),
@@ -162,27 +156,12 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     }
 
     if alg_name == "pso":
-        pop_size = 600
-        # encoding = CompositeEncoding([PSOEncoding(objfunc.vecsize), encoding])
-        # base_constraint_handler = objfunc.constraint_handler
-
-        # objfunc.constraint_handler = ExtendedConstraintHandler(
-        #     solution_handler=base_constraint_handler,
-        #     param_handler_dict={"speed": BounceBoundConstraint(objfunc.vecsize)},
-        #     encoding=encoding
-        # )
-        # abs_up_lim = np.maximum(np.abs(objfunc.low_lim), np.abs(objfunc.up_lim))
-        # initializer = ExtendedInitializer(
-        #     solution_init=UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, encoding=encoding, random_state=random_state),
-        #     param_init_dict={"speed": UniformInitializer(objfunc.vecsize, -abs_up_lim, abs_up_lim)},
-        #     encoding=encoding,
-        # )
         search_strategy = PSO(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=pop_size, encoding=PSOEncoding(objfunc.vecsize), random_state=random_state
+                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=600, encoding=PSOEncoding(objfunc.vecsize), random_state=random_state
             ),
             encoding=encoding,
-            w=0.7,
+            w=0.5,
             c1=1.5,
             c2=1.5,
         )
@@ -210,7 +189,15 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     else:
         alg = Algorithm(objfunc, search_strategy, **algorithm_params)
 
-    # Manual optimisation loop with pygame display
+
+    # Pygame display setup
+    display_dim = [600, 600]
+    if display:
+        pygame.init()
+        src = pygame.display.set_mode(display_dim)
+        pygame.display.set_caption("Evo graphics")
+
+    # Manual optimization loop with pygame display
     population = alg.initialize()
     alg.stopping_condition.restart()
     alg.stopping_condition.step(population)

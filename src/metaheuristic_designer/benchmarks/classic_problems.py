@@ -1,6 +1,10 @@
-import numpy as np
+from typing import Iterable
 import warnings
+from pathlib import Path
+import numpy as np
+import pandas as pd
 from ..objective_function import VectorObjectiveFunc
+from ..utils import MatrixLike, VectorLike
 
 __all__ = ["ThreeSAT", "BinKnapsack", "MaxClique", "TSP"]
 
@@ -184,19 +188,52 @@ class MaxClique(VectorObjectiveFunc):
 
 
 class TSP(VectorObjectiveFunc):
-    def __init__(self):
-        super().__init__(1, name="TSP")
+    def __init__(self, adjacency_matrix: MatrixLike, name: str = None, mode: str = "min"):
+        if name is None:
+            name = "TSP"
 
-    def objective(self, solution):
+        self.adjacency_matrix = adjacency_matrix
+        n_nodes = adjacency_matrix.shape[0]
+        super().__init__(vecsize=n_nodes, low_lim=0, up_lim=n_nodes - 1, name=name, mode=mode, vectorized=True)
+    
+    @classmethod
+    def from_csv(cls, problem_path: Path, name: str = None, mode: str = "min"):
         """
-        Not implemented.
+        Constructs the objective function from a .csv file.
+
+        Parameters
+        ----------
+        problem_path : Path
+            Path to the .csv file containing the weights of each edge.
+            The expected format of the file is a table with 3 columns: Edge 1, Edge 2, Weights
+        name : str, optional
+            Name to use when showing the user which function is being optimized, by default None
+        mode : str, optional
+            Optimization mode to use, by default "min"
+
+        Returns
+        -------
+        An object of type TSP (Objective function on vectors)
         """
 
-        raise NotImplementedError()
+        graph_df = pd.read_csv(problem_path)
+        
+        n_nodes = max(graph_df.iloc[:, 0].max(), graph_df.iloc[:, 1].max())+1
 
-    def repair_solution(self, solution):
-        """
-        Not implemented.
-        """
+        upper_bound_weights = graph_df.iloc[:, 2].max() * (n_nodes + 1)
+        adjacency_matrix = np.full((n_nodes,n_nodes), upper_bound_weights)
+        for _, row in graph_df.iterrows():
+            in_node, out_node, w = row['Edge1'].astype(int), row['Edge2'].astype(int), row['Weight']
+            adjacency_matrix[in_node, out_node] = w
+            adjacency_matrix[out_node, in_node] = w
+        
+        np.fill_diagonal(adjacency_matrix, 0)
+        
+        return cls(adjacency_matrix, name=name, mode=mode)
 
-        raise NotImplementedError()
+    def objective(self, solutions: MatrixLike) -> VectorLike:
+        edge_costs = self.adjacency_matrix[solutions[:, :-1], solutions[:, 1:]]
+
+        objective_vector = edge_costs.sum(axis=1) + self.adjacency_matrix[solutions[:, -1], solutions[:, 0]]
+        
+        return objective_vector

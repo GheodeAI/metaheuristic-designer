@@ -19,6 +19,7 @@ class ParameterExtendingEncoding(Encoding, ABC):
     ):
         self.vecsize = vecsize
         self.param_sizes = param_sizes
+        self.extended_parameters = [p for p, _ in param_sizes]
         self.nparams = sum([param_size for _, param_size in param_sizes])
         if base_encoding is None:
             base_encoding = DefaultEncoding()

@@ -206,7 +206,6 @@ def _sphere(solution):
 
 
 def _high_cond_elipt_f(vect):
-    print(vect)
     c = 1.0e6 ** ((np.arange(vect.shape[0]) / (vect.shape[0] - 1)))
     return np.sum(c * vect * vect)
 

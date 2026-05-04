@@ -35,10 +35,15 @@ examples = [
     "opencv-python>=4.8",
     "matplotlib>=3.5",
     "seaborn",
-    "jupyter-notebook",
+    "jupyter",
     "ipywidgets",
     "plotly",
     "anywidget"
+]
+
+docs = [
+    "sphinx_material>=0.0.36",
+    "sphinx>=7.1.1",
 ]
 
 dev = [
@@ -46,10 +51,8 @@ dev = [
     "pytest>=7.4.0",
     "pytest-cov",
     "coverage>=7.3.1",
-    "sphinx_material>=0.0.36",
-    "sphinx>=7.1.1",
     "black[jupyter]>=23.10.1",
-    "metaheuristic-designer[examples]",
+    "metaheuristic_designer[docs,examples]"
 ]
 
 [tool.black]

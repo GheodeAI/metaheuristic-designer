@@ -30,7 +30,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
         "reporter": reporter,
     }
 
-    if problem_name == "Knapsack":
+    if problem_name == "knapsack":
         # fmt: off
         values = [360,83,59,130,431,67,230,52,93,125,670,892,600,38,48,147,78,256,63,17,120,164,432,35,92,110,22,42,50,323,514,28,87,73,78,15,26,78,210,36,85,189,274,43,33,10,19,389,276,312]
         weights = [7,0,30,22,80,94,11,81,70,64,59,18,0,36,3,8,15,42,9,0,42,47,52,32,26,48,55,6,29,84,2,4,18,56,7,29,93,44,71,3,86,66,31,65,0,79,20,65,52,13]
@@ -40,24 +40,28 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
         encoding = TypeCastEncoding(int, bool)
         pop_initializer = UniformInitializer(objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding, random_state=random_state)
 
-    elif problem_name == "3SAT":
+    elif problem_name == "3sat":
         objfunc = ThreeSAT.from_cnf_file("./data/sat_examples/uf50-03.cnf")
         encoding = TypeCastEncoding(int, bool)
         pop_initializer = UniformInitializer(objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding, random_state=random_state)
 
-    elif problem_name == "MaxClique":
+    elif problem_name == "maxclique":
         g = nx.gnp_random_graph(100, 0.8)
         adj_mat = nx.adjacency_matrix(g).todense()
         objfunc = MaxClique(adj_mat)
         pop_initializer = PermInitializer(objfunc.vecsize, pop_size=100, random_state=random_state)
-        encoding = TypeCastEncoding(int, bool)  # not used for permutations, but kept for consistency
+        encoding = TypeCastEncoding(float, int)  # not used for permutations, but kept for consistency
+    elif problem_name == "tsp":
+        objfunc = TSP.from_csv("data/tsp_examples/r20_02.csv")
+        pop_initializer = PermInitializer(objfunc.vecsize, pop_size=100, random_state=random_state)
+        encoding = TypeCastEncoding(float, int)  # not used for permutations, but kept for consistency
     else:
         raise ValueError(f"The problem '{problem_name}' does not exist.")
 
-    if problem_name in ("Knapsack", "3SAT"):
+    if problem_name in ("knapsack", "3sat"):
         mutation_op = create_operator("mutation.bitflip", N=2, random_state=random_state)
         cross_op = create_operator("crossover.1point", random_state=random_state)
-    elif problem_name == "MaxClique":
+    elif problem_name in ("maxclique", "tsp"):
         mutation_op = create_operator("permutation.swap", N=2, random_state=random_state)
         cross_op = create_operator("permutation.pmx", random_state=random_state)
 
@@ -81,7 +85,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
         "es": ES(
             initializer=pop_initializer,
             mutation_op=mutation_op,
-            cross_op=cross_op,
+            crossover_op=cross_op,
             parent_sel=create_parent_selection("best", amount=20, random_state=random_state),
             survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
             offspring_size=150,
@@ -89,7 +93,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
         "ga": GA(
             initializer=pop_initializer,
             mutation_op=mutation_op,
-            cross_op=cross_op,
+            crossover_op=cross_op,
             parent_sel=create_parent_selection("best", amount=20, random_state=random_state),
             survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
             mutation_prob=0.2,
@@ -166,7 +170,7 @@ def main():
 
     run_algorithm(
         alg_name=args.algorithm.lower(),
-        problem_name=args.objective,
+        problem_name=args.objective.lower(),
         memetic=args.memetic,
         save_state=args.save_state,
         reporter=args.reporter,

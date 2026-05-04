@@ -2,7 +2,7 @@ from ..objective_function import VectorObjectiveFunc
 import numpy as np
 from skimage import metrics
 
-__all__ = ["ImgApprox", "ImgEntropy", "ImgStd", "ImgExperimental"]
+__all__ = ["ImgApprox", "ImgEntropy", "ImgStd"]
 
 
 class ImgApprox(VectorObjectiveFunc):
@@ -48,12 +48,6 @@ class ImgApprox(VectorObjectiveFunc):
 
         return error
 
-    def repair_solution(self, solution):
-        return np.clip(solution, 0, 255)
-
-    def repair_speed(self, solution):
-        return np.clip(solution, -100, 100)
-
 
 class ImgStd(VectorObjectiveFunc):
     def __init__(self, img_dim, mode=None):
@@ -66,12 +60,6 @@ class ImgStd(VectorObjectiveFunc):
     def objective(self, solution):
         solution_color = solution.reshape([3, -1])
         return solution_color.std(axis=1).mean()
-
-    def repair_solution(self, solution):
-        return np.clip(solution, 0, 255)
-
-    def repair_speed(self, solution):
-        return np.clip(solution, -100, 100)
 
 
 class ImgEntropy(VectorObjectiveFunc):
@@ -90,41 +78,3 @@ class ImgEntropy(VectorObjectiveFunc):
         img_hists_no_zeros = img_hists
         img_hists_no_zeros[img_hists == 0] = 1
         return np.sum(-img_hists * np.log(img_hists_no_zeros))
-
-    def repair_solution(self, solution):
-        return np.clip(solution, 0, 255)
-
-    def repair_speed(self, solution):
-        return np.clip(solution, -100, 100)
-
-
-class ImgExperimental(VectorObjectiveFunc):
-    def __init__(self, img_dim, reference, img_name, mode=None):
-        self.img_dim = tuple(img_dim) + (3,)
-        self.size = img_dim[0] * img_dim[1] * 3
-        self.reference = np.asarray(reference.resize([img_dim[0], img_dim[1]]))[:, :, :3].astype(np.uint32)
-        if mode is None:
-            mode = "max"
-
-        super().__init__(self.size, mode=mode, low_lim=0, up_lim=256, name="Image approx and std")
-
-    def objective(self, solution):
-        dist = np.ndarray.astype(np.sum((solution - self.reference) ** 2, axis=(1, 2, 3)) / self.size, float)
-        dist_norm = dist / (np.sqrt(self.size) * 255)
-
-        solution_rounded = solution // 75
-        solution_color = solution_rounded.reshape([3, -1])
-        _, counts = np.unique(solution_color, axis=1, return_counts=True)
-        freq = counts / self.size
-        entropy = -(freq * np.log(freq)).sum()
-
-        solution_color = solution.reshape([3, -1])
-        dev = -solution_color.std(axis=1).max()
-
-        return dist_norm + dev
-
-    def repair_solution(self, solution):
-        return np.clip(solution, 0, 255)
-
-    def repair_speed(self, solution):
-        return np.clip(solution, -100, 100)

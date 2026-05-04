@@ -181,12 +181,12 @@ def test_uniform_generate_population(rng, dummy_objfunc):
 def test_perm_generate_random(vecsize, n, rng):
     init = PermInitializer(vecsize, n, random_state=rng)
     perm = init.generate_random()
-    assert perm.shape == (n,)
-    np.testing.assert_array_equal(np.sort(perm), np.arange(n))
+    assert perm.shape == (vecsize,)
+    np.testing.assert_array_equal(np.sort(perm), np.arange(vecsize))
 
 
 def test_perm_generate_random_deterministic(rng):
-    init = PermInitializer(5, 5, random_state=rng)
+    init = PermInitializer(5, random_state=rng)
     rng_expected = np.random.default_rng(42)
     expected_init = PermInitializer(5, random_state=rng_expected)
     expected = expected_init.generate_random()

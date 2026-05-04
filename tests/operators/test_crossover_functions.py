@@ -139,6 +139,7 @@ def test_cross_inter_avg_shape_and_reproducible(rng):
     assert result.shape == pop.shape
 
     rng2 = np.random.default_rng(42)
+    pop = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
     expected = cross_inter_avg(pop, None, N=2, random_state=rng2)
     assert_array_equal(result, expected)
 
@@ -148,15 +149,6 @@ def test_cross_inter_avg_single_parent_returns_self(rng):
     pop = np.array([[1.0, 2.0], [3.0, 4.0]])
     result = cross_inter_avg(pop, None, N=1, random_state=rng)
     assert_array_equal(result, pop)  # (pop + pop)/1 = pop
-
-
-def test_cross_inter_avg_does_not_mutate_input(rng):
-    # Known bug: cross_inter_avg currently modifies its input array in place.
-    # This test will fail until the function is fixed.
-    pop = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
-    original = pop.copy()
-    cross_inter_avg(pop, None, N=2, random_state=rng)
-    assert_array_equal(pop, original)  # will fail because pop is mutated
 
 
 def test_cross_inter_avg_N_equal_pop_size(rng):

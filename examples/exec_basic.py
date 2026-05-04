@@ -43,7 +43,6 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
         "neval": 3e6,
         "fit_target": 1e-10,
         "patience": 500,
-        "verbose_timer": 0.5,
     }
 
     functions_map = {

@@ -1,30 +1,52 @@
 from copy import copy
 import numpy as np
-from ..utils import check_random_state
+from ..utils import check_random_state, VectorLike, MatrixLike, RNGLike
 
 
-def generational(population_fitness, offspring_fitness, _random_state):
-    return np.arange(offspring_fitness.shape[0]) + population_fitness.shape[0]
-
-
-def one_to_one(population_fitness, offspring_fitness, _random_state):
+def generational(population_fitness: VectorLike, offspring_fitness: VectorLike, _random_state: RNGLike) -> VectorLike:
     """
-    Compares each new individual with its parent and it replaces it if
-    it has a better fitness.
+    Full generational replacement: the entire next generation is formed
+    exclusively by the offspring. No parent survives.
 
     Parameters
     ----------
-    popul: List[Individual]
-        Original population of individuals before being operated on.
-    offspring: List[Individual]
-        Individuals resulting from an iteration of the algorithm.
+    population_fitness : VectorLike
+        Fitness values of the parent population. Only its size is used.
+    offspring_fitness : VectorLike
+        Fitness values of the offspring population.
+    _random_state : RNGLike
+        Random state (unused; kept for interface consistency).
 
     Returns
     -------
-    survivors: List[Individual]
-        The individuals selected for the next generation.
+    survivors : VectorLike
+        Indices of the selected individuals. Offspring indices are offset by
+        `len(population_fitness)` so that the caller can distinguish them.
     """
+    return np.arange(offspring_fitness.shape[0]) + population_fitness.shape[0]
 
+
+def one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, _random_state: RNGLike) -> VectorLike:
+    """
+    One-to-one competition: each offspring replaces its parent if it has a
+    better (higher) fitness. Parent and offspring populations must have the
+    same size.
+
+    Parameters
+    ----------
+    population_fitness : VectorLike
+        Fitness values of the parent population.
+    offspring_fitness : VectorLike
+        Fitness values of the offspring, one per parent.
+    _random_state : RNGLike
+        Random state (unused; kept for interface consistency).
+
+    Returns
+    -------
+    survivors : VectorLike
+        Indices of the selected individuals. Indices < n_parents point to
+        parents; indices >= n_parents point to offspring.
+    """
     n_parents = population_fitness.shape[0]
     n_offspring = offspring_fitness.shape[0]
 
@@ -36,26 +58,28 @@ def one_to_one(population_fitness, offspring_fitness, _random_state):
     return full_idx
 
 
-def prob_one_to_one(population_fitness, offspring_fitness, random_state, p):
+def prob_one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike, p: float) -> VectorLike:
     """
-    Compares each new individual with its parent and it replaces it with a
-    probability of p or if it has a better fitness.
+    Probabilistic one-to-one competition. An offspring replaces its parent
+    if it has a better fitness, OR with probability `p` regardless of fitness.
+    Populations must be the same size.
 
     Parameters
     ----------
-    popul: List[Individual]
-        Original population of individuals before being operated on.
-    offspring: List[Individual]
-        Individuals resulting from an iteration of the algorithm.
-    p: float
-        Probability that an individual will be replaced by its child even if it has a worse fitness.
+    population_fitness : VectorLike
+        Fitness values of the parent population.
+    offspring_fitness : VectorLike
+        Fitness values of the offspring, one per parent.
+    random_state : RNGLike
+        Seeded random state for the stochastic replacement decision.
+    p : float
+        Probability of replacing a parent even if the offspring is worse.
 
     Returns
     -------
-    survivors: List[Individual]
-        The individuals selected for the next generation.
+    survivors : VectorLike
+        Indices of the selected individuals (parent indices offset when replaced).
     """
-
     random_state = check_random_state(random_state)
 
     n_parents = population_fitness.shape[0]
@@ -69,31 +93,35 @@ def prob_one_to_one(population_fitness, offspring_fitness, random_state, p):
     return full_idx
 
 
-def many_to_one(population_fitness, offspring_fitness, _random_state):
+def many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, _random_state: RNGLike) -> VectorLike:
     """
-    Compares each new individual with its parent and it replaces it if
-    it has a better fitness.
+    Many-to-one competition. Each parent competes against its own block of
+    `n_repetitions` offspring (offspring size must be a multiple of parent size).
+    The best individual among {parent, offspring_1, …, offspring_k} survives.
 
     Parameters
     ----------
-    popul: List[Individual]
-        Original population of individuals before being operated on.
-    offspring: List[Individual]
-        Individuals resulting from an iteration of the algorithm.
+    population_fitness : VectorLike
+        Fitness values of the parent population.
+    offspring_fitness : VectorLike
+        Fitness of all offspring, grouped in contiguous blocks of equal size
+        (one block per parent).
+    _random_state : RNGLike
+        Random state (unused; kept for interface consistency).
 
     Returns
     -------
-    survivors: List[Individual]
-        The individuals selected for the next generation.
+    survivors : VectorLike
+        Indices of the selected individuals, with offspring indices shifted by
+        n_parents for each repetition appropriately.
     """
-
     n_parents = population_fitness.shape[0]
     n_offspring = offspring_fitness.shape[0]
     n_repetitions = n_offspring // n_parents
 
     assert (n_offspring % n_parents) == 0
 
-    # Reorder fitness, compare each individual with it's offspring
+    # Reorder fitness, compare each individual with its offspring
     reshaped_offspring_fitness = offspring_fitness.reshape((n_repetitions, n_parents))
     fitness_matrix = np.concatenate([population_fitness[None, :], reshaped_offspring_fitness], axis=0)
 
@@ -107,26 +135,29 @@ def many_to_one(population_fitness, offspring_fitness, _random_state):
     return full_idx
 
 
-def prob_many_to_one(population_fitness, offspring_fitness, random_state, p):
+def prob_many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike, p: float) -> VectorLike:
     """
-    Compares each new individual with its parent and it replaces it with a
-    probability of p or if it has a better fitness.
+    Probabilistic many-to-one competition. Like `many_to_one`, but with
+    probability `p` the winner is replaced by a uniformly random competitor
+    from the pool (parent + its offspring).
 
     Parameters
     ----------
-    popul: List[Individual]
-        Original population of individuals before being operated on.
-    offspring: List[Individual]
-        Individuals resulting from an iteration of the algorithm.
-    p: float
-        Probability that an individual will be replaced by its child even if it has a worse fitness.
+    population_fitness : VectorLike
+        Fitness values of the parent population.
+    offspring_fitness : VectorLike
+        Fitness of all offspring, grouped in contiguous blocks per parent.
+    random_state : RNGLike
+        Seeded random state.
+    p : float
+        Probability of ignoring the fitness-based winner and picking a random
+        individual from the block.
 
     Returns
     -------
-    survivors: List[Individual]
-        The individuals selected for the next generation.
+    survivors : VectorLike
+        Indices of the selected individuals.
     """
-
     random_state = check_random_state(random_state)
 
     n_parents = population_fitness.shape[0]
@@ -135,7 +166,7 @@ def prob_many_to_one(population_fitness, offspring_fitness, random_state, p):
 
     assert (n_offspring % n_parents) == 0
 
-    # Reorder fitness, compare each individual with it's offspring.
+    # Reorder fitness, compare each individual with its offspring.
     reshaped_offspring_fitness = offspring_fitness.reshape((n_repetitions, n_parents))
     fitness_matrix = np.concatenate([population_fitness[None, :], reshaped_offspring_fitness], axis=0)
 
@@ -154,86 +185,97 @@ def prob_many_to_one(population_fitness, offspring_fitness, random_state, p):
     return full_idx
 
 
-def elitism(population_fitness, offspring_fitness, _random_state, amount):
+def elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, _random_state: RNGLike, amount: int) -> VectorLike:
     """
-    The offspring is passed to the next generation and a number of the
-    parents replace the worst individuals.
+    Standard elitism. The top `amount` parents (highest fitness) survive;
+    the remaining slots are filled by the best offspring.
 
     Parameters
     ----------
-    popul: List[Individual]
-        Original population of individuals before being operated on.
-    offspring: List[Individual]
-        Individuals resulting from an iteration of the algorithm.
-    amount: int
-        Amount of parents from the original population that will be kept.
+    population_fitness : VectorLike
+        Fitness values of the parent population.
+    offspring_fitness : VectorLike
+        Fitness values of the offspring population.
+    _random_state : RNGLike
+        Random state (unused; kept for interface consistency).
+    amount : int
+        How many of the best parents are unconditionally preserved.
 
     Returns
     -------
-    survivors: List[Individual]
-        The individuals selected for the next generation.
+    survivors : VectorLike
+        Indices of the selected individuals. Parent indices appear as-is;
+        offspring indices are shifted by the number of parents.
     """
-
     n_parents = population_fitness.shape[0]
     amount = min(n_parents, amount)
 
-    parent_order = np.argsort(population_fitness)[::-1][:amount]
-    offspring_order = np.argsort(offspring_fitness)[::-1][: n_parents - amount]
-    return np.concatenate((parent_order, offspring_order + n_parents))
+    parents_selected = np.argsort(population_fitness)[::-1][:amount]
+    offspring_selected = np.argsort(offspring_fitness)[::-1][: n_parents - amount]
+    return np.concatenate((parents_selected, offspring_selected + n_parents))
 
 
-def cond_elitism(population_fitness, offspring_fitness, _random_state, amount):
+def cond_elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, _random_state: RNGLike, amount: int) -> VectorLike:
     """
+    Conditional (fitness-based) elitism. A parent among the top `amount`
+    is kept **only** if its fitness is strictly higher than the best offspring.
+    Otherwise the elite slot is given to an offspring.
+
     Parameters
     ----------
-    popul: List[Individual]
-        Original population of individuals before being operated on.
-    offspring: List[Individual]
-        Individuals resulting from an iteration of the algorithm.
-    amount: int
-        Amount of parents from the original population that will be kept.
+    population_fitness : VectorLike
+        Fitness of the previous population.
+    offspring_fitness : VectorLike
+        Fitness of the new offspring.
+    _random_state : RNGLike
+        Random state (unused; kept for interface consistency).
+    amount : int
+        Maximum number of elite candidates considered.
 
     Returns
     -------
-    survivors: List[Individual]
-        The individuals selected for the next generation.
+    survivors : VectorLike
+        Indices of the selected individuals (parent indices not shifted,
+        offspring indices shifted by n_parents).
     """
-    # best_parents = sorted(popul, reverse=True, key=lambda x: x.fitness)[:amount]
-    # new_offspring = sorted(offspring, reverse=True, key=lambda x: x.fitness)[: len(popul)]
-    # best_offspring = new_offspring[:amount]
-
-    # for idx, val in enumerate(best_parents):
-    #     if val.fitness > best_offspring[0].fitness:
-    #         new_offspring.pop()
-    #         new_offspring = [val] + new_offspring
-
-    # return new_offspring
-
     n_parents = population_fitness.shape[0]
 
-    parent_order = np.argsort(population_fitness)[::-1][:amount]
-    offspring_order = np.argsort(offspring_fitness)[::-1][: n_parents - amount]
-    return np.concatenate((parent_order, offspring_order + n_parents))
+    parent_order = np.argsort(population_fitness)[::-1]
+    offspring_order = np.argsort(offspring_fitness)[::-1]
+    elite_candidates = parent_order[:amount]
+
+    max_offspring_fitness = np.max(offspring_fitness)
+
+    keep_mask = population_fitness[elite_candidates] > max_offspring_fitness
+    elites = elite_candidates[keep_mask]
+    n_elites = elites.shape[0]
+
+    offspring_selected = offspring_order[:n_parents - n_elites]
+
+    return np.concatenate((elites, offspring_selected + n_parents))
 
 
-def keep_best(population_fitness, offspring_fitness, _random_state):
+def keep_best(population_fitness: VectorLike, offspring_fitness: VectorLike, _random_state: RNGLike) -> VectorLike:
     """
-    Both the parents and the offspring are considered and the best
-    of them will pass to the next generation.
+    Combined selection: the best `n_parents` individuals from the union of
+    parents and offspring survive. Indices are absolute positions in the
+    concatenated array [parents, offspring].
 
     Parameters
     ----------
-    popul: List[Individual]
-        Original population of individuals before being operated on.
-    offspring: List[Individual]
-        Individuals resulting from an iteration of the algorithm.
+    population_fitness : VectorLike
+        Fitness values of the parent population.
+    offspring_fitness : VectorLike
+        Fitness values of the offspring population.
+    _random_state : RNGLike
+        Random state (unused; kept for interface consistency).
 
     Returns
     -------
-    survivors: List[Individual]
-        The individuals selected for the next generation.
+    survivors : VectorLike
+        Indices into the concatenated fitness array (0..n_parents-1 for parents,
+        n_parents.. for offspring).
     """
-
     n_parents = population_fitness.shape[0]
 
     full_fitness = np.concatenate((population_fitness, offspring_fitness))
@@ -242,23 +284,26 @@ def keep_best(population_fitness, offspring_fitness, _random_state):
     return fitness_order
 
 
-def keep_best_offspring(population_fitness, offspring_fitness, _random_state):
+def keep_best_offspring(population_fitness: VectorLike, offspring_fitness: VectorLike, _random_state: RNGLike) -> VectorLike:
     """
-    Only the best individuals in the offsping are selected.
+    Offspring-only selection: the best `n_parents` offspring survive.
+    Parents are completely discarded.
 
     Parameters
     ----------
-    popul: List[Individual]
-        Original population of individuals before being operated on.
-    offspring: List[Individual]
-        Individuals resulting from an iteration of the algorithm.
+    population_fitness : VectorLike
+        Fitness values of the parent population (only its length is used).
+    offspring_fitness : VectorLike
+        Fitness values of the offspring population.
+    _random_state : RNGLike
+        Random state (unused; kept for interface consistency).
 
     Returns
     -------
-    survivors: List[Individual]
-        The individuals selected for the next generation.
+    survivors : VectorLike
+        Indices of the selected offspring, shifted by n_parents so that
+        they are distinguishable from parent indices.
     """
-
     n_parents = population_fitness.shape[0]
 
     fitness_order = np.argsort(offspring_fitness)[::-1][:n_parents] + n_parents

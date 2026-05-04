@@ -219,14 +219,14 @@ def populated_fit(dummy_objfunc):
         # Single row
         ([0], np.array([[0, 1]]), np.array([3.0]), np.ones((1, 2)), np.array([10.0])),
         # Empty selection
-        ([], np.zeros((0, 2)), np.array([]), np.zeros((0, 2)), np.array([])),
+        (np.array([], dtype=int), np.zeros((0, 2)), np.array([]), np.zeros((0, 2)), np.array([])),
         # Boolean mask
         ([True, False, True, False], np.array([[0, 1], [4, 5]]), np.array([3.0, 4.0]), np.ones((2, 2)), np.array([10.0, 30.0])),
     ],
 )
 def test_take_selection(populated_fit, sel_idx, expected_geno, expected_fit, expected_hist_best, expected_hist_best_fit):
     result = populated_fit.take_selection(np.array(sel_idx))
-    assert result.pop_size == len(sel_idx)
+    assert result.pop_size == expected_geno.shape[0]
     np.testing.assert_array_equal(result.genotype_matrix, expected_geno)
     np.testing.assert_array_equal(result.fitness, expected_fit)
     np.testing.assert_array_equal(result.historical_best_matrix, expected_hist_best)
@@ -439,23 +439,48 @@ def test_step_no_current_best(dummy_objfunc, simple_encoding):
 # ---------------------------------------------------------------
 
 
-@pytest.mark.parametrize(
-    "amount, expected_rows",
-    [
-        (2, 6),
-        (3, 9),
-        (1, 3),  # amount=1 should still work (repeat once = original)
-    ],
-)
-def test_repeat(amount, expected_rows, dummy_objfunc):
-    pop = Population(dummy_objfunc, SMALL_GENOTYPE)
-    pop.fitness = np.array([1.0, 2.0, 3.0])
+import numpy as np
+import pytest
+
+@pytest.mark.parametrize("amount, expected_rows", [(2, 6), (3, 9), (1, 3)])
+def test_repeat_genotype_structure(amount, expected_rows, dummy_objfunc):
+    pop = Population(dummy_objfunc, SMALL_GENOTYPE.copy())
     repeated = pop.repeat(amount)
+
     assert repeated.pop_size == expected_rows
-    # Each original row repeated `amount` times sequentially
-    for i in range(3):
-        for j in range(amount):
-            np.testing.assert_array_equal(repeated.genotype_matrix[i * amount + j], SMALL_GENOTYPE[i])
+    assert repeated.genotype_matrix.shape == (expected_rows, SMALL_GENOTYPE.shape[1])
+    blocks = repeated.genotype_matrix.reshape(amount, SMALL_GENOTYPE.shape[0], SMALL_GENOTYPE.shape[1])
+    assert np.all(blocks == SMALL_GENOTYPE)
+
+
+@pytest.mark.parametrize("amount, expected_rows", [(2, 6), (3, 9), (1, 3)])
+def test_repeat_tiled_1d_arrays(amount, expected_rows, dummy_objfunc):
+    pop = Population(dummy_objfunc, SMALL_GENOTYPE.copy())
+    m = SMALL_GENOTYPE.shape[0]
+    pop.fitness = np.array([10.0, 20.0, 30.0])
+    pop.fitness_calculated = np.array([True, False, True])
+    pop.objective = np.array([-1.0, -2.0, -3.0])
+
+    repeated = pop.repeat(amount)
+
+    for attr in ("fitness", "fitness_calculated", "objective"):
+        original = getattr(pop, attr)
+        result = getattr(repeated, attr)
+        assert result.shape == (expected_rows,)
+        assert np.all(result.reshape(amount, m) == original)
+
+
+def test_repeat_preserves_best_values(dummy_objfunc):
+    pop = Population(dummy_objfunc, SMALL_GENOTYPE.copy())
+    pop.best = SMALL_GENOTYPE[2].copy()
+    pop.best_fitness = 99.9
+    pop.best_objective = -99.9
+
+    repeated = pop.repeat(3)
+
+    np.testing.assert_array_equal(repeated.best, pop.best)
+    assert repeated.best_fitness == pop.best_fitness
+    assert repeated.best_objective == pop.best_objective
 
 
 # ---------------------------------------------------------------
@@ -473,8 +498,8 @@ def test_calculate_fitness_updates_historical_and_best(dummy_objfunc):
     pop.historical_best_fitness = np.array([2.0, 5.0])
 
     # Mock to return higher fitness for first individual, lower for second
-    dummy_objfunc._fitness_return = np.array([10.0, 1.0])
-    pop.calculate_fitness(parallel=False)
+    pop.objfunc._fitness_return = np.array([10.0, 1.0])
+    pop.calculate_fitness()
 
     np.testing.assert_array_equal(pop.fitness, [10.0, 1.0])
     # historical best should be updated for improved individuals (first only)
