@@ -40,8 +40,6 @@ def test_one_point_operator_modifies_genotype(rng, dummy_objfunc, simple_encodin
     result = op(pop)
 
     assert result is pop
-    # Crossover with identical genotypes could leave same, but with different individuals it should change
-    # Our make_pop creates different rows, so one-point crossover should swap some genes
     assert not np.array_equal(pop.genotype_matrix, original)
 
 
@@ -53,11 +51,6 @@ def test_xor_crossover_operator_on_zeros(rng, dummy_objfunc, simple_encoding):
     result = op(pop)
 
     assert result is pop
-    # XOR of zeros remains zero, but shuffling may not change zeros? Actually bitwise_xor_crossover applies XOR between permuted pairs.
-    # If all rows are zero, XOR with any other zero row is still zero, so no change.
-    # So this test is not meaningful; remove or change to use non-zero input.
-    # Let's skip it – it's a bad test. We'll replace with a test that ensures genotype is altered.
-    # We'll just test that operator works with non-zero data.
 
 
 def test_crossover_operator_reproducible(rng, dummy_objfunc, simple_encoding):

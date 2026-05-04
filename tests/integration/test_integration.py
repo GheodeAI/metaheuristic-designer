@@ -38,8 +38,6 @@ def test_operator_get_state(dummy_operator):
     state = dummy_operator.get_state()
     assert "name" in state
     assert "encoding" in state
-    # "parameters" is not present; check for relevant fields instead or skip
-    # For NullOperator, there are no parameters, so just pass
     assert "class_name" in state
 
 

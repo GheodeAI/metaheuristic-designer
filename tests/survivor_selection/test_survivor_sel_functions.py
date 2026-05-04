@@ -174,23 +174,31 @@ def test_elitism(population_fitness, offspring_fitness, amount):
 # ===================================================================
 @pytest.mark.parametrize("population_fitness", [EXAMPLE_FITNESS])
 @pytest.mark.parametrize(
-    "offspring_fitness",
+    "offspring_fitness, better_offspring_exists",
     [
-        OFFSPRING_FITNESS_BETTER,
-        OFFSPRING_FITNESS_WORSE,
-        OFFSPRING_FITNESS_EQUAL,
-        OFFSPRING_FITNESS_MIXED,
+        (OFFSPRING_FITNESS_BETTER, True),
+        (OFFSPRING_FITNESS_WORSE,  False),
+        (OFFSPRING_FITNESS_EQUAL,  True),   # equal counts as "not strictly better"
+        (OFFSPRING_FITNESS_MIXED,  True),
     ],
 )
 @pytest.mark.parametrize("amount", [0, 1, 5, 8, 10])
-def test_cond_elitism(population_fitness, offspring_fitness, amount):
+def test_cond_elitism(population_fitness, offspring_fitness, amount, better_offspring_exists):
     result = cond_elitism(population_fitness, offspring_fitness, None, amount)
     assert result.max() < 16
     assert result.min() >= 0
     assert len(result) == 8
-    assert np.all(result[:amount] < 8)
-    assert np.all(result[amount:] >= 8)
-    assert_array_equal(result[:amount], np.argsort(population_fitness)[::-1][:amount])
+
+    # Number of elites actually kept
+    max_off = np.max(offspring_fitness)
+    top_parents = np.argsort(population_fitness)[::-1][:amount]
+    expected_elites = top_parents[population_fitness[top_parents] > max_off]
+    n_elites = len(expected_elites)
+
+    # First n_elites entries must be those parent indices
+    assert_array_equal(np.sort(result[:n_elites]), np.sort(expected_elites))
+    # The rest must be offspring indices (≥ 8)
+    assert np.all(result[n_elites:] >= 8)
 
 
 # ===================================================================

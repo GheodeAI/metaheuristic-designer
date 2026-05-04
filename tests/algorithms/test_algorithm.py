@@ -47,7 +47,4 @@ def test_standard_algorithm_restart(dummy_objfunc, dummy_strategy):
     algo.history_tracker.step(algo)
     assert len(algo.history_tracker.best_objective) > 0
     algo.restart()
-    # After restart, history should be cleared (requires code change in Algorithm.restart)
-    # If you add `self.history_tracker.clear()` in Algorithm.restart, this will pass.
-    # Otherwise, you may skip this assertion or comment it out.
     assert len(algo.history_tracker.best_objective) == 0
