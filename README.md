@@ -119,7 +119,7 @@ A collection of test problems is included:
 
 - Continuous — `Sphere`, `Rastrigin`, `Rosenbrock`, `Ackley`, `Griewank`, `Weierstrass`, etc.
 - Binary — `MaxOnes`, `BinKnapsack`, `ThreeSAT`
-- Permutation — `MaxClique`
+- Permutation — `MaxClique`, `TSP`
 - Image approximation — `ImgApprox`, `ImgEntropy`, `ImgStd`
 
 ### Constraint Handling
