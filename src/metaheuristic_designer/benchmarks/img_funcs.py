@@ -28,7 +28,6 @@ class ImgApprox(VectorObjectiveFunc):
         super().__init__(self.size, mode=mode, lower_bound=0, upper_bound=256, name=name, vectorized=True)
 
     def objective(self, solution):
-        print(solution)
         error = np.zeros(solution.shape[0])
         image_size = np.prod(solution.shape[1:])
         match self.diff_func:

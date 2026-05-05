@@ -146,7 +146,9 @@ class Population:
         # The encoding returns an iterable of solutions, so we extract the first (and only) one.
         best_solution_vec = self.encoding.decode(best_solution_vec)
         if isinstance(best_solution_vec, np.ndarray) and best_solution_vec.ndim > 1:
-            best_solution_vec = self.encoding.decode(best_solution_vec).squeeze()
+            best_solution_vec = best_solution_vec.squeeze()
+        else:
+            best_solution_vec = best_solution_vec[0]
 
         return best_solution_vec, self.best_objective
 

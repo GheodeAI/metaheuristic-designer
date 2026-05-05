@@ -6,13 +6,13 @@ Welcome to the Metaheuristic Designer API
 The library is built around a **layered architecture**.  At the bottom you find
 abstract interfaces (the “Base Classes” below) that define the contracts for every
 optimisation component.  On top of them sit concrete implementations:
-pre‑built initializers, operators, encodings, selection schemes, and full search
+pre-built initializers, operators, encodings, selection schemes, and full search
 strategies.  An :class:`Algorithm` object glues everything together and runs the
 optimisation loop.
 
 If you want to **jump straight into code**, take a look at the
 :doc:`simple prepackaged functions <api_reference.methods>` or follow the
-:doc:`Algorithm Configuration <api_reference.algorithm_config>` guide – they show
+:doc:`Algorithm Configuration <api_reference.algorithm_config>` guide - they show
 how to assemble a complete optimiser in a few lines.
 
 For plotting your results, see the :doc:`Plotting Tutorial <api_reference.plotting>`.
@@ -248,6 +248,7 @@ Stopping conditions can be defined as strings combining the following tokens wit
 ``and``, ``or`` and parentheses.  See the :doc:`Algorithm Configuration <api_reference.algorithm_config>` page for how to set them.
 
 .. csv-table::
+   :widths: 30 70
    :header: "Token", "Description"
 
    ``"max_evaluations"``, "Maximum number of objective function evaluations."
@@ -273,10 +274,10 @@ Random Search
 .. csv-table::
    :header: "Function", "Description"
 
-   ":py:func:`simple.random_search_real`", "Continuous search, no parameters."
-   ":py:func:`simple.random_search_binary`", "Binary search, no parameters."
-   ":py:func:`simple.random_search_discrete`", "Discrete search, no parameters."
-   ":py:func:`simple.random_search_permutation`", "Permutation search, no parameters."
+   ":py:func:`~simple.random_search_real`", "Continuous search, no parameters."
+   ":py:func:`~simple.random_search_binary`", "Binary search, no parameters."
+   ":py:func:`~simple.random_search_discrete`", "Discrete search, no parameters."
+   ":py:func:`~simple.random_search_permutation`", "Permutation search, no parameters."
 
 Hill Climbing
 ~~~~~~~~~~~~~
@@ -284,10 +285,10 @@ Hill Climbing
 .. csv-table::
    :header: "Function", "Key parameters"
 
-   ":py:func:`simple.hill_climb_real`", "``mutation_strength``, ``mutated_components``"
-   ":py:func:`simple.hill_climb_binary`", "``mutated_bits``"
-   ":py:func:`simple.hill_climb_discrete`", "``resampled_components``"
-   ":py:func:`simple.hill_climb_permutation`", "``swapped_positions``"
+   ":py:func:`~simple.hill_climb_real`", "``mutation_strength``, ``mutated_components``"
+   ":py:func:`~simple.hill_climb_binary`", "``mutated_bits``"
+   ":py:func:`~simple.hill_climb_discrete`", "``resampled_components``"
+   ":py:func:`~simple.hill_climb_permutation`", "``swapped_positions``"
 
 Local Search
 ~~~~~~~~~~~~
@@ -295,10 +296,10 @@ Local Search
 .. csv-table::
    :header: "Function", "Key parameters"
 
-   ":py:func:`simple.local_search_real`", "``mutation_strength``, ``mutated_components``, ``samples_per_iteration``"
-   ":py:func:`simple.local_search_binary`", "``mutated_bits``, ``samples_per_iteration``"
-   ":py:func:`simple.local_search_discrete`", "``resampled_components``, ``samples_per_iteration``"
-   ":py:func:`simple.local_search_permutation`", "``swapped_positions``, ``samples_per_iteration``"
+   ":py:func:`~simple.local_search_real`", "``mutation_strength``, ``mutated_components``, ``samples_per_iteration``"
+   ":py:func:`~simple.local_search_binary`", "``mutated_bits``, ``samples_per_iteration``"
+   ":py:func:`~simple.local_search_discrete`", "``resampled_components``, ``samples_per_iteration``"
+   ":py:func:`~simple.local_search_permutation`", "``swapped_positions``, ``samples_per_iteration``"
 
 Simulated Annealing
 ~~~~~~~~~~~~~~~~~~~
@@ -306,10 +307,10 @@ Simulated Annealing
 .. csv-table::
    :header: "Function", "Key parameters"
 
-   ":py:func:`simple.simulated_annealing_real`", "``mutation_strength``, ``mutated_components``, ``initial_temperature``, ``alpha``, ``iterations``"
-   ":py:func:`simple.simulated_annealing_binary`", "``mutated_bits``, ``initial_temperature``, ``alpha``, ``iterations``"
-   ":py:func:`simple.simulated_annealing_discrete`", "``resampled_components``, ``initial_temperature``, ``alpha``, ``iterations``"
-   ":py:func:`simple.simulated_annealing_permutation`", "``swapped_positions``, ``initial_temperature``, ``alpha``, ``iterations``"
+   ":py:func:`~simple.simulated_annealing_real`", "``mutation_strength``, ``mutated_components``, ``initial_temperature``, ``alpha``, ``iterations``"
+   ":py:func:`~simple.simulated_annealing_binary`", "``mutated_bits``, ``initial_temperature``, ``alpha``, ``iterations``"
+   ":py:func:`~simple.simulated_annealing_discrete`", "``resampled_components``, ``initial_temperature``, ``alpha``, ``iterations``"
+   ":py:func:`~simple.simulated_annealing_permutation`", "``swapped_positions``, ``initial_temperature``, ``alpha``, ``iterations``"
 
 Evolution Strategy (ES)
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -317,10 +318,10 @@ Evolution Strategy (ES)
 .. csv-table::
    :header: "Function", "Key parameters"
 
-   ":py:func:`simple.evolution_strategy_real`", "``mutation_strength``, ``mutated_components``, ``population_size``, ``offspring_size``, ``elitist``"
-   ":py:func:`simple.evolution_strategy_binary`", "``mutated_bits``, ``population_size``, ``offspring_size``, ``elitist``"
-   ":py:func:`simple.evolution_strategy_discrete`", "``resampled_components``, ``population_size``, ``offspring_size``, ``elitist``"
-   ":py:func:`simple.evolution_strategy_permutation`", "``swapped_positions``, ``population_size``, ``offspring_size``, ``elitist``"
+   ":py:func:`~simple.evolution_strategy_real`", "``mutation_strength``, ``mutated_components``, ``population_size``, ``offspring_size``, ``elitist``"
+   ":py:func:`~simple.evolution_strategy_binary`", "``mutated_bits``, ``population_size``, ``offspring_size``, ``elitist``"
+   ":py:func:`~simple.evolution_strategy_discrete`", "``resampled_components``, ``population_size``, ``offspring_size``, ``elitist``"
+   ":py:func:`~simple.evolution_strategy_permutation`", "``swapped_positions``, ``population_size``, ``offspring_size``, ``elitist``"
 
 Genetic Algorithm (GA)
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -328,10 +329,10 @@ Genetic Algorithm (GA)
 .. csv-table::
    :header: "Function", "Key parameters"
 
-   ":py:func:`simple.genetic_algorithm_real`", "``mutation_strength``, ``mutated_components``, ``population_size``"
-   ":py:func:`simple.genetic_algorithm_binary`", "``mutated_bits``, ``population_size``"
-   ":py:func:`simple.genetic_algorithm_discrete`", "``resampled_components``, ``population_size``"
-   ":py:func:`simple.genetic_algorithm_permutation`", "``swapped_positions``, ``population_size``"
+   ":py:func:`~simple.genetic_algorithm_real`", "``mutation_strength``, ``mutated_components``, ``population_size``"
+   ":py:func:`~simple.genetic_algorithm_binary`", "``mutated_bits``, ``population_size``"
+   ":py:func:`~simple.genetic_algorithm_discrete`", "``resampled_components``, ``population_size``"
+   ":py:func:`~simple.genetic_algorithm_permutation`", "``swapped_positions``, ``population_size``"
 
 Differential Evolution (DE)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -339,9 +340,9 @@ Differential Evolution (DE)
 .. csv-table::
    :header: "Function", "Key parameters"
 
-   ":py:func:`simple.differential_evolution_real`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
-   ":py:func:`simple.differential_evolution_binary`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
-   ":py:func:`simple.differential_evolution_discrete`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
+   ":py:func:`~simple.differential_evolution_real`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
+   ":py:func:`~simple.differential_evolution_binary`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
+   ":py:func:`~simple.differential_evolution_discrete`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
 
 Particle Swarm Optimisation (PSO)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -349,9 +350,9 @@ Particle Swarm Optimisation (PSO)
 .. csv-table::
    :header: "Function", "Key parameters"
 
-   ":py:func:`simple.particle_swarm_real`", "``population_size``, ``w``, ``c1``, ``c2``"
-   ":py:func:`simple.particle_swarm_binary`", "``population_size``, ``w``, ``c1``, ``c2``"
-   ":py:func:`simple.particle_swarm_discrete`", "``population_size``, ``w``, ``c1``, ``c2``"
+   ":py:func:`~simple.particle_swarm_real`", "``population_size``, ``w``, ``c1``, ``c2``"
+   ":py:func:`~simple.particle_swarm_binary`", "``population_size``, ``w``, ``c1``, ``c2``"
+   ":py:func:`~simple.particle_swarm_discrete`", "``population_size``, ``w``, ``c1``, ``c2``"
 
 Bayesian Optimisation
 ~~~~~~~~~~~~~~~~~~~~~
@@ -359,4 +360,4 @@ Bayesian Optimisation
 .. csv-table::
    :header: "Function", "Key parameters"
 
-   ":py:func:`simple.bayesian_optimization_real`", "``population_size``, ``acquisition_function``"
+   ":py:func:`~simple.bayesian_optimization_real`", "``population_size``, ``acquisition_function``"
