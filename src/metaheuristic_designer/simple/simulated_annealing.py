@@ -49,7 +49,7 @@ def simulated_annealing_discrete(
     """
 
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int, encoding=encoding, random_state=random_state
+        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, dtype=int, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
     search_strat = SA(
@@ -75,7 +75,7 @@ def simulated_annealing_real(
     """
 
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float, encoding=encoding, random_state=random_state
+        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, dtype=float, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
     search_strat = SA(

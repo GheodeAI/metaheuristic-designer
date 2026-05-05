@@ -26,8 +26,8 @@ class PSO(StaticPopulation):
         self,
         initializer: Initializer,
         population_size: int = 100,
-        low_lim: float = -100,
-        up_lim: float = 100,
+        lower_bound: float = -100,
+        upper_bound: float = 100,
         name: str = "PSO",
         w=0.7,
         c1=1.5,
@@ -41,9 +41,9 @@ class PSO(StaticPopulation):
         elif not isinstance(encoding, ParameterExtendingEncoding):
             encoding = CompositeEncoding([PSOEncoding(initializer.vecsize), encoding])
 
-        self.abs_up_lim = np.maximum(np.abs(low_lim), np.abs(up_lim))
+        self.abs_upper_bound = np.maximum(np.abs(lower_bound), np.abs(upper_bound))
         if initializer is None:
-            initializer = (UniformInitializer(encoding.vecsize, low_lim, up_lim, pop_size=population_size, random_state=random_state),)
+            initializer = (UniformInitializer(encoding.vecsize, lower_bound, upper_bound, pop_size=population_size, random_state=random_state),)
         elif not isinstance(initializer.encoding, ParameterExtendingEncoding):
             logger.info("Overwritten initializer's encoding with PSO encoding.")
             initializer.encoding = encoding
@@ -51,7 +51,9 @@ class PSO(StaticPopulation):
         if not isinstance(initializer, ExtendedInitializer):
             initializer = ExtendedInitializer(
                 solution_init=initializer,
-                param_init_dict={"speed": UniformInitializer(encoding.vecsize, -self.abs_up_lim, self.abs_up_lim, random_state=random_state)},
+                param_init_dict={
+                    "speed": UniformInitializer(encoding.vecsize, -self.abs_upper_bound, self.abs_upper_bound, random_state=random_state)
+                },
                 random_state=random_state,
                 encoding=encoding,
             )
@@ -65,6 +67,6 @@ class PSO(StaticPopulation):
     def initialize(self, objfunc):
         if not isinstance(objfunc.constraint_handler, ExtendedConstraintHandler):
             objfunc.add_parameter_constraints(
-                self.encoding, {"speed": BounceBoundConstraint(self.encoding.vecsize, -self.abs_up_lim, self.abs_up_lim)}
+                self.encoding, {"speed": BounceBoundConstraint(self.encoding.vecsize, -self.abs_upper_bound, self.abs_upper_bound)}
             )
         return super().initialize(objfunc)

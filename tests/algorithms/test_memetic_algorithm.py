@@ -28,10 +28,10 @@ def test_memetic_algorithm_creation(dummy_objfunc, dummy_strategy, dummy_parent_
         search_strategy=dummy_strategy,
         local_search=dummy_strategy,
         improvement_selection=dummy_parent_selection,
-        ngen=1,
-        neval=50,
+        max_iterations=1,
+        max_evaluations=50,
         reporter="silent",
-        stop_cond="ngen",
+        stop_cond="max_iterations",
     )
     assert algo.name == "Memetic dummy_strategy"
     assert algo.local_search is dummy_strategy
@@ -48,10 +48,10 @@ def test_memetic_algorithm_custom_name(dummy_objfunc, dummy_strategy, dummy_pare
         local_search=dummy_strategy,
         improvement_selection=dummy_parent_selection,
         name="CustomMemetic",
-        ngen=1,
-        neval=50,
+        max_iterations=1,
+        max_evaluations=50,
         reporter="silent",
-        stop_cond="ngen",
+        stop_cond="max_iterations",
     )
     assert algo.name == "CustomMemetic"
 
@@ -66,10 +66,10 @@ def test_initialize_calls_local_search_initialize(dummy_objfunc, dummy_strategy,
         dummy_strategy,
         local_search=local_search,
         improvement_selection=dummy_parent_selection,
-        ngen=1,
-        neval=50,
+        max_iterations=1,
+        max_evaluations=50,
         reporter="silent",
-        stop_cond="ngen",
+        stop_cond="max_iterations",
     )
     pop = algo.initialize()
     assert local_search.population is not None
@@ -95,10 +95,10 @@ def test_step_lamarckian_records_history(dummy_objfunc, dummy_strategy, dummy_in
         dummy_strategy,
         local_search=local_search,
         improvement_selection=improvement_sel,
-        ngen=1,
-        neval=50,
+        max_iterations=1,
+        max_evaluations=50,
         reporter="silent",
-        stop_cond="ngen",
+        stop_cond="max_iterations",
         keep_improved_solutions=True,
     )
     algo.initialize()
@@ -127,10 +127,10 @@ def test_baldwinian_does_not_change_genotype(dummy_objfunc, dummy_strategy, dumm
         dummy_strategy,
         local_search=local_search,
         improvement_selection=improvement_sel,
-        ngen=1,
-        neval=50,
+        max_iterations=1,
+        max_evaluations=50,
         reporter="silent",
-        stop_cond="ngen",
+        stop_cond="max_iterations",
         keep_improved_solutions=False,
     )
     algo.initialize()
@@ -156,10 +156,10 @@ def test_local_search_frequency_skips(dummy_objfunc, dummy_strategy, dummy_initi
         dummy_strategy,
         local_search=local_search,
         improvement_selection=NullParentSelection(),
-        ngen=1,
-        neval=50,
+        max_iterations=1,
+        max_evaluations=50,
         reporter="silent",
-        stop_cond="ngen",
+        stop_cond="max_iterations",
         local_search_frequency=2,
     )
     algo.initialize()
@@ -186,10 +186,10 @@ def test_local_search_depth_multiple(dummy_objfunc, dummy_strategy, dummy_initia
         dummy_strategy,
         local_search=local_search,
         improvement_selection=NullParentSelection(),
-        ngen=1,
-        neval=50,
+        max_iterations=1,
+        max_evaluations=50,
         reporter="silent",
-        stop_cond="ngen",
+        stop_cond="max_iterations",
         local_search_depth=2,
     )
     algo.initialize()
@@ -218,10 +218,10 @@ def test_order_preservation_warning(dummy_objfunc, dummy_strategy, dummy_initial
             dummy_strategy,
             local_search=local_search,
             improvement_selection=NullParentSelection(),
-            ngen=1,
-            neval=50,
+            max_iterations=1,
+            max_evaluations=50,
             reporter="silent",
-            stop_cond="ngen",
+            stop_cond="max_iterations",
         )
 
     # Check that at least one warning was logged (we don't require exact text)
@@ -244,10 +244,10 @@ def test_no_warning_when_order_preserved(dummy_objfunc, dummy_strategy, dummy_in
             dummy_strategy,
             local_search=local_search,
             improvement_selection=NullParentSelection(),
-            ngen=1,
-            neval=50,
+            max_iterations=1,
+            max_evaluations=50,
             reporter="silent",
-            stop_cond="ngen",
+            stop_cond="max_iterations",
         )
 
     # No warnings should be logged

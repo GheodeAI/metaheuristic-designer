@@ -128,7 +128,12 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         penalty_vector = self.constraint_handler.penalty(genotypes[fitness_mask])
 
         if self.vectorized:
-            objective_values = self.objective(solutions[fitness_mask])
+            if isinstance(solutions, np.ndarray):
+                solutions = solutions[fitness_mask]
+            else:
+                solutions = [solutions[i] for i, include_value in enumerate(fitness_mask) if include_value]
+
+            objective_values = self.objective(solutions)
             fitness_values = self.factor * (objective_values - penalty_vector)
             fitness[fitness_mask] = fitness_values
             objective[fitness_mask] = objective_values
@@ -208,9 +213,9 @@ class VectorObjectiveFunc(ObjectiveFunc):
         The dimension of the vectors accepted by the objective function.
     mode: str, optional
         Whether to maximize or minimize the function (using the string 'max' or 'min').
-    low_lim: float, optional
+    lower_bound: float, optional
         Lower limit restriction for the vectors.
-    up_lim: float, optional
+    upper_bound: float, optional
         Upper limit restriction for the vectors.
     name: str, optional
         The name that will be displayed to represent this function.
@@ -219,8 +224,8 @@ class VectorObjectiveFunc(ObjectiveFunc):
     def __init__(
         self,
         vecsize: int,
-        low_lim: float,
-        up_lim: float,
+        lower_bound: float,
+        upper_bound: float,
         constraint_handler: Optional[ConstraintHandler] = None,
         mode: str = "max",
         name: str = "Some function",
@@ -233,10 +238,10 @@ class VectorObjectiveFunc(ObjectiveFunc):
         """
 
         self.vecsize = vecsize
-        self.low_lim = low_lim
-        self.up_lim = up_lim
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
 
-        bound_constraint_handler = ClipBoundConstraint(vecsize, low_lim, up_lim)
+        bound_constraint_handler = ClipBoundConstraint(vecsize, lower_bound, upper_bound)
         if constraint_handler is None:
             constraint_handler = bound_constraint_handler
         else:
@@ -275,9 +280,9 @@ class ObjectiveFromLambda(ObjectiveFunc):
         The dimension of the vectors accepted by the objective function.
     mode: str, optional
         Whether to maximize or minimize the function (using the string 'max' or 'min').
-    low_lim: float, optional
+    lower_bound: float, optional
         Lower limit restriction for the vectors.
-    up_lim: float, optional
+    upper_bound: float, optional
         Upper limit restriction for the vectors.
     name: str, optional
         The name that will be displayed to represent this function.

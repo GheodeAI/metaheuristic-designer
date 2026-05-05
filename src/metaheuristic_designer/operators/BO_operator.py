@@ -61,7 +61,7 @@ class BOOperator(Operator):
         new_best_point = X[0]
 
         if isinstance(objfunc, VectorObjectiveFunc):
-            bounds = np.asarray((objfunc.low_lim, objfunc.up_lim)).T
+            bounds = np.asarray((objfunc.lower_bound, objfunc.upper_bound)).T
             if bounds.ndim == 1:
                 bounds = bounds[None, :]
         else:

@@ -31,12 +31,12 @@ real_benchmarks = [
 @pytest.mark.parametrize("bench_class", real_benchmarks)
 def test_objective_real(vecsize, bench_class):
     objfunc = bench_class(vecsize)
-    pop_init = UniformInitializer(vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, random_state=42)
+    pop_init = UniformInitializer(vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=42)
 
     if objfunc.vectorized:
         # Vectorized objectives expect a 2‑D batch (population matrix).
         # Create a small population of 2 individuals.
-        pop_init_small = UniformInitializer(vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=2, random_state=42)
+        pop_init_small = UniformInitializer(vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=2, random_state=42)
         population = pop_init_small.generate_population(objfunc)
         geno_matrix = population.genotype_matrix  # shape (2, vecsize)
         result = objfunc.objective(geno_matrix)  # should return (2,)
@@ -63,15 +63,15 @@ def test_repair_solution(vecsize, bench_class):
     repaired = objfunc.repair_solution(geno_matrix)
     assert isinstance(repaired, np.ndarray) and repaired.ndim == 2
     assert repaired.shape == geno_matrix.shape
-    assert repaired.min() >= objfunc.low_lim
-    assert repaired.max() <= objfunc.up_lim
+    assert repaired.min() >= objfunc.lower_bound
+    assert repaired.max() <= objfunc.upper_bound
 
 
 @pytest.mark.parametrize("vecsize", [2, 5, 10, 20, 30])
 @pytest.mark.parametrize("bench_class", real_benchmarks)
 def test_fitness(vecsize, bench_class):
     objfunc = bench_class(vecsize)
-    pop_init = UniformInitializer(vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, random_state=42)
+    pop_init = UniformInitializer(vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=42)
     population = pop_init.generate_population(objfunc)
 
     # The fitness method internally calls objective; it works for both vectorized and non‑vectorized.

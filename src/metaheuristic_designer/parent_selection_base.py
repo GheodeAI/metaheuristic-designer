@@ -49,6 +49,13 @@ class ParentSelection(ParametrizableMixin, ABC):
 
         return self.select(population, amount)
 
+    def gather_params(self):
+        """
+        Overridable thin wrapper around get_params
+        """
+
+        return self.get_params()
+
     @abstractmethod
     def select(self, population: Population, amount: Optional[int] = None) -> Population:
         """

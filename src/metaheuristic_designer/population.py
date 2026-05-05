@@ -105,9 +105,12 @@ class Population:
 
         return copied_pop
 
-    def best_solution(self, problem_space: bool = False) -> Tuple[Any, float]:
+    def best_individual(self) -> Tuple[Any, float]:
         """
-        Returns the best solution.
+        Returns the best individual in the population along with its fitness.
+
+        This implies the solution is in the internal optimization space representation and
+        the fitness is the adjusted and penalized objective.
 
         Parameters
         ----------
@@ -120,16 +123,32 @@ class Population:
             A pair of the best individual with its fitness.
         """
 
-        if problem_space:
-            best_evaluation = self.best_objective
-        else:
-            best_evaluation = self.best_fitness
+        return self.best, self.best_fitness
 
-        best_solution = self.best
-        if problem_space:
-            best_solution = self.encoding.decode(self.best[None, :]).squeeze()
+    def best_solution(self) -> Tuple[Any, float]:
+        """
+        Returns the best solution with it's objective value.
 
-        return best_solution, best_evaluation
+        Parameters
+        ----------
+        decoded: bool, optional
+            Whether to return the raw vector of the best solution or it's decoded version.
+
+        Returns
+        -------
+        best_solution : Tuple[Any, float]
+            A pair of the best individual with its fitness.
+        """
+
+        # Decode needs a matrix, so we ad a virtual dimension
+        best_solution_vec = self.best[None, :]
+
+        # The encoding returns an iterable of solutions, so we extract the first (and only) one.
+        best_solution_vec = self.encoding.decode(best_solution_vec)
+        if isinstance(best_solution_vec, np.ndarray) and best_solution_vec.ndim > 1:
+            best_solution_vec = self.encoding.decode(best_solution_vec).squeeze()
+
+        return best_solution_vec, self.best_objective
 
     def update_genotype(self, genotype_source: MatrixLike | Population) -> Population:
         """

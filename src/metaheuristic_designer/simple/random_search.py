@@ -40,7 +40,7 @@ def random_search_discrete(objfunc, encoding=None, random_state=None, **kwargs):
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int, encoding=encoding, random_state=random_state
+        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, dtype=int, encoding=encoding, random_state=random_state
     )
     search_strat = RandomSearch(pop_initializer, random_state=random_state)
     return Algorithm(objfunc, search_strat, **kwargs)
@@ -54,7 +54,7 @@ def random_search_real(objfunc, encoding=None, random_state=None, **kwargs):
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float, encoding=encoding, random_state=random_state
+        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, dtype=float, encoding=encoding, random_state=random_state
     )
     search_strat = RandomSearch(pop_initializer, random_state=random_state)
     return Algorithm(objfunc, search_strat, **kwargs)

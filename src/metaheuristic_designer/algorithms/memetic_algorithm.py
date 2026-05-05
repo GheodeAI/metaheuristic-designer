@@ -48,15 +48,15 @@ class MemeticAlgorithm(Algorithm):
         _description_, by default "time_limit"
     progress_metric : Optional[str], optional
         _description_, by default None
-    ngen : int, optional
+    max_iterations : int, optional
         _description_, by default 1000
-    neval : int, optional
+    max_evaluations : int, optional
         _description_, by default 1e5
     time_limit : float, optional
         _description_, by default 60.0
     cpu_time_limit : float, optional
         _description_, by default 60.0
-    fit_target : float, optional
+    objective_target : float, optional
         _description_, by default 1e-10
     patience : int, optional
         _description_, by default 100
@@ -78,14 +78,14 @@ class MemeticAlgorithm(Algorithm):
         local_search_depth: int = 1,
         keep_improved_solutions: bool = True,
         name: Optional[str] = None,
-        stop_cond: str = "time_limit",
+        stop_cond: str = "real_time_limit",
         progress_metric: Optional[str] = None,
-        ngen: int = 1000,
-        neval: int = 1e5,
-        time_limit: float = 60.0,
+        max_iterations: int = 1000,
+        max_evaluations: int = 1e5,
+        real_time_limit: float = 60.0,
         cpu_time_limit: float = 60.0,
-        fit_target: float = 1e-10,
-        patience: int = 100,
+        objective_target: float = 1e-10,
+        max_patience: int = 100,
         track_median: bool = False,
         track_worst: bool = False,
         track_complete: bool = False,
@@ -126,15 +126,15 @@ class MemeticAlgorithm(Algorithm):
             name=name,
             stop_cond=stop_cond,
             progress_metric=progress_metric,
-            ngen=ngen,
-            neval=neval,
-            time_limit=time_limit,
+            max_iterations=max_iterations,
+            max_evaluations=max_evaluations,
+            real_time_limit=real_time_limit,
             cpu_time_limit=cpu_time_limit,
-            fit_target=fit_target,
-            patience=patience,
+            objective_target=objective_target,
+            max_patience=max_patience,
             track_median=track_median,
             track_worst=track_worst,
-            track_complete=track_complete,
+            track_full_population=track_complete,
             track_diversity=track_diversity,
             stopping_condition=stopping_condition,
             reporter=reporter,

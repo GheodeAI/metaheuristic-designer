@@ -19,10 +19,18 @@ class Encoding(ParametrizableMixin, ABC):
     This class transforms between phenotype and genotype.
     """
 
-    def __init__(self, decode_as_array: bool = False, **kwargs):
+    def __init__(self, decode_as_array: bool = False, name=None, **kwargs):
         super().__init__()
+        self.name = name
         self.decode_as_array = decode_as_array
         self.store_kwargs(**kwargs)
+
+    def gather_params(self):
+        """
+        Overridable thin wrapper around get_params
+        """
+
+        return self.get_params()
 
     @abstractmethod
     def encode(self, solutions: Iterable) -> MatrixLike:

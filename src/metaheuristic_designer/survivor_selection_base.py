@@ -48,6 +48,13 @@ class SurvivorSelection(ParametrizableMixin, ABC):
 
         return self.select(population, offspring)
 
+    def gather_params(self):
+        """
+        Overridable thin wrapper around get_params
+        """
+
+        return self.get_params()
+
     @abstractmethod
     def select(self, population: Population, offspring: Population) -> Population:
         """

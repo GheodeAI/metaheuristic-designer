@@ -37,18 +37,10 @@ available_algorithms = ("hillclimb", "localsearch", "sa", "es", "ga", "de", "gau
 
 def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size, display, reporter, random_state):
     algorithm_params = {
-        "stop_cond": "convergence or time_limit",
-        "progress_metric": "time_limit",
-        "time_limit": 500.0,
-        "cpu_time_limit": 500.0,
-        "neval": 3e6,
-        "fit_target": 1e-10,
-        "patience": 500,
-        "verbose_timer": 0.5,
-        "track_median": False,
-        "track_worst": False,
-        "track_complete": False,
-        "track_diversity": False,
+        "stop_cond": "convergence or real_time_limit",
+        "progress_metric": "real_time_limit",
+        "real_time_limit": 500.0,
+        "max_patience": 500,
         "reporter": reporter,
     }
 
@@ -71,20 +63,20 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     search_strategy_map = {
         "hillclimb": HillClimb(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, encoding=encoding, random_state=random_state
+                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, encoding=encoding, random_state=random_state
             ),
             operator=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
         ),
         "localsearch": LocalSearch(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, encoding=encoding, random_state=random_state
+                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, encoding=encoding, random_state=random_state
             ),
             operator=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
             iterations=20,
         ),
         "sa": SA(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, encoding=encoding, random_state=random_state
+                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, encoding=encoding, random_state=random_state
             ),
             operator=create_operator("mutation.gaussian_mutation", F=10, N=20, random_state=random_state),
             iterations=250,
@@ -93,7 +85,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         ),
         "es": ES(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=encoding, random_state=random_state
+                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state
             ),
             mutation_op=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
             crossover_op=create_operator("crossover.uniform", random_state=random_state),
@@ -102,7 +94,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         ),
         "ga": GA(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=encoding, random_state=random_state
+                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state
             ),
             mutation_op=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
             crossover_op=create_operator("crossover.uniform", random_state=random_state),
@@ -115,14 +107,14 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         "de": DE(
             de_operator_name="DE/best/1",
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=encoding, random_state=random_state
+                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state
             ),
             F=0.8,
             Cr=0.8,
         ),
         "gaussianumda": GaussianUMDA(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1000, encoding=encoding, random_state=random_state
+                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1000, encoding=encoding, random_state=random_state
             ),
             parent_sel=create_parent_selection("best", amount=100),
             survivor_sel=create_survivor_selection("(m+n)"),
@@ -132,7 +124,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         ),
         "gaussianpbil": GaussianPBIL(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1000, encoding=encoding, random_state=random_state
+                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1000, encoding=encoding, random_state=random_state
             ),
             parent_sel=create_parent_selection("best", amount=100),
             survivor_sel=create_survivor_selection("(m+n)"),
@@ -143,22 +135,22 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         ),
         "crossentropy": CrossEntropyMethod(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1000, encoding=encoding, random_state=random_state
+                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1000, encoding=encoding, random_state=random_state
             ),
             random_state=random_state,
         ),
         "randomsearch": RandomSearch(
-            UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=encoding, random_state=random_state)
+            UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state)
         ),
         "nosearch": NoSearch(
-            UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, encoding=encoding, random_state=random_state)
+            UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state)
         ),
     }
 
     if alg_name == "pso":
         search_strategy = PSO(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=600, encoding=PSOEncoding(objfunc.vecsize), random_state=random_state
+                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=600, encoding=PSOEncoding(objfunc.vecsize), random_state=random_state
             ),
             encoding=encoding,
             w=0.5,
@@ -173,7 +165,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     if memetic:
         local_search = LocalSearch(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=search_strategy.initializer.pop_size, encoding=encoding
+                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=search_strategy.initializer.pop_size, encoding=encoding
             ),
             operator=create_operator("mutation.uniform_noise", min=-10, max=10, N=3),
             iterations=20,
@@ -212,18 +204,18 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
 
         population = alg.step(population=population)
 
+        alg.stopping_condition.step(alg.population)
         alg.history_tracker.step(alg)
         alg.reporter.log_step(alg)
-        alg.stopping_condition.step(alg.population)
 
         if display:
-            image, _ = alg.best_solution(problem_space=True)
+            image, _ = alg.best_solution()
             render(image, display_dim, src)
             pygame.display.update()
 
     alg.reporter.log_end(alg)
 
-    image, best_objective = alg.best_solution(problem_space=True)
+    image, best_objective = alg.best_solution()
     if display:
         render(image, display_dim, src)
         pygame.display.update()

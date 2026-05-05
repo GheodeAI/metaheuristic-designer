@@ -28,13 +28,14 @@ def run_algorithm(alg_name, problem, ngen, seed):
         encoding = "perm"
     elif problem == "tsp":
         objfunc = TSP.from_csv("data/tsp_examples/r50_01.csv")
+        encoding = "perm"
     else:
         raise ValueError(f"Unknown problem: {problem}")
 
     # Shared algorithm parameters
     algo_params = {
-        "stop_cond": "ngen",
-        "ngen": ngen,
+        "stop_cond": "max_iterations",
+        "max_iterations": ngen,
         "reporter": "tqdm",
         "random_state": rng,
     }
@@ -42,20 +43,20 @@ def run_algorithm(alg_name, problem, ngen, seed):
     # Choose the wrapper family based on encoding type
     if encoding == "bin":
         alg_map = {
-            "HillClimb":    simple.hill_climb_binary(objfunc, **algo_params),
-            "SA":           simple.simulated_annealing_binary(objfunc, **algo_params),
-            "ES":           simple.evolution_strategy_binary(objfunc, **algo_params),
-            "GA":           simple.genetic_algorithm_binary(objfunc, **algo_params),
-            "DE":           simple.differential_evolution_binary(objfunc, **algo_params),
-            "RandomSearch": simple.random_search_binary(objfunc, **algo_params),
+            "hillclimb":    simple.hill_climb_binary(objfunc, **algo_params),
+            "sa":           simple.simulated_annealing_binary(objfunc, **algo_params),
+            "es":           simple.evolution_strategy_binary(objfunc, **algo_params),
+            "ga":           simple.genetic_algorithm_binary(objfunc, **algo_params),
+            "de":           simple.differential_evolution_binary(objfunc, **algo_params),
+            "randomsearch": simple.random_search_binary(objfunc, **algo_params),
         }
     else:  # permutation
         alg_map = {
-            "HillClimb":    simple.hill_climb_permutation(objfunc, **algo_params),
-            "SA":           simple.simulated_annealing_permutation(objfunc, **algo_params),
-            "ES":           simple.evolution_strategy_permutation(objfunc, **algo_params),
-            "GA":           simple.genetic_algorithm_permutation(objfunc, **algo_params),
-            "RandomSearch": simple.random_search_permutation(objfunc, **algo_params),
+            "hillclimb":    simple.hill_climb_permutation(objfunc, **algo_params),
+            "sa":           simple.simulated_annealing_permutation(objfunc, **algo_params),
+            "es":           simple.evolution_strategy_permutation(objfunc, **algo_params),
+            "ga":           simple.genetic_algorithm_permutation(objfunc, **algo_params),
+            "randomsearch": simple.random_search_permutation(objfunc, **algo_params),
         }
     if alg_name not in alg_map:
         raise ValueError(f"Algorithm {alg_name} not available for {problem}")
@@ -63,7 +64,7 @@ def run_algorithm(alg_name, problem, ngen, seed):
 
     # Optimise
     population = algo.optimize()
-    solution, fitness = population.best_solution(problem_space=True)
+    solution, fitness = population.best_solution()
     print(f"\nBest fitness: {fitness}")
     print(f"Best solution (decoded): {solution}")
 
@@ -72,13 +73,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", default="GA", type=str.lower,
                         choices=["HillClimb","SA","ES","GA","DE","RandomSearch"])
-    parser.add_argument("-p", "--problem", default="Knapsack", type=str.lower,
-                        choices=["Knapsack","3SAT","MaxClique"])
-    parser.add_argument("--ngen", type=int, default=100)
+    parser.add_argument("-o", "--objective", default="knapsack", type=str.lower,
+                        choices=["knapsack","3sat","maxclique","tsp"])
+    parser.add_argument("--ngen", type=int, default=1000)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
-    run_algorithm(args.algorithm, args.problem, args.ngen, args.seed)
+    run_algorithm(args.algorithm, args.objective, args.ngen, args.seed)
 
 
 if __name__ == "__main__":

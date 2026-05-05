@@ -61,7 +61,7 @@ def evolution_strategy_discrete(
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=population_size, dtype=int, encoding=encoding, random_state=random_state
+        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=int, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
     method = "keep_best" if elitist else "keep_offspring"
@@ -90,7 +90,7 @@ def evolution_strategy_real(
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=population_size, dtype=float, encoding=encoding, random_state=random_state
+        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=float, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
     method = "keep_best" if elitist else "keep_offspring"

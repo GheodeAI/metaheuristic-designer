@@ -8,6 +8,7 @@ from __future__ import annotations
 import logging
 from typing import Tuple, Any, Optional, Callable
 from copy import copy
+
 from .parent_selection_base import ParentSelection, NullParentSelection, ParentSelectionFromLambda
 from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection, SurvivorSelectionFromLambda
 from .population import Population
@@ -89,7 +90,15 @@ class SearchStrategy(ParametrizableMixin):
 
         return self.initializer.pop_size
 
-    def best_solution(self, problem_space=True) -> Tuple[Any, float]:
+    def gather_parameters(self):
+        param_dict = {f"{self.parent_sel.name}.{k}": v for k, v in self.parent_sel.gather_params().items()}
+        param_dict.update({f"{self.operator.name}.{k}": v for k, v in self.operator.gather_params().items()})
+        param_dict.update({f"{self.survivor_sel.name}.{k}": v for k, v in self.survivor_sel.gather_params().items()})
+        if self.population is not None:
+            param_dict.update({f"{self.population.encoding.name}.{k}": v for k, v in self.population.encoding.gather_params().items()})
+        return param_dict
+
+    def best_solution(self) -> Tuple[Any, float]:
         """
         Returns the best solution found by the search strategy and its fitness.
 
@@ -99,7 +108,7 @@ class SearchStrategy(ParametrizableMixin):
             A pair of the best individual with its fitness.
         """
 
-        return self.population.best_solution(problem_space=problem_space)
+        return self.population.best_solution()
 
     def initialize(self, objfunc: ObjectiveFunc) -> Population:
         """

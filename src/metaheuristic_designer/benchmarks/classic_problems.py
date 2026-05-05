@@ -34,7 +34,7 @@ class ThreeSAT(VectorObjectiveFunc):
         self.clauses = clauses
         self.n_vars = np.abs(clauses).max()
 
-        super().__init__(self.n_vars, low_lim=0, up_lim=1, name="3-SAT")
+        super().__init__(self.n_vars, lower_bound=0, upper_bound=1, name="3-SAT")
 
     @staticmethod
     def from_cnf_file(path):
@@ -109,7 +109,7 @@ class BinKnapsack(VectorObjectiveFunc):
         self.cost = cost
         self.value = value
         self.max_weight = max_weight
-        super().__init__(cost.size, low_lim=0, up_lim=1, mode="max", name="0-1 Knapsack Problem")
+        super().__init__(cost.size, lower_bound=0, upper_bound=1, mode="max", name="0-1 Knapsack Problem")
 
     def objective(self, solution):
         """
@@ -153,7 +153,7 @@ class MaxClique(VectorObjectiveFunc):
 
     def __init__(self, adjacency_matrix):
         self.adj_mat = adjacency_matrix
-        super().__init__(adjacency_matrix.shape[0], low_lim=0, up_lim=adjacency_matrix.shape[0], name="Max Clique")
+        super().__init__(adjacency_matrix.shape[0], lower_bound=0, upper_bound=adjacency_matrix.shape[0], name="Max Clique")
 
     def objective(self, solution):
         """
@@ -194,8 +194,8 @@ class TSP(VectorObjectiveFunc):
 
         self.adjacency_matrix = adjacency_matrix
         n_nodes = adjacency_matrix.shape[0]
-        super().__init__(vecsize=n_nodes, low_lim=0, up_lim=n_nodes - 1, name=name, mode=mode, vectorized=True)
-    
+        super().__init__(vecsize=n_nodes, lower_bound=0, upper_bound=n_nodes - 1, name=name, mode=mode, vectorized=True)
+
     @classmethod
     def from_csv(cls, problem_path: Path, name: str = None, mode: str = "min"):
         """
@@ -217,23 +217,23 @@ class TSP(VectorObjectiveFunc):
         """
 
         graph_df = pd.read_csv(problem_path)
-        
-        n_nodes = max(graph_df.iloc[:, 0].max(), graph_df.iloc[:, 1].max())+1
+
+        n_nodes = max(graph_df.iloc[:, 0].max(), graph_df.iloc[:, 1].max()) + 1
 
         upper_bound_weights = graph_df.iloc[:, 2].max() * (n_nodes + 1)
-        adjacency_matrix = np.full((n_nodes,n_nodes), upper_bound_weights)
+        adjacency_matrix = np.full((n_nodes, n_nodes), upper_bound_weights)
         for _, row in graph_df.iterrows():
-            in_node, out_node, w = row['Edge1'].astype(int), row['Edge2'].astype(int), row['Weight']
+            in_node, out_node, w = row["Edge1"].astype(int), row["Edge2"].astype(int), row["Weight"]
             adjacency_matrix[in_node, out_node] = w
             adjacency_matrix[out_node, in_node] = w
-        
+
         np.fill_diagonal(adjacency_matrix, 0)
-        
+
         return cls(adjacency_matrix, name=name, mode=mode)
 
     def objective(self, solutions: MatrixLike) -> VectorLike:
         edge_costs = self.adjacency_matrix[solutions[:, :-1], solutions[:, 1:]]
 
         objective_vector = edge_costs.sum(axis=1) + self.adjacency_matrix[solutions[:, -1], solutions[:, 0]]
-        
+
         return objective_vector

@@ -106,12 +106,14 @@ def pop_with_best(dummy_objfunc):
     pop.fitness = np.array([10.0, 20.0])
     pop.best = np.array([1.0, 1.0])
     pop.best_fitness = 20.0
+    pop.best_objective = 20.0
     return pop
 
 
 def test_best_solution_max(pop_with_best):
-    sol, fit = pop_with_best.best_solution()
-    np.testing.assert_array_equal(sol, pop_with_best.best)
+    _, fit = pop_with_best.best_solution()
+    gene, _ = pop_with_best.best_individual()
+    np.testing.assert_array_equal(gene, pop_with_best.best)
     assert fit == 20.0
 
 
@@ -120,8 +122,8 @@ def test_best_solution_min(dummy_objfunc_min):
     pop.fitness = np.array([10.0, 20.0])
     pop.best = np.array([0.0, 0.0])
     pop.best_fitness = 10.0  # the best in min mode would be 10, but stored raw
-    sol, _ = pop.best_solution(problem_space=True)
-    _, fit = pop.best_solution(problem_space=False)
+    sol, _ = pop.best_solution()
+    _, fit = pop.best_individual()
     assert fit == 10.0
     np.testing.assert_array_equal(sol, pop.best)
 
@@ -132,7 +134,7 @@ def test_best_solution_decoded(dummy_objfunc):
     pop.best = np.array([2.0, 3.0])
     pop.best_fitness = 42.0
     # DefaultEncoding returns the array unchanged when decoded
-    sol, _ = pop.best_solution(problem_space=True)
+    sol, _ = pop.best_solution()
     np.testing.assert_array_equal(sol, pop.best)
 
 

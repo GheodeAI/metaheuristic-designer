@@ -14,10 +14,11 @@ Subpackages
    metaheuristic_designer.initializers
    metaheuristic_designer.operators
    metaheuristic_designer.parameter_schedules
-   metaheuristic_designer.parent_selection_methods
+   metaheuristic_designer.parent_selection
+   metaheuristic_designer.reporters
    metaheuristic_designer.simple
    metaheuristic_designer.strategies
-   metaheuristic_designer.survivor_selection_methods
+   metaheuristic_designer.survivor_selection
 
 Submodules
 ----------
@@ -26,6 +27,14 @@ metaheuristic\_designer.algorithm module
 ----------------------------------------
 
 .. automodule:: metaheuristic_designer.algorithm
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+metaheuristic\_designer.checkpointer module
+-------------------------------------------
+
+.. automodule:: metaheuristic_designer.checkpointer
    :members:
    :show-inheritance:
    :undoc-members:
@@ -42,6 +51,14 @@ metaheuristic\_designer.encoding module
 ---------------------------------------
 
 .. automodule:: metaheuristic_designer.encoding
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+metaheuristic\_designer.history\_tracker module
+-----------------------------------------------
+
+.. automodule:: metaheuristic_designer.history_tracker
    :members:
    :show-inheritance:
    :undoc-members:
@@ -78,10 +95,10 @@ metaheuristic\_designer.parametrizable\_mixin module
    :show-inheritance:
    :undoc-members:
 
-metaheuristic\_designer.parent\_selection module
-------------------------------------------------
+metaheuristic\_designer.parent\_selection\_base module
+------------------------------------------------------
 
-.. automodule:: metaheuristic_designer.parent_selection
+.. automodule:: metaheuristic_designer.parent_selection_base
    :members:
    :show-inheritance:
    :undoc-members:
@@ -90,6 +107,14 @@ metaheuristic\_designer.population module
 -----------------------------------------
 
 .. automodule:: metaheuristic_designer.population
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+metaheuristic\_designer.reporter module
+---------------------------------------
+
+.. automodule:: metaheuristic_designer.reporter
    :members:
    :show-inheritance:
    :undoc-members:
@@ -118,10 +143,10 @@ metaheuristic\_designer.stopping\_condition module
    :show-inheritance:
    :undoc-members:
 
-metaheuristic\_designer.survivor\_selection module
---------------------------------------------------
+metaheuristic\_designer.survivor\_selection\_base module
+--------------------------------------------------------
 
-.. automodule:: metaheuristic_designer.survivor_selection
+.. automodule:: metaheuristic_designer.survivor_selection_base
    :members:
    :show-inheritance:
    :undoc-members:

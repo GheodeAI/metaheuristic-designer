@@ -1,3 +1,22 @@
+.. _api-ref-intro:
+
+Welcome to the Metaheuristic Designer API
+=========================================
+
+The library is built around a **layered architecture**.  At the bottom you find
+abstract interfaces (the “Base Classes” below) that define the contracts for every
+optimisation component.  On top of them sit concrete implementations:
+pre‑built initializers, operators, encodings, selection schemes, and full search
+strategies.  An :class:`Algorithm` object glues everything together and runs the
+optimisation loop.
+
+If you want to **jump straight into code**, take a look at the
+:doc:`simple prepackaged functions <api_reference.methods>` or follow the
+:doc:`Algorithm Configuration <api_reference.algorithm_config>` guide – they show
+how to assemble a complete optimiser in a few lines.
+
+For plotting your results, see the :doc:`Plotting Tutorial <api_reference.plotting>`.
+
 Base Classes
 ------------
 These are the interfaces from which to inherit to implement a new component for any optimization algorithm.
@@ -149,15 +168,46 @@ For writing and registering your own operators, refer to the
 
 Search Strategies
 -----------------
-Pre-built strategies; all inherit from :py:class:`~metaheuristic_designer.SearchStrategy`.
+A **search strategy** defines how one iteration of the optimisation loop is performed:
+it chooses parents, applies operators, and selects survivors.  In practice it acts as
+a container for an initializer, an operator, and optional parent/survivor selection.
+
+You can use one of the ready‑made strategies:
+
+.. code-block:: python
+
+   from metaheuristic_designer.strategies import GA
+   strategy = GA(
+       initializer=UniformInitializer(...),
+       mutation_op=create_operator("mutation.gaussian_mutation", F=0.1),
+       crossover_op=create_operator("crossover.uniform"),
+       parent_sel=create_parent_selection("tournament", amount=50),
+       survivor_sel=create_survivor_selection("elitism", amount=25),
+   )
+
+or build your own by directly combining components with the general
+:class:`SearchStrategy` class:
+
+.. code-block:: python
+
+   strategy = SearchStrategy(
+       initializer=...,
+       operator=...,
+       parent_sel=...,
+       survivor_sel=...,
+   )
+
+Both approaches result in an object that can be passed to :class:`Algorithm`.
+
+The following pre‑built strategies are available:
 
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`strategies.NoSearch<metaheuristic_designer.strategies.no_search.NoSearch>`", "No-op strategy (does nothing)."
+   ":py:class:`strategies.NoSearch<metaheuristic_designer.strategies.no_search.NoSearch>`", "No‑op strategy (does nothing)."
    ":py:class:`strategies.RandomSearch<metaheuristic_designer.strategies.classic.random_search.RandomSearch>`", "Random search."
-   ":py:class:`strategies.StaticPopulation<metaheuristic_designer.strategies.static_population.StaticPopulation>`", "Fixed-size population based evolution."
-   ":py:class:`strategies.VariablePopulation<metaheuristic_designer.strategies.variable_population.VariablePopulation>`", "Variable-size population based evolution."
+   ":py:class:`strategies.StaticPopulation<metaheuristic_designer.strategies.static_population.StaticPopulation>`", "Fixed‑size population based evolution."
+   ":py:class:`strategies.VariablePopulation<metaheuristic_designer.strategies.variable_population.VariablePopulation>`", "Variable‑size population based evolution."
    ":py:class:`strategies.HillClimb<metaheuristic_designer.strategies.hill_climb.HillClimb>`", "Greedy hill climbing."
    ":py:class:`strategies.LocalSearch<metaheuristic_designer.strategies.local_search.LocalSearch>`", "Local search with a configurable number of iterations."
    ":py:class:`strategies.SA<metaheuristic_designer.strategies.classic.SA.SA>`", "Simulated annealing."
@@ -165,7 +215,7 @@ Pre-built strategies; all inherit from :py:class:`~metaheuristic_designer.Search
    ":py:class:`strategies.ES<metaheuristic_designer.strategies.classic.ES.ES>`", "Evolution Strategy."
    ":py:class:`strategies.DE<metaheuristic_designer.strategies.classic.DE.DE>`", "Differential Evolution."
    ":py:class:`strategies.PSO<metaheuristic_designer.strategies.swarm.PSO.PSO>`", "Particle Swarm Optimisation."
-   ":py:class:`strategies.BernoulliPBIL<metaheuristic_designer.strategies.EDA.PBIL.BernoulliPBIL>`", "Bernoulli Population-Based Incremental Learning (EDA)."
+   ":py:class:`strategies.BernoulliPBIL<metaheuristic_designer.strategies.EDA.PBIL.BernoulliPBIL>`", "Bernoulli Population‑Based Incremental Learning (EDA)."
    ":py:class:`strategies.BernoulliUMDA<metaheuristic_designer.strategies.EDA.UMDA.BernoulliUMDA>`", "Bernoulli Univariate Marginal Distribution Algorithm (EDA)."
    ":py:class:`strategies.BinomialPBIL<metaheuristic_designer.strategies.EDA.PBIL.BinomialPBIL>`", "Binomial PBIL."
    ":py:class:`strategies.BinomialUMDA<metaheuristic_designer.strategies.EDA.UMDA.BinomialUMDA>`", "Binomial UMDA."
@@ -174,53 +224,139 @@ Pre-built strategies; all inherit from :py:class:`~metaheuristic_designer.Search
 
 Algorithms
 ----------
-Classes that wrap a search strategy into a full optimization loop.
+The :class:`Algorithm` class runs the optimisation loop.  You pass it an objective
+function, a search strategy, and optionally a stopping condition, reporter,
+history tracker and checkpointer (see :doc:`Algorithm Configuration <api_reference.algorithm_config>`).
+
+.. code-block:: python
+
+   algo = Algorithm(objfunc, strategy)
+   population = algo.optimize()
+   best_solution, best_obj = population.best_solution()
+
+Built‑in algorithm variants:
 
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`algorithms.StandardAlgorithm<metaheuristic_designer.algorithms.standard_algorithm.StandardAlgorithm>`", "Default algorithm with the classic parent → perturb → evaluate → survivor loop."
+   ":py:class:`Algorithm<metaheuristic_designer.algorithm.Algorithm>`", "Default algorithm with the classic parent → perturb → evaluate → survivor loop."
    ":py:class:`algorithms.MemeticAlgorithm<metaheuristic_designer.algorithms.memetic_algorithm.MemeticAlgorithm>`", "Algorithm that embeds a local search step inside the main loop."
    ":py:class:`algorithms.AlgorithmSelection<metaheuristic_designer.algorithms.algorithm_selection.AlgorithmSelection>`", "Benchmarks a set of algorithms."
    ":py:class:`algorithms.StrategySelection<metaheuristic_designer.algorithms.strategy_selection.StrategySelection>`", "Benchmarks a set of search strategies."
 
 Stopping conditions can be defined as strings combining the following tokens with
-`and`, `or`, `not` and parentheses:
+``and``, ``or`` and parentheses.  See the :doc:`Algorithm Configuration <api_reference.algorithm_config>` page for how to set them.
 
 .. csv-table::
    :header: "Token", "Description"
 
-   ``"neval"``, "Maximum number of objective function evaluations."
-   ``"ngen"``, "Maximum number of generations (iterations)."
-   ``"time_limit"``, "Wall-clock time limit (seconds)."
-   ``"cpu_time_limit"``, "CPU time limit (seconds)."
-   ``"fit_target"``, "Target fitness value; stops when reached."
-   ``"convergence"``, "Stops after a number of generations without improvement (the `patience` parameter)."
+   ``"max_evaluations"``, "Maximum number of objective function evaluations."
+   ``"max_iterations"``, "Maximum number of iterations (generations)."
+   ``"real_time_limit"``, "Wall‑clock time limit in seconds."
+   ``"cpu_time_limit"``, "CPU time limit in seconds."
+   ``"objective_target"``, "Target value for the raw objective; stops when ``best_objective <= objective_target`` (minimisation) or ``best_objective >= objective_target`` (maximisation)."
+   ``"convergence"``, "Stops after ``max_patience`` consecutive iterations without improvement."
 
-Example: ``"neval or time_limit"``.
+Example: ``max_iterations or real_time_limit`` will halt when the maximum number of iterations is reached or we have exceeded the maximum time.
 
 Prepackaged Algorithms
 ----------------------
-For the most common optimisation scenarios, the `simple` module provides ready-to-run
-**functions** that build a complete `Algorithm` from a dictionary of parameters.
-All of them share the same interface:
+For the most common optimisation scenarios, the :mod:`metaheuristic_designer.simple`
+module provides ready‑to‑run functions.  Each algorithm is available in up to four
+encoding variants: ``_real`` (continuous), ``_binary`` (bit‑strings), ``_discrete``
+(integer) and ``_permutation`` (permutations).  The table for each algorithm lists
+the concrete function names and the most important parameters.
 
-.. code-block:: python
-
-    from metaheuristic_designer.simple import hill_climb
-    alg = hill_climb(params={"vecsize": 10, "encoding": "real"}, objfunc=None)
-
-If an objective function is not provided, the ``params`` dict must contain at least
-``"vecsize"`` (and optionally ``"low"``, ``"high"``) to construct a default `Sphere` problem.
-The ``"encoding"`` key accepts ``"bin"``, ``"int"`` or ``"real"``.
+Random Search
+~~~~~~~~~~~~~
 
 .. csv-table::
-   :header: "Function", "Parameters", "Description"
+   :header: "Function", "Description"
 
-   ":py:func:`simple.random_search<metaheuristic_designer.simple.random_search>`", "", "Pure random search."
-   ":py:func:`simple.hill_climb<metaheuristic_designer.simple.hill_climb>`", "mut_str (0.1)", "Hill climbing. Mutation strength ``mut_str``: for binary it flips that many bits; for integer it samples from the range; for real it adds Gaussian noise with that standard deviation."
-   ":py:func:`simple.simulated_annealing<metaheuristic_designer.simple.simulated_annealing>`", "mut_str (0.1), T0 (100), alpha (0.99)", "| Simulated annealing. Temperature decays as :math:`T_0 \\alpha^k`."
-   ":py:func:`simple.evolution_strategy<metaheuristic_designer.simple.evolution_strategy>`", "pop_size (100), offspring_size (100), mut_str (0.5)", "(μ+λ)-ES with the same mutation interpretations as hill climbing."
-   ":py:func:`simple.genetic_algorithm<metaheuristic_designer.simple.genetic_algorithm>`", "pop_size (100), n_parents (50), pmut (0.1), pcross (0.9), mut_str (0.5)", "Genetic algorithm with tournament selection, one-point crossover and mutation as above."
-   ":py:func:`simple.differential_evolution<metaheuristic_designer.simple.differential_evolution>`", "pop_size (30), F (0.8), Cr (0.9), DE_type (``de/best/1``)", "Differential evolution. Internally works with floating-point numbers and uses an encoding to match the requested datatype."
-   ":py:func:`simple.particle_swarm<metaheuristic_designer.simple.particle_swarm>`", "pop_size (30), w (0.7), c1 (1.5), c2 (1.5)", "Particle Swarm Optimisation. Works with real numbers internally and encodes to the target type."
+   ":py:func:`simple.random_search_real`", "Continuous search, no parameters."
+   ":py:func:`simple.random_search_binary`", "Binary search, no parameters."
+   ":py:func:`simple.random_search_discrete`", "Discrete search, no parameters."
+   ":py:func:`simple.random_search_permutation`", "Permutation search, no parameters."
+
+Hill Climbing
+~~~~~~~~~~~~~
+
+.. csv-table::
+   :header: "Function", "Key parameters"
+
+   ":py:func:`simple.hill_climb_real`", "``mutation_strength``, ``mutated_components``"
+   ":py:func:`simple.hill_climb_binary`", "``mutated_bits``"
+   ":py:func:`simple.hill_climb_discrete`", "``resampled_components``"
+   ":py:func:`simple.hill_climb_permutation`", "``swapped_positions``"
+
+Local Search
+~~~~~~~~~~~~
+
+.. csv-table::
+   :header: "Function", "Key parameters"
+
+   ":py:func:`simple.local_search_real`", "``mutation_strength``, ``mutated_components``, ``samples_per_iteration``"
+   ":py:func:`simple.local_search_binary`", "``mutated_bits``, ``samples_per_iteration``"
+   ":py:func:`simple.local_search_discrete`", "``resampled_components``, ``samples_per_iteration``"
+   ":py:func:`simple.local_search_permutation`", "``swapped_positions``, ``samples_per_iteration``"
+
+Simulated Annealing
+~~~~~~~~~~~~~~~~~~~
+
+.. csv-table::
+   :header: "Function", "Key parameters"
+
+   ":py:func:`simple.simulated_annealing_real`", "``mutation_strength``, ``mutated_components``, ``initial_temperature``, ``alpha``, ``iterations``"
+   ":py:func:`simple.simulated_annealing_binary`", "``mutated_bits``, ``initial_temperature``, ``alpha``, ``iterations``"
+   ":py:func:`simple.simulated_annealing_discrete`", "``resampled_components``, ``initial_temperature``, ``alpha``, ``iterations``"
+   ":py:func:`simple.simulated_annealing_permutation`", "``swapped_positions``, ``initial_temperature``, ``alpha``, ``iterations``"
+
+Evolution Strategy (ES)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. csv-table::
+   :header: "Function", "Key parameters"
+
+   ":py:func:`simple.evolution_strategy_real`", "``mutation_strength``, ``mutated_components``, ``population_size``, ``offspring_size``, ``elitist``"
+   ":py:func:`simple.evolution_strategy_binary`", "``mutated_bits``, ``population_size``, ``offspring_size``, ``elitist``"
+   ":py:func:`simple.evolution_strategy_discrete`", "``resampled_components``, ``population_size``, ``offspring_size``, ``elitist``"
+   ":py:func:`simple.evolution_strategy_permutation`", "``swapped_positions``, ``population_size``, ``offspring_size``, ``elitist``"
+
+Genetic Algorithm (GA)
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. csv-table::
+   :header: "Function", "Key parameters"
+
+   ":py:func:`simple.genetic_algorithm_real`", "``mutation_strength``, ``mutated_components``, ``population_size``"
+   ":py:func:`simple.genetic_algorithm_binary`", "``mutated_bits``, ``population_size``"
+   ":py:func:`simple.genetic_algorithm_discrete`", "``resampled_components``, ``population_size``"
+   ":py:func:`simple.genetic_algorithm_permutation`", "``swapped_positions``, ``population_size``"
+
+Differential Evolution (DE)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. csv-table::
+   :header: "Function", "Key parameters"
+
+   ":py:func:`simple.differential_evolution_real`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
+   ":py:func:`simple.differential_evolution_binary`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
+   ":py:func:`simple.differential_evolution_discrete`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
+
+Particle Swarm Optimisation (PSO)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. csv-table::
+   :header: "Function", "Key parameters"
+
+   ":py:func:`simple.particle_swarm_real`", "``population_size``, ``w``, ``c1``, ``c2``"
+   ":py:func:`simple.particle_swarm_binary`", "``population_size``, ``w``, ``c1``, ``c2``"
+   ":py:func:`simple.particle_swarm_discrete`", "``population_size``, ``w``, ``c1``, ``c2``"
+
+Bayesian Optimisation
+~~~~~~~~~~~~~~~~~~~~~
+
+.. csv-table::
+   :header: "Function", "Key parameters"
+
+   ":py:func:`simple.bayesian_optimization_real`", "``population_size``, ``acquisition_function``"

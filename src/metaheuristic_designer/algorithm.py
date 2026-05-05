@@ -21,7 +21,7 @@ from .population import Population
 from .stopping_condition import StoppingCondition
 from .initializer import Initializer
 from .checkpointer import Checkpointer
-from .utils import NumpyEncoder
+from .utils import NumpyEncoder, VectorLike
 
 logger = logging.getLogger(__name__)
 
@@ -79,18 +79,19 @@ class Algorithm:
         objfunc: ObjectiveFunc,
         search_strategy: SearchStrategy,
         name: Optional[str] = None,
-        stop_cond: str = "time_limit",
+        stop_cond: str = "real_time_limit",
         progress_metric: Optional[str] = None,
-        ngen: int = 1000,
-        neval: int = 1e5,
-        time_limit: float = 60.0,
+        max_iterations: int = 1000,
+        max_evaluations: int = 1e5,
+        real_time_limit: float = 60.0,
         cpu_time_limit: float = 60.0,
-        fit_target: float = 1e-10,
-        patience: int = 100,
+        objective_target: float = 1e-10,
+        max_patience: int = 100,
         verbose_timer: float = 0.5,
         track_median: bool = False,
         track_worst: bool = False,
-        track_complete: bool = False,
+        track_full_objective: bool = False,
+        track_full_population: bool = False,
         track_diversity: bool = False,
         checkpoint_file: Optional[str] = None,
         checkpoint_time_frequency: Optional[float] = None,
@@ -119,12 +120,12 @@ class Algorithm:
             stopping_condition = StoppingCondition(
                 condition_str=stop_cond,
                 progress_metric_str=progress_metric,
-                time_limit=time_limit,
+                real_time_limit=real_time_limit,
                 cpu_time_limit=cpu_time_limit,
-                target_fitness=fit_target,
-                max_evaluations=neval,
-                max_iterations=ngen,
-                max_patience=patience,
+                objective_target=objective_target,
+                max_evaluations=max_evaluations,
+                max_iterations=max_iterations,
+                max_patience=max_patience,
                 optimization_mode=objfunc.mode,
             )
         self.stopping_condition = stopping_condition
@@ -142,7 +143,8 @@ class Algorithm:
                 track_best=True,
                 track_median=track_median,
                 track_worst=track_worst,
-                track_complete=track_complete,
+                track_full_objective=track_full_objective,
+                track_full_population=track_full_population,
                 track_diversity=track_diversity,
             )
         self.history_tracker = history_tracker
@@ -194,17 +196,32 @@ class Algorithm:
     def population(self) -> Population:
         return self.search_strategy.population
 
-    def best_solution(self, problem_space: bool = False) -> Tuple[Any, float]:
+    def gather_parameters(self):
+        return self.search_strategy.gather_parameters()
+
+    def best_solution(self) -> Tuple[Any, float]:
         """
         Returns the best solution so far in the population.
 
         Returns
         -------
         best_solution: Tuple[Any, float]
+            A pair of the best individual with its objective value.
+        """
+
+        return self.search_strategy.best_solution()
+
+    def best_individual(self) -> Tuple[VectorLike, float]:
+        """
+        Returns the best individual so far in the population.
+
+        Returns
+        -------
+        best_solution: Tuple[VectorLike, float]
             A pair of the best individual with its fitness.
         """
 
-        return self.search_strategy.best_solution(problem_space=problem_space)
+        return self.search_strategy.best_individual()
 
     def restart(self, restart_objfunc: bool = True):
         """
@@ -289,7 +306,7 @@ class Algorithm:
 
         return new_population
 
-    def optimize(self, initialize=True) -> Population:
+    def optimize(self, resume=False) -> Population:
         """
         Execute the algorithm to get the best solution possible along with its evaluation.
         It will initialize the algorithm and repeat steps of the algorithm until the
@@ -304,11 +321,13 @@ class Algorithm:
         self.reporter.log_init(self)
 
         # initialize clocks
-        self.stopping_condition.restart()
+        if not resume:
+            self.stopping_condition.restart()
 
-        # Initialize search strategy
+        # Initialize search strategy and record initial values.
         logger.info("Generating initial solutions...")
-        population = self.initialize() if initialize else self.population
+        population = self.population if resume else self.initialize()
+        self.history_tracker.step(self)
 
         # Search until the stopping condition is met
         logger.info("Starting main optimization loop...")
@@ -318,9 +337,10 @@ class Algorithm:
 
                 population = self.step(population=population)
 
-                self.history_tracker.step(self)
-                self.reporter.log_step(self)
                 self.stopping_condition.step(self.population)
+                self.reporter.log_step(self)
+                self.history_tracker.step(self)
+
                 if self.checkpointer is not None:
                     self.checkpointer.checkpoint(self)
 

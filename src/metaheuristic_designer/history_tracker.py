@@ -1,10 +1,13 @@
 from __future__ import annotations
+import logging
 from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 
 if TYPE_CHECKING:
     from .algorithm import Algorithm
+
+logger = logging.getLogger(__name__)
 
 
 class HistoryTracker:
@@ -13,14 +16,18 @@ class HistoryTracker:
         track_best=True,
         track_median=False,
         track_worst=False,
-        track_complete=False,
+        track_full_objective=False,
+        track_full_population=False,
+        track_parameters=False,
         track_diversity=False,
     ):
         self.track_best = track_best
         self.track_median = track_median
         self.track_worst = track_worst
-        self.track_complete = track_complete
+        self.track_full_objective = track_full_objective
+        self.track_full_population = track_full_population
         self.track_diversity = track_diversity
+        self.track_parameters = track_parameters
 
         self.best_solutions = []
         self.median_solutions = []
@@ -31,9 +38,11 @@ class HistoryTracker:
         self.worst_objective = []
 
         self.complete_population = []
+        self.complete_objective = []
         self.diversity = []
+        self.parameters = []
 
-        self.iterations = 0
+        self.recorded_iterations = []
 
     def restart(self):
         self.best_solutions = []
@@ -45,9 +54,11 @@ class HistoryTracker:
         self.worst_objective = []
 
         self.complete_population = []
+        self.complete_objective = []
         self.diversity = []
+        self.parameters = []
 
-        self.iterations = 0
+        self.recorded_iterations = []
 
     def step(self, algorithm: Algorithm):
         population = algorithm.population
@@ -56,9 +67,12 @@ class HistoryTracker:
         objective_array = population.objective
         fitness_order = np.argsort(fitness_array)
 
-        self.iterations += 1
+        self.recorded_iterations.append(algorithm.stopping_condition.iterations)
 
-        if self.track_complete:
+        if self.track_full_objective:
+            self.complete_objective.append(objective_array)
+
+        if self.track_full_population:
             self.complete_population.append(solutions)
 
         if self.track_best:
@@ -81,7 +95,15 @@ class HistoryTracker:
             self.worst_objective.append(objective_array[worst_idx])
 
         if self.track_diversity:
-            raise NotImplementedError()
+            # WIP, right now we have an basic euclidean distance based metric, more flexible methods expected for next versions
+            genotype_matrix = algorithm.population.genotype_matrix
+            centroid = np.mean(genotype_matrix, axis=0)
+            dists = np.sqrt(np.sum((genotype_matrix - centroid) ** 2, axis=1))
+
+            self.diversity.append(np.mean(dists))
+
+        if self.track_parameters:
+            self.parameters.append(algorithm.gather_parameters())
 
     def to_pandas(self):
         """
@@ -90,7 +112,7 @@ class HistoryTracker:
         No solution data is recorded into the dataframe.
         """
 
-        data_dict = {"iteration": np.arange(self.iterations)}
+        data_dict = {"iteration": np.asarray(self.recorded_iterations)}
 
         if self.track_best:
             data_dict["best_objective"] = self.best_objective
@@ -103,6 +125,24 @@ class HistoryTracker:
 
         if self.track_diversity:
             data_dict["diversity"] = self.diversity
+        
+        if self.track_parameters:
+            # Let pandas do the data reordering and then get back a dictionary
+            param_df = pd.DataFrame(self.parameters)
+            data_dict.update(param_df.to_dict(orient="list"))
+
+        return pd.DataFrame.from_dict(data_dict)
+
+    def to_pandas_full_objective(self):
+        if not self.track_full_objective:
+            logger.warning("Tried to extract the full objective history but it was not being tracked.")
+            return pd.DataFrame()
+
+        data_dict = {"iteration": np.asarray(self.recorded_iterations)}
+        complete_objective_arr = np.asarray(self.complete_objective)
+        data_dict.update(
+            {f"Individual_{idx:d}": objective_values for idx, objective_values in enumerate(complete_objective_arr.T)}  # Iterates for each individual
+        )
 
         return pd.DataFrame.from_dict(data_dict)
 
@@ -123,7 +163,10 @@ class HistoryTracker:
             data["worst_solutions"] = self.worst_solutions
             data["worst_objective"] = self.worst_objective
 
-        if self.track_complete:
+        if self.complete_objective:
+            data["complete_objectives"] = self.complete_objective
+
+        if self.track_full_population:
             data["populations"] = self.complete_population
 
         if self.track_diversity:

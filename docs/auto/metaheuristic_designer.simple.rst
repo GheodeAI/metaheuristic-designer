@@ -44,6 +44,14 @@ metaheuristic\_designer.simple.hill\_climb module
    :show-inheritance:
    :undoc-members:
 
+metaheuristic\_designer.simple.local\_search module
+---------------------------------------------------
+
+.. automodule:: metaheuristic_designer.simple.local_search
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 metaheuristic\_designer.simple.particle\_swarm module
 -----------------------------------------------------
 

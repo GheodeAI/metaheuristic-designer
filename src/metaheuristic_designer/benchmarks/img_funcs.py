@@ -25,9 +25,10 @@ class ImgApprox(VectorObjectiveFunc):
             else:
                 mode = "max"
 
-        super().__init__(self.size, mode=mode, low_lim=0, up_lim=256, name=name, vectorized=True)
+        super().__init__(self.size, mode=mode, lower_bound=0, upper_bound=256, name=name, vectorized=True)
 
     def objective(self, solution):
+        print(solution)
         error = np.zeros(solution.shape[0])
         image_size = np.prod(solution.shape[1:])
         match self.diff_func:
@@ -55,7 +56,7 @@ class ImgStd(VectorObjectiveFunc):
         if mode is None:
             mode = "max"
 
-        super().__init__(self.size, mode=mode, low_lim=0, up_lim=256, name="Image standard deviation")
+        super().__init__(self.size, mode=mode, lower_bound=0, upper_bound=256, name="Image standard deviation")
 
     def objective(self, solution):
         solution_color = solution.reshape([3, -1])
@@ -69,7 +70,7 @@ class ImgEntropy(VectorObjectiveFunc):
         if mode is None:
             mode = "max"
 
-        super().__init__(self.size, mode=mode, low_lim=0, up_lim=256, name="Image entropy", vectorized=False)
+        super().__init__(self.size, mode=mode, lower_bound=0, upper_bound=256, name="Image entropy", vectorized=False)
 
     def objective(self, solution):
         solution_channels = solution.reshape([3, -1])

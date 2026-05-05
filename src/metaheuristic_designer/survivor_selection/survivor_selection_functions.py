@@ -250,7 +250,7 @@ def cond_elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, 
     elites = elite_candidates[keep_mask]
     n_elites = elites.shape[0]
 
-    offspring_selected = offspring_order[:n_parents - n_elites]
+    offspring_selected = offspring_order[: n_parents - n_elites]
 
     return np.concatenate((elites, offspring_selected + n_parents))
 

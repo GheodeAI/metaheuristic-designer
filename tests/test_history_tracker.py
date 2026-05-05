@@ -25,7 +25,7 @@ def test_empty_tracker_to_pandas():
 
 
 def test_tracker_initial_state(full_tracker):
-    assert full_tracker.iterations == 0
+    assert full_tracker.recorded_iterations == []
     assert full_tracker.best_solutions == []
     assert full_tracker.median_solutions == []
     assert full_tracker.worst_solutions == []
@@ -42,10 +42,11 @@ def test_record_after_one_step(algo_with_full_tracker):
     # Simulate the initial generation record (should be done by optimize)
     algo.history_tracker.step(algo)  # generation 0
     pop = algo.step(population=pop)
+    algo.stopping_condition.step(pop)
     algo.history_tracker.step(algo)  # generation 1
 
     tracker = algo.history_tracker
-    assert tracker.iterations == 2
+    assert tracker.recorded_iterations == [0, 1]
     assert len(tracker.best_solutions) == 2
     assert len(tracker.best_objective) == 2
     assert len(tracker.complete_population) == 2
@@ -68,6 +69,7 @@ def test_to_pandas_output(algo_with_full_tracker):
     algo.initialize()
     algo.history_tracker.step(algo)  # gen 0
     pop = algo.step()  # gen 1
+    algo.stopping_condition.step(pop)
     algo.history_tracker.step(algo)
 
     df = algo.history_tracker.to_pandas()
@@ -98,7 +100,7 @@ def test_restart_clears_all(algo_with_full_tracker):
     algo.history_tracker.restart()
 
     tracker = algo.history_tracker
-    assert tracker.iterations == 0
+    assert tracker.recorded_iterations == []
     assert tracker.best_solutions == []
     assert tracker.complete_population == []
 

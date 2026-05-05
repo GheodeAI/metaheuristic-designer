@@ -72,6 +72,13 @@ class Operator(ParametrizableMixin, ABC):
 
         return self.evolve(population, initializer)
 
+    def gather_params(self):
+        """
+        Overridable thin wrapper around get_params
+        """
+
+        return self.get_params()
+
     @abstractmethod
     def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
         """

@@ -16,8 +16,8 @@ from metaheuristic_designer.utils import check_random_state
 
 def run_algorithm(save_report, random_state):
     objfunc = HappyCat(3, "min")
-    single_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, random_state=random_state)
-    pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=100, random_state=random_state)
+    single_initializer = UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, random_state=random_state)
+    pop_initializer = UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=random_state)
 
     # Define algorithms to be tested (all strategies instantiated upfront)
     strategies = [

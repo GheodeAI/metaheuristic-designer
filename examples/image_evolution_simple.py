@@ -30,18 +30,16 @@ def run_algorithm(alg_name, img_file_name, img_size, obj_name, mode, ngen, displ
         objfunc = ImgStd(img_shape, mode="max")
     else:
         raise ValueError(f"Unknown objective: {obj_name}")
-    print(objfunc.vecsize)
 
     # Encoding for images
     img_enc = ImageEncoding(img_shape, color=True)
 
     # Shared parameters for the simple wrapper
     algo_params = {
-        # "stop_cond": "convergence or time_limit",
-        "stop_cond": "time_limit",
-        "progress_metric": "time_limit",
-        "time_limit": 500.0,
-        "patience": 500,
+        "stop_cond": "convergence or real_time_limit",
+        "progress_metric": "real_time_limit",
+        "real_time_limit": 500.0,
+        "max_patience": 500,
         "reporter": "tqdm",
         "random_state": rng,
         "encoding": img_enc,
@@ -89,14 +87,14 @@ def run_algorithm(alg_name, img_file_name, img_size, obj_name, mode, ngen, displ
         alg.stopping_condition.step(alg.population)
 
         if display:
-            image, _ = alg.best_solution(problem_space=True)
+            image, _ = alg.best_solution()
             render(image, display_dim, src)
             pygame.display.update()
 
     alg.reporter.log_end(alg)
 
     # Final best image
-    best_img, best_objective = alg.best_solution(problem_space=True)
+    best_img, best_objective = alg.best_solution()
     if display:
         render(best_img, display_dim, src)
         pygame.display.update()
@@ -115,7 +113,7 @@ def run_algorithm(alg_name, img_file_name, img_size, obj_name, mode, ngen, displ
 def render(image, display_dim, src):
     """Helper to draw an image onto the pygame surface."""
     texture = cv2.resize(
-        image.transpose([1, 0, 2]),
+        image.transpose((1, 0, 2)),
         display_dim,
         interpolation=cv2.INTER_NEAREST,
     )
@@ -151,7 +149,7 @@ def main():
         mode=args.mode,
         ngen=args.ngen,
         display=not args.hide,
-        seed=args.seed,
+        seed=rng,
     )
 
 

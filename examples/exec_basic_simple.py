@@ -10,13 +10,10 @@ def run_algorithm(alg_name, objective, dim, ngen, seed):
 
     # Every algorithm uses the same set of parameters
     algo_params = {
-        "stop_cond": "convergence or time_limit",
-        "progress_metric": "time_limit",
-        "time_limit": 120.0,
-        "cpu_time_limit": 100.0,
-        "neval": 3e6,
-        "fit_target": 1e-10,
-        "patience": 500,
+        "stop_cond": "convergence or real_time_limit",
+        "progress_metric": "real_time_limit",
+        "real_time_limit": 120.0,
+        "max_patience": 500,
         "reporter": "tqdm",
         "random_state": rng,
     }
@@ -49,7 +46,7 @@ def run_algorithm(alg_name, objective, dim, ngen, seed):
 
     # Run the optimisation and print the result
     population = algo.optimize()
-    solution, fitness = population.best_solution(problem_space=True)
+    solution, fitness = population.best_solution()
     print(f"\nSolution: {solution}")
     print(f"Objective value: {fitness}")
 

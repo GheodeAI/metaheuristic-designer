@@ -20,14 +20,6 @@ metaheuristic\_designer.algorithms.memetic\_algorithm module
    :show-inheritance:
    :undoc-members:
 
-metaheuristic\_designer.algorithms.standard\_algorithm module
--------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.algorithms.standard_algorithm
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 metaheuristic\_designer.algorithms.strategy\_selection module
 -------------------------------------------------------------
 

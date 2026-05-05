@@ -18,14 +18,8 @@ from metaheuristic_designer.utils import check_random_state
 def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_state):
     # Common algorithm parameters
     algorithm_params = {
-        "stop_cond": "time_limit",
-        "progress_metric": "time_limit",
-        "time_limit": 100.0,
-        "cpu_time_limit": 100.0,
-        "ngen": 1000,
-        "neval": 3e6,
-        "fit_target": 1e-10,
-        "patience": 200,
+        "stop_cond": "real_time_limit",
+        "real_time_limit": 100.0,
         "verbose_timer": 0.5,
         "reporter": reporter,
     }
@@ -160,7 +154,7 @@ def main():
     parser.add_argument("-s", "--save-state", dest="save_state", action="store_true", help="Save algorithm state.")
     parser.add_argument("-r", "--seed", type=int, default=42, help="Random seed.")
     parser.add_argument("--log", default="WARNING", help="Log level.")
-    parser.add_argument("-v", "--reporter", default="verbose", help="Reporter to use for progress tracking.")
+    parser.add_argument("-v", "--reporter", default="tqdm", help="Reporter to use for progress tracking.")
     args = parser.parse_args()
 
     # Set up logging and random state

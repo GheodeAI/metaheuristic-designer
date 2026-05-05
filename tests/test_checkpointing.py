@@ -31,9 +31,9 @@ def test_checkpoint_split_vs_continuous(tmp_path, rng, dummy_objfunc):
     mut_a = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv_a = create_survivor_selection("generational", random_state=rng_a)
     strat_a = SearchStrategy(init_a, operator=mut_a, survivor_sel=surv_a, name="cont")
-    algo_a = Algorithm(dummy_objfunc, strat_a, stop_cond="ngen", ngen=10, reporter="silent")
+    algo_a = Algorithm(dummy_objfunc, strat_a, stop_cond="max_iterations", max_iterations=10, reporter="silent")
     pop_a = algo_a.optimize()
-    best_a = pop_a.best_solution(problem_space=True)[1]
+    best_a = pop_a.best_solution()[1]
 
     # ---- split run: 5 generations, checkpoint, then 5 more ----
     rng_b = np.random.default_rng(42)
@@ -46,8 +46,8 @@ def test_checkpoint_split_vs_continuous(tmp_path, rng, dummy_objfunc):
         strat_b,
         checkpoint_file=str(checkpoint),
         checkpoint_iteration_frequency=5,  # save at gen 5
-        stop_cond="ngen",
-        ngen=5,
+        stop_cond="max_iterations",
+        max_iterations=5,
         reporter="silent",
     )
     algo_b.optimize()
@@ -58,7 +58,7 @@ def test_checkpoint_split_vs_continuous(tmp_path, rng, dummy_objfunc):
     algo_c = ckp.load(str(checkpoint), reporter="silent")
     algo_c.stopping_condition.max_iterations = 10
     pop_c = algo_c.optimize()
-    best_c = pop_c.best_solution(problem_space=True)[1]
+    best_c = pop_c.best_solution()[1]
 
     # results must match
     assert algo_c.stopping_condition.iterations == 10
@@ -81,8 +81,8 @@ def test_checkpoint_iteration_frequency(tmp_path, rng, dummy_objfunc):
         strat,
         checkpoint_file=str(checkpoint),
         checkpoint_iteration_frequency=2,  # save every 2 iterations
-        stop_cond="ngen",
-        ngen=5,
+        stop_cond="max_iterations",
+        max_iterations=5,
         reporter="silent",
     )
     algo.optimize()
@@ -110,8 +110,8 @@ def test_checkpoint_time_frequency(tmp_path, rng):
         strat,
         checkpoint_file=str(checkpoint),
         checkpoint_time_frequency=0.05,  # 50 ms
-        stop_cond="ngen",
-        ngen=3,
+        stop_cond="max_iterations",
+        max_iterations=3,
         reporter="silent",
     )
     algo.optimize()
@@ -134,8 +134,8 @@ def test_checkpoint_disabled(rng, dummy_objfunc):
     algo = Algorithm(
         dummy_objfunc,
         strat,
-        stop_cond="ngen",
-        ngen=3,
+        stop_cond="max_iterations",
+        max_iterations=3,
         reporter="silent",
     )
     assert algo.checkpointer is None
@@ -161,8 +161,8 @@ def test_checkpoint_interruption_saves(tmp_path, rng, dummy_objfunc):
         strat,
         checkpoint_file=str(checkpoint),
         checkpoint_iteration_frequency=1,
-        stop_cond="ngen",
-        ngen=5,
+        stop_cond="max_iterations",
+        max_iterations=5,
         reporter="silent",
     )
 
@@ -195,8 +195,8 @@ def test_checkpoint_load_with_reporter(tmp_path, rng, dummy_objfunc):
         strat,
         checkpoint_file=str(checkpoint),
         checkpoint_iteration_frequency=1,
-        stop_cond="ngen",
-        ngen=2,
+        stop_cond="max_iterations",
+        max_iterations=2,
         reporter="silent",
     )
     algo.optimize()

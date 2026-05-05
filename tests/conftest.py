@@ -144,8 +144,8 @@ class DummyObjectiveFunction(ObjectiveFunc):
 def dummy_objfunc():
     obj = DummyObjectiveFunction(name="dummy", mode="max")
     obj.vecsize = 3
-    obj.low_lim = 0
-    obj.up_lim = 1
+    obj.lower_bound = 0
+    obj.upper_bound = 1
     return obj
 
 
@@ -159,7 +159,7 @@ def dummy_objfunc_min():
 # -------------------------------------------------------------------
 class DiscreteSumObjective(VectorObjectiveFunc):
     def __init__(self, vecsize=3, mode="max"):
-        super().__init__(vecsize, low_lim=0, up_lim=5, mode=mode, name="DiscreteSum")
+        super().__init__(vecsize, lower_bound=0, upper_bound=5, mode=mode, name="DiscreteSum")
 
     def objective(self, solution):
         return np.sum(solution)
@@ -167,7 +167,7 @@ class DiscreteSumObjective(VectorObjectiveFunc):
 
 class PermutationObjective(VectorObjectiveFunc):
     def __init__(self, vecsize=4, mode="min"):
-        super().__init__(vecsize, low_lim=0, up_lim=vecsize - 1, mode=mode, name="Permutation")
+        super().__init__(vecsize, lower_bound=0, upper_bound=vecsize - 1, mode=mode, name="Permutation")
 
     def objective(self, solution):
         diff = np.abs(np.diff(solution))
@@ -259,7 +259,7 @@ def dummy_survivor_selection():
 @pytest.fixture
 def dummy_initializer(rng):
     """Initializer that produces a population of 10 vectors of length 3 (uniform)."""
-    return UniformInitializer(vecsize=3, low_lim=0, up_lim=1, pop_size=10, random_state=rng)
+    return UniformInitializer(vecsize=3, lower_bound=0, upper_bound=1, pop_size=10, random_state=rng)
 
 
 # ===================================================================
@@ -400,14 +400,14 @@ def run_and_get_best(wrapper_func, objfunc, seed, **kwargs):
     """Run a simple wrapper for 5 generations and return the best objective."""
     run_kwargs = {
         "reporter": "silent",
-        "stop_cond": "ngen",
-        "ngen": 5,
-        "neval": 1000,
+        "stop_cond": "max_iterations",
+        "max_iterations": 5,
+        "max_evaluations": 1000,
         **kwargs,
     }
     algo = wrapper_func(objfunc, random_state=seed, **run_kwargs)
     population = algo.optimize()
-    _, best = population.best_solution(problem_space=True)
+    _, best = population.best_solution()
     return best
 
 
@@ -421,7 +421,7 @@ def full_tracker():
         track_best=True,
         track_median=True,
         track_worst=True,
-        track_complete=True,
+        track_full_population=True,
     )
 
 
@@ -431,8 +431,8 @@ def algo_with_full_tracker(dummy_objfunc, dummy_strategy, full_tracker):
     return Algorithm(
         dummy_objfunc,
         dummy_strategy,
-        stop_cond="ngen",
-        ngen=1,
+        stop_cond="max_iterations",
+        max_iterations=1,
         reporter="silent",
         history_tracker=full_tracker,
     )

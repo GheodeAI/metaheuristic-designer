@@ -43,7 +43,7 @@ def hill_climb_discrete(objfunc, resampled_components=1, encoding=None, random_s
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=int, encoding=encoding, random_state=random_state
+        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, dtype=int, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
     search_strat = HillClimb(pop_initializer, mutation_op, random_state=random_state)
@@ -58,7 +58,7 @@ def hill_climb_real(objfunc, mutation_strength=1e-2, mutated_components=1, encod
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.low_lim, objfunc.up_lim, pop_size=1, dtype=float, encoding=encoding, random_state=random_state
+        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, dtype=float, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
     search_strat = HillClimb(pop_initializer, mutation_op, random_state=random_state)

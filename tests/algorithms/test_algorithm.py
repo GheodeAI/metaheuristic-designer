@@ -9,14 +9,14 @@ from metaheuristic_designer.algorithms import Algorithm
 
 
 def test_standard_algorithm_initialization(dummy_objfunc, dummy_strategy):
-    algo = Algorithm(dummy_objfunc, dummy_strategy, ngen=1, reporter="silent")
+    algo = Algorithm(dummy_objfunc, dummy_strategy, max_iterations=1, reporter="silent")
     assert algo.name == "dummy_strategy"
     assert algo.objfunc is dummy_objfunc
     assert algo.search_strategy is dummy_strategy
 
 
 def test_standard_algorithm_step_records_history(dummy_objfunc, dummy_strategy):
-    algo = Algorithm(dummy_objfunc, dummy_strategy, ngen=1, neval=1, reporter="silent")
+    algo = Algorithm(dummy_objfunc, dummy_strategy, max_iterations=1, max_evaluations=1, reporter="silent")
     pop = algo.initialize()
     assert len(pop) == dummy_strategy.pop_size
 
@@ -31,7 +31,7 @@ def test_standard_algorithm_step_records_history(dummy_objfunc, dummy_strategy):
 
 
 def test_standard_algorithm_property_delegation(dummy_objfunc, dummy_strategy):
-    algo = Algorithm(dummy_objfunc, dummy_strategy, ngen=1, reporter="silent")
+    algo = Algorithm(dummy_objfunc, dummy_strategy, max_iterations=1, reporter="silent")
     assert algo.iterations == 0
     assert algo.evaluations == 0
     assert algo.patience_left == algo.stopping_condition.patience_left
@@ -41,7 +41,7 @@ def test_standard_algorithm_property_delegation(dummy_objfunc, dummy_strategy):
 
 
 def test_standard_algorithm_restart(dummy_objfunc, dummy_strategy):
-    algo = Algorithm(dummy_objfunc, dummy_strategy, ngen=1, reporter="silent")
+    algo = Algorithm(dummy_objfunc, dummy_strategy, max_iterations=1, reporter="silent")
     algo.initialize()
     new_pop = algo.step()
     algo.history_tracker.step(algo)

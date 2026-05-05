@@ -11,9 +11,9 @@ class UniformInitializer(Initializer):
     ----------
     genotype_size: ndarray
         The dimension of the vectors accepted by the objective function.
-    low_lim: ndarray or float
+    lower_bound: ndarray or float
         Lower limit restriction for the vectors.
-    up_lim: ndarray or float
+    upper_bound: ndarray or float
         Upper limit restriction for the vectors.
     pop_size: int, optional
         Number of individuals to be generated.
@@ -23,29 +23,29 @@ class UniformInitializer(Initializer):
         Data type used in each of the components of the vector in the individual.
     """
 
-    def __init__(self, vecsize, low_lim, up_lim, pop_size=1, encoding=None, dtype=float, random_state=None):
+    def __init__(self, vecsize, lower_bound, upper_bound, pop_size=1, encoding=None, dtype=float, random_state=None):
         super().__init__(vecsize=vecsize, pop_size=pop_size, encoding=encoding, random_state=random_state)
 
-        if type(low_lim) in [list, tuple, np.ndarray]:
-            if len(low_lim) != vecsize:
-                raise ValueError(f"If low_lim is a sequence it must be of length {vecsize}.")
+        if type(lower_bound) in [list, tuple, np.ndarray]:
+            if len(lower_bound) != vecsize:
+                raise ValueError(f"If lower_bound is a sequence it must be of length {vecsize}.")
 
-            self.low_lim = low_lim
+            self.lower_bound = lower_bound
         else:
-            self.low_lim = np.repeat(low_lim, self.vecsize)
+            self.lower_bound = np.repeat(lower_bound, self.vecsize)
 
-        if type(up_lim) in [list, tuple, np.ndarray]:
-            if len(up_lim) != vecsize:
-                raise ValueError(f"If up_lim is a sequence it must be of length {vecsize}.")
+        if type(upper_bound) in [list, tuple, np.ndarray]:
+            if len(upper_bound) != vecsize:
+                raise ValueError(f"If upper_bound is a sequence it must be of length {vecsize}.")
 
-            self.up_lim = up_lim
+            self.upper_bound = upper_bound
         else:
-            self.up_lim = np.repeat(up_lim, self.vecsize)
+            self.upper_bound = np.repeat(upper_bound, self.vecsize)
 
         self.dtype = dtype
 
     def generate_random(self):
-        new_vector_float = self.random_state.uniform(self.low_lim, self.up_lim, size=self.vecsize)
+        new_vector_float = self.random_state.uniform(self.lower_bound, self.upper_bound, size=self.vecsize)
         if self.dtype is int:
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:

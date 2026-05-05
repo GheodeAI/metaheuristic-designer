@@ -38,7 +38,7 @@ class TQDMReporter(Reporter):
         alg_name = algorithm.name
         iterations = algorithm.iterations
         evaluations = algorithm.stopping_condition.evaluations
-        _, best_objective = algorithm.best_solution(problem_space=True)
+        _, best_objective = algorithm.best_solution()
 
         self.bar_tracker.set_description(f"Optimizing {objfunc_name} using {alg_name}, Iteration {iterations}")
         self.bar_tracker.set_postfix(evals=evaluations, fitness=best_objective)
@@ -53,7 +53,7 @@ class TQDMReporter(Reporter):
         iterations = algorithm.iterations
         evaluations = algorithm.stopping_condition.evaluations
         remaining = self.resolution - self.rounded_progress
-        _, best_objective = algorithm.best_solution(problem_space=True)
+        _, best_objective = algorithm.best_solution()
 
         self.bar_tracker.set_description(f"Done optimizing {objfunc_name} using {alg_name}, Iteration {iterations}")
         self.bar_tracker.set_postfix(evals=evaluations, fitness=best_objective)

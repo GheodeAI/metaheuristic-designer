@@ -24,8 +24,8 @@ def differential_evolution_binary(
         encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
     pop_initializer = UniformInitializer(
         objfunc.vecsize,
-        objfunc.low_lim,
-        objfunc.up_lim,
+        objfunc.lower_bound,
+        objfunc.upper_bound,
         pop_size=population_size,
         dtype=float,
         encoding=encoding,
@@ -59,8 +59,8 @@ def differential_evolution_discrete(
         encoding = TypeCastEncoding(float, int)
     pop_initializer = UniformInitializer(
         objfunc.vecsize,
-        objfunc.low_lim,
-        objfunc.up_lim,
+        objfunc.lower_bound,
+        objfunc.upper_bound,
         pop_size=population_size,
         dtype=float,
         encoding=encoding,
@@ -92,8 +92,8 @@ def differential_evolution_real(
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
         objfunc.vecsize,
-        objfunc.low_lim,
-        objfunc.up_lim,
+        objfunc.lower_bound,
+        objfunc.upper_bound,
         pop_size=population_size,
         dtype=float,
         encoding=encoding,

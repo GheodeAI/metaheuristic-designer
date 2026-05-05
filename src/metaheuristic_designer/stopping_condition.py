@@ -1,3 +1,4 @@
+from tkinter import NO
 from typing import List, Optional
 import logging
 import time
@@ -10,26 +11,31 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class StoppingCondition:
-    condition_str: str = "time_limit"
+    condition_str: str
     progress_metric_str: Optional[str] = None
-    max_iterations: int = 1000
-    max_evaluations: int = 1e5
-    time_limit: float = 60.0
-    cpu_time_limit: float = 60.0
-    target_fitness: float = 1e-10
-    max_patience: int = 100
+    max_iterations: int = None
+    max_evaluations: int = None
+    real_time_limit: float = None
+    cpu_time_limit: float = None
+    objective_target: float = None
+    max_patience: int = None
     optimization_mode: str = "max"
 
     def __post_init__(self):
         self.condition_str = self.condition_str
         self.stop_cond_parsed = parse_stopping_cond(self.condition_str)
+        self._validate_required_params(self.condition_str, "stopping condition")
 
         if self.progress_metric_str is None:
             self.progress_metric_str = self.condition_str
             self.progress_metric_parsed = self.stop_cond_parsed
         else:
             self.progress_metric_parsed = parse_stopping_cond(self.progress_metric_str)
+            self._validate_required_params(self.progress_metric_str, "progress metric")
 
+        # Set max patience to a sensible value, we need it to keep track of the missed iterations
+        if self.max_patience is None:
+            self.max_patience = 1
         self.patience_left = self.max_patience
         self.iterations = 0
         self.evaluations = 0
@@ -37,9 +43,30 @@ class StoppingCondition:
         self.cpu_time_start = time.process_time()
         self.real_time_spent = 0
         self.cpu_time_spent = 0
-        self.prev_best_fitness = None
-        self.first_best_fitness = None
-        self.best_fitness = None
+        self.prev_best_objective = None
+        self.first_best_objective = None
+        self.best_objective = None
+
+
+    def _validate_required_params(self, source_str: str, context: str):
+        """Raise ValueError if a token appears in *source_str* but the
+        corresponding parameter is None."""
+
+        # Mapping from token to (attribute_name, value)
+        _token_map = {
+            "max_evaluations": ("max_evaluations", self.max_evaluations),
+            "max_iterations": ("max_iterations", self.max_iterations),
+            "real_time_limit": ("real_time_limit", self.real_time_limit),
+            "cpu_time_limit": ("cpu_time_limit", self.cpu_time_limit),
+            "objective_target": ("objective_target", self.objective_target),
+            "convergence":   ("max_patience", self.max_patience),
+        }
+
+        for token, (attr, attr_value) in _token_map.items():
+            if token in source_str and attr_value is None:
+                raise ValueError(
+                    f'"{token}" appears in the {context} but "{attr}" is not set.'
+                )
 
     def restart(self):
         self.iterations = 0
@@ -48,8 +75,8 @@ class StoppingCondition:
         self.cpu_time_start = time.process_time()
         self.real_time_spent = 0
         self.cpu_time_spent = 0
-        self.prev_best_fitness = None
-        self.first_best_fitness = None
+        self.prev_best_objective = None
+        self.first_best_objective = None
 
     def step(self, current_population: Population):
         objfunc = current_population.objfunc
@@ -60,16 +87,23 @@ class StoppingCondition:
         self.cpu_time_spent = time.process_time() - self.cpu_time_start
 
         if self.optimization_mode in {"max", "min"}:
-            _, best_fitness = current_population.best_solution(problem_space=False)
-
-            if (self.prev_best_fitness is not None) and (best_fitness <= self.prev_best_fitness):
-                self.patience_left -= 1
+            _, best_objective = current_population.best_solution()
+            if self.prev_best_objective is not None:
+                if self.optimization_mode == "max":
+                    improves = best_objective <= self.prev_best_objective
+                else:
+                    improves = best_objective >= self.prev_best_objective
+                
+                if improves:
+                    self.patience_left -= 1
+                else:
+                    self.patience_left = self.max_patience
+                    if self.first_best_objective is None:
+                        self.first_best_objective = best_objective
+                    self.prev_best_objective = best_objective
+                    self.best_objective = best_objective
             else:
-                self.patience_left = self.max_patience
-                if self.first_best_fitness is None:
-                    self.first_best_fitness = best_fitness
-                self.prev_best_fitness = best_fitness
-                self.best_fitness = best_fitness
+                self.prev_best_objective = best_objective
 
         logger.debug(
             "Updated stopping condition parameters:\nfunc. evaluations = %d\n" "generations = %d\ntime = %f\ncpu_time = %f\nbest = %f\npatience = %d",
@@ -77,7 +111,7 @@ class StoppingCondition:
             self.iterations,
             self.real_time_start,
             self.cpu_time_start,
-            self.best_fitness,
+            self.best_objective,
             self.patience_left,
         )
 
@@ -101,19 +135,19 @@ class StoppingCondition:
         if finished:
             return True
 
-        neval_reached = self.evaluations >= self.max_evaluations
-        ngen_reached = self.iterations >= self.max_iterations
-        real_time_reached = self.real_time_spent >= self.time_limit
-        cpu_time_reached = self.cpu_time_spent >= self.cpu_time_limit
+        neval_reached = self.evaluations >= self.max_evaluations if self.max_evaluations is not None else False
+        ngen_reached = self.iterations >= self.max_iterations if self.max_iterations is not None else False
+        real_time_reached = self.real_time_spent >= self.real_time_limit if self.real_time_limit is not None else False
+        cpu_time_reached = self.cpu_time_spent >= self.cpu_time_limit if self.cpu_time_limit is not None else False
 
-        if self.optimization_mode == "max":
-            target_reached = (self.best_fitness is not None) and (self.best_fitness >= self.target_fitness)
-        elif self.optimization_mode == "min":
-            target_reached = (self.best_fitness is not None) and (self.best_fitness <= self.target_fitness)
+        if (self.objective_target is not None) and (self.optimization_mode == "max"):
+            target_reached = (self.best_objective is not None) and (self.best_objective >= self.objective_target)
+        elif (self.objective_target is not None) and (self.optimization_mode == "min"):
+            target_reached = (self.best_objective is not None) and (self.best_objective <= self.objective_target)
         else:
             target_reached = False
 
-        if self.optimization_mode in {"min", "max"}:
+        if (self.patience_left is not None) and (self.optimization_mode in {"min", "max"}):
             patience_reached = self.patience_left <= 0
         else:
             patience_reached = False
@@ -130,8 +164,8 @@ class StoppingCondition:
             time.time(),
             self.cpu_time_start,
             time.process_time(),
-            self.best_fitness,
-            self.target_fitness,
+            self.best_objective,
+            self.objective_target,
             self.patience_left,
         )
 
@@ -160,25 +194,28 @@ class StoppingCondition:
         """
 
         tol = 1e-12
-        neval_reached = self.evaluations / self.max_evaluations
-        ngen_reached = self.iterations / self.max_iterations
-        real_time_reached = self.real_time_spent / self.time_limit
-        cpu_time_reached = self.cpu_time_spent / self.cpu_time_limit
+        neval_reached = self.evaluations / self.max_evaluations if self.max_evaluations is not None else 0
+        ngen_reached = self.iterations / self.max_iterations if self.max_iterations is not None else 0
+        real_time_reached = self.real_time_spent / self.real_time_limit if self.real_time_limit is not None else 0
+        cpu_time_reached = self.cpu_time_spent / self.cpu_time_limit if self.cpu_time_limit is not None else 0
 
-        if self.optimization_mode in {"min", "max"}:
-            if self.first_best_fitness is not None and abs(self.first_best_fitness - self.target_fitness) <= tol * max(
-                abs(self.first_best_fitness), abs(self.target_fitness), 1
+        if (self.objective_target is not None) and (self.optimization_mode in {"min", "max"}):
+            if self.first_best_objective is not None and abs(self.first_best_objective - self.objective_target) <= tol * max(
+                abs(self.first_best_objective), abs(self.objective_target), 1
             ):
                 target_progress = 1
-            elif self.first_best_fitness is not None:
-                fit_init_dist = self.first_best_fitness - self.target_fitness
-                fit_dist = self.best_fitness - self.target_fitness
+            elif self.first_best_objective is not None:
+                fit_init_dist = self.first_best_objective - self.objective_target
+                fit_dist = self.best_objective - self.objective_target
                 target_progress = 1 - fit_dist / fit_init_dist
             else:
                 target_progress = 0
-            patience_percentage = 1 - self.patience_left / self.max_patience
         else:
             target_progress = 0
+            
+        if (self.max_patience is not None) and (self.optimization_mode in {"min", "max"}):
+            patience_percentage = 1 - self.patience_left / self.max_patience
+        else:
             patience_percentage = 0
 
         return process_progress(
@@ -195,12 +232,12 @@ class StoppingCondition:
             "max_patience": self.max_patience,
             "max_iterations": self.max_iterations,
             "max_evaluations": self.max_evaluations,
-            "time_limit": self.time_limit,
+            "real_time_limit": self.real_time_limit,
             "cpu_time_limit": self.cpu_time_limit,
             "patience_left": self.patience_left,
             "iterations": self.iterations,
             "evaluations": self.evaluations,
-            "time_spent": self.real_time_spent,
+            "real_time_spent": self.real_time_spent,
             "cpu_time_spent": self.cpu_time_spent,
         }
 
@@ -225,7 +262,7 @@ def parse_stopping_cond(condition_str: str) -> List[str | List]:
 
     orop = pp.Literal("or")
     andop = pp.Literal("and")
-    condition = pp.one_of(["neval", "ngen", "time_limit", "cpu_time_limit", "fit_target", "convergence"])
+    condition = pp.one_of(["max_evaluations", "max_iterations", "real_time_limit", "cpu_time_limit", "objective_target", "convergence"])
 
     expr = pp.infix_notation(condition, [(orop, 2, pp.opAssoc.RIGHT), (andop, 2, pp.opAssoc.RIGHT)])
 
@@ -278,19 +315,19 @@ def process_condition(cond_parsed: List[str | List], neval: int, ngen: int, real
         case [cond1]:
             result = process_condition(cond1, neval, ngen, real_time, cpu_time, target, patience)
 
-        case "neval":
+        case "max_evaluations":
             result = neval
 
-        case "ngen":
+        case "max_iterations":
             result = ngen
 
-        case "time_limit":
+        case "real_time_limit":
             result = real_time
 
         case "cpu_time_limit":
             result = cpu_time
 
-        case "fit_target":
+        case "objective_target":
             result = target
 
         case "convergence":
@@ -345,19 +382,19 @@ def process_progress(cond_parsed: List[str | List], neval: int, ngen: int, real_
         case [cond1]:
             result = process_progress(cond1, neval, ngen, real_time, cpu_time, target, patience)
 
-        case "neval":
+        case "max_evaluations":
             result = neval
 
-        case "ngen":
+        case "max_iterations":
             result = ngen
 
-        case "time_limit":
+        case "real_time_limit":
             result = real_time
 
         case "cpu_time_limit":
             result = cpu_time
 
-        case "fit_target":
+        case "objective_target":
             result = target
 
         case "convergence":

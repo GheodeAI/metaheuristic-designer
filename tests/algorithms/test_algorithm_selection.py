@@ -11,8 +11,8 @@ from metaheuristic_designer.algorithms.strategy_selection import StrategySelecti
 
 def test_algorithm_selection_optimize(dummy_objfunc, dummy_strategy):
     return
-    algo1 = Algorithm(dummy_objfunc, dummy_strategy, ngen=1, neval=1, verbose=False, name="alg1")
-    algo2 = Algorithm(dummy_objfunc, dummy_strategy, ngen=1, neval=1, verbose=False, name="alg2")
+    algo1 = Algorithm(dummy_objfunc, dummy_strategy, max_iterations=1, max_evaluations=1, verbose=False, name="alg1")
+    algo2 = Algorithm(dummy_objfunc, dummy_strategy, max_iterations=1, max_evaluations=1, verbose=False, name="alg2")
 
     sel = AlgorithmSelection([algo1, algo2], params={"repetitions": 2, "verbose": False})
     best_sol, best_fit, report = sel.optimize()
@@ -28,7 +28,7 @@ def test_strategy_selection_optimize(dummy_objfunc, dummy_strategy):
     strat_sel = StrategySelection(
         objfunc=dummy_objfunc,
         strategy_list=[dummy_strategy, dummy_strategy],
-        algorithm_params={"ngen": 1, "neval": 1, "verbose": False},
+        algorithm_params={"max_iterations": 1, "max_evaluations": 1, "verbose": False},
         params={"repetitions": 2, "verbose": False},
     )
     _, _, report = strat_sel.optimize()

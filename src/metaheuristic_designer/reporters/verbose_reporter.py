@@ -43,7 +43,7 @@ class VerboseReporter(Reporter):
         iters_stuck = max_patience - patience_left
         progress = algorithm.stopping_condition.get_progress()
 
-        _, best_fitness = algorithm.best_solution(problem_space=True)
+        _, best_fitness = algorithm.best_solution()
         print(f'Optimizing "{objfunc_name}" using "{alg_name}":')
         print(f"\tProgress:                 {floor(progress*100):d}%")
         print(f"\tReal time Spent:          {spent_time:.4f}s")
@@ -68,7 +68,7 @@ class VerboseReporter(Reporter):
 
         objfunc_name = algorithm.objfunc.name
         alg_name = algorithm.name
-        iterations_accurate = algorithm.history_tracker.iterations
+        iterations_accurate = algorithm.history_tracker.recorded_iterations
         spent_time = algorithm.stopping_condition.real_time_spent
         spent_cpu_time = algorithm.stopping_condition.cpu_time_spent
         evaluations = algorithm.stopping_condition.evaluations
