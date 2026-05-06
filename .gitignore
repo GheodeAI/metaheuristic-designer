@@ -170,3 +170,4 @@ examples/results/*
 *.log
 .hidden
 coverage*
+experiments/
