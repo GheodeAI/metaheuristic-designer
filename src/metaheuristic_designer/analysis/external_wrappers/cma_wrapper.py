@@ -1,0 +1,72 @@
+import numpy as np
+import pandas as pd
+try:
+    import cma
+    _CMA_AVAILABLE = True
+except ImportError:
+    _CMA_AVAILABLE = False
+
+class CMAWrapper:
+    """
+    Duck-typed wrapper for the reference cma library.
+    """
+
+    def __init__(self, objfunc, sigma0=0.5, max_iterations=500, seed=None, name="cma"):
+        if not _CMA_AVAILABLE:
+            raise ImportError(
+                "The 'cma' library is required. Install with `pip install cma`."
+            )
+        self.objfunc = objfunc
+        self.sigma0 = sigma0
+        self.max_iterations = max_iterations
+        self.seed = seed
+        self.name = name
+
+        self._history_df = None
+        self._best_x = None
+        self._best_obj = None
+
+    def optimize(self):
+        if self.seed is not None:
+            np.random.seed(self.seed)
+
+        x0 = np.random.uniform(self.objfunc.lower_bound,
+                               self.objfunc.upper_bound,
+                               size=self.objfunc.dimension)
+
+        es = cma.CMAEvolutionStrategy(
+            x0, self.sigma0,
+            {'maxiter': self.max_iterations, 'seed': self.seed}
+        )
+
+        while not es.stop():
+            solutions = es.ask()
+            objs = [self.objfunc.objective(np.array(sol)) for sol in solutions]
+            es.tell(solutions, objs)
+
+        # CMA‑ES stores the best per generation in es.result
+        if hasattr(es.result, 'historical_fbest') and es.result.historical_fbest:
+            fbest = es.result.historical_fbest
+            self._history_df = pd.DataFrame({
+                'iteration': np.arange(len(fbest)),
+                'best_objective': fbest
+            })
+        else:
+            self._history_df = pd.DataFrame(columns=['iteration', 'best_objective'])
+
+        self._best_x = es.result.xfavorite
+        self._best_obj = es.result.fbest
+
+        return self
+
+    def best_solution(self):
+        return list(self._best_x), self._best_obj
+
+    @property
+    def history_tracker(self):
+        class _Hist:
+            def __init__(self, df):
+                self._df = df
+            def to_pandas(self):
+                return self._df.copy()
+        return _Hist(self._history_df)

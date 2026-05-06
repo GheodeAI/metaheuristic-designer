@@ -38,5 +38,6 @@ from .survivor_selection import create_survivor_selection, add_survivor_selectio
 from . import survivor_selection
 
 from . import simple
+from . import analysis
 
 __version__ = "0.4.0"

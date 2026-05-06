@@ -54,8 +54,21 @@ test = [
     "black[jupyter]>=23.10.1",
 ]
 
+benchmarking = [
+    "ioh",
+    "autorank",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "deap",
+    "cma",
+    "nevergrad",
+    "pygmo"
+
+]
+
 dev = [
-    "metaheuristic-designer[examples,docs,test]"
+    "metaheuristic-designer[examples,docs,benchmarking,test]"
 ]
 
 [tool.black]
