@@ -271,7 +271,7 @@ class Population:
         sliced_genotype_matrix = copy(self.genotype_matrix[:, mask])
 
         sliced_pop = Population(self.objfunc, sliced_genotype_matrix, encoding=self.encoding)
-        sliced_pop.vecsize = sliced_genotype_matrix.shape[1]
+        sliced_pop.dimension = sliced_genotype_matrix.shape[1]
         sliced_pop.historical_best_matrix = copy(self.historical_best_matrix[:, mask])
         sliced_pop.historical_best_fitness = copy(self.historical_best_fitness)
         sliced_pop.fitness_calculated = copy(self.fitness_calculated)

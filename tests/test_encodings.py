@@ -190,7 +190,7 @@ def test_image_decode_reshapes_and_casts_to_uint8():
 # ===================================================================
 @pytest.fixture
 def pso_enc_4():
-    return PSOEncoding(vecsize=4, base_encoding=DefaultEncoding())
+    return PSOEncoding(dimension=4, base_encoding=DefaultEncoding())
 
 
 def test_pso_encoding_extract_solution(pso_enc_4):
@@ -242,7 +242,7 @@ def test_pso_decode_returns_solution(pso_enc_4):
 #  SelfAdaptingESEncoding
 # ===================================================================
 def test_self_adapting_es_single_sigma():
-    enc = SelfAdaptingESEncoding(vecsize=5, single_sigma=True, base_encoding=DefaultEncoding())
+    enc = SelfAdaptingESEncoding(dimension=5, single_sigma=True, base_encoding=DefaultEncoding())
     assert enc.param_sizes == [("F", 1)]
     full = np.array([[1, 2, 3, 4, 5, 0.1]])
     sol = enc.extract_solution(full)
@@ -252,7 +252,7 @@ def test_self_adapting_es_single_sigma():
 
 
 def test_self_adapting_es_multiple_sigma():
-    enc = SelfAdaptingESEncoding(vecsize=3, single_sigma=False, base_encoding=DefaultEncoding())
+    enc = SelfAdaptingESEncoding(dimension=3, single_sigma=False, base_encoding=DefaultEncoding())
     assert enc.param_sizes == [("F", 3)]
     full = np.array([[5, 6, 7, 0.2, 0.3, 0.4]])
     param_dict = enc.decode_params(full)
@@ -265,7 +265,7 @@ def test_self_adapting_es_multiple_sigma():
 def create_composite_encoding_for_test():
     """Build a composite encoding using only conftest types."""
     tc = TypeCastEncoding(encoded_dtype=int, decoded_dtype=float)
-    pso = PSOEncoding(vecsize=2)
+    pso = PSOEncoding(dimension=2)
     return CompositeEncoding([tc, pso]), tc, pso
 
 

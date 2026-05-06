@@ -8,7 +8,7 @@ class ExtendedInitializer(Initializer):
     def __init__(self, solution_init: Initializer, param_init_dict: dict, encoding: ParameterExtendingEncoding, random_state=None):
         assert isinstance(encoding, ParameterExtendingEncoding), "An `ExtendedEncoding` instance must be used with this type of initializer"
         super().__init__(
-            vecsize=solution_init.vecsize + encoding.nparams, pop_size=solution_init.pop_size, encoding=encoding, random_state=random_state
+            dimension=solution_init.dimension + encoding.nparams, population_size=solution_init.pop_size, encoding=encoding, random_state=random_state
         )
         self.solution_init = solution_init
         self.param_init_dict = param_init_dict

@@ -49,7 +49,7 @@ def test_initializer_from_lambda(rng):
     def my_gen(rs):
         return rs.uniform(10, 20, size=3)
 
-    init = InitializerFromLambda(my_gen, vecsize=3, pop_size=2, random_state=rng)
+    init = InitializerFromLambda(my_gen, dimension=3, pop_size=2, random_state=rng)
     vec = init.generate_random()
     assert vec.shape == (3,)
     assert np.all(vec >= 10) and np.all(vec <= 20)

@@ -21,7 +21,7 @@ def evolution_strategy_binary(
     random_state = check_random_state(random_state)
     encoding = TypeCastEncoding(int, bool) if encoding is None else encoding
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, 0, 1, pop_size=population_size, dtype=np.uint8, encoding=encoding, random_state=random_state
+        objfunc.dimension, 0, 1, pop_size=population_size, dtype=np.uint8, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("mutation.bitflip", N=mutated_bits, random_state=random_state)
     method = "keep_best" if elitist else "keep_offspring"
@@ -41,7 +41,7 @@ def evolution_strategy_permutation(
     """
 
     random_state = check_random_state(random_state)
-    pop_initializer = PermInitializer(objfunc.vecsize, pop_size=population_size, encoding=encoding, random_state=random_state)
+    pop_initializer = PermInitializer(objfunc.dimension, population_size=population_size, encoding=encoding, random_state=random_state)
     mutation_op = create_operator("permutation.swap", N=swapped_positions, random_state=random_state)
     method = "keep_best" if elitist else "keep_offspring"
     survivor_sel = create_survivor_selection(method, random_state=random_state)
@@ -61,7 +61,7 @@ def evolution_strategy_discrete(
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=int, encoding=encoding, random_state=random_state
+        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=int, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
     method = "keep_best" if elitist else "keep_offspring"
@@ -90,7 +90,7 @@ def evolution_strategy_real(
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=float, encoding=encoding, random_state=random_state
+        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=float, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
     method = "keep_best" if elitist else "keep_offspring"

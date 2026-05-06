@@ -24,9 +24,9 @@ def _random_reference_img(size=(8, 8)):
 def test_img_approx_diff_funcs(img_size, diff_func):
     ref = _random_reference_img(img_size)
     objfunc = ImgApprox(img_dim=img_size, reference=ref, diff_func=diff_func, mode="min")
-    vecsize = objfunc.vecsize
+    dimension = objfunc.dimension
     encoding = ImageEncoding(img_size, color=True)
-    init = UniformInitializer(vecsize, 0, 255, pop_size=3, dtype=float, encoding=encoding)
+    init = UniformInitializer(dimension, 0, 255, pop_size=3, dtype=float, encoding=encoding)
     pop = init.generate_population(objfunc)
     decoded = pop.decode()
     result = objfunc.objective(decoded)
@@ -38,9 +38,9 @@ def test_img_approx_diff_funcs(img_size, diff_func):
 def test_img_approx_single_vs_batch(img_size):
     ref = _random_reference_img(img_size)
     objfunc = ImgApprox(img_dim=img_size, reference=ref, diff_func="MSE", mode="min")
-    vecsize = objfunc.vecsize
+    dimension = objfunc.dimension
     encoding = ImageEncoding(img_size, color=True)
-    init = UniformInitializer(vecsize, 0, 255, pop_size=2, dtype=float, encoding=encoding)
+    init = UniformInitializer(dimension, 0, 255, pop_size=2, dtype=float, encoding=encoding)
     pop = init.generate_population(objfunc)
     decoded = pop.decode()  # (2, H, W, 3)
     batch = objfunc.objective(decoded)
@@ -54,8 +54,8 @@ def test_img_approx_single_vs_batch(img_size):
 def test_repair_preserves_valid_values(img_size):
     ref = _random_reference_img(img_size)
     objfunc = ImgApprox(img_dim=img_size, reference=ref, diff_func="MSE")
-    vecsize = objfunc.vecsize
-    valid = np.random.default_rng(42).uniform(0, 255, vecsize)
+    dimension = objfunc.dimension
+    valid = np.random.default_rng(42).uniform(0, 255, dimension)
     repaired = objfunc.repair_solution(valid)
     np.testing.assert_array_almost_equal(repaired, valid)
 
@@ -65,9 +65,9 @@ def test_repair_preserves_valid_values(img_size):
 @pytest.mark.parametrize("nbins", [5, 20, 100])
 def test_img_entropy_nbins(img_size, nbins):
     objfunc = ImgEntropy(img_dim=img_size, nbins=nbins, mode="max")
-    vecsize = objfunc.vecsize
+    dimension = objfunc.dimension
     encoding = ImageEncoding(img_size, color=True)
-    init = UniformInitializer(vecsize, 0, 255, pop_size=2, dtype=float, encoding=encoding)
+    init = UniformInitializer(dimension, 0, 255, pop_size=2, dtype=float, encoding=encoding)
     pop = init.generate_population(objfunc)
     decoded = pop.decode()  # shape (2, H, W, 3) – two images
 

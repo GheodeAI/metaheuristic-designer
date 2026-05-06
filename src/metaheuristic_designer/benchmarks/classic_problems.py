@@ -175,7 +175,7 @@ class MaxClique(VectorObjectiveFunc):
 
         n_cliques = 1
         is_clique = True
-        while n_cliques < self.vecsize and is_clique:
+        while n_cliques < self.dimension and is_clique:
             for i in range(1, n_cliques):
                 idx_i = solution[i]
                 idx_j = solution[n_cliques]
@@ -194,7 +194,7 @@ class TSP(VectorObjectiveFunc):
 
         self.adjacency_matrix = adjacency_matrix
         n_nodes = adjacency_matrix.shape[0]
-        super().__init__(vecsize=n_nodes, lower_bound=0, upper_bound=n_nodes - 1, name=name, mode=mode, vectorized=True)
+        super().__init__(dimension=n_nodes, lower_bound=0, upper_bound=n_nodes - 1, name=name, mode=mode, vectorized=True)
 
     @classmethod
     def from_csv(cls, problem_path: Path, name: str = None, mode: str = "min"):

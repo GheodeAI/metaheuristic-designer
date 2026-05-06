@@ -32,22 +32,22 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
         capacity = 850
         objfunc = BinKnapsack(weights, values, capacity)
         encoding = TypeCastEncoding(int, bool)
-        pop_initializer = UniformInitializer(objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding, random_state=random_state)
+        pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, pop_size=100, dtype=int, encoding=encoding, random_state=random_state)
 
     elif problem_name == "3sat":
         objfunc = ThreeSAT.from_cnf_file("./data/sat_examples/uf50-03.cnf")
         encoding = TypeCastEncoding(int, bool)
-        pop_initializer = UniformInitializer(objfunc.vecsize, 0, 1, pop_size=100, dtype=int, encoding=encoding, random_state=random_state)
+        pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, pop_size=100, dtype=int, encoding=encoding, random_state=random_state)
 
     elif problem_name == "maxclique":
         g = nx.gnp_random_graph(100, 0.8)
         adj_mat = nx.adjacency_matrix(g).todense()
         objfunc = MaxClique(adj_mat)
-        pop_initializer = PermInitializer(objfunc.vecsize, pop_size=100, random_state=random_state)
+        pop_initializer = PermInitializer(objfunc.dimension, population_size=100, random_state=random_state)
         encoding = TypeCastEncoding(float, int)  # not used for permutations, but kept for consistency
     elif problem_name == "tsp":
         objfunc = TSP.from_csv("data/tsp_examples/r20_02.csv")
-        pop_initializer = PermInitializer(objfunc.vecsize, pop_size=100, random_state=random_state)
+        pop_initializer = PermInitializer(objfunc.dimension, population_size=100, random_state=random_state)
         encoding = TypeCastEncoding(float, int)  # not used for permutations, but kept for consistency
     else:
         raise ValueError(f"The problem '{problem_name}' does not exist.")
@@ -104,7 +104,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
             initializer=pop_initializer,
             parent_sel=create_parent_selection("best", amount=20, random_state=random_state),
             survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
-            p=np.full(objfunc.vecsize, 0.1),
+            p=np.full(objfunc.dimension, 0.1),
             noise=5e-3,
             random_state=random_state,
         ),
@@ -112,7 +112,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
             initializer=pop_initializer,
             parent_sel=create_parent_selection("best", amount=20, random_state=random_state),
             survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
-            p=np.full(objfunc.vecsize, 0.1),
+            p=np.full(objfunc.dimension, 0.1),
             lr=0.1,
             noise=0.2,
             random_state=random_state,

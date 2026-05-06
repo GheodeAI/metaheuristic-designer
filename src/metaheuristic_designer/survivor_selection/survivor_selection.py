@@ -131,5 +131,6 @@ def add_survivor_selection_entry(selection_fn: callable, selection_method_name: 
 
     logger.info('Added a new survivor selection method "%s".', selection_method_name)
 
+
 def list_survivor_selection_methods():
     return list(surv_method_map.keys())

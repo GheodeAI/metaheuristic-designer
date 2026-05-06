@@ -11,7 +11,7 @@ class LinearBoundPenaltyConstraint(PenalizeConstraint):
 
     Parameters
     ----------
-    vecsize: int
+    dimension: int
         size of the input vector (decoded).
     alpha: float, optional
         factor to multiply to the penalty before being applied.
@@ -21,14 +21,14 @@ class LinearBoundPenaltyConstraint(PenalizeConstraint):
         upper limit of the bounds.
     """
 
-    def __init__(self, vecsize, alpha: ScalarLike = 1, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100):
-        self.vecsize = vecsize
+    def __init__(self, dimension, alpha: ScalarLike = 1, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100):
+        self.dimension = dimension
         self.alpha = alpha
         if np.ndim(upper_bound) < 1:
-            upper_bound = np.repeat(upper_bound, vecsize)
+            upper_bound = np.repeat(upper_bound, dimension)
         self.upper_bound = upper_bound
         if np.ndim(lower_bound) < 1:
-            lower_bound = np.repeat(lower_bound, vecsize)
+            lower_bound = np.repeat(lower_bound, dimension)
         self.lower_bound = lower_bound
         self.range_lim = self.upper_bound - self.lower_bound
 

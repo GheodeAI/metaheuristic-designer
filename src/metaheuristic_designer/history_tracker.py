@@ -125,7 +125,7 @@ class HistoryTracker:
 
         if self.track_diversity:
             data_dict["diversity"] = self.diversity
-        
+
         if self.track_parameters:
             # Let pandas do the data reordering and then get back a dictionary
             param_df = pd.DataFrame(self.parameters)

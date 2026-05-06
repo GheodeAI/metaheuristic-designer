@@ -143,7 +143,7 @@ class DummyObjectiveFunction(ObjectiveFunc):
 @pytest.fixture
 def dummy_objfunc():
     obj = DummyObjectiveFunction(name="dummy", mode="max")
-    obj.vecsize = 3
+    obj.dimension = 3
     obj.lower_bound = 0
     obj.upper_bound = 1
     return obj
@@ -158,16 +158,16 @@ def dummy_objfunc_min():
 #  Discrete and permutation objective classes (for simple wrapper tests)
 # -------------------------------------------------------------------
 class DiscreteSumObjective(VectorObjectiveFunc):
-    def __init__(self, vecsize=3, mode="max"):
-        super().__init__(vecsize, lower_bound=0, upper_bound=5, mode=mode, name="DiscreteSum")
+    def __init__(self, dimension=3, mode="max"):
+        super().__init__(dimension, lower_bound=0, upper_bound=5, mode=mode, name="DiscreteSum")
 
     def objective(self, solution):
         return np.sum(solution)
 
 
 class PermutationObjective(VectorObjectiveFunc):
-    def __init__(self, vecsize=4, mode="min"):
-        super().__init__(vecsize, lower_bound=0, upper_bound=vecsize - 1, mode=mode, name="Permutation")
+    def __init__(self, dimension=4, mode="min"):
+        super().__init__(dimension, lower_bound=0, upper_bound=dimension - 1, mode=mode, name="Permutation")
 
     def objective(self, solution):
         diff = np.abs(np.diff(solution))
@@ -177,17 +177,17 @@ class PermutationObjective(VectorObjectiveFunc):
 
 @pytest.fixture
 def binary_objfunc():
-    return MaxOnes(vecsize=5, mode="max")
+    return MaxOnes(dimension=5, mode="max")
 
 
 @pytest.fixture
 def discrete_objfunc():
-    return DiscreteSumObjective(vecsize=4, mode="max")
+    return DiscreteSumObjective(dimension=4, mode="max")
 
 
 @pytest.fixture
 def permutation_objfunc():
-    return PermutationObjective(vecsize=5, mode="min")
+    return PermutationObjective(dimension=5, mode="min")
 
 
 # ===================================================================
@@ -204,7 +204,7 @@ class DummyParameterExtendingEncoding(ParameterExtendingEncoding):
 
     def __init__(self, param_sizes):
         super().__init__(
-            vecsize=1,
+            dimension=1,
             param_sizes=param_sizes,
             base_encoding=DefaultEncoding(),
         )
@@ -259,7 +259,7 @@ def dummy_survivor_selection():
 @pytest.fixture
 def dummy_initializer(rng):
     """Initializer that produces a population of 10 vectors of length 3 (uniform)."""
-    return UniformInitializer(vecsize=3, lower_bound=0, upper_bound=1, pop_size=10, random_state=rng)
+    return UniformInitializer(dimension=3, lower_bound=0, upper_bound=1, pop_size=10, random_state=rng)
 
 
 # ===================================================================
@@ -329,7 +329,7 @@ def perm_pop():
 @pytest.fixture
 def pso_population(dummy_objfunc):
     """A small population with PSOEncoding, fitness, historical best, and speed."""
-    enc = PSOEncoding(vecsize=2, base_encoding=DefaultEncoding())
+    enc = PSOEncoding(dimension=2, base_encoding=DefaultEncoding())
     geno = np.array([[1.0, 2.0, 0.1, 0.2], [3.0, 4.0, 0.3, 0.4]])
     pop = Population(dummy_objfunc, geno, encoding=enc)
     pop.fitness = np.array([0.5, 0.8])
@@ -382,7 +382,7 @@ def dummy_strategy(dummy_initializer, dummy_operator, dummy_parent_selection, du
 # ===================================================================
 @pytest.fixture
 def sphere_objfunc():
-    return Sphere(vecsize=2, mode="min")
+    return Sphere(dimension=2, mode="min")
 
 
 @pytest.fixture

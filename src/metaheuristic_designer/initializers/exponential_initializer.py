@@ -22,15 +22,15 @@ class ExponentialInitializer(Initializer):
         Data type used in each of the components of the vector in the individual.
     """
 
-    def __init__(self, vecsize, beta, pop_size=1, encoding=None, dtype=float, random_state=None):
-        super().__init__(vecsize=vecsize, pop_size=pop_size, encoding=encoding, random_state=random_state)
+    def __init__(self, dimension, beta, pop_size=1, encoding=None, dtype=float, random_state=None):
+        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, random_state=random_state)
 
-        self.vecsize = vecsize
+        self.dimension = dimension
         self.beta = beta
         self.dtype = dtype
 
     def generate_random(self):
-        new_vector_float = self.random_state.exponential(self.beta, size=self.vecsize)
+        new_vector_float = self.random_state.exponential(self.beta, size=self.dimension)
         if isinstance(self.dtype, Integral):
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:

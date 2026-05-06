@@ -35,9 +35,9 @@ class ExtendedOperator(Operator):
         if name is None:
             name = f"{base_operator.name}"
 
-        mask = np.zeros(encoding.vecsize + encoding.nparams)
+        mask = np.zeros(encoding.dimension + encoding.nparams)
 
-        counter = encoding.vecsize
+        counter = encoding.dimension
         for idx, (_, param_num) in enumerate(encoding.param_sizes):
             mask[counter : counter + param_num] = idx + 1
             counter = counter + param_num

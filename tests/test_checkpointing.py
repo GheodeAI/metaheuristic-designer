@@ -99,7 +99,7 @@ def test_checkpoint_time_frequency(tmp_path, rng):
     checkpoint = tmp_path / "time.pkl"
 
     # SleepTest with 0.1s per evaluation guarantees at least two saves
-    sleepy = SleepTest(vecsize=2, sleep_time=0.1, mode="min")
+    sleepy = SleepTest(dimension=2, sleep_time=0.1, mode="min")
     rng_a = np.random.default_rng(42)
     init = UniformInitializer(2, -10, 10, pop_size=3, random_state=rng_a)
     mut = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)

@@ -46,7 +46,7 @@ def test_pso_operator_wrapper_reproducible(rng, dummy_objfunc):
     from metaheuristic_designer.encoding import DefaultEncoding
     from metaheuristic_designer.population import Population
 
-    enc = PSOEncoding(vecsize=2, base_encoding=DefaultEncoding())
+    enc = PSOEncoding(dimension=2, base_encoding=DefaultEncoding())
     geno = np.array([[1.0, 2.0, 0.1, 0.2], [3.0, 4.0, 0.3, 0.4]])
     pop1 = Population(dummy_objfunc, geno.copy(), encoding=enc)
     pop2 = Population(dummy_objfunc, geno.copy(), encoding=enc)

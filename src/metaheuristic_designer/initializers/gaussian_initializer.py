@@ -24,29 +24,29 @@ class GaussianInitializer(Initializer):
         Data type used in each of the components of the vector in the individual.
     """
 
-    def __init__(self, vecsize, g_mean, g_std, pop_size=1, encoding=None, dtype=float, random_state=None):
-        super().__init__(vecsize=vecsize, pop_size=pop_size, encoding=encoding, random_state=random_state)
+    def __init__(self, dimension, g_mean, g_std, pop_size=1, encoding=None, dtype=float, random_state=None):
+        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, random_state=random_state)
 
         if type(g_mean) in [list, tuple, np.ndarray]:
-            if len(g_mean) != vecsize:
-                raise ValueError(f"If g_mean is a sequence it must be of length {vecsize}.")
+            if len(g_mean) != dimension:
+                raise ValueError(f"If g_mean is a sequence it must be of length {dimension}.")
 
             self.g_mean = g_mean
         else:
-            self.g_mean = np.repeat(g_mean, self.vecsize)
+            self.g_mean = np.repeat(g_mean, self.dimension)
 
         if type(g_std) in [list, tuple, np.ndarray]:
-            if len(g_std) != vecsize:
-                raise ValueError(f"If g_std is a sequence it must be of length {vecsize}.")
+            if len(g_std) != dimension:
+                raise ValueError(f"If g_std is a sequence it must be of length {dimension}.")
 
             self.g_std = g_std
         else:
-            self.g_std = np.repeat(g_std, self.vecsize)
+            self.g_std = np.repeat(g_std, self.dimension)
 
         self.dtype = dtype
 
     def generate_random(self):
-        new_vector_float = self.random_state.normal(self.g_mean, self.g_std, size=self.vecsize)
+        new_vector_float = self.random_state.normal(self.g_mean, self.g_std, size=self.dimension)
         if isinstance(self.dtype, Integral):
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:

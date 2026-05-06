@@ -24,7 +24,7 @@ def test_extended_operator_rejects_non_extending_encoding(rng):
 def test_extended_operator_applies_masked_ops(rng, dummy_objfunc):
     # Encoding with solution size=2 and one param "speed" size=2 → total 4 columns
     enc = DummyParameterExtendingEncoding([("speed", 2)])
-    enc.vecsize = 2
+    enc.dimension = 2
 
     # Base operator: adds 10 to the solution part (it receives only solution columns)
     base_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix + 10), random_state=rng)
@@ -49,7 +49,7 @@ def test_extended_operator_applies_masked_ops(rng, dummy_objfunc):
 # ===================================================================
 def test_adaptative_operator_updates_base_operator_kwargs(rng, dummy_objfunc):
     enc = DummyParameterExtendingEncoding([("speed", 2)])
-    enc.vecsize = 2
+    enc.dimension = 2
 
     # Base operator that records kwargs and does nothing else
     recorded_kwargs = {}

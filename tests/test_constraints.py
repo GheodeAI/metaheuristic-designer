@@ -67,13 +67,13 @@ def test_lambda_missing_both_raises():
     ],
 )
 def test_clip_bound_repair(low, high, solution, expected):
-    handler = ClipBoundConstraint(vecsize=len(solution), lower_bound=low, upper_bound=high)
+    handler = ClipBoundConstraint(dimension=len(solution), lower_bound=low, upper_bound=high)
     repaired = handler.repair_solution(solution)
     assert_array_equal(repaired, expected)
 
 
 def test_clip_bound_penalty_zero():
-    handler = ClipBoundConstraint(vecsize=2, lower_bound=0, upper_bound=1)
+    handler = ClipBoundConstraint(dimension=2, lower_bound=0, upper_bound=1)
     assert handler.penalty(np.array([0.5, 0.5])) == 0.0
 
 
@@ -89,19 +89,19 @@ def test_clip_bound_penalty_zero():
     ],
 )
 def test_bounce_bound_repair(low, high, solution, expected):
-    handler = BounceBoundConstraint(vecsize=len(solution), lower_bound=low, upper_bound=high)
+    handler = BounceBoundConstraint(dimension=len(solution), lower_bound=low, upper_bound=high)
     repaired = handler.repair_solution(solution)
     assert_array_equal(repaired, expected)
 
 
 def test_bounce_bound_penalty_zero():
-    handler = BounceBoundConstraint(vecsize=3)
+    handler = BounceBoundConstraint(dimension=3)
     assert handler.penalty(np.array([0.0, 50.0, 200.0])) == 0.0
 
 
 # This test will fail until the code returns an array when bounds are equal
 def test_bounce_bound_equal_lims_returns_array():
-    handler = BounceBoundConstraint(vecsize=3, lower_bound=5.0, upper_bound=5.0)
+    handler = BounceBoundConstraint(dimension=3, lower_bound=5.0, upper_bound=5.0)
     solution = np.array([1.0, 2.0, 3.0])
     result = handler.repair_solution(solution)
     # Should return an array filled with 5.0, not a scalar
@@ -122,19 +122,19 @@ def test_bounce_bound_equal_lims_returns_array():
     ],
 )
 def test_cycle_bound_repair(low, high, solution, expected):
-    handler = CycleBoundConstraint(vecsize=len(solution), lower_bound=low, upper_bound=high)
+    handler = CycleBoundConstraint(dimension=len(solution), lower_bound=low, upper_bound=high)
     repaired = handler.repair_solution(solution)
     np.testing.assert_allclose(repaired, expected)
 
 
 def test_cycle_bound_penalty_zero():
-    handler = CycleBoundConstraint(vecsize=4)
+    handler = CycleBoundConstraint(dimension=4)
     assert handler.penalty(np.array([10.0, -10.0, 0.0, 100.0])) == 0.0
 
 
 # Same potential bug as bounce: equal limits should return an array
 def test_cycle_bound_equal_lims_returns_array():
-    handler = CycleBoundConstraint(vecsize=2, lower_bound=7.0, upper_bound=7.0)
+    handler = CycleBoundConstraint(dimension=2, lower_bound=7.0, upper_bound=7.0)
     solution = np.array([99.0, -99.0])
     result = handler.repair_solution(solution)
     assert isinstance(result, np.ndarray)
@@ -154,14 +154,14 @@ def test_cycle_bound_equal_lims_returns_array():
     ],
 )
 def test_linear_bound_penalty(low, high, alpha, solution, expected_penalty):
-    handler = LinearBoundPenaltyConstraint(vecsize=solution.shape[1], lower_bound=low, upper_bound=high, alpha=alpha)
+    handler = LinearBoundPenaltyConstraint(dimension=solution.shape[1], lower_bound=low, upper_bound=high, alpha=alpha)
     penalty = handler.penalty(solution)  # shape (1,)
     assert penalty.shape == (1,)
     np.testing.assert_allclose(penalty[0], expected_penalty)
 
 
 def test_linear_bound_repair_does_nothing():
-    handler = LinearBoundPenaltyConstraint(vecsize=3, lower_bound=-1, upper_bound=1)
+    handler = LinearBoundPenaltyConstraint(dimension=3, lower_bound=-1, upper_bound=1)
     orig = np.array([0.5, -0.2, 1.2])
     repaired = handler.repair_solution(orig)
     assert_array_equal(repaired, orig)  # it's a PenalizeConstraint, repair just copies
@@ -172,8 +172,8 @@ def test_linear_bound_repair_does_nothing():
 # ===================================================================
 def test_composite_repair_applies_in_order():
     # First handler clips to [-2,2], second clips to [-1,3]
-    h1 = ClipBoundConstraint(vecsize=3, lower_bound=-2, upper_bound=2)
-    h2 = ClipBoundConstraint(vecsize=3, lower_bound=-1, upper_bound=3)
+    h1 = ClipBoundConstraint(dimension=3, lower_bound=-2, upper_bound=2)
+    h2 = ClipBoundConstraint(dimension=3, lower_bound=-1, upper_bound=3)
     comp = CompositeConstraint([h1, h2])
     solution = np.array([-5.0, 0.0, 4.0])
     repaired = comp.repair_solution(solution)
@@ -194,10 +194,10 @@ def test_composite_penalty_sums():
 #  ExtendedConstraintHandler
 # ===================================================================
 def test_extended_handler_repair_and_penalty():
-    # Encoding: vecsize=2, param "a" of size 1
+    # Encoding: dimension=2, param "a" of size 1
     enc = DummyParameterExtendingEncoding([("a", 1)])
-    # Override vecsize (the Dummy sets it to 1, but we can just set it manually)
-    enc.vecsize = 2  # ensure solution part is 2 columns
+    # Override dimension (the Dummy sets it to 1, but we can just set it manually)
+    enc.dimension = 2  # ensure solution part is 2 columns
     # Sub-handlers
     sol_handler = ConstraintHandlerFromLambda(repair_solution_fn=lambda x: x + 1, penalty_fn=lambda x: 0.5)
     param_handler = ConstraintHandlerFromLambda(repair_solution_fn=lambda x: x * 2, penalty_fn=lambda x: 1.0)

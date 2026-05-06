@@ -146,4 +146,3 @@ def list_operators():
         for op_name in registry_map.keys():
             all_ops_list.append(f"{registry_name}.{op_name}")
     return all_ops_list
-

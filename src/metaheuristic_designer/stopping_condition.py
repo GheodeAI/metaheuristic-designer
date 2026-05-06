@@ -47,7 +47,6 @@ class StoppingCondition:
         self.first_best_objective = None
         self.best_objective = None
 
-
     def _validate_required_params(self, source_str: str, context: str):
         """Raise ValueError if a token appears in *source_str* but the
         corresponding parameter is None."""
@@ -59,14 +58,12 @@ class StoppingCondition:
             "real_time_limit": ("real_time_limit", self.real_time_limit),
             "cpu_time_limit": ("cpu_time_limit", self.cpu_time_limit),
             "objective_target": ("objective_target", self.objective_target),
-            "convergence":   ("max_patience", self.max_patience),
+            "convergence": ("max_patience", self.max_patience),
         }
 
         for token, (attr, attr_value) in _token_map.items():
             if token in source_str and attr_value is None:
-                raise ValueError(
-                    f'"{token}" appears in the {context} but "{attr}" is not set.'
-                )
+                raise ValueError(f'"{token}" appears in the {context} but "{attr}" is not set.')
 
     def restart(self):
         self.iterations = 0
@@ -93,7 +90,7 @@ class StoppingCondition:
                     improves = best_objective <= self.prev_best_objective
                 else:
                     improves = best_objective >= self.prev_best_objective
-                
+
                 if improves:
                     self.patience_left -= 1
                 else:
@@ -212,7 +209,7 @@ class StoppingCondition:
                 target_progress = 0
         else:
             target_progress = 0
-            
+
         if (self.max_patience is not None) and (self.optimization_mode in {"min", "max"}):
             patience_percentage = 1 - self.patience_left / self.max_patience
         else:

@@ -45,7 +45,7 @@ def bayesian_optimization_real(
     """
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize,
+        objfunc.dimension,
         objfunc.lower_bound,
         objfunc.upper_bound,
         pop_size=population_size,

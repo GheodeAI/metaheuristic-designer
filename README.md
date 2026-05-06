@@ -80,11 +80,11 @@ from metaheuristic_designer.survivor_selection import create_survivor_selection
 from metaheuristic_designer.algorithms import Algorithm
 
 # 1. Define the problem (5‑dimensional, minimisation)
-objfunc = Sphere(vecsize=5, mode="min")
+objfunc = Sphere(dimension=5, mode="min")
 
 # 2. Create an initializer – random vectors between -10 and 10
 rng = mhd.check_random_state(42)   # fix the random seed for reproducibility
-init = UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound,
+init = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
                           pop_size=100, random_state=rng)
 
 # 3. Build the operators (Gaussian mutation + uniform crossover)

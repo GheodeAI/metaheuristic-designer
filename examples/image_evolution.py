@@ -63,20 +63,20 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     search_strategy_map = {
         "hillclimb": HillClimb(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, encoding=encoding, random_state=random_state
             ),
             operator=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
         ),
         "localsearch": LocalSearch(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, encoding=encoding, random_state=random_state
             ),
             operator=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
             iterations=20,
         ),
         "sa": SA(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, encoding=encoding, random_state=random_state
             ),
             operator=create_operator("mutation.gaussian_mutation", F=10, N=20, random_state=random_state),
             iterations=250,
@@ -85,7 +85,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         ),
         "es": ES(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state
             ),
             mutation_op=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
             crossover_op=create_operator("crossover.uniform", random_state=random_state),
@@ -94,7 +94,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         ),
         "ga": GA(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state
             ),
             mutation_op=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
             crossover_op=create_operator("crossover.uniform", random_state=random_state),
@@ -107,14 +107,14 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         "de": DE(
             de_operator_name="DE/best/1",
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state
             ),
             F=0.8,
             Cr=0.8,
         ),
         "gaussianumda": GaussianUMDA(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1000, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=1000, encoding=encoding, random_state=random_state
             ),
             parent_sel=create_parent_selection("best", amount=100),
             survivor_sel=create_survivor_selection("(m+n)"),
@@ -124,7 +124,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         ),
         "gaussianpbil": GaussianPBIL(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1000, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=1000, encoding=encoding, random_state=random_state
             ),
             parent_sel=create_parent_selection("best", amount=100),
             survivor_sel=create_survivor_selection("(m+n)"),
@@ -135,22 +135,22 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         ),
         "crossentropy": CrossEntropyMethod(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1000, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=1000, encoding=encoding, random_state=random_state
             ),
             random_state=random_state,
         ),
         "randomsearch": RandomSearch(
-            UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state)
+            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state)
         ),
         "nosearch": NoSearch(
-            UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state)
+            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, encoding=encoding, random_state=random_state)
         ),
     }
 
     if alg_name == "pso":
         search_strategy = PSO(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=600, encoding=PSOEncoding(objfunc.vecsize), random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=600, encoding=PSOEncoding(objfunc.dimension), random_state=random_state
             ),
             encoding=encoding,
             w=0.5,
@@ -165,7 +165,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     if memetic:
         local_search = LocalSearch(
             initializer=UniformInitializer(
-                objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=search_strategy.initializer.pop_size, encoding=encoding
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=search_strategy.initializer.pop_size, encoding=encoding
             ),
             operator=create_operator("mutation.uniform_noise", min=-10, max=10, N=3),
             iterations=20,

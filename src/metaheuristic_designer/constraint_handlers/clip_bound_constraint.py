@@ -10,7 +10,7 @@ class ClipBoundConstraint(RepairConstraint):
 
     Parameters
     ----------
-    vecsize: int
+    dimension: int
         size of the input vector (decoded).
     lower_bound: float | ndarray, optional
         lower limit of the bounds.
@@ -18,8 +18,8 @@ class ClipBoundConstraint(RepairConstraint):
         upper limit of the bounds.
     """
 
-    def __init__(self, vecsize, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100):
-        self.vecsize = vecsize
+    def __init__(self, dimension, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100):
+        self.dimension = dimension
         self.lower_bound = np.asarray(lower_bound)
         self.upper_bound = np.asarray(upper_bound)
 

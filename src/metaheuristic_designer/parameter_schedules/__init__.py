@@ -4,6 +4,7 @@ from .logistic_schedule import LogisticSchedule
 from .random_schedule import RandomSchedule
 from .threshold_schedule import ThresholdSchedule
 from .step_schedule import StepSchedule
+from .exponential_decay_schedule import ExponentialDecaySchedule
 
 __all__ = [
     "LinearSchedule",
@@ -12,4 +13,5 @@ __all__ = [
     "SchedulableParameter",
     "StepSchedule",
     "ThresholdSchedule",
+    "ExponentialDecaySchedule"
 ]

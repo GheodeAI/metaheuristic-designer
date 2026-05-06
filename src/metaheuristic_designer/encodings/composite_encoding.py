@@ -13,14 +13,14 @@ class CompositeEncoding(ParameterExtendingEncoding):
 
     def __init__(self, encodings: Iterable[Encoding]):
         self.encodings = encodings
-        vecsize = None
+        dimension = None
         param_sizes = []
         for encoding in encodings:
             if isinstance(encoding, ParameterExtendingEncoding):
                 param_sizes += encoding.param_sizes
-                vecsize = encoding.vecsize if vecsize is None else min(vecsize, encoding.vecsize)
+                dimension = encoding.dimension if dimension is None else min(dimension, encoding.dimension)
 
-        super().__init__(vecsize=vecsize, param_sizes=param_sizes)
+        super().__init__(dimension=dimension, param_sizes=param_sizes)
 
     def encode_func(self, solution: Iterable, params: Optional[dict] = None) -> MatrixLike:
         encoded = solution

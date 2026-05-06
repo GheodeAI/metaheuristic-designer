@@ -27,18 +27,18 @@ real_benchmarks = [
 ]
 
 
-@pytest.mark.parametrize("vecsize", [2, 5, 10, 20, 30])
+@pytest.mark.parametrize("dimension", [2, 5, 10, 20, 30])
 @pytest.mark.parametrize("bench_class", real_benchmarks)
-def test_objective_real(vecsize, bench_class):
-    objfunc = bench_class(vecsize)
-    pop_init = UniformInitializer(vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=42)
+def test_objective_real(dimension, bench_class):
+    objfunc = bench_class(dimension)
+    pop_init = UniformInitializer(dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=42)
 
     if objfunc.vectorized:
         # Vectorized objectives expect a 2‑D batch (population matrix).
         # Create a small population of 2 individuals.
-        pop_init_small = UniformInitializer(vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=2, random_state=42)
+        pop_init_small = UniformInitializer(dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=2, random_state=42)
         population = pop_init_small.generate_population(objfunc)
-        geno_matrix = population.genotype_matrix  # shape (2, vecsize)
+        geno_matrix = population.genotype_matrix  # shape (2, dimension)
         result = objfunc.objective(geno_matrix)  # should return (2,)
 
         assert isinstance(result, np.ndarray)
@@ -46,18 +46,18 @@ def test_objective_real(vecsize, bench_class):
         assert np.issubdtype(result.dtype, np.floating) or np.issubdtype(result.dtype, np.integer)
     else:
         # Non‑vectorized objectives expect a single 1‑D solution vector.
-        rand_vec = pop_init.generate_random()  # shape (vecsize,)
+        rand_vec = pop_init.generate_random()  # shape (dimension,)
         objfunc.objective(rand_vec)
 
 
-@pytest.mark.parametrize("vecsize", [2, 5, 10, 20, 30])
+@pytest.mark.parametrize("dimension", [2, 5, 10, 20, 30])
 @pytest.mark.parametrize("bench_class", real_benchmarks)
-def test_repair_solution(vecsize, bench_class):
-    objfunc = bench_class(vecsize)
+def test_repair_solution(dimension, bench_class):
+    objfunc = bench_class(dimension)
     # Create a small population to get a 2‑D genotype matrix for repair.
-    pop_init = UniformInitializer(vecsize, -1_000_000, 1_000_000, pop_size=3, random_state=42)
+    pop_init = UniformInitializer(dimension, -1_000_000, 1_000_000, pop_size=3, random_state=42)
     population = pop_init.generate_population(objfunc)
-    geno_matrix = population.genotype_matrix  # shape (3, vecsize)
+    geno_matrix = population.genotype_matrix  # shape (3, dimension)
 
     # repair_solution now works on genotypes (2‑D matrices).
     repaired = objfunc.repair_solution(geno_matrix)
@@ -67,11 +67,11 @@ def test_repair_solution(vecsize, bench_class):
     assert repaired.max() <= objfunc.upper_bound
 
 
-@pytest.mark.parametrize("vecsize", [2, 5, 10, 20, 30])
+@pytest.mark.parametrize("dimension", [2, 5, 10, 20, 30])
 @pytest.mark.parametrize("bench_class", real_benchmarks)
-def test_fitness(vecsize, bench_class):
-    objfunc = bench_class(vecsize)
-    pop_init = UniformInitializer(vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=42)
+def test_fitness(dimension, bench_class):
+    objfunc = bench_class(dimension)
+    pop_init = UniformInitializer(dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=42)
     population = pop_init.generate_population(objfunc)
 
     # The fitness method internally calls objective; it works for both vectorized and non‑vectorized.

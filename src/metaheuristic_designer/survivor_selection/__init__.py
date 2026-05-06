@@ -1,5 +1,11 @@
 from ..survivor_selection_base import SurvivorSelection, SurvivorSelectionFromLambda, NullSurvivorSelection
-from .survivor_selection import surv_method_map, SurvivorSelectionDef, create_survivor_selection, add_survivor_selection_entry, list_survivor_selection_methods
+from .survivor_selection import (
+    surv_method_map,
+    SurvivorSelectionDef,
+    create_survivor_selection,
+    add_survivor_selection_entry,
+    list_survivor_selection_methods,
+)
 from .survivor_selection_functions import (
     generational,
     one_to_one,

@@ -209,7 +209,7 @@ class VectorObjectiveFunc(ObjectiveFunc):
 
     Parameters
     ----------
-    vecsize: int
+    dimension: int
         The dimension of the vectors accepted by the objective function.
     mode: str, optional
         Whether to maximize or minimize the function (using the string 'max' or 'min').
@@ -223,7 +223,7 @@ class VectorObjectiveFunc(ObjectiveFunc):
 
     def __init__(
         self,
-        vecsize: int,
+        dimension: int,
         lower_bound: float,
         upper_bound: float,
         constraint_handler: Optional[ConstraintHandler] = None,
@@ -237,11 +237,11 @@ class VectorObjectiveFunc(ObjectiveFunc):
         Constructor for the ObjectiveVectorFunc class
         """
 
-        self.vecsize = vecsize
+        self.dimension = dimension
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
-        bound_constraint_handler = ClipBoundConstraint(vecsize, lower_bound, upper_bound)
+        bound_constraint_handler = ClipBoundConstraint(dimension, lower_bound, upper_bound)
         if constraint_handler is None:
             constraint_handler = bound_constraint_handler
         else:
@@ -276,7 +276,7 @@ class ObjectiveFromLambda(ObjectiveFunc):
     ----------
     obj_func: Callable
         Objective function as a callable object.
-    vecsize: int
+    dimension: int
         The dimension of the vectors accepted by the objective function.
     mode: str, optional
         Whether to maximize or minimize the function (using the string 'max' or 'min').

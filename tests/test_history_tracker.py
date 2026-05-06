@@ -60,7 +60,7 @@ def test_best_solution_is_feasible(algo_with_full_tracker):
     algo.history_tracker.step(algo)
 
     best = algo.history_tracker.best_solutions[-1]
-    assert best.shape == (3,)  # vecsize of dummy_objfunc
+    assert best.shape == (3,)  # dimension of dummy_objfunc
     assert np.all(best >= 0) and np.all(best <= 1)
 
 

@@ -20,7 +20,7 @@ def genetic_algorithm_binary(objfunc, mutated_bits=1, population_size=100, encod
     random_state = check_random_state(random_state)
     encoding = TypeCastEncoding(int, bool) if encoding is None else encoding
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, 0, 1, pop_size=population_size, dtype=np.uint8, encoding=encoding, random_state=random_state
+        objfunc.dimension, 0, 1, pop_size=population_size, dtype=np.uint8, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("mutation.bitflip", N=mutated_bits, random_state=random_state)
     crossover_op = create_operator("crossover.multipoint", random_state=random_state)
@@ -46,7 +46,7 @@ def genetic_algorithm_permutation(objfunc, swapped_positions=2, population_size=
     """
 
     random_state = check_random_state(random_state)
-    pop_initializer = PermInitializer(objfunc.vecsize, pop_size=population_size, encoding=encoding, random_state=random_state)
+    pop_initializer = PermInitializer(objfunc.dimension, population_size=population_size, encoding=encoding, random_state=random_state)
     mutation_op = create_operator("permutation.swap", N=swapped_positions, random_state=random_state)
     crossover_op = create_operator("crossover.multipoint", random_state=random_state)
     parent_sel = create_parent_selection("tournament", amount=20, random_state=random_state)
@@ -72,7 +72,7 @@ def genetic_algorithm_discrete(objfunc, resampled_components=1, population_size=
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=int, encoding=encoding, random_state=random_state
+        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=int, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
     crossover_op = create_operator("crossover.multipoint", random_state=random_state)
@@ -99,7 +99,7 @@ def genetic_algorithm_real(objfunc, mutation_strength=1e-2, mutated_components=1
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=float, encoding=encoding, random_state=random_state
+        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=float, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
     crossover_op = create_operator("crossover.multipoint", random_state=random_state)

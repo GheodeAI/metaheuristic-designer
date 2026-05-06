@@ -15,9 +15,9 @@ class ParameterExtendingEncoding(Encoding, ABC):
     """
 
     def __init__(
-        self, vecsize: int, param_sizes: Iterable[Tuple[str, int]], base_encoding: Optional[Encoding] = None, verify: bool = False, **kwargs
+        self, dimension: int, param_sizes: Iterable[Tuple[str, int]], base_encoding: Optional[Encoding] = None, verify: bool = False, **kwargs
     ):
-        self.vecsize = vecsize
+        self.dimension = dimension
         self.param_sizes = param_sizes
         self.extended_parameters = [p for p, _ in param_sizes]
         self.nparams = sum([param_size for _, param_size in param_sizes])
@@ -53,10 +53,10 @@ class ParameterExtendingEncoding(Encoding, ABC):
         return param_dict
 
     def extract_solution(self, population_matrix: MatrixLike) -> MatrixLike:
-        return population_matrix[:, : self.vecsize]
+        return population_matrix[:, : self.dimension]
 
     def extract_params(self, population_matrix: MatrixLike) -> MatrixLike:
-        return population_matrix[:, self.vecsize :]
+        return population_matrix[:, self.dimension :]
 
     def encode_params(self, param_dict: dict) -> MatrixLike:
         if self.verify:

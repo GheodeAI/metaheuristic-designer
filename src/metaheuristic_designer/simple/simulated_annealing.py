@@ -16,7 +16,7 @@ def simulated_annealing_binary(
     """
 
     encoding = TypeCastEncoding(int, bool) if encoding is None else encoding
-    pop_initializer = UniformInitializer(objfunc.vecsize, 0, 1, pop_size=1, dtype=np.uint8, encoding=encoding, random_state=random_state)
+    pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, pop_size=1, dtype=np.uint8, encoding=encoding, random_state=random_state)
     mutation_op = create_operator("mutation.bitflip", N=mutated_bits, random_state=random_state)
     search_strat = SA(
         pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, random_state=random_state
@@ -32,7 +32,7 @@ def simulated_annealing_permutation(
     This objective function should accept integer coded vectors.
     """
 
-    pop_initializer = PermInitializer(objfunc.vecsize, pop_size=1, encoding=encoding, random_state=random_state)
+    pop_initializer = PermInitializer(objfunc.dimension, population_size=1, encoding=encoding, random_state=random_state)
     mutation_op = create_operator("permutation.swap", N=swapped_positions, random_state=random_state)
     search_strat = SA(
         pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, random_state=random_state
@@ -49,7 +49,7 @@ def simulated_annealing_discrete(
     """
 
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, dtype=int, encoding=encoding, random_state=random_state
+        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, dtype=int, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
     search_strat = SA(
@@ -75,7 +75,7 @@ def simulated_annealing_real(
     """
 
     pop_initializer = UniformInitializer(
-        objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, dtype=float, encoding=encoding, random_state=random_state
+        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, dtype=float, encoding=encoding, random_state=random_state
     )
     mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
     search_strat = SA(

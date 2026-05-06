@@ -23,7 +23,7 @@ def particle_swarm_binary(
     if encoding is None:
         encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize,
+        objfunc.dimension,
         objfunc.lower_bound,
         objfunc.upper_bound,
         pop_size=population_size,
@@ -58,7 +58,7 @@ def particle_swarm_discrete(
     if encoding is None:
         encoding = TypeCastEncoding(float, int)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize,
+        objfunc.dimension,
         objfunc.lower_bound,
         objfunc.upper_bound,
         pop_size=population_size,
@@ -91,7 +91,7 @@ def particle_swarm_real(
     """
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.vecsize,
+        objfunc.dimension,
         objfunc.lower_bound,
         objfunc.upper_bound,
         pop_size=population_size,

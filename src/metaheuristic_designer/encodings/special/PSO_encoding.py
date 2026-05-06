@@ -10,7 +10,7 @@ class PSOEncoding(ParameterExtendingEncoding):
     Encoding used to implement the PSO algorithm.
     """
 
-    def __init__(self, vecsize: int, base_encoding: Optional[Encoding] = None):
-        named_params = [("speed", vecsize)]
+    def __init__(self, dimension: int, base_encoding: Optional[Encoding] = None):
+        named_params = [("speed", dimension)]
 
-        super().__init__(vecsize, named_params, base_encoding)
+        super().__init__(dimension, named_params, base_encoding)
