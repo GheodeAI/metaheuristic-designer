@@ -46,13 +46,16 @@ docs = [
     "sphinx>=7.1.1",
 ]
 
-dev = [
+test = [
     "nox",
     "pytest>=7.4.0",
     "pytest-cov",
     "coverage>=7.3.1",
     "black[jupyter]>=23.10.1",
-    "metaheuristic_designer[docs,examples]"
+]
+
+dev = [
+    "metaheuristic-designer[examples,docs,test]"
 ]
 
 [tool.black]
