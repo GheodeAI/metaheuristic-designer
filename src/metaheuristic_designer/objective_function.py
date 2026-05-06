@@ -109,7 +109,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         if parallel:
             logger.warning("Parallel fitness computing not available at the moment. Ignoring parallel option.")
 
-        logger.info("Calculating fitness of the population...")
+        logger.debug("Calculating fitness of the population...")
         fitness = population.fitness
         objective = population.objective
         solutions = population.decode()

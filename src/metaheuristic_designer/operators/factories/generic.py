@@ -138,3 +138,12 @@ def add_operator_entry(operator_fn: callable, operator_name: str, operator_regis
         order_preserving_operators.add(operator_name)
 
     logger.info('Added a new operator "%s" in registry "%s"', operator_name, operator_registry)
+
+
+def list_operators():
+    all_ops_list = []
+    for registry_name, registry_map in all_ops_map.items():
+        for op_name in registry_map.keys():
+            all_ops_list.append(f"{registry_name}.{op_name}")
+    return all_ops_list
+

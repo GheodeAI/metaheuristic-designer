@@ -151,13 +151,14 @@ of the population).
 
    from metaheuristic_designer.operators import add_operator_entry, OperatorVectorDef, create_operator
 
+   @OperatorVectorDef
    def add_gaussian_noise(matrix, fitness, random_state, F=0.1):
        rng = np.random.default_rng(random_state)
        noise = rng.normal(0, F, size=matrix.shape)
        return matrix + noise
 
    # Register the operator – you must wrap it in OperatorVectorDef
-   add_operator_entry(OperatorVectorDef(add_gaussian_noise), "my_noise", "custom")
+   add_operator_entry(add_gaussian_noise, "my_noise", "custom")
    op = create_operator("custom.my_noise", F=0.3)
 
 Population‑level (advanced)

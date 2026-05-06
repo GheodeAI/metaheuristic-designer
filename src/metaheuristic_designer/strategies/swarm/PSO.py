@@ -3,6 +3,7 @@ import logging
 from typing import Optional
 import numpy as np
 
+from ...objective_function import ObjectiveFunc
 from ...constraint_handlers.extended_constraint import ExtendedConstraintHandler
 from ...encodings.composite_encoding import CompositeEncoding
 from ...encodings.special.PSO_encoding import PSOEncoding
@@ -25,7 +26,6 @@ class PSO(StaticPopulation):
     def __init__(
         self,
         initializer: Initializer,
-        population_size: int = 100,
         lower_bound: float = -100,
         upper_bound: float = 100,
         name: str = "PSO",
@@ -42,9 +42,7 @@ class PSO(StaticPopulation):
             encoding = CompositeEncoding([PSOEncoding(initializer.vecsize), encoding])
 
         self.abs_upper_bound = np.maximum(np.abs(lower_bound), np.abs(upper_bound))
-        if initializer is None:
-            initializer = (UniformInitializer(encoding.vecsize, lower_bound, upper_bound, pop_size=population_size, random_state=random_state),)
-        elif not isinstance(initializer.encoding, ParameterExtendingEncoding):
+        if not isinstance(initializer.encoding, ParameterExtendingEncoding):
             logger.info("Overwritten initializer's encoding with PSO encoding.")
             initializer.encoding = encoding
 
@@ -64,9 +62,10 @@ class PSO(StaticPopulation):
 
         super().__init__(initializer, operator=pso_op, name=name, **kwargs)
 
-    def initialize(self, objfunc):
+    def initialize(self, objfunc: ObjectiveFunc):
         if not isinstance(objfunc.constraint_handler, ExtendedConstraintHandler):
             objfunc.add_parameter_constraints(
                 self.encoding, {"speed": BounceBoundConstraint(self.encoding.vecsize, -self.abs_upper_bound, self.abs_upper_bound)}
             )
+        logger.info("Overwritten constraint's encoding with custom extended encoding. The objective must be reloaded for use with other algorithms.")
         return super().initialize(objfunc)

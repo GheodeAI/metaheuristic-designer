@@ -322,6 +322,7 @@ class Algorithm:
 
         # initialize clocks
         if not resume:
+            self.restart()
             self.stopping_condition.restart()
 
         # Initialize search strategy and record initial values.
@@ -333,7 +334,7 @@ class Algorithm:
         logger.info("Starting main optimization loop...")
         try:
             while not self.stopping_condition.is_finished(self.search_strategy.finish):
-                logger.info("Started iteration %d...", self.iterations)
+                logger.debug("Started iteration %d...", self.iterations)
 
                 population = self.step(population=population)
 

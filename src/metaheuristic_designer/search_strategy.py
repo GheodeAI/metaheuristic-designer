@@ -162,7 +162,7 @@ class SearchStrategy(ParametrizableMixin):
             A pair of the list of individuals considered as parents and their position in the original population.
         """
 
-        logger.info("Selected parents...")
+        logger.debug("Selected parents...")
         return self.parent_sel(population, amount=amount)
 
     def perturb(self, parents: Population, **kwargs) -> Population:
@@ -183,7 +183,7 @@ class SearchStrategy(ParametrizableMixin):
         offspring = self.operator.evolve(parents, self.initializer)
         offspring = self.repair_population(offspring)
 
-        logger.info("Applied perturbation operators...")
+        logger.debug("Applied perturbation operators...")
         return offspring
 
     def repair_population(self, population: Population) -> Population:
@@ -201,7 +201,7 @@ class SearchStrategy(ParametrizableMixin):
             The population of repaired individuals
         """
 
-        logger.info("Applied hard constraints...")
+        logger.debug("Applied hard constraints...")
         return population.repair_solutions()
 
     def select_individuals(self, population: Population, offspring: Population, **kwargs) -> Population:
@@ -221,7 +221,7 @@ class SearchStrategy(ParametrizableMixin):
             The list of individuals selected for the next generation.
         """
 
-        logger.info("Selected survivors...")
+        logger.debug("Selected survivors...")
         return self.survivor_sel(population, offspring)
 
     def step(self, progress: float):

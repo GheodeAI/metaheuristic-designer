@@ -1,4 +1,4 @@
-from .generic import all_ops_map, bo_aliases, null_aliases, create_operator, add_operator_entry
+from .generic import all_ops_map, bo_aliases, null_aliases, create_operator, add_operator_entry, list_operators
 from .random import random_ops_map, create_random_operator
 from .mutation import mutation_ops_map, create_mutation_operator
 from .crossover import crossover_ops_map, create_crossover_operator
@@ -8,6 +8,7 @@ from .swarm import swarm_ops_map, create_swarm_operator
 from .debug import debug_ops_map, create_debug_operator
 
 __all__ = [
+    "list_operators",
     "add_operator_entry",
     "all_ops_map",
     "bo_aliases",

@@ -161,7 +161,8 @@ A few built-in operators do **not** follow the factory pattern:
 
 **IMPORTANT**: For the full catalogue of factory-available operators (mutation, crossover, permutation, DE,
 swarm, …) and the probability distributions they support, see the
-:doc:`Operator Methods <api_reference.methods>` page.
+:doc:`Operator Methods <api_reference.methods>` page. To see all available operators at runtime, call
+:func:`metaheuristic_designer.operators.list_operators`. 
 
 For writing and registering your own operators, refer to the
 :doc:`Custom Components <api_reference.custom_components>` guide.

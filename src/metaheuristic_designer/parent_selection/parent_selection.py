@@ -104,3 +104,6 @@ def add_parent_selection_entry(selection_fn: callable, selection_method_name: st
     parent_sel_map[selection_method_name] = selection_fn
 
     logger.info('Added a new parent selection method "%s".', selection_method_name)
+
+def list_parent_selection_methods():
+    return list(parent_sel_map.keys())

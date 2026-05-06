@@ -2,6 +2,42 @@
 API reference, Implemented Operators
 ====================================
 
+Discovering Available Components
+--------------------------------
+
+The library’s operator and selection factories can be explored **interactively**
+at runtime.  Every registered method is accessible by name, and you can list
+all currently available keys with a single function call.
+
+.. code-block:: python
+
+   from metaheuristic_designer.operators import list_operators
+   from metaheuristic_designer.parent_selection import list_parent_selection_methods
+   from metaheuristic_designer.survivor_selection import list_survivor_selection_methods
+
+   # Print every operator (mutation, crossover, DE, swarm, …)
+   print(list_operators())
+
+   # Print every parent / survivor selection method
+   print(list_parent_selection_methods())
+   print(list_survivor_selection_methods())
+
+These lists update automatically when you register custom components with
+:func:`add_operator_entry` or the corresponding selection registration
+functions, so they always reflect the current state of your environment.
+
+You can also filter by category, e.g. all mutation operators:
+
+.. code-block:: python
+
+   mut_ops = [op for op in list_operators() if op.startswith("mutation.")]
+
+The tables below catalogue every built‑in operator and selection method,
+along with their parameters.  Treat this page as your **interactive cheat
+sheet** – open it while you code.
+
+.. _operator-methods:
+
 Implemented Operators
 =====================
 
@@ -317,3 +353,10 @@ Survivor Selection
 
 For guidance on writing your own parent or survivor selection functions and
 registering them with the factories, refer to the :doc:`Custom Components <api_reference.custom_components>` page.
+
+.. _selection-discovery-note:
+
+Need to see what’s available right now?  The functions
+:func:`~metaheuristic_designer.parent_selection.list_parent_selection_methods`
+and :func:`~metaheuristic_designer.survivor_selection.list_survivor_selection_methods`
+return live lists – perfect for prototyping.
