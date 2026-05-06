@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from .experiment_runner import Experiment
+from .experiment_runner import run_experiment
 try:
     from . import external_wrappers
     from .external_wrappers import *

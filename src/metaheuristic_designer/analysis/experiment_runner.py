@@ -50,7 +50,7 @@ def run_experiment(problems, algorithms, max_evals, n_runs=30, base_seed=42,
             # Deterministic, non‑colliding seed for this (problem, run) pair.
             # Three primes ensure no two (p_idx, r) map to the same seed
             # for any realistic experiment size.
-            seed = base_seed * 1103515245 + p_idx * 12345 + r * 1103515249
+            seed = (base_seed * 1103515245 + p_idx * 12345 + r * 1103515249) & 0xFFFFFFFF
 
             # Reset the problem to its initial state (counter + IOH transforms)
             problem.restart()
