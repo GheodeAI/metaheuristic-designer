@@ -1,5 +1,3 @@
-# Algorithm verification
-Here a number of different algorithms with different configurations are tested on a set of benchmark functions.
+# Experiments directory
 
-The results are contained in the `data` directory and will be statistically analyzed in `data_analysis` to ensure every package implements
-algorithms tha give statistically equivalent results.
+This directory contains (or will contain) scripts for running experiments for validation of the repo and comparison with other libraries.
