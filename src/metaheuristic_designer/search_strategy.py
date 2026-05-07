@@ -88,7 +88,7 @@ class SearchStrategy(ParametrizableMixin):
         Gets the amount of individuals in the population.
         """
 
-        return self.initializer.pop_size
+        return self.initializer.population_size
 
     def gather_parameters(self):
         param_dict = {f"{self.parent_sel.name}.{k}": v for k, v in self.parent_sel.gather_params().items()}
@@ -301,7 +301,7 @@ class SearchStrategyFromLambda(SearchStrategy):
 
         if callable(parent_sel):
             if parent_selection_amount is None:
-                parent_selection_amount = initializer.pop_size
+                parent_selection_amount = initializer.population_size
             parent_sel = ParentSelectionFromLambda(selection_fn=parent_sel, amount=parent_selection_amount, random_state=random_state)
 
         if callable(operator):

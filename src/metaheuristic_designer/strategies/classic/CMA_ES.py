@@ -41,7 +41,7 @@ class CMA_ES(VariablePopulation):
         super().__init__(
             initializer,
             operator=create_operator("mutation.full_resampling", distrib="multivariate_normal", mean=None, cov=None),
-            parent_sel=create_parent_selection("best", amount=initializer.pop_size),
+            parent_sel=create_parent_selection("best", amount=initializer.population_size),
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,
             name=name,

@@ -1,8 +1,9 @@
+from typing import Optional
 import warnings
 import enum
 from enum import Enum
 import numpy as np
-from ..utils import check_random_state
+from ..utils import MatrixLike, RNGLike, VectorLike, check_random_state
 
 
 class SelectionDist(Enum):
@@ -145,7 +146,7 @@ def prob_tournament(fitness, amount, random_state=None, tournament_size=3, prob=
 
 def uniform_selection(fitness, amount, random_state=None):
     """
-    Chooses a number of individuals from the population at random.
+    Chooses a number of individuals from the population at random with replacement.
 
     Parameters
     ----------
@@ -164,6 +165,37 @@ def uniform_selection(fitness, amount, random_state=None):
 
     # Take a random sample of individuals
     return random_state.integers(0, fitness.shape[0], amount)
+
+
+def shuffle_population(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None):
+    """
+    Chooses a number of individuals from the population at random without replacement if amount < population_size.
+    If we cannot pich without replacement, we at least make sure we pick every individual at least
+    :math:`\left\lceil \frac{\text{amount}}{\text{population\_size}} \right\rceil` times
+
+    Parameters
+    ----------
+    population: ndarray
+        List of individuals from which the parents will be selected.
+    amount: int
+        Amount of individuals to be chosen as parents.
+
+    Returns
+    -------
+    parents: ndarray
+        List of individuals chosen as parents.
+    """
+    random_state = check_random_state(random_state)
+
+    population_size = fitness.shape[0]
+
+    if amount <= population_size:
+        picked_idx = random_state.permuted(np.arange(population_size))[:amount]
+    else:
+        idx_choice = np.tile(np.arange(population_size), (np.ceil(population_size/amount), 1))
+        picked_idx = random_state.permuted(idx_choice, axis=1).ravel()[:amount]
+    
+    return picked_idx
 
 
 def roulette(fitness, amount, random_state=None, method=None, f=None):

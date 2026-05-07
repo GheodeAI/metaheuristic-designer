@@ -300,7 +300,7 @@ def sample_distribution(shape, loc=None, scale=None, random_state=None, **kwargs
             p = kwargs.get("p", 0.5)
             prob_distrib = sp.stats.bernoulli(p, loc=loc)
         case ProbDist.VONMISES:
-            mu = kwargs.get("mu", np.random.uniform(-1, 1, shape))
+            mu = kwargs.get("mu", random_state.uniform(-1, 1, shape))
             if mu.ndim <= 1:
                 mu = mu / np.linalg.norm(mu)
             else:

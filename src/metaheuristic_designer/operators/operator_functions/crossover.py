@@ -12,8 +12,17 @@ def one_point_crossover(population_array, _fitness_array, random_state=None):
 
     random_state = check_random_state(random_state)
 
-    if population_array.shape[1] == 1:
+    population_size = population_array.shape[0]
+    n_components = population_array.shape[0]
+
+    if n_components == 1:
         return population_array
+
+    if population_size % 2 != 0:
+        # Drop one random individual (does not depend on pairing)
+        idx = random_state.permutation(population_size)
+        population_array = population_array[idx[:population_size-1]]
+        population_size -= 1
 
     half_size = population_array.shape[0] / 2
     parents1 = population_array[: math.ceil(half_size)]
