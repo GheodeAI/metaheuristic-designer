@@ -7,7 +7,7 @@ from .constraint_handler import ConstraintHandler, ConstraintHandlerFromLambda, 
 from . import constraint_handlers
 
 from .parametrizable_mixin import ParametrizableMixin
-from .schedulable_parameter import SchedulableParameter
+from .schedulable_parameter import SchedulableParameter, ParameterFromLambda
 from . import parameter_schedules
 
 from .algorithm import Algorithm
