@@ -52,6 +52,7 @@ test = [
     "pytest-cov",
     "coverage>=7.3.1",
     "black[jupyter]>=23.10.1",
+    "hypothesis>=6.0.0",
 ]
 
 dev = [
