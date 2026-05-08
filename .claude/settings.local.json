@@ -6,7 +6,10 @@
       "Bash(Sort-Object)",
       "Bash(git ls-tree *)",
       "Bash(conda run *)",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "Bash(git rm *)",
+      "Bash(sort -t'%' -k1 -n)",
+      "Bash(grep \"src\\\\\\\\\")"
     ]
   }
 }

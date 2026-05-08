@@ -133,3 +133,47 @@ This document records all issues detected during static analysis, source code in
 - **Impact:** Pipelines that combine operators with heterogeneous encodings inside a `CompositeOperator` may silently produce wrong results.
 - **Evidence:** `CompositeOperator.evolve()` iterates `for op in self.operators: population = op.evolve(population, initializer)`. The base `Operator.__call__` applies encoding transformations, but `evolve` is called directly, bypassing them.
 - **Possible correction:** Call `op(population, initializer)` (i.e., `__call__`) instead of `op.evolve(population, initializer)` to trigger encoding transformations.
+
+---
+
+## Error 13: `CompositeEncoding.encode_func` / `decode_func` crash on non-`ParameterExtendingEncoding` members
+
+- **File/script:** `src/metaheuristic_designer/encodings/composite_encoding.py`
+- **Affected element:** `CompositeEncoding.encode_func()`, `CompositeEncoding.decode_func()`
+- **Description:** `CompositeEncoding` is designed for `ParameterExtendingEncoding` sub-encodings. It iterates over `self.encodings` and calls `encoding.encode_func(population)` / `encoding.decode_func(population)`. However, the base `Encoding` class only defines `encode(population)` and `decode(population)`, not `encode_func` and `decode_func`. If any member of `self.encodings` is a plain `Encoding` subclass (not a `ParameterExtendingEncoding`), an `AttributeError` is raised.
+- **Impact:** Using `CompositeEncoding` with non-`ParameterExtendingEncoding` members causes `AttributeError` at runtime. The failure is silent until the encoding is actually used during evolution.
+- **Evidence:** `AttributeError: 'TypeCastEncoding' object has no attribute 'encode_func'` raised when calling `composite.decode_func(pop)` with a `TypeCastEncoding` member.
+- **Possible correction:** Add a runtime check in `CompositeEncoding.__init__` that validates all members are `ParameterExtendingEncoding` instances, and raise a descriptive `TypeError` early. Alternatively, fall back to `encode`/`decode` for members that do not have `encode_func`/`decode_func`.
+
+---
+
+## Error 14: `Population.debug_repr()` raises `ValueError` on an empty population
+
+- **File/script:** `src/metaheuristic_designer/population.py`
+- **Affected element:** `Population.debug_repr()`
+- **Description:** `debug_repr()` calls `self.fitness.min()` and `self.fitness.max()` unconditionally. When the population has zero individuals (empty `genotype_matrix`), `fitness` is an empty array and `min()`/`max()` raise `ValueError: zero-size array to reduction operation minimum which has no identity`.
+- **Impact:** Any diagnostic code that calls `debug_repr()` on an empty or uninitialized population (e.g., during debugging, testing, or logging) will crash with an uninformative `ValueError`.
+- **Evidence:** `ValueError: zero-size array to reduction operation minimum which has no identity` when constructing `Population(objfunc, np.empty((0, 4)))` and calling `.debug_repr()`.
+- **Possible correction:** Add an early guard: if `len(self.fitness) == 0`, return a placeholder string like `"Population(empty)"`.
+
+---
+
+## Error 15: `SeedProbInitializer.generate_individual()` fails when `solutions` is a `Population` object
+
+- **File/script:** `src/metaheuristic_designer/initializers/seed_initializer.py`
+- **Affected element:** `SeedProbInitializer.generate_individual()`
+- **Description:** When `solutions` is a `Population` object, `generate_individual()` calls `self.random_state.choice(self.solutions, axis=0)`. NumPy's `random_state.choice` does not accept a `Population` object; it requires a 1-D array or an integer. This raises `ValueError: a must be a 1-dimensional array or an integer`. In contrast, `SeedDetermInitializer` correctly handles the `Population` case by accessing `.genotype_matrix`.
+- **Impact:** `SeedProbInitializer` cannot be used with `Population` objects as `solutions`, despite `SeedDetermInitializer` supporting this use case. The inconsistency in the sibling class creates a confusing API.
+- **Evidence:** `ValueError: a must be a 1-dimensional array or an integer` when calling `init.generate_individual()` with a `Population` passed as `solutions`.
+- **Possible correction:** In `SeedProbInitializer.generate_individual()`, add a check similar to `SeedDetermInitializer`: `if isinstance(self.solutions, Population): solutions_matrix = self.solutions.genotype_matrix else: solutions_matrix = self.solutions`. Then sample from `solutions_matrix`.
+
+---
+
+## Error 16: EDA strategies are not fully reproducible across independent runs with the same seed
+
+- **File/script:** `src/metaheuristic_designer/strategies/EDA/PBIL.py` and/or `src/metaheuristic_designer/initializers/`
+- **Affected element:** `BernoulliPBIL` (and likely all EDA strategies)
+- **Description:** Two consecutive calls to `_build_pbil(dim=8, seed=42).optimize().best_solution()[1]` with identical configuration produce different fitness values (observed: 8.0 vs 7.0). Despite seeding both the strategy and the initializer with the same value, something advances a global or shared random state between runs. This is consistent with a component somewhere in the EDA pipeline calling `np.random.*` (global state) instead of `self.random_state`.
+- **Impact:** EDA experiments are not reproducible. Running the same algorithm twice with the same seed will produce different results, making benchmark comparisons and regression testing unreliable.
+- **Evidence:** `test_pbil_binary_reproducible` fails when run after other tests in the suite, indicating that global RNG state is being consumed and not reset between runs. The test is marked `xfail`.
+- **Possible correction:** Audit all components in the EDA execution path (initializer, strategy, operator functions, distribution sampling) for calls to `np.random.*` and replace them with calls to the injected `self.random_state`.
