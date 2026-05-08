@@ -192,9 +192,9 @@ def shuffle_population(fitness: VectorLike, amount: int, random_state: Optional[
     if amount <= population_size:
         picked_idx = random_state.permuted(np.arange(population_size))[:amount]
     else:
-        idx_choice = np.tile(np.arange(population_size), (np.ceil(population_size/amount), 1))
+        idx_choice = np.tile(np.arange(population_size), (np.ceil(population_size / amount), 1))
         picked_idx = random_state.permuted(idx_choice, axis=1).ravel()[:amount]
-    
+
     return picked_idx
 
 

@@ -13,6 +13,7 @@ from ..schedulable_parameter import SchedulableParameter
 
 logger = logging.getLogger(__name__)
 
+
 class VariablePopulation(SearchStrategy):
     """
     Population-based optimization strategy where the number of individuals generated is different from the size of the population
@@ -37,7 +38,7 @@ class VariablePopulation(SearchStrategy):
 
         if offspring_size is None:
             offspring_size = initializer.population_size
-        
+
         self.shuffle_with_replacement = shuffle_with_replacement
 
         super().__init__(
@@ -67,10 +68,10 @@ class VariablePopulation(SearchStrategy):
         """
 
         offspring_size = self.params.offspring_size
-        
+
         if not self.using_custom_offspring_size:
             self.update_kwargs(offspring_size=new_initializer.pop_size)
-            
+
         if self.shuffle_with_replacement:
             self.population_shuffler = create_parent_selection("random_with_replacement", amount=offspring_size, random_state=self.random_state)
         else:
