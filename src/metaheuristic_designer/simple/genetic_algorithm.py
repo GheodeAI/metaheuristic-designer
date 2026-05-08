@@ -99,7 +99,13 @@ def genetic_algorithm_real(objfunc, mutation_strength=1e-2, mutated_components=1
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=float, encoding=encoding, random_state=random_state
+        objfunc.dimension,
+        objfunc.lower_bound,
+        objfunc.upper_bound,
+        pop_size=population_size,
+        dtype=float,
+        encoding=encoding,
+        random_state=random_state,
     )
     mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
     crossover_op = create_operator("crossover.multipoint", random_state=random_state)

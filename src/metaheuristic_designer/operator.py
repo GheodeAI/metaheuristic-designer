@@ -177,6 +177,20 @@ class OperatorFromLambda(Operator):
         super().__init__(name, encoding=encoding, preserves_order=preserves_order, random_state=random_state, **kwargs)
         self.operator_fn = operator_fn
 
+    @classmethod
+    def decorator(
+        cls,
+        name: Optional[str] = None,
+        encoding: Optional[Encoding] = None,
+        preserves_order: bool = False,
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
+    ):
+        def wrapper(operator_fn):
+            return cls(operator_fn, name=name, encoding=encoding, preserves_order=preserves_order, random_state=random_state, **kwargs)
+
+        return wrapper
+
     @staticmethod
     def _validate_function(operator_fn: Callable):
         operator_sig = inspect.signature(operator_fn)

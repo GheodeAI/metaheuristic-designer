@@ -90,7 +90,13 @@ def evolution_strategy_real(
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=population_size, dtype=float, encoding=encoding, random_state=random_state
+        objfunc.dimension,
+        objfunc.lower_bound,
+        objfunc.upper_bound,
+        pop_size=population_size,
+        dtype=float,
+        encoding=encoding,
+        random_state=random_state,
     )
     mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
     method = "keep_best" if elitist else "keep_offspring"

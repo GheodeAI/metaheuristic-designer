@@ -20,10 +20,11 @@ class SchedulableParameter(ABC):
             _description_
         """
 
+
 class ParameterFromLambda(SchedulableParameter):
     def __init__(self, schedule_fn: Callable, random_state: Optional[RNGLike] = None):
         super().__init__()
         self.schedule_fn = schedule_fn
-    
+
     def evaluate(self, progress: float) -> Any:
         return self.schedule_fn(progress)
