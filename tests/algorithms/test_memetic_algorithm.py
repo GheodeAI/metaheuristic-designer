@@ -73,7 +73,7 @@ def test_initialize_calls_local_search_initialize(dummy_objfunc, dummy_strategy,
     )
     pop = algo.initialize()
     assert local_search.population is not None
-    assert len(local_search.population) == dummy_initializer.pop_size
+    assert len(local_search.population) == dummy_initializer.population_size
 
 
 # ===================================================================

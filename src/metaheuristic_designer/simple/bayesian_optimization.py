@@ -48,7 +48,7 @@ def bayesian_optimization_real(
         objfunc.dimension,
         objfunc.lower_bound,
         objfunc.upper_bound,
-        pop_size=population_size,
+        population_size=population_size,
         dtype=float,
         encoding=encoding,
         random_state=random_state,

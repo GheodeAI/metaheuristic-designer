@@ -8,7 +8,7 @@ from metaheuristic_designer import (
 )
 from metaheuristic_designer.algorithms import Algorithm
 from metaheuristic_designer.strategies import HillClimb
-from metaheuristic_designer.operators import OperatorVectorDef
+from metaheuristic_designer.operators import OperatorFnDef
 
 
 # ----------------------------------------------------------------------
@@ -38,7 +38,7 @@ def initializer_fn(random_state=None):
 # ----------------------------------------------------------------------
 # 4. Mutation operator: add Gaussian noise to ~70% of the components
 # ----------------------------------------------------------------------
-@OperatorVectorDef
+@OperatorFnDef
 def mutate_fn(population_matrix, fitness_array=None, random_state=None, **_):
     """
     Perturb each row (solution) by adding a small Gaussian noise

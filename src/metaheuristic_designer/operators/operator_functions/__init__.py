@@ -6,13 +6,13 @@ from . import permutation
 from . import swarm
 from . import utils
 from .mutation import ProbDist
-from .utils import OperatorVectorDef, OperatorRandomDef, OperatorSwarmDef, ObtainStatisticDef
+from .utils import OperatorFnDef, OperatorRandomDef, OperatorSwarmDef, ObtainStatisticDef
 
 __all__ = [
     "ObtainStatisticDef",
     "OperatorRandomDef",
     "OperatorSwarmDef",
-    "OperatorVectorDef",
+    "OperatorFnDef",
     "ProbDist",
     "crossover",
     "differential_evolution",

@@ -34,14 +34,16 @@ class CMA_ES(VariablePopulation):
     ):
         self.random_state = check_random_state(random_state)
 
-        logger.info("In CMA-ES the initializer does not generate solutions, it merely indicates the population size and encoding. Don't expect different results from changing the initializer.")
+        logger.info(
+            "In CMA-ES the initializer does not generate solutions, it merely indicates the population size and encoding. Don't expect different results from changing the initializer."
+        )
         self._b_matrix = None
         self._d_diag = None
 
         super().__init__(
             initializer,
             operator=create_operator("mutation.full_resampling", distrib="multivariate_normal", mean=None, cov=None),
-            parent_sel=create_parent_selection("best", amount=initializer.pop_size),
+            parent_sel=create_parent_selection("best", amount=initializer.population_size),
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,
             name=name,
@@ -61,9 +63,9 @@ class CMA_ES(VariablePopulation):
                     "Using random mean since no lower bounds could be found in the objective function. This can lead to bad convergence properties."
                 )
                 computed_mean = self.initializer.generate_individual()
-            
+
             self.update_kwargs(mean=np.atleast_1d(computed_mean).astype(float))
-        
+
         if self.params.sigma is None:
             if hasattr(objfunc, "lower_bound") and hasattr(objfunc, "upper_bound"):
                 # Recommendation from: The CMA Evolution Strategy: A Tutorial (Nikolaus Hansen)
@@ -71,7 +73,7 @@ class CMA_ES(VariablePopulation):
             else:
                 sigma = 0.5
             self.update_kwargs(sigma=np.atleast_1d(sigma).astype(float))
-        
+
         # Update the operator's parameters since they were undefined in the constructor
         self.operator.update_kwargs(mean=self.params.mean, cov=self.params.cov)
 

@@ -1,47 +1,47 @@
 from ...operator import OperatorFromLambda
 from ..operator_functions.permutation import *
-from ..operator_functions.utils import OperatorVectorDef
+from ..operator_functions.utils import OperatorFnDef
 
 # fmt: off
 permutation_ops_map = {
     # Swap components
-    "swap": OperatorVectorDef(permute_mutation, forced_params={"N": 2}),
-    "swap_mutation": OperatorVectorDef(permute_mutation, forced_params={"N": 2}),
-    "two_swap": OperatorVectorDef(permute_mutation, forced_params={"N": 2}),
+    "swap": OperatorFnDef(permute_mutation, forced_params={"N": 2}),
+    "swap_mutation": OperatorFnDef(permute_mutation, forced_params={"N": 2}),
+    "two_swap": OperatorFnDef(permute_mutation, forced_params={"N": 2}),
 
     # Shift
-    "shift": OperatorVectorDef(roll_mutation, forced_params={"N": 1}),
-    "insert": OperatorVectorDef(roll_mutation, forced_params={"N": 1}),
-    "roll1": OperatorVectorDef(roll_mutation, forced_params={"N": 1}),
-    "block_shift": OperatorVectorDef(roll_mutation, forced_params={"N": 1}),
+    "shift": OperatorFnDef(roll_mutation, forced_params={"N": 1}),
+    "insert": OperatorFnDef(roll_mutation, forced_params={"N": 1}),
+    "roll1": OperatorFnDef(roll_mutation, forced_params={"N": 1}),
+    "block_shift": OperatorFnDef(roll_mutation, forced_params={"N": 1}),
 
     # Scramble
-    "scramble": OperatorVectorDef(permute_mutation),
-    "perm": OperatorVectorDef(permute_mutation),
-    "permutate": OperatorVectorDef(permute_mutation),
-    "scramble_mutation": OperatorVectorDef(permute_mutation),
-    "permutation_mutation": OperatorVectorDef(permute_mutation),
-    "permute_components": OperatorVectorDef(permute_mutation),
+    "scramble": OperatorFnDef(permute_mutation),
+    "perm": OperatorFnDef(permute_mutation),
+    "permutate": OperatorFnDef(permute_mutation),
+    "scramble_mutation": OperatorFnDef(permute_mutation),
+    "permutation_mutation": OperatorFnDef(permute_mutation),
+    "permute_components": OperatorFnDef(permute_mutation),
 
     # Reverse
-    "invert": OperatorVectorDef(invert_mutation),
-    "reverse": OperatorVectorDef(invert_mutation),
-    "inversion_mutation": OperatorVectorDef(invert_mutation),
+    "invert": OperatorFnDef(invert_mutation),
+    "reverse": OperatorFnDef(invert_mutation),
+    "inversion_mutation": OperatorFnDef(invert_mutation),
 
     # Roll
-    "roll": OperatorVectorDef(roll_mutation),
-    "roll_mutation": OperatorVectorDef(roll_mutation),
-    "cyclic_shift": OperatorVectorDef(roll_mutation),
+    "roll": OperatorFnDef(roll_mutation),
+    "roll_mutation": OperatorFnDef(roll_mutation),
+    "cyclic_shift": OperatorFnDef(roll_mutation),
 
     # Partially mapped crossover
-    "pmx": OperatorVectorDef(pmx),
-    "pmx_crossover": OperatorVectorDef(pmx),
-    "partially_mapped_crossover": OperatorVectorDef(pmx),
+    "pmx": OperatorFnDef(pmx),
+    "pmx_crossover": OperatorFnDef(pmx),
+    "partially_mapped_crossover": OperatorFnDef(pmx),
 
     # Ordered crossover
-    "ox": OperatorVectorDef(order_cross),
-    "order_cross": OperatorVectorDef(order_cross),
-    "order_crossover": OperatorVectorDef(order_cross),
+    "ox": OperatorFnDef(order_cross),
+    "order_cross": OperatorFnDef(order_cross),
+    "order_crossover": OperatorFnDef(order_cross),
 }
 # fmt: on
 

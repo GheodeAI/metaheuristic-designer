@@ -4,76 +4,90 @@ Implementation of generic vector operators.
 Provides a factory method to generate the operator from a name.
 """
 
-from ..operator_functions.utils import OperatorVectorDef
+from ..operator_functions.utils import OperatorFnDef
 from ..operator_functions.crossover import (
-    one_point_crossover,
-    two_point_crossover,
+    k_point_crossover,
     uniform_crossover,
     multiparent_discrete_crossover,
     averaged_crossover,
-    blx_alpha_crossover,
+    blend_crossover,
     sbx_crossover,
     bitwise_xor_crossover,
-    cross_inter_avg,
+    multiparent_intermediate_crossover,
 )
 from ...operator import OperatorFromLambda
 
 # fmt: off
 crossover_ops_map = {
+    # ------ dual parent crossover -------------
     # 1 point crossover
-    "1point": OperatorVectorDef(one_point_crossover),
-    "onepoint": OperatorVectorDef(one_point_crossover),
-    "one_point": OperatorVectorDef(one_point_crossover),
-    "one_point_crossover": OperatorVectorDef(one_point_crossover),
+    "1point":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
+    "onepoint":                         OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
+    "one_point":                        OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
+    "one_point_crossover":              OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
 
     # 2 point crossover
-    "2point": OperatorVectorDef(two_point_crossover),
-    "twopoint": OperatorVectorDef(two_point_crossover),
-    "two_point": OperatorVectorDef(two_point_crossover),
-    "two_point_crossover": OperatorVectorDef(two_point_crossover),
+    "2point":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
+    "twopoint":                         OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
+    "two_point":                        OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
+    "two_point_crossover":              OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
+
+    # k-point crossover
+    "multipoint":                       OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "kpoint":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "k-point":                          OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "k_point":                          OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "multipoint_crossover":             OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "kpoint_crossover":                 OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "k-point_crossover":                OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "k_point_crossover":                OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
 
     # Uniform crossover
-    "multipoint": OperatorVectorDef(uniform_crossover),
-    "uniform": OperatorVectorDef(uniform_crossover),
-    "uniform_crossover": OperatorVectorDef(uniform_crossover),
-
-    # Multi-parent crossover
-    "multicross": OperatorVectorDef(multiparent_discrete_crossover),
-    "multi_parent": OperatorVectorDef(multiparent_discrete_crossover),
-    "multi_parent_crossover": OperatorVectorDef(multiparent_discrete_crossover),
-    "multi_parent_discrete_crossover": OperatorVectorDef(multiparent_discrete_crossover),
+    "uniform":                          OperatorFnDef(uniform_crossover, params={"crossover_prob": 1}),
+    "uniform_crossover":                OperatorFnDef(uniform_crossover, params={"crossover_prob": 1}),
 
     # Arithmetic crossover
-    "avgcross": OperatorVectorDef(averaged_crossover),
-    "averagecross": OperatorVectorDef(averaged_crossover),
-    "average_crossover": OperatorVectorDef(averaged_crossover),
-    "arithmetic_crossover": OperatorVectorDef(averaged_crossover),
-    "intermediate_crossover": OperatorVectorDef(averaged_crossover),
-
-    # Cross intermediate
-    "crossinteravg": OperatorVectorDef(cross_inter_avg),
-    "interavg": OperatorVectorDef(cross_inter_avg),
-    "intermediate_avg": OperatorVectorDef(cross_inter_avg),
-    "multi_parent_avg": OperatorVectorDef(cross_inter_avg),
+    "avgcross":                         OperatorFnDef(averaged_crossover, params={"crossover_prob": 1}),
+    "averagecross":                     OperatorFnDef(averaged_crossover, params={"crossover_prob": 1}),
+    "average_crossover":                OperatorFnDef(averaged_crossover, params={"crossover_prob": 1}),
+    "arithmetic_crossover":             OperatorFnDef(averaged_crossover, params={"crossover_prob": 1}),
+    "intermediate_crossover":           OperatorFnDef(averaged_crossover, params={"crossover_prob": 1}),
     
     # BLX-alpha
-    "blxalpha": OperatorVectorDef(blx_alpha_crossover),
-    "blx_alpha": OperatorVectorDef(blx_alpha_crossover),
-    "blx_alpha_crossover": OperatorVectorDef(blx_alpha_crossover),
+    "blend":                            OperatorFnDef(blend_crossover, params={"crossover_prob": 1}),
+    "blend_crossover":                  OperatorFnDef(blend_crossover, params={"crossover_prob": 1}),
+    "blxalpha":                         OperatorFnDef(blend_crossover, params={"crossover_prob": 1}),
+    "blx_alpha":                        OperatorFnDef(blend_crossover, params={"crossover_prob": 1}),
+    "blxalpha_crossover":               OperatorFnDef(blend_crossover, params={"crossover_prob": 1}),
+    "blx_alpha_crossover":              OperatorFnDef(blend_crossover, params={"crossover_prob": 1}),
     
     # SBX
-    "sbx": OperatorVectorDef(sbx_crossover),
-    "sbx_crossover": OperatorVectorDef(sbx_crossover),
-    "simulated_binary": OperatorVectorDef(sbx_crossover),
-    "simulated_binary_crossover": OperatorVectorDef(sbx_crossover),
+    "sbx":                              OperatorFnDef(sbx_crossover, params={"crossover_prob": 1}),
+    "sbx_crossover":                    OperatorFnDef(sbx_crossover, params={"crossover_prob": 1}),
+    "simulated_binary":                 OperatorFnDef(sbx_crossover, params={"crossover_prob": 1}),
+    "simulated_binary_crossover":       OperatorFnDef(sbx_crossover, params={"crossover_prob": 1}),
 
     # XOR crossover
-    "xorcross": OperatorVectorDef(bitwise_xor_crossover),
-    "xor_crossover": OperatorVectorDef(bitwise_xor_crossover),
-    "bitwise_xor_crossover": OperatorVectorDef(bitwise_xor_crossover),
-    "bitwise_xor": OperatorVectorDef(bitwise_xor_crossover),
-    "flipcross": OperatorVectorDef(bitwise_xor_crossover),
-    "bitflip_cross": OperatorVectorDef(bitwise_xor_crossover),
+    "xorcross":                         OperatorFnDef(bitwise_xor_crossover, params={"crossover_prob": 1}),
+    "xor_crossover":                    OperatorFnDef(bitwise_xor_crossover, params={"crossover_prob": 1}),
+    "bitwise_xor_crossover":            OperatorFnDef(bitwise_xor_crossover, params={"crossover_prob": 1}),
+    "bitwise_xor":                      OperatorFnDef(bitwise_xor_crossover, params={"crossover_prob": 1}),
+    "flipcross":                        OperatorFnDef(bitwise_xor_crossover, params={"crossover_prob": 1}),
+    "bitflip_cross":                    OperatorFnDef(bitwise_xor_crossover, params={"crossover_prob": 1}),
+
+    # ------ multi-parent crossover -------------
+    # Multi-parent crossover
+    "multicross":                       OperatorFnDef(multiparent_discrete_crossover, params={"crossover_prob": 1}),
+    "multiparent":                      OperatorFnDef(multiparent_discrete_crossover, params={"crossover_prob": 1}),
+    "multiparent_crossover":            OperatorFnDef(multiparent_discrete_crossover, params={"crossover_prob": 1}),
+    "multiparent_discrete_crossover":   OperatorFnDef(multiparent_discrete_crossover, params={"crossover_prob": 1}),
+
+    # Cross intermediate
+    "crossinteravg":                    OperatorFnDef(multiparent_intermediate_crossover, params={"crossover_prob": 1}),
+    "interavg":                         OperatorFnDef(multiparent_intermediate_crossover, params={"crossover_prob": 1}),
+    "intermediate_avg":                 OperatorFnDef(multiparent_intermediate_crossover, params={"crossover_prob": 1}),
+    "multiparent_avg":                  OperatorFnDef(multiparent_intermediate_crossover, params={"crossover_prob": 1}),
+    "multiparent_intermediate_crossover": OperatorFnDef(multiparent_intermediate_crossover, params={"crossover_prob": 1}),
 }
 # fmt: on
 

@@ -26,7 +26,7 @@ def test_img_approx_diff_funcs(img_size, diff_func):
     objfunc = ImgApprox(img_dim=img_size, reference=ref, diff_func=diff_func, mode="min")
     dimension = objfunc.dimension
     encoding = ImageEncoding(img_size, color=True)
-    init = UniformInitializer(dimension, 0, 255, pop_size=3, dtype=float, encoding=encoding)
+    init = UniformInitializer(dimension, 0, 255, population_size=3, dtype=float, encoding=encoding)
     pop = init.generate_population(objfunc)
     decoded = pop.decode()
     result = objfunc.objective(decoded)
@@ -40,7 +40,7 @@ def test_img_approx_single_vs_batch(img_size):
     objfunc = ImgApprox(img_dim=img_size, reference=ref, diff_func="MSE", mode="min")
     dimension = objfunc.dimension
     encoding = ImageEncoding(img_size, color=True)
-    init = UniformInitializer(dimension, 0, 255, pop_size=2, dtype=float, encoding=encoding)
+    init = UniformInitializer(dimension, 0, 255, population_size=2, dtype=float, encoding=encoding)
     pop = init.generate_population(objfunc)
     decoded = pop.decode()  # (2, H, W, 3)
     batch = objfunc.objective(decoded)
@@ -67,7 +67,7 @@ def test_img_entropy_nbins(img_size, nbins):
     objfunc = ImgEntropy(img_dim=img_size, nbins=nbins, mode="max")
     dimension = objfunc.dimension
     encoding = ImageEncoding(img_size, color=True)
-    init = UniformInitializer(dimension, 0, 255, pop_size=2, dtype=float, encoding=encoding)
+    init = UniformInitializer(dimension, 0, 255, population_size=2, dtype=float, encoding=encoding)
     pop = init.generate_population(objfunc)
     decoded = pop.decode()  # shape (2, H, W, 3) – two images
 

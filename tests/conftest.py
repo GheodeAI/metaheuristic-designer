@@ -259,7 +259,7 @@ def dummy_survivor_selection():
 @pytest.fixture
 def dummy_initializer(rng):
     """Initializer that produces a population of 10 vectors of length 3 (uniform)."""
-    return UniformInitializer(dimension=3, lower_bound=0, upper_bound=1, pop_size=10, random_state=rng)
+    return UniformInitializer(dimension=3, lower_bound=0, upper_bound=1, population_size=10, random_state=rng)
 
 
 # ===================================================================
@@ -387,7 +387,7 @@ def sphere_objfunc():
 
 @pytest.fixture
 def simple_strategy(sphere_objfunc, rng):
-    init = UniformInitializer(2, -10, 10, pop_size=10, random_state=rng)
+    init = UniformInitializer(2, -10, 10, population_size=10, random_state=rng)
     mut = create_mutation_operator("gauss", random_state=rng, N=1, loc=0, scale=0.1)
     surv = create_survivor_selection("generational", random_state=rng)
     return SearchStrategy(initializer=init, operator=mut, survivor_sel=surv, name="integration_strat")

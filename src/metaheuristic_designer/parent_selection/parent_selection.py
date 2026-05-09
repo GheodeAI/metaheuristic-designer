@@ -1,9 +1,10 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
+from enum import show_flag_values
 import logging
 from ..parent_selection_base import ParentSelectionFromLambda, NullParentSelection
 from ..population import Population
-from .parent_selection_functions import SelectionDist, prob_tournament, select_best, roulette, uniform_selection, sus
+from .parent_selection_functions import SelectionDist, prob_tournament, select_best, roulette, shuffle_population, uniform_selection, sus
 from ..utils import null_aliases
 
 logger = logging.getLogger(__name__)
@@ -40,9 +41,16 @@ parent_sel_map = {
     "truncation":               ParentSelectionDef(select_best),
     "select_best":              ParentSelectionDef(select_best),
 
-    # Random selection
+    # Random selection (with replacement)
     "random":                   ParentSelectionDef(uniform_selection),
+    "random_with_replacement":  ParentSelectionDef(uniform_selection),
     "uniform":                  ParentSelectionDef(uniform_selection),
+
+    # Random selection (without replacement)
+    "random_without_replacement": ParentSelectionDef(shuffle_population),
+    "random_subset":            ParentSelectionDef(shuffle_population),
+    "shuffle":                  ParentSelectionDef(shuffle_population),
+    "permute":                  ParentSelectionDef(shuffle_population),
 
     # Roulette
     "roulette":                 ParentSelectionDef(roulette),
