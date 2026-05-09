@@ -1,89 +1,70 @@
-from typing import Optional
+from typing import Callable, Optional
 import warnings
-import enum
-from enum import Enum
 import numpy as np
-from ..utils import MatrixLike, RNGLike, VectorLike, check_random_state
+from ..utils import MaskLike, RNGLike, ScalarLike, VectorLike, check_random_state
 
 
-class SelectionDist(Enum):
-    FIT_PROP = enum.auto()
-    SIGMA_SCALE = enum.auto()
-    LIN_RANK = enum.auto()
-    EXP_RANK = enum.auto()
+# ---------------------------------------------
+# Population ranking factory logic
+# ---------------------------------------------
+def fitness_propotional(fitness: VectorLike, scaling_factor: ScalarLike):
+    return fitness - fitness.min() + scaling_factor
 
-    @staticmethod
-    def from_str(str_input):
-        str_input = str_input.lower()
+def sigma_scaling(fitness: VectorLike, scaling_factor: ScalarLike):
+    return np.maximum(fitness - (fitness.mean() - scaling_factor * fitness.std()), 0)
 
-        if str_input not in select_dist_map:
-            raise ValueError(f'Selection distribution "{str_input}" not defined')
+def linear_ranking(fitness: VectorLike, scaling_factor: ScalarLike):
+    scaling_factor = np.minimum(scaling_factor, 2)
+    fit_order = np.argsort(np.argsort(fitness)) # Using the double-argsort trick
+    n_parents = fitness.shape[0]
+    return (2 - scaling_factor) + (2 * fit_order * (scaling_factor - 1)) / (n_parents - 1)
 
-        return select_dist_map[str_input]
+def exponential_ranking(fitness: VectorLike, scaling_factor: ScalarLike):
+    fit_order = np.argsort(np.argsort(fitness)) # Using the double-argsort trick
+    return 1 - np.exp(-fit_order)
 
+def flat_ranking(fitness: VectorLike, scaling_factor: ScalarLike):
+    return np.ones_like(fitness)
 
-select_dist_map = {
-    "fitness_proportional": SelectionDist.FIT_PROP,
-    "fitness_prop": SelectionDist.FIT_PROP,
-    "sigma_scaling": SelectionDist.SIGMA_SCALE,
-    "linear_rank": SelectionDist.LIN_RANK,
-    "lin_rank": SelectionDist.LIN_RANK,
-    "exponential_rank": SelectionDist.EXP_RANK,
-    "exp_rank": SelectionDist.EXP_RANK,
+# fmt: off
+scaling_map = {
+    "fitness_proportional": fitness_propotional,
+    "fitness_prop": fitness_propotional,
+
+    "sigma_scaling": sigma_scaling,
+
+    "linear_scaling": linear_ranking,
+    "linear_ranking": linear_ranking,
+    "linear_rank": linear_ranking,
+
+    "exponential_scaling": exponential_ranking,
+    "exponential_ranking": exponential_ranking,
+    "exponential_rank": exponential_ranking,
+
+    "flat_scaling": flat_ranking
 }
+# fmt: on
 
+def create_scaling_fn(method: str, scaling_factor: ScalarLike = 2) -> Callable:
+    chosen_fn = scaling_map[method.lower()]
 
-def selection_distribution(fitness, method, f=None):
-    """
-    Gives the weights that will be applied to each individual in
-    the selection process.
+    def wrapper(fitness: VectorLike):
+        weights = chosen_fn(fitness, scaling_factor=scaling_factor)
 
-    Parameters
-    ----------
-    population: ndarray
-        List of individuals from which the parents will be selected.
-    method: str, optional
-        Indicates how the roulette will be generated.
-    f: float, optional
-        Parameter passed to some of the roulette generating methods.
-
-    Returns
-    -------
-    weights: ndarray
-        Weight assigned to each of the individuals
-    """
-
-    if f is None:
-        f = 2
-
-    if isinstance(method, str):
-        method = select_dist_map[method.lower()]
-
-    match method:
-        case SelectionDist.FIT_PROP:
-            weights = fitness - fitness.min() + f
-        case SelectionDist.SIGMA_SCALE:
-            weights = np.maximum(fitness - (fitness.mean() - f * fitness.std()), 0)
-        case SelectionDist.LIN_RANK:
-            f = np.minimum(f, 2)
-            fit_order = np.argsort(fitness)
-            n_parents = fitness.shape[0]
-            weights = (2 - f) + (2 * fit_order * (f - 1)) / (n_parents - 1)
-        case SelectionDist.EXP_RANK:
-            fit_order = np.argsort(fitness)
-            weights = 1 - np.exp(-fit_order)
-        case _:
-            weights = np.ones_like(fitness)
-
-    weight_norm = weights.sum()
-    if weight_norm == 0:
-        weights += 1
         weight_norm = weights.sum()
+        if weight_norm == 0:
+            weights += 1
+            weight_norm = weights.sum()
 
-    return weights / weight_norm
+        return weights / weight_norm
+
+    return wrapper
 
 
-def select_best(fitness, amount, random_state=None):
+# ---------------------------------------------
+# Population selection methods
+# ---------------------------------------------
+def select_best(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None) -> MaskLike:
     """
     Selects the best parent of the population as parents.
 
@@ -104,7 +85,7 @@ def select_best(fitness, amount, random_state=None):
     return np.argsort(fitness)[::-1][:amount]
 
 
-def prob_tournament(fitness, amount, random_state=None, tournament_size=3, prob=1):
+def prob_tournament(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, tournament_size: int = 3, prob: float =1) -> MaskLike:
     """
     Selects the parents for the next generation by tournament.
 
@@ -144,7 +125,7 @@ def prob_tournament(fitness, amount, random_state=None, tournament_size=3, prob=
     return selected_idx
 
 
-def uniform_selection(fitness, amount, random_state=None):
+def uniform_selection(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None) -> MaskLike:
     """
     Chooses a number of individuals from the population at random with replacement.
 
@@ -167,7 +148,7 @@ def uniform_selection(fitness, amount, random_state=None):
     return random_state.integers(0, fitness.shape[0], amount)
 
 
-def shuffle_population(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None):
+def shuffle_population(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None) -> MaskLike:
     """
     Chooses a number of individuals from the population at random without replacement if amount < population_size.
     If we cannot pich without replacement, we at least make sure we pick every individual at least
@@ -192,13 +173,14 @@ def shuffle_population(fitness: VectorLike, amount: int, random_state: Optional[
     if amount <= population_size:
         picked_idx = random_state.permuted(np.arange(population_size))[:amount]
     else:
-        idx_choice = np.tile(np.arange(population_size), (np.ceil(population_size / amount), 1))
-        picked_idx = random_state.permuted(idx_choice, axis=1).ravel()[:amount]
+        repetitions = np.ceil(amount / population_size).astype(int)
+        idx_choice = np.tile(np.arange(population_size), repetitions)
+        picked_idx = random_state.permuted(idx_choice)[:amount]
 
     return picked_idx
 
 
-def roulette(fitness, amount, random_state=None, method=None, f=None):
+def roulette(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None) -> MaskLike:
     """
     Fitness proportionate parent selection.
 
@@ -221,10 +203,8 @@ def roulette(fitness, amount, random_state=None, method=None, f=None):
 
     random_state = check_random_state(random_state)
 
-    if method is None:
-        method = SelectionDist.FIT_PROP
-
-    weights = selection_distribution(fitness, method, f)
+    scaling_fn = create_scaling_fn(method, scaling_factor)
+    weights = scaling_fn(fitness)
 
     if np.any(weights < 0):
         warnings.warn("Some values of fitness resulted in negative selection probabilities in the parent selection step.", stacklevel=2)
@@ -232,7 +212,7 @@ def roulette(fitness, amount, random_state=None, method=None, f=None):
     return random_state.choice(np.arange(fitness.shape[0]), size=amount, p=weights, axis=0)
 
 
-def sus(fitness, amount, random_state=None, method=None, f=None):
+def sus(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None) -> MaskLike:
     """
     Stochastic universal sampling parent selection method.
 
@@ -255,14 +235,12 @@ def sus(fitness, amount, random_state=None, method=None, f=None):
 
     random_state = check_random_state(random_state)
 
-    if method is None:
-        method = SelectionDist.FIT_PROP
-
-    weights = selection_distribution(fitness, method, f)
+    scaling_fn = create_scaling_fn(method, scaling_factor)
+    weights = scaling_fn(fitness)
 
     cum_weights = np.cumsum(weights)
     random_offsets = random_state.random(amount) / amount
     positions = random_offsets + (np.arange(amount) / amount)
-    order = np.searchsorted(cum_weights, positions)
+    order = np.searchsorted(cum_weights, positions, side='right') % len(cum_weights)
 
     return order
