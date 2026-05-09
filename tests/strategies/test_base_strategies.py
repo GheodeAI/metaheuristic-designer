@@ -47,7 +47,7 @@ def test_local_search_perturb_repeats_parents(rng, dummy_initializer, dummy_objf
     # Use a small initializer for simplicity
     from metaheuristic_designer.initializers import UniformInitializer
 
-    init = UniformInitializer(2, -1, 1, pop_size=2, random_state=rng)
+    init = UniformInitializer(2, -1, 1, population_size=2, random_state=rng)
     algo = LocalSearch(initializer=init, iterations=3, random_state=rng)
     parents = init.generate_population(dummy_objfunc)
     original_size = len(parents)
@@ -112,7 +112,7 @@ def test_variable_population_initializer_update_changes_offspring_size(rng, dumm
     # Change initializer with a different pop_size
     from metaheuristic_designer.initializers import UniformInitializer
 
-    new_init = UniformInitializer(2, 0, 1, pop_size=6, random_state=rng)
+    new_init = UniformInitializer(2, 0, 1, population_size=6, random_state=rng)
     algo.initializer = new_init
     # Since we didn't set custom offspring size originally, it should update offspring_size to 6
     parents = new_init.generate_population(dummy_objfunc)

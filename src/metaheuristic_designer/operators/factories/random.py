@@ -1,7 +1,7 @@
 """ """
 
 from ..operator_functions.random_generation import *
-from ..operator_functions.utils import OperatorVectorDef, OperatorRandomDef
+from ..operator_functions.utils import OperatorFnDef, OperatorRandomDef
 from ...operator import OperatorFromLambda
 
 # fmt: off

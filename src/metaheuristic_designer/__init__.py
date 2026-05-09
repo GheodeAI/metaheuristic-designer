@@ -30,7 +30,7 @@ from .parent_selection import create_parent_selection, add_parent_selection_entr
 from . import parent_selection
 
 from .operator import Operator, OperatorFromLambda, NullOperator
-from .operators import create_operator, add_operator_entry, OperatorVectorDef
+from .operators import create_operator, add_operator_entry, OperatorFnDef
 from . import operators
 
 from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection, SurvivorSelectionFromLambda

@@ -54,30 +54,30 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
 
     search_strategy_map = {
         "hillclimb": HillClimb(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, random_state=random_state),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=1, random_state=random_state),
             operator=create_operator("mutation.gaussian_mutation", F=1e-2, N=1, random_state=random_state),
         ),
         "localsearch": LocalSearch(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, random_state=random_state),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=1, random_state=random_state),
             operator=create_operator("mutation.gaussian_mutation", f=1e-3, N=1, random_state=random_state),
             iterations=20,
         ),
         "sa": SA(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1, random_state=random_state),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=1, random_state=random_state),
             operator=create_operator("mutation.gaussian_mutation", f=1e-3, N=1, random_state=random_state),
             iterations=100,
             temperature_init=1,
             alpha=0.997,
         ),
         "es": ES(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=random_state),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
             mutation_op=create_operator("mutation.gaussian_mutation", f=1e-3, N=1, random_state=random_state),
             crossover_op=create_operator("crossover.uniform", random_state=random_state),
             survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
             offspring_size=150,
         ),
         "ga": GA(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=random_state),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
             mutation_op=create_operator("mutation.gaussian_mutation", f=1e-3, N=1, random_state=random_state),
             crossover_op=create_operator("crossover.uniform", random_state=random_state),
             parent_sel=create_parent_selection("Best", amount=50, random_state=random_state),
@@ -88,20 +88,20 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
         ),
         "de": DE(
             de_operator_name="DE/best/1",
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=random_state),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
             F=0.8,
             Cr=0.8,
             random_state=random_state,
         ),
         "pso": PSO(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=random_state),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
             w=0.7,
             c1=1.5,
             c2=1.5,
             random_state=random_state,
         ),
         "gaussianumda": GaussianUMDA(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=random_state),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
             parent_sel=create_parent_selection("Best", amount=20),
             survivor_sel=create_survivor_selection("(m+n)"),
             scale=0.1,
@@ -109,7 +109,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
             random_state=random_state,
         ),
         "gaussianpbil": GaussianPBIL(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=random_state),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
             parent_sel=create_parent_selection("Best", amount=20),
             survivor_sel=create_survivor_selection("(m+n)"),
             scale=0.1,
@@ -118,17 +118,17 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
             random_state=random_state,
         ),
         "crossentropy": CrossEntropyMethod(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=1000, random_state=random_state),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, random_state=random_state),
             random_state=random_state,
         ),
         "bayesianoptimizaiton": BayesianOptimization(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=random_state),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
             batch_size=50,
             max_samples=100,
             random_state=random_state,
         ),
-        "randomsearch": RandomSearch(UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=random_state)),
-        "nosearch": NoSearch(UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=random_state)),
+        "randomsearch": RandomSearch(UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state)),
+        "nosearch": NoSearch(UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state)),
     }
     if alg_name not in search_strategy_map:
         raise ValueError(f'Algorithm "{alg_name}" not recognized.')
@@ -137,7 +137,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
 
     if memetic:
         local_search = LocalSearch(
-            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=search_strategy.initializer.pop_size),
+            initializer=UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, population_size=search_strategy.initializer.pop_size),
             operator=create_operator("mutation.gaussian_noise", F=2e-4),
             params={"iters": 20},
         )

@@ -30,7 +30,7 @@ class SeedProbInitializer(Initializer):
         else:
             infered_dimension = solutions[0].shape[0]
 
-        super().__init__(dimension=infered_dimension, population_size=default_init.pop_size, random_state=random_state)
+        super().__init__(dimension=infered_dimension, population_size=default_init.population_size, random_state=random_state)
 
         self.default_init = default_init
         self.solutions = solutions
@@ -73,7 +73,7 @@ class SeedDetermInitializer(Initializer):
             infered_dimension = solutions.genotype_matrix.shape[1]
         else:
             infered_dimension = solutions[0].shape[0]
-        super().__init__(dimension=infered_dimension, population_size=default_init.pop_size, random_state=random_state)
+        super().__init__(dimension=infered_dimension, population_size=default_init.population_size, random_state=random_state)
 
         self.default_init = default_init
         self.solutions = solutions

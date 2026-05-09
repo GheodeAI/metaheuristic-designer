@@ -23,8 +23,8 @@ class UniformInitializer(Initializer):
         Data type used in each of the components of the vector in the individual.
     """
 
-    def __init__(self, dimension, lower_bound, upper_bound, pop_size=1, encoding=None, dtype=float, random_state=None):
-        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, random_state=random_state)
+    def __init__(self, dimension, lower_bound, upper_bound, population_size=1, encoding=None, dtype=float, random_state=None):
+        super().__init__(dimension=dimension, population_size=population_size, encoding=encoding, random_state=random_state)
 
         if type(lower_bound) in [list, tuple, np.ndarray]:
             if len(lower_bound) != dimension:
