@@ -72,7 +72,13 @@ def genetic_algorithm_discrete(objfunc, resampled_components=1, population_size=
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=population_size, dtype=int, encoding=encoding, random_state=random_state
+        objfunc.dimension,
+        objfunc.lower_bound,
+        objfunc.upper_bound,
+        population_size=population_size,
+        dtype=int,
+        encoding=encoding,
+        random_state=random_state,
     )
     mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
     crossover_op = create_operator("crossover.multipoint", random_state=random_state)

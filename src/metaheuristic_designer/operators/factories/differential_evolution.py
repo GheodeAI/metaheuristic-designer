@@ -20,31 +20,24 @@ from ...operator import OperatorFromLambda
 de_ops_map = {
     "de/rand/1": OperatorFnDef(differential_evolution_rand1),
     "de_rand_1": OperatorFnDef(differential_evolution_rand1),
-    "de.rand.1": OperatorFnDef(differential_evolution_rand1),
 
     "de/best/1": OperatorFnDef(differential_evolution_best1),
     "de_best_1": OperatorFnDef(differential_evolution_best1),
-    "de.best.1": OperatorFnDef(differential_evolution_best1),
     
     "de/rand/2": OperatorFnDef(differential_evolution_rand2),
     "de_rand_2": OperatorFnDef(differential_evolution_rand2),
-    "de.rand.2": OperatorFnDef(differential_evolution_rand2),
     
     "de/best/2": OperatorFnDef(differential_evolution_best2),
     "de_best_2": OperatorFnDef(differential_evolution_best2),
-    "de.best.2": OperatorFnDef(differential_evolution_best2),
     
     "de/current-to-rand/1": OperatorFnDef(differential_evolution_current_to_rand1),
     "de_current_to_rand_1": OperatorFnDef(differential_evolution_current_to_rand1),
-    "de.current-to-rand.1": OperatorFnDef(differential_evolution_current_to_rand1),
     
     "de/current-to-best/1": OperatorFnDef(differential_evolution_current_to_best1),
     "de_current_to_best_1": OperatorFnDef(differential_evolution_current_to_best1),
-    "de.current-to-best.1": OperatorFnDef(differential_evolution_current_to_best1),
-    
+
     "de/current-to-pbest/1": OperatorFnDef(differential_evolution_current_to_pbest1),
     "de_current_to_pbest_1": OperatorFnDef(differential_evolution_current_to_pbest1),
-    "de.current-to-pbest.1": OperatorFnDef(differential_evolution_current_to_pbest1),
 }
 # fmt: on
 
