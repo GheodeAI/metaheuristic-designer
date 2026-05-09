@@ -117,7 +117,7 @@ def create_pairing_fn(method: str) -> Callable:
 def k_point_crossover(
     population_array: MatrixLike,
     fitness_array: VectorLike,
-    k: int,
+    k: int = 1,
     pairing_method: str = "random",
     crossover_prob: float = 1,
     random_state: Optional[RNGLike] = None,
@@ -161,8 +161,9 @@ def k_point_crossover(
     parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
     n_parents, _ = parents1.shape
 
-    cuts = random_state.choice(n_components - 1, size=(n_parents, k), replace=False) + 1
-    cuts.sort(axis=1)
+    random_samples = random_state.random((n_parents, n_components-1))
+    random_order = np.argsort(random_samples, axis=1)
+    cuts = random_order[:, :k] + 1
 
     delta = np.zeros((n_parents, n_components), dtype=int)
     delta[np.arange(n_parents)[:, None], cuts] = 1
@@ -356,11 +357,11 @@ def blend_crossover(
 
     lowest_parent = np.minimum(parents1, parents2)
     highest_parent = np.maximum(parents1, parents2)
-    lower_bound = np.tile(lowest_parent - alpha * (highest_parent - lowest_parent), 2)
-    upper_bound = np.tile(highest_parent + alpha * (highest_parent - lowest_parent), 2)
+    lower_bound = np.tile(lowest_parent - alpha * (highest_parent - lowest_parent), (2, 1))
+    upper_bound = np.tile(highest_parent + alpha * (highest_parent - lowest_parent), (2, 1))
 
     crossed = random_state.uniform(lower_bound, upper_bound)
-    pair_mask = np.tile(random_state.random(n_parents) < crossover_prob, 2)
+    pair_mask = np.tile(random_state.random(n_parents) < crossover_prob, 2)[:, None]
 
     offspring = np.where(pair_mask, crossed, full_parents)
 
@@ -438,8 +439,10 @@ def sbx_crossover(
 
     exp_factor = 1 / (eta + 1)
     spread_factor = np.empty_like(parents1)
-    spread_factor[random_values <= 0.5] = (2 * random_values) ** exp_factor
-    spread_factor[random_values > 0.5] = (0.5 / (1 - random_values)) ** exp_factor
+    mask1 = random_values <= 0.5
+    mask2 = random_values > 0.5
+    spread_factor[mask1] = (2 * random_values[mask1]) ** exp_factor
+    spread_factor[mask2] = (0.5 / (1 - random_values[mask2])) ** exp_factor
 
     crossed1 = 0.5 * (parents1 + parents2) - 0.5 * spread_factor * np.abs(parents1 - parents2)
     crossed2 = 0.5 * (parents1 + parents2) + 0.5 * spread_factor * np.abs(parents1 - parents2)

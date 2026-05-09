@@ -29,7 +29,7 @@ def dummy_op(population_matrix, _fitness_array, random_state=None, f: ScalarLike
     return np.full_like(population_matrix, f)
 
 
-def add_const(population_matrix, _fitness_array, random_state=None, f: VectorLike | ScalarLike = 0):
+def add_const(population_matrix, fitness_array, random_state=None, f: VectorLike | ScalarLike = 0):
     return population_matrix + f
 
 
@@ -47,7 +47,7 @@ class OperatorVectorDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return population.update_genotype(self.operator_fn(copy(population.genotype_matrix), population.fitness, random_state, **modified_kwargs))
+        return population.update_genotype(self.operator_fn(copy(population.genotype_matrix), population.fitness, random_state=random_state, **modified_kwargs))
 
 
 @dataclass
@@ -64,7 +64,7 @@ class OperatorRandomDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return population.update_genotype(self.operator_fn(population.genotype_matrix, initializer, random_state, **modified_kwargs))
+        return population.update_genotype(self.operator_fn(population=population.genotype_matrix, initializer=initializer, random_state=random_state, **modified_kwargs))
 
 
 @dataclass
@@ -98,4 +98,4 @@ class OperatorSwarmDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return self.operator_fn(population, initializer, random_state, **modified_kwargs)
+        return self.operator_fn(population, initializer, random_state=random_state, **modified_kwargs)
