@@ -43,7 +43,7 @@ class Distribution(ABC):
         Parameters
         ----------
         data_matrix : np.ndarray
-            2‑D array of shape ``(N, M)`` containing the data used for
+            2-D array of shape ``(N, M)`` containing the data used for
             estimation.
         **kwargs
             Additional keyword arguments that may influence the estimation.
@@ -122,16 +122,16 @@ class ScipyMultivarDistribution(Distribution):
 
 
 class multivariate_categorical(Distribution):
-    """Multivariate categorical distribution with per‑row probability weights.
+    """Multivariate categorical distribution with per-row probability weights.
 
     Parameters
     ----------
-    categories : array‑like
+    categories : array-like
         List of category values.
     weight_matrix : np.ndarray
-        2‑D array of shape ``(N, K)`` containing non‑negative weights for
+        2-D array of shape ``(N, K)`` containing non-negative weights for
         each of the ``K`` categories in each row.  Weights are normalised
-        row‑wise before sampling.
+        row-wise before sampling.
     """
     def __init__(self, categories, weight_matrix):
         self.categories = categories
@@ -177,9 +177,9 @@ def uniform_param_fix(min=None, max=None, **kwargs):
 
     Parameters
     ----------
-    min : float or array‑like, optional
+    min : float or array-like, optional
         Lower bound of the uniform interval.
-    max : float or array‑like, optional
+    max : float or array-like, optional
         Upper bound of the uniform interval.
     **kwargs : dict
         Remaining keyword arguments (e.g., ``loc``, ``scale``).
@@ -209,13 +209,13 @@ def normal_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    loc : None, float, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, M)``.
+    loc : None, float, array-like, or ``"calculated"``
         Location parameter. If ``"calculated"``, it is replaced by the
-        per‑column mean.
-    scale : None, float, array‑like, or ``"calculated"``
+        per-column mean.
+    scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is replaced by the
-        per‑column standard deviation.
+        per-column standard deviation.
     **kwargs
         Additional keyword arguments passed through unchanged.
 
@@ -240,17 +240,17 @@ def normal_heuristic(population_matrix, loc=None, scale=None, **kwargs):
 def uniform_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     """Heuristic parameter estimation for the uniform distribution.
 
-    When *loc* or *scale* is ``"calculated"``, the per‑column minimum is
+    When *loc* or *scale* is ``"calculated"``, the per-column minimum is
     used as *loc*, and ``max - min`` is used as *scale*.
 
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    loc : None, float, array‑like, or ``"calculated"``
-        Lower bound. If ``"calculated"``, it is replaced by the per‑column
+        2-D array of shape ``(N, M)``.
+    loc : None, float, array-like, or ``"calculated"``
+        Lower bound. If ``"calculated"``, it is replaced by the per-column
         minimum.
-    scale : None, float, array‑like, or ``"calculated"``
+    scale : None, float, array-like, or ``"calculated"``
         Interval length. If ``"calculated"``, it is set to
         ``max - min`` per column.
     **kwargs
@@ -277,17 +277,17 @@ def uniform_heuristic(population_matrix, loc=None, scale=None, **kwargs):
 def cauchy_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     """Heuristic parameter estimation for the Cauchy distribution.
 
-    *loc* is estimated by the per‑column median; *scale* is estimated by
-    half the per‑column interquartile range (IQR / 2).
+    *loc* is estimated by the per-column median; *scale* is estimated by
+    half the per-column interquartile range (IQR / 2).
 
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    loc : None, float, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, M)``.
+    loc : None, float, array-like, or ``"calculated"``
         Location parameter. If ``"calculated"``, it is replaced by the
-        per‑column median.
-    scale : None, float, array‑like, or ``"calculated"``
+        per-column median.
+    scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is estimated as
         ``scipy.stats.iqr(data, axis=0) / 2``.
     **kwargs
@@ -314,17 +314,17 @@ def cauchy_heuristic(population_matrix, loc=None, scale=None, **kwargs):
 def laplace_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     """Heuristic parameter estimation for the Laplace distribution.
 
-    *loc* is estimated by the per‑column median; *scale* is estimated by
+    *loc* is estimated by the per-column median; *scale* is estimated by
     the median absolute deviation (MAD).
 
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    loc : None, float, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, M)``.
+    loc : None, float, array-like, or ``"calculated"``
         Location parameter. If ``"calculated"``, it is replaced by the
-        per‑column median.
-    scale : None, float, array‑like, or ``"calculated"``
+        per-column median.
+    scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is estimated using
         ``scipy.stats.median_abs_deviation`` along axis 0.
     **kwargs
@@ -357,11 +357,11 @@ def gamma_heuristic(population_matrix, a=None, scale=None, **kwargs):
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    a : None, float, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, M)``.
+    a : None, float, array-like, or ``"calculated"``
         Shape parameter. If ``"calculated"``, it is computed as
         ``mean² / var``.
-    scale : None, float, array‑like, or ``"calculated"``
+    scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is computed as
         ``var / mean``.
     **kwargs
@@ -395,18 +395,18 @@ def gamma_heuristic(population_matrix, a=None, scale=None, **kwargs):
 def expon_heuristic(population_matrix, scale=None, **kwargs):
     """Heuristic parameter estimation for the exponential distribution.
 
-    If *scale* is ``"calculated"``, it is set to the per‑column mean
+    If *scale* is ``"calculated"``, it is set to the per-column mean
     minus *loc* (which defaults to 0).
 
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    scale : None, float, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, M)``.
+    scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, ``scale = mean - loc``.
     **kwargs
         Additional keyword arguments passed through unchanged; expected
-        to contain *loc* if a non‑zero shift is used.
+        to contain *loc* if a non-zero shift is used.
 
     Returns
     -------
@@ -423,20 +423,20 @@ def expon_heuristic(population_matrix, scale=None, **kwargs):
 
 
 def levy_stable_heuristic(population_matrix, loc=None, scale=None, **kwargs):
-    """Heuristic parameter estimation for the Lévy‑stable distribution.
+    """Heuristic parameter estimation for the Lévy-stable distribution.
 
-    *loc* is estimated by the per‑column median; *scale* by the median
+    *loc* is estimated by the per-column median; *scale* by the median
     absolute deviation (MAD).  Note: this is a very rough approximation
     and should be used only when no better estimator is available.
 
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    loc : None, float, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, M)``.
+    loc : None, float, array-like, or ``"calculated"``
         Location parameter. If ``"calculated"``, it is replaced by the
-        per‑column median.
-    scale : None, float, array‑like, or ``"calculated"``
+        per-column median.
+    scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is estimated using
         ``scipy.stats.median_abs_deviation`` along axis 0.
     **kwargs
@@ -463,18 +463,18 @@ def levy_stable_heuristic(population_matrix, loc=None, scale=None, **kwargs):
 def poisson_heuristic(population_matrix, mu=None, **kwargs):
     """Heuristic parameter estimation for the Poisson distribution.
 
-    If *mu* is ``"calculated"``, it is set to the per‑column mean minus
+    If *mu* is ``"calculated"``, it is set to the per-column mean minus
     *loc* (default 0).
 
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    mu : None, float, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, M)``.
+    mu : None, float, array-like, or ``"calculated"``
         Rate parameter. If ``"calculated"``, ``mu = mean - loc``.
     **kwargs
         Additional keyword arguments passed through unchanged; expected
-        to contain *loc* if a non‑zero shift is used.
+        to contain *loc* if a non-zero shift is used.
 
     Returns
     -------
@@ -493,14 +493,14 @@ def poisson_heuristic(population_matrix, mu=None, **kwargs):
 def bernoulli_heuristic(population_matrix, p=None, **kwargs):
     """Heuristic parameter estimation for the Bernoulli distribution.
 
-    If *p* is ``"calculated"``, it is estimated as the per‑column mean
+    If *p* is ``"calculated"``, it is estimated as the per-column mean
     (proportion of ones), adjusting for *loc* if given (default 0).
 
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    p : None, float, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, M)``.
+    p : None, float, array-like, or ``"calculated"``
         Success probability. If ``"calculated"``, ``p = mean - loc``.
     **kwargs
         Additional keyword arguments passed through unchanged.
@@ -528,8 +528,8 @@ def binomial_heuristic(population_matrix, p=None, **kwargs):
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    p : None, float, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, M)``.
+    p : None, float, array-like, or ``"calculated"``
         Success probability. If ``"calculated"``, ``p = (mean - loc) / n``.
     **kwargs
         Additional keyword arguments passed through unchanged; must
@@ -560,11 +560,11 @@ def tikhinov_heuristic(population_matrix, loc=None, kappa=None, **kwargs):
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)`` of angles in radians.
-    loc : None, float, array‑like, or ``"calculated"``
-        Mean direction. If ``"calculated"``, the per‑column circular mean
+        2-D array of shape ``(N, M)`` of angles in radians.
+    loc : None, float, array-like, or ``"calculated"``
+        Mean direction. If ``"calculated"``, the per-column circular mean
         is used.
-    kappa : None, float, array‑like, or ``"calculated"``
+    kappa : None, float, array-like, or ``"calculated"``
         Concentration parameter. If ``"calculated"``, it is approximated
         from the mean resultant length.
     **kwargs
@@ -599,16 +599,16 @@ def tikhinov_heuristic(population_matrix, loc=None, kappa=None, **kwargs):
 def multivariate_normal_heuristic(population_matrix, mean=None, cov=None, **kwargs):
     """Heuristic parameter estimation for the multivariate normal distribution.
 
-    *mean* is estimated as the per‑column average.  Automatic estimation of
-    the full covariance matrix is **not supported** – use with caution.
+    *mean* is estimated as the per-column average.  Automatic estimation of
+    the full covariance matrix is **not supported**, use with caution.
 
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    mean : None, array‑like, or ``"calculated"``
-        Mean vector. If ``"calculated"``, it is set to the per‑column mean.
-    cov : None, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, M)``.
+    mean : None, array-like, or ``"calculated"``
+        Mean vector. If ``"calculated"``, it is set to the per-column mean.
+    cov : None, array-like, or ``"calculated"``
         Covariance matrix. If ``"calculated"``, an error is raised because
         automatic estimation is not implemented.
     **kwargs
@@ -622,7 +622,7 @@ def multivariate_normal_heuristic(population_matrix, mean=None, cov=None, **kwar
     Raises
     ------
     ValueError
-        If *cov* is ``"calculated"`` – automatic covariance estimation is
+        If *cov* is ``"calculated"``, automatic covariance estimation is
         not supported.
     """
     if mean == "calculated":
@@ -650,8 +650,8 @@ def dirichlet_heuristic(population_matrix, alpha=None, **kwargs):
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, M)``.
-    alpha : None, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, M)``.
+    alpha : None, array-like, or ``"calculated"``
         Concentration parameters. If ``"calculated"``, an error is raised.
     **kwargs
         Additional keyword arguments passed through unchanged.
@@ -664,7 +664,7 @@ def dirichlet_heuristic(population_matrix, alpha=None, **kwargs):
     Raises
     ------
     ValueError
-        If *alpha* is ``"calculated"`` – automatic estimation is not
+        If *alpha* is ``"calculated"``, automatic estimation is not
         supported.
     """
     if alpha == "calculated":
@@ -679,7 +679,7 @@ def dirichlet_heuristic(population_matrix, alpha=None, **kwargs):
 
 
 def tikhinov_fisher_heuristic(population_matrix, loc=None, kappa=None, **kwargs):
-    """Heuristic parameter estimation for the von Mises‑Fisher distribution.
+    """Heuristic parameter estimation for the von Mises-Fisher distribution.
 
     *loc* is estimated by normalising the mean vector of the data.
     *kappa* is approximated using the mean resultant length *R* and the
@@ -689,9 +689,9 @@ def tikhinov_fisher_heuristic(population_matrix, loc=None, kappa=None, **kwargs)
     Parameters
     ----------
     population_matrix : np.ndarray
-        2‑D array of shape ``(N, d)`` where each row is a point on the
-        *d*‑dimensional sphere.
-    loc : None, array‑like, or ``"calculated"``
+        2-D array of shape ``(N, d)`` where each row is a point on the
+        *d*-dimensional sphere.
+    loc : None, array-like, or ``"calculated"``
         Mean direction (unit vector). If ``"calculated"``, it is set to the
         normalised sample mean.
     kappa : None, float, or ``"calculated"``

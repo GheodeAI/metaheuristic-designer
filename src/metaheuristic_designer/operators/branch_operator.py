@@ -67,6 +67,13 @@ class BranchOperator(Operator):
 
         self.chosen_idx = idx
         self.weights = np.array([self.params.p, 1 - self.params.p])
+    
+    def gather_params(self):
+        all_params = self.get_params()
+        for op in self.op_list:
+            all_params.update(op.gather_params())
+
+        return all_params
 
     def evolve(self, population, initializer=None):
         new_population = copy(population)

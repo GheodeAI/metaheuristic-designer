@@ -308,3 +308,24 @@ def keep_best_offspring(population_fitness: VectorLike, offspring_fitness: Vecto
 
     fitness_order = np.argsort(offspring_fitness)[::-1][:n_parents] + n_parents
     return fitness_order
+
+def random_replacement(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike) -> VectorLike:
+    """
+    Randomly replaces the parents with some of the individuals.
+
+    Parameters
+    ----------
+    population_fitness : VectorLike
+        Fitness values of the parent population (only its length is used).
+    offspring_fitness : VectorLike
+        Fitness values of the offspring population.
+    random_state : RNGLike
+        Random state (unused; kept for interface consistency).
+
+    Returns
+    -------
+    survivors : VectorLike
+        Indices of the selected offspring, shifted by n_parents so that
+        they are distinguishable from parent indices.
+    """
+    return np.arange(offspring_fitness.shape[0]) + population_fitness.shape[0]

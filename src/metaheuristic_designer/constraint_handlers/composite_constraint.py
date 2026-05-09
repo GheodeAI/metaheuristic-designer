@@ -15,8 +15,16 @@ class CompositeConstraint(ConstraintHandler):
         List of constraint handlers.
     """
 
-    def __init__(self, constraints: Iterable):
+    def __init__(self, constraints: Iterable, **kwargs):
         self.constraints = constraints
+        super().__init__(**kwargs)
+    
+    def gather_params(self):
+        all_params = self.get_params()
+        for const in self.constraints:
+            all_params.update(const.gather_params())
+        
+        return all_params
 
     def repair_solution(self, solution: MatrixLike) -> MatrixLike:
         repaired_solution = copy(solution)

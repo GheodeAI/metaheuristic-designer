@@ -30,15 +30,23 @@ class BOOperator(Operator):
     from the regression model is then optimized to estimate the next best solution for the problem.
     """
 
-    def __init__(self, name="Gaussian Regression Surrogate Model", encoding=None, kernel=None, random_state=None, **kwargs):
-        super().__init__(name=name, encoding=encoding, random_state=random_state, **kwargs)
+    def __init__(self, name="Gaussian Regression Surrogate Model", encoding=None, kernel=None, random_state=None, batch_size = 100, max_samples=100, rbf_scale=1.0, **kwargs):
+        super().__init__(
+            name=name,
+            encoding=encoding,
+            random_state=random_state,
 
-        a = 1.0
+            # Forced kwargs
+            batch_size = batch_size,
+            max_samples = max_samples,
+            **kwargs
+        )
+
         if kernel is None:
-            kernel = a * RBF(length_scale=1.0) + WhiteKernel(noise_level=1.0)
+            kernel = rbf_scale * RBF(length_scale=1.0) + WhiteKernel(noise_level=1.0)
+        self.rbf_scale = rbf_scale
+
         self.gaussian_model = GaussianProcessRegressor(kernel=kernel, normalize_y=True, copy_X_train=False)
-        self.batch_size = kwargs.get("batch_size", 100)
-        self.max_samples = kwargs.get("max_samples", 100)
 
     def evolve(self, population, initializer=None):
         # Obtain training data from the population
@@ -46,8 +54,8 @@ class BOOperator(Operator):
 
         X = population.genotype_matrix
         y = population.fitness
-        if population.pop_size > self.max_samples:
-            mask = self.random_state.choice(population.pop_size, size=self.max_samples, replace=False)
+        if population.pop_size > self.params.max_samples:
+            mask = self.random_state.choice(population.pop_size, size=self.params.max_samples, replace=False)
             X = X[mask]
             y = y[mask]
 
@@ -68,7 +76,7 @@ class BOOperator(Operator):
             bounds = None
 
         # Optimize the acquisition function with a batch of initial points chosen at random
-        samples = initializer.generate_population(objfunc, self.batch_size).genotype_matrix
+        samples = initializer.generate_population(objfunc, self.params.batch_size).genotype_matrix
         for x0 in samples:
             result = sp.optimize.minimize(
                 fun=lambda x_in: -_acquisition_function(self.gaussian_model, X, x_in, max_y), x0=x0, method="L-BFGS-B", bounds=bounds

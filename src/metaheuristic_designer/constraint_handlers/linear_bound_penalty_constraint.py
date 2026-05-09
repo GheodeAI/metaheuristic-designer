@@ -21,7 +21,7 @@ class LinearBoundPenaltyConstraint(PenalizeConstraint):
         upper limit of the bounds.
     """
 
-    def __init__(self, dimension, alpha: ScalarLike = 1, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100):
+    def __init__(self, dimension, alpha: ScalarLike = 1, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100, **kwargs):
         self.dimension = dimension
         self.alpha = alpha
         if np.ndim(upper_bound) < 1:
@@ -31,6 +31,7 @@ class LinearBoundPenaltyConstraint(PenalizeConstraint):
             lower_bound = np.repeat(lower_bound, dimension)
         self.lower_bound = lower_bound
         self.range_lim = self.upper_bound - self.lower_bound
+        super().__init__(**kwargs)
 
     def penalty(self, population_matrix: MatrixLike) -> VectorLike:
         if np.all(self.upper_bound == self.lower_bound):

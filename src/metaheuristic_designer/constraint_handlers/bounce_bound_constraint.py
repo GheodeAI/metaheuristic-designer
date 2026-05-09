@@ -21,11 +21,12 @@ class BounceBoundConstraint(RepairConstraint):
         upper limit of the bounds.
     """
 
-    def __init__(self, dimension, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100):
+    def __init__(self, dimension, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100, **kwargs):
         self.dimension = dimension
         self.lower_bound = np.asarray(lower_bound)
         self.upper_bound = np.asarray(upper_bound)
         self.range_lim = self.upper_bound - self.lower_bound
+        super().__init__(**kwargs)
 
     def repair_solution(self, population_matrix: MatrixLike) -> MatrixLike:
         if np.all(self.upper_bound == self.lower_bound):

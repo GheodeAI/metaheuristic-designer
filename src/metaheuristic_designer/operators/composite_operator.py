@@ -41,6 +41,13 @@ class CompositeOperator(Operator):
 
         super().__init__(name=name, encoding=encoding, random_state=random_state)
 
+    def gather_params(self):
+        all_params = self.get_params()
+        for op in self.op_list:
+            all_params.update(op.gather_params())
+
+        return all_params
+
     def evolve(self, population, initializer=None):
         new_population = copy(population)
 
