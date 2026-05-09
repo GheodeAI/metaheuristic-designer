@@ -19,7 +19,7 @@ class CrossEntropyMethod(StaticPopulation):
     ):
         random_state = check_random_state(random_state)
 
-        operator = create_mutation_operator("RandSample", distrib="Normal", loc="calculated", scale=scale, random_state=random_state)
+        operator = create_mutation_operator("RandSample", distribution="Normal", loc="calculated", scale=scale, random_state=random_state)
         parent_sel = create_parent_selection("best", amount=elite_amount)
 
         super().__init__(initializer=initializer, operator=operator, parent_sel=parent_sel, name=name, **kwargs)

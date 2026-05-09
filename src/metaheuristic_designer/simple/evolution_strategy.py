@@ -61,7 +61,13 @@ def evolution_strategy_discrete(
 
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
-        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=population_size, dtype=int, encoding=encoding, random_state=random_state
+        objfunc.dimension,
+        objfunc.lower_bound,
+        objfunc.upper_bound,
+        population_size=population_size,
+        dtype=int,
+        encoding=encoding,
+        random_state=random_state,
     )
     mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
     method = "keep_best" if elitist else "keep_offspring"

@@ -174,9 +174,7 @@ class OperatorRandomDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return population.update_genotype(
-            self.operator_fn(population.genotype_matrix, initializer, random_state=random_state, **modified_kwargs)
-        )
+        return population.update_genotype(self.operator_fn(population.genotype_matrix, initializer, random_state=random_state, **modified_kwargs))
 
 
 @dataclass

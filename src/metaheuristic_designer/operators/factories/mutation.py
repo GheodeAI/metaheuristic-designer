@@ -4,9 +4,9 @@ Implementation of generic vector operators.
 Provides a factory method to generate the operator from a name.
 """
 
+from __future__ import annotations
 from ..operator_functions.utils import OperatorFnDef
 from ..operator_functions.mutation import (
-    ProbDist,
     xor_mask,
     rand_noise,
     mutate_noise,
@@ -28,48 +28,48 @@ mutation_ops_map = {
     "bitflip":              OperatorFnDef(xor_mask, forced_params={"BinRep": "bin"}),
 
     # Gaussian distribution
-    "gauss":                OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.GAUSS}),
-    "normal":               OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.GAUSS}),
-    "gaussian":             OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.GAUSS}),
-    "gauss_noise":          OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.GAUSS}),
-    "normal_noise":         OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.GAUSS}),
-    "gaussian_noise":       OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.GAUSS}),
-    "gauss_mut":            OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.GAUSS}),
-    "normal_mutation":      OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.GAUSS}),
-    "gaussian_mutation":    OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.GAUSS}),
+    "gauss":                OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
+    "normal":               OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
+    "gaussian":             OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
+    "gauss_noise":          OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
+    "normal_noise":         OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
+    "gaussian_noise":       OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
+    "gauss_mut":            OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),
+    "normal_mutation":      OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),
+    "gaussian_mutation":    OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),
 
     # Laplace distribution
-    "laplace":              OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.LAPLACE}),
-    "laplace_noise":        OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.LAPLACE}),
-    "laplace_mut":          OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.LAPLACE}),
-    "laplace_mutation":     OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.LAPLACE}),
+    "laplace":              OperatorFnDef(rand_noise, forced_params={"distribution": "laplace"}),
+    "laplace_noise":        OperatorFnDef(rand_noise, forced_params={"distribution": "laplace"}),
+    "laplace_mut":          OperatorFnDef(mutate_noise, forced_params={"distribution": "laplace"}),
+    "laplace_mutation":     OperatorFnDef(mutate_noise, forced_params={"distribution": "laplace"}),
 
     # Cauchy distribution
-    "cauchy":               OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.CAUCHY}),
-    "cauchy_noise":         OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.CAUCHY}),
-    "cauchy_mut":           OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.CAUCHY}),
-    "cauchy_mutation":      OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.CAUCHY}),
+    "cauchy":               OperatorFnDef(rand_noise, forced_params={"distribution": "cauchy"}),
+    "cauchy_noise":         OperatorFnDef(rand_noise, forced_params={"distribution": "cauchy"}),
+    "cauchy_mut":           OperatorFnDef(mutate_noise, forced_params={"distribution": "cauchy"}),
+    "cauchy_mutation":      OperatorFnDef(mutate_noise, forced_params={"distribution": "cauchy"}),
 
     # Uniform distribution
-    "uniform":              OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.UNIFORM}),
-    "uniform_noise":        OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.UNIFORM}),
-    "uniform_mut":          OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.UNIFORM}),
-    "uniform_mutation":     OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.UNIFORM}),
+    "uniform":              OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}),
+    "uniform_noise":        OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}),
+    "uniform_mut":          OperatorFnDef(mutate_noise, forced_params={"distribution": "uniform"}),
+    "uniform_mutation":     OperatorFnDef(mutate_noise, forced_params={"distribution": "uniform"}),
 
     # Poisson distribution
-    "poisson":              OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.POISSON}),
-    "poisson_noise":        OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.POISSON}),
-    "poisson_mut":          OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.POISSON}),
-    "poisson_mutation":     OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.POISSON}),
+    "poisson":              OperatorFnDef(rand_noise, forced_params={"distribution": "poisson"}),
+    "poisson_noise":        OperatorFnDef(rand_noise, forced_params={"distribution": "poisson"}),
+    "poisson_mut":          OperatorFnDef(mutate_noise, forced_params={"distribution": "poisson"}),
+    "poisson_mutation":     OperatorFnDef(mutate_noise, forced_params={"distribution": "poisson"}),
 
     # Bernoulli distribution
-    "bernoulli":            OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.BERNOULLI}),
-    "bernoulli_noise":      OperatorFnDef(rand_noise, forced_params={"distrib": ProbDist.BERNOULLI}),
-    "bernoulli_mut":        OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.BERNOULLI}),
-    "bernoulli_mutation":   OperatorFnDef(mutate_noise, forced_params={"distrib": ProbDist.BERNOULLI}),
-    "coinflip":             OperatorFnDef(rand_sample, forced_params={"distrib": ProbDist.BERNOULLI}),
-    "coinflip_mut":         OperatorFnDef(mutate_sample, forced_params={"distrib": ProbDist.BERNOULLI}),
-    "coinflip_mutation":    OperatorFnDef(mutate_sample, forced_params={"distrib": ProbDist.BERNOULLI}),
+    "bernoulli":            OperatorFnDef(rand_noise, forced_params={"distribution": "bernoulli"}),
+    "bernoulli_noise":      OperatorFnDef(rand_noise, forced_params={"distribution": "bernoulli"}),
+    "bernoulli_mut":        OperatorFnDef(mutate_noise, forced_params={"distribution": "bernoulli"}),
+    "bernoulli_mutation":   OperatorFnDef(mutate_noise, forced_params={"distribution": "bernoulli"}),
+    "coinflip":             OperatorFnDef(rand_sample, forced_params={"distribution": "bernoulli"}),
+    "coinflip_mut":         OperatorFnDef(mutate_sample, forced_params={"distribution": "bernoulli"}),
+    "coinflip_mutation":    OperatorFnDef(mutate_sample, forced_params={"distribution": "bernoulli"}),
 
     # Additive noise mutation
     "mutnoise":             OperatorFnDef(mutate_noise),

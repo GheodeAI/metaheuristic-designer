@@ -16,7 +16,7 @@ def test_create_de_operator_returns_operator(method, rng, simple_encoding):
 
 
 def test_create_de_operator_default_encoding(rng):
-    op = create_differential_evolution_operator("de.rand.1", random_state=rng)
+    op = create_differential_evolution_operator("de/rand/1", random_state=rng)
     assert op.encoding is not None
 
 

@@ -68,7 +68,6 @@ class VariablePopulation(SearchStrategy):
         new_initializer : Initializer
         """
 
-
         if not self.using_custom_offspring_size:
             self.update_kwargs(offspring_size=new_initializer.population_size)
 

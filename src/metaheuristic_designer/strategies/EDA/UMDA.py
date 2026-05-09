@@ -5,7 +5,7 @@ from ...parent_selection_base import ParentSelection
 from ...survivor_selection_base import SurvivorSelection
 from ...initializer import Initializer
 from ..variable_population import VariablePopulation
-from ...operators import create_operator, ProbDist
+from ...operators import create_operator
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import check_random_state, RNGLike, VectorLike, ScalarLike
 
@@ -32,7 +32,7 @@ class BernoulliUMDA(VariablePopulation):
 
         super().__init__(
             initializer,
-            operator=create_operator("full_resampling", distrib="Bernoulli", p=np.asarray(p), random_state=random_state),
+            operator=create_operator("full_resampling", distribution="Bernoulli", p=np.asarray(p), random_state=random_state),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,
@@ -86,7 +86,7 @@ class BinomialUMDA(VariablePopulation):
 
         super().__init__(
             initializer,
-            operator=create_operator("full_resampling", distrib="Binomial", p=np.asarray(p), n=np.asarray(n), random_state=random_state),
+            operator=create_operator("full_resampling", distribution="Binomial", p=np.asarray(p), n=np.asarray(n), random_state=random_state),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,
@@ -138,7 +138,7 @@ class GaussianUMDA(VariablePopulation):
 
         super().__init__(
             initializer=initializer,
-            operator=create_operator("full_resampling", distrib="gaussian", loc=np.asarray(loc), scale=np.asarray(scale), random_state=random_state),
+            operator=create_operator("full_resampling", distribution="gaussian", loc=np.asarray(loc), scale=np.asarray(scale), random_state=random_state),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,
