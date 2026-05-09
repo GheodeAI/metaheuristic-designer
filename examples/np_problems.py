@@ -32,12 +32,12 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
         capacity = 850
         objfunc = BinKnapsack(weights, values, capacity)
         encoding = TypeCastEncoding(int, bool)
-        pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, pop_size=100, dtype=int, encoding=encoding, random_state=random_state)
+        pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, population_size=100, dtype=int, encoding=encoding, random_state=random_state)
 
     elif problem_name == "3sat":
         objfunc = ThreeSAT.from_cnf_file("./data/sat_examples/uf50-03.cnf")
         encoding = TypeCastEncoding(int, bool)
-        pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, pop_size=100, dtype=int, encoding=encoding, random_state=random_state)
+        pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, population_size=100, dtype=int, encoding=encoding, random_state=random_state)
 
     elif problem_name == "maxclique":
         g = nx.gnp_random_graph(100, 0.8)

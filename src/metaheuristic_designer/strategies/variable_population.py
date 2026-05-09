@@ -38,6 +38,7 @@ class VariablePopulation(SearchStrategy):
 
         if offspring_size is None:
             offspring_size = initializer.population_size
+        self.offspring_size = offspring_size
 
         self.shuffle_with_replacement = shuffle_with_replacement
 
@@ -67,10 +68,14 @@ class VariablePopulation(SearchStrategy):
         new_initializer : Initializer
         """
 
-        offspring_size = self.params.offspring_size
 
         if not self.using_custom_offspring_size:
-            self.update_kwargs(offspring_size=new_initializer.pop_size)
+            self.update_kwargs(offspring_size=new_initializer.population_size)
+
+        if hasattr(self.params, "offspring_size"):
+            offspring_size = self.params.offspring_size
+        else:
+            offspring_size = self.offspring_size
 
         if self.shuffle_with_replacement:
             self.population_shuffler = create_parent_selection("random_with_replacement", amount=offspring_size, random_state=self.random_state)

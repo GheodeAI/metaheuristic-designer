@@ -161,7 +161,7 @@ def k_point_crossover(
     parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
     n_parents, _ = parents1.shape
 
-    random_samples = random_state.random((n_parents, n_components-1))
+    random_samples = random_state.random((n_parents, n_components - 1))
     random_order = np.argsort(random_samples, axis=1)
     cuts = random_order[:, :k] + 1
 

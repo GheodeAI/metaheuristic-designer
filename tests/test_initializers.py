@@ -135,7 +135,7 @@ def test_gaussian_generate_population(rng, dummy_objfunc):
     ],
 )
 def test_uniform_generate_random_shape_and_type(genotype_size, low, high, dtype, pop_size, rng):
-    init = UniformInitializer(genotype_size, low, high, pop_size=pop_size, dtype=dtype, random_state=rng)
+    init = UniformInitializer(genotype_size, low, high, population_size=pop_size, dtype=dtype, random_state=rng)
     vec = init.generate_random()
     assert vec.shape == (genotype_size,)
     assert vec.dtype == np.dtype(dtype)
@@ -151,9 +151,9 @@ def test_uniform_generate_random_shape_and_type(genotype_size, low, high, dtype,
     ],
 )
 def test_uniform_generate_random_deterministic(genotype_size, low, high, dtype, rng):
-    init = UniformInitializer(genotype_size, low, high, pop_size=1, dtype=dtype, random_state=rng)
+    init = UniformInitializer(genotype_size, low, high, population_size=1, dtype=dtype, random_state=rng)
     rng_expected = np.random.default_rng(42)
-    expected_init = UniformInitializer(genotype_size, low, high, pop_size=1, dtype=dtype, random_state=rng_expected)
+    expected_init = UniformInitializer(genotype_size, low, high, population_size=1, dtype=dtype, random_state=rng_expected)
     expected = expected_init.generate_random()
     assert_array_equal(init.generate_random(), expected)
 
@@ -167,7 +167,7 @@ def test_uniform_sequence_parameters(rng):
 
 
 def test_uniform_generate_population(rng, dummy_objfunc):
-    init = UniformInitializer(2, -1, 1, pop_size=4, random_state=rng)
+    init = UniformInitializer(2, -1, 1, population_size=4, random_state=rng)
     pop = init.generate_population(dummy_objfunc)
     assert len(pop) == 4
     assert pop.genotype_matrix.shape == (4, 2)

@@ -31,12 +31,12 @@ real_benchmarks = [
 @pytest.mark.parametrize("bench_class", real_benchmarks)
 def test_objective_real(dimension, bench_class):
     objfunc = bench_class(dimension)
-    pop_init = UniformInitializer(dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=42)
+    pop_init = UniformInitializer(dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=42)
 
     if objfunc.vectorized:
         # Vectorized objectives expect a 2‑D batch (population matrix).
         # Create a small population of 2 individuals.
-        pop_init_small = UniformInitializer(dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=2, random_state=42)
+        pop_init_small = UniformInitializer(dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=2, random_state=42)
         population = pop_init_small.generate_population(objfunc)
         geno_matrix = population.genotype_matrix  # shape (2, dimension)
         result = objfunc.objective(geno_matrix)  # should return (2,)
@@ -55,7 +55,7 @@ def test_objective_real(dimension, bench_class):
 def test_repair_solution(dimension, bench_class):
     objfunc = bench_class(dimension)
     # Create a small population to get a 2‑D genotype matrix for repair.
-    pop_init = UniformInitializer(dimension, -1_000_000, 1_000_000, pop_size=3, random_state=42)
+    pop_init = UniformInitializer(dimension, -1_000_000, 1_000_000, population_size=3, random_state=42)
     population = pop_init.generate_population(objfunc)
     geno_matrix = population.genotype_matrix  # shape (3, dimension)
 
@@ -71,7 +71,7 @@ def test_repair_solution(dimension, bench_class):
 @pytest.mark.parametrize("bench_class", real_benchmarks)
 def test_fitness(dimension, bench_class):
     objfunc = bench_class(dimension)
-    pop_init = UniformInitializer(dimension, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=42)
+    pop_init = UniformInitializer(dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=42)
     population = pop_init.generate_population(objfunc)
 
     # The fitness method internally calls objective; it works for both vectorized and non‑vectorized.
