@@ -1,11 +1,12 @@
 from copy import copy
 from dataclasses import dataclass, field
 import numpy as np
+from ...utils import ScalarLike, VectorLike
 from ...population import Population
 from ...initializer import Initializer
 
 
-def dummy_op(population_matrix, _fitness_array, random_state=None, f=0):
+def dummy_op(population_matrix, _fitness_array, random_state=None, f: ScalarLike = 0):
     """
     Replaces the vector with one consisting of all the same value
 
@@ -26,6 +27,10 @@ def dummy_op(population_matrix, _fitness_array, random_state=None, f=0):
     """
 
     return np.full_like(population_matrix, f)
+
+
+def add_const(population_matrix, _fitness_array, random_state=None, f: VectorLike | ScalarLike = 0):
+    return population_matrix + f
 
 
 @dataclass

@@ -1,6 +1,5 @@
 import math
 import logging
-from tkinter import W
 from typing import Callable, Optional
 import numpy as np
 from ...utils import MatrixLike, RNGLike, VectorLike, check_random_state
@@ -11,8 +10,8 @@ logger = logging.getLogger(__name__)
 # ------------------------------------------------
 # Splitting functions for dual-parent crossovers
 # ------------------------------------------------
-def random_split(population_array: MatrixLike, _fitness_array: VectorLike, random_state: RNGLike) -> tuple[MatrixLike, MatrixLike]:
-    population_size = population_array.shape[0]
+def random_split(population_array: MatrixLike, fitness_array: VectorLike, random_state: RNGLike) -> tuple[MatrixLike, MatrixLike]:
+    population_size, _ = population_array.shape
 
     total_parent_count = 2 * np.ceil(population_size / 2).astype(int)
     chosen_parents1, chosen_parents2 = np.array_split(random_state.permutation(total_parent_count), 2)
@@ -23,8 +22,8 @@ def random_split(population_array: MatrixLike, _fitness_array: VectorLike, rando
     return population_array[chosen_parents1, :], population_array[chosen_parents2, :]
 
 
-def stable_split(population_array: MatrixLike, _fitness_array: VectorLike, random_state: RNGLike) -> tuple[MatrixLike, MatrixLike]:
-    population_size = population_array.shape[0]
+def stable_split(population_array: MatrixLike, fitness_array: VectorLike, random_state: RNGLike) -> tuple[MatrixLike, MatrixLike]:
+    population_size, _ = population_array.shape
 
     half_size = math.ceil(population_size / 2)
     if population_size % 2 != 0:
@@ -62,12 +61,11 @@ def k_point_crossover(
 ) -> MatrixLike:
     random_state = check_random_state(random_state)
 
-    population_size = population_array.shape[0]
-    n_components = population_array.shape[1]
+    population_size, n_components = population_array.shape
 
     pairing_fn = create_pairing_fn(pairing_method)
     parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
-    n_parents = parents1.shape[0]
+    n_parents, _ = parents1.shape
 
     cuts = random_state.choice(n_components - 1, size=(n_parents, k), replace=False) + 1
     cuts.sort(axis=1)
@@ -96,18 +94,13 @@ def uniform_crossover(
     crossover_prob: float = 1,
     random_state: Optional[RNGLike] = None,
 ) -> MatrixLike:
-    """
-    Performs an uniform crossover between one half of the population_array and the rest.
-    """
-
     random_state = check_random_state(random_state)
 
-    population_size = population_array.shape[0]
-    n_components = population_array.shape[1]
+    population_size, n_components = population_array.shape
 
     pairing_fn = create_pairing_fn(pairing_method)
     parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
-    n_parents = parents1.shape[0]
+    n_parents, _ = parents1.shape
 
     cross_mask = random_state.random((n_parents, n_components)) < 0.5
     pair_mask = (random_state.random(n_parents) < crossover_prob)[:, None]
@@ -133,11 +126,11 @@ def averaged_crossover(
 ) -> MatrixLike:
     random_state = check_random_state(random_state)
 
-    population_size = population_array.shape[0]
+    population_size, _ = population_array.shape
 
     pairing_fn = create_pairing_fn(pairing_method)
     parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
-    n_parents = parents1.shape[0]
+    n_parents, _ = parents1.shape
 
     pair_mask = (random_state.random(n_parents) < crossover_prob)[:, None]
 
@@ -152,7 +145,7 @@ def averaged_crossover(
     return offspring[:population_size, :]
 
 
-def blx_alpha_crossover(
+def blend_crossover(
     population_array: MatrixLike,
     fitness_array: VectorLike,
     pairing_method: str = "random",
@@ -162,12 +155,12 @@ def blx_alpha_crossover(
 ) -> MatrixLike:
     random_state = check_random_state(random_state)
 
-    population_size = population_array.shape[0]
+    population_size, _ = population_array.shape
 
     pairing_fn = create_pairing_fn(pairing_method)
     parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
     full_parents = np.concatenate([parents1, parents2], axis=0)
-    n_parents = parents1.shape[0]
+    n_parents, _ = parents1.shape
 
     lowest_parent = np.minimum(parents1, parents2)
     highest_parent = np.maximum(parents1, parents2)
@@ -194,11 +187,11 @@ def sbx_crossover(
 
     random_state = check_random_state(random_state)
 
-    population_size = population_array.shape[0]
+    population_size, _ = population_array.shape
 
     pairing_fn = create_pairing_fn(pairing_method)
     parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
-    n_parents = parents1.shape[0]
+    n_parents, _ = parents1.shape
 
     pair_mask = (random_state.random(n_parents) < crossover_prob)[:, None]
 
@@ -227,18 +220,13 @@ def bitwise_xor_crossover(
     crossover_prob: float = 1,
     random_state: Optional[RNGLike] = None,
 ) -> MatrixLike:
-    """
-    Applies the XOR operation between each component of individuals in the population_array. The crossover is performed
-    between the first and second half of the population_array
-    """
-
     random_state = check_random_state(random_state)
 
-    population_size = population_array.shape[0]
+    population_size, _ = population_array.shape
 
     pairing_fn = create_pairing_fn(pairing_method)
     parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
-    n_parents = parents1.shape[0]
+    n_parents, _ = parents1.shape
 
     pair_mask = (random_state.random(n_parents) < crossover_prob)[:, None]
 
@@ -254,100 +242,56 @@ def bitwise_xor_crossover(
 
 
 # ------------------------------------------------
-# Splitting functions for multi-parent crossovers
-# ------------------------------------------------
-def random_multiparent_split(
-    population_array: MatrixLike, _fitness_array: VectorLike, n_parents: int, random_state: RNGLike
-) -> tuple[MatrixLike, ...]:
-    population_size = population_array.shape[0]
-
-    total_parent_count = n_parents * np.ceil(population_size / n_parents).astype(int)
-    parent_list = np.array_split(random_state.permutation(total_parent_count), n_parents)
-    if population_size % n_parents != 0:
-        remainder = population_size % n_parents
-        n_phantom = np.ceil(population_size / n_parents).astype(int) - remainder
-        for chosen_parents_i in parent_list:
-            chosen_parents_i[chosen_parents_i >= n_phantom] = random_state.integers(0, population_size, remainder)
-
-    return tuple(population_array[idxs, :] for idxs in parent_list)
-
-
-def stable_multiparent_split(
-    population_array: MatrixLike, _fitness_array: VectorLike, n_parents: int, random_state: RNGLike
-) -> tuple[MatrixLike, ...]:
-    population_size = population_array.shape[0]
-
-    total_parent_count = n_parents * np.ceil(population_size / n_parents).astype(int)
-    parent_list = np.array_split(np.arange(total_parent_count) % population_size, n_parents)
-
-    return tuple(population_array[idxs, :] for idxs in parent_list)
-
-
-# fmt: off
-group_selection_map = {
-    "random": random_multiparent_split,
-    "stable": stable_multiparent_split
-}
-# fmt: on
-
-
-def create_group_selection_fn(method: str) -> Callable:
-    if method not in group_selection_map:
-        raise ValueError(f"Pairing strategy {method} doesn't exist.")
-
-    return group_selection_map[method]
-
-
-# ------------------------------------------------
 # Multiparent crossover
 # ------------------------------------------------
 def multiparent_discrete_crossover(
     population_array: MatrixLike,
-    fitness_array: VectorLike,
-    n_parents: int = 3,
-    grouping_method: str = "random",
-    random_state: Optional[RNGLike] = None,
-) -> MatrixLike:
-    """
-    Performs a multipoint crossover between 'n_indiv' randomly chosen individuals for each member of the population_array.
-    """
-
+    fitness_array: VectorLike = None,
+    k: int = 3,
+    crossover_prob: float = 1.0,
+    replace: bool = False,
+    random_state: Optional[RNGLike] = None
+):
     random_state = check_random_state(random_state)
+    population_size, n_components = population_array.shape
 
-    population_size = population_array.shape[0]
-    n_components = population_array.shape[1]
+    if not replace:
+        parent_idx = np.argsort(random_state.random((population_size, population_size)), axis=1)[:, :k]
+    else:
+        parent_idx = random_state.integers(0, population_size, size=(population_size, k))
 
-    if n_parents < population_size:
-        raise ValueError(f"Cannot perform recombination between {n_parents} individuals when there are only {population_size} parents.")
+    parents_selected = population_array[parent_idx]
 
-    group_selection_fn = create_group_selection_fn(grouping_method)
-    parents = group_selection_fn(population_array, fitness_array, n_parents, random_state)
-    n_parents = parents[0].shape[0]
+    gene_choice = random_state.integers(0, k, size=(population_size, n_components))
+    crossed = np.take_along_axis(
+        parents_selected, gene_choice[:, None, :], axis=1
+    ).squeeze(axis=1)
 
-    # full_parent_array = np.concatenate(parents, axis=0)
-
-    indiv_chosen = np.tile(np.arange(population_array.shape[0]), (n_parents, 1))
-    indiv_chosen = random_state.permuted(indiv_chosen, axis=1).T
-
-    selection_mask = random_state.integers(0, n_parents, population_array.shape)
-
-    components_chosen = indiv_chosen[np.arange(indiv_chosen.shape[0])[:, None], selection_mask]
-
-    return population_array[components_chosen, np.arange(population_array.shape[1])]
+    cross_mask = (random_state.random(population_size) < crossover_prob)[:, None]
+    offspring = np.where(cross_mask, crossed, population_array)
+    return offspring
 
 
-def multiparent_intermediate_crossover(population_array, _fitness_array, N=3, random_state=None) -> MatrixLike:
-    """
-    Performs an intermediate average crossover between the vector and 'n-1' individuals the population_array.
-    """
-
+def multiparent_intermediate_crossover(
+    population_array: MatrixLike,
+    fitness_array: VectorLike = None,
+    k: int = 3,
+    crossover_prob: float = 1.0,
+    replace: bool = False,
+    random_state: Optional[RNGLike] = None
+):
     random_state = check_random_state(random_state)
+    population_size, _ = population_array.shape
 
-    n_indiv = np.minimum(N, population_array.shape[0])
+    if not replace:
+        parent_idx = np.argsort(random_state.random((population_size, population_size)), axis=1)[:, :k]
+    else:
+        parent_idx = random_state.integers(0, population_size, size=(population_size, k))
 
-    # TODO: individuals should be chosen with replacement
-    for i in range(n_indiv):
-        population_shuffled = population_array[random_state.permutation(population_array.shape[0]), :]
-        population_array += population_shuffled
+    parent_set = population_array[parent_idx]
 
-    return population_array / n_indiv
+    crossed = parent_set.mean(axis=1)
+
+    cross_mask = (random_state.random(population_size) < crossover_prob)[:, None]
+    offspring = np.where(cross_mask, crossed, population_array)
+    return offspring
