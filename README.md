@@ -339,8 +339,17 @@ start there – the documentation is designed as a discovery tool as much
 as a reference.
 
 ---
-
 ## License
 
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file
-for details.
+This framework is distributed under the GNU Lesser General Public License version 3 (LGPL‑v3).  
+The full license text is available in the [LICENSE](LICENSE) file.
+
+### What this means for you
+
+- **You are free to use this framework in any project** – academic, commercial, or personal – without opening your own code. You can build your optimisation algorithms, experiments, and proprietary applications on top of it, just like you would with a permissively licensed library.
+- **If you modify the framework itself** (its core classes, operators, or infrastructure) and distribute your modified version to others, you must make the source of those changes available under the same LGPL‑v3 license. This keeps the core open and ensures improvements benefit the whole community.
+- There is **no warranty** – the software is provided “as is”, as is standard for open‑source research code.
+
+### Why LGPL‑v3?
+
+The LGPL was designed exactly for libraries and frameworks: it protects the shared foundation while giving you complete freedom over the unique work you build on top of it. This is the same licensing model used by **DEAP** (Distributed Evolutionary Algorithms in Python) and many other scientific frameworks. It promotes a healthy ecosystem where the core stays open and everyone – academia and industry alike – can build on it without friction.
