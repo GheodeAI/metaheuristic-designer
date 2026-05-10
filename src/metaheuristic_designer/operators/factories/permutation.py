@@ -1,5 +1,11 @@
 from ...operator import OperatorFromLambda
-from ..operator_functions.permutation import *
+from ..operator_functions.permutation import (
+    permute_mutation,
+    roll_mutation,
+    invert_mutation,
+    pmx,
+    order_cross
+)
 from ..operator_functions.utils import OperatorFnDef
 
 # fmt: off

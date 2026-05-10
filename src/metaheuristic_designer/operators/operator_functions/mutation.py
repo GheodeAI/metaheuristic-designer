@@ -77,7 +77,7 @@ def rand_noise(population_matrix, fitness_array, distribution, F, random_state=N
     return result
 
 
-def sample_1_sigma(population, _fitness, random_state=None, **kwargs):
+def sample_1_sigma(population_matrix, fitness_array, random_state=None, **kwargs):
     """
     Replaces 'n' components of the input vector with a value sampled from the mutate 1 sigma function.
 
@@ -92,15 +92,15 @@ def sample_1_sigma(population, _fitness, random_state=None, **kwargs):
     tau = kwargs["tau"]
     n = kwargs["n"]
 
-    mask_pos = np.tile(np.arange(population.shape[1]) < n, (population.shape[0], 1))
+    mask_pos = np.tile(np.arange(population_matrix.shape[1]) < n, (population_matrix.shape[0], 1))
     mask_pos = random_state.permuted(mask_pos, axis=1)
 
-    sampled = np.maximum(epsilon, population * np.exp(tau * random_state.normal(0, 1, sigma.shape[0])))
-    population[mask_pos] = sampled[mask_pos]
-    return population
+    sampled = np.maximum(epsilon, population_matrix * np.exp(tau * random_state.normal(0, 1, sigma.shape[0])))
+    population_matrix[mask_pos] = sampled[mask_pos]
+    return population_matrix
 
 
-def mutate_1_sigma(population, _fitness, random_state=None, **kwargs):
+def mutate_1_sigma(population_matrix, fitness_array, random_state=None, **kwargs):
     """
     Mutate a sigma value in base of tau param, where epsilon is de minimum value that a sigma can have.
     """
@@ -110,10 +110,10 @@ def mutate_1_sigma(population, _fitness, random_state=None, **kwargs):
     epsilon = kwargs["epsilon"]
     tau = kwargs["tau"]
 
-    return np.maximum(epsilon, population * np.exp(tau * random_state.normal(0, 1, population.shape[0])[:, None]))
+    return np.maximum(epsilon, population_matrix * np.exp(tau * random_state.normal(0, 1, population_matrix.shape[0])[:, None]))
 
 
-def mutate_n_sigmas(population, _fitness, random_state=None, **kwargs):
+def mutate_n_sigmas(population_matrix, fitness_array, random_state=None, **kwargs):
     """
     Mutate a list of sigmas values in base of tau and tau_multiple params, where epsilon is de minimum value that a sigma can have.
     """
@@ -126,9 +126,9 @@ def mutate_n_sigmas(population, _fitness, random_state=None, **kwargs):
 
     return np.maximum(
         epsilon,
-        population
+        population_matrix
         * np.exp(
-            tau * random_state.normal(0, 1, population.shape[0])[:, None] + tau_multiple * random_state.normal(0, 1, population.shape[0])[:, None]
+            tau * random_state.normal(0, 1, population_matrix.shape[0])[:, None] + tau_multiple * random_state.normal(0, 1, population_matrix.shape[0])[:, None]
         ),
     )
 

@@ -10,7 +10,7 @@ from ...utils import check_random_state
 logger = logging.getLogger(__name__)
 
 
-def differential_evolution_rand1(population_matrix, _fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
+def differential_evolution_rand1(population_matrix, fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
     """
     Performs the differential evolution operator DE/rand/1
 
@@ -18,7 +18,7 @@ def differential_evolution_rand1(population_matrix, _fitness_array, random_state
     ----------
     population_matrix
         _description_
-    _fitness_array
+    fitness_array
         _description_
 
     Returns
@@ -80,7 +80,7 @@ def differential_evolution_best1(population_matrix, fitness_array, random_state=
     return population_matrix
 
 
-def differential_evolution_rand2(population_matrix, _fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
+def differential_evolution_rand2(population_matrix, fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
     """
     Performs the differential evolution operator DE/rand/2
 
@@ -88,7 +88,7 @@ def differential_evolution_rand2(population_matrix, _fitness_array, random_state
     ----------
     population_matrix
         _description_
-    _fitness_array
+    fitness_array
         _description_
 
     Returns
@@ -148,7 +148,7 @@ def differential_evolution_best2(population_matrix, fitness_array, random_state=
     return population_matrix
 
 
-def differential_evolution_current_to_rand1(population_matrix, _fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
+def differential_evolution_current_to_rand1(population_matrix, fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
     """
     Performs the differential evolution operator DE/current-to-rand/1
 
@@ -156,7 +156,7 @@ def differential_evolution_current_to_rand1(population_matrix, _fitness_array, r
     ----------
     population_matrix
         _description_
-    _fitness_array
+    fitness_array
         _description_
 
     Returns
