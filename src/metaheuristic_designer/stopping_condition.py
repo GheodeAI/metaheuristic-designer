@@ -219,7 +219,7 @@ class StoppingCondition:
     def get_progress(self) -> float:
         """
         Compute the current progress (0-1) according to the progress metric.
-        
+
 
         Parameters
         ----------

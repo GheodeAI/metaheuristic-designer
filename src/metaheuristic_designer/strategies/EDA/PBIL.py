@@ -1,3 +1,7 @@
+"""
+Population-Based Incremental Learning (PBIL) strategies.
+"""
+
 from __future__ import annotations
 from typing import Optional
 import numpy as np
@@ -12,8 +16,36 @@ from ...utils import check_random_state
 
 class BernoulliPBIL(VariablePopulation):
     """
-    Estimation of distribution algorithm for binary vectors.
-    https://doi.org/10.1016/j.swevo.2011.08.003
+    PBIL for binary vectors using a Bernoulli distribution.
+
+    The probability vector *p* is updated each generation with a
+    learning rate and optional Gaussian noise, then a new population
+    is sampled.
+
+    Reference: https://doi.org/10.1016/j.swevo.2011.08.003
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    parent_sel : ParentSelection, optional
+        Parent selection method.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method.
+    name : str, optional
+        Display name (default ``"BernoulliPBIL"``).
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring per generation.
+    random_state : RNGLike, optional
+        Random number generator.
+    p : array-like, optional
+        Initial probability vector.  Defaults to uniform over [0,1].
+    lr : float, optional
+        Learning rate for updating *p* (default 1e-3).
+    noise : float, optional
+        Standard deviation of Gaussian noise added to *p* (default 0).
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(
@@ -65,8 +97,34 @@ class BernoulliPBIL(VariablePopulation):
 
 class BinomialPBIL(VariablePopulation):
     """
-    Estimation of distribution algorithm for binary vectors.
-    https://doi.org/10.1016/j.swevo.2011.08.003
+    PBIL for discrete vectors using a Binomial distribution.
+
+    Reference: https://doi.org/10.1016/j.swevo.2011.08.003
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    parent_sel : ParentSelection, optional
+        Parent selection method.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method.
+    name : str, optional
+        Display name (default ``"BinomialPBIL"``).
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring per generation.
+    random_state : RNGLike, optional
+        Random number generator.
+    p : float or array-like, optional
+        Initial success probability (default 0.5).
+    n : int or array-like
+        Number of trials. **Must be provided**; there is no default.
+    lr : float, optional
+        Learning rate (default 1e-3).
+    noise : float, optional
+        Gaussian noise standard deviation (default 0).
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(
@@ -124,8 +182,39 @@ class BinomialPBIL(VariablePopulation):
 
 class GaussianPBIL(VariablePopulation):
     """
-    Estimation of distribution algorithm for binary vectors.
-    https://doi.org/10.1016/j.swevo.2011.08.003
+    PBIL for continuous vectors using a Gaussian distribution.
+
+    The location vector *loc* is updated each generation with a
+    learning rate and optional Gaussian noise, then a new population
+    is sampled.
+
+    Reference: https://doi.org/10.1016/j.swevo.2011.08.003
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    parent_sel : ParentSelection, optional
+        Parent selection method.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method.
+    name : str, optional
+        Display name (default ``"GaussianPBIL"``).
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring per generation.
+    random_state : RNGLike, optional
+        Random number generator.
+    loc : array-like, optional
+        Initial mean vector (default ``None``; the operator uses a
+        fallback).
+    scale : float or array-like, optional
+        Standard deviation (default 1).
+    lr : float, optional
+        Learning rate (default 1e-3).
+    noise : float, optional
+        Gaussian noise standard deviation added to *loc* (default 0).
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(

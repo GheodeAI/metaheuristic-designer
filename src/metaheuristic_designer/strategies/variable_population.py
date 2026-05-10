@@ -1,3 +1,7 @@
+"""
+Strategy where offspring size differs from population size (μ+λ / μ,λ style).
+"""
+
 from __future__ import annotations
 import logging
 from typing import Optional
@@ -16,7 +20,35 @@ logger = logging.getLogger(__name__)
 
 class VariablePopulation(SearchStrategy):
     """
-    Population-based optimization strategy where the number of individuals generated is different from the size of the population
+    Population-based strategy with separate parent and offspring sizes.
+
+    This is the base for (μ+λ) and (μ,λ) Evolution Strategies, GAs
+    with elitism, and similar algorithms.  The number of parents
+    selected and the number of offspring generated can be configured
+    independently.
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    operator : Operator
+        Perturbation operator.
+    parent_sel : ParentSelection, optional
+        Parent selection method.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method.
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring to generate.  Defaults to the
+        initializer's population size.
+    shuffle_with_replacement : bool, optional
+        If ``True``, shuffle the parent pool with replacement;
+        otherwise without replacement (default ``False``).
+    name : str, optional
+        Display name.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Forwarded to :class:`SearchStrategy`.
     """
 
     def __init__(
@@ -60,12 +92,12 @@ class VariablePopulation(SearchStrategy):
 
     @initializer.setter
     def initializer(self, new_initializer: Initializer):
-        """
-        Setter for the initializer attribute. Allways called at least once in the constructor.
+        """Update the offspring size and shuffler when the initializer changes.
 
         Parameters
         ----------
         new_initializer : Initializer
+            The new initializer.
         """
 
         if not self.using_custom_offspring_size:
@@ -84,6 +116,19 @@ class VariablePopulation(SearchStrategy):
         self._initializer = new_initializer
 
     def select_parents(self, population: Population) -> Population:
+        """Select parents, then optionally shuffle the pool.
+
+        Parameters
+        ----------
+        population : Population
+            Current population.
+
+        Returns
+        -------
+        Population
+            The (possibly shuffled) selected parents.
+        """
+
         next_population = super().select_parents(population)
         next_population = self.population_shuffler(next_population)
         return next_population

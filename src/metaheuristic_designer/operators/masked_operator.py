@@ -1,31 +1,39 @@
+"""
+Operator that applies different operators to disjoint slices of the genotype.
+"""
+
 from __future__ import annotations
-from typing import Iterable
+from typing import Iterable, Optional
 from copy import copy
 import numpy as np
+
+from ..initializer import Initializer
+from ..population import Population
 from ..operator import Operator
 from ..utils import MaskLike
 
 
 class MaskedOperator(Operator):
-    """
-    Operator class that utilizes a list of operators to modify individuals.
+    """Operator that partitions the genotype and applies different operators.
+
+    A mask (integer array of length `vec_size`) specifies which operator
+    (index into `op_list`) handles each gene.  This is used internally
+    by :class:`ExtendedOperator` to separate the solution from auxiliary
+    parameters.
 
     Parameters
     ----------
-    method: str
-        Type of operator that will be applied.
-    op_list: List[Operator]
-        List of operators that will be used.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the operator.
-    name: str, optional
-        Name that is associated with the operator.
+    op_list : list of Operator
+        Operators to apply, one per mask index.
+    mask : array of int
+        Array of length `vec_size` assigning each gene to an operator.
+    name : str, optional
+        Display name; defaults to ``"Split (op_names)"``.
+    **kwargs
+        Forwarded to :class:`Operator`.
     """
 
     def __init__(self, op_list: Iterable[Operator], mask: MaskLike, name: str = None, **kwargs):
-        """
-        Constructor for the OperatorMeta class
-        """
         if name is None:
             op_names = []
             for op in op_list:
@@ -40,14 +48,37 @@ class MaskedOperator(Operator):
         self.op_list = op_list
         super().__init__(name, mask=mask, **kwargs)
 
-    def gather_params(self):
+    def gather_params(self) -> dict:
+        """Collect parameters from this operator and all sub-operators.
+
+        Returns
+        -------
+        dict
+            Flat dictionary with dotted keys.
+        """
+
         all_params = self.get_params()
         for op in self.op_list:
             all_params.update(op.gather_params())
 
         return all_params
 
-    def evolve(self, population, initializer=None):
+    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+        """Apply the appropriate operator to each slice of the genotype.
+
+        Parameters
+        ----------
+        population : Population
+            The current population.
+        initializer : Initializer, optional
+            The population initializer.
+
+        Returns
+        -------
+        Population
+            The modified population.
+        """
+
         new_population = copy(population)
 
         # In masked_operator.py, inside the loop over op_list:
@@ -61,6 +92,14 @@ class MaskedOperator(Operator):
         return new_population
 
     def step(self, progress: float):
+        """Update schedulable parameters and propagate to sub-operators.
+
+        Parameters
+        ----------
+        progress : float
+            Current progress of the algorithm (0-1).
+        """
+
         super().step(progress)
 
         for op in self.op_list:

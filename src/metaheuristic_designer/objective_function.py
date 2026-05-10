@@ -267,7 +267,7 @@ class NullObjectiveFunc(ObjectiveFunc):
     **kwargs
         Forwarded to :class:`ObjectiveFunc`.
     """
-    
+
     def __init__(self, **kwargs):
         super().__init__(name="Null objective", **kwargs)
 

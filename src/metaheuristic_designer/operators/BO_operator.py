@@ -1,18 +1,46 @@
+"""
+Bayesian Optimization operator based on Gaussian Process regression.
+"""
+
 from __future__ import annotations
+from typing import Callable, Optional
 import warnings
 import numpy as np
 import scipy as sp
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel
+
+from ..initializer import Initializer
+from ..utils import RNGLike
 from ..operator import Operator
 from ..objective_function import ObjectiveFunc
 from ..population import Population
+from ..encodings import Encoding
 
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
 
 
-def _acquisition_function(gaussian_model, _X, x_in, max_y):
+def _acquisition_function(gaussian_model: GaussianProcessRegressor, _X: np.ndarray, x_in: np.ndarray, max_y: float) -> float:
+    """Expected Improvement acquisition function.
+
+    Parameters
+    ----------
+    gaussian_model : GaussianProcessRegressor
+        The fitted GP model.
+    _X : ndarray
+        Training inputs (not used directly).
+    x_in : ndarray
+        Point where the acquisition function is evaluated.
+    max_y : float
+        Current best observed value.
+
+    Returns
+    -------
+    float
+        Negative Expected Improvement (for minimization).
+    """
+
     mean_y, std_y = gaussian_model.predict(x_in[None, :], return_std=True)
     std_y = np.maximum(std_y, 1e-10)
 
@@ -23,22 +51,43 @@ def _acquisition_function(gaussian_model, _X, x_in, max_y):
 
 
 class BOOperator(Operator):
-    """
-    Operator used specifically in the Bayesian Optimization algorithm.
+    """Bayesian Optimization operator using a GP surrogate.
 
-    Implements a surrogate model based on a Gaussian Process Regressor. An aquisition function calculated
-    from the regression model is then optimized to estimate the next best solution for the problem.
+    Fits a Gaussian Process model to the current population, then
+    maximises the Expected Improvement acquisition function to
+    propose a new candidate solution.  The new solution is merged
+    back into the population.
+
+    Parameters
+    ----------
+    name : str, optional
+        Display name (default ``"Gaussian Regression Surrogate Model"``).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    kernel : sklearn Kernel, optional
+        GP kernel. Defaults to ``RBF(length_scale=1.0) + WhiteKernel(noise_level=1.0)``.
+    random_state : RNGLike, optional
+        Random number generator.
+    batch_size : int, optional
+        Number of random starting points for acquisition optimisation (default 100).
+    max_samples : int, optional
+        Maximum number of training points used (default 100).  If the
+        population exceeds this, a random subset is selected.
+    rbf_scale : float, optional
+        Multiplicative factor applied to the RBF kernel (default 1.0).
+    **kwargs
+        Additional keyword arguments stored as schedulable parameters.
     """
 
     def __init__(
         self,
-        name="Gaussian Regression Surrogate Model",
-        encoding=None,
-        kernel=None,
-        random_state=None,
-        batch_size=100,
-        max_samples=100,
-        rbf_scale=1.0,
+        name: str = "Gaussian Regression Surrogate Model",
+        encoding: Optional[Encoding] = None,
+        kernel: Optional[Callable] = None,
+        random_state: Optional[RNGLike] = None,
+        batch_size: int = 100,
+        max_samples: int = 100,
+        rbf_scale: float = 1.0,
         **kwargs,
     ):
         super().__init__(
@@ -57,7 +106,22 @@ class BOOperator(Operator):
 
         self.gaussian_model = GaussianProcessRegressor(kernel=kernel, normalize_y=True, copy_X_train=False)
 
-    def evolve(self, population, initializer=None):
+    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+        """Fit GP, optimise acquisition, and merge the proposed point.
+
+        Parameters
+        ----------
+        population : Population
+            The current population.
+        initializer : Initializer, optional
+            Used to generate random starting points for acquisition optimisation.
+
+        Returns
+        -------
+        Population
+            The population with the new candidate appended.
+        """
+
         # Obtain training data from the population
         population = population.calculate_fitness()
 

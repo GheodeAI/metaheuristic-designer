@@ -41,7 +41,7 @@ def compute_statistic(population_matrix, stat_name="mean", weights=None):
 
 def random_initialize(population_matrix, initializer: Initializer, random_state=None):
     """
-
+    Randomly regenerate the entire population from scratch with the initializer's distribution.
 
     Parameters
     ----------

@@ -59,7 +59,7 @@ class Initializer(ABC):
 
         By default simply delegates to :meth:`generate_random`.
         Returns a newly generated individual (a 1-D array).
-        
+
         Override this method if your initializer needs to distinguish
         between a randomly initialize individual and a solution
         generated with another strategy (See `SeedProbInitializer`).

@@ -14,7 +14,7 @@ class SigmoidEncoding(Encoding):
     """
     Encoding that maps binary solutions to continuous values via a sigmoid.
 
-    The encoding applies :math:`\sigma(x) = 1 / (1 + e^{-x})` pointwise.
+    The encoding applies :math:`\\sigma(x) = 1 / (1 + e^{-x})` pointwise.
     During encoding, the logit function is applied to the probability
     parameter (producing real numbers).  During decoding, the sigmoid
     is applied again.  This allows real-valued operators (e.g., Gaussian

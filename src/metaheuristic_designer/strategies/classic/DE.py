@@ -1,3 +1,7 @@
+"""
+Differential Evolution strategy.
+"""
+
 from __future__ import annotations
 from typing import Optional
 from ...initializer import Initializer
@@ -10,7 +14,32 @@ from ...utils import check_random_state, RNGLike
 
 class DE(StaticPopulation):
     """
-    Differential evolution
+    Differential Evolution algorithm.
+
+    Uses a DE mutation operator (e.g., ``"DE/best/1"``) and
+    one-to-one survivor selection by default.  The population size
+    stays constant, and every individual is perturbed each generation.
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    de_operator_name : str, optional
+        DE variant (default ``"DE/best/1"``).
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection; defaults to one-to-one competition.
+    name : str, optional
+        Display name (default ``"DE"``).
+    random_state : RNGLike, optional
+        Random number generator.
+    F : float or SchedulableParameter, optional
+        Scale factor (default 0.8).
+    Cr : float or SchedulableParameter, optional
+        Crossover probability (default 0.9).
+    p : float or SchedulableParameter, optional
+        Elite fraction for ``/pbest/`` variants (default 0.1).
+    **kwargs
+        Forwarded to :class:`StaticPopulation`.
     """
 
     def __init__(

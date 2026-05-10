@@ -7,6 +7,7 @@ from typing import Any
 import numpy as np
 from ..schedulable_parameter import SchedulableParameter
 
+
 class StepSchedule(SchedulableParameter):
     """
     Schedule defined by a dictionary of progress-value pairs.

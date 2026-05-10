@@ -187,7 +187,7 @@ def pmx(
     parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
     n_parents, _ = parents1.shape
 
-    crossed = np.empty((n_parents*2, n_components))
+    crossed = np.empty((n_parents * 2, n_components))
     for i in range(n_parents):
         if random_state.random() < crossover_prob:
             crossed[i] = pmx_single(parents1[i], parents2[i], random_state=random_state)
@@ -296,7 +296,7 @@ def order_cross(
     parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
     n_parents, _ = parents1.shape
 
-    crossed = np.empty((n_parents*2, n_components))
+    crossed = np.empty((n_parents * 2, n_components))
     for i in range(n_parents):
         if random_state.random() < crossover_prob:
             crossed[i] = order_cross_single(parents1[i], parents2[i], random_state=random_state)

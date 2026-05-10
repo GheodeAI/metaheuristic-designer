@@ -1,21 +1,52 @@
+"""
+Ready-to-run Evolution Strategy wrappers.
+"""
+
 from __future__ import annotations
+from typing import Optional
 import numpy as np
 
+from ..encoding import Encoding
+from ..objective_function import ObjectiveFunc
 from ..initializers import UniformInitializer, PermInitializer
 from ..encodings import TypeCastEncoding
 from ..strategies import ES
 from ..algorithms import Algorithm
 from ..operators import create_operator
 from ..survivor_selection import create_survivor_selection
-from ..utils import check_random_state
+from ..utils import RNGLike, check_random_state
 
 
 def evolution_strategy_binary(
-    objfunc, mutated_bits=1, population_size=100, offspring_size=500, elitist=False, encoding=None, random_state=None, **kwargs
-):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept binary coded vectors.
+    objfunc: ObjectiveFunc,
+    mutated_bits: int = 1,
+    population_size: int = 100,
+    offspring_size: int = 500,
+    elitist: bool = False,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Evolution Strategy for binary-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    mutated_bits : int, optional
+        Number of bits flipped per mutation (default 1).
+    population_size : int, optional
+        Population size (default 100).
+    offspring_size : int, optional
+        Number of offspring per generation (default 500).
+    elitist : bool, optional
+        If ``True``, use (μ+λ) selection; otherwise (μ,λ).
+    encoding : Encoding, optional
+        Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -33,11 +64,35 @@ def evolution_strategy_binary(
 
 
 def evolution_strategy_permutation(
-    objfunc, swapped_positions=2, population_size=100, offspring_size=500, elitist=False, encoding=None, random_state=None, **kwargs
-):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
+    objfunc: ObjectiveFunc,
+    swapped_positions: int = 2,
+    population_size: int = 100,
+    offspring_size: int = 500,
+    elitist: bool = False,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Evolution Strategy for permutation-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    swapped_positions : int, optional
+        Number of positions swapped per mutation (default 2).
+    population_size : int, optional
+        Population size (default 100).
+    offspring_size : int, optional
+        Number of offspring per generation (default 500).
+    elitist : bool, optional
+        If ``True``, use (μ+λ) selection; otherwise (μ,λ).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -52,11 +107,35 @@ def evolution_strategy_permutation(
 
 
 def evolution_strategy_discrete(
-    objfunc, resampled_components=1, population_size=100, offspring_size=500, elitist=False, encoding=None, random_state=None, **kwargs
-):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
+    objfunc: ObjectiveFunc,
+    resampled_components: int = 1,
+    population_size: int = 100,
+    offspring_size: int = 500,
+    elitist: bool = False,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Evolution Strategy for integer-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    resampled_components : int, optional
+        Number of components resampled per mutation (default 1).
+    population_size : int, optional
+        Population size (default 100).
+    offspring_size : int, optional
+        Number of offspring per generation (default 500).
+    elitist : bool, optional
+        If ``True``, use (μ+λ) selection; otherwise (μ,λ).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -79,19 +158,36 @@ def evolution_strategy_discrete(
 
 
 def evolution_strategy_real(
-    objfunc,
-    mutation_strength=1e-2,
-    mutated_components=1,
-    population_size=100,
-    elitist=False,
-    offspring_size=500,
-    encoding=None,
-    random_state=None,
+    objfunc: ObjectiveFunc,
+    mutation_strength: float = 1e-2,
+    mutated_components: int = 1,
+    population_size: int = 100,
+    offspring_size: int = 500,
+    elitist: bool = False,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
     **kwargs,
-):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
+) -> Algorithm:
+    """Evolution Strategy for integer-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    resampled_components : int, optional
+        Number of components resampled per mutation (default 1).
+    population_size : int, optional
+        Population size (default 100).
+    offspring_size : int, optional
+        Number of offspring per generation (default 500).
+    elitist : bool, optional
+        If ``True``, use (μ+λ) selection; otherwise (μ,λ).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)

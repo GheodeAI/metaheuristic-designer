@@ -1,3 +1,7 @@
+"""
+Local Search strategy (single solution, multiple perturbations per iteration).
+"""
+
 from __future__ import annotations
 from typing import Optional
 from ..initializer import Initializer
@@ -6,12 +10,35 @@ from ..operator import Operator
 from ..population import Population
 from ..survivor_selection_base import SurvivorSelection
 from ..survivor_selection import create_survivor_selection
-from ..utils import check_random_state, RNGLike
+from ..utils import RNGLike
 
 
 class LocalSearch(SearchStrategy):
     """
-    Local search algorithm
+    Local Search algorithm.
+
+    At each iteration the current solution is duplicated *iterations*
+    times, and every copy is perturbed independently.  The best
+    among the original and the perturbed copies survives.  By default,
+    the survivor selection is set to ``"local_search"`` (one parent
+    vs. many offspring).
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    operator : Operator, optional
+        Perturbation operator.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection; defaults to ``"local_search"``.
+    name : str, optional
+        Display name (default ``"LocalSearch"``).
+    iterations : int, optional
+        Number of perturbed copies per iteration (default 100).
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Forwarded to :class:`SearchStrategy`.
     """
 
     def __init__(
@@ -39,5 +66,20 @@ class LocalSearch(SearchStrategy):
         )
 
     def perturb(self, parents: Population, **kwargs) -> Population:
+        """Duplicate the parent *iterations* times, then apply the operator.
+
+        Parameters
+        ----------
+        parents : Population
+            The current solution(s).
+        **kwargs
+            Forwarded to :class:`SearchStrategy.perturb`.
+
+        Returns
+        -------
+        Population
+            The perturbed copies.
+        """
+
         new_population = parents.repeat(self.params.iterations)
         return super().perturb(new_population, **kwargs)

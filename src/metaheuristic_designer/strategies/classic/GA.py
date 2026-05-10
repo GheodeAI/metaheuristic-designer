@@ -1,3 +1,7 @@
+"""
+Genetic Algorithm strategy.
+"""
+
 from __future__ import annotations
 from typing import Optional
 
@@ -13,7 +17,37 @@ from ...utils import check_random_state, RNGLike
 
 class GA(StaticPopulation):
     """
-    Genetic algorithm
+    Genetic Algorithm.
+
+    Combines crossover (applied with probability *crossover_prob*)
+    and mutation (applied per individual with probability
+    *mutation_prob*) via a :class:`BranchOperator`.  The population
+    size is constant.
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    mutation_op : Operator
+        Mutation operator (will be applied probabilistically).
+    crossover_op : Operator
+        Crossover operator (applied pairwise).
+    parent_sel : ParentSelection
+        Parent selection method.
+    survivor_sel : SurvivorSelection
+        Survivor selection method.
+    name : str, optional
+        Display name (default ``"GA"``).
+    mutation_prob : float or SchedulableParameter, optional
+        Individual-level probability of mutation (default 0.1).
+    crossover_prob : float or SchedulableParameter, optional
+        Pair-level probability of crossover (default 0.9). If the
+        crossover operator supports it, this value is injected
+        via ``update_kwargs``.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Forwarded to :class:`StaticPopulation`.
     """
 
     def __init__(

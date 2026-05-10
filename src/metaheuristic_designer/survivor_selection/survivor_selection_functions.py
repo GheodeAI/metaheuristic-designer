@@ -23,6 +23,7 @@ def generational(population_fitness: VectorLike, offspring_fitness: VectorLike, 
         Indices of the selected individuals. Offspring indices are offset by
         `len(population_fitness)` so that the caller can distinguish them.
     """
+
     return np.arange(offspring_fitness.shape[0]) + population_fitness.shape[0]
 
 
@@ -47,6 +48,7 @@ def one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, ra
         Indices of the selected individuals. Indices < n_parents point to
         parents; indices >= n_parents point to offspring.
     """
+
     n_parents = population_fitness.shape[0]
     n_offspring = offspring_fitness.shape[0]
 
@@ -80,6 +82,7 @@ def prob_one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLik
     survivors : VectorLike
         Indices of the selected individuals (parent indices offset when replaced).
     """
+
     random_state = check_random_state(random_state)
 
     n_parents = population_fitness.shape[0]
@@ -115,6 +118,7 @@ def many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, r
         Indices of the selected individuals, with offspring indices shifted by
         n_parents for each repetition appropriately.
     """
+
     n_parents = population_fitness.shape[0]
     n_offspring = offspring_fitness.shape[0]
     n_repetitions = n_offspring // n_parents
@@ -158,6 +162,7 @@ def prob_many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLi
     survivors : VectorLike
         Indices of the selected individuals.
     """
+
     random_state = check_random_state(random_state)
 
     n_parents = population_fitness.shape[0]
@@ -207,6 +212,7 @@ def elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, rando
         Indices of the selected individuals. Parent indices appear as-is;
         offspring indices are shifted by the number of parents.
     """
+
     n_parents = population_fitness.shape[0]
     amount = min(n_parents, amount)
 
@@ -238,6 +244,7 @@ def cond_elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, 
         Indices of the selected individuals (parent indices not shifted,
         offspring indices shifted by n_parents).
     """
+
     n_parents = population_fitness.shape[0]
 
     parent_order = np.argsort(population_fitness)[::-1]
@@ -276,6 +283,7 @@ def keep_best(population_fitness: VectorLike, offspring_fitness: VectorLike, ran
         Indices into the concatenated fitness array (0..n_parents-1 for parents,
         n_parents.. for offspring).
     """
+
     n_parents = population_fitness.shape[0]
 
     full_fitness = np.concatenate((population_fitness, offspring_fitness))
@@ -304,6 +312,7 @@ def keep_best_offspring(population_fitness: VectorLike, offspring_fitness: Vecto
         Indices of the selected offspring, shifted by n_parents so that
         they are distinguishable from parent indices.
     """
+
     n_parents = population_fitness.shape[0]
 
     fitness_order = np.argsort(offspring_fitness)[::-1][:n_parents] + n_parents
@@ -329,4 +338,5 @@ def random_replacement(population_fitness: VectorLike, offspring_fitness: Vector
         Indices of the selected offspring, shifted by n_parents so that
         they are distinguishable from parent indices.
     """
+
     return np.arange(offspring_fitness.shape[0]) + population_fitness.shape[0]

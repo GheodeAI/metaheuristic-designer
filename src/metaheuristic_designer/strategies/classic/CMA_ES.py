@@ -1,8 +1,19 @@
+"""
+CMA-ES (Covariance Matrix Adaptation Evolution Strategy) implementation.
+
+.. warning::
+   The current implementation is architecturally a temporary solution.
+   It will be refactored once the EDA (Distribution-based) interface is
+   finalised.
+"""
+
 from __future__ import annotations
 from typing import Optional
 import logging
 import numpy as np
 import scipy as sp
+
+from metaheuristic_designer.objective_function import ObjectiveFunc
 
 from ...search_strategy import SearchStrategy
 from ...parent_selection import create_parent_selection
@@ -10,7 +21,6 @@ from ...population import Population
 from ...initializer import Initializer
 from ...schedulable_parameter import SchedulableParameter
 from ...survivor_selection_base import SurvivorSelection
-from ..variable_population import VariablePopulation
 from ...operators import create_operator
 from ...utils import VectorLike, check_random_state
 
@@ -19,10 +29,40 @@ logger = logging.getLogger(__name__)
 
 class CMA_ES(SearchStrategy):
     """
-    CMA-ES algorithm.
+    Covariance Matrix Adaptation Evolution Strategy (CMA-ES).
 
-    The current implementation is suboptimal from the point of view of the architecture.
-    It will be refactored when the EDA interface gets finalized.
+    This is a population-based algorithm that samples new solutions
+    from a multivariate normal distribution whose mean and covariance
+    are adapted each generation based on the best individuals.
+
+    .. note::
+       The architecture of this class is provisional.  It currently
+       overrides :meth:`initialize` and :meth:`perturb` directly.
+       Once the distribution-based (EDA) abstraction is in place,
+       CMA-ES will be rewritten to use that common interface.
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Provides population size and genotype shape, but does **not**
+        generate the initial solutions.
+    survivor_sel : SurvivorSelection, optional
+        How survivors are selected.  Defaults to the strategy's
+        default (generational).
+    name : str, optional
+        Display name (default ``"CMA-ES"``).
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring per generation.  If ``None``, the
+        initializer's population size is used.
+    random_state : RNGLike, optional
+        Random number generator.
+    mean : VectorLike, optional
+        Initial mean vector.  If not given, it is computed from the
+        objective's bounds (or randomly if no bounds exist).
+    sigma : VectorLike, optional
+        Initial step size.  If not given, a default is computed.
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(
@@ -106,7 +146,21 @@ class CMA_ES(SearchStrategy):
 
         self.n = n
 
-    def initialize(self, objfunc):
+    def initialize(self, objfunc: ObjectiveFunc) -> Population:
+        """Create the initial population by sampling from the current distribution.
+
+        Parameters
+        ----------
+        objfunc : ObjectiveFunc
+            The objective function, used to infer bounds if *mean* or
+            *sigma* are not provided.
+
+        Returns
+        -------
+        Population
+            A freshly sampled population with unevaluated fitness.
+        """
+
         if self.params.mean is None:
             if hasattr(objfunc, "lower_bound") and hasattr(objfunc, "upper_bound"):
                 computed_mean = 0.5 * (objfunc.upper_bound + objfunc.lower_bound)
@@ -140,7 +194,26 @@ class CMA_ES(SearchStrategy):
 
         return Population(objfunc, genotype, encoding=self.initializer.encoding)
 
-    def perturb(self, parents, **kwargs):
+    def perturb(self, parents: Population, **kwargs) -> Population:
+        """Update the distribution parameters and generate offspring.
+
+        The parents (the best μ individuals from the previous generation)
+        are used to update *mean*, *sigma*, *covariance*, and the
+        evolution paths.  A new offspring population is then sampled from
+        the updated distribution.
+
+        Parameters
+        ----------
+        parents : Population
+            The selected parents (must be already evaluated).
+        **kwargs
+            Forwarded to the parent's :meth:`perturb`.
+
+        Returns
+        -------
+        Population
+            Offspring population of size *offspring_size*.
+        """
 
         pop_order = np.argsort(parents.fitness)[::-1]
         pop_matrix = parents.genotype_matrix[pop_order, :]

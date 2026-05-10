@@ -1,10 +1,11 @@
 """
-Implementation of generic vector operators.
-
-Provides a factory method to generate the operator from a name.
+Mutation operator registry and factory.
 """
 
 from __future__ import annotations
+from typing import Optional
+
+from ...encoding import Encoding
 from ..operator_functions.utils import OperatorFnDef
 from ..operator_functions.mutation import (
     xor_mask,
@@ -22,10 +23,10 @@ from ...operator import OperatorFromLambda
 mutation_ops_map = {
     # XOR and bitflip mutation
     "xor":                  OperatorFnDef(xor_mask),
-    "byte_xor":             OperatorFnDef(xor_mask, forced_params={"BinRep": "byte"}),
-    "int_xor":              OperatorFnDef(xor_mask, forced_params={"BinRep": "int"}),
-    "bit_xor":              OperatorFnDef(xor_mask, forced_params={"BinRep": "bin"}),
-    "bitflip":              OperatorFnDef(xor_mask, forced_params={"BinRep": "bin"}),
+    "byte_xor":             OperatorFnDef(xor_mask, forced_params={"mode": "byte"}),
+    "int_xor":              OperatorFnDef(xor_mask, forced_params={"mode": "int"}),
+    "bit_xor":              OperatorFnDef(xor_mask, forced_params={"mode": "bin"}),
+    "bitflip":              OperatorFnDef(xor_mask, forced_params={"mode": "bin"}),
 
     # Gaussian distribution
     "gauss":                OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
@@ -106,19 +107,31 @@ mutation_ops_map = {
 # fmt: on
 
 
-def create_mutation_operator(method, encoding=None, name=None, **kwargs):
-    """_summary_
+def create_mutation_operator(
+    method: str,
+    encoding: Optional[Encoding] = None,
+    name: Optional[str] = None,
+    **kwargs
+) -> OperatorFromLambda:
+    """
+    Create a mutation operator by name.
 
     Parameters
     ----------
-    method
-        _description_
-    encoding, optional
-        _description_, by default None
+    method : str
+        Key into :data:`mutation_ops_map`.
+    encoding : Encoding, optional
+        Encoding applied to the genotype after mutation.
+    name : str, optional
+        Display name; defaults to *method*.
+    **kwargs
+        Parameters forwarded to the mutation function (e.g.,
+        ``N``, ``F``, ``distribution``).
 
     Returns
     -------
-        _description_
+    OperatorFromLambda
+        The wrapped mutation operator.
     """
 
     if name is None:

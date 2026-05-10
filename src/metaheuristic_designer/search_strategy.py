@@ -104,7 +104,7 @@ class SearchStrategy(ParametrizableMixin):
             A flat dictionary with dotted keys like
             ``"operator.F"``, ``"parent_sel.amount"``, etc.
         """
-        
+
         param_dict = {f"{self.parent_sel.name}.{k}": v for k, v in self.parent_sel.gather_params().items()}
         param_dict.update({f"{self.operator.name}.{k}": v for k, v in self.operator.gather_params().items()})
         param_dict.update({f"{self.survivor_sel.name}.{k}": v for k, v in self.survivor_sel.gather_params().items()})

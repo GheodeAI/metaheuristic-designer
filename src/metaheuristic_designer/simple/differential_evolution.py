@@ -1,24 +1,51 @@
+"""
+Ready-to-run Differential Evolution wrappers.
+"""
+
 from __future__ import annotations
+from typing import Optional
+
+from ..objective_function import ObjectiveFunc
+from ..encoding import Encoding
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer
 from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import DE
-from ..utils import check_random_state
+from ..utils import RNGLike, check_random_state
 
 
 def differential_evolution_binary(
-    objfunc,
+    objfunc: ObjectiveFunc,
     population_size: int = 100,
     F: float = 0.8,
     Cr: float = 0.9,
     de_operator_name: str = "de/rand/1",
-    encoding=None,
-    random_state=None,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
     **kwargs,
-):
+) -> Algorithm:
+    """Differential Evolution for binary-encoded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    population_size : int, optional
+        Population size (default 100).
+    F : float, optional
+        Mutation scale factor (default 0.8).
+    Cr : float, optional
+        Crossover probability (default 0.9).
+    de_operator_name : str, optional
+        DE variant (default ``"de/rand/1"``).
+    encoding : Encoding, optional
+        Encoding; defaults to :class:`SigmoidEncoding`.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
-    Differential Evolution for binary-coded vectors.
-    """
+
     random_state = check_random_state(random_state)
     if encoding is None:
         encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
@@ -42,18 +69,37 @@ def differential_evolution_binary(
 
 
 def differential_evolution_discrete(
-    objfunc,
+    objfunc: ObjectiveFunc,
     population_size: int = 100,
     F: float = 0.8,
     Cr: float = 0.9,
     de_operator_name: str = "de/rand/1",
-    encoding=None,
-    random_state=None,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
     **kwargs,
-):
+) -> Algorithm:
+    """Differential Evolution for integer-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    population_size : int, optional
+        Population size (default 100).
+    F : float, optional
+        Mutation scale factor (default 0.8).
+    Cr : float, optional
+        Crossover probability (default 0.9).
+    de_operator_name : str, optional
+        DE variant (default ``"de/rand/1"``).
+    encoding : Encoding, optional
+        Encoding; defaults to :class:`TypeCastEncoding` (float → int).
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
-    Differential Evolution for integer-coded vectors.
-    """
+
     random_state = check_random_state(random_state)
     if encoding is None:
         encoding = TypeCastEncoding(float, int)
@@ -77,18 +123,37 @@ def differential_evolution_discrete(
 
 
 def differential_evolution_real(
-    objfunc,
+    objfunc: ObjectiveFunc,
     population_size: int = 100,
     F: float = 0.8,
     Cr: float = 0.9,
     de_operator_name: str = "de/rand/1",
-    encoding=None,
-    random_state=None,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
     **kwargs,
-):
+) -> Algorithm:
+    """Differential Evolution for real-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    population_size : int, optional
+        Population size (default 100).
+    F : float, optional
+        Mutation scale factor (default 0.8).
+    Cr : float, optional
+        Crossover probability (default 0.9).
+    de_operator_name : str, optional
+        DE variant (default ``"de/rand/1"``).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
-    Differential Evolution for real-coded vectors.
-    """
+
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
         objfunc.dimension,

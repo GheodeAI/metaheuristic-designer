@@ -1,3 +1,7 @@
+"""
+Pure function implementation of mutation operators
+"""
+
 from . import random_generation
 from . import crossover
 from . import mutation

@@ -213,19 +213,12 @@ except ``track_best``, which is always active.
    the full evolution trace or detailed fitness distributions.
 
 
-When ``track_full_objective`` is enabled, you also have:
+When ``track_full_objective`` is enabled, you can retrieve the data as a DataFrame:
 
 .. code-block:: python
 
-   dist_df = algo.history_tracker.to_pandas_full_objective()
+   wide_df = algo.history_tracker.to_pandas_full_objective()
    # wide‑format: iteration, Individual_0, Individual_1, ... (one column per individual)
-
-.. code-block:: python
-
-   dist_df = algo.history_tracker.to_pandas_full_fitness()
-   # long-format: iteration, Individual_0, Individual_1, ...
-
-The column names refer to raw objectives, not the internally maximised fitness values.
 
 
 Checkpointer
@@ -249,7 +242,7 @@ can manually stop a run and later reload it.
 Only one of ``iteration_frequency`` or ``time_frequency`` needs to be set, and both
 can be active at the same time.
 
-To load a previous checkpoint and continue:
+To load a previous checkpoint and continue **you must call** :meth:`resume` **instead of** :meth:`optimize`:
 
 .. code-block:: python
 
@@ -258,12 +251,19 @@ To load a previous checkpoint and continue:
        history_tracker = HistoryTracker(),   # reuse or fresh
        reporter        = TQDMReporter(),     # re-attach a reporter
    )
-   algo.optimize()    # resumes from where it left off
+
+   # ⚠️  ABSOLUTELY DO NOT call algo.optimize() here – that would RESTART from scratch!
+   algo = algo.resume()
 
 .. warning::
 
-   After loading, the reporter and history tracker are **not** saved inside the
-   checkpoint.  You must provide them again explicitly when calling ``load()``.
+   **Calling** :meth:`~metaheuristic_designer.algorithm.Algorithm.optimize` on a loaded
+   algorithm will **silently discard the checkpoint and start a brand-new run**!.
+
+   Always use :meth:`resume` when you want to pick up where you left off.
+
+   After loading, the reporter is **not** saved inside the
+   checkpoint.  You must provide it again explicitly when calling ``load()``.
    Running without a reporter is possible but not recommended for long runs.
 
 
@@ -311,7 +311,7 @@ using object-based configuration.
 .. code-block:: python
 
    import numpy as np
-   from metaheuristic_designer import Algorithm, SearchStrategy, check_random_state
+   from metaheuristic_designer import Algorithm, check_random_state
    from metaheuristic_designer.benchmarks import Sphere
    from metaheuristic_designer.strategies import GA
    from metaheuristic_designer.initializers import UniformInitializer
@@ -328,7 +328,7 @@ using object-based configuration.
 
    # Build the search strategy
    strategy = GA(
-       initializer   = UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=rng),
+       initializer   = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=rng),
        mutation_op   = create_operator("mutation.gaussian_mutation", N=1, F=0.1, random_state=rng),
        crossover_op  = create_operator("crossover.uniform", random_state=rng),
        parent_sel    = create_parent_selection("tournament", amount=50, tournament_size=3, random_state=rng),

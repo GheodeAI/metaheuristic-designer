@@ -8,7 +8,6 @@ from __future__ import annotations
 import logging
 from typing import Tuple, Any, Optional
 import json
-import numpy as np
 import signal
 
 from .history_tracker import HistoryTracker
@@ -189,6 +188,14 @@ class Algorithm:
         signal.signal(signal.SIGTERM, self._signal_handler)
 
     def _signal_handler(self, signum, frame):
+        """Handles SIGINT Os-level signals.
+
+        Parameters
+        ----------
+        signum : Signal number identifier (unused)
+        frame : Frame of the signal (unused)
+        """
+
         self._stop_requested = True
 
     @property
@@ -298,6 +305,10 @@ class Algorithm:
         return initial_population
 
     def _log_debug(self, text, population):
+        """
+        Util for debugging population info.
+        """
+
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(text, population.debug_repr())
 
@@ -497,5 +508,5 @@ class Algorithm:
             Wide-format DataFrame with the full objective vector per
             generation.
         """
-        
+
         return self.history_tracker.to_pandas_full_objective()

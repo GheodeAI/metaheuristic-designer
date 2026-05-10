@@ -35,6 +35,7 @@ class ParameterExtendingEncoding(Encoding, ABC):
     **kwargs
         Forwarded to :class:`Encoding`.
     """
+
     def __init__(
         self, dimension: int, param_sizes: Iterable[Tuple[str, int]], base_encoding: Optional[Encoding] = None, verify: bool = False, **kwargs
     ):
@@ -133,7 +134,7 @@ class ParameterExtendingEncoding(Encoding, ABC):
         MatrixLike
             A (population_size, total_param_size) array.
         """
-        
+
         if self.verify:
             assert param_dict.keys() == {name for name, _ in self.param_sizes}
 

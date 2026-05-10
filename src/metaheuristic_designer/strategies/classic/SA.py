@@ -1,3 +1,7 @@
+"""
+Simulated Annealing strategy.
+"""
+
 from __future__ import annotations
 from typing import Optional
 import numpy as np
@@ -11,7 +15,36 @@ from ...utils import check_random_state, RNGLike
 
 class SA(HillClimb):
     """
-    Simulated annealing
+    Simulated Annealing algorithm.
+
+    A single solution is perturbed each iteration.  The new solution
+    is accepted if it is better, or probabilistically if it is worse,
+    according to an exponentially decaying temperature schedule.
+
+    .. warning::
+       The current handling of the annealing schedule is tightly
+       coupled to the strategy.  The survivor selection should be
+       refactored to manage its own temperature and acceptance
+       logic independently.
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer (usually creates a single individual).
+    operator : Operator
+        Perturbation operator.
+    name : str, optional
+        Display name (default ``"SA"``).
+    iterations : int or SchedulableParameter, optional
+        Number of iterations at constant temperature (default 100).
+    temperature_init : float or SchedulableParameter, optional
+        Starting temperature (default 100).
+    alpha : float or SchedulableParameter, optional
+        Cooling factor (default 0.99).
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Forwarded to :class:`HillClimb`.
     """
 
     def __init__(
@@ -61,6 +94,10 @@ class SA(HillClimb):
             self.survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
 
     def extra_step_info(self):
+        """
+        Diplays temperature values and acceptance probability.
+        """
+
         print()
         print(f"\tTemp iters: {self.iter_count}/{self.params.iterations}")
         print(f"\tTemperature: {self.temperature:0.4f}")

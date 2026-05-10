@@ -1,24 +1,51 @@
+"""
+Ready-to-run Particle Swarm Optimisation wrappers.
+"""
+
 from __future__ import annotations
+from typing import Optional
+
+from metaheuristic_designer.encoding import Encoding
+from metaheuristic_designer.objective_function import ObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer
 from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import PSO
-from ..utils import check_random_state
+from ..utils import RNGLike, check_random_state
 
 
 def particle_swarm_binary(
-    objfunc,
+    objfunc: ObjectiveFunc,
     population_size: int = 100,
-    w=0.7,
-    c1=1.5,
-    c2=1.5,
-    encoding=None,
-    random_state=None,
+    w: float = 0.7,
+    c1: float = 1.5,
+    c2: float = 1.5,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
     **kwargs,
-):
+) -> Algorithm:
+    """Particle Swarm Optimisation for binary-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    population_size : int, optional
+        Swarm size (default 100).
+    w : float, optional
+        Inertia weight (default 0.7).
+    c1 : float, optional
+        Cognitive acceleration coefficient (default 1.5).
+    c2 : float, optional
+        Social acceleration coefficient (default 1.5).
+    encoding : Encoding, optional
+        Encoding; defaults to :class:`SigmoidEncoding`.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
-    Differential Evolution for binary-coded vectors.
-    """
+
     random_state = check_random_state(random_state)
     if encoding is None:
         encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
@@ -42,18 +69,37 @@ def particle_swarm_binary(
 
 
 def particle_swarm_discrete(
-    objfunc,
+    objfunc: ObjectiveFunc,
     population_size: int = 100,
-    w=0.7,
-    c1=1.5,
-    c2=1.5,
-    encoding=None,
-    random_state=None,
+    w: float = 0.7,
+    c1: float = 1.5,
+    c2: float = 1.5,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
     **kwargs,
-):
+) -> Algorithm:
+    """Particle Swarm Optimisation for integer-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    population_size : int, optional
+        Swarm size (default 100).
+    w : float, optional
+        Inertia weight (default 0.7).
+    c1 : float, optional
+        Cognitive acceleration coefficient (default 1.5).
+    c2 : float, optional
+        Social acceleration coefficient (default 1.5).
+    encoding : Encoding, optional
+        Encoding; defaults to :class:`TypeCastEncoding` (float → int).
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
-    Differential Evolution for integer-coded vectors.
-    """
+
     random_state = check_random_state(random_state)
     if encoding is None:
         encoding = TypeCastEncoding(float, int)
@@ -77,18 +123,37 @@ def particle_swarm_discrete(
 
 
 def particle_swarm_real(
-    objfunc,
+    objfunc: ObjectiveFunc,
     population_size: int = 100,
-    w=0.7,
-    c1=1.5,
-    c2=1.5,
-    encoding=None,
-    random_state=None,
+    w: float = 0.7,
+    c1: float = 1.5,
+    c2: float = 1.5,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
     **kwargs,
-):
+) -> Algorithm:
+    """Particle Swarm Optimisation for real-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    population_size : int, optional
+        Swarm size (default 100).
+    w : float, optional
+        Inertia weight (default 0.7).
+    c1 : float, optional
+        Cognitive acceleration coefficient (default 1.5).
+    c2 : float, optional
+        Social acceleration coefficient (default 1.5).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
-    Differential Evolution for real-coded vectors.
-    """
+
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
         objfunc.dimension,

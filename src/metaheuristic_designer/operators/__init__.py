@@ -1,3 +1,7 @@
+"""
+Operator interfaces and base implementations.
+"""
+
 from ..operator import Operator, OperatorFromLambda, NullOperator
 
 from .composite_operator import CompositeOperator

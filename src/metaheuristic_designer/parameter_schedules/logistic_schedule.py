@@ -27,7 +27,7 @@ class LogisticSchedule(SchedulableParameter):
         at progress 0 and 1.
     """
 
-    def __init__(self, init_value: float, final_value:float , k: float = 10, exact_bounds: bool = False):
+    def __init__(self, init_value: float, final_value: float, k: float = 10, exact_bounds: bool = False):
         super().__init__(random_state=None)
         self.init_value = init_value
         self.final_value = final_value

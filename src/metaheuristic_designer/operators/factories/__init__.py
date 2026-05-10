@@ -1,3 +1,7 @@
+"""
+Operator factory package, provides registries and creation functions.
+"""
+
 from .generic import all_ops_map, bo_aliases, null_aliases, create_operator, add_operator_entry, list_operators
 from .random import random_ops_map, create_random_operator
 from .mutation import mutation_ops_map, create_mutation_operator

@@ -26,6 +26,7 @@ class TypeCastEncoding(Encoding):
     **kwargs
         Forwarded to :class:`Encoding`.
     """
+
     def __init__(self, encoded_dtype=int, decoded_dtype=float, **kwargs):
         self.encoded_dtype = encoded_dtype
         self.decoded_dtype = decoded_dtype

@@ -11,11 +11,13 @@ strategies.  An :class:`Algorithm` object glues everything together and runs the
 optimisation loop.
 
 If you want to **jump straight into code**, take a look at the
-:doc:`simple prepackaged functions <api_reference.methods>` or follow the
-:doc:`Algorithm Configuration <api_reference.algorithm_config>` guide - they show
+:doc:`Quick Start <quick_start>` or follow the
+:doc:`Algorithm Configuration <api_reference.algorithm_config>` guide – they show
 how to assemble a complete optimiser in a few lines.
 
 For plotting your results, see the :doc:`Plotting Tutorial <api_reference.plotting>`.
+
+Ready‑to‑run algorithms are provided by the :doc:`Simple API <simple>` page.
 
 Base Classes
 ------------
@@ -26,8 +28,7 @@ These are the interfaces from which to inherit to implement a new component for 
 
    ":py:class:`SchedulableParameter<metaheuristic_designer.schedulable_parameter.SchedulableParameter>`", "Prototype of a parameter that changes in value as iterations go on."
    ":py:class:`ParametrizableMixin<metaheuristic_designer.parametrizable_mixin.ParametrizableMixin>`", "Mixin used by interfaces to hold schedulable parameters."
-   ":py:class:`ObjectiveFunc<metaheuristic_designer.objective_function.ObjectiveFunc>`", "Prototype of a data type agnostic objective function."
-   ":py:class:`VectorObjectiveFunc<metaheuristic_designer.objective_function.VectorObjectiveFunc>`", "Prototype of an objective function with vector inputs."
+   ":py:class:`ObjectiveFunc<metaheuristic_designer.objective_function.ObjectiveFunc>`", "Abstract objective function with built‑in fitness conversion."
    ":py:class:`ConstraintHandler<metaheuristic_designer.constraint_handler.ConstraintHandler>`", "Prototype of a constraint handler class."
    ":py:class:`Initializer<metaheuristic_designer.initializer.Initializer>`", "Prototype of a population initializer."
    ":py:class:`Encoding<metaheuristic_designer.encoding.Encoding>`", "Prototype of an encoding and decoding genotypes of the population."
@@ -61,7 +62,7 @@ functions, see :doc:`Custom Components <api_reference.custom_components>`.
 
 Extended Encoding Classes
 --------------------------
-When the genotype vector encodes more information than just the solution - such as a speed vector for PSO or adaptive algorithm parameters - you need these interfaces to handle the extra data.
+When the genotype vector encodes more information than just the solution – such as a speed vector for PSO or adaptive algorithm parameters – you need these interfaces to handle the extra data.
 
 Note that concrete implementations for specific algorithms (e.g. PSO) already exist.
 
@@ -263,102 +264,4 @@ Example: ``max_iterations or real_time_limit`` will halt when the maximum number
 
 Prepackaged Algorithms
 ----------------------
-For the most common optimisation scenarios, the :mod:`metaheuristic_designer.simple`
-module provides ready‑to‑run functions.  Each algorithm is available in up to four
-encoding variants: ``_real`` (continuous), ``_binary`` (bit‑strings), ``_discrete``
-(integer) and ``_permutation`` (permutations).  The table for each algorithm lists
-the concrete function names and the most important parameters.
-
-Random Search
-~~~~~~~~~~~~~
-
-.. csv-table::
-   :header: "Function", "Description"
-
-   ":py:func:`~simple.random_search_real`", "Continuous search, no parameters."
-   ":py:func:`~simple.random_search_binary`", "Binary search, no parameters."
-   ":py:func:`~simple.random_search_discrete`", "Discrete search, no parameters."
-   ":py:func:`~simple.random_search_permutation`", "Permutation search, no parameters."
-
-Hill Climbing
-~~~~~~~~~~~~~
-
-.. csv-table::
-   :header: "Function", "Key parameters"
-
-   ":py:func:`~simple.hill_climb_real`", "``mutation_strength``, ``mutated_components``"
-   ":py:func:`~simple.hill_climb_binary`", "``mutated_bits``"
-   ":py:func:`~simple.hill_climb_discrete`", "``resampled_components``"
-   ":py:func:`~simple.hill_climb_permutation`", "``swapped_positions``"
-
-Local Search
-~~~~~~~~~~~~
-
-.. csv-table::
-   :header: "Function", "Key parameters"
-
-   ":py:func:`~simple.local_search_real`", "``mutation_strength``, ``mutated_components``, ``samples_per_iteration``"
-   ":py:func:`~simple.local_search_binary`", "``mutated_bits``, ``samples_per_iteration``"
-   ":py:func:`~simple.local_search_discrete`", "``resampled_components``, ``samples_per_iteration``"
-   ":py:func:`~simple.local_search_permutation`", "``swapped_positions``, ``samples_per_iteration``"
-
-Simulated Annealing
-~~~~~~~~~~~~~~~~~~~
-
-.. csv-table::
-   :header: "Function", "Key parameters"
-
-   ":py:func:`~simple.simulated_annealing_real`", "``mutation_strength``, ``mutated_components``, ``initial_temperature``, ``alpha``, ``iterations``"
-   ":py:func:`~simple.simulated_annealing_binary`", "``mutated_bits``, ``initial_temperature``, ``alpha``, ``iterations``"
-   ":py:func:`~simple.simulated_annealing_discrete`", "``resampled_components``, ``initial_temperature``, ``alpha``, ``iterations``"
-   ":py:func:`~simple.simulated_annealing_permutation`", "``swapped_positions``, ``initial_temperature``, ``alpha``, ``iterations``"
-
-Evolution Strategy (ES)
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. csv-table::
-   :header: "Function", "Key parameters"
-
-   ":py:func:`~simple.evolution_strategy_real`", "``mutation_strength``, ``mutated_components``, ``population_size``, ``offspring_size``, ``elitist``"
-   ":py:func:`~simple.evolution_strategy_binary`", "``mutated_bits``, ``population_size``, ``offspring_size``, ``elitist``"
-   ":py:func:`~simple.evolution_strategy_discrete`", "``resampled_components``, ``population_size``, ``offspring_size``, ``elitist``"
-   ":py:func:`~simple.evolution_strategy_permutation`", "``swapped_positions``, ``population_size``, ``offspring_size``, ``elitist``"
-
-Genetic Algorithm (GA)
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. csv-table::
-   :header: "Function", "Key parameters"
-
-   ":py:func:`~simple.genetic_algorithm_real`", "``mutation_strength``, ``mutated_components``, ``population_size``"
-   ":py:func:`~simple.genetic_algorithm_binary`", "``mutated_bits``, ``population_size``"
-   ":py:func:`~simple.genetic_algorithm_discrete`", "``resampled_components``, ``population_size``"
-   ":py:func:`~simple.genetic_algorithm_permutation`", "``swapped_positions``, ``population_size``"
-
-Differential Evolution (DE)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. csv-table::
-   :header: "Function", "Key parameters"
-
-   ":py:func:`~simple.differential_evolution_real`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
-   ":py:func:`~simple.differential_evolution_binary`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
-   ":py:func:`~simple.differential_evolution_discrete`", "``population_size``, ``F``, ``Cr``, ``de_operator_name``"
-
-Particle Swarm Optimisation (PSO)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. csv-table::
-   :header: "Function", "Key parameters"
-
-   ":py:func:`~simple.particle_swarm_real`", "``population_size``, ``w``, ``c1``, ``c2``"
-   ":py:func:`~simple.particle_swarm_binary`", "``population_size``, ``w``, ``c1``, ``c2``"
-   ":py:func:`~simple.particle_swarm_discrete`", "``population_size``, ``w``, ``c1``, ``c2``"
-
-Bayesian Optimisation
-~~~~~~~~~~~~~~~~~~~~~
-
-.. csv-table::
-   :header: "Function", "Key parameters"
-
-   ":py:func:`~simple.bayesian_optimization_real`", "``population_size``, ``acquisition_function``"
+For ready‑to‑run algorithm wrappers, see the :doc:`Simple API <simple>` page.

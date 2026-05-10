@@ -1,3 +1,7 @@
+"""
+Evolution Strategy.
+"""
+
 from __future__ import annotations
 from typing import Optional
 from ...initializer import Initializer
@@ -10,7 +14,30 @@ from ..variable_population import VariablePopulation
 
 class ES(VariablePopulation):
     """
-    Evolution strategy
+    Evolution Strategy (μ+λ or μ,λ).
+
+    Applies mutation (and optionally crossover) to the selected
+    parents, then selects survivors.  By default, no parent
+    selection is performed (all individuals are used).
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    mutation_op : Operator
+        Mutation operator.
+    crossover_op : Operator, optional
+        Crossover operator.  If ``None``, only mutation is applied.
+    parent_sel : ParentSelection, optional
+        Parent selection (default: use the whole population).
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection (default: generational).
+    offspring_size : int, optional
+        Number of offspring per generation.
+    name : str, optional
+        Display name (default ``"ES"``).
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(

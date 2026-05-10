@@ -34,7 +34,9 @@ class DirectInitializer(Initializer):
         Random number generator.
     """
 
-    def __init__(self, default_init: Initializer, solutions: Population | List | np.ndarray, encoding: Encoding = None, random_state: Optional[RNGLike] = None):
+    def __init__(
+        self, default_init: Initializer, solutions: Population | List | np.ndarray, encoding: Encoding = None, random_state: Optional[RNGLike] = None
+    ):
         assert len(solutions) > 0, "The solution set should not be empty."
         if isinstance(solutions, Population):
             infered_dimension = solutions.genotype_matrix.shape[1]

@@ -100,7 +100,7 @@ class Operator(ParametrizableMixin, ABC):
         """
         Updates the internal parameters.
         """
-        
+
         super().step(progress)
 
         self.encoding.step(progress)
@@ -196,7 +196,9 @@ class OperatorFromLambda(Operator):
 
         required_min_count = 3
         if count < required_min_count:
-            raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `initializer`, `random_state`).")
+            raise TypeError(
+                f"The function should have at least {required_min_count} positional arguments (`population`, `initializer`, `random_state`)."
+            )
 
     def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
         return self.operator_fn(population, initializer, self.random_state, **self.current_kwargs)

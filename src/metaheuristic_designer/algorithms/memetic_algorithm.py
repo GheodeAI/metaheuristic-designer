@@ -136,7 +136,7 @@ class MemeticAlgorithm(Algorithm):
         Population
             The evaluated initial population.
         """
-        
+
         population = super().initialize()
         self.local_search.population = population
         return population

@@ -3,27 +3,46 @@ Differential evolution operator implementations.
 """
 
 import logging
-from multiprocessing import Value
+from typing import Optional
+from ...utils import MatrixLike, RNGLike, VectorLike, check_random_state
 import numpy as np
-from ...utils import check_random_state
 
 logger = logging.getLogger(__name__)
 
 
-def differential_evolution_rand1(population_matrix, fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
+def differential_evolution_rand1(
+    population_matrix: MatrixLike,
+    fitness_array: VectorLike,
+    random_state: Optional[RNGLike] = None,
+    F: float = 0.8,
+    Cr: float = 0.9,
+    **kwargs
+) -> MatrixLike:
     """
-    Performs the differential evolution operator DE/rand/1
+    DE/rand/1 mutation and binomial crossover.
+
+    For each target vector, three distinct random individuals are
+    chosen.  A donor vector is formed as
+    ``x_r1 + F * (x_r2 - x_r3)``.  Components are then taken from
+    the donor with probability *Cr* and from the target otherwise.
 
     Parameters
     ----------
-    population_matrix
-        _description_
-    fitness_array
-        _description_
+    population_matrix : MatrixLike
+        Current population, shape ``(N, M)``.
+    fitness_array : VectorLike
+        Fitness values (used only by the ``/best/`` variants).
+    random_state : RNGLike, optional
+        Random number generator.
+    F : float, optional
+        Scale factor (default 0.8).
+    Cr : float, optional
+        Crossover probability (default 0.9).
 
     Returns
     -------
-        _description_
+    MatrixLike
+        Trial population of the same shape.
     """
 
     random_state = check_random_state(random_state)
@@ -43,20 +62,38 @@ def differential_evolution_rand1(population_matrix, fitness_array, random_state=
     return population_matrix
 
 
-def differential_evolution_best1(population_matrix, fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
+def differential_evolution_best1(
+    population_matrix: MatrixLike,
+    fitness_array: VectorLike,
+    random_state: Optional[RNGLike] = None,
+    F: float = 0.8,
+    Cr: float = 0.9,
+    **kwargs
+) -> MatrixLike:
     """
-    Performs the differential evolution operator DE/best/1
+    DE/best/1 mutation and binomial crossover.
+
+    The donor is formed using the best individual as the base:
+    ``x_best + F * (x_r1 - x_r2)`` where *r1* and *r2* are
+    distinct and different from *best*.
 
     Parameters
     ----------
-    population_matrix
-        _description_
-    fitness_array
-        _description_
+    population_matrix : MatrixLike
+        Current population.
+    fitness_array : VectorLike
+        Fitness values; the index of the maximum is used as *best*.
+    random_state : RNGLike, optional
+        Random number generator.
+    F : float, optional
+        Scale factor (default 0.8).
+    Cr : float, optional
+        Crossover probability (default 0.9).
 
     Returns
     -------
-        _description_
+    MatrixLike
+        Trial population of the same shape.
     """
 
     random_state = check_random_state(random_state)
@@ -80,20 +117,37 @@ def differential_evolution_best1(population_matrix, fitness_array, random_state=
     return population_matrix
 
 
-def differential_evolution_rand2(population_matrix, fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
+def differential_evolution_rand2(
+    population_matrix: MatrixLike,
+    fitness_array: VectorLike,
+    random_state: Optional[RNGLike] = None,
+    F: float = 0.8,
+    Cr: float = 0.9,
+    **kwargs
+) -> MatrixLike:
     """
-    Performs the differential evolution operator DE/rand/2
+    DE/rand/2 mutation and binomial crossover.
+
+    Two difference vectors are used:
+    ``x_r1 + F*(x_r2 - x_r3) + F*(x_r4 - x_r5)``.
 
     Parameters
     ----------
-    population_matrix
-        _description_
-    fitness_array
-        _description_
+    population_matrix : MatrixLike
+        Current population.
+    fitness_array : VectorLike
+        Fitness values (unused in this variant).
+    random_state : RNGLike, optional
+        Random number generator.
+    F : float, optional
+        Scale factor (default 0.8).
+    Cr : float, optional
+        Crossover probability (default 0.9).
 
     Returns
     -------
-        _description_
+    MatrixLike
+        Trial population of the same shape.
     """
 
     random_state = check_random_state(random_state)
@@ -113,20 +167,38 @@ def differential_evolution_rand2(population_matrix, fitness_array, random_state=
     return population_matrix
 
 
-def differential_evolution_best2(population_matrix, fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
+def differential_evolution_best2(
+    population_matrix: MatrixLike,
+    fitness_array: VectorLike,
+    random_state: Optional[RNGLike] = None,
+    F: float = 0.8,
+    Cr: float = 0.9,
+    **kwargs
+) -> MatrixLike:
     """
-    Performs the differential evolution operator DE/best/2
+    DE/best/2 mutation and binomial crossover.
+
+    The best individual is the base, and two difference vectors
+    are added:
+    ``x_best + F*(x_r1 - x_r2) + F*(x_r3 - x_r4)``.
 
     Parameters
     ----------
-    population_matrix
-        _description_
-    fitness_array
-        _description_
+    population_matrix : MatrixLike
+        Current population.
+    fitness_array : VectorLike
+        Fitness values; the best is the one with highest fitness.
+    random_state : RNGLike, optional
+        Random number generator.
+    F : float, optional
+        Scale factor (default 0.8).
+    Cr : float, optional
+        Crossover probability (default 0.9).
 
     Returns
     -------
-        _description_
+    MatrixLike
+        Trial population of the same shape.
     """
 
     random_state = check_random_state(random_state)
@@ -148,20 +220,39 @@ def differential_evolution_best2(population_matrix, fitness_array, random_state=
     return population_matrix
 
 
-def differential_evolution_current_to_rand1(population_matrix, fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
+def differential_evolution_current_to_rand1(
+    population_matrix: MatrixLike,
+    fitness_array: VectorLike,
+    random_state: Optional[RNGLike] = None,
+    F: float = 0.8,
+    Cr: float = 0.9,
+    **kwargs
+) -> MatrixLike:
     """
-    Performs the differential evolution operator DE/current-to-rand/1
+    DE/current-to-rand/1 mutation and binomial crossover.
+
+    Each target vector *x_i* is combined with a random individual
+    and a difference vector:
+    ``x_i + K*(x_r1 - x_i) + F*(x_r2 - x_r3)``,
+    where *K* is drawn uniformly in [0,1] per individual.
 
     Parameters
     ----------
-    population_matrix
-        _description_
-    fitness_array
-        _description_
+    population_matrix : MatrixLike
+        Current population.
+    fitness_array : VectorLike
+        Fitness values (unused).
+    random_state : RNGLike, optional
+        Random number generator.
+    F : float, optional
+        Scale factor (default 0.8).
+    Cr : float, optional
+        Crossover probability (default 0.9).
 
     Returns
     -------
-        _description_
+    MatrixLike
+        Trial population of the same shape.
     """
 
     random_state = check_random_state(random_state)
@@ -182,20 +273,36 @@ def differential_evolution_current_to_rand1(population_matrix, fitness_array, ra
     return population_matrix
 
 
-def differential_evolution_current_to_best1(population_matrix, fitness_array, random_state=None, F=0.8, Cr=0.9, **kwargs):
+def differential_evolution_current_to_best1(
+    population_matrix: MatrixLike,
+    fitness_array: VectorLike,
+    random_state: Optional[RNGLike] = None,
+    F: float = 0.8,
+    Cr: float = 0.9,
+    **kwargs
+) -> MatrixLike:
     """
-    Performs the differential evolution operator DE/current-to-best/1
+    DE/current-to-best/1 mutation and binomial crossover.
+
+    ``x_i + K*(x_best - x_i) + F*(x_r1 - x_r2)``.
 
     Parameters
     ----------
-    population_matrix
-        _description_
-    fitness_array
-        _description_
+    population_matrix : MatrixLike
+        Current population.
+    fitness_array : VectorLike
+        Fitness values; the best is the one with highest fitness.
+    random_state : RNGLike, optional
+        Random number generator.
+    F : float, optional
+        Scale factor (default 0.8).
+    Cr : float, optional
+        Crossover probability (default 0.9).
 
     Returns
     -------
-        _description_
+    MatrixLike
+        Trial population of the same shape.
     """
 
     random_state = check_random_state(random_state)
@@ -219,20 +326,41 @@ def differential_evolution_current_to_best1(population_matrix, fitness_array, ra
     return population_matrix
 
 
-def differential_evolution_current_to_pbest1(population_matrix, fitness_array, random_state=None, F=0.8, Cr=0.9, p=0.1, **kwargs):
+def differential_evolution_current_to_pbest1(
+    population_matrix: MatrixLike,
+    fitness_array: VectorLike,
+    random_state: Optional[RNGLike] = None,
+    F: float = 0.8,
+    Cr: float = 0.9,
+    p: float = 0.1,
+    **kwargs
+) -> MatrixLike:
     """
-    Performs the differential evolution operator DE/current-to-pbest/1
+    DE/current-to-pbest/1 mutation and binomial crossover.
+
+    Instead of the single best, one of the top ``p*N`` individuals
+    is randomly chosen as *pbest*:
+    ``x_i + K*(x_pbest - x_i) + F*(x_r1 - x_r2)``.
 
     Parameters
     ----------
-    population_matrix
-        _description_
-    fitness_array
-        _description_
+    population_matrix : MatrixLike
+        Current population.
+    fitness_array : VectorLike
+        Fitness values; the top *p* fraction is selected.
+    random_state : RNGLike, optional
+        Random number generator.
+    F : float, optional
+        Scale factor (default 0.8).
+    Cr : float, optional
+        Crossover probability (default 0.9).
+    p : float, optional
+        Fraction of the population considered as elite (default 0.1).
 
     Returns
     -------
-        _description_
+    MatrixLike
+        Trial population of the same shape.
     """
 
     random_state = check_random_state(random_state)

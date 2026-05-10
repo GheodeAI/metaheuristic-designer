@@ -1,11 +1,12 @@
+"""
+Permutation operator registry and factory.
+"""
+
+from typing import Optional
+
+from ...encoding import Encoding
 from ...operator import OperatorFromLambda
-from ..operator_functions.permutation import (
-    permute_mutation,
-    roll_mutation,
-    invert_mutation,
-    pmx,
-    order_cross
-)
+from ..operator_functions.permutation import permute_mutation, roll_mutation, invert_mutation, pmx, order_cross
 from ..operator_functions.utils import OperatorFnDef
 
 # fmt: off
@@ -52,7 +53,31 @@ permutation_ops_map = {
 # fmt: on
 
 
-def create_permutation_operator(method, encoding=None, name=None, **kwargs):
+def create_permutation_operator(
+    method: str,
+    encoding: Optional[Encoding] = None,
+    name: Optional[str] = None,
+    **kwargs
+) -> OperatorFromLambda:
+    """
+    Create a permutation operator by name.
+
+    Parameters
+    ----------
+    method : str
+        Key into :data:`permutation_ops_map`.
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    name : str, optional
+        Display name; defaults to *method*.
+    **kwargs
+        Forwarded to the operator function.
+
+    Returns
+    -------
+    OperatorFromLambda
+        The wrapped permutation operator.
+    """
 
     if name is None:
         name = method

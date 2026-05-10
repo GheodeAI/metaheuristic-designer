@@ -1,3 +1,7 @@
+"""
+Hill Climbing strategy (single-solution, greedy local improvement).
+"""
+
 from __future__ import annotations
 from typing import Optional
 from ..initializer import Initializer
@@ -10,7 +14,29 @@ from ..utils import check_random_state, RNGLike
 
 class HillClimb(SearchStrategy):
     """
-    Hill Climbing algorithm
+    Hill Climbing algorithm.
+
+    A single solution is perturbed each iteration.  If the new
+    solution is better, it replaces the current one.  By default,
+    the survivor selection is set to one-to-one competition
+    (``"hill_climb"`` in the survivor registry).
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer (typically creates a single individual).
+    operator : Operator, optional
+        Perturbation operator.  Defaults to :class:`NullOperator`.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method; defaults to ``"hill_climb"``.
+    params : dict, optional
+        Additional parameters stored as schedulable values.
+    name : str, optional
+        Display name (default ``"HillClimb"``).
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Forwarded to :class:`SearchStrategy`.
     """
 
     def __init__(

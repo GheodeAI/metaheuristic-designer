@@ -21,18 +21,30 @@ that paper and draws on the design principles of `Introduction to
 Evolutionary Computing <https://doi.org/10.1007/978-3-662-44874-8>`_ by Eiben
 and Smith.
 
+For the architectural vision and the research context behind the library,
+read the :doc:`Design philosophy <design_philosophy>` page.
+
 .. _first-steps:
 
 First steps
 -----------
 
-* **Quick start** – The :doc:`simple module <api_reference.methods>` gives you
-  ready‑to‑run algorithms for continuous, discrete, and permutation problems.
-* **Configure a run** – Learn how to set stopping conditions, reporters,
+* **Quick start** – Run a ready‑to‑use algorithm in under a minute on the
+  :doc:`Quick Start <quick_start>` page.
+* **Simple API** – Browse the full catalogue of :doc:`pre‑packaged algorithms
+  <simple>` and see which encodings each supports.
+* **Algorithm configuration** – Learn how to set stopping conditions, reporters,
   history trackers, and checkpointers in the
   :doc:`Algorithm Configuration <api_reference.algorithm_config>` guide.
-* **Plot results** – Turn the recorded history into convergence and diversity
-  plots with the :doc:`Plotting Tutorial <api_reference.plotting>`.
+* **All built‑in methods** – Detailed tables of :doc:`operators and selection
+  methods <api_reference.methods>`, including all probability distributions.
+* **Custom components** – Write your own operators, selection methods,
+  encodings, and more with the
+  :doc:`Extending the Framework <api_reference.custom_components>` guide.
+* **Plot results** – Turn recorded history into convergence, diversity, and
+  parameter evolution plots with the :doc:`Plotting Tutorial <api_reference.plotting>`.
+* **Design philosophy** – Read about the architectural vision behind the
+  library in the :doc:`Design philosophy <design_philosophy>` page.
 
 .. _description:
 
@@ -116,6 +128,8 @@ Indices and tables
    :maxdepth: 1
    :caption: Contents:
 
+    Quick Start <quick_start>
+    Simple API <simple>
     API reference <api_reference>
     Algorithm Configuration <api_reference.algorithm_config>
     Operators and selection methods <api_reference.methods>

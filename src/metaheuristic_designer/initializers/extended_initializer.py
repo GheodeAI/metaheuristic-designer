@@ -39,6 +39,7 @@ class ExtendedInitializer(Initializer):
         )
         self.solution_init = solution_init
         self.param_init_dict = param_init_dict
+
     def generate_random(self):
         """Generate a random genotype vector with solution and parameter parts.
 
