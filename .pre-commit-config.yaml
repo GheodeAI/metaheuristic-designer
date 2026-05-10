@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: nbstripout
+        name: nbstripout
+        entry: nbstripout
+        language: system
+        types: [jupyter]
+        args: []   # you can add --keep-output if you want to preserve some outputs

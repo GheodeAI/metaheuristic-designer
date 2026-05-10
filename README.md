@@ -1,6 +1,6 @@
 # Metaheuristic‑designer
 
-[![Documentation Status](https://readthedocs.org/projects/metaheuristic-designer/badge/?version=latest)](https://metaheuristic-designer.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/metaheuristic-designer/badge/?version=latest)](https://metaheuristic-designer.readthedocs.io/en/latest/?badge=latest) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/GheodeAI/metaheuristic-designer/main?filepath=tutorials%2Fgenetic_algorithm_tutorial.py)
 
 **A modular, object‑oriented framework for building, testing, and analysing
 population‑based optimisation algorithms.**  
@@ -64,6 +64,29 @@ pip install metaheuristic-designer[examples]
   `metaheuristic_designer.simple` module for one‑line instantiation of
   common algorithms (GA, DE, PSO, SA, …).  When you need more control,
   dive into the object‑oriented configuration.
+
+---
+## Tutorials
+
+The best way to learn is to run the interactive notebooks – they cover everything from basic setup to
+advanced self‑adaptation and live plotting. Each notebook is a self‑contained, commented
+Python script (Jupytext format) that you can open as a notebook or run as a script.
+
+| Notebook | What you’ll learn |
+|----------|--------------------|
+| [Genetic Algorithm Quickstart](tutorials/genetic_algorithm_tutorial.ipynb) | Minimise the Sphere function with a GA, convergence plots, log‑scale |
+| [Simple API](tutorials/simple_api_tutorial.ipynb) | One‑line GA, DE, PSO; compare algorithms side‑by‑side |
+| [Custom Components](tutorials/custom_components_tutorial.ipynb) | Build your own objective, operator, selection, and wiring |
+| [Scheduled Parameters](tutorials/parameter_schedules_tutorial.ipynb) | Decay mutation strength, step‑change probabilities, live tracking |
+| [Self‑Adapting ES](tutorials/self_adaption_tutorial.ipynb) | Evolution Strategy with evolving sigma, parameter‑extending encodings |
+| [Algorithm Selection & Reporting](tutorials/algorithm_selection_tutorial.ipynb) | Run contests, collect raw data, produce statistical reports |
+| [Plotting and History Analysis](tutorials/plotting.ipynb) | Fitness distribution boxplots, diversity, scheduled parameter evolution |
+| [Real time algorithm progress](tutorials/real_time_plotting_tutorial.ipynb) | Real time demonstration of differential evolution over a 2-D function |
+| [Permutation Problems (TSP)](tutorials/tsp_tutorial.ipynb) | PMX crossover, swap mutation, real‑time tour visualisation |
+
+All tutorials are in the `tutorials/` directory of this repository. Open them with Jupyter,
+VS Code (Jupyter extension), or any editor that supports Jupytext. If you prefer a live
+environment, you can go to [interactive](https://mybinder.org/v2/gh/GheodeAI/metaheuristic-designer/main?filepath=tutorials%2Fgenetic_algorithm_tutorial.py)
 
 ---
 
@@ -168,7 +191,7 @@ Operators modify the genotype of individuals.  They are created through a
 ```python
 create_operator("mutation.gaussian_mutation", F=0.2, N=3, random_state=42)
 create_operator("crossover.one_point_crossover", random_state=42)
-create_operator("de.best.1", F=0.8, Cr=0.9)
+create_operator("DE/best/1", F=0.8, Cr=0.9)
 create_operator("permutation.swap", N=2)
 ```
 
@@ -293,7 +316,7 @@ are expected.
   multiple trials and automatically collect their histories, simplifying
   rigorous benchmarking.
 
-- **Open‑source, MIT licensed** – Use it freely in your research, and
+- **Open‑source, LGPLv3 licensed** – Use it freely in your research, and
   contribute back if you extend it.
 
 ---
