@@ -40,8 +40,8 @@ class TQDMReporter(Reporter):
         evaluations = algorithm.stopping_condition.evaluations
         _, best_objective = algorithm.best_solution()
 
-        self.bar_tracker.set_description(f"Optimizing {objfunc_name} using {alg_name}, Iteration {iterations:d}")
-        self.bar_tracker.set_postfix(evals=evaluations, fitness=best_objective)
+        self.bar_tracker.set_description(f"Optimizing {objfunc_name} using {alg_name}, Iteration {iterations:,}")
+        self.bar_tracker.set_postfix(evals=f"{evaluations:,}", fitness=f"{best_objective:.6g}")
 
         if next_rounded_progress > self.rounded_progress:
             self.bar_tracker.update(next_rounded_progress - self.rounded_progress)
