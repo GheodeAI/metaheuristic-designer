@@ -11,6 +11,7 @@ from metaheuristic_designer.algorithms import Algorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import create_operator
 from metaheuristic_designer.initializers import UniformInitializer, ExtendedInitializer
 from metaheuristic_designer.parent_selection import create_parent_selection
+from metaheuristic_designer.strategies.classic import CMA_ES
 from metaheuristic_designer.survivor_selection import create_survivor_selection
 from metaheuristic_designer.encodings import ImageEncoding, PSOEncoding, CompositeEncoding
 from metaheuristic_designer.constraint_handlers import BounceBoundConstraint, ExtendedConstraintHandler
@@ -111,6 +112,10 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
             ),
             F=0.8,
             Cr=0.8,
+        ),
+        "cmaes": CMA_ES(
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
+            random_state=random_state,
         ),
         "gaussianumda": GaussianUMDA(
             initializer=UniformInitializer(

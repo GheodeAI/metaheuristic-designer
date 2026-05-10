@@ -4,6 +4,7 @@ import logging
 import numpy as np
 import scipy as sp
 
+from ...search_strategy import SearchStrategy
 from ...parent_selection import create_parent_selection
 from ...population import Population
 from ...initializer import Initializer
@@ -16,7 +17,7 @@ from ...utils import VectorLike, check_random_state
 logger = logging.getLogger(__name__)
 
 
-class CMA_ES(VariablePopulation):
+class CMA_ES(SearchStrategy):
     """
     CMA-ES algorithm.
 
@@ -43,23 +44,23 @@ class CMA_ES(VariablePopulation):
 
         super().__init__(
             initializer,
-            operator=create_operator("mutation.full_resampling", distrib="multivariate_normal", mean=None, cov=None),
+            operator=create_operator("mutation.full_resampling", distribution="multivariate_normal", mean=None, cov=None, allow_singular=True),
             parent_sel=create_parent_selection("best", amount=initializer.population_size),
             survivor_sel=survivor_sel,
-            offspring_size=offspring_size,
             name=name,
             # Forced kwargs
             mean=mean,
             sigma=sigma,
-            # cov=np.eye(initializer.dimension),
             **kwargs,
         )
+
+        self.offspring_size = offspring_size
 
         self._cov = np.eye(initializer.dimension)
 
         # intialize weights
         self.mu = initializer.population_size
-        lambda_ = offspring_size
+        self.lambda_ = offspring_size
 
         val_range = np.arange(self.mu) + 1
         weights = np.log(self.mu + 0.5) - np.log(val_range)
@@ -115,6 +116,9 @@ class CMA_ES(VariablePopulation):
                 )
                 computed_mean = self.initializer.generate_individual()
 
+            if np.asarray(computed_mean).ndim == 0:
+                computed_mean = np.repeat(computed_mean, self.initializer.dimension)
+
             self.update_kwargs(mean=np.atleast_1d(computed_mean).astype(float))
 
         if self.params.sigma is None:
@@ -125,8 +129,6 @@ class CMA_ES(VariablePopulation):
                 sigma = 0.5
             self.update_kwargs(sigma=np.atleast_1d(sigma).astype(float))
 
-        # Update the operator's parameters since they were undefined in the constructor
-        self.operator.update_kwargs(mean=self.params.mean, cov=self.params.cov)
 
         # In CMA-ES the initialization is done from random sampling of the distribution, the initializer is not used.
         mean = self.params.mean
@@ -134,13 +136,17 @@ class CMA_ES(VariablePopulation):
         cov_matrix = sigma * sigma * self._cov
         genotype = np.random.multivariate_normal(mean=mean, cov=cov_matrix, size=self.offspring_size)
 
+        # Update the operator's parameters since they were undefined in the constructor
+        self.operator.update_kwargs(mean=mean, cov=cov_matrix)
+
         return Population(objfunc, genotype, encoding=self.initializer.encoding)
 
     def perturb(self, parents, **kwargs):
 
         pop_order = np.argsort(parents.fitness)[::-1]
         pop_matrix = parents.genotype_matrix[pop_order, :]
-        new_mean = np.average(pop_matrix, self._weights)
+
+        new_mean = np.average(pop_matrix, axis=0, weights=self._weights)
 
         y_best = (pop_matrix - self.params.mean) / self.params.sigma
         mean_diff = (new_mean - self.params.mean)/self.params.sigma
@@ -173,6 +179,13 @@ class CMA_ES(VariablePopulation):
         term1_a = np.linalg.norm(self._path_sigma) - self._xin
         term1_b = self._dsigma * self._xin
         new_sigma = self.params.sigma * np.exp(term1_a/term1_b)
+
+        # Breaks to ensure numerical stability
+        if new_sigma < 1e-10:
+            self.finish = True
+        
+        if np.linalg.cond(self._cov) > 1e14:
+            self.finish = True
 
         self.update_kwargs(mean=new_mean, sigma=new_sigma)
 
