@@ -1,13 +1,12 @@
 from __future__ import annotations
-from typing import Optional, Tuple, Any, Iterable
-import pandas as pd
+from typing import Iterable
 from ..search_strategy import SearchStrategy
 from ..objective_function import ObjectiveFunc
 from .algorithm_selection import AlgorithmSelection
 from ..algorithm import Algorithm
 
 
-class StrategySelection:
+class StrategySelection(AlgorithmSelection):
     """
     Utility to evaluate and compare the performance of different search strategies.
 
@@ -24,15 +23,9 @@ class StrategySelection:
         Indicates whether to show progress bars with 'verbose' and the number of times to repeat each algorithm with 'repetitions'
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, strategy_list: Iterable[SearchStrategy], algorithm_params: Optional[dict] = None, **kwargs):
+    def __init__(self, objfunc: ObjectiveFunc, strategy_list: Iterable[SearchStrategy], repetitions: int = 10, **kwargs):
         self.strategy_list = strategy_list
-        algorithm_list = [Algorithm(objfunc, strategy, algorithm_params) for strategy in strategy_list]
+        algorithm_list = [Algorithm(objfunc, strategy, **kwargs) for strategy in strategy_list]
 
-        self.algorithm_selection = AlgorithmSelection(algorithm_list, **kwargs)
-
-    def optimize(self) -> Tuple[Any, float, pd.DataFrame]:
-        """
-        Evaluates all the provided search strategies and returns the best overall solution
-        """
-
-        return self.algorithm_selection.optimize()
+        super().__init__(algorithm_list=algorithm_list, repetitions=repetitions)
+    

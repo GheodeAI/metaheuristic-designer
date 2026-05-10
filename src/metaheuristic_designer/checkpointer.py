@@ -77,9 +77,7 @@ class Checkpointer:
             algorithm.parallel = is_parallel
             algorithm.checkpointer = checkpointer
 
-    def load(
-        self, file_name: str = None, reporter: Reporter | str = "silent", parallel: bool = False
-    ) -> Algorithm:
+    def load(self, file_name: str = None, reporter: Reporter | str = "silent", parallel: bool = False) -> Algorithm:
         if file_name is None:
             file_name = self.checkpoint_file
 

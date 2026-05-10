@@ -17,6 +17,7 @@ class Distribution(ABC):
     a ``sample`` method to generate random variates and an optional
     ``estimate_parameters`` method to compute heuristic parameters from data.
     """
+
     @abstractmethod
     def sample(self, shape: tuple, random_state: RNGLike) -> TensorLike:
         """Draw random samples from the distribution.
@@ -65,6 +66,7 @@ class ScipyUnivarDistribution(Distribution):
     **kwargs
         Parameters forwarded to the distribution constructor.
     """
+
     def __init__(self, distribution_cls, **kwargs):
         self.dist = distribution_cls(**kwargs)
 
@@ -96,6 +98,7 @@ class ScipyMultivarDistribution(Distribution):
     **kwargs
         Parameters forwarded to the distribution constructor.
     """
+
     def __init__(self, distribution_cls, **kwargs):
         self.dist = distribution_cls(**kwargs)
 
@@ -133,6 +136,7 @@ class multivariate_categorical(Distribution):
         each of the ``K`` categories in each row.  Weights are normalised
         row-wise before sampling.
     """
+
     def __init__(self, categories, weight_matrix):
         self.categories = categories
         weight_matrix = weight_matrix / weight_matrix.sum(axis=1, keepdims=True)
@@ -631,10 +635,7 @@ def multivariate_normal_heuristic(population_matrix, mean=None, cov=None, **kwar
         kwargs["mean"] = mean
 
     if cov == "calculated":
-        raise ValueError(
-            "Automatic covariance estimation is not supported. "
-            "Provide an explicit covariance matrix."
-        )
+        raise ValueError("Automatic covariance estimation is not supported. " "Provide an explicit covariance matrix.")
     elif cov is not None:
         kwargs["cov"] = cov
 
@@ -668,10 +669,7 @@ def dirichlet_heuristic(population_matrix, alpha=None, **kwargs):
         supported.
     """
     if alpha == "calculated":
-        raise ValueError(
-            "Automatic Dirichlet parameter estimation is not supported. "
-            "Provide an explicit `alpha` vector."
-        )
+        raise ValueError("Automatic Dirichlet parameter estimation is not supported. " "Provide an explicit `alpha` vector.")
     elif alpha is not None:
         kwargs["alpha"] = alpha
 

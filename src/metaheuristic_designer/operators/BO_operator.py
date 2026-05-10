@@ -30,16 +30,25 @@ class BOOperator(Operator):
     from the regression model is then optimized to estimate the next best solution for the problem.
     """
 
-    def __init__(self, name="Gaussian Regression Surrogate Model", encoding=None, kernel=None, random_state=None, batch_size = 100, max_samples=100, rbf_scale=1.0, **kwargs):
+    def __init__(
+        self,
+        name="Gaussian Regression Surrogate Model",
+        encoding=None,
+        kernel=None,
+        random_state=None,
+        batch_size=100,
+        max_samples=100,
+        rbf_scale=1.0,
+        **kwargs,
+    ):
         super().__init__(
             name=name,
             encoding=encoding,
             random_state=random_state,
-
             # Forced kwargs
-            batch_size = batch_size,
-            max_samples = max_samples,
-            **kwargs
+            batch_size=batch_size,
+            max_samples=max_samples,
+            **kwargs,
         )
 
         if kernel is None:

@@ -67,25 +67,25 @@ class CMA_ES(SearchStrategy):
         self._weights = weights / np.sum(weights)
 
         # Initialize internal parameters
-        self._effective_pop_size = 1/np.sum(self._weights**2)
+        self._effective_pop_size = 1 / np.sum(self._weights**2)
 
         n = self.initializer.dimension
-        norm_eff_pop = self._effective_pop_size/n
+        norm_eff_pop = self._effective_pop_size / n
         term1 = 4 + norm_eff_pop
-        term2 = n + 4 + 2*norm_eff_pop
+        term2 = n + 4 + 2 * norm_eff_pop
         self._cc = term1 / term2
 
         term1 = self._effective_pop_size + 2
         term2 = n + self._effective_pop_size + 5
-        self._csigma = term1/term2
+        self._csigma = term1 / term2
 
         term1_a = 1 / self._effective_pop_size
-        term1_b = 2 / (n + np.sqrt(2))**2
+        term1_b = 2 / (n + np.sqrt(2)) ** 2
         term1 = term1_a * term1_b
 
-        term2_a = (1 - term1_a)
-        term3_a = 2*self._effective_pop_size - 1
-        term3_b = (n + 2)**2 + self._effective_pop_size
+        term2_a = 1 - term1_a
+        term3_a = 2 * self._effective_pop_size - 1
+        term3_b = (n + 2) ** 2 + self._effective_pop_size
         term3 = term3_a / term3_b
         term2_b = np.minimum(term3, 1)
         term2 = term2_a * term2_b
@@ -95,10 +95,10 @@ class CMA_ES(SearchStrategy):
         term1_b = np.sqrt(term1_a) - 1
         term1 = 2 * np.maximum(term1_b, 0)
         self._dsigma = 1 + term1 + self._csigma
-        
+
         self._A = np.eye(n)
 
-        self._xin = np.sqrt(n) * (1 - (1/(4*n)) + (1/(21*n*n)))
+        self._xin = np.sqrt(n) * (1 - (1 / (4 * n)) + (1 / (21 * n * n)))
 
         # Declare internal parameters, assign dummy values
         self._path_cov = np.zeros(n)
@@ -129,7 +129,6 @@ class CMA_ES(SearchStrategy):
                 sigma = 0.5
             self.update_kwargs(sigma=np.atleast_1d(sigma).astype(float))
 
-
         # In CMA-ES the initialization is done from random sampling of the distribution, the initializer is not used.
         mean = self.params.mean
         sigma = self.params.sigma
@@ -149,46 +148,46 @@ class CMA_ES(SearchStrategy):
         new_mean = np.average(pop_matrix, axis=0, weights=self._weights)
 
         y_best = (pop_matrix - self.params.mean) / self.params.sigma
-        mean_diff = (new_mean - self.params.mean)/self.params.sigma
+        mean_diff = (new_mean - self.params.mean) / self.params.sigma
 
         # Compute path values
         term1 = (1 - self._cc) * self._path_cov
-        term2_a = self._cc * (2 - self._cc)*self._effective_pop_size
-        term2 = np.sqrt(term2_a)*mean_diff
+        term2_a = self._cc * (2 - self._cc) * self._effective_pop_size
+        term2 = np.sqrt(term2_a) * mean_diff
         self._path_cov = term1 + term2
 
         w = sp.linalg.solve_triangular(self._A.T, mean_diff, lower=False)
 
-        term1 = (1 - self._csigma)*self._path_sigma
-        term2_a = self._csigma * (2 - self._csigma)*self._effective_pop_size
+        term1 = (1 - self._csigma) * self._path_sigma
+        term2_a = self._csigma * (2 - self._csigma) * self._effective_pop_size
         term2 = np.sqrt(term2_a) * w
         self._path_sigma = term1 + term2
 
         term1 = (1 - self._ccov) * self._cov
-        term2 = (self._ccov / self._effective_pop_size)*np.outer(self._path_cov, self._path_cov)
-        term3_a = self._ccov*(1 - (1/self._effective_pop_size))
+        term2 = (self._ccov / self._effective_pop_size) * np.outer(self._path_cov, self._path_cov)
+        term3_a = self._ccov * (1 - (1 / self._effective_pop_size))
         term_b = np.zeros((self.n, self.n))
         for i in range(self.mu):
             term_b += self._weights[i] * np.outer(y_best[i], y_best[i])
         term3 = term3_a * term_b
         self._cov = term1 + term2 + term3
-        
+
         self._A = np.linalg.cholesky(self._cov)
 
         # update sigma
         term1_a = np.linalg.norm(self._path_sigma) - self._xin
         term1_b = self._dsigma * self._xin
-        new_sigma = self.params.sigma * np.exp(term1_a/term1_b)
+        new_sigma = self.params.sigma * np.exp(term1_a / term1_b)
 
         # Breaks to ensure numerical stability
         if new_sigma < 1e-10:
             self.finish = True
-        
+
         if np.linalg.cond(self._cov) > 1e14:
             self.finish = True
 
         self.update_kwargs(mean=new_mean, sigma=new_sigma)
 
-        self.operator.update_kwargs(mean=new_mean, cov=new_sigma*new_sigma*self._cov)
+        self.operator.update_kwargs(mean=new_mean, cov=new_sigma * new_sigma * self._cov)
 
         return super().perturb(parents, **kwargs)

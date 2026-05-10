@@ -138,7 +138,9 @@ class GaussianUMDA(VariablePopulation):
 
         super().__init__(
             initializer=initializer,
-            operator=create_operator("full_resampling", distribution="gaussian", loc=np.asarray(loc), scale=np.asarray(scale), random_state=random_state),
+            operator=create_operator(
+                "full_resampling", distribution="gaussian", loc=np.asarray(loc), scale=np.asarray(scale), random_state=random_state
+            ),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,

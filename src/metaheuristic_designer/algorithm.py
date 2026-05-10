@@ -409,7 +409,7 @@ class Algorithm:
 
         with open(file_name, "w", encoding="utf-8") as fp:
             fp.write(dumped)
-        
+
     def to_pandas(self):
         return self.history_tracker.to_pandas()
 
