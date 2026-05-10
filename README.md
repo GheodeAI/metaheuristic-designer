@@ -154,7 +154,7 @@ Pre‑built strategies include:
 
 - `HillClimb`, `LocalSearch`, `SA` (Simulated Annealing)
 - `GA`, `ES`, `DE`, `PSO`
-- `CrossEntropyMethod`, `GaussianUMDA`, `GaussianPBIL`, `BernoulliUMDA`, `BernoulliPBIL`, `CMA‑ES` (pending)
+- `CrossEntropyMethod`, `GaussianUMDA`, `GaussianPBIL`, `BernoulliUMDA`, `BernoulliPBIL`, `CMA‑ES`
 - `RandomSearch`
 - `TabuSearch`, `IteratedLocalSearch` (coming in v1.1)
 
