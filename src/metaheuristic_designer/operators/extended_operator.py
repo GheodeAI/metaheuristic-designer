@@ -53,6 +53,13 @@ class ExtendedOperator(Operator):
 
         super().__init__(name=name, encoding=encoding, **kwargs)
 
+    def gather_params(self):
+        all_params = self.get_params()
+        for op in self.param_operators.values():
+            all_params.update(op.gather_params())
+
+        return all_params
+
     def evolve(self, population, initializer=None):
         return self.main_operator.evolve(population, initializer=initializer)
 

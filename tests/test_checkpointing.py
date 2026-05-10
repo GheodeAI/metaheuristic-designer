@@ -27,7 +27,7 @@ def test_checkpoint_split_vs_continuous(tmp_path, rng, dummy_objfunc):
 
     # ---- continuous run (10 generations) ----
     rng_a = np.random.default_rng(42)
-    init_a = UniformInitializer(2, -10, 10, pop_size=10, random_state=rng_a)
+    init_a = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_a)
     mut_a = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv_a = create_survivor_selection("generational", random_state=rng_a)
     strat_a = SearchStrategy(init_a, operator=mut_a, survivor_sel=surv_a, name="cont")
@@ -37,7 +37,7 @@ def test_checkpoint_split_vs_continuous(tmp_path, rng, dummy_objfunc):
 
     # ---- split run: 5 generations, checkpoint, then 5 more ----
     rng_b = np.random.default_rng(42)
-    init_b = UniformInitializer(2, -10, 10, pop_size=10, random_state=rng_b)
+    init_b = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_b)
     mut_b = create_mutation_operator("gaussian_mutation", random_state=rng_b, N=1, F=0.1)
     surv_b = create_survivor_selection("generational", random_state=rng_b)
     strat_b = SearchStrategy(init_b, operator=mut_b, survivor_sel=surv_b, name="split")
@@ -72,7 +72,7 @@ def test_checkpoint_iteration_frequency(tmp_path, rng, dummy_objfunc):
     checkpoint = tmp_path / "freq.pkl"
 
     rng_a = np.random.default_rng(42)
-    init = UniformInitializer(2, -10, 10, pop_size=10, random_state=rng_a)
+    init = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_a)
     mut = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv = create_survivor_selection("generational", random_state=rng_a)
     strat = SearchStrategy(init, operator=mut, survivor_sel=surv, name="freq")
@@ -101,7 +101,7 @@ def test_checkpoint_time_frequency(tmp_path, rng):
     # SleepTest with 0.1s per evaluation guarantees at least two saves
     sleepy = SleepTest(dimension=2, sleep_time=0.1, mode="min")
     rng_a = np.random.default_rng(42)
-    init = UniformInitializer(2, -10, 10, pop_size=3, random_state=rng_a)
+    init = UniformInitializer(2, -10, 10, population_size=3, random_state=rng_a)
     mut = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv = create_survivor_selection("generational", random_state=rng_a)
     strat = SearchStrategy(init, operator=mut, survivor_sel=surv, name="time")
@@ -127,7 +127,7 @@ def test_checkpoint_time_frequency(tmp_path, rng):
 # ---------------------------------------------------------------
 def test_checkpoint_disabled(rng, dummy_objfunc):
     rng_a = np.random.default_rng(42)
-    init = UniformInitializer(2, -10, 10, pop_size=10, random_state=rng_a)
+    init = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_a)
     mut = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv = create_survivor_selection("generational", random_state=rng_a)
     strat = SearchStrategy(init, operator=mut, survivor_sel=surv, name="none")
@@ -152,7 +152,7 @@ def test_checkpoint_interruption_saves(tmp_path, rng, dummy_objfunc):
             raise KeyboardInterrupt
 
     rng_a = np.random.default_rng(42)
-    init = UniformInitializer(2, -10, 10, pop_size=10, random_state=rng_a)
+    init = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_a)
     mut = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv = create_survivor_selection("generational", random_state=rng_a)
     strat = SearchStrategy(init, operator=mut, survivor_sel=surv, name="interrupt")
@@ -186,7 +186,7 @@ def test_checkpoint_load_with_reporter(tmp_path, rng, dummy_objfunc):
     checkpoint = tmp_path / "reporter.pkl"
 
     rng_a = np.random.default_rng(42)
-    init = UniformInitializer(2, -10, 10, pop_size=10, random_state=rng_a)
+    init = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_a)
     mut = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv = create_survivor_selection("generational", random_state=rng_a)
     strat = SearchStrategy(init, operator=mut, survivor_sel=surv, name="reporter")

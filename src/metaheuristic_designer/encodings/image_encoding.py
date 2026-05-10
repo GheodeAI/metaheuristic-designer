@@ -10,7 +10,7 @@ class ImageEncoding(Encoding):
     Decoder used to evolve images.
     """
 
-    def __init__(self, shape: Tuple[int, int], color: bool = True):
+    def __init__(self, shape: Tuple[int, int], color: bool = True, **kwargs):
         if len(shape) == 2:
             shape = tuple(shape)
             if color:
@@ -19,7 +19,7 @@ class ImageEncoding(Encoding):
                 shape = shape + (1,)
 
         self.shape = shape
-        super().__init__(decode_as_array=True)
+        super().__init__(decode_as_array=True, **kwargs)
 
     def encode(self, solution: Iterable) -> MatrixLike:
         return solution.reshape(solution.shape[:1] + (-1,))

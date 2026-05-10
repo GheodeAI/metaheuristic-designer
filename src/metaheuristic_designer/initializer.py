@@ -32,7 +32,7 @@ class Initializer(ABC):
         """
 
         self.dimension = dimension
-        self.pop_size = population_size
+        self.population_size = population_size
         if encoding is None:
             encoding = DefaultEncoding()
         self.encoding = encoding
@@ -89,7 +89,7 @@ class Initializer(ABC):
         """
 
         if n_individuals is None:
-            n_individuals = self.pop_size
+            n_individuals = self.population_size
 
         population_matrix = np.asarray([self.generate_individual() for _ in range(n_individuals)])
         return Population(objfunc, genotype_matrix=population_matrix, encoding=self.encoding)

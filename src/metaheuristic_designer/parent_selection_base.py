@@ -111,7 +111,7 @@ class NullParentSelection(ParentSelection):
         super().__init__(name, amount=None, **kwargs)
 
     def select(self, population: Population, _amount: Optional[int] = None) -> Population:
-        self.last_selection_idx = np.arange(population.pop_size)
+        self.last_selection_idx = np.arange(population.population_size)
         return population.take_selection(self.last_selection_idx)
 
 
@@ -144,7 +144,7 @@ class ParentSelectionFromLambda(ParentSelection):
     def select(self, population: Population, amount: Optional[int] = None) -> Population:
         if amount is None:
             if self.current_kwargs["amount"] is None:
-                amount = population.pop_size
+                amount = population.population_size
             else:
                 amount = self.current_kwargs["amount"]
 

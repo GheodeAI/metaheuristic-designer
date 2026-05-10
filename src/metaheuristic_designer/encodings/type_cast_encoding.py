@@ -11,11 +11,11 @@ class TypeCastEncoding(Encoding):
     will be represented in one data type and it will be decoded as another data type
     """
 
-    def __init__(self, encoded_dtype=int, decoded_dtype=float):
+    def __init__(self, encoded_dtype=int, decoded_dtype=float, **kwargs):
         self.encoded_dtype = encoded_dtype
         self.decoded_dtype = decoded_dtype
 
-        super().__init__(decode_as_array=True)
+        super().__init__(decode_as_array=True, **kwargs)
 
     def encode(self, solutions: Iterable) -> MatrixLike:
         return solutions.astype(self.encoded_dtype)

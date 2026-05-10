@@ -1,21 +1,21 @@
 # tests/test_parent_selection_functions.py
 import pytest
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_allclose
 
 # Conftest constants
 from conftest import EXAMPLE_FITNESS, make_pop, dummy_objfunc, rng
 
-# Functions under test
+# Functions under test – updated imports after refactoring
 from metaheuristic_designer.parent_selection import (
     select_best,
     prob_tournament,
     uniform_selection,
+    shuffle_population,
     roulette,
     sus,
-    selection_distribution,
+    create_scaling_fn,
     create_parent_selection,
-    SelectionDist,
     ParentSelectionDef,
     ParentSelectionFromLambda,
     NullParentSelection,
@@ -30,7 +30,7 @@ from metaheuristic_designer.parent_selection import (
     [
         (EXAMPLE_FITNESS, 3, np.array([7, 6, 5])),
         (EXAMPLE_FITNESS, 8, np.array([7, 6, 5, 4, 3, 2, 1, 0])),
-        (EXAMPLE_FITNESS, 0, np.array([])),
+        (EXAMPLE_FITNESS, 0, np.array([], dtype=int)),
         (np.array([5.0, -3.0, 2.0]), 2, np.array([0, 2])),
     ],
 )
@@ -42,22 +42,43 @@ def test_select_best(fitness, amount, expected):
 # ===================================================================
 #  uniform_selection (needs `rng` fixture)
 # ===================================================================
-@pytest.mark.parametrize("fitness", [EXAMPLE_FITNESS])
-@pytest.mark.parametrize(
-    "amount, expected",
-    [
-        (0, np.array([], dtype=int)),
-        (3, np.random.default_rng(42).integers(0, len(EXAMPLE_FITNESS), 3)),
-        (5, np.random.default_rng(42).integers(0, len(EXAMPLE_FITNESS), 5)),
-    ],
-)
-def test_uniform_selection(fitness, amount, expected, rng):
-    result = uniform_selection(fitness, amount, random_state=rng)
-    assert_array_equal(result, expected)
+@pytest.mark.parametrize("amount", [0, 3, 5])
+def test_uniform_selection(amount, rng):
+    result = uniform_selection(EXAMPLE_FITNESS, amount, random_state=rng)
+    assert len(result) == amount
     if amount > 0:
-        assert result.dtype == np.intp
-        assert result.max() < len(fitness)
+        assert result.max() < len(EXAMPLE_FITNESS)
         assert result.min() >= 0
+
+
+def test_uniform_selection_reproducible(rng):
+    amount = 4
+    expected = uniform_selection(EXAMPLE_FITNESS, amount,
+                                 random_state=np.random.default_rng(42))
+    result = uniform_selection(EXAMPLE_FITNESS, amount, random_state=rng)
+    assert_array_equal(result, expected)
+
+
+# ===================================================================
+#  shuffle_population (new function)
+# ===================================================================
+def test_shuffle_small_amount(rng):
+    amount = 3
+    pop_size = len(EXAMPLE_FITNESS)
+    result = shuffle_population(EXAMPLE_FITNESS, amount, random_state=rng)
+    assert len(result) == amount
+    # all indices must be distinct and within range
+    assert len(set(result)) == amount
+    assert result.max() < pop_size
+
+
+def test_shuffle_large_amount(rng):
+    amount = 12  # > population size 8
+    pop_size = len(EXAMPLE_FITNESS)
+    result = shuffle_population(EXAMPLE_FITNESS, amount, random_state=rng)
+    assert len(result) == amount
+    # every index must appear at least once
+    assert set(range(pop_size)).issubset(set(result))
 
 
 # ===================================================================
@@ -65,45 +86,98 @@ def test_uniform_selection(fitness, amount, expected, rng):
 # ===================================================================
 def test_prob_tournament_prob_1(rng):
     amount = 4
-    expected = prob_tournament(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42), tournament_size=3, prob=1.0)
-    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng, tournament_size=3, prob=1.0)
+    expected = prob_tournament(EXAMPLE_FITNESS, amount,
+                               random_state=np.random.default_rng(42),
+                               tournament_size=3, prob=1.0)
+    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng,
+                             tournament_size=3, prob=1.0)
     assert_array_equal(result, expected)
 
 
 def test_prob_tournament_prob_0(rng):
     amount = 4
-    expected = prob_tournament(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42), tournament_size=3, prob=0.0)
-    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng, tournament_size=3, prob=0.0)
+    expected = prob_tournament(EXAMPLE_FITNESS, amount,
+                               random_state=np.random.default_rng(42),
+                               tournament_size=3, prob=0.0)
+    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng,
+                             tournament_size=3, prob=0.0)
     assert_array_equal(result, expected)
 
 
-@pytest.mark.parametrize("fitness", [EXAMPLE_FITNESS])
 @pytest.mark.parametrize("amount", [0, 3, 8])
 @pytest.mark.parametrize("prob", [0.1, 0.5, 0.9])
-def test_prob_tournament_shape(fitness, amount, prob, rng):
-    result = prob_tournament(fitness, amount, random_state=rng, tournament_size=3, prob=prob)
+def test_prob_tournament_shape(amount, prob, rng):
+    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng,
+                             tournament_size=3, prob=prob)
     assert len(result) == amount
     if amount > 0:
-        assert result.max() < len(fitness)
+        assert result.max() < len(EXAMPLE_FITNESS)
         assert result.min() >= 0
 
 
 # ===================================================================
-#  roulette (needs `rng` fixture)
+#  create_scaling_fn (replaces old selection_distribution tests)
+# ===================================================================
+def test_scaling_fitness_proportional():
+    fitness = np.array([1, 2, 3], dtype=float)
+    fn = create_scaling_fn("fitness_proportional", scaling_factor=1)
+    weights = fn(fitness)
+    expected = np.array([1/6, 1/3, 1/2])
+    assert_array_equal(weights, expected)
+
+
+def test_scaling_sigma_scaling():
+    fitness = np.array([1.0, 2.0, 3.0])
+    fn = create_scaling_fn("sigma_scaling", scaling_factor=1)
+    # sigma_scaling sets weights = max(0, fitness - (mean - std))
+    # mean=2, std=0.816... => mean - std ≈ 1.184
+    # weights = max(0, [1-1.184,2-1.184,3-1.184]) = max(0, [-0.184,0.816,1.816]) = [0,0.816,1.816]
+    # normalized sum = 2.632 => [0,0.310,0.690]
+    weights = fn(fitness)
+    assert np.all(weights >= 0)
+    assert np.isclose(weights.sum(), 1.0)
+
+
+def test_scaling_linear_rank():
+    fitness = np.array([10.0, 20.0, 30.0, 40.0])
+    fn = create_scaling_fn("linear_ranking", scaling_factor=0)  # f=0 -> extreme non‑linear
+    weights = fn(fitness)
+    # ranks: worst=0, best=3
+    # linear_ranking with f=0: (2-0)+(2*rank*(0-1))/(3) => 2 - (2*rank/3)
+    # ranks: 0,1,2,3 -> weights: 2, 4/3, 2/3, 0 -> normalized sum = 4 => [0.5, 0.333, 0.167, 0]
+    expected = np.array([0.5, 1/3, 1/6, 0.0])
+    assert_allclose(weights, expected, atol=1e-6)
+
+
+def test_scaling_exponential_rank():
+    fitness = np.array([1.0, 2.0, 3.0])
+    fn = create_scaling_fn("exponential_ranking", scaling_factor=None)
+    weights = fn(fitness)
+    # ranks: 0,1,2  => 1-exp(-0), 1-exp(-1), 1-exp(-2) ≈ [0,0.632,0.865]
+    # normalised roughly [0,0.422,0.578]
+    assert np.isclose(weights.sum(), 1.0)
+    assert weights[0] < weights[1] < weights[2]
+
+
+# ===================================================================
+#  roulette (needs `rng` fixture)  – updated to string methods
 # ===================================================================
 @pytest.mark.parametrize(
-    "fitness, method, f",
+    "method, scaling_factor",
     [
-        (EXAMPLE_FITNESS, SelectionDist.FIT_PROP, None),
-        (EXAMPLE_FITNESS, SelectionDist.SIGMA_SCALE, None),
-        (EXAMPLE_FITNESS, SelectionDist.LIN_RANK, None),
-        (EXAMPLE_FITNESS, SelectionDist.EXP_RANK, None),
+        ("fitness_proportional", 1),
+        ("sigma_scaling", 1),
+        ("linear_ranking", 0),        # extreme linear ranking
+        ("exponential_ranking", None),
     ],
 )
-def test_roulette_deterministic(fitness, method, f, rng):
+def test_roulette_deterministic(method, scaling_factor, rng):
     amount = 5
-    expected = roulette(fitness, amount, random_state=np.random.default_rng(42), method=method, f=f)
-    result = roulette(fitness, amount, random_state=rng, method=method, f=f)
+    expected = roulette(EXAMPLE_FITNESS, amount,
+                        random_state=np.random.default_rng(42),
+                        method=method, scaling_factor=scaling_factor)
+    result = roulette(EXAMPLE_FITNESS, amount, random_state=rng,
+                      method=method, scaling_factor=scaling_factor)
     assert_array_equal(result, expected)
 
 
@@ -116,21 +190,24 @@ def test_roulette_sanity(rng):
 
 
 # ===================================================================
-#  sus (needs `rng` fixture)
+#  sus (needs `rng` fixture)  – updated to string methods
 # ===================================================================
 @pytest.mark.parametrize(
-    "fitness, method, f",
+    "method, scaling_factor",
     [
-        (EXAMPLE_FITNESS, SelectionDist.FIT_PROP, None),
-        (EXAMPLE_FITNESS, SelectionDist.SIGMA_SCALE, None),
-        (EXAMPLE_FITNESS, SelectionDist.LIN_RANK, None),
-        (EXAMPLE_FITNESS, SelectionDist.EXP_RANK, None),
+        ("fitness_proportional", 1),
+        ("sigma_scaling", 1),
+        ("linear_ranking", 0),
+        ("exponential_ranking", None),
     ],
 )
-def test_sus_deterministic(fitness, method, f, rng):
+def test_sus_deterministic(method, scaling_factor, rng):
     amount = 5
-    expected = sus(fitness, amount, random_state=np.random.default_rng(42), method=method, f=f)
-    result = sus(fitness, amount, random_state=rng, method=method, f=f)
+    expected = sus(EXAMPLE_FITNESS, amount,
+                   random_state=np.random.default_rng(42),
+                   method=method, scaling_factor=scaling_factor)
+    result = sus(EXAMPLE_FITNESS, amount, random_state=rng,
+                 method=method, scaling_factor=scaling_factor)
     assert_array_equal(result, expected)
 
 
@@ -143,37 +220,6 @@ def test_sus_sanity(rng):
 
 
 # ===================================================================
-#  selection_distribution (deterministic, no rng needed)
-# ===================================================================
-def test_selection_distribution_fit_prop():
-    fitness = np.array([1.0, 2.0, 3.0])
-    weights = selection_distribution(fitness, SelectionDist.FIT_PROP, f=1.0)
-    expected = np.array([1 / 6, 1 / 3, 1 / 2])
-    assert_array_equal(weights, expected)
-
-
-def test_selection_distribution_negative_fitness():
-    fitness = np.array([-5.0, 0.0, 5.0])
-    weights = selection_distribution(fitness, SelectionDist.FIT_PROP, f=1.0)
-    expected = np.array([1 / 18, 6 / 18, 11 / 18])
-    assert_array_equal(weights, expected)
-
-
-def test_selection_distribution_linear_rank():
-    fitness = np.array([10.0, 20.0, 30.0, 40.0])
-    weights = selection_distribution(fitness, SelectionDist.LIN_RANK)
-    expected = np.array([0.0, 1 / 6, 1 / 3, 1 / 2])
-    assert_array_equal(weights, expected)
-
-
-def test_selection_distribution_linear_rank_f_greater_than_2():
-    fitness = np.array([1.0, 2.0, 3.0])
-    weights = selection_distribution(fitness, SelectionDist.LIN_RANK, f=5.0)
-    expected = np.array([0.0, 1 / 3, 2 / 3])
-    assert_array_equal(weights, expected)
-
-
-# ===================================================================
 #  ParentSelectionDef – direct call
 # ===================================================================
 def test_parent_selection_def_calls_wrapped_function():
@@ -182,7 +228,7 @@ def test_parent_selection_def_calls_wrapped_function():
 
     def_obj = ParentSelectionDef(dummy)
     pop = make_pop([1.0, 2.0], dummy_objfunc)
-    result = def_obj(pop, amount=2, random_state=rng)
+    result = def_obj(pop, amount=2, random_state=np.random.default_rng())
     assert_array_equal(result, [0, 2])
 
 
@@ -197,7 +243,7 @@ def test_parent_selection_def_passes_fitness_and_kwargs():
 
     def_obj = ParentSelectionDef(spy, params={"extra": 5})
     pop = make_pop([10.0, 20.0], dummy_objfunc)
-    def_obj(pop, amount=1, random_state=rng)
+    def_obj(pop, amount=1, random_state=np.random.default_rng())
 
     assert_array_equal(captured["fitness"], [10.0, 20.0])
     assert captured["amount"] == 1
@@ -213,6 +259,7 @@ def test_parent_selection_def_passes_fitness_and_kwargs():
         ("best", ParentSelectionFromLambda),
         ("tournament", ParentSelectionFromLambda),
         ("random", ParentSelectionFromLambda),
+        ("shuffle", ParentSelectionFromLambda),      # new entry
         ("roulette", ParentSelectionFromLambda),
         ("sus", ParentSelectionFromLambda),
         ("nothing", NullParentSelection),

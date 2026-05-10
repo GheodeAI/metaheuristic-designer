@@ -120,7 +120,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             return population.fitness
 
         if self.recalculate:
-            fitness_mask = np.ones(population.pop_size, dtype=bool)
+            fitness_mask = np.ones(population.population_size, dtype=bool)
         else:
             fitness_mask = population.fitness_calculated == 0
 
@@ -139,7 +139,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             objective[fitness_mask] = objective_values
         else:
             # Expand the penalty to have the size `pop_size`
-            penalty_vector_aux = np.zeros(population.pop_size)
+            penalty_vector_aux = np.zeros(population.population_size)
             penalty_vector_aux[fitness_mask] = penalty_vector
             penalty_vector = penalty_vector_aux
 

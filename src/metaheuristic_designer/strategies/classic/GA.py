@@ -1,16 +1,17 @@
 from __future__ import annotations
 from typing import Optional
+
 from ...initializer import Initializer
 from ...operator import Operator, NullOperator
 from ...survivor_selection_base import SurvivorSelection
 from ...parent_selection_base import ParentSelection
 from ...operators import CompositeOperator, BranchOperator
-from ..variable_population import VariablePopulation
+from ..static_population import StaticPopulation
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import check_random_state, RNGLike
 
 
-class GA(VariablePopulation):
+class GA(StaticPopulation):
     """
     Genetic algorithm
     """
@@ -33,9 +34,12 @@ class GA(VariablePopulation):
         random_state = check_random_state(random_state)
 
         prob_mut_op = BranchOperator([mutation_op, NullOperator()], method="Random", p=mutation_prob, random_state=random_state)
-        prob_cross_op = BranchOperator([crossover_op, NullOperator()], method="Random", p=crossover_prob, random_state=random_state)
 
-        evolve_op = CompositeOperator([prob_cross_op, prob_mut_op])
+        # Override the crossover probability if possible
+        if hasattr(crossover_op.params, "crossover_prob"):
+            crossover_op.update_kwargs(crossover_prob=crossover_prob)
+
+        evolve_op = CompositeOperator([crossover_op, prob_mut_op])
 
         super().__init__(
             initializer, operator=evolve_op, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs

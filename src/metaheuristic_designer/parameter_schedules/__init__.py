@@ -13,5 +13,5 @@ __all__ = [
     "SchedulableParameter",
     "StepSchedule",
     "ThresholdSchedule",
-    "ExponentialDecaySchedule"
+    "ExponentialDecaySchedule",
 ]

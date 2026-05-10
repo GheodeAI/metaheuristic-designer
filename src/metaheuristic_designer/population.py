@@ -43,13 +43,13 @@ class Population:
         self.genotype_matrix = genotype_matrix
 
         # Size of the population
-        self.pop_size = genotype_matrix.shape[0]
-        self.vec_size = genotype_matrix.shape[1]
+        self.population_size = genotype_matrix.shape[0]
+        self.dimension = genotype_matrix.shape[1]
 
         # Fitness of each individual in the population
-        self.fitness = np.full(self.pop_size, -np.inf)
-        self.objective = np.full(self.pop_size, -np.inf)
-        self.fitness_calculated = np.zeros(self.pop_size)
+        self.fitness = np.full(self.population_size, -np.inf)
+        self.objective = np.full(self.population_size, -np.inf)
+        self.fitness_calculated = np.zeros(self.population_size)
 
         # Best solution found so far
         self.best = None
@@ -58,7 +58,7 @@ class Population:
 
         # Best individual in each spot of the population
         self.historical_best_matrix = genotype_matrix
-        self.historical_best_fitness = np.full(self.pop_size, -np.inf)
+        self.historical_best_fitness = np.full(self.population_size, -np.inf)
 
         # Encoding to use
         if encoding is None:
@@ -79,8 +79,8 @@ class Population:
             "Population{"
             f"\n\tobjfunc = {self.objfunc.name}"
             f"\n\tgenotype_matrix = {self.genotype_matrix}"
-            f"\n\tpop_size = {self.pop_size}"
-            f"\n\tvec_size = {self.vec_size}"
+            f"\n\tpop_size = {self.population_size}"
+            f"\n\tvec_size = {self.dimension}"
             f"\n\tfitness = {self.fitness}"
             f"\n\tobjective = {self.objective}"
             f"\n\tfitness_calculated = {self.fitness_calculated}"
@@ -105,7 +105,7 @@ class Population:
 
         return copied_pop
 
-    def best_individual(self) -> Tuple[Any, float]:
+    def best_individual(self) -> Tuple[MatrixLike, float]:
         """
         Returns the best individual in the population along with its fitness.
 
@@ -119,7 +119,7 @@ class Population:
 
         Returns
         -------
-        best_solution : Tuple[Any, float]
+        best_solution : Tuple[MatrixLike, float]
             A pair of the best individual with its fitness.
         """
 
@@ -170,7 +170,7 @@ class Population:
         else:
             genotype_matrix = genotype_source
 
-        if genotype_matrix.shape[1] != self.vec_size:
+        if genotype_matrix.shape[1] != self.dimension:
             raise ValueError("Individual vector size should not change when updating the population.")
 
         if len(genotype_matrix) != len(self.genotype_matrix):
@@ -183,7 +183,7 @@ class Population:
         else:
             self.fitness_calculated = np.all(self.genotype_matrix == genotype_matrix, axis=1)
         self.genotype_matrix = genotype_matrix
-        self.pop_size = genotype_matrix.shape[0]
+        self.population_size = genotype_matrix.shape[0]
 
         logger.debug("Updated genotype matrix.")
 
@@ -359,7 +359,7 @@ class Population:
         """
 
         self.genotype_matrix = np.concatenate((self.genotype_matrix, other_population.genotype_matrix), axis=0)
-        self.pop_size += other_population.genotype_matrix.shape[0]
+        self.population_size += other_population.genotype_matrix.shape[0]
         self.historical_best_matrix = np.concatenate((self.historical_best_matrix, other_population.historical_best_matrix), axis=0)
         self.historical_best_fitness = np.concatenate((self.historical_best_fitness, other_population.historical_best_fitness))
         self.fitness_calculated = np.concatenate((self.fitness_calculated, other_population.fitness_calculated), axis=0)
@@ -604,7 +604,7 @@ class Population:
         return (
             f"Population(\n"
             f"  objfunc={self.objfunc.name},\n"
-            f"  size={self.pop_size}, dims={self.vec_size},\n"
+            f"  size={self.population_size}, dims={self.dimension},\n"
             f"  fitness=[{self.fitness.min():.3e}, {self.fitness.max():.3e}],\n"
             f"  objective=[{self.objective.min():.3e}, {self.objective.max():.3e}],\n"
             f"  best_fitness={self.best_fitness:.3e},\n"

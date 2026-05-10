@@ -40,6 +40,13 @@ class MaskedOperator(Operator):
         self.op_list = op_list
         super().__init__(name, mask=mask, **kwargs)
 
+    def gather_params(self):
+        all_params = self.get_params()
+        for op in self.op_list:
+            all_params.update(op.gather_params())
+
+        return all_params
+
     def evolve(self, population, initializer=None):
         new_population = copy(population)
 

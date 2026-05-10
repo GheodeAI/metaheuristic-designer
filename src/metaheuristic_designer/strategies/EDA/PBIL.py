@@ -33,7 +33,7 @@ class BernoulliPBIL(VariablePopulation):
 
         super().__init__(
             initializer,
-            operator=create_operator("full_resampling", distrib="bernoulli", p=p, random_state=random_state),
+            operator=create_operator("full_resampling", distribution="bernoulli", p=p, random_state=random_state),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,
@@ -90,7 +90,7 @@ class BinomialPBIL(VariablePopulation):
 
         super().__init__(
             initializer,
-            operator=create_operator("full_resampling", distrib="Binomial", p=np.asarray(p), n=np.asarray(n), random_state=random_state),
+            operator=create_operator("full_resampling", distribution="Binomial", p=np.asarray(p), n=np.asarray(n), random_state=random_state),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,
@@ -146,7 +146,7 @@ class GaussianPBIL(VariablePopulation):
 
         super().__init__(
             initializer,
-            operator=create_operator("full_resampling", distrib="gaussian", loc=loc, scale=np.asarray(scale)),
+            operator=create_operator("full_resampling", distribution="gaussian", loc=loc, scale=np.asarray(scale)),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,

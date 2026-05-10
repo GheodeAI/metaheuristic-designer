@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import logging
 from ..parent_selection_base import ParentSelectionFromLambda, NullParentSelection
 from ..population import Population
-from .parent_selection_functions import SelectionDist, prob_tournament, select_best, roulette, uniform_selection, sus
+from .parent_selection_functions import prob_tournament, select_best, roulette, shuffle_population, uniform_selection, sus
 from ..utils import null_aliases
 
 logger = logging.getLogger(__name__)
@@ -40,35 +40,42 @@ parent_sel_map = {
     "truncation":               ParentSelectionDef(select_best),
     "select_best":              ParentSelectionDef(select_best),
 
-    # Random selection
+    # Random selection (with replacement)
     "random":                   ParentSelectionDef(uniform_selection),
+    "random_with_replacement":  ParentSelectionDef(uniform_selection),
     "uniform":                  ParentSelectionDef(uniform_selection),
+
+    # Random selection (without replacement)
+    "random_without_replacement": ParentSelectionDef(shuffle_population),
+    "random_subset":            ParentSelectionDef(shuffle_population),
+    "shuffle":                  ParentSelectionDef(shuffle_population),
+    "permute":                  ParentSelectionDef(shuffle_population),
 
     # Roulette
     "roulette":                 ParentSelectionDef(roulette),
-    "fitness_proportional":     ParentSelectionDef(roulette, forced_params={"method": SelectionDist.FIT_PROP}),
-    "fit_prop":                 ParentSelectionDef(roulette, forced_params={"method": SelectionDist.FIT_PROP}),
-    "proportional":             ParentSelectionDef(roulette, forced_params={"method": SelectionDist.FIT_PROP}),
-    "pro":                      ParentSelectionDef(roulette, forced_params={"method": SelectionDist.FIT_PROP}),
-    "std_roulette":             ParentSelectionDef(roulette, forced_params={"method": SelectionDist.SIGMA_SCALE}),
-    "sigma_scaling":            ParentSelectionDef(roulette, forced_params={"method": SelectionDist.SIGMA_SCALE}),
-    "rank_roulette":            ParentSelectionDef(roulette, forced_params={"method": SelectionDist.LIN_RANK}),
-    "linear_rank":              ParentSelectionDef(roulette, forced_params={"method": SelectionDist.LIN_RANK}),
-    "exp_rank_roulette":        ParentSelectionDef(roulette, forced_params={"method": SelectionDist.EXP_RANK}),
-    "exponential_rank":         ParentSelectionDef(roulette, forced_params={"method": SelectionDist.EXP_RANK}),
+    "fitness_proportional":     ParentSelectionDef(roulette, forced_params={"method": "fit_prop"}),
+    "fit_prop":                 ParentSelectionDef(roulette, forced_params={"method": "fit_prop"}),
+    "proportional":             ParentSelectionDef(roulette, forced_params={"method": "fit_prop"}),
+    "pro":                      ParentSelectionDef(roulette, forced_params={"method": "fit_prop"}),
+    "std_roulette":             ParentSelectionDef(roulette, forced_params={"method": "sigma_scale"}),
+    "sigma_scaling":            ParentSelectionDef(roulette, forced_params={"method": "sigma_scale"}),
+    "rank_roulette":            ParentSelectionDef(roulette, forced_params={"method": "lin_rank"}),
+    "linear_rank":              ParentSelectionDef(roulette, forced_params={"method": "lin_rank"}),
+    "exp_rank_roulette":        ParentSelectionDef(roulette, forced_params={"method": "exp_rank"}),
+    "exponential_rank":         ParentSelectionDef(roulette, forced_params={"method": "exp_rank"}),
 
     # Stochastic Universal Sampling (SUS)
     "sus":                      ParentSelectionDef(sus),
     "stochastic_universal_sampling": ParentSelectionDef(sus),
-    "sus_fitness_proportional": ParentSelectionDef(sus, forced_params={"method": SelectionDist.FIT_PROP}),
-    "sus_fit_prop":             ParentSelectionDef(sus, forced_params={"method": SelectionDist.FIT_PROP}),
-    "sus_proportional":         ParentSelectionDef(sus, forced_params={"method": SelectionDist.FIT_PROP}),
-    "sus_prop":                 ParentSelectionDef(sus, forced_params={"method": SelectionDist.FIT_PROP}),
-    "sus_std":                  ParentSelectionDef(sus, forced_params={"method": SelectionDist.SIGMA_SCALE}),
-    "sus_sigma":                ParentSelectionDef(sus, forced_params={"method": SelectionDist.SIGMA_SCALE}),
-    "sus_rank":                 ParentSelectionDef(sus, forced_params={"method": SelectionDist.LIN_RANK}),
-    "sus_exp":                  ParentSelectionDef(sus, forced_params={"method": SelectionDist.EXP_RANK}),
-    "sus_exponential":          ParentSelectionDef(sus, forced_params={"method": SelectionDist.EXP_RANK}),
+    "sus_fitness_proportional": ParentSelectionDef(sus, forced_params={"method": "fit_prop"}),
+    "sus_fit_prop":             ParentSelectionDef(sus, forced_params={"method": "fit_prop"}),
+    "sus_proportional":         ParentSelectionDef(sus, forced_params={"method": "fit_prop"}),
+    "sus_prop":                 ParentSelectionDef(sus, forced_params={"method": "fit_prop"}),
+    "sus_std":                  ParentSelectionDef(sus, forced_params={"method": "sigma_scale"}),
+    "sus_sigma":                ParentSelectionDef(sus, forced_params={"method": "sigma_scale"}),
+    "sus_rank":                 ParentSelectionDef(sus, forced_params={"method": "lin_rank"}),
+    "sus_exp":                  ParentSelectionDef(sus, forced_params={"method": "exp_rank"}),
+    "sus_exponential":          ParentSelectionDef(sus, forced_params={"method": "exp_rank"}),
 }
 
 

@@ -61,7 +61,9 @@ class SleepTest(VectorObjectiveFunc):
 ### Benchmark functions
 class Sphere(VectorObjectiveFunc):
     def __init__(self, dimension, mode="min", constraint_handler=None):
-        super().__init__(constraint_handler=constraint_handler, dimension=dimension, mode=mode, lower_bound=-100, upper_bound=100, name="Sphere function")
+        super().__init__(
+            constraint_handler=constraint_handler, dimension=dimension, mode=mode, lower_bound=-100, upper_bound=100, name="Sphere function"
+        )
 
     def objective(self, solution):
         return _sphere(solution)

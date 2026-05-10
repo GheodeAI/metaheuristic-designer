@@ -1,18 +1,17 @@
 from __future__ import annotations
 from copy import copy
-import numpy as np
 from ..constraint_handler import ConstraintHandler
 from ..encodings import ParameterExtendingEncoding
 from ..utils import MatrixLike, ScalarLike
 
 
 class ExtendedConstraintHandler(ConstraintHandler):
-    def __init__(self, solution_handler: ConstraintHandler, param_handler_dict: dict, encoding: ParameterExtendingEncoding):
+    def __init__(self, solution_handler: ConstraintHandler, param_handler_dict: dict, encoding: ParameterExtendingEncoding, **kwargs):
         assert isinstance(encoding, ParameterExtendingEncoding), "An `ExtendedEncoding` instance must be used with this type of ConstraintHandler"
 
         self.solution_handler = solution_handler
         self.param_handler_dict = param_handler_dict
-        self.encoding = encoding
+        super().__init__(encoding=encoding, **kwargs)
 
     def repair_solution(self, genotype_matrix: MatrixLike) -> MatrixLike:
         solution_matrix = self.encoding.extract_solution(genotype_matrix)
