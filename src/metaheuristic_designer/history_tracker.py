@@ -1,3 +1,7 @@
+"""
+Module for recording per-generation metrics and exporting them as pandas DataFrames.
+"""
+
 from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
@@ -11,6 +15,36 @@ logger = logging.getLogger(__name__)
 
 
 class HistoryTracker:
+    """Record per-generation metrics and export them as pandas DataFrames.
+
+    The tracker is called once per generation (via :meth:`step`) and
+    stores the requested statistics.  After the run the data can be
+    retrieved with :meth:`to_pandas` (a summary of best, median, worst,
+    diversity, and scheduled parameters) or :meth:`to_pandas_full_objective`
+    (the full objective vector of every individual at each generation).
+
+    Parameters
+    ----------
+    track_best : bool, optional
+        Record the best objective and solution (default ``True``).
+    track_median : bool, optional
+        Record the median objective (default ``False``).
+    track_worst : bool, optional
+        Record the worst objective (default ``False``).
+    track_full_objective : bool, optional
+        Store the complete objective vector of the population at every
+        generation.  Enables :meth:`to_pandas_full_objective`.
+    track_full_population : bool, optional
+        Store the entire population (genotypes) at every generation.
+        This can consume a lot of memory.
+    track_parameters : bool, optional
+        Record the current value of all scheduled parameters (e.g.,
+        mutation strength, branch probability).
+    track_diversity : bool, optional
+        Compute and store a simple diversity metric (average
+        Euclidean distance from the centroid).
+    """
+
     def __init__(
         self,
         track_best=True,
@@ -45,6 +79,11 @@ class HistoryTracker:
         self.recorded_iterations = []
 
     def restart(self):
+        """Clear all recorded data.
+
+        Call this when an algorithm is reset to start a fresh run.
+        """
+
         self.best_solutions = []
         self.median_solutions = []
         self.worst_solutions = []
@@ -61,6 +100,15 @@ class HistoryTracker:
         self.recorded_iterations = []
 
     def step(self, algorithm: Algorithm):
+        """Record metrics for the current generation.
+
+        Parameters
+        ----------
+        algorithm : Algorithm
+            The running algorithm from which the current population,
+            fitness, objective, and parameters are extracted.
+        """
+
         population = algorithm.population
         solutions = population.decode()
         fitness_array = population.fitness
@@ -106,10 +154,16 @@ class HistoryTracker:
             self.parameters.append(algorithm.gather_parameters())
 
     def to_pandas(self):
-        """
-        Return a pandas dataframe containing the recorded fitness values.
+        """Return a DataFrame with per-generation summary metrics.
 
-        No solution data is recorded into the dataframe.
+        Columns include ``iteration``, ``best_objective``,
+        ``median_objective``, ``worst_objective``, ``diversity``,
+        and one column per scheduled parameter.  The DataFrame is
+        intended for easy plotting with seaborn or matplotlib.
+
+        Returns
+        -------
+        pandas.DataFrame
         """
 
         data_dict = {"iteration": np.asarray(self.recorded_iterations)}
@@ -134,6 +188,18 @@ class HistoryTracker:
         return pd.DataFrame.from_dict(data_dict)
 
     def to_pandas_full_objective(self):
+        """Return a wide-format DataFrame of all individual objective values.
+
+        Each column ``Individual_0``, ``Individual_1``, ... holds the
+        objective of one member of the population across generations.
+        This is useful for boxplots or distribution plots of fitness.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Empty DataFrame if *track_full_objective* was not enabled.
+        """
+
         if not self.track_full_objective:
             logger.warning("Tried to extract the full objective history but it was not being tracked.")
             return pd.DataFrame()
@@ -147,6 +213,15 @@ class HistoryTracker:
         return pd.DataFrame.from_dict(data_dict)
 
     def get_state(self):
+        """Return a dictionary containing the recorded history.
+
+        Returns
+        -------
+        dict
+            Keys include ``best_objective``, ``best_solutions``, etc.
+            Only metrics that were enabled are present.
+        """
+
         data = {
             "class_name": self.__class__.__name__,
         }

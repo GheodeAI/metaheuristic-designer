@@ -18,24 +18,25 @@ logger = logging.getLogger(__name__)
 
 
 class Population:
-    """
-    Individual that holds a tentative solution with its fitness.
+    """Container for a set of candidate solutions and their fitness.
+
+    A ``Population`` holds the genotype matrix, fitness and objective
+    values, historical bests, and the current best individual.  It
+    is the central data structure passed between components of the
+    optimisation loop.
 
     Parameters
     ----------
-    objfunc: ObjectiveFunc
-        The objective function to be maximized or minimized.
-    genotype_matrix: ndarray
-        The solutions that will form part of the population.
-    encoding: Encoding, optional
-        The encoding to be used when calculating the objective function.
+    objfunc : ObjectiveFunc
+        The objective function that will evaluate the population.
+    genotype_matrix : ndarray
+        2-D array of shape ``(N, M)`` containing the genotypes.
+    encoding : Encoding, optional
+        The encoding used to translate between genotype and phenotype.
+        Defaults to :class:`DefaultEncoding`.
     """
 
     def __init__(self, objfunc: ObjectiveFunc, genotype_matrix: MatrixLike, encoding: Optional[Encoding] = None):
-        """
-        Constructor of the Individual class.
-        """
-
         # Objective function
         self.objfunc = objfunc
 
@@ -106,38 +107,27 @@ class Population:
         return copied_pop
 
     def best_individual(self) -> Tuple[MatrixLike, float]:
-        """
-        Returns the best individual in the population along with its fitness.
-
-        This implies the solution is in the internal optimization space representation and
-        the fitness is the adjusted and penalized objective.
-
-        Parameters
-        ----------
-        decoded: bool, optional
-            Whether to return the raw vector of the best solution or it's decoded version.
+        """Return the best genotype and its maximised fitness value.
 
         Returns
         -------
-        best_solution : Tuple[MatrixLike, float]
-            A pair of the best individual with its fitness.
+        best_genotype : MatrixLike
+            The genotype vector of the best individual.
+        best_fitness : float
+            The internal fitness (always maximised).
         """
 
         return self.best, self.best_fitness
 
     def best_solution(self) -> Tuple[Any, float]:
-        """
-        Returns the best solution with it's objective value.
-
-        Parameters
-        ----------
-        decoded: bool, optional
-            Whether to return the raw vector of the best solution or it's decoded version.
+        """Return the best decoded solution and its raw objective value.
 
         Returns
         -------
-        best_solution : Tuple[Any, float]
-            A pair of the best individual with its fitness.
+        solution : Any
+            The decoded phenotype of the best individual.
+        objective : float
+            The raw objective value.
         """
 
         # Decode needs a matrix, so we ad a virtual dimension
@@ -153,18 +143,21 @@ class Population:
         return best_solution_vec, self.best_objective
 
     def update_genotype(self, genotype_source: MatrixLike | Population) -> Population:
-        """
-        Replaces the solutions in the population with the ones inputted.
+        """Replace the genotype matrix.
 
         Parameters
         ----------
-        genotype_matrix: ndarray
-            The set of solutions that will replace the ones that were in the population.
+        genotype_source : ndarray or Population
+            New genotypes.  If a ``Population`` is given, its genotype
+            matrix is used.
 
         Returns
         -------
-        self: Population
+        Population
+            ``self``, with updated genotypes and, if the size changed,
+            re-initialised fitness and historical bests.
         """
+
         if isinstance(genotype_source, Population):
             genotype_matrix = genotype_source.genotype_matrix
         else:
@@ -316,8 +309,19 @@ class Population:
 
     @staticmethod
     def join_populations(population1: Population, population2: Population) -> Population:
-        """
-        Concatenates the individuals in both populations into a new one.
+        """Concatenate two populations into a new one.
+
+        Parameters
+        ----------
+        population1 : Population
+            First population.
+        population2 : Population
+            Second population.
+
+        Returns
+        -------
+        Population
+            A new population containing all individuals from both inputs.
         """
 
         joined_genotype_matrix = np.concatenate((population1.genotype_matrix, population2.genotype_matrix), axis=0)
@@ -398,16 +402,18 @@ class Population:
         return self
 
     def update_best_from_parents(self, parents: Population) -> Population:
-        """
-        Updates the best fitness and best individual from an input population.
+        """Update the best solution if a better one exists in *parents*.
 
         Parameters
         ----------
-        parents: Population
+        parents : Population
+            Population whose best individual may improve the current one.
 
         Returns
         -------
-        self: Population
+        Population
+            ``self``, with possibly updated ``best``, ``best_fitness``,
+            and ``best_objective``.
         """
 
         if self.best is None or (parents.best is not None and self.best_fitness < parents.best_fitness):
@@ -529,13 +535,22 @@ class Population:
         return self.encoding.decode(self.genotype_matrix)
 
     def decode_params(self, encoding: Optional[Encoding] = None) -> Iterable:
-        """
-        Return the population passed through the decoding function defined in the encoding.
+        """Decode the auxiliary parameters stored in the genotype.
+
+        Only works with :class:`ParameterExtendingEncoding`.
+
+        Parameters
+        ----------
+        encoding : Encoding, optional
+            Encoding to use; defaults to ``self.encoding``.
 
         Returns
         -------
-        decoded_population: Any
+        dict or None
+            Dictionary of parameter arrays, or ``None`` if the encoding
+            does not support extended parameters.
         """
+
         if encoding is None:
             encoding = self.encoding
 
@@ -545,12 +560,17 @@ class Population:
             return None
 
     def encode(self, encoding: Optional[Encoding] = None) -> MatrixLike:
-        """
+        """Encode the current population using the given encoding.
 
         Parameters
         ----------
-        encoding, optional
-            _description_, by default None
+        encoding : Encoding, optional
+            Encoding to use; defaults to ``self.encoding``.
+
+        Returns
+        -------
+        MatrixLike
+            The encoded genotype matrix.
         """
 
         if encoding is None:
@@ -559,18 +579,13 @@ class Population:
         return encoding.encode(self.genotype_matrix)
 
     def get_state(self) -> dict:
-        """
-        Gets the current state of the algorithm as a dictionary.
-
-        Parameters
-        ----------
-        show_best: bool, optional
-            Save the best parent of this individual.
+        """Return a dictionary with the current population state.
 
         Returns
         -------
-        state: dict
-            The current state of this individual.
+        dict
+            Keys include ``genotype_matrix``, ``fitness``, ``objective``,
+            historical bests, and the best individual.
         """
 
         data = {
@@ -588,6 +603,20 @@ class Population:
         return data
 
     def debug_repr(self, max_solutions: int = 5, max_vars: int = 5) -> str:
+        """Return a compact string representation for debugging.
+
+        Parameters
+        ----------
+        max_solutions : int, optional
+            Maximum number of rows to include in the preview.
+        max_vars : int, optional
+            Maximum number of columns to include in the preview.
+
+        Returns
+        -------
+        str
+        """
+
         genotype_matrix = self.genotype_matrix
         shape = genotype_matrix.shape
 

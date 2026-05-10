@@ -1,4 +1,8 @@
-from typing import Optional, Tuple
+"""
+Utility functions, type aliases, and a JSON encoder used across the library.
+"""
+
+from typing import Optional
 import json
 import numbers
 from enum import Enum
@@ -28,7 +32,12 @@ MaskLike = IntTensor | BinTensor
 
 
 class NumpyEncoder(json.JSONEncoder):
-    """Special json encoder for numpy types"""
+    """JSON encoder that can serialize NumPy scalars, arrays, and Enums.
+
+    Use this encoder with ``json.dumps`` or ``json.dump`` when your
+    data structure contains NumPy integers, floats, or arrays, or
+    when you need to serialize Enum values as their string names.
+    """
 
     def default(self, o):
         if isinstance(o, np.integer):
@@ -74,8 +83,22 @@ def check_random_state(seed: Optional[RNGLike]) -> np.random.Generator:
 
 
 def per_individual(func):
-    """
-    Decorator that applies a row-wise function to a 2D array.
+    """Decorator that applies a function to each row of a 2-D array.
+
+    The wrapped function receives a single row (a 1-D array) and
+    any keyword arguments, and must return a 1-D array of the same
+    length.  The decorator loops over rows and stacks the results
+    back into a 2-D array.
+
+    Parameters
+    ----------
+    func : callable
+        A function ``(row, **kwargs) -> 1-D array``.
+
+    Returns
+    -------
+    callable
+        A function that accepts a 2-D matrix and returns a 2-D array.
     """
 
     def wrapper(matrix, **kwargs):
@@ -85,8 +108,21 @@ def per_individual(func):
 
 
 def per_individual_list(func):
-    """
-    Decorator that applies a row-wise function to a 2D array.
+    """Decorator that applies a function to each element of a list.
+
+    The wrapped function receives a single element and any keyword
+    arguments, and returns a transformed element.  The decorator
+    loops over the list and returns a new list of the results.
+
+    Parameters
+    ----------
+    func : callable
+        A function ``(value, **kwargs) -> Any``.
+
+    Returns
+    -------
+    callable
+        A function that accepts a list and returns a list.
     """
 
     def wrapper(values, **kwargs):

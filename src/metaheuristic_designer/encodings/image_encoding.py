@@ -1,3 +1,7 @@
+"""
+Encoding for image-based optimisation tasks.
+"""
+
 from __future__ import annotations
 from typing import Iterable, Tuple
 import numpy as np
@@ -7,7 +11,20 @@ from ..utils import MatrixLike
 
 class ImageEncoding(Encoding):
     """
-    Decoder used to evolve images.
+    Encoding that maps between flat genotype vectors and image tensors.
+
+    Each individual is reshaped to ``(height, width, channels)``.  When
+    ``color`` is ``False`` the channel dimension is omitted (grayscale).
+
+    Parameters
+    ----------
+    shape : tuple of int
+        ``(height, width)`` of the image.
+    color : bool, optional
+        If ``True`` (default), the image has 3 colour channels (RGB).
+        If ``False``, it has 1 channel (grayscale).
+    **kwargs
+        Forwarded to :class:`Encoding`.
     """
 
     def __init__(self, shape: Tuple[int, int], color: bool = True, **kwargs):

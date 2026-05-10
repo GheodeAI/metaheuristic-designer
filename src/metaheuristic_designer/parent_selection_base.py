@@ -1,14 +1,11 @@
 """
-Base class for the Search strategy module.
-
-This module implements the procedure applied in each iteration of the algorithm.
+Base class for the Parent Selection module.
 """
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional, Callable
 import inspect
-from copy import copy
 import numpy as np
 from .population import Population
 from .parametrizable_mixin import ParametrizableMixin
@@ -16,24 +13,28 @@ from .utils import check_random_state, RNGLike
 
 
 class ParentSelection(ParametrizableMixin, ABC):
-    """
-    Abstract Parent Selection class.
+    """Abstract base for all parent selection methods.
 
-    This class defines the structure for parent selection methods, deciding
-    which solutions are perturbed in the current generation.
+    A parent selection chooses which individuals from the current
+    population will be used to generate offspring.  Subclasses must
+    implement :meth:`select`, which returns a new :class:`Population`
+    containing only the selected individuals.
 
     Parameters
     ----------
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the behavior of the selection method.
-    name: str, optional
-        The name that will be assigned to this selection method.
+    name : str, optional
+        Display name for this selection method.
+    amount : int, optional
+        Default number of individuals to select.  Can be overridden
+        at call time.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Additional keyword arguments stored as schedulable
+        parameters.
     """
 
     def __init__(self, name: Optional[str] = None, amount: Optional[int] = None, random_state: Optional[RNGLike] = None, **kwargs):
-        """
-        Constructor for the SurvivorSelection class
-        """
         super().__init__()
 
         self.name = name
@@ -43,17 +44,11 @@ class ParentSelection(ParametrizableMixin, ABC):
         self.last_selection_idx = None
 
     def __call__(self, population: Population, amount: Optional[int] = None) -> Population:
-        """
-        Shorthand for calling the 'select' method
-        """
-
+        """Shorthand for :meth:`select`."""
         return self.select(population, amount)
 
-    def gather_params(self):
-        """
-        Overridable thin wrapper around get_params
-        """
-
+    def gather_params(self) -> dict:
+        """Return the current parameter dictionary (thin wrapper around :meth:`get_params`)."""
         return self.get_params()
 
     @abstractmethod
@@ -76,8 +71,13 @@ class ParentSelection(ParametrizableMixin, ABC):
         """
 
     def get_state(self) -> dict:
-        """
-        Gets the current state of the algorithm as a dictionary.
+        """Return a dictionary with the selection method's configuration.
+
+        Returns
+        -------
+        dict
+            Keys include ``class_name``, ``name``, and all current
+            parameters.
         """
 
         data = {"class_name": self.__class__.__name__, "name": self.name, **self.get_params()}
@@ -86,36 +86,49 @@ class ParentSelection(ParametrizableMixin, ABC):
 
 
 class NullParentSelection(ParentSelection):
-    """
-    Parent selection methods.
+    """Null parent selection, returns the whole population unchanged.
 
-    Selects the individuals that will be perturbed in this generation.
+    This is the identity element: no individuals are filtered out.
+    Useful when the algorithm does not require a parent selection
+    step (e.g., random search or certain evolution strategies).
 
     Parameters
     ----------
-    method: str
-        Strategy used in the selection process.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the behavior of the selection method.
-    padding: bool, optional
-        Whether to fill the entire list of selected individuals to match the size of the original one.
-    name: str, optional
-        The name that will be assigned to this selection method.
+    name : str, optional
+        Display name. Default ``"Nothing"``.
+    **kwargs
+        Keyword arguments forwarded to :class:`ParentSelection`.
     """
 
     def __init__(self, name: Optional[str] = "Nothing", **kwargs):
-        """
-        Constructor for the ParentSelection class
-        """
-
         super().__init__(name, amount=None, **kwargs)
 
-    def select(self, population: Population, _amount: Optional[int] = None) -> Population:
+    def select(self, population: Population, amount: Optional[int] = None) -> Population:
         self.last_selection_idx = np.arange(population.population_size)
         return population.take_selection(self.last_selection_idx)
 
 
 class ParentSelectionFromLambda(ParentSelection):
+    """Parent selection that wraps a user-supplied function.
+
+    The function receives the population, the number of individuals
+    to select, a random state, and any stored keyword arguments,
+    and must return an array of selected indices.
+
+    Parameters
+    ----------
+    selection_fn : callable
+        A function ``(population, amount, random_state, **kwargs) -> indices``.
+    name : str, optional
+        Display name (defaults to the function's ``__name__``).
+    amount : int, optional
+        Default number of individuals to select.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Keyword arguments forwarded to :class:`ParentSelection`.
+    """
+
     def __init__(
         self, selection_fn: Callable, name: Optional[str] = None, amount: Optional[int] = None, random_state: Optional[RNGLike] = None, **kwargs
     ):

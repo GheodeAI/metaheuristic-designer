@@ -1,3 +1,7 @@
+"""
+Encoding that applies a sigmoid function to enable continuous operators on binary problems.
+"""
+
 from __future__ import annotations
 from typing import Iterable
 import scipy as sp
@@ -8,20 +12,25 @@ from ..utils import MatrixLike
 
 class SigmoidEncoding(Encoding):
     """
-    Encoding designed to use optimization algorithms for binary encoded problems
-    using algorithms designed for continuous functions.
+    Encoding that maps binary solutions to continuous values via a sigmoid.
 
-    Applies the following function to each component of the solution vector:
-
-    :math:`\\sigma(x) = \\frac{1}{1+e^{-x}}`
+    The encoding applies :math:`\sigma(x) = 1 / (1 + e^{-x})` pointwise.
+    During encoding, the logit function is applied to the probability
+    parameter (producing real numbers).  During decoding, the sigmoid
+    is applied again.  This allows real-valued operators (e.g., Gaussian
+    mutation) to be used on binary problems.
 
     Parameters
     ----------
-    as_probability: boolean
-        If set to True, return a real number in the range (0,1)
-        If set to False, returns a boolean set to 1 when :math:`\\sigma(x)` is bigger than a threshold
-    threshold: float
-        When using `as_probability`, sets the limit at which the value is considered to be a 1.
+    as_probability : bool, optional
+        If ``True`` (default), each component is returned as a
+        probability in (0, 1).  If ``False``, the probability is
+        thresholded to produce a hard 0/1 value.
+    threshold : float, optional
+        Threshold used when ``as_probability=False``.  Must be in
+        (0, 1).  Default is 0.5.
+    **kwargs
+        Forwarded to :class:`Encoding`.
     """
 
     def __init__(self, as_probability: bool = True, threshold: float = 0.5, **kwargs):

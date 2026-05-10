@@ -1,3 +1,7 @@
+"""
+Concrete encoding implementations provided by the library.
+"""
+
 from ..encoding import Encoding, EncodingFromLambda, DefaultEncoding
 from .composite_encoding import CompositeEncoding
 from .parameter_extending_encoding import ParameterExtendingEncoding

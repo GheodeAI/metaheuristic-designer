@@ -1,3 +1,7 @@
+"""
+Silent reporter that produces no output during a run.
+"""
+
 from __future__ import annotations
 from ..reporter import Reporter
 from typing import TYPE_CHECKING
@@ -7,6 +11,12 @@ if TYPE_CHECKING:
 
 
 class SilentReporter(Reporter):
+    """Reporter that produces no output.
+
+    All logging methods are no-ops.  Useful for running experiments
+    without visual clutter.
+    """
+
     def log_init(self, algorithm: Algorithm):
         pass
 

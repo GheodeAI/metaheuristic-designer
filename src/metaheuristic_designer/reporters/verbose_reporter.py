@@ -1,3 +1,7 @@
+"""
+Reporter that prints a text summary at regular intervals.
+"""
+
 from __future__ import annotations
 import time
 import logging
@@ -12,11 +16,20 @@ logger = logging.getLogger(__name__)
 
 
 class VerboseReporter(Reporter):
+    """Reporter that prints a multi-line status block every `verbose_timer` seconds.
+
+    Parameters
+    ----------
+    verbose_timer : float, optional
+        Minimum interval (in seconds) between printed updates (default 0.5).
+    """
+
     def __init__(self, verbose_timer=0.5, **kwargs):
         self.verbose_timer = verbose_timer
         self.verbose_start = time.time()
 
     def log_init(self, algorithm: Algorithm):
+        """Print a header indicating the start of the optimisation."""
         self.verbose_start = time.time()
 
         objfunc_name = algorithm.objfunc.name
@@ -27,6 +40,7 @@ class VerboseReporter(Reporter):
         print()
 
     def log_step(self, algorithm: Algorithm):
+        """Print a status block if enough time has elapsed."""
         if time.time() - self.verbose_start < self.verbose_timer:
             return
         self.verbose_start = time.time()
@@ -57,14 +71,7 @@ class VerboseReporter(Reporter):
         print()
 
     def log_end(self, algorithm: Algorithm):
-        """
-        Shows a summary of the execution of the algorithm.
-
-        Parameters
-        ----------
-        show_plots: bool, optional
-            Whether to display plots about the algorithm or not.
-        """
+        """Print a final summary of the completed run."""
 
         objfunc_name = algorithm.objfunc.name
         alg_name = algorithm.name

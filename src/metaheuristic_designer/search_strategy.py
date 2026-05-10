@@ -7,7 +7,6 @@ This module implements the procedure applied in each iteration of the algorithm.
 from __future__ import annotations
 import logging
 from typing import Tuple, Any, Optional, Callable
-from copy import copy
 
 from .parent_selection_base import ParentSelection, NullParentSelection, ParentSelectionFromLambda
 from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection, SurvivorSelectionFromLambda
@@ -24,25 +23,35 @@ logger = logging.getLogger(__name__)
 
 
 class SearchStrategy(ParametrizableMixin):
-    """
-    Abstract Search Strategy class.
+    """Orchestrates one iteration of an optimisation loop.
 
-    This is the class that defines how the optimization will be carried out.
+    A search strategy holds together an :class:`Initializer`, an
+    :class:`Operator`, a :class:`ParentSelection`, and a
+    :class:`SurvivorSelection`.  Together they define how the
+    population is created, perturbed, and pruned each generation.
+    Subclasses can override any step to implement algorithm-specific
+    logic.
 
     Parameters
     ----------
-    initializer: Initializer
-        Population initializer that will generate the initial population of the search strategy.
-    operator: Operator, optional
-        Operator that will be applied to the population each iteration. Defaults to null operator.
-    parent_sel: ParentSelection, optional
-        Parent selection method that will be applied to the population each iteration. Defaults to returning the entire population.
-    survivor_sel: SurvivorSelection, optional
-        Survivor selection method that will be applied to the population each iteration. Defaults to a generational selection.
-    params: dict, optional
-        Dictionary of parameters to define the stopping condition and output of the search strategy.
-    name: str, optional
-        The name that will be displayed for this search strategy in the reports.
+    initializer : Initializer
+        Creates the starting population.
+    operator : Operator, optional
+        The perturbation operator (mutation, crossover, …).
+        Defaults to :class:`NullOperator`.
+    parent_sel : ParentSelection, optional
+        Selects which individuals are used to generate offspring.
+        Defaults to :class:`NullParentSelection`.
+    survivor_sel : SurvivorSelection, optional
+        Selects which individuals survive to the next generation.
+        Defaults to :class:`NullSurvivorSelection`.
+    name : str, optional
+        Display name used in reports.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Additional keyword arguments stored as schedulable
+        parameters.
     """
 
     def __init__(
@@ -55,10 +64,6 @@ class SearchStrategy(ParametrizableMixin):
         random_state: Optional[RNGLike] = None,
         **kwargs,
     ):
-        """
-        Constructor of the SearchStrategy class
-        """
-
         super().__init__()
 
         self.name = name
@@ -83,7 +88,7 @@ class SearchStrategy(ParametrizableMixin):
         self.store_kwargs(**kwargs)
 
     @property
-    def pop_size(self) -> int:
+    def population_size(self) -> int:
         """
         Gets the amount of individuals in the population.
         """
@@ -91,6 +96,15 @@ class SearchStrategy(ParametrizableMixin):
         return self.initializer.population_size
 
     def gather_parameters(self):
+        """Collect the current parameters from all sub-components.
+
+        Returns
+        -------
+        dict
+            A flat dictionary with dotted keys like
+            ``"operator.F"``, ``"parent_sel.amount"``, etc.
+        """
+        
         param_dict = {f"{self.parent_sel.name}.{k}": v for k, v in self.parent_sel.gather_params().items()}
         param_dict.update({f"{self.operator.name}.{k}": v for k, v in self.operator.gather_params().items()})
         param_dict.update({f"{self.survivor_sel.name}.{k}": v for k, v in self.survivor_sel.gather_params().items()})
@@ -225,6 +239,14 @@ class SearchStrategy(ParametrizableMixin):
         return self.survivor_sel(population, offspring)
 
     def step(self, progress: float):
+        """Update internal parameters and forward progress to sub-components.
+
+        Parameters
+        ----------
+        progress : float
+            Current progress of the algorithm (0-1).
+        """
+
         super().step(progress)
 
         self.operator.step(progress)
@@ -262,22 +284,53 @@ class SearchStrategy(ParametrizableMixin):
         return data
 
     def extra_step_info(self):
-        """
-        Specific information to report relevant to this search strategy each iteration.
-        """
+        """Hook called after each generation (intended for subclasses)."""
 
     def extra_report(self):
-        """
-        Specific information to display relevant to this search strategy at the end of the algorithm.
-
-        Parameters
-        ----------
-        show_plots: bool
-            Display plots specific to this search strategy.
-        """
+        """Hook called at the end of the optimisation (intended for subclasses)."""
 
 
 class SearchStrategyFromLambda(SearchStrategy):
+    """Strategy whose components can be plain functions.
+
+    Accepts each component as either a properly constructed object
+    or a callable; if a callable is provided it is automatically
+    wrapped with the appropriate ``*FromLambda`` class.  This is
+    the simplest way to build a custom strategy in one go.
+
+    Parameters
+    ----------
+    initializer : callable or Initializer
+        Function ``(random_state) -> genotype``, or an initializer
+        instance.
+    operator : callable or Operator, optional
+        Function ``(population, initializer, random_state, **kwargs) -> Population``,
+        or an operator instance.
+    parent_sel : callable or ParentSelection, optional
+        Function ``(population, amount, random_state, **kwargs) -> indices``,
+        or a selection instance.
+    survivor_sel : callable or SurvivorSelection, optional
+        Function ``(parent_fitness, offspring_fitness, random_state, **kwargs) -> indices``,
+        or a selection instance.
+    name : str, optional
+        Display name (default ``"Strategy from lambda"``).
+    encoding : Encoding, optional
+        Encoding that wraps encode/decode; overridden by
+        *encode_fn*/*decode_fn* if both are given.
+    encode_fn / decode_fn : callable, optional
+        Standalone encode/decode functions.
+    parent_selection_amount : int, optional
+        Amount of parents to select (used only when wrapping a
+        callable *parent_sel*).
+    pop_size : int, optional
+        Population size (used only when wrapping a callable
+        *initializer*).  Default 100.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Forwarded to :class:`SearchStrategy`.
+    """
+
     def __init__(
         self,
         initializer: Callable | Initializer,

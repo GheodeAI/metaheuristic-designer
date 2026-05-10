@@ -1,3 +1,8 @@
+"""
+Core parent selection functions (tournament, roulette, SUS, best, …) and
+fitness scaling helpers.
+"""
+
 from typing import Callable, Optional
 import warnings
 import numpy as np
@@ -7,27 +12,110 @@ from ..utils import MaskLike, RNGLike, ScalarLike, VectorLike, check_random_stat
 # ---------------------------------------------
 # Population ranking factory logic
 # ---------------------------------------------
-def fitness_propotional(fitness: VectorLike, scaling_factor: ScalarLike):
+def fitness_propotional(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
+    """Fitness proportional scaling.
+
+    Shift fitness to be non-negative and add a constant offset.
+
+    Parameters
+    ----------
+    fitness : VectorLike
+        Raw fitness values of the population.
+    scaling_factor : ScalarLike
+        Offset added after shifting to ensure all weights are positive.
+
+    Returns
+    -------
+    VectorLike
+        Unnormalised selection weights.
+    """
+
     return fitness - fitness.min() + scaling_factor
 
 
-def sigma_scaling(fitness: VectorLike, scaling_factor: ScalarLike):
+def sigma_scaling(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
+    """Sigma scaling: weight based on standard deviations above the mean.
+
+    Values below ``mean - scaling_factor * std`` are clamped to zero.
+
+    Parameters
+    ----------
+    fitness : VectorLike
+        Raw fitness values.
+    scaling_factor : ScalarLike
+        Number of standard deviations below the mean to clamp.
+
+    Returns
+    -------
+    VectorLike
+        Unnormalised selection weights.
+    """
+
     return np.maximum(fitness - (fitness.mean() - scaling_factor * fitness.std()), 0)
 
 
-def linear_ranking(fitness: VectorLike, scaling_factor: ScalarLike):
+def linear_ranking(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
+    """Linear ranking: weight proportional to rank.
+
+    Rank 0 (worst) receives the smallest weight; rank N-1 (best) the largest.
+    The scaling factor is clamped to at most 2.
+
+    Parameters
+    ----------
+    fitness : VectorLike
+        Raw fitness values.
+    scaling_factor : ScalarLike
+        Selection pressure (clamped to ≤2). Lower values give more
+        extreme emphasis on high ranks.
+
+    Returns
+    -------
+    VectorLike
+        Unnormalised selection weights.
+    """
+
     scaling_factor = np.minimum(scaling_factor, 2)
     fit_order = np.argsort(np.argsort(fitness))  # Using the double-argsort trick
     n_parents = fitness.shape[0]
     return (2 - scaling_factor) + (2 * fit_order * (scaling_factor - 1)) / (n_parents - 1)
 
 
-def exponential_ranking(fitness: VectorLike, scaling_factor: ScalarLike):
+def exponential_ranking(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
+    """Exponential ranking: weight decays exponentially with rank.
+
+    Parameters
+    ----------
+    fitness : VectorLike
+        Raw fitness values.
+    scaling_factor : ScalarLike
+        Not used directly; included for interface consistency.
+
+    Returns
+    -------
+    VectorLike
+        Unnormalised selection weights.
+    """
+
     fit_order = np.argsort(np.argsort(fitness))  # Using the double-argsort trick
     return 1 - np.exp(-fit_order)
 
 
-def flat_ranking(fitness: VectorLike, scaling_factor: ScalarLike):
+def flat_ranking(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
+    """Flat ranking: every individual receives equal weight.
+
+    Parameters
+    ----------
+    fitness : VectorLike
+        Raw fitness values.
+    scaling_factor : ScalarLike
+        Not used; included for interface consistency.
+
+    Returns
+    -------
+    VectorLike
+        Unnormalised weights (all ones).
+    """
+
     return np.ones_like(fitness)
 
 
@@ -52,6 +140,22 @@ scaling_map = {
 
 
 def create_scaling_fn(method: str, scaling_factor: ScalarLike = 2) -> Callable:
+    """Create a callable that computes normalised selection weights.
+
+    Parameters
+    ----------
+    method : str
+        Key into :data:`scaling_map` (e.g., ``"fitness_proportional"``).
+    scaling_factor : float, optional
+        Factor forwarded to the underlying scaling function.
+
+    Returns
+    -------
+    callable
+        A function ``(fitness) -> weights`` that returns a normalised
+        probability vector.
+    """
+
     chosen_fn = scaling_map[method.lower()]
 
     def wrapper(fitness: VectorLike):
@@ -158,7 +262,7 @@ def shuffle_population(fitness: VectorLike, amount: int, random_state: Optional[
     """
     Chooses a number of individuals from the population at random without replacement if amount < population_size.
     If we cannot pich without replacement, we at least make sure we pick every individual at least
-    :math:`\left\lceil \frac{\text{amount}}{\text{population\_size}} \right\rceil` times
+    :math:`\\left\\lceil \\frac{\\text{amount}}{\\text{population\\_size}} \\right\\rceil` times
 
     Parameters
     ----------

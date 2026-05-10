@@ -1,3 +1,7 @@
+"""
+Reporter that shows a tqdm progress bar during optimisation.
+"""
+
 from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
@@ -12,6 +16,15 @@ logger = logging.getLogger(__name__)
 
 
 class TQDMReporter(Reporter):
+    """Reporter that displays a tqdm progress bar.
+
+    Parameters
+    ----------
+    resolution : int, optional
+        Number of ticks in the progress bar (default 1000).  Higher
+        values give smoother updates.
+    """
+
     def __init__(self, resolution: int = 1000, **kwargs):
         if not isinstance(resolution, int):
             resolution = int(resolution)
@@ -21,6 +34,7 @@ class TQDMReporter(Reporter):
         self.bar_tracker = None
 
     def log_init(self, algorithm: Algorithm):
+        """Initialise the progress bar and display the first postfix."""
         objfunc_name = algorithm.objfunc.name
         alg_name = algorithm.name
 
@@ -31,6 +45,7 @@ class TQDMReporter(Reporter):
         self.rounded_progress = 0
 
     def log_step(self, algorithm: Algorithm):
+        """Update the progress bar with current iteration, evaluations, and fitness."""
         clipped_progress = min(max(0, algorithm.progress), 1)
         next_rounded_progress = floor(clipped_progress * self.resolution)
 
@@ -48,6 +63,7 @@ class TQDMReporter(Reporter):
             self.rounded_progress = next_rounded_progress
 
     def log_end(self, algorithm: Algorithm):
+        """Fill the progress bar to 100% and close it."""
         objfunc_name = algorithm.objfunc.name
         alg_name = algorithm.name
         iterations = algorithm.iterations

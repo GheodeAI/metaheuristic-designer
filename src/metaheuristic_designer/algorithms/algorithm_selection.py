@@ -1,3 +1,7 @@
+"""
+Utility for benchmarking a set of algorithms with independent repetitions.
+"""
+
 from __future__ import annotations
 from copy import copy
 from typing import Iterable, Tuple
@@ -12,16 +16,23 @@ from ..algorithm import Algorithm
 
 
 class AlgorithmSelection:
-    """
-    Utility to evaluate and compare the performance of different algorithms.
+    """Run several algorithms multiple times and collect performance data.
+
+    Each algorithm in the list is executed ``repetitions`` times.
+    During the runs, every algorithm gets a silent reporter and a
+    fresh :class:`HistoryTracker` that records best, median, and
+    worst objectives.  After all runs finish, you can obtain the
+    raw per-repetition data (:attr:`raw_data`) and an aggregated
+    :meth:`report`.
 
     Parameters
     ----------
-
-    algorithm_list: Iterable[Algorithm]
-        List of algorithms to evaluate.
-    params: ParamScheduler or dict, optional
-        Indicates whether to show progress bars with 'verbose' and the number of times to repeat each algorithm with 'repetitions'
+    algorithm_list : iterable of Algorithm
+        The algorithms to evaluate.  They are copied before
+        execution so the originals are not modified.
+    repetitions : int, optional
+        How many independent repetitions to perform for each
+        algorithm (default 10).
     """
 
     def __init__(self, algorithm_list: Iterable[Algorithm], repetitions: int = 10):
@@ -45,9 +56,18 @@ class AlgorithmSelection:
         self.opt_mode = algorithm_list[0].objfunc.mode
 
     def optimize(self) -> Tuple[Population, pd.DataFrame]:
+        """Execute all repetitions and return the best population found.
+
+        The raw data is stored in :attr:`self.raw_data` for later
+        inspection.
+
+        Returns
+        -------
+        Population
+            The population with the best overall fitness across all
+            repetitions and algorithms.
         """
-        Evaluates all the provided search strategies and returns the best overall solution
-        """
+
         best_fitness = 0
         best_population = None
 
@@ -95,6 +115,18 @@ class AlgorithmSelection:
         return best_population
 
     def report(self) -> pd.DataFrame:
+        """Return an aggregated summary of the raw data.
+
+        The report contains one row per algorithm, with columns for
+        the number of runs, overall best, average best, standard
+        deviation, timing averages, and more.
+
+        Returns
+        -------
+        pd.DataFrame
+            A DataFrame with the aggregated statistics.
+        """
+
         return (
             self.raw_data.groupby("name")
             .agg(

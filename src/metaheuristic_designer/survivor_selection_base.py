@@ -1,7 +1,5 @@
 """
-Base class for the Search strategy module.
-
-This module implements the procedure applied in each iteration of the algorithm.
+Base class for the Survivor Selection module.
 """
 
 from __future__ import annotations
@@ -15,23 +13,28 @@ from .utils import check_random_state, RNGLike
 
 
 class SurvivorSelection(ParametrizableMixin, ABC):
-    """
-    Abstract Selection Method class.
+    """Abstract base for all survivor selection methods.
 
-    This class defines the structure for individual selection methods.
+    A survivor selection decides which individuals from the current
+    population and the newly generated offspring will form the next
+    generation.  Subclasses must implement :meth:`select`.
 
     Parameters
     ----------
-    params: dict, optional
-        Dictionary of parameters to define the behavior of the selection method.
-    name: str, optional
-        The name that will be assigned to this selection method.
+    name : str, optional
+        Display name for this selection method.
+    preserves_order : bool, optional
+        If ``True``, the order of individuals is kept
+        (useful for one-to-one competition schemes).
+        Default ``False``.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Additional keyword arguments stored as schedulable
+        parameters.
     """
 
     def __init__(self, name: Optional[str] = None, preserves_order: bool = False, random_state: Optional[RNGLike] = None, **kwargs):
-        """
-        Constructor for the SurvivorSelection class
-        """
         super().__init__()
 
         self.name = name
@@ -42,17 +45,12 @@ class SurvivorSelection(ParametrizableMixin, ABC):
         self.last_selection_idx = None
 
     def __call__(self, population: Population, offspring: Population) -> Population:
-        """
-        Shorthand for calling the 'select' method
-        """
+        """Shorthand for :meth:`select`."""
 
         return self.select(population, offspring)
 
     def gather_params(self):
-        """
-        Overridable thin wrapper around get_params
-        """
-
+        """Return the current parameter dictionary (thin wrapper around :meth:`get_params`)."""
         return self.get_params()
 
     @abstractmethod
@@ -71,12 +69,17 @@ class SurvivorSelection(ParametrizableMixin, ABC):
         Returns
         -------
         selected: Population
-            List of selected individuals.
+            Population containing only the selected survivors.
         """
 
-    def get_state(self):
-        """
-        Gets the current state of the algorithm as a dictionary.
+    def get_state(self) -> dict:
+        """Return a dictionary with the selection method's configuration.
+
+        Returns
+        -------
+        dict
+            Keys include ``class_name``, ``name``, and all current
+            parameters.
         """
 
         data = {"class_name": self.__class__.__name__, "name": self.name, **self.get_params()}
@@ -85,28 +88,21 @@ class SurvivorSelection(ParametrizableMixin, ABC):
 
 
 class NullSurvivorSelection(SurvivorSelection):
-    """
-    Survivor selection methods.
+    """Null survivor selection, offspring replace parents entirely.
 
-    Selects the individuals that will remain for the next generation of our algorithm.
+    This is the identity element for generational replacement:
+    all parents are discarded and all offspring survive.  The
+    population size must be maintained by the offspring.
 
     Parameters
     ----------
-    method: str
-        Strategy used in the selection process.
-    params: dict, optional
-        Dictionary of parameters to define the behavior of the selection method.
-    padding: bool, optional
-        Whether to fill the entire list of selected individuals to match the size of the original one.
-    name: str, optional
-        The name that will be assigned to this selection method.
+    name : str, optional
+        Display name. Default ``"Nothing"``.
+    **kwargs
+        Keyword arguments forwarded to :class:`SurvivorSelection`.
     """
 
     def __init__(self, name: Optional[str] = "Nothing", **kwargs):
-        """
-        Constructor for the SurvivorSelection class
-        """
-
         super().__init__(name, preserves_order=True, random_state=None, **kwargs)
 
     def select(self, population: Population, offspring: Population) -> Population:
@@ -116,6 +112,27 @@ class NullSurvivorSelection(SurvivorSelection):
 
 
 class SurvivorSelectionFromLambda(SurvivorSelection):
+    """Survivor selection that wraps a user-supplied function.
+
+    The function receives the parent population, the offspring
+    population, a random state, and any stored keyword arguments,
+    and must return an array of indices into the concatenated
+    pool.
+
+    Parameters
+    ----------
+    selection_fn : callable
+        A function ``(parents, offspring, random_state, **kwargs) -> indices``.
+    name : str, optional
+        Display name (defaults to the function's ``__name__``).
+    preserves_order : bool, optional
+        See :class:`SurvivorSelection`.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Keyword arguments forwarded to :class:`SurvivorSelection`.
+    """
+
     def __init__(
         self, selection_fn: Callable, name: Optional[str] = None, preserves_order: bool = False, random_state: Optional[RNGLike] = None, **kwargs
     ):

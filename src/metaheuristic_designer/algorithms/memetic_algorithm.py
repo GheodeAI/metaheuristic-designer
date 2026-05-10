@@ -1,7 +1,14 @@
+"""
+Memetic algorithm that enhances a base optimisation strategy with local search.
+"""
+
 from __future__ import annotations
 from copy import copy
 import logging
-from typing import Optional
+from typing import Optional, Tuple
+
+from ..utils import MaskLike
+from ..population import Population
 from ..objective_function import ObjectiveFunc
 from ..search_strategy import SearchStrategy
 from ..stopping_condition import StoppingCondition
@@ -15,57 +22,36 @@ logger = logging.getLogger(__name__)
 
 class MemeticAlgorithm(Algorithm):
     """
+    A memetic algorithm that interleaves a local search step into the main loop.
 
-    Iterative search algorithm based on a standard loop with a local search improvement after perturbing
-    the individuals.
+    After the usual perturbation and evaluation, a subset of the offspring
+    is improved by a separate :class:`SearchStrategy` (the local search).
+    The improved individuals can either replace the original offspring
+    (Lamarckian, ``keep_improved_solutions=True``) or only transfer their
+    fitness (Baldwinian, ``keep_improved_solutions=False``).
 
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        _description_
+        Objective function to optimise.
     search_strategy : SearchStrategy
-        _description_
+        The main search strategy.
     local_search : SearchStrategy
-        _description_
+        Strategy used for local improvement.
     improvement_selection : ParentSelection
-        _description_
+        How to choose which offspring are improved.
     local_search_frequency : int, optional
-        _description_, by default 1
+        Apply local search every *n* generations (default 1).
     local_search_depth : int, optional
-        _description_, by default 1
+        Number of local search iterations per application (default 1).
     keep_improved_solutions : bool, optional
-        Whether to keep the individuals improved by the local search heuristic or to only use their fitness.
-        When `False` we have a Lamarckian memetic algorithm and when `True` we have the Baldwinian variant.
-    name : Optional[str], optional
-        _description_, by default None
-    init_info : bool, optional
-        _description_, by default True
-    verbose : bool, optional
-        _description_, by default True
-    v_timer : float, optional
-        _description_, by default 1
-    stop_cond : str, optional
-        _description_, by default "time_limit"
-    progress_metric : Optional[str], optional
-        _description_, by default None
-    max_iterations : int, optional
-        _description_, by default 1000
-    max_evaluations : int, optional
-        _description_, by default 1e5
-    time_limit : float, optional
-        _description_, by default 60.0
-    cpu_time_limit : float, optional
-        _description_, by default 60.0
-    objective_target : float, optional
-        _description_, by default 1e-10
-    patience : int, optional
-        _description_, by default 100
-    stopping_condition : Optional[StoppingCondition], optional
-        _description_, by default None
-    parallel : bool, optional
-        _description_, by default False
-    threads : int, optional
-        _description_, by default 8
+        If ``True`` (Lamarckian), the improved genotypes replace the
+        original offspring.  If ``False`` (Baldwinian), only the fitness
+        values are transferred.
+    name : str, optional
+        Display name; defaults to ``"Memetic {strategy_name}"``.
+    stop_cond, progress_metric, ... : optional
+        See :class:`Algorithm`.
     """
 
     def __init__(
@@ -96,7 +82,6 @@ class MemeticAlgorithm(Algorithm):
         parallel: bool = False,
         threads: int = 8,
     ):
-
         if name is None:
             name = f"Memetic {search_strategy.name}"
 
@@ -144,12 +129,32 @@ class MemeticAlgorithm(Algorithm):
         )
 
     def initialize(self):
+        """Create and evaluate the initial population, then sync the local search.
+
+        Returns
+        -------
+        Population
+            The evaluated initial population.
+        """
+        
         population = super().initialize()
-        # self.local_search.initialize(self.objfunc)
         self.local_search.population = population
         return population
 
-    def _do_local_search(self, offspring):
+    def _do_local_search(self, offspring) -> Tuple[Population, MaskLike]:
+        """Apply local search to selected individuals and merge the result.
+
+        Parameters
+        ----------
+        offspring : Population
+            The offspring after global perturbation and evaluation.
+
+        Returns
+        -------
+        tuple
+            (improved_population, chosen_indices)
+        """
+
         # Select individuals to improve
         selected_to_improve = self.improvement_selection(offspring)
         chosen_idx = self.improvement_selection.last_selection_idx
@@ -175,10 +180,28 @@ class MemeticAlgorithm(Algorithm):
         return offspring, chosen_idx
 
     def _log_debug(self, text, population):
+        """Log a debug message with the population's compact representation."""
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(text, population.debug_repr())
 
-    def step(self, population=None, time_start=0, verbose=False):
+    def step(self, population: Population = None, time_start: float = 0, verbose: bool = False) -> Population:
+        """Execute one memetic iteration (global step + optional local search).
+
+        Parameters
+        ----------
+        population : Population, optional
+            The population at the start of the iteration.
+        time_start : float, optional
+            Start time (unused, kept for interface compatibility).
+        verbose : bool, optional
+            Whether to produce verbose output (unused).
+
+        Returns
+        -------
+        Population
+            The population after the iteration.
+        """
+
         # Get the population of this generation
         if population is None:
             population = self.search_strategy.population
@@ -224,7 +247,20 @@ class MemeticAlgorithm(Algorithm):
 
         return new_population
 
-    def get_state(self, store_population: bool = False):
+    def get_state(self, store_population: bool = False) -> dict:
+        """Extend :meth:`Algorithm.get_state` with local search data.
+
+        Parameters
+        ----------
+        store_population : bool, optional
+            See :class:`Algorithm`.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the memetic algorithm state.
+        """
+
         data = super().get_state(store_population)
 
         # Add parent selection method for local search
@@ -236,7 +272,8 @@ class MemeticAlgorithm(Algorithm):
 
         return data
 
-    def step_info(self, start_time=0):
+    def step_info(self, start_time: int = 0):
+        """Print per-generation information including local search details."""
         super().step_info(start_time)
         self.local_search.extra_step_info()
         print()

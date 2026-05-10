@@ -1,4 +1,7 @@
-from tkinter import NO
+"""
+Module for algorithm stopping conditions and progress metric evaluation.
+"""
+
 from typing import List, Optional
 import logging
 import time
@@ -11,6 +14,40 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class StoppingCondition:
+    """Encapsulate the logic that decides when an optimisation run should end.
+
+    A stopping condition is built from a logical expression that
+    combines **tokens** with ``and``, ``or`` and parentheses.  Each
+    token has a corresponding numeric limit.  The same expression
+    (or a separate one) can be used to compute a progress value
+    between 0 and 1 for parameter schedules.
+
+    Parameters
+    ----------
+    condition_str : str
+        Logical expression defining when to stop (e.g.
+        ``"max_iterations or real_time_limit"``).
+    progress_metric_str : str, optional
+        Logical expression defining how to compute the 0-1 progress
+        value.  Defaults to *condition_str*.
+    max_iterations : int, optional
+        Maximum number of generations.
+    max_evaluations : int, optional
+        Maximum number of objective function evaluations.
+    real_time_limit : float, optional
+        Wall-clock time limit in seconds.
+    cpu_time_limit : float, optional
+        CPU time limit in seconds.
+    objective_target : float, optional
+        Target value for the raw objective.
+    max_patience : int, optional
+        Consecutive iterations without improvement before
+        ``"convergence"`` triggers.
+    optimization_mode : str, optional
+        ``"max"`` or ``"min"``, how the objective target and
+        convergence are evaluated.
+    """
+
     condition_str: str
     progress_metric_str: Optional[str] = None
     max_iterations: int = None
@@ -50,7 +87,6 @@ class StoppingCondition:
     def _validate_required_params(self, source_str: str, context: str):
         """Raise ValueError if a token appears in *source_str* but the
         corresponding parameter is None."""
-
         # Mapping from token to (attribute_name, value)
         _token_map = {
             "max_evaluations": ("max_evaluations", self.max_evaluations),
@@ -66,6 +102,7 @@ class StoppingCondition:
                 raise ValueError(f'"{token}" appears in the {context} but "{attr}" is not set.')
 
     def restart(self):
+        """Reset all counters and timers for a fresh run."""
         self.iterations = 0
         self.evaluations = 0
         self.real_time_start = time.time()
@@ -76,6 +113,15 @@ class StoppingCondition:
         self.first_best_objective = None
 
     def step(self, current_population: Population):
+        """Advance internal counters after one generation.
+
+        Parameters
+        ----------
+        current_population : Population
+            The population at the end of the current generation.  Its
+            best objective is used to update convergence tracking.
+        """
+
         objfunc = current_population.objfunc
 
         self.iterations += 1
@@ -172,8 +218,8 @@ class StoppingCondition:
 
     def get_progress(self) -> float:
         """
-        Given the state of the algorithm, returns a number between 0 and 1 indicating
-        how close to the end of the algorithm we are, 0 when starting and 1 when finished.
+        Compute the current progress (0-1) according to the progress metric.
+        
 
         Parameters
         ----------
@@ -186,8 +232,8 @@ class StoppingCondition:
 
         Returns
         -------
-        progress: float
-            Indicator of how close it the algorithm to finishing, 1 means the algorithm should be stopped.
+        float
+            A value between 0 (start) and 1 (finished).
         """
 
         tol = 1e-12
@@ -220,6 +266,15 @@ class StoppingCondition:
         )
 
     def get_state(self):
+        """Return a dictionary with the current state of the stopping condition.
+
+        Returns
+        -------
+        dict
+            Keys include ``iterations``, ``evaluations``, times, and
+            configuration limits.
+        """
+
         data = {
             "class_name": self.__class__.__name__,
             "stopped": self.is_finished(),

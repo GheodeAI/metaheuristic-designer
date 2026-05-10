@@ -13,8 +13,21 @@ from .utils import ScalarLike, VectorLike, MatrixLike
 
 
 class ConstraintHandler(ParametrizableMixin, ABC):
-    """
-    Class responsible for enforcing restrictions of the optimization problem.
+    """Abstract base for all constraint handlers.
+
+    A constraint handler can **repair** solutions (make them
+    feasible) and/or compute a **penalty** that is subtracted from
+    the objective value.  Subclasses must implement at least one of
+    these operations.
+
+    Parameters
+    ----------
+    encoding : Encoding, optional
+        An :class:`Encoding` that will be used to extract the
+        genotype before repair or penalty (default ``None``).
+    **kwargs
+        Additional keyword arguments stored as schedulable
+        parameters.
     """
 
     def __init__(self, encoding=None, **kwargs):
@@ -63,19 +76,20 @@ class ConstraintHandler(ParametrizableMixin, ABC):
 
 
 class ConstraintHandlerFromLambda(ConstraintHandler):
-    """
-    Constraint handler class constructed with function calls.
+    """Constraint handler built from plain callables.
 
-    At least one of `repair_solution_fn` and `penalty_fn` must be specified. Both is acceptable too but
-    not recommended, if a solution is repaired the penalty should always be 0.
+    At least one of *repair_solution_fn* or *penalty_fn* must be
+    given.
 
     Parameters
     ----------
-    repair_solution: callable, optional
-        Function to repair an input solution.
-
-    penalty_fn: callable, optional
-        Function to calculate the penalty of the current solution.
+    repair_solution_fn : callable, optional
+        A function ``(solution) -> repaired_solution``.
+    penalty_fn : callable, optional
+        A function ``(solution) -> penalty_value``.
+    **kwargs
+        Keyword arguments forwarded to
+        :class:`ConstraintHandler`.
     """
 
     def __init__(self, repair_solution_fn: Optional[Callable] = None, penalty_fn: Optional[Callable] = None, **kwargs):
@@ -101,8 +115,17 @@ class ConstraintHandlerFromLambda(ConstraintHandler):
 
 
 class NullConstraint(ConstraintHandler):
-    """
-    Constraint handler that enforces no constraints. The penalty is 0 and repairing the solution does nothing.
+    """Constraint handler that enforces no restrictions.
+
+    The penalty is always zero, and repairing returns the solution
+    unchanged.
+
+    Parameters
+    ----------
+    encoding : Encoding, optional
+        See :class:`ConstraintHandler`.
+    **kwargs
+        See :class:`ConstraintHandler`.
     """
 
     def repair_solution(self, solution: MatrixLike) -> MatrixLike:
@@ -113,10 +136,17 @@ class NullConstraint(ConstraintHandler):
 
 
 class PenalizeConstraint(ConstraintHandler, ABC):
-    """
-    Abstract constraint handler for applying a penalty to solutions that violate the constraints.
+    """Abstract handler that only computes penalties.
 
-    The `penalty` function must be implemented.
+    Repairing does nothing (returns a copy).
+    Subclasses must override :meth:`penalty`.
+
+    Parameters
+    ----------
+    encoding : Encoding, optional
+        See :class:`ConstraintHandler`.
+    **kwargs
+        See :class:`ConstraintHandler`.
     """
 
     def repair_solution(self, solution: Iterable) -> Iterable:
@@ -124,10 +154,17 @@ class PenalizeConstraint(ConstraintHandler, ABC):
 
 
 class RepairConstraint(ConstraintHandler, ABC):
-    """
-    Abstract constraint handler for repairing solutions that violate the constraints.
+    """Abstract handler that only repairs solutions.
 
-    The `repair_solution` function must be implemented.
+    The penalty is always zero.
+    Subclasses must override :meth:`repair_solution`.
+
+    Parameters
+    ----------
+    encoding : Encoding, optional
+        See :class:`ConstraintHandler`.
+    **kwargs
+        See :class:`ConstraintHandler`.
     """
 
     def penalty(self, _solution: Iterable) -> VectorLike:

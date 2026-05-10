@@ -22,23 +22,40 @@ logger = logging.getLogger(__name__)
 
 
 class ObjectiveFunc(ParametrizableMixin, ABC):
-    """
-    Abstract Fitness function class.
+    """Abstract objective function with built-in fitness conversion.
 
-    For each problem a new class will inherit from this one
-    and implement the fitness function, random solution generation,
-    mutation function and crossing of solutions.
+    Subclasses must implement :meth:`objective`, which returns the
+    raw objective value.  The base class automatically converts it
+    to a *fitness* that is always maximised (flipping the sign for
+    minimisation) and applies a penalty if a
+    :class:`ConstraintHandler` is present.
 
     Parameters
     ----------
-    mode: str, optional
-        Whether to maximize or minimize the function (using the string 'max' or 'min').
-    name: str, optional
-        The name that will be displayed to represent this function.
-    vectorized: bool, optional
-        Indicates that the function will calculate the fitness of the entire population in one function call.
-    recalculate: bool, optional
-        Whether to calculate the fitness of the individuals even if they were already calculated before.
+    dimension : int
+        Number of decision variables.
+    lower_bound : float or array-like, optional
+        Lower bound(s) of the feasible region.  When both bounds
+        are given, a :class:`ClipBoundConstraint` is added
+        automatically.
+    upper_bound : float or array-like, optional
+        Upper bound(s) of the feasible region.
+    constraint_handler : ConstraintHandler, optional
+        Handler that can repair solutions and/or compute penalties.
+    mode : str, optional
+        ``"max"`` or ``"min"``.  The fitness is always maximised
+        internally; the mode controls the sign conversion.
+    name : str, optional
+        Human-readable name for this function.
+    vectorized : bool, optional
+        If ``True``, :meth:`objective` receives the whole population
+        at once and must return an array.
+    recalculate : bool, optional
+        If ``True``, every individual is re-evaluated even if its
+        fitness has already been computed.
+    **kwargs
+        Additional keyword arguments stored as schedulable
+        parameters.
     """
 
     def __init__(
@@ -53,9 +70,6 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         recalculate: bool = False,
         **kwargs,
     ):
-        """
-        Constructor for the ObjectiveFunc class
-        """
         super().__init__()
 
         self.dimension = dimension
@@ -92,26 +106,26 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         return self.fitness(population, adjusted)
 
     def fitness(self, population: Population, parallel: bool = False, threads: int = 8) -> VectorLike:
-        """
-        Returns the value of the objective function given an individual.
-        If the fitness is adjusted, the sign will be switched for minimization problems
-        and a penalty will be applied if the solution violates any restriction.
+        """Evaluate fitness for the whole population.
+
+        The raw objective values are computed via :meth:`objective`,
+        penalties are subtracted, and the result (always maximised) is
+        stored in ``population.fitness``.  Individuals that already have
+        a valid fitness are skipped unless :attr:`recalculate` is set.
 
         Parameters
         ----------
-        indiv: Individual
-            The individual for which the fitness will be calculated.
-        adjusted: bool, optional
-            Whether to adjust the fitness value or not.
-        parallel: bool, optional
-            Whether to evaluate the individuals in the population in parallel.
-        threads: int, optional
-            Number of processes to use at once if calculating the fitness in parallel.
+        population : Population
+            The population whose individuals will be evaluated.
+        parallel : bool, optional
+            Reserved for future use, currently ignored.
+        threads : int, optional
+            Reserved for future use, currently ignored.
 
         Returns
         -------
-        fitness: ndarray
-            Fitness value of the individual.
+        ndarray
+            The new fitness values (also written in-place).
         """
 
         if parallel:
@@ -181,7 +195,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
         Returns
         -------
-        objective_value: float | ndarray
+        objective_value: VectorLike | ScalarLike
             Value of the objective function given a solution.
         """
 
@@ -191,18 +205,29 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
         Parameters
         ----------
-        solution: Any
+        solution: MatrixLike
             A solution that could be violating the restrictions of the problem.
 
         Returns
         -------
-        repaired_solution: Any
+        repaired_solution: MatrixLike
             A modified version of the solution passed that satisfies the restrictions of the problem.
         """
 
         return self.constraint_handler.repair_solution(solution)
 
     def add_parameter_constraints(self, parameter_extending_encoding: ParameterExtendingEncoding, param_handlers: dict[str, ConstraintHandler]):
+        """Attach extra constraint handlers for extended encodings (e.g., PSO).
+
+        Parameters
+        ----------
+        parameter_extending_encoding : ParameterExtendingEncoding
+            The encoding that splits the genotype into solution and
+            auxiliary parameters.
+        param_handlers : dict
+            Mapping from parameter names to :class:`ConstraintHandler`
+            instances.
+        """
         if isinstance(self.constraint_handler, ExtendedConstraintHandler):
             assert self.constraint_handler.param_handler_dict.keys() == param_handlers.keys()
 
@@ -213,15 +238,36 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         )
 
     def restart(self):
+        """Reset the evaluation counter to zero."""
         self.counter = 0
 
-    def get_state(self):
+    def get_state(self) -> dict:
+        """Return a dictionary with the current configuration.
+
+        Returns
+        -------
+        dict
+            Keys include ``class_name``, ``name``, constraint handler
+            state, and all stored parameters.
+        """
+
         data = {"class_name": self.__class__.__name__, "name": self.name, "constraint": self.constraint_handler.get_state(), **self.get_params()}
 
         return data
 
 
 class NullObjectiveFunc(ObjectiveFunc):
+    """Objective function that always returns zero.
+
+    Useful as a placeholder in tests or when the optimisation
+    criterion is handled entirely by constraints.
+
+    Parameters
+    ----------
+    **kwargs
+        Forwarded to :class:`ObjectiveFunc`.
+    """
+    
     def __init__(self, **kwargs):
         super().__init__(name="Null objective", **kwargs)
 
@@ -262,10 +308,6 @@ class ObjectiveFromLambda(ObjectiveFunc):
         recalculate: bool = False,
         **kwargs,
     ):
-        """
-        Constructor for the ObjectiveFromLambda class
-        """
-
         if name is None:
             name = obj_func.__name__
 

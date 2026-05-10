@@ -1,3 +1,7 @@
+"""
+Encoding that reshapes vectors into matrices.
+"""
+
 from __future__ import annotations
 from typing import Iterable, Tuple
 import numpy as np
@@ -7,7 +11,16 @@ from ..utils import MatrixLike
 
 class MatrixEncoding(Encoding):
     """
-    Decoder used to evolve matrices.
+    Encoding that reshapes flat genotype vectors into 2-D matrices.
+
+    Each individual is reshaped according to the given *shape*.
+
+    Parameters
+    ----------
+    shape : tuple of int
+        ``(rows, cols)`` of the resulting matrix.
+    **kwargs
+        Forwarded to :class:`Encoding`.
     """
 
     def __init__(self, shape: Tuple[int, int], **kwargs):

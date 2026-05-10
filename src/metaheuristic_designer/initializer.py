@@ -11,26 +11,32 @@ import numpy as np
 from .population import Population
 from .encoding import Encoding, DefaultEncoding
 from .objective_function import ObjectiveFunc
-from .utils import check_random_state, RNGLike
+from .utils import check_random_state, RNGLike, VectorLike
 
 
 class Initializer(ABC):
-    """
-    Abstract population initializer class.
+    """Abstract base for all population initializers.
+
+    An initializer creates the first generation of individuals.
+    It must provide a way to generate a single random genotype
+    vector (a 1-D NumPy array) via :meth:`generate_random` and can
+    optionally wrap it with a different definition of an individual
+    via :meth:`generate_individual`.
 
     Parameters
     ----------
-    pop_size: int, optional
-        Number of individuals to be generated.
-    encoding: Encoding, optional
-        Encoding that will be passed to each individual.
+    dimension : int
+        Length of the genotype vector.
+    population_size : int, optional
+        Number of individuals to generate (default 1).
+    encoding : Encoding, optional
+        Encoding that will be attached to every individual.
+        Defaults to :class:`DefaultEncoding`.
+    random_state : RNGLike, optional
+        Random number generator.
     """
 
     def __init__(self, dimension: int, population_size: int = 1, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None):
-        """
-        Constructor for the Initializer class.
-        """
-
         self.dimension = dimension
         self.population_size = population_size
         if encoding is None:
@@ -39,41 +45,36 @@ class Initializer(ABC):
         self.random_state = check_random_state(random_state)
 
     @abstractmethod
-    def generate_random(self) -> Any:
-        """
-        Generates a random individual.
-
-        Parameters
-        ----------
-        objfunc: ObjectiveFunc
-            Objective function that will be propagated to the individual.
+    def generate_random(self) -> VectorLike:
+        """Generate a single random genotype vector (1-D array).
 
         Returns
         -------
-        new_individual: Any
-            Newly generated individual.
+        VectorLike
+            A newly generated genotype vector (1-D array).
         """
 
-    def generate_individual(self) -> Any:
-        """
-        Define how an individual is initialized
+    def generate_individual(self) -> VectorLike:
+        """Generate a single individual.
 
-        Parameters
-        ----------
-        objfunc: ObjectiveFunc
-            Objective function that will be propagated to the individual.
+        By default simply delegates to :meth:`generate_random`.
+        Returns a newly generated individual (a 1-D array).
+        
+        Override this method if your initializer needs to distinguish
+        between a randomly initialize individual and a solution
+        generated with another strategy (See `SeedProbInitializer`).
 
         Returns
         -------
-        new_individual: Any
-            Newly generated individual.
+        Any
+            A newly generated individual.
         """
 
         return self.generate_random()
 
     def generate_population(self, objfunc: ObjectiveFunc, n_individuals: Optional[int] = None) -> Population:
         """
-        Generate n_individual Individuals using the generate_individual method.
+        Create a fully formed population of *n_individuals* individuals.
 
         Parameters
         ----------
@@ -94,24 +95,36 @@ class Initializer(ABC):
         population_matrix = np.asarray([self.generate_individual() for _ in range(n_individuals)])
         return Population(objfunc, genotype_matrix=population_matrix, encoding=self.encoding)
 
-    def get_state(self):
+    def get_state(self) -> dict:
+        """Return a minimal dictionary identifying this initializer.
+
+        Returns
+        -------
+        dict
+            Dictionary with key ``"class_name"``.
+        """
+
         data = {"class_name": self.__class__.__name__}
 
         return data
 
 
 class InitializerFromLambda(Initializer):
-    """
-    Initializer that generates individuals with vectors following an user-defined distribution.
+    """Initializer that uses a user-provided function to generate individuals.
 
     Parameters
     ----------
-    generator: callable
-        Function that samples an user-defined probability distribution to generate individuals.
-    pop_size: int, optional
-        Number of individuals to be generated.
-    encoding: Encoding, optional
-        Encoding that will be passed to each individual.
+    generator : callable
+        A function ``(random_state) -> genotype`` that returns a
+        single genotype vector.
+    dimension : int
+        Length of the genotype vector.
+    pop_size : int, optional
+        Number of individuals to generate (default 1).
+    encoding : Encoding, optional
+        Encoding attached to every individual.
+    random_state : RNGLike, optional
+        Random number generator.
     """
 
     def __init__(
@@ -121,5 +134,5 @@ class InitializerFromLambda(Initializer):
 
         super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, random_state=random_state)
 
-    def generate_random(self) -> Any:
+    def generate_random(self) -> VectorLike:
         return self.generator(self.random_state)

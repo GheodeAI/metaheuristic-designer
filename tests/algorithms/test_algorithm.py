@@ -18,7 +18,7 @@ def test_standard_algorithm_initialization(dummy_objfunc, dummy_strategy):
 def test_standard_algorithm_step_records_history(dummy_objfunc, dummy_strategy):
     algo = Algorithm(dummy_objfunc, dummy_strategy, max_iterations=1, max_evaluations=1, reporter="silent")
     pop = algo.initialize()
-    assert len(pop) == dummy_strategy.pop_size
+    assert len(pop) == dummy_strategy.population_size
 
     # Single step
     new_pop = algo.step(population=pop)

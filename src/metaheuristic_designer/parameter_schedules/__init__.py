@@ -1,3 +1,7 @@
+"""
+Built-in parameter schedules for dynamic algorithm configuration.
+"""
+
 from ..schedulable_parameter import SchedulableParameter
 from .linear_schedule import LinearSchedule
 from .logistic_schedule import LogisticSchedule

@@ -1,3 +1,7 @@
+"""
+Built-in reporter implementations (silent, tqdm, verbose) and the factory.
+"""
+
 from .create_reporter import create_reporter
 from .silent_reporter import SilentReporter
 from .tqdm_reporter import TQDMReporter
