@@ -63,7 +63,6 @@ class PSO(StaticPopulation):
         super().__init__(initializer, operator=pso_op, name=name, **kwargs)
 
     def initialize(self, objfunc: ObjectiveFunc):
-        print("Hello")
         if not isinstance(objfunc.constraint_handler, ExtendedConstraintHandler):
             objfunc.add_parameter_constraints(
                 self.encoding, {"speed": BounceBoundConstraint(self.encoding.dimension, -self.abs_upper_bound, self.abs_upper_bound)}
