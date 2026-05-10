@@ -51,10 +51,10 @@ class DirectInitializer(Initializer):
             n_individuals = self.population_size
 
         if isinstance(self.solutions, Population):
-            if self.solutions.pop_size == n_individuals:
+            if self.solutions.population_size == n_individuals:
                 population = copy(self.solutions)
             else:
-                selection_idx = np.arange(n_individuals) % self.solutions.pop_size
+                selection_idx = np.arange(n_individuals) % self.solutions.population_size
                 population = self.solutions.take_selection(selection_idx)
         elif isinstance(self.solutions, np.ndarray):
             selection_idx = np.arange(n_individuals) % self.solutions.shape[0]

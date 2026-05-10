@@ -11,8 +11,7 @@ class ExtendedConstraintHandler(ConstraintHandler):
 
         self.solution_handler = solution_handler
         self.param_handler_dict = param_handler_dict
-        self.encoding = encoding
-        super().__init__(**kwargs)
+        super().__init__(encoding=encoding, **kwargs)
 
     def repair_solution(self, genotype_matrix: MatrixLike) -> MatrixLike:
         solution_matrix = self.encoding.extract_solution(genotype_matrix)

@@ -306,7 +306,10 @@ class Algorithm:
 
         return new_population
 
-    def optimize(self, resume=False) -> Population:
+    def resume(self) -> Population:
+        return self.optimize(resume=True)
+
+    def optimize(self, resume: bool = False) -> Population:
         """
         Execute the algorithm to get the best solution possible along with its evaluation.
         It will initialize the algorithm and repeat steps of the algorithm until the
@@ -406,3 +409,9 @@ class Algorithm:
 
         with open(file_name, "w", encoding="utf-8") as fp:
             fp.write(dumped)
+        
+    def to_pandas(self):
+        return self.history_tracker.to_pandas()
+
+    def to_pandas_full_objective(self):
+        return self.history_tracker.to_pandas_full_objective()

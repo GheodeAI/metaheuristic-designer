@@ -73,7 +73,7 @@ class VerboseReporter(Reporter):
         spent_cpu_time = algorithm.stopping_condition.cpu_time_spent
         evaluations = algorithm.stopping_condition.evaluations
         patience_left = algorithm.stopping_condition.patience_left
-        _, best_fitness = algorithm.best_solution(problem_space=True)
+        _, best_fitness = algorithm.best_solution()
 
         print(f"---------------------{'-'*len(objfunc_name)}---------{'-'*len(alg_name)}--")
         print(f'Finished optimizing "{objfunc_name}" using "{alg_name}":')

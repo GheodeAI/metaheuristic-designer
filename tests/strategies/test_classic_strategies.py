@@ -23,12 +23,10 @@ from metaheuristic_designer.survivor_selection_base import SurvivorSelection
 # ===================================================================
 #  CMA_ES – not yet implemented, test written as reminder
 # ===================================================================
-def test_cma_es_instantiation(rng, dummy_initializer, dummy_parent_selection, dummy_survivor_selection):
+def test_cma_es_instantiation(rng, dummy_initializer):
     # Will fail until CMA_ES is fully implemented.
     algo = CMA_ES(
         initializer=dummy_initializer,
-        parent_sel_op=dummy_parent_selection,
-        selection_op=dummy_survivor_selection,
         name="CMA-ES-test",
     )
     assert algo.name == "CMA-ES-test"

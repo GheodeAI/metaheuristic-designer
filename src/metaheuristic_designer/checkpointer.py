@@ -32,7 +32,7 @@ class Checkpointer:
     def checkpoint(self, algorithm: Algorithm):
         iterations = algorithm.stopping_condition.iterations
 
-        saving_iteration = self.iteration_frequency is not None and iterations % self.iteration_frequency == 0
+        saving_iteration = self.iteration_frequency is not None and iterations % self.iteration_frequency == 0 and iterations > 0
         saving_time = self.time_frequency is not None and time.time() - self.timer > self.time_frequency
         if not (saving_iteration or saving_time):
             return
@@ -60,7 +60,6 @@ class Checkpointer:
         checkpointer = algorithm.checkpointer
         algorithm.reporter = None
         algorithm.parallel = False
-        algorithm.history_tracker = None
         algorithm.checkpointer = None
 
         # Store checkpoint to a temp file without overwriting the previous one yet
@@ -75,12 +74,11 @@ class Checkpointer:
         finally:
             # Restore dropped attributes
             algorithm.reporter = reporter
-            algorithm.history_tracker = history_tracker
             algorithm.parallel = is_parallel
             algorithm.checkpointer = checkpointer
 
     def load(
-        self, file_name: str = None, history_tracker: Optional[HistoryTracker] = None, reporter: Reporter | str = "silent", parallel: bool = False
+        self, file_name: str = None, reporter: Reporter | str = "silent", parallel: bool = False
     ) -> Algorithm:
         if file_name is None:
             file_name = self.checkpoint_file
@@ -88,9 +86,6 @@ class Checkpointer:
         with open(file_name, "rb") as f:
             algorithm: Algorithm = cloudpickle.load(f)
 
-        if history_tracker is None:
-            history_tracker = HistoryTracker()
-        algorithm.history_tracker = history_tracker
         if isinstance(reporter, str):
             reporter = create_reporter(reporter)
         algorithm.reporter = reporter

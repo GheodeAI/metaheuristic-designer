@@ -79,7 +79,7 @@ class BranchOperator(Operator):
         new_population = copy(population)
 
         if self.method == BranchOpMethods.RANDOM:
-            self.chosen_idx = self.random_state.choice(range(len(self.op_list)), size=(population.pop_size,), replace=True, p=self.weights)
+            self.chosen_idx = self.random_state.choice(range(len(self.op_list)), size=(population.population_size,), replace=True, p=self.weights)
 
         if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
             chosen_idx = self.chosen_idx

@@ -25,8 +25,8 @@ from conftest import SMALL_GENOTYPE, LARGE_GENOTYPE
 )
 def test_initialisation_defaults(genotype, expected_shape, dummy_objfunc):
     pop = Population(dummy_objfunc, genotype)
-    assert pop.pop_size == expected_shape[0]
-    assert pop.vec_size == expected_shape[1]
+    assert pop.population_size == expected_shape[0]
+    assert pop.dimension == expected_shape[1]
     assert pop.fitness == pytest.approx(np.full(expected_shape[0], -np.inf))
     assert np.all(pop.fitness_calculated == 0)
     assert pop.best is None
@@ -170,7 +170,7 @@ def test_update_genotype_same_values(pop_3):
 def test_update_genotype_different_size(pop_3):
     new_geno = np.array([[1, 2], [3, 4], [5, 6], [7, 8]])
     pop_3.update_genotype(new_geno)
-    assert pop_3.pop_size == 4
+    assert pop_3.population_size == 4
     np.testing.assert_array_equal(pop_3.genotype_matrix, new_geno)
     np.testing.assert_array_equal(pop_3.fitness, np.full(4, -np.inf))
     np.testing.assert_array_equal(pop_3.fitness_calculated, np.zeros(4, dtype=bool))
@@ -228,7 +228,7 @@ def populated_fit(dummy_objfunc):
 )
 def test_take_selection(populated_fit, sel_idx, expected_geno, expected_fit, expected_hist_best, expected_hist_best_fit):
     result = populated_fit.take_selection(np.array(sel_idx))
-    assert result.pop_size == expected_geno.shape[0]
+    assert result.population_size == expected_geno.shape[0]
     np.testing.assert_array_equal(result.genotype_matrix, expected_geno)
     np.testing.assert_array_equal(result.fitness, expected_fit)
     np.testing.assert_array_equal(result.historical_best_matrix, expected_hist_best)
@@ -277,7 +277,7 @@ def test_apply_selection(populated_fit, dummy_objfunc):
 def test_take_slice(populated_fit):
     mask = np.array([1])  # keep only column 1
     sliced = populated_fit.take_slice(mask)
-    assert sliced.vec_size == 1
+    assert sliced.dimension == 1
     np.testing.assert_array_equal(sliced.genotype_matrix[:, 0], populated_fit.genotype_matrix[:, 1])
     # All other attributes are copied as row‑wise copies
     np.testing.assert_array_equal(sliced.fitness, populated_fit.fitness)
@@ -449,7 +449,7 @@ def test_repeat_genotype_structure(amount, expected_rows, dummy_objfunc):
     pop = Population(dummy_objfunc, SMALL_GENOTYPE.copy())
     repeated = pop.repeat(amount)
 
-    assert repeated.pop_size == expected_rows
+    assert repeated.population_size == expected_rows
     assert repeated.genotype_matrix.shape == (expected_rows, SMALL_GENOTYPE.shape[1])
     blocks = repeated.genotype_matrix.reshape(amount, SMALL_GENOTYPE.shape[0], SMALL_GENOTYPE.shape[1])
     assert np.all(blocks == SMALL_GENOTYPE)

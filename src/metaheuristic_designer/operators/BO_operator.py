@@ -54,8 +54,8 @@ class BOOperator(Operator):
 
         X = population.genotype_matrix
         y = population.fitness
-        if population.pop_size > self.params.max_samples:
-            mask = self.random_state.choice(population.pop_size, size=self.params.max_samples, replace=False)
+        if population.population_size > self.params.max_samples:
+            mask = self.random_state.choice(population.population_size, size=self.params.max_samples, replace=False)
             X = X[mask]
             y = y[mask]
 
