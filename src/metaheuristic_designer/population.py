@@ -105,7 +105,7 @@ class Population:
 
         return copied_pop
 
-    def best_individual(self) -> Tuple[Any, float]:
+    def best_individual(self) -> Tuple[MatrixLike, float]:
         """
         Returns the best individual in the population along with its fitness.
 
@@ -119,7 +119,7 @@ class Population:
 
         Returns
         -------
-        best_solution : Tuple[Any, float]
+        best_solution : Tuple[MatrixLike, float]
             A pair of the best individual with its fitness.
         """
 
