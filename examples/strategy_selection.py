@@ -123,7 +123,7 @@ def run_algorithm(save_report, random_state):
     algorithm_search = StrategySelection(
         objfunc,
         strategies,
-        algorithm_params={
+        kwargs={
             "stop_cond": "neval",
             "neval": 1e4,
             "verbose": False,

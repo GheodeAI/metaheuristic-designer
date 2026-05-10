@@ -1,8 +1,13 @@
 from __future__ import annotations
-from typing import Iterable, Tuple, Any
+from copy import copy
+from typing import Iterable, Tuple
 from collections import Counter
 import pandas as pd
-import enlighten
+from tqdm.auto import tqdm
+
+from ..history_tracker import HistoryTracker
+from ..reporters import SilentReporter
+from ..population import Population
 from ..algorithm import Algorithm
 
 
@@ -19,105 +24,91 @@ class AlgorithmSelection:
         Indicates whether to show progress bars with 'verbose' and the number of times to repeat each algorithm with 'repetitions'
     """
 
-    def __init__(self, algorithm_list: Iterable[Algorithm], repetitions: int = 10, verbose: bool = True, **kwargs):
+    def __init__(self, algorithm_list: Iterable[Algorithm], repetitions: int = 10):
         self.repetitions = repetitions
 
-        self.algorithm_list = algorithm_list
-
-        # Avoid repeating names
+        self.display_names = []
+        self.algorithm_list = []
         name_counter = Counter()
         for alg in algorithm_list:
             prev_name = alg.name
             if alg.name in name_counter:
-                alg.name = alg.name + str(name_counter[alg.name] + 1)
+                self.display_names.append(f"{alg.name}{name_counter[alg.name] + 1}")
+            else:
+                self.display_names.append(alg.name)
             name_counter.update([prev_name])
+            alg_copy = copy(alg)
+            alg_copy.reporter = SilentReporter()
+            alg_copy.history_tracker = HistoryTracker(track_best=True, track_median=True, track_worst=True)
+            self.algorithm_list.append(alg_copy)
+        
+        self.opt_mode = algorithm_list[0].objfunc.mode
 
-        self.solutions = []
-        self.verbose = verbose
-
-    def optimize(self) -> Tuple[Any, float, pd.DataFrame]:
+    def optimize(self) -> Tuple[Population, pd.DataFrame]:
         """
         Evaluates all the provided search strategies and returns the best overall solution
         """
-
-        if self.verbose:
-            print(f"Running {len(self.algorithm_list)} algorithms {self.repetitions} times each.")
-
-        best_solution = None
         best_fitness = 0
-        best_objective = 0
-        report_raw = pd.DataFrame(columns=["name", "realtime", "cputime", "fitness"])
+        best_population = None
 
-        # Create progress bar manager and global progress bar
-        if self.verbose:
-            bar_manager = enlighten.get_manager()
-            algorithm_bar = bar_manager.counter(total=len(self.algorithm_list), desc="Launching algorithms", color="red")
-
-        for algorithm in self.algorithm_list:
-            # Create new progress bar for the new algorithm
-            if self.verbose:
-                repetition_bar = bar_manager.counter(total=self.repetitions, desc=f"Evaluating {algorithm.name}", color="green", leave=False)
-
-            for _ in range(self.repetitions):
+        raw_rows = []
+        outer_bar = tqdm(total=len(self.algorithm_list), desc="Algorithms", position=0, leave=True)
+        for alg_idx, algorithm in enumerate(self.algorithm_list):
+            inner_bar = tqdm(total=self.repetitions, desc=f"  {algorithm.name}", position=1, leave=False)
+            for rep_i in range(self.repetitions):
                 # Optimize using the algorithm
                 population = algorithm.optimize()
-                solution, objective = population.best_solution(problem_space=True)
-                _, fitness = population.best_solution(problem_space=False)
+                _, fitness = population.best_individual()
 
                 # Get the dataframe row
-                report_raw.loc[len(report_raw.index)] = {
-                    "name": algorithm.name,
-                    "realtime": algorithm.real_time_spent,
-                    "cputime": algorithm.cpu_time_spent,
-                    "fitness": fitness,
-                }
+                stop_cond = algorithm.stopping_condition
+                history_tracker = algorithm.history_tracker
+                raw_rows.append(
+                    {
+                        "repetition": rep_i,
+                        "name": self.display_names[alg_idx],
+                        "iterations": stop_cond.iterations,
+                        "evaluations": stop_cond.evaluations,
+                        "realtime": stop_cond.real_time_spent,
+                        "cputime": stop_cond.cpu_time_spent,
+                        "best_objective": history_tracker.best_objective[-1],
+                        "median_objective": history_tracker.median_objective[-1],
+                        "worst_objective": history_tracker.worst_objective[-1],
+                    }
+                )
 
                 # Save the solution if it improves the previous one
-                if best_solution is None or fitness > best_fitness:
-                    best_solution = solution
+                if best_population is None or fitness > best_fitness:
                     best_fitness = fitness
-                    best_objective = objective
-
-                # Update progress bar
-                if self.verbose:
-                    repetition_bar.update()
+                    best_population = population
 
                 # Reset the algorithm data
                 algorithm.restart()
-
-            # Update progress bar
-            if self.verbose:
-                algorithm_bar.update()
-
-        # Stop displaying progress bars
-        if self.verbose:
-            bar_manager.stop()
+                inner_bar.update(1)
+            inner_bar.close()
+            outer_bar.update(1)
+        outer_bar.close()
 
         # Obtain statistics about the executions
-        report_gropued = report_raw.groupby("name", sort=False)
-        report = pd.DataFrame()
-        for group_name, group in report_gropued:
-            report = pd.concat(
-                [
-                    report,
-                    pd.DataFrame(
-                        {
-                            "name": [group_name],
-                            "realtime_min": [group["realtime"].min()],
-                            "realtime_avg": [group["realtime"].mean()],
-                            "realtime_max": [group["realtime"].max()],
-                            "realtime_std": [group["realtime"].std()],
-                            "cputime_min": [group["cputime"].min()],
-                            "cputime_avg": [group["cputime"].mean()],
-                            "cputime_max": [group["cputime"].max()],
-                            "cputime_std": [group["cputime"].std()],
-                            "fitness_min": [group["fitness"].min()],
-                            "fitness_avg": [group["fitness"].mean()],
-                            "fitness_max": [group["fitness"].max()],
-                            "fitness_std": [group["fitness"].std()],
-                        }
-                    ),
-                ]
-            )
+        self.raw_data = pd.DataFrame.from_dict(raw_rows)
 
-        return best_solution, best_objective, report.reset_index(drop=True)
+        return best_population
+
+    def report(self) -> pd.DataFrame:
+        return (
+            self.raw_data.groupby("name")
+            .agg(
+                runs=("best_objective", "count"),
+                overall_best=("best_objective", self.opt_mode),
+                avg_best=("best_objective", "mean"),
+                std_best=("best_objective", "std"),
+                avg_realtime=("realtime", "mean"),
+                avg_cputime=("cputime", "mean"),
+                avg_iterations=("iterations", "mean"),
+                avg_evaluations=("evaluations", "mean"),
+                median_of_medians=("median_objective", "median"),   # median of the per‑run medians
+                avg_worst=("worst_objective", "mean"),              # average worst fitness
+                overall_worst=("worst_objective", "min" if self.opt_mode == "max" else "max"),
+            )
+            .reset_index()
+        )

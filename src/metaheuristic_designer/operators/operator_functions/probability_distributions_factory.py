@@ -100,7 +100,7 @@ distribution_registry = {
 # fmt: on
 
 
-def create_prob_distribution(distribution_name: str, population_matrix:MatrixLike, parameter_heuristic_fn: Callable = None, **kwargs):
+def create_prob_distribution(distribution_name: str, population_matrix: MatrixLike, parameter_heuristic_fn: Callable = None, **kwargs):
     distrib_name_lower = distribution_name.lower()
 
     if "." in distrib_name_lower:

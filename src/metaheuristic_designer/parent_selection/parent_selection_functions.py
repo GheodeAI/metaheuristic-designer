@@ -10,21 +10,26 @@ from ..utils import MaskLike, RNGLike, ScalarLike, VectorLike, check_random_stat
 def fitness_propotional(fitness: VectorLike, scaling_factor: ScalarLike):
     return fitness - fitness.min() + scaling_factor
 
+
 def sigma_scaling(fitness: VectorLike, scaling_factor: ScalarLike):
     return np.maximum(fitness - (fitness.mean() - scaling_factor * fitness.std()), 0)
 
+
 def linear_ranking(fitness: VectorLike, scaling_factor: ScalarLike):
     scaling_factor = np.minimum(scaling_factor, 2)
-    fit_order = np.argsort(np.argsort(fitness)) # Using the double-argsort trick
+    fit_order = np.argsort(np.argsort(fitness))  # Using the double-argsort trick
     n_parents = fitness.shape[0]
     return (2 - scaling_factor) + (2 * fit_order * (scaling_factor - 1)) / (n_parents - 1)
 
+
 def exponential_ranking(fitness: VectorLike, scaling_factor: ScalarLike):
-    fit_order = np.argsort(np.argsort(fitness)) # Using the double-argsort trick
+    fit_order = np.argsort(np.argsort(fitness))  # Using the double-argsort trick
     return 1 - np.exp(-fit_order)
+
 
 def flat_ranking(fitness: VectorLike, scaling_factor: ScalarLike):
     return np.ones_like(fitness)
+
 
 # fmt: off
 scaling_map = {
@@ -44,6 +49,7 @@ scaling_map = {
     "flat_scaling": flat_ranking
 }
 # fmt: on
+
 
 def create_scaling_fn(method: str, scaling_factor: ScalarLike = 2) -> Callable:
     chosen_fn = scaling_map[method.lower()]
@@ -85,7 +91,7 @@ def select_best(fitness: VectorLike, amount: int, random_state: Optional[RNGLike
     return np.argsort(fitness)[::-1][:amount]
 
 
-def prob_tournament(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, tournament_size: int = 3, prob: float =1) -> MaskLike:
+def prob_tournament(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, tournament_size: int = 3, prob: float = 1) -> MaskLike:
     """
     Selects the parents for the next generation by tournament.
 
@@ -180,7 +186,9 @@ def shuffle_population(fitness: VectorLike, amount: int, random_state: Optional[
     return picked_idx
 
 
-def roulette(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None) -> MaskLike:
+def roulette(
+    fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None
+) -> MaskLike:
     """
     Fitness proportionate parent selection.
 
@@ -212,7 +220,9 @@ def roulette(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] =
     return random_state.choice(np.arange(fitness.shape[0]), size=amount, p=weights, axis=0)
 
 
-def sus(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None) -> MaskLike:
+def sus(
+    fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None
+) -> MaskLike:
     """
     Stochastic universal sampling parent selection method.
 
@@ -241,6 +251,6 @@ def sus(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None
     cum_weights = np.cumsum(weights)
     random_offsets = random_state.random(amount) / amount
     positions = random_offsets + (np.arange(amount) / amount)
-    order = np.searchsorted(cum_weights, positions, side='right') % len(cum_weights)
+    order = np.searchsorted(cum_weights, positions, side="right") % len(cum_weights)
 
     return order

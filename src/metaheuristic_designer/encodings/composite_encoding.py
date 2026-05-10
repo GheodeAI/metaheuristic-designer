@@ -20,7 +20,7 @@ class CompositeEncoding(ParameterExtendingEncoding):
                 dimension = encoding.dimension if dimension is None else min(dimension, encoding.dimension)
 
         super().__init__(dimension=dimension, param_sizes=param_sizes, **kwargs)
-    
+
     def gather_params(self):
         all_params = self.get_params()
         for enc in self.encodings:
