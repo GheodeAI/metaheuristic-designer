@@ -24,7 +24,7 @@ from metaheuristic_designer.history_tracker import HistoryTracker
 from metaheuristic_designer.population import Population
 from metaheuristic_designer.objective_function import (
     ObjectiveFunc,
-    VectorObjectiveFunc,
+    ObjectiveFunc,
 )
 from metaheuristic_designer.initializer import Initializer
 from metaheuristic_designer.operator import Operator, NullOperator
@@ -142,22 +142,18 @@ class DummyObjectiveFunction(ObjectiveFunc):
 
 @pytest.fixture
 def dummy_objfunc():
-    obj = DummyObjectiveFunction(name="dummy", mode="max")
-    obj.dimension = 3
-    obj.lower_bound = 0
-    obj.upper_bound = 1
-    return obj
+    return DummyObjectiveFunction(dimension=3, lower_bound=0, upper_bound=1, name="dummy", mode="max")
 
 
 @pytest.fixture
 def dummy_objfunc_min():
-    return DummyObjectiveFunction(name="dummy_min", mode="min")
+    return DummyObjectiveFunction(dimension=3, name="dummy_min", mode="min")
 
 
 # -------------------------------------------------------------------
 #  Discrete and permutation objective classes (for simple wrapper tests)
 # -------------------------------------------------------------------
-class DiscreteSumObjective(VectorObjectiveFunc):
+class DiscreteSumObjective(ObjectiveFunc):
     def __init__(self, dimension=3, mode="max"):
         super().__init__(dimension, lower_bound=0, upper_bound=5, mode=mode, name="DiscreteSum")
 
@@ -165,7 +161,7 @@ class DiscreteSumObjective(VectorObjectiveFunc):
         return np.sum(solution)
 
 
-class PermutationObjective(VectorObjectiveFunc):
+class PermutationObjective(ObjectiveFunc):
     def __init__(self, dimension=4, mode="min"):
         super().__init__(dimension, lower_bound=0, upper_bound=dimension - 1, mode=mode, name="Permutation")
 

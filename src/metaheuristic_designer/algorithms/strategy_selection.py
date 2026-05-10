@@ -28,4 +28,3 @@ class StrategySelection(AlgorithmSelection):
         algorithm_list = [Algorithm(objfunc, strategy, **kwargs) for strategy in strategy_list]
 
         super().__init__(algorithm_list=algorithm_list, repetitions=repetitions)
-    

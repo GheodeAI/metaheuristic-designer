@@ -1,11 +1,11 @@
-from ..objective_function import VectorObjectiveFunc
+from ..objective_function import ObjectiveFunc
 import numpy as np
 from skimage import metrics
 
 __all__ = ["ImgApprox", "ImgEntropy", "ImgStd"]
 
 
-class ImgApprox(VectorObjectiveFunc):
+class ImgApprox(ObjectiveFunc):
     def __init__(self, img_dim, reference, mode=None, img_name="", diff_func="MSE", name=None):
         self.img_dim = tuple(img_dim) + (3,)
         self.size = img_dim[0] * img_dim[1] * 3
@@ -49,7 +49,7 @@ class ImgApprox(VectorObjectiveFunc):
         return error
 
 
-class ImgStd(VectorObjectiveFunc):
+class ImgStd(ObjectiveFunc):
     def __init__(self, img_dim, mode=None):
         self.size = img_dim[0] * img_dim[1] * 3
         if mode is None:
@@ -62,7 +62,7 @@ class ImgStd(VectorObjectiveFunc):
         return solution_color.std(axis=1).mean()
 
 
-class ImgEntropy(VectorObjectiveFunc):
+class ImgEntropy(ObjectiveFunc):
     def __init__(self, img_dim, nbins=10, mode=None):
         self.size = img_dim[0] * img_dim[1] * 3
         self.nbins = nbins

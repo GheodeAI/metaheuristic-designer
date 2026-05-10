@@ -10,13 +10,10 @@ from typing import Any, Callable, Optional, TYPE_CHECKING
 from abc import ABC, abstractmethod
 import numpy as np
 
-from metaheuristic_designer.constraint_handlers.bounce_bound_constraint import BounceBoundConstraint
-from metaheuristic_designer.constraint_handlers.extended_constraint import ExtendedConstraintHandler
-from metaheuristic_designer.encodings.parameter_extending_encoding import ParameterExtendingEncoding
-from .constraint_handler import ConstraintHandler, NullConstraint
-from .constraint_handlers import ClipBoundConstraint, CompositeConstraint
+from .encodings import ParameterExtendingEncoding
+from .constraint_handlers import ConstraintHandler, ClipBoundConstraint, CompositeConstraint, ExtendedConstraintHandler
 from .parametrizable_mixin import ParametrizableMixin
-from .utils import MatrixLike, check_random_state, RNGLike, VectorLike, ScalarLike
+from .utils import MatrixLike, VectorLike, ScalarLike
 
 if TYPE_CHECKING:
     from metaheuristic_designer.population import Population
@@ -46,9 +43,12 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
     def __init__(
         self,
+        dimension: int,
+        lower_bound: Optional[ScalarLike | VectorLike] = None,
+        upper_bound: Optional[ScalarLike | VectorLike] = None,
         constraint_handler: Optional[ConstraintHandler] = None,
         mode: str = "max",
-        name: str = "some function",
+        name: str = "Some function",
         vectorized: bool = False,
         recalculate: bool = False,
         **kwargs,
@@ -58,8 +58,16 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         """
         super().__init__()
 
-        if constraint_handler is None:
-            constraint_handler = NullConstraint()
+        self.dimension = dimension
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
+        if lower_bound is not None and upper_bound is not None:
+            bound_constraint_handler = ClipBoundConstraint(dimension, lower_bound, upper_bound)
+            if constraint_handler is None:
+                constraint_handler = bound_constraint_handler
+            else:
+                constraint_handler = CompositeConstraint([constraint_handler, bound_constraint_handler])
+
         self.constraint_handler = constraint_handler
         self.name = name
         self.counter = 0
@@ -194,61 +202,6 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
         return self.constraint_handler.repair_solution(solution)
 
-    def restart(self):
-        self.counter = 0
-
-    def get_state(self):
-        data = {"class_name": self.__class__.__name__, "name": self.name, "constraint": self.constraint_handler.get_state(), **self.get_params()}
-
-        return data
-
-
-class VectorObjectiveFunc(ObjectiveFunc):
-    """
-    Objective function that accepts vectors as an input.
-
-    Parameters
-    ----------
-    dimension: int
-        The dimension of the vectors accepted by the objective function.
-    mode: str, optional
-        Whether to maximize or minimize the function (using the string 'max' or 'min').
-    lower_bound: float, optional
-        Lower limit restriction for the vectors.
-    upper_bound: float, optional
-        Upper limit restriction for the vectors.
-    name: str, optional
-        The name that will be displayed to represent this function.
-    """
-
-    def __init__(
-        self,
-        dimension: int,
-        lower_bound: float,
-        upper_bound: float,
-        constraint_handler: Optional[ConstraintHandler] = None,
-        mode: str = "max",
-        name: str = "Some function",
-        vectorized: bool = False,
-        recalculate: bool = False,
-        **kwargs,
-    ):
-        """
-        Constructor for the ObjectiveVectorFunc class
-        """
-
-        self.dimension = dimension
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
-
-        bound_constraint_handler = ClipBoundConstraint(dimension, lower_bound, upper_bound)
-        if constraint_handler is None:
-            constraint_handler = bound_constraint_handler
-        else:
-            constraint_handler = CompositeConstraint([constraint_handler, bound_constraint_handler])
-
-        super().__init__(constraint_handler=constraint_handler, mode=mode, name=name, vectorized=vectorized, recalculate=recalculate, **kwargs)
-
     def add_parameter_constraints(self, parameter_extending_encoding: ParameterExtendingEncoding, param_handlers: dict[str, ConstraintHandler]):
         if isinstance(self.constraint_handler, ExtendedConstraintHandler):
             assert self.constraint_handler.param_handler_dict.keys() == param_handlers.keys()
@@ -258,6 +211,14 @@ class VectorObjectiveFunc(ObjectiveFunc):
         self.constraint_handler = ExtendedConstraintHandler(
             solution_handler=base_constraint_handler, param_handler_dict=param_handlers, encoding=parameter_extending_encoding
         )
+
+    def restart(self):
+        self.counter = 0
+
+    def get_state(self):
+        data = {"class_name": self.__class__.__name__, "name": self.name, "constraint": self.constraint_handler.get_state(), **self.get_params()}
+
+        return data
 
 
 class NullObjectiveFunc(ObjectiveFunc):
@@ -291,6 +252,9 @@ class ObjectiveFromLambda(ObjectiveFunc):
     def __init__(
         self,
         obj_func: Callable,
+        dimension: int,
+        lower_bound: Optional[ScalarLike | VectorLike] = None,
+        upper_bound: Optional[ScalarLike | VectorLike] = None,
         constraint_handler: Optional[ConstraintHandler] = None,
         mode: str = "max",
         name: Optional[str] = None,
@@ -307,7 +271,17 @@ class ObjectiveFromLambda(ObjectiveFunc):
 
         self.obj_func = obj_func
 
-        super().__init__(constraint_handler=constraint_handler, mode=mode, name=name, vectorized=vectorized, recalculate=recalculate, **kwargs)
+        super().__init__(
+            dimension=dimension,
+            lower_bound=lower_bound,
+            upper_bound=upper_bound,
+            constraint_handler=constraint_handler,
+            mode=mode,
+            name=name,
+            vectorized=vectorized,
+            recalculate=recalculate,
+            **kwargs,
+        )
 
     def objective(self, solution: Any) -> VectorLike | ScalarLike:
         return self.obj_func(solution, **self.current_kwargs)

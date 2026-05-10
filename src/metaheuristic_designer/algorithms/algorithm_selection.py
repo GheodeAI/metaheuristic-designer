@@ -41,7 +41,7 @@ class AlgorithmSelection:
             alg_copy.reporter = SilentReporter()
             alg_copy.history_tracker = HistoryTracker(track_best=True, track_median=True, track_worst=True)
             self.algorithm_list.append(alg_copy)
-        
+
         self.opt_mode = algorithm_list[0].objfunc.mode
 
     def optimize(self) -> Tuple[Population, pd.DataFrame]:
@@ -106,8 +106,8 @@ class AlgorithmSelection:
                 avg_cputime=("cputime", "mean"),
                 avg_iterations=("iterations", "mean"),
                 avg_evaluations=("evaluations", "mean"),
-                median_of_medians=("median_objective", "median"),   # median of the per‑run medians
-                avg_worst=("worst_objective", "mean"),              # average worst fitness
+                median_of_medians=("median_objective", "median"),  # median of the per‑run medians
+                avg_worst=("worst_objective", "mean"),  # average worst fitness
                 overall_worst=("worst_objective", "min" if self.opt_mode == "max" else "max"),
             )
             .reset_index()

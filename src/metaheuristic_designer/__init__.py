@@ -1,6 +1,6 @@
 from .utils import check_random_state
 
-from .objective_function import ObjectiveFunc, NullObjectiveFunc, VectorObjectiveFunc, ObjectiveFromLambda
+from .objective_function import ObjectiveFunc, NullObjectiveFunc, ObjectiveFunc, ObjectiveFromLambda
 from . import benchmarks
 
 from .constraint_handler import ConstraintHandler, ConstraintHandlerFromLambda, NullConstraint, PenalizeConstraint, RepairConstraint
@@ -52,7 +52,7 @@ __all__ = [
     "check_random_state",
     "ObjectiveFunc",
     "NullObjectiveFunc",
-    "VectorObjectiveFunc",
+    "ObjectiveFunc",
     "ObjectiveFromLambda",
     "benchmarks",
     "ConstraintHandler",

@@ -1,6 +1,5 @@
 import argparse
 import logging
-import time
 import numpy as np
 import pygame
 import cv2
@@ -9,12 +8,11 @@ from PIL import Image
 
 from metaheuristic_designer.algorithms import Algorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import create_operator
-from metaheuristic_designer.initializers import UniformInitializer, ExtendedInitializer
+from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.parent_selection import create_parent_selection
 from metaheuristic_designer.strategies.classic import CMA_ES
 from metaheuristic_designer.survivor_selection import create_survivor_selection
-from metaheuristic_designer.encodings import ImageEncoding, PSOEncoding, CompositeEncoding
-from metaheuristic_designer.constraint_handlers import BounceBoundConstraint, ExtendedConstraintHandler
+from metaheuristic_designer.encodings import ImageEncoding, PSOEncoding
 from metaheuristic_designer.strategies import (
     HillClimb,
     LocalSearch,

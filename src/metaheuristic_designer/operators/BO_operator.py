@@ -6,7 +6,7 @@ from sklearn.exceptions import ConvergenceWarning
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel
 from ..operator import Operator
-from ..objective_function import VectorObjectiveFunc
+from ..objective_function import ObjectiveFunc
 from ..population import Population
 
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
@@ -77,7 +77,7 @@ class BOOperator(Operator):
         min_ei = float("inf")
         new_best_point = X[0]
 
-        if isinstance(objfunc, VectorObjectiveFunc):
+        if isinstance(objfunc, ObjectiveFunc):
             bounds = np.asarray((objfunc.lower_bound, objfunc.upper_bound)).T
             if bounds.ndim == 1:
                 bounds = bounds[None, :]

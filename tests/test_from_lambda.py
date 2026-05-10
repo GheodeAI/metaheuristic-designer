@@ -37,7 +37,7 @@ def test_encoding_from_lambda():
 #  ObjectiveFromLambda
 # ===================================================================
 def test_objective_from_lambda():
-    f = ObjectiveFromLambda(lambda x, **kw: float(x.sum()))
+    f = ObjectiveFromLambda(lambda x, **kw: float(x.sum()), dimension=3)
     result = f.objective(np.array([1.0, 2.0, 3.0]))
     assert result == 6.0
 

@@ -2,17 +2,12 @@ import argparse
 import logging
 from pathlib import Path
 
-import numpy as np
-
-# from metaheuristic_designer import *
 from metaheuristic_designer.algorithms import Algorithm, MemeticAlgorithm
 from metaheuristic_designer.operators import create_operator
-from metaheuristic_designer.initializers import UniformInitializer, ExtendedInitializer
+from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.parent_selection import create_parent_selection
 from metaheuristic_designer.strategies.classic import CMA_ES
 from metaheuristic_designer.survivor_selection import create_survivor_selection
-from metaheuristic_designer.encodings import PSOEncoding
-from metaheuristic_designer.constraint_handlers import BounceBoundConstraint, ExtendedConstraintHandler
 from metaheuristic_designer.strategies import (
     HillClimb,
     LocalSearch,
@@ -60,26 +55,26 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
         ),
         "localsearch": LocalSearch(
             initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, random_state=random_state),
-            operator=create_operator("mutation.gaussian_mutation", f=1e-3, N=1, random_state=random_state),
+            operator=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, random_state=random_state),
             iterations=20,
         ),
         "sa": SA(
             initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, random_state=random_state),
-            operator=create_operator("mutation.gaussian_mutation", f=1e-3, N=1, random_state=random_state),
+            operator=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, random_state=random_state),
             iterations=100,
             temperature_init=1,
             alpha=0.997,
         ),
         "es": ES(
             initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
-            mutation_op=create_operator("mutation.gaussian_mutation", f=1e-3, N=1, random_state=random_state),
+            mutation_op=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, random_state=random_state),
             crossover_op=create_operator("crossover.uniform", random_state=random_state),
             survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
             offspring_size=150,
         ),
         "ga": GA(
             initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
-            mutation_op=create_operator("mutation.gaussian_mutation", f=1e-3, N=1, random_state=random_state),
+            mutation_op=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, random_state=random_state),
             crossover_op=create_operator("crossover.uniform", random_state=random_state),
             parent_sel=create_parent_selection("Best", amount=50, random_state=random_state),
             survivor_sel=create_survivor_selection("Elitism", amount=20, random_state=random_state),
