@@ -6,14 +6,14 @@ import scipy as sp
 from conftest import rng
 
 # factory + classes
-from metaheuristic_designer.operators.operator_functions.probability_distributions_factory import (
+from metaheuristic_designer.distribution_sampler.probability_distributions_factory import (
     create_prob_distribution,
     ScipyUnivarDistribution,
     ScipyMultivarDistribution,
     multivariate_categorical,
 )
 # heuristics
-from metaheuristic_designer.operators.operator_functions.probability_distributions import (
+from metaheuristic_designer.distribution_sampler.probability_distributions import (
     normal_heuristic, uniform_heuristic, cauchy_heuristic, laplace_heuristic,
     gamma_heuristic, expon_heuristic, poisson_heuristic, bernoulli_heuristic,
     binomial_heuristic, tikhinov_heuristic, multivariate_normal_heuristic,
@@ -237,7 +237,7 @@ def test_tikhinov_fisher_heuristic_calculated(rng):
 #  Parameter re‑interpretation: uniform fix
 # -------------------------------------------------------------------
 def test_uniform_param_fix():
-    from metaheuristic_designer.operators.operator_functions.probability_distributions_factory import uniform_param_fix
+    from metaheuristic_designer.distribution_sampler.probability_distributions_factory import uniform_param_fix
     kwargs = uniform_param_fix(min=0, max=10, extra=42)
     assert kwargs["loc"] == 0
     assert kwargs["scale"] == 10

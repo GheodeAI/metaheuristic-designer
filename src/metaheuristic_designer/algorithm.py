@@ -312,57 +312,6 @@ class Algorithm:
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(text, population.debug_repr())
 
-    def step(self, population: Population = None) -> Population:
-        """
-        Execute one iteration of the optimisation loop.
-
-        The default implementation performs: parent selection ->
-        perturbation -> evaluation -> survivor selection.
-
-        Parameters
-        ----------
-        population : Population, optional
-            The population at the start of the iteration.  If not given,
-            the currently stored population is used.
-
-        Returns
-        -------
-        Population
-            The population after the iteration.
-        """
-
-        # Get the population of this generation
-        if population is None:
-            population = self.search_strategy.population
-        else:
-            self.search_strategy.population = population
-
-        self._log_debug("Original population:\n%s", population)
-
-        # Generate their parents
-        parents = self.search_strategy.select_parents(population)
-        self._log_debug("Parent selection\n%s", parents)
-
-        # Evolve the selected parents
-        offspring = self.search_strategy.perturb(parents)
-        self._log_debug("Perturbed\n%s", offspring)
-
-        # Get the fitness of the individuals
-        offspring = self.search_strategy.evaluate_population(offspring, self.parallel, self.threads)
-        self._log_debug("Evaluated\n%s", offspring)
-
-        # Select the individuals that remain for the next generation
-        new_population = self.search_strategy.select_individuals(population, offspring)
-        self._log_debug("Selected\n%s", new_population)
-
-        self.search_strategy.population = new_population
-
-        # Update in cascade all the objects involved in the optimization
-        self.search_strategy.step(progress=self.progress)
-        self._log_debug("Updated end\n%s", new_population)
-
-        return new_population
-
     def resume(self) -> Population:
         """
         Resume an interrupted run from the last checkpoint.

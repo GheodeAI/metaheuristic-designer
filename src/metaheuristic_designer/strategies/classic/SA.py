@@ -8,7 +8,7 @@ import numpy as np
 from ...initializer import Initializer
 from ...survivor_selection import create_survivor_selection
 from ...operator import Operator
-from ..hill_climb import HillClimb
+from .hill_climb import HillClimb
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import check_random_state, RNGLike
 

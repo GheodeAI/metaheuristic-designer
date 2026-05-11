@@ -11,11 +11,11 @@ from conftest import (
     make_pop,
 )
 
-from metaheuristic_designer.strategies.hill_climb import HillClimb
-from metaheuristic_designer.strategies.local_search import LocalSearch
+from metaheuristic_designer.strategies.classic.hill_climb import HillClimb
+from metaheuristic_designer.strategies.classic.local_search import LocalSearch
 from metaheuristic_designer.strategies.no_search import NoSearch
-from metaheuristic_designer.strategies.static_population import StaticPopulation
-from metaheuristic_designer.strategies.variable_population import VariablePopulation
+from metaheuristic_designer.strategies.static_population_strategy import StaticPopulation
+from metaheuristic_designer.strategies.variable_population_strategy import VariablePopulation
 
 from metaheuristic_designer.survivor_selection_base import SurvivorSelection
 from metaheuristic_designer.operator import OperatorFromLambda

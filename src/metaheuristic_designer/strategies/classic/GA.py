@@ -10,7 +10,7 @@ from ...operator import Operator, NullOperator
 from ...survivor_selection_base import SurvivorSelection
 from ...parent_selection_base import ParentSelection
 from ...operators import CompositeOperator, BranchOperator
-from ..static_population import StaticPopulation
+from ..static_population_strategy import StaticPopulation
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import check_random_state, RNGLike
 

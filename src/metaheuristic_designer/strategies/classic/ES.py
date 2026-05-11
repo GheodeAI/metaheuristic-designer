@@ -9,7 +9,7 @@ from ...operator import Operator
 from ...survivor_selection_base import SurvivorSelection
 from ...parent_selection_base import ParentSelection
 from ...operators import CompositeOperator
-from ..variable_population import VariablePopulation
+from ..variable_population_strategy import VariablePopulation
 
 
 class ES(VariablePopulation):

@@ -6,7 +6,7 @@ import logging
 from typing import Optional
 from ...utils import MatrixLike, RNGLike, VectorLike, ScalarLike, check_random_state
 import numpy as np
-from .probability_distributions_factory import create_prob_distribution
+from ...distribution_sampler.probability_distributions_factory import create_prob_distribution
 
 logger = logging.getLogger(__name__)
 

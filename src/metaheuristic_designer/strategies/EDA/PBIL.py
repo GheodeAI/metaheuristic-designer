@@ -5,16 +5,18 @@ Population-Based Incremental Learning (PBIL) strategies.
 from __future__ import annotations
 from typing import Optional
 import numpy as np
+
 from ...operators import create_operator
 from ...parent_selection_base import ParentSelection
 from ...survivor_selection_base import SurvivorSelection
 from ...initializer import Initializer
-from ..variable_population import VariablePopulation
+from ..variable_population_strategy import VariablePopulation
 from ...schedulable_parameter import SchedulableParameter
+from ..eda_strategy import EDAStrategy
 from ...utils import check_random_state
 
 
-class BernoulliPBIL(VariablePopulation):
+class BernoulliPBIL(EDAStrategy):
     """
     PBIL for binary vectors using a Bernoulli distribution.
 
@@ -75,16 +77,11 @@ class BernoulliPBIL(VariablePopulation):
             **kwargs,
         )
 
-    def _batch_fit(self, population):
-        population_matrix = population.genotype_matrix
-        p_hat = population_matrix.mean(axis=0)
-
-        return p_hat
-
-    def perturb(self, parents, **kwargs):
+    def estimate_parameters(self, population):
         old_p = self.operator.params.p
 
-        new_p = self._batch_fit(parents)
+        population_matrix = population.genotype_matrix
+        new_p = population_matrix.mean(axis=0)
         if old_p is not None:
             new_p = (1 - self.params.lr) * old_p + self.params.lr * new_p
             new_p += self.random_state.normal(0, self.params.noise, size=np.asarray(old_p).shape)
@@ -92,7 +89,7 @@ class BernoulliPBIL(VariablePopulation):
 
         self.operator.update_kwargs(p=new_p)
 
-        return super().perturb(parents, **kwargs)
+        return self.operator
 
 
 class BinomialPBIL(VariablePopulation):

@@ -18,7 +18,7 @@ from ..schedulable_parameter import SchedulableParameter
 logger = logging.getLogger(__name__)
 
 
-class VariablePopulation(SearchStrategy):
+class VariablePopulationStrategy(SearchStrategy):
     """
     Population-based strategy with separate parent and offspring sizes.
 
@@ -54,7 +54,7 @@ class VariablePopulation(SearchStrategy):
     def __init__(
         self,
         initializer: Initializer,
-        operator: Operator,
+        operator: Operator = None,
         parent_sel: Optional[ParentSelection] = None,
         survivor_sel: Optional[SurvivorSelection] = None,
         offspring_size: Optional[int | SchedulableParameter] = None,
@@ -115,20 +115,11 @@ class VariablePopulation(SearchStrategy):
 
         self._initializer = new_initializer
 
-    def select_parents(self, population: Population) -> Population:
-        """Select parents, then optionally shuffle the pool.
-
-        Parameters
-        ----------
-        population : Population
-            Current population.
-
-        Returns
-        -------
-        Population
-            The (possibly shuffled) selected parents.
-        """
-
-        next_population = super().select_parents(population)
-        next_population = self.population_shuffler(next_population)
+    def iterate(self, population: Population) -> Population:
+        parents = self.parent_sel.select(population)
+        parents = self.population_shuffler(parents)
+        offspring = self.operator.evolve(parents)
+        offspring = offspring.repair_solutions()
+        offspring = offspring.calculate_fitness()
+        next_population = self.survivor_sel.select(population=self.population, offspring=offspring)
         return next_population

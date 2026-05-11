@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import logging
 import numpy as np
 import scipy as sp
-from ...utils import RNGLike, TensorLike, check_random_state
+from ..utils import RNGLike, TensorLike, check_random_state
 
 logger = logging.getLogger(__name__)
 

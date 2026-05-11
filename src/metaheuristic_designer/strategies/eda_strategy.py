@@ -1,9 +1,13 @@
 """
-Strategy where the population size remains constant, no explicit parent selection.
+Strategy that generates solutions from a model.
 """
 
 from __future__ import annotations
+from abc import abstractmethod
+from copy import copy
 from typing import Optional
+
+from metaheuristic_designer.population import Population
 from ..initializer import Initializer
 from ..parent_selection_base import ParentSelection
 from ..survivor_selection_base import SurvivorSelection
@@ -12,7 +16,7 @@ from ..operator import Operator
 from ..utils import RNGLike
 
 
-class StaticPopulation(SearchStrategy):
+class EDAStrategy(SearchStrategy):
     """
     Population-based strategy with constant size and no parent selection.
 
@@ -40,14 +44,40 @@ class StaticPopulation(SearchStrategy):
 
     def __init__(
         self,
-        initializer: Initializer,
-        operator: Operator,
+        sampler: DistributionSampler,
+        # operator: Operator,
         parent_sel: Optional[ParentSelection] = None,
         survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "Static Population Evolution",
         random_state: Optional[RNGLike] = None,
         **kwargs,
     ):
+        self.sampler = sampler
         super().__init__(
-            initializer, operator=operator, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs
+            initializer=sampler, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs
         )
+    
+    @abstractmethod
+    def estimate_parameters(population: Population) -> Operator:
+        """Utilizes the samples present in the input population to
+        estimate the parameters used by the operator.
+
+        Parameters
+        ----------
+        population : Population
+            Data to use for estimating parameters.
+
+        Returns
+        -------
+        Operator
+            Newly configured operator.
+        """
+    
+    def iterate(self, population: Population) -> Population:
+        parents = self.parent_sel.select(population)
+        self.operator = self.estimate_parameters(parents)
+        offspring = self.operator.evolve(parents)
+        offspring = offspring.repair_solutions()
+        offspring = offspring.calculate_fitness()
+        next_population = self.survivor_sel.select(population=self.population, offspring=offspring)
+        return next_population

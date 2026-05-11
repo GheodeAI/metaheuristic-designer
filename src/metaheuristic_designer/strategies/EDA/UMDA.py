@@ -7,7 +7,7 @@ import numpy as np
 from ...parent_selection_base import ParentSelection
 from ...survivor_selection_base import SurvivorSelection
 from ...initializer import Initializer
-from ..variable_population import VariablePopulation
+from ..variable_population_strategy import VariablePopulation
 from ...operators import create_operator
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import check_random_state, RNGLike, VectorLike, ScalarLike

@@ -16,7 +16,7 @@ from ...constraint_handlers.bounce_bound_constraint import BounceBoundConstraint
 from ...initializers import UniformInitializer, ExtendedInitializer
 from ...operators import create_swarm_operator
 from ...encodings import ParameterExtendingEncoding
-from ..static_population import StaticPopulation
+from ..static_population_strategy import StaticPopulation
 from ...utils import RNGLike
 
 logger = logging.getLogger(__name__)

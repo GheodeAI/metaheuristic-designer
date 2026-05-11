@@ -4,7 +4,7 @@ Random search strategy (baseline).
 
 from __future__ import annotations
 from ...operators import create_operator
-from ..hill_climb import HillClimb
+from .hill_climb import HillClimb
 
 
 class RandomSearch(HillClimb):
