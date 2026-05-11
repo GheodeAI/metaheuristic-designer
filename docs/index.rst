@@ -128,7 +128,6 @@ Indices and tables
     Custom components <api_reference.custom_components>
     Plotting Tutorial <api_reference.plotting>
     Module Details <auto/modules>
-    .. Design philosophy <design_philosophy>
 
 .. _references:
 
