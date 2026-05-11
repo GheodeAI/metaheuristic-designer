@@ -29,80 +29,94 @@ mutation_ops_map = {
     "bitflip":              OperatorFnDef(xor_mask, forced_params={"mode": "bin"}),
 
     # Gaussian distribution
+    "gaussian_noise":       OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
+    "normal_noise":         OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
+    "gauss_noise":          OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
     "gauss":                OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
     "normal":               OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
     "gaussian":             OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
-    "gauss_noise":          OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
-    "normal_noise":         OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
-    "gaussian_noise":       OperatorFnDef(rand_noise, forced_params={"distribution": "normal"}),
-    "gauss_mut":            OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),
-    "normal_mutation":      OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),
+    
     "gaussian_mutation":    OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),
-
-    # Laplace distribution
-    "laplace":              OperatorFnDef(rand_noise, forced_params={"distribution": "laplace"}),
-    "laplace_noise":        OperatorFnDef(rand_noise, forced_params={"distribution": "laplace"}),
-    "laplace_mut":          OperatorFnDef(mutate_noise, forced_params={"distribution": "laplace"}),
-    "laplace_mutation":     OperatorFnDef(mutate_noise, forced_params={"distribution": "laplace"}),
-
-    # Cauchy distribution
-    "cauchy":               OperatorFnDef(rand_noise, forced_params={"distribution": "cauchy"}),
-    "cauchy_noise":         OperatorFnDef(rand_noise, forced_params={"distribution": "cauchy"}),
-    "cauchy_mut":           OperatorFnDef(mutate_noise, forced_params={"distribution": "cauchy"}),
-    "cauchy_mutation":      OperatorFnDef(mutate_noise, forced_params={"distribution": "cauchy"}),
+    "normal_mutation":      OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),
+    "gauss_mutation":       OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),
+    "gaussian_mut":         OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),
+    "normal_mut":           OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),
+    "gauss_mut":            OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),    
 
     # Uniform distribution
-    "uniform":              OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}),
     "uniform_noise":        OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}),
-    "uniform_mut":          OperatorFnDef(mutate_noise, forced_params={"distribution": "uniform"}),
+    "uniform":              OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}),
+
     "uniform_mutation":     OperatorFnDef(mutate_noise, forced_params={"distribution": "uniform"}),
+    "uniform_mut":          OperatorFnDef(mutate_noise, forced_params={"distribution": "uniform"}),
+
+    # Laplace distribution
+    "laplace_noise":        OperatorFnDef(rand_noise, forced_params={"distribution": "laplace"}),
+    "laplace":              OperatorFnDef(rand_noise, forced_params={"distribution": "laplace"}),
+
+    "laplace_mutation":     OperatorFnDef(mutate_noise, forced_params={"distribution": "laplace"}),
+    "laplace_mut":          OperatorFnDef(mutate_noise, forced_params={"distribution": "laplace"}),
+
+    # Cauchy distribution
+    "cauchy_noise":         OperatorFnDef(rand_noise, forced_params={"distribution": "cauchy"}),
+    "cauchy":               OperatorFnDef(rand_noise, forced_params={"distribution": "cauchy"}),
+
+    "cauchy_mutation":      OperatorFnDef(mutate_noise, forced_params={"distribution": "cauchy"}),
+    "cauchy_mut":           OperatorFnDef(mutate_noise, forced_params={"distribution": "cauchy"}),
 
     # Poisson distribution
-    "poisson":              OperatorFnDef(rand_noise, forced_params={"distribution": "poisson"}),
     "poisson_noise":        OperatorFnDef(rand_noise, forced_params={"distribution": "poisson"}),
-    "poisson_mut":          OperatorFnDef(mutate_noise, forced_params={"distribution": "poisson"}),
+    "poisson":              OperatorFnDef(rand_noise, forced_params={"distribution": "poisson"}),
+
     "poisson_mutation":     OperatorFnDef(mutate_noise, forced_params={"distribution": "poisson"}),
+    "poisson_mut":          OperatorFnDef(mutate_noise, forced_params={"distribution": "poisson"}),
 
     # Bernoulli distribution
-    "bernoulli":            OperatorFnDef(rand_noise, forced_params={"distribution": "bernoulli"}),
     "bernoulli_noise":      OperatorFnDef(rand_noise, forced_params={"distribution": "bernoulli"}),
-    "bernoulli_mut":        OperatorFnDef(mutate_noise, forced_params={"distribution": "bernoulli"}),
+    "bernoulli":            OperatorFnDef(rand_noise, forced_params={"distribution": "bernoulli"}),
+
     "bernoulli_mutation":   OperatorFnDef(mutate_noise, forced_params={"distribution": "bernoulli"}),
+    "bernoulli_mut":        OperatorFnDef(mutate_noise, forced_params={"distribution": "bernoulli"}),
+
+    "bernoulli_sample":     OperatorFnDef(rand_sample, forced_params={"distribution": "bernoulli"}),
     "coinflip":             OperatorFnDef(rand_sample, forced_params={"distribution": "bernoulli"}),
-    "coinflip_mut":         OperatorFnDef(mutate_sample, forced_params={"distribution": "bernoulli"}),
-    "coinflip_mutation":    OperatorFnDef(mutate_sample, forced_params={"distribution": "bernoulli"}),
+
+    "bernoulli_reset":      OperatorFnDef(mutate_sample, forced_params={"distribution": "bernoulli"}),
+    "coinflip_reset":       OperatorFnDef(mutate_sample, forced_params={"distribution": "bernoulli"}),
 
     # Additive noise mutation
-    "mutnoise":             OperatorFnDef(mutate_noise),
-    "noise_mutation":       OperatorFnDef(mutate_noise),
     "additive_noise_mutation": OperatorFnDef(mutate_noise),
+    "noise_mutation":       OperatorFnDef(mutate_noise),
+    "mutnoise":             OperatorFnDef(mutate_noise),
 
     # Resampling mutation
-    "mutsample":            OperatorFnDef(mutate_sample),
-    "sampling_mutation":    OperatorFnDef(mutate_sample),
     "replacement_mutation": OperatorFnDef(mutate_sample),
+    "sampling_mutation":    OperatorFnDef(mutate_sample),
+    "mutsample":            OperatorFnDef(mutate_sample),
     
     # Full additive noise
-    "randnoise":            OperatorFnDef(rand_noise),
-    "random_noise":         OperatorFnDef(rand_noise),
-    "additive_noise":       OperatorFnDef(rand_noise),
     "full_additive_noise":  OperatorFnDef(rand_noise),
+    "additive_noise":       OperatorFnDef(rand_noise),
     "full_mutation":        OperatorFnDef(rand_noise),
+    "random_noise":         OperatorFnDef(rand_noise),
+    "randnoise":            OperatorFnDef(rand_noise),
 
     # Full resampling
-    "randsample":           OperatorFnDef(rand_sample),
-    "random_sampling":      OperatorFnDef(rand_sample),
-    "regenerate":           OperatorFnDef(rand_sample),
-    "full_resampling":      OperatorFnDef(rand_sample),
     "full_random_sampling": OperatorFnDef(rand_sample),
+    "full_resampling":      OperatorFnDef(rand_sample),
+    "random_sampling":      OperatorFnDef(rand_sample),
+    "randsample":           OperatorFnDef(rand_sample),
+    "regenerate":           OperatorFnDef(rand_sample),
 
     # Adaptative operators
     "mutate1sigma":         OperatorFnDef(mutate_1_sigma),
-    "mutate_1_sigma":         OperatorFnDef(mutate_1_sigma),
+    "mutate_1_sigma":       OperatorFnDef(mutate_1_sigma),
+
     "mutatensigmas":        OperatorFnDef(mutate_n_sigmas),
-    "mutate_n_sigmas":        OperatorFnDef(mutate_n_sigmas),
-    "sample1sigma":          OperatorFnDef(sample_1_sigma),
-    "sample_1_sigma":          OperatorFnDef(sample_1_sigma),
+    "mutate_n_sigmas":      OperatorFnDef(mutate_n_sigmas),
+
+    "sample1sigma":         OperatorFnDef(sample_1_sigma),
+    "sample_1_sigma":       OperatorFnDef(sample_1_sigma),
 }
 # fmt: on
 

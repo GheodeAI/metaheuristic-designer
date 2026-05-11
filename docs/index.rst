@@ -21,13 +21,16 @@ that paper and draws on the design principles of `Introduction to
 Evolutionary Computing <https://doi.org/10.1007/978-3-662-44874-8>`_ by Eiben
 and Smith.
 
-For the architectural vision and the research context behind the library,
-read the :doc:`Design philosophy <design_philosophy>` page.
+.. For the architectural vision and the research context behind the library,
+.. read the :doc:`Design philosophy <design_philosophy>` page.
 
 .. _first-steps:
 
-First steps
------------
+Where to Start
+--------------
+
+The documentation is organised by topics, pick the entry point that
+matches what you want to do right now:
 
 * **Quick start** – Run a ready‑to‑use algorithm in under a minute on the
   :doc:`Quick Start <quick_start>` page.
@@ -43,7 +46,7 @@ First steps
   :doc:`Extending the Framework <api_reference.custom_components>` guide.
 * **Plot results** – Turn recorded history into convergence, diversity, and
   parameter evolution plots with the :doc:`Plotting Tutorial <api_reference.plotting>`.
-* **Design philosophy** – Read about the architectural vision behind the
+.. * **Design philosophy** – Read about the architectural vision behind the
   library in the :doc:`Design philosophy <design_philosophy>` page.
 
 .. _description:
@@ -106,23 +109,12 @@ sub‑packages.  You can also supply your own components as plain Python
 functions via the ``*FromLambda`` classes described in the
 :doc:`Custom Components <api_reference.custom_components>` guide.
 
-.. _references:
-
-Further reading
----------------
-
-* Swan, J., Adriaensen, S., Brownlee, A. E. I., et al. (2022).
-  `Metaheuristics “In the Large” <https://doi.org/10.1016/j.ejor.2021.05.042>`_.
-  *European Journal of Operational Research*, 297(2), 393–406.
-* Eiben, A. E., & Smith, J. E. (2015).
-  `Introduction to Evolutionary Computing <https://doi.org/10.1007/978-3-662-44874-8>`_.
-  Springer.
-
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`search`
+:ref:`genindex`
+
+:ref:`search`
 
 .. toctree::
    :maxdepth: 1
@@ -136,4 +128,16 @@ Indices and tables
     Custom components <api_reference.custom_components>
     Plotting Tutorial <api_reference.plotting>
     Module Details <auto/modules>
-    Design philosophy <design_philosophy>
+    .. Design philosophy <design_philosophy>
+
+.. _references:
+
+Further reading
+---------------
+
+* Swan, J., Adriaensen, S., Brownlee, A. E. I., et al. (2022).
+  `Metaheuristics “In the Large” <https://doi.org/10.1016/j.ejor.2021.05.042>`_.
+  *European Journal of Operational Research*, 297(2), 393–406.
+* Eiben, A. E., & Smith, J. E. (2015).
+  `Introduction to Evolutionary Computing <https://doi.org/10.1007/978-3-662-44874-8>`_.
+  Springer.

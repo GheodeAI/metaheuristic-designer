@@ -9,13 +9,13 @@ metaheuristic\_designer.strategies.swarm.PSO module
 
 .. automodule:: metaheuristic_designer.strategies.swarm.PSO
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
 .. automodule:: metaheuristic_designer.strategies.swarm
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

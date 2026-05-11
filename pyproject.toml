@@ -14,10 +14,10 @@ requires-python = ">=3.10"
 keywords = ["optimization", "genetic-algorithm", "evolutionary-algorithms", "metaheuristics"]
 license = {text = "LICENSE"}
 dependencies = [
-    "numpy>=1.21",
-    "scipy>=1.8",
-    "pyparsing>=3.0",
-    "pandas>=2.1.2",
+    "numpy",
+    "scipy",
+    "pyparsing",
+    "pandas",
     "scikit-learn",
     "cloudpickle",
     "tqdm"
@@ -39,11 +39,11 @@ Homepage = "https://github.com/eugenioLR/metaheuristic-designer"
 
 [project.optional-dependencies]
 examples = [
-    "pygame>=2.5.0",    
-    "scikit-image>=0.21",
-    "networkx>=3.1",
-    "opencv-python>=4.8",
-    "matplotlib>=3.5",
+    "pygame",    
+    "scikit-image",
+    "networkx",
+    "opencv-python",
+    "matplotlib",
     "seaborn",
     "jupyter",
     "ipywidgets",
@@ -52,16 +52,20 @@ examples = [
 ]
 
 docs = [
-    "sphinx_material>=0.0.36",
-    "sphinx>=7.1.1",
+    "matplotlib",
+    "seaborn",
+    "sphinx",
+    "sphinx_material",
+    "plotly",
+    "kaleido",          # for static plotly images (optional)
 ]
 
 test = [
     "nox",
-    "pytest>=7.4.0",
+    "pytest",
     "pytest-cov",
-    "coverage>=7.3.1",
-    "black[jupyter]>=23.10.1",
+    "coverage",
+    "black[jupyter]",
 ]
 
 dev = [

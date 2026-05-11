@@ -3,7 +3,7 @@
 Quick Start
 ===========
 
-The fastest way to use the library is through the :mod:`simple` wrappers.  
+The fastest way to use the library is through the :mod:`~metaheuristic_designer.simple` wrappers.  
 Choose your algorithm and problem, set a few hyperparameters, and you’re done.
 
 **Example – genetic algorithm on the 5‑D Sphere function**:
@@ -37,16 +37,25 @@ If you need more control, build the algorithm from components:
    from metaheuristic_designer.operators import create_operator
    from metaheuristic_designer.parent_selection import create_parent_selection
    from metaheuristic_designer.survivor_selection import create_survivor_selection
+   
+   objfunc = Sphere(dimension=5, mode="min")
+   rng = check_random_state(42)
 
    strategy = GA(
-       initializer=UniformInitializer(5, -10, 10, population_size=100, random_state=rng),
-       mutation_op=create_operator("mutation.gaussian_mutation", F=0.1, N=1, random_state=rng),
-       crossover_op=create_operator("crossover.uniform", random_state=rng),
-       parent_sel=create_parent_selection("tournament", amount=50, tournament_size=3, random_state=rng),
-       survivor_sel=create_survivor_selection("elitism", amount=25, random_state=rng),
-       mutation_prob=0.3,
-       crossover_prob=0.9,
-       random_state=rng,
+       initializer = UniformInitializer(
+            dimension=objfunc.dimension,
+            lower_bound=objfunc.lower_bound,
+            upper_bound=objfunc.upper_bound,
+            population_size=100, 
+            random_state=rng
+       ),
+       mutation_op = create_operator("mutation.gaussian_mutation", F=0.1, N=1, random_state=rng),
+       crossover_op = create_operator("crossover.uniform_crossover", random_state=rng),
+       parent_sel = create_parent_selection("tournament", amount=50, tournament_size=3, random_state=rng),
+       survivor_sel = create_survivor_selection("elitism", amount=25, random_state=rng),
+       mutation_prob = 0.3,
+       crossover_prob = 0.9,
+       random_state = rng,
    )
    algo = Algorithm(objfunc, strategy, stop_cond="max_iterations", max_iterations=100, reporter="tqdm")
    population = algo.optimize()

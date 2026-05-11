@@ -132,7 +132,7 @@ Matrix‑level (recommended for most cases)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Write a function that works on the raw NumPy arrays and wrap it with
-:py:class:`OperatorVectorDef<metaheuristic_designer.operators.operator_functions.utils.OperatorVectorDef>`. The wrapper handles
+:py:class:`OperatorFnDef<metaheuristic_designer.operators.operator_functions.utils.OperatorFnDef>`. The wrapper handles
 population bookkeeping (extracting the genotype matrix, fitness, and updating a copy
 of the population).
 
@@ -149,15 +149,15 @@ of the population).
 
 .. code-block:: python
 
-   from metaheuristic_designer.operators import add_operator_entry, OperatorVectorDef, create_operator
+   from metaheuristic_designer.operators import add_operator_entry, OperatorFnDef, create_operator
 
-   @OperatorVectorDef
+   @OperatorFnDef
    def add_gaussian_noise(matrix, fitness, random_state, F=0.1):
        rng = np.random.default_rng(random_state)
        noise = rng.normal(0, F, size=matrix.shape)
        return matrix + noise
 
-   # Register the operator – you must wrap it in OperatorVectorDef
+   # Register the operator – you must wrap it in OperatorFnDef
    add_operator_entry(add_gaussian_noise, "my_noise", "custom")
    op = create_operator("custom.my_noise", F=0.3)
 
@@ -313,7 +313,7 @@ think in terms of “apply this function to each individual’s row”. Two deco
        return row + rng.normal(0, scale, size=row.shape)
 
    # Now small_noise_vector can be used as a matrix‑level operator function
-   from metaheuristic_designer.operators import OperatorVectorDef, add_operator_entry
+   from metaheuristic_designer.operators import OperatorFnDef, add_operator_entry
 
-   add_operator_entry(OperatorVectorDef(small_noise_vector), "tiny_noise", "custom")
+   add_operator_entry(OperatorFnDef(small_noise_vector), "tiny_noise", "custom")
    op = create_operator("custom.tiny_noise", scale=0.05, random_state=42)

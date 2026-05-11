@@ -24,26 +24,26 @@ from ...operator import OperatorFromLambda
 crossover_ops_map = {
     # ------ dual parent crossover -------------
     # 1 point crossover
-    "1point":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
-    "onepoint":                         OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
-    "one_point":                        OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
     "one_point_crossover":              OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
+    "one_point":                        OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
+    "onepoint":                         OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
+    "1point":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
 
     # 2 point crossover
-    "2point":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
-    "twopoint":                         OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
-    "two_point":                        OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
     "two_point_crossover":              OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
+    "two_point":                        OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
+    "twopoint":                         OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
+    "2point":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
 
     # k-point crossover
-    "multipoint":                       OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "kpoint":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "k-point":                          OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "k_point":                          OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "multipoint_crossover":             OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "kpoint_crossover":                 OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "k-point_crossover":                OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
     "k_point_crossover":                OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "k-point_crossover":                OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "kpoint_crossover":                 OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "k_point":                          OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "k-point":                          OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "kpoint":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "multipoint_crossover":             OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "multipoint":                       OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
 
     # Uniform crossover
     "uniform":                          OperatorFnDef(uniform_crossover, params={"crossover_prob": 1}),

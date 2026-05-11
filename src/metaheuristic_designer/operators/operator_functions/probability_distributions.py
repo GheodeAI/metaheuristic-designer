@@ -174,7 +174,7 @@ class multivariate_categorical(Distribution):
 
 
 # ---------------------------------------------
-# Parameter reinterpretting functions
+# Parameter reinterpreting functions
 # ---------------------------------------------
 def uniform_param_fix(min=None, max=None, **kwargs):
     """Convert ``min``/``max`` arguments to ``loc``/``scale`` for a uniform distribution.

@@ -37,7 +37,7 @@ Available algorithms
    :widths: 30 45 25
 
    * - Algorithm family
-     - Function names (``simple.`` prefix omitted)
+     - Function names ("simple." prefix omitted)
      - Short description
    * - Random Search
      - | ``random_search_real``,
@@ -120,6 +120,8 @@ constructor.  See the :doc:`Algorithm Configuration <api_reference.algorithm_con
 page for a full description of what you can configure.
 
 Each function also accepts algorithm‑specific hyper‑parameters (mutation
-strength, population size, number of mutated components, …).  For a complete
+strength, population size, number of mutated components, …).
+
+For a complete
 list of available arguments, use Python’s built‑in help, e.g.
 ``help(simple.genetic_algorithm_real)``.

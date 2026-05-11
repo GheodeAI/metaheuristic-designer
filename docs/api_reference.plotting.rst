@@ -14,6 +14,9 @@ The examples on this page use `seaborn <https://seaborn.pydata.org>`_,
 available as optional dependencies by installing ``metaheuristic_designer[examples]``—
 but you are free to choose whatever plotting library you prefer.
 
+All the following plots are generated directly in the documentation. You can check
+the source code that produced them.
+
 .. code-block:: python
 
    import pandas as pd
@@ -39,11 +42,79 @@ The simplest diagnostic: how does the best solution improve over time?
    ax.set_title("Convergence Plot")
    plt.show()
 
+
+.. plot::
+
+   import pandas as pd
+   import numpy as np
+   import seaborn as sns
+   import matplotlib.pyplot as plt
+   sns.set_theme(style="whitegrid")
+   import metaheuristic_designer as mhd
+   from metaheuristic_designer.benchmarks import Sphere
+   from metaheuristic_designer import simple, check_random_state
+
+   objfunc = Sphere(dimension=5, mode="min")
+   rng = check_random_state(42)
+
+   # CHANGE LATER
+   algo = simple.evolution_strategy_real(
+       objfunc,
+       population_size=100,
+       stop_cond="max_iterations",
+       max_iterations=5000,
+       reporter="silent",
+       random_state=rng,
+   )
+   algo.optimize()
+   df = algo.history_tracker.to_pandas()
+
+   fig, ax = plt.subplots(figsize=(8, 5))
+   sns.lineplot(data=df, x="iteration", y="best_objective", linewidth=2, ax=ax)
+   ax.set_xlabel("Generation")
+   ax.set_ylabel("Objective")
+   ax.set_title("Convergence Plot")
+   plt.show()
+
 For problems where the objective spans orders of magnitude, use a logarithmic y-axis:
 
 .. code-block:: python
 
    ax.set_yscale("log")
+
+.. plot::
+
+   import pandas as pd
+   import numpy as np
+   import seaborn as sns
+   import matplotlib.pyplot as plt
+   sns.set_theme(style="whitegrid")
+   import metaheuristic_designer as mhd
+   from metaheuristic_designer.benchmarks import Sphere
+   from metaheuristic_designer import simple, check_random_state
+
+   objfunc = Sphere(dimension=5, mode="min")
+   rng = check_random_state(42)
+
+   # CHANGE LATER
+   algo = simple.evolution_strategy_real(
+       objfunc,
+       population_size=100,
+       stop_cond="max_iterations",
+       max_iterations=5000,
+       reporter="silent",
+       random_state=rng,
+   )
+   algo.optimize()
+   df = algo.history_tracker.to_pandas()
+
+   fig, ax = plt.subplots(figsize=(8, 5))
+   sns.lineplot(data=df, x="iteration", y="best_objective", linewidth=2, ax=ax)
+   ax.set_xlabel("Generation")
+   ax.set_ylabel("Objective")
+   ax.set_title("Convergence Plot")
+   ax.set_yscale("log")
+   plt.show()
 
 Best, Median, and Worst Objectives
 -----------------------------------
@@ -63,6 +134,68 @@ the population.
    ax.legend()
    plt.show()
 
+.. plot::
+
+   import seaborn as sns
+   import matplotlib.pyplot as plt
+   sns.set_theme(style="whitegrid")
+
+   import metaheuristic_designer as mhd
+   from metaheuristic_designer.benchmarks import Rastrigin
+   from metaheuristic_designer.initializers import UniformInitializer
+   from metaheuristic_designer.strategies import DE
+   from metaheuristic_designer.algorithms import Algorithm
+   from metaheuristic_designer.history_tracker import HistoryTracker
+   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
+
+   rng = mhd.check_random_state(42)
+   DIM = 5
+   objfunc = Rastrigin(DIM, mode="min")
+
+   strategy = DE(
+      initializer=UniformInitializer(
+         objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
+         population_size=100, random_state=rng
+      ),
+      de_operator_name="DE/rand/1",
+      F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
+      Cr=0.9,
+      name="DE",
+      random_state=rng,
+   )
+
+   algo = mhd.Algorithm(
+       objfunc,
+       strategy,
+       stop_cond="max_iterations",
+       max_iterations=200,
+       reporter="silent",
+       history_tracker=mhd.HistoryTracker(
+         track_median=True,
+         track_worst=True,
+         track_full_objective=True,
+         track_diversity=True,
+         track_parameters=True,
+      )
+   )
+   algo.optimize()
+
+   df = algo.history_tracker.to_pandas()
+   full_obj_df = algo.history_tracker.to_pandas_full_objective()
+
+   fig, ax = plt.subplots(figsize=(8, 5))
+   sns.lineplot(data=df, x="iteration", y="best_objective", label="Best", linewidth=2, ax=ax)
+   sns.lineplot(data=df, x="iteration", y="median_objective", label="Median", linewidth=1.5, ax=ax)
+   sns.lineplot(data=df, x="iteration", y="worst_objective", label="Worst", linewidth=1, ax=ax)
+   ax.set_xlabel("Generation")
+   ax.set_ylabel("Objective")
+   ax.set_title("Best, Median, and Worst Objectives")
+   ax.legend()
+   plt.tight_layout()
+   plt.show()
+
+
 To highlight the gap between best and worst, shade it:
 
 .. code-block:: python
@@ -70,6 +203,69 @@ To highlight the gap between best and worst, shade it:
    ax.fill_between(df["iteration"], df["worst_objective"], df["best_objective"],
                    alpha=0.1, color="steelblue", label="Range")
    ax.legend()
+
+.. plot::
+
+   import seaborn as sns
+   import matplotlib.pyplot as plt
+   sns.set_theme(style="whitegrid")
+
+   import metaheuristic_designer as mhd
+   from metaheuristic_designer.benchmarks import Rastrigin
+   from metaheuristic_designer.initializers import UniformInitializer
+   from metaheuristic_designer.strategies import DE
+   from metaheuristic_designer.algorithms import Algorithm
+   from metaheuristic_designer.history_tracker import HistoryTracker
+   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
+
+   rng = mhd.check_random_state(42)
+   DIM = 5
+   objfunc = Rastrigin(DIM, mode="min")
+
+   strategy = DE(
+      initializer=UniformInitializer(
+         objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
+         population_size=100, random_state=rng
+      ),
+      de_operator_name="DE/rand/1",
+      F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
+      Cr=0.9,
+      name="DE",
+      random_state=rng,
+   )
+
+   algo = mhd.Algorithm(
+       objfunc,
+       strategy,
+       stop_cond="max_iterations",
+       max_iterations=200,
+       reporter="silent",
+       history_tracker=mhd.HistoryTracker(
+         track_median=True,
+         track_worst=True,
+         track_full_objective=True,
+         track_diversity=True,
+         track_parameters=True,
+      )
+   )
+   algo.optimize()
+
+   df = algo.history_tracker.to_pandas()
+   full_obj_df = algo.history_tracker.to_pandas_full_objective()
+
+   fig, ax = plt.subplots(figsize=(8, 5))
+   sns.lineplot(data=df, x="iteration", y="best_objective", label="Best", linewidth=2, ax=ax)
+   sns.lineplot(data=df, x="iteration", y="median_objective", label="Median", linewidth=1.5, ax=ax)
+   sns.lineplot(data=df, x="iteration", y="worst_objective", label="Worst", linewidth=1, ax=ax)
+   ax.fill_between(df["iteration"], df["worst_objective"], df["best_objective"],
+                  alpha=0.1, color="steelblue", label="Range")
+   ax.set_xlabel("Generation")
+   ax.set_ylabel("Objective")
+   ax.set_title("Best, Median, and Worst Objectives")
+   ax.legend()
+   plt.tight_layout()
+   plt.show()
 
 Comparing Multiple Algorithms
 -----------------------------
@@ -86,6 +282,67 @@ Combine the DataFrames of several algorithms and use ``hue`` to differentiate th
    fig, ax = plt.subplots(figsize=(8, 5))
    sns.lineplot(data=combined, x="iteration", y="best_objective",
                 hue="algorithm", linewidth=2, ax=ax)
+   ax.set_xlabel("Generation")
+   ax.set_ylabel("Best objective")
+   ax.set_title("Algorithm Comparison")
+   plt.show()
+
+.. plot::
+
+   import pandas as pd
+   import numpy as np
+   import seaborn as sns
+   import matplotlib.pyplot as plt
+   sns.set_theme(style="whitegrid")
+   import metaheuristic_designer as mhd
+   from metaheuristic_designer.benchmarks import Sphere
+   from metaheuristic_designer import simple, check_random_state
+
+   objfunc = Sphere(dimension=5, mode="min")
+   rng = check_random_state(42)
+
+   algo1 = simple.genetic_algorithm_real(
+       objfunc,
+       population_size=100,
+       stop_cond="max_iterations",
+       max_iterations=200,
+       history_tracker=mhd.HistoryTracker(track_worst=True, track_median=True),
+       reporter="silent",
+       random_state=rng,
+   )
+   algo2 = simple.differential_evolution_real(
+       objfunc,
+       population_size=100,
+       stop_cond="max_iterations",
+       max_iterations=200,
+       history_tracker=mhd.HistoryTracker(track_worst=True, track_median=True),
+       reporter="silent",
+       random_state=rng,
+   )
+   algo3 = simple.particle_swarm_real(
+       objfunc,
+       population_size=100,
+       stop_cond="max_iterations",
+       max_iterations=200,
+       history_tracker=mhd.HistoryTracker(track_worst=True, track_median=True),
+       reporter="silent",
+       random_state=rng,
+   )
+   algo1.optimize()
+   algo2.optimize()
+   algo3.optimize()
+   ga_df = algo1.to_pandas()
+   de_df = algo2.to_pandas()
+   pso_df = algo3.to_pandas()
+
+   ga_df["algorithm"] = "GA"
+   de_df["algorithm"] = "DE"
+   pso_df["algorithm"] = "PSO"
+   combined = pd.concat([ga_df, de_df, pso_df], ignore_index=True)
+
+   fig, ax = plt.subplots(figsize=(8, 5))
+   sns.lineplot(data=combined, x="iteration", y="best_objective",
+               hue="algorithm", linewidth=2, ax=ax)
    ax.set_xlabel("Generation")
    ax.set_ylabel("Best objective")
    ax.set_title("Algorithm Comparison")
@@ -119,7 +376,72 @@ table into long format:
    ax.set_title("Fitness Distribution")
    plt.show()
 
-This reveals whether the population is converging tightly or still exploring.
+.. plot::
+
+   import seaborn as sns
+   import matplotlib.pyplot as plt
+   sns.set_theme(style="whitegrid")
+
+   import metaheuristic_designer as mhd
+   from metaheuristic_designer.benchmarks import Rastrigin
+   from metaheuristic_designer.initializers import UniformInitializer
+   from metaheuristic_designer.strategies import DE
+   from metaheuristic_designer.algorithms import Algorithm
+   from metaheuristic_designer.history_tracker import HistoryTracker
+   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
+
+   rng = mhd.check_random_state(42)
+   DIM = 5
+   objfunc = Rastrigin(DIM, mode="min")
+
+   strategy = DE(
+      initializer=UniformInitializer(
+         objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
+         population_size=100, random_state=rng
+      ),
+      de_operator_name="DE/rand/1",
+      F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
+      Cr=0.9,
+      name="DE",
+      random_state=rng,
+   )
+
+   algo = mhd.Algorithm(
+       objfunc,
+       strategy,
+       stop_cond="max_iterations",
+       max_iterations=200,
+       reporter="silent",
+       history_tracker=mhd.HistoryTracker(
+         track_median=True,
+         track_worst=True,
+         track_full_objective=True,
+         track_diversity=True,
+         track_parameters=True,
+      )
+   )
+   algo.optimize()
+
+   df = algo.history_tracker.to_pandas()
+   full_obj_df = algo.history_tracker.to_pandas_full_objective()
+
+   long_df = full_obj_df.melt(id_vars="iteration", var_name="individual", value_name="objective")
+   # Keep every 10th generation to avoid overplotting
+   plot_data = long_df[long_df["iteration"] % 5 == 0]
+
+   fig, ax = plt.subplots(figsize=(12, 5))
+   sns.boxplot(data=plot_data, x="iteration", y="objective", hue="iteration", ax=ax,
+               palette="viridis", width=0.6, legend=False)
+   ax.set_xlabel("Generation")
+   ax.set_ylabel("Objective")
+   ax.set_title("Fitness Distribution Every 5 Generations")
+   ax.tick_params(axis='x', rotation=-45)
+   ax.axhline(0, color="grey")
+   ax.grid()
+   plt.tight_layout()
+   plt.show()
+
 
 Diversity Over Generations
 ---------------------------
@@ -149,6 +471,79 @@ A dual-axis plot is often the clearest:
    ax2.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
    plt.show()
 
+.. plot::
+
+   import seaborn as sns
+   import matplotlib.pyplot as plt
+   sns.set_theme(style="whitegrid")
+
+
+   import metaheuristic_designer as mhd
+   from metaheuristic_designer.benchmarks import Rastrigin
+   from metaheuristic_designer.initializers import UniformInitializer
+   from metaheuristic_designer.strategies import DE
+   from metaheuristic_designer.algorithms import Algorithm
+   from metaheuristic_designer.history_tracker import HistoryTracker
+   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
+
+   rng = mhd.check_random_state(42)
+   DIM = 5
+   objfunc = Rastrigin(DIM, mode="min")
+
+   strategy = DE(
+      initializer=UniformInitializer(
+         objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
+         population_size=100, random_state=rng
+      ),
+      de_operator_name="DE/rand/1",
+      F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
+      Cr=0.9,
+      name="DE",
+      random_state=rng,
+   )
+
+   algo = mhd.Algorithm(
+       objfunc,
+       strategy,
+       stop_cond="max_iterations",
+       max_iterations=200,
+       reporter="silent",
+       history_tracker=mhd.HistoryTracker(
+         track_median=True,
+         track_worst=True,
+         track_full_objective=True,
+         track_diversity=True,
+         track_parameters=True,
+      )
+   )
+   algo.optimize()
+
+   df = algo.history_tracker.to_pandas()
+   full_obj_df = algo.history_tracker.to_pandas_full_objective()
+
+   fig, ax1 = plt.subplots(figsize=(8, 5))
+   ax2 = ax1.twinx()
+
+   sns.lineplot(data=df, x="iteration", y="best_objective", ax=ax1,
+               linewidth=2, color="tab:blue", label="Objective", zorder=100)
+   sns.lineplot(data=df, x="iteration", y="diversity", ax=ax2,
+               linewidth=2, color="tab:red", label="Diversity", zorder=100)
+
+   ax1.set_xlabel("Generation")
+   ax1.set_ylabel("Objective", color="tab:blue")
+   ax2.set_ylabel("Diversity", color="tab:red")
+   ax1.set_title("Convergence and Diversity")
+   ax2.grid(False)
+
+   ax1.axvline(0, color="gray")
+
+   lines1, labels1 = ax1.get_legend_handles_labels()
+   lines2, labels2 = ax2.get_legend_handles_labels()
+   ax2.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
+   plt.tight_layout()
+   plt.show()
+
 Evolution of Schedulable Parameters
 ------------------------------------
 
@@ -163,21 +558,82 @@ Plot them alongside convergence to understand how the search adapts over time:
 
 .. code-block:: python
 
-   fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, figsize=(8, 8))
+   param_cols = ["DE/rand/1.F", "DE/rand/1.Cr"]
 
-   # Top panel: best objective
-   sns.lineplot(data=df, x="iteration", y="best_objective", ax=ax1,
-                linewidth=2, color="tab:green")
-   ax1.set_ylabel("Objective")
-   ax1.set_title("Convergence and Parameter Evolution")
-
-   # Bottom panel: scheduled parameters
-   param_cols = ["mutation.gaussian_mutation.F", "BranchOperator.p"]
+   fig, ax = plt.subplots(figsize=(8, 6))
    for col in param_cols:
-       sns.lineplot(data=df, x="iteration", y=col, ax=ax2, label=col)
-   ax2.set_ylabel("Parameter value")
-   ax2.legend()
-   ax2.set_xlabel("Generation")
+      sns.lineplot(data=df, x="iteration", y=col, ax=ax, label=col)
+   ax.set_xlabel("Generation")
+   ax.set_ylabel("Parameter value")
+   ax.set_title("Scheduled Parameter Evolution")
+   ax.legend()
+   ax.axvline(0, color="grey")
+   ax.axhline(0, color="grey")
+   plt.tight_layout()
+   plt.show()
+
+.. plot::
+
+   import seaborn as sns
+   import matplotlib.pyplot as plt
+   sns.set_theme(style="whitegrid")
+
+
+   import metaheuristic_designer as mhd
+   from metaheuristic_designer.benchmarks import Rastrigin
+   from metaheuristic_designer.initializers import UniformInitializer
+   from metaheuristic_designer.strategies import DE
+   from metaheuristic_designer.algorithms import Algorithm
+   from metaheuristic_designer.history_tracker import HistoryTracker
+   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
+
+   rng = mhd.check_random_state(42)
+   DIM = 5
+   objfunc = Rastrigin(DIM, mode="min")
+
+   strategy = DE(
+      initializer=UniformInitializer(
+         objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
+         population_size=100, random_state=rng
+      ),
+      de_operator_name="DE/rand/1",
+      F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
+      Cr=0.9,
+      name="DE",
+      random_state=rng,
+   )
+
+   algo = mhd.Algorithm(
+       objfunc,
+       strategy,
+       stop_cond="max_iterations",
+       max_iterations=200,
+       reporter="silent",
+       history_tracker=mhd.HistoryTracker(
+         track_median=True,
+         track_worst=True,
+         track_full_objective=True,
+         track_diversity=True,
+         track_parameters=True,
+      )
+   )
+   algo.optimize()
+
+   df = algo.history_tracker.to_pandas()
+   full_obj_df = algo.history_tracker.to_pandas_full_objective()
+
+   param_cols = ["DE/rand/1.F", "DE/rand/1.Cr"]
+
+   fig, ax = plt.subplots(figsize=(8, 6))
+   for col in param_cols:
+      sns.lineplot(data=df, x="iteration", y=col, ax=ax, label=col)
+   ax.set_xlabel("Generation")
+   ax.set_ylabel("Parameter value")
+   ax.set_title("Scheduled Parameter Evolution")
+   ax.legend()
+   ax.axvline(0, color="grey")
+   ax.axhline(0, color="grey")
    plt.tight_layout()
    plt.show()
 
@@ -221,6 +677,109 @@ Put several views into one figure to get a comprehensive picture:
    plt.tight_layout()
    plt.show()
 
+.. plot::
+
+   import seaborn as sns
+   import matplotlib.pyplot as plt
+   sns.set_theme(style="whitegrid")
+
+
+   import metaheuristic_designer as mhd
+   from metaheuristic_designer.benchmarks import Rastrigin
+   from metaheuristic_designer.initializers import UniformInitializer
+   from metaheuristic_designer.strategies import DE
+   from metaheuristic_designer.algorithms import Algorithm
+   from metaheuristic_designer.history_tracker import HistoryTracker
+   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
+
+   rng = mhd.check_random_state(42)
+   DIM = 5
+   objfunc = Rastrigin(DIM, mode="min")
+
+   strategy = DE(
+      initializer=UniformInitializer(
+         objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
+         population_size=100, random_state=rng
+      ),
+      de_operator_name="DE/rand/1",
+      F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
+      Cr=0.9,
+      name="DE",
+      random_state=rng,
+   )
+
+   algo = mhd.Algorithm(
+       objfunc,
+       strategy,
+       stop_cond="max_iterations",
+       max_iterations=200,
+       reporter="silent",
+       history_tracker=mhd.HistoryTracker(
+         track_median=True,
+         track_worst=True,
+         track_full_objective=True,
+         track_diversity=True,
+         track_parameters=True,
+      )
+   )
+   algo.optimize()
+
+   df = algo.history_tracker.to_pandas()
+   full_obj_df = algo.history_tracker.to_pandas_full_objective()
+   long_df = full_obj_df.melt(id_vars="iteration", var_name="individual", value_name="objective")
+
+   param_cols = ["DE/rand/1.F", "DE/rand/1.Cr"]
+
+   fig = plt.figure(figsize=(14, 10))
+
+   # Convergence
+   ax1 = fig.add_subplot(2, 2, 1)
+   sns.lineplot(data=df, x="iteration", y="best_objective", ax=ax1)
+   ax1.set_ylabel("Objective")
+   ax1.set_title("Best Objective")
+   ax1.axvline(0, color="gray")
+   ax1.axhline(0, color="gray")
+
+   # Fitness distribution (every 10th generation)
+   ax2 = fig.add_subplot(2, 2, 2)
+   plot_data = long_df[long_df["iteration"] % 10 == 0]
+   sns.boxplot(data=plot_data, x="iteration", y="objective", ax=ax2, width=0.6)
+   ax2.set_ylabel("Objective")
+   ax2.set_title("Fitness Distribution")
+   ax2.grid()
+   ax2.axhline(0, color="gray")
+
+   # Diversity
+   ax3 = fig.add_subplot(2, 2, 3)
+   ax3_twin = ax3.twinx()
+   sns.lineplot(data=df, x="iteration", y="diversity", ax=ax3_twin, color="tab:red", label="Diversity")
+   sns.lineplot(data=df, x="iteration", y="best_objective", ax=ax3, color="tab:blue", label="Objective")
+   ax3.set_title("Diversity vs Objective")
+   ax3.set_xlabel("Generation")
+   ax3.set_ylabel("Objective", color="tab:blue")
+   ax3_twin.set_ylabel("Diversity", color="tab:red")
+   ax3_twin.grid(False)
+   ax3.axvline(0, color="gray")
+
+   # Merge legends
+   lines1, labels1 = ax3.get_legend_handles_labels()
+   lines2, labels2 = ax3_twin.get_legend_handles_labels()
+   ax3_twin.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
+
+   # Parameter(s) if present
+   ax4 = fig.add_subplot(2, 2, 4)
+   for col in param_cols:
+      sns.lineplot(data=df, x="iteration", y=col, ax=ax4, label=col)
+   ax4.set_ylabel("Parameter values")
+   ax4.set_title("Scheduled Parameters")
+   ax4.legend()
+   ax4.axvline(0, color="gray")
+   ax4.axhline(0, color="gray")
+
+   plt.tight_layout()
+   plt.show()
+
 Real-Time Visualization
 -----------------------
 
@@ -242,6 +801,10 @@ Plotly's ``FigureWidget``:
        df = algo.history_tracker.to_pandas()
        fig.data[0].x = df["iteration"]
        fig.data[0].y = df["best_objective"]
+
+.. note::
+   No plot is shown for this example, we encourage you to check out the ``real_time_plotting_tutorial.ipynb`` file in the ``tutorials/`` directory.
+
 
 This approach keeps the entire history; you can also stream only the latest data.
 

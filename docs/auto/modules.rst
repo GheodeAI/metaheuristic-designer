@@ -2,6 +2,6 @@ metaheuristic_designer
 ======================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    metaheuristic_designer
