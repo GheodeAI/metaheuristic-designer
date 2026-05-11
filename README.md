@@ -12,8 +12,7 @@ The library is a direct implementation of the vision laid out in
 [Metaheuristics “In the Large”](https://doi.org/10.1016/j.ejor.2021.05.042).
 Many design decisions follow the principles of
 [Introduction to Evolutionary Computing](https://doi.org/10.1007/978-3-662-44874-8)
-by Eiben and Smith.  For a deeper discussion of the philosophy behind the
-framework, see the **Design Philosophy** page in the documentation.
+by Eiben and Smith.
 
 ---
 
