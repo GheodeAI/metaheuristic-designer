@@ -18,6 +18,7 @@ dependencies = [
     "scipy",
     "pyparsing",
     "pandas",
+    "scikit-image",
     "scikit-learn",
     "cloudpickle",
     "tqdm"
