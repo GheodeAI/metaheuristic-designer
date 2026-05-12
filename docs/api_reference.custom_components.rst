@@ -43,7 +43,7 @@ Wrap an evaluation function with
    def sphere(vec, offset=0):
        return -np.sum((vec - offset) ** 2)   # maximise negative squared distance
 
-   objfunc = ObjectiveFromLambda(sphere, offset=3.0, mode="max")
+   objfunc = ObjectiveFromLambda(sphere, dimension=3, offset=3.0, mode="max")
 
 Constraint Handler
 ------------------
@@ -92,7 +92,7 @@ Wrap a generator function with
    def uniform_gen(random_state, low=0.0, high=1.0, size=5):
        return random_state.uniform(low, high, size=size)
 
-   init = InitializerFromLambda(uniform_gen, pop_size=100, low=-10, high=10, size=5)
+   init = InitializerFromLambda(uniform_gen, dimension=5, pop_size=100, low=-10, high=10, size=5)
 
 Encoding
 --------
@@ -181,7 +181,7 @@ Register it **without** a wrapper:
 .. code-block:: python
 
    from metaheuristic_designer.operators import add_operator_entry
-
+    
    def duplicate_best(population, initializer, random_state):
        pop_copy = copy(population)
        best_gen = pop_copy.genotype_matrix[pop_copy.best_idx]
@@ -201,7 +201,7 @@ instantiate :py:class:`ParentSelectionFromLambda<metaheuristic_designer.parent_s
 **Factory pathway (fitness‑level)**
 
 .. code-block:: python
-
+   @ParentSelectionDef
    def my_parent_select(fitness: VectorLike, amount: int,
                         random_state: RNGLike, **kwargs) -> np.ndarray:
        """Return indices of selected individuals."""
@@ -216,6 +216,7 @@ instantiate :py:class:`ParentSelectionFromLambda<metaheuristic_designer.parent_s
    from metaheuristic_designer.parent_selection_methods import add_parent_selection_entry
    from metaheuristic_designer import create_parent_selection
 
+   @ParentSelectionDef
    def pick_top_k(fitness, amount, random_state, **kwargs):
        # Maximisation: higher fitness is better → use argpartition for top k
        top_idx = np.argpartition(-fitness, amount - 1)[:amount]
@@ -251,6 +252,7 @@ to the Population objects.
 
 .. code-block:: python
 
+   @SurvivorSelectionDef
    def my_survivor_select(parent_fitness: VectorLike,
                           offspring_fitness: VectorLike,
                           random_state: RNGLike, **kwargs) -> np.ndarray:
@@ -265,7 +267,8 @@ to the Population objects.
 
    from metaheuristic_designer.survivor_selection_methods import add_survivor_selection_entry
    from metaheuristic_designer import create_survivor_selection
-
+   
+   @SurvivorSelectionDef
    def keep_all_offspring(parent_fit, offspring_fit, random_state, **kwargs):
        n_parents = len(parent_fit)
        n_offspring = len(offspring_fit)
