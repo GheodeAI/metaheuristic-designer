@@ -1,7 +1,7 @@
 .. _simple-api:
 
-Simple API
-==========
+Simple subpackage
+=================
 
 The :mod:`metaheuristic_designer.simple` module contains ready‑to‑run functions
 that return a configured :class:`~metaheuristic_designer.algorithm.Algorithm`.

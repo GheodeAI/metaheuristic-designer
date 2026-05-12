@@ -34,7 +34,7 @@ matches what you want to do right now:
 
 * **Quick start** – Run a ready‑to‑use algorithm in under a minute on the
   :doc:`Quick Start <quick_start>` page.
-* **Simple API** – Browse the full catalogue of :doc:`pre‑packaged algorithms
+* **Simple subpackage** – Browse the full catalogue of :doc:`pre‑packaged algorithms
   <simple>` and see which encodings each supports.
 * **Algorithm configuration** – Learn how to set stopping conditions, reporters,
   history trackers, and checkpointers in the
@@ -121,7 +121,7 @@ Indices and tables
    :caption: Contents:
 
     Quick Start <quick_start>
-    Simple API <simple>
+    Simple subpackage <simple>
     API reference <api_reference>
     Algorithm Configuration <api_reference.algorithm_config>
     Operators and selection methods <api_reference.methods>
