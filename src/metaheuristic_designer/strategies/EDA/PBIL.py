@@ -1,0 +1,176 @@
+from __future__ import annotations
+from typing import Optional
+import numpy as np
+from ...operators import create_operator
+from ...parent_selection_base import ParentSelection
+from ...survivor_selection_base import SurvivorSelection
+from ...initializer import Initializer
+from ..variable_population import VariablePopulation
+from ...schedulable_parameter import SchedulableParameter
+from ...utils import check_random_state
+
+
+class BernoulliPBIL(VariablePopulation):
+    """
+    Estimation of distribution algorithm for binary vectors.
+    https://doi.org/10.1016/j.swevo.2011.08.003
+    """
+
+    def __init__(
+        self,
+        initializer: Initializer,
+        parent_sel: ParentSelection = None,
+        survivor_sel: SurvivorSelection = None,
+        name: str = "BernoulliPBIL",
+        offspring_size: Optional[int | SchedulableParameter] = None,
+        random_state=None,
+        p=None,
+        lr=1e-3,
+        noise=0,
+        **kwargs,
+    ):
+        self.random_state = check_random_state(random_state)
+
+        super().__init__(
+            initializer,
+            operator=create_operator("full_resampling", distribution="bernoulli", p=p, random_state=random_state),
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
+            offspring_size=offspring_size,
+            name=name,
+            lr=lr,
+            noise=noise,
+            **kwargs,
+        )
+
+    def _batch_fit(self, population):
+        population_matrix = population.genotype_matrix
+        p_hat = population_matrix.mean(axis=0)
+
+        return p_hat
+
+    def perturb(self, parents, **kwargs):
+        old_p = self.operator.params.p
+
+        new_p = self._batch_fit(parents)
+        if old_p is not None:
+            new_p = (1 - self.params.lr) * old_p + self.params.lr * new_p
+            new_p += self.random_state.normal(0, self.params.noise, size=np.asarray(old_p).shape)
+            new_p = np.clip(new_p, 0, 1)
+
+        self.operator.update_kwargs(p=new_p)
+
+        return super().perturb(parents, **kwargs)
+
+
+class BinomialPBIL(VariablePopulation):
+    """
+    Estimation of distribution algorithm for binary vectors.
+    https://doi.org/10.1016/j.swevo.2011.08.003
+    """
+
+    def __init__(
+        self,
+        initializer: Initializer,
+        parent_sel: ParentSelection = None,
+        survivor_sel: SurvivorSelection = None,
+        name: str = "BernoulliPBIL",
+        offspring_size: Optional[int | SchedulableParameter] = None,
+        random_state=None,
+        p=0.5,
+        n=None,
+        lr=1e-3,
+        noise=0,
+        **kwargs,
+    ):
+        self.random_state = check_random_state(random_state)
+
+        if n is None:
+            raise ValueError("You must specify the value for the parameters `n`, usually it will be the number of possible categorical values.")
+
+        super().__init__(
+            initializer,
+            operator=create_operator("full_resampling", distribution="Binomial", p=np.asarray(p), n=np.asarray(n), random_state=random_state),
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
+            offspring_size=offspring_size,
+            name=name,
+            # Forced kwargs
+            noise=noise,
+            lr=lr,
+            **kwargs,
+        )
+
+    def _batch_fit(self, population):
+        n = self.operator.params.n
+        population_matrix = population.genotype_matrix
+        p_hat = population_matrix.sum(axis=0) / (n * population_matrix.shape[0])
+
+        return p_hat
+
+    def perturb(self, parents, **kwargs):
+        old_p = self.operator.params.p
+
+        new_p = self._batch_fit(parents)
+        if old_p is not None:
+            new_p = (1 - self.params.lr) * old_p + self.params.lr * new_p
+            new_p += self.random_state.normal(0, self.params.noise, size=old_p.shape)
+            new_p = np.clip(new_p, 0, 1)
+
+        self.operator.update_kwargs(p=new_p)
+
+        return super().perturb(parents, **kwargs)
+
+
+class GaussianPBIL(VariablePopulation):
+    """
+    Estimation of distribution algorithm for binary vectors.
+    https://doi.org/10.1016/j.swevo.2011.08.003
+    """
+
+    def __init__(
+        self,
+        initializer: Initializer,
+        parent_sel: ParentSelection = None,
+        survivor_sel: SurvivorSelection = None,
+        name: str = "GaussianPBIL",
+        offspring_size: Optional[int | SchedulableParameter] = None,
+        random_state=None,
+        loc=None,
+        scale=1,
+        lr=1e-3,
+        noise=0,
+        **kwargs,
+    ):
+        self.random_state = check_random_state(random_state)
+
+        super().__init__(
+            initializer,
+            operator=create_operator("full_resampling", distribution="gaussian", loc=loc, scale=np.asarray(scale)),
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
+            offspring_size=offspring_size,
+            name=name,
+            # Forced kwargs
+            lr=lr,
+            noise=noise,
+            **kwargs,
+        )
+
+    def _batch_fit(self, population):
+        population_matrix = population.genotype_matrix
+        loc_hat = population_matrix.mean(axis=0)
+
+        return loc_hat
+
+    def perturb(self, parents, **kwargs):
+        old_loc = self.operator.params.loc
+
+        new_loc = self._batch_fit(parents)
+        if old_loc is not None:
+            new_loc = (1 - self.params.lr) * old_loc + self.params.lr * new_loc
+            new_loc += self.random_state.normal(0, self.params.noise, size=old_loc.shape)
+
+        self.operator.update_kwargs(loc=new_loc)
+
+        return super().perturb(parents, **kwargs)
