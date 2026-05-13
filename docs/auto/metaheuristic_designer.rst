@@ -5,7 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    metaheuristic_designer.algorithms
    metaheuristic_designer.benchmarks

@@ -12,6 +12,9 @@
 #
 import os
 import sys
+import matplotlib
+matplotlib.use('Agg')
+plot_rcparams = {'backend': 'Agg'}
 
 sys.path.insert(0, os.path.abspath("../src/metaheuristic_designer"))
 sys.path.insert(0, os.path.abspath("./src/metaheuristic_designer"))
@@ -30,7 +33,14 @@ release = "1.0.0"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.viewcode", "sphinx.ext.autodoc", "sphinx.ext.autosummary", "sphinx.ext.napoleon", "sphinx.ext.autosectionlabel"]
+extensions = [
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.autosectionlabel",
+    'matplotlib.sphinxext.plot_directive',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -48,7 +58,6 @@ autodoc_member_order = "bysource"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
 html_theme = "sphinx_material"
 
 html_theme_options = {
@@ -72,3 +81,5 @@ html_theme_options = {
 html_static_path = ["_static"]
 
 html_css_files = ["custom.css"]
+
+suppress_warnings = ['autosectionlabel.*']
