@@ -201,6 +201,7 @@ instantiate :py:class:`ParentSelectionFromLambda<metaheuristic_designer.parent_s
 **Factory pathway (fitness‑level)**
 
 .. code-block:: python
+
    @ParentSelectionDef
    def my_parent_select(fitness: VectorLike, amount: int,
                         random_state: RNGLike, **kwargs) -> np.ndarray:

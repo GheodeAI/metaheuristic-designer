@@ -15,7 +15,7 @@ Every function is named like this:
 
 .. code-block:: text
 
-    simple.<algorithm>_<encoding>(objfunc, **kwargs)
+    simple.<algorithm>_<encoding>(objfunc, **kwargs) # kwargs passed to Algorithm
 
 * ``<algorithm>`` – the algorithm family (e.g. ``genetic_algorithm``).
 * ``<encoding>`` – the problem representation you want to use:
@@ -115,7 +115,7 @@ real‑coded Genetic Algorithm:
    print(f"Best objective: {obj:.6g}")
 
 All additional keyword arguments (such as ``max_iterations``, ``reporter``,
-``real_time_limit``, …) are passed directly to the :class:`Algorithm`
+``real_time_limit``, …) are passed directly to the :py:class:`~metaheuristic_designer.algorithm.Algorithm`
 constructor.  See the :doc:`Algorithm Configuration <api_reference.algorithm_config>`
 page for a full description of what you can configure.
 

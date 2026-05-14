@@ -111,7 +111,7 @@ Implemented encodings that transform between the internal genotype and the pheno
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`DefaultEncoding<metaheuristic_designer.encoding.DefaultEncoding>`", "No change (identity encoding)."
+   ":py:class:`encodings.DefaultEncoding<metaheuristic_designer.encoding.DefaultEncoding>`", "No change (identity encoding)."
    ":py:class:`encodings.TypeCastEncoding<metaheuristic_designer.encodings.type_cast_encoding.TypeCastEncoding>`", "Changes the datatype (e.g. float ↔ int ↔ boolean)."
    ":py:class:`encodings.MatrixEncoding<metaheuristic_designer.encodings.matrix_encoding.MatrixEncoding>`", "Reshapes a vector to a tensor of a different shape."
    ":py:class:`encodings.ImageEncoding<metaheuristic_designer.encodings.image_encoding.ImageEncoding>`", "Reshapes a vector to an N×M×C image representation (channels last)."
@@ -153,17 +153,17 @@ A few built-in operators do **not** follow the factory pattern:
 .. csv-table::
    :header: "Class", "Description"
 
-   ":py:class:`~metaheuristic_designer.operator.NullOperator`", "Identity operator (no changes)."
-   ":py:class:`~metaheuristic_designer.operators.composite_operator.CompositeOperator`", "Combines multiple operators sequentially."
-   ":py:class:`~metaheuristic_designer.operators.masked_operator.MaskedOperator`", "Applies different operators to different sets of components of the genotype vectors."
-   ":py:class:`~metaheuristic_designer.operators.branch_operator.BranchOperator`", "Randomly selects one operator from a list each time it is applied."
-   ":py:class:`~metaheuristic_designer.operators.extended_operator.ExtendedOperator`", "Base class for operators that handle extra per-individual parameters (e.g. self-adaptation)."
-   ":py:class:`~metaheuristic_designer.operators.BO_operator.BOOperator`", "Gaussian process regression operator for Bayesian Optimisation."
+   ":py:class:`opeartors.NullOperator<metaheuristic_designer.operator.NullOperator>`", "Identity operator (no changes)."
+   ":py:class:`operators.CompositeOperator<metaheuristic_designer.operators.composite_operator.CompositeOperator>`", "Combines multiple operators sequentially."
+   ":py:class:`operators.MaskedOperator<metaheuristic_designer.operators.masked_operator.MaskedOperator>`", "Applies different operators to different sets of components of the genotype vectors."
+   ":py:class:`operators.BranchOperator<metaheuristic_designer.operators.branch_operator.BranchOperator>`", "Randomly selects one operator from a list each time it is applied."
+   ":py:class:`operators.ExtendedOperator<metaheuristic_designer.operators.extended_operator.ExtendedOperator>`", "Base class for operators that handle extra per-individual parameters (e.g. self-adaptation)."
+   ":py:class:`operators.BOOperator<metaheuristic_designer.operators.BO_operator.BOOperator>`", "Gaussian process regression operator for Bayesian Optimisation."
 
 **IMPORTANT**: For the full catalogue of factory-available operators (mutation, crossover, permutation, DE,
 swarm, …) and the probability distributions they support, see the
 :doc:`Operator Methods <api_reference.methods>` page. To see all available operators at runtime, call
-:func:`metaheuristic_designer.operators.list_operators`. 
+:func:`~metaheuristic_designer.operators.list_operators`. 
 
 For writing and registering your own operators, refer to the
 :doc:`Custom Components <api_reference.custom_components>` guide.
@@ -188,7 +188,7 @@ You can use one of the ready‑made strategies:
    )
 
 or build your own by directly combining components with the general
-:class:`SearchStrategy` class:
+:py:class:`~metaheuristic_designer.search_strategy.SearchStrategy` class:
 
 .. code-block:: python
 
@@ -199,7 +199,7 @@ or build your own by directly combining components with the general
        survivor_sel=...,
    )
 
-Both approaches result in an object that can be passed to :class:`Algorithm`.
+Both approaches result in an object that can be passed to :py:class:`~metaheuristic_designer.algorithm.Algorithm`.
 
 The following pre‑built strategies are available:
 
@@ -226,7 +226,7 @@ The following pre‑built strategies are available:
 
 Algorithms
 ----------
-The :class:`Algorithm` class runs the optimisation loop.  You pass it an objective
+The :py:class:`~metaheuristic_designer.algorithm.Algorithm` class runs the optimisation loop.  You pass it an objective
 function, a search strategy, and optionally a stopping condition, reporter,
 history tracker and checkpointer (see :doc:`Algorithm Configuration <api_reference.algorithm_config>`).
 
@@ -241,7 +241,7 @@ Built‑in algorithm variants:
 .. csv-table::
    :header: "Module name", "Description"
 
-   ":py:class:`Algorithm<metaheuristic_designer.algorithm.Algorithm>`", "Default algorithm with the classic parent → perturb → evaluate → survivor loop."
+   ":py:class:`algorithms.Algorithm<metaheuristic_designer.algorithm.Algorithm>`", "Default algorithm with the classic parent → perturb → evaluate → survivor loop."
    ":py:class:`algorithms.MemeticAlgorithm<metaheuristic_designer.algorithms.memetic_algorithm.MemeticAlgorithm>`", "Algorithm that embeds a local search step inside the main loop."
    ":py:class:`algorithms.AlgorithmSelection<metaheuristic_designer.algorithms.algorithm_selection.AlgorithmSelection>`", "Benchmarks a set of algorithms."
    ":py:class:`algorithms.StrategySelection<metaheuristic_designer.algorithms.strategy_selection.StrategySelection>`", "Benchmarks a set of search strategies."
@@ -261,6 +261,66 @@ Stopping conditions can be defined as strings combining the following tokens wit
    ``"convergence"``, "Stops after ``max_patience`` consecutive iterations without improvement."
 
 Example: ``max_iterations or real_time_limit`` will halt when the maximum number of iterations is reached or we have exceeded the maximum time.
+
+.. _parameter-schedules:
+
+Parameter schedules
+-------------------
+
+There are a number of already available schedules for parameters. Each of then calculate the parameter value
+from a progress value in the range [0, 1].
+
+To simplyfy the math, the progress value is :math:`p` and :math:`v` is the
+parameter value, so that :math:`v(0)` is the initial value and :math:`v(1)` is.
+the last value.
+
+.. list-table::
+  :header-rows: 1 
+
+  * - Schedule class
+    - Description
+    - Parameters
+  
+  * - :py:class:`parameter_schedules.LinearSchedule<metaheuristic_designer.parameter_schedules.linear_schedule.LinearSchedule>`
+    - | Lineraly interpolates the parameter between two values as:
+      | :math:`v(p) = (1-p)v(0) + p\,v(1)`
+    - | - init_value
+      | - final_value
+
+  * - :py:class:`parameter_schedules.LogisticSchedule<metaheuristic_designer.parameter_schedules.logistic_schedule.LogisticSchedule>`
+    - | Uses a logistic curve to calculate the parameter:
+      | :math:`v(p) = v(0) - \frac{v(1) - v(0)}{1 - e^{k(p - 0.5)}}`
+    - | - init_value
+      | - final_value
+      | - k (10)
+
+  * - :py:class:`parameter_schedules.ExponentialDecaySchedule<metaheuristic_designer.parameter_schedules.exponential_decay_schedule.ExponentialDecaySchedule>`
+    - | Uses a negative exponential curve to model the parameter, when iterative, ignores the final value:
+      | when iterative is ``False``: :math:`v(p) = v(0) + (v(1) - v(0)) e^{-\alpha p}`
+      | when iterative is ``True``: :math:`v_i = v(0) + (v_{i-1} - v(0)) \alpha`
+    - | init_value
+      | final_value (0)
+      | alpha (0.9)
+      | iterative (False)
+
+  * - :py:class:`parameter_schedules.RandomSchedule<metaheuristic_designer.parameter_schedules.random_schedule.RandomSchedule>`
+    - Completely randomizes the parameter value within a range of values. Follows an uniform distribution:
+    - | init_value
+      | final_value
+
+  * - :py:class:`parameter_schedules.ThresholdSchedule<metaheuristic_designer.parameter_schedules.threshold_schedule.ThresholdSchedule>`
+    - Chooses a value to assign for progress values below the threshold and another for values above it.
+    - | init_value
+      | final_value
+      | threshold (0.5)
+
+  * - :py:class:`parameter_schedules.StepSchedule<metaheuristic_designer.parameter_schedules.step_schedule.StepSchedule>`
+    - | Splits the range of 0 to 1 into :math:`N` steps indicated by a dictionary of the form:
+      | ``{0.1: 34, 0.2: 4, 0.3: 1, ...}``
+    - | steps
+
+..     - | steps
+
 
 Prepackaged Algorithms
 ----------------------

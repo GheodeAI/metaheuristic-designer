@@ -296,7 +296,7 @@ Crossover
      - | blxalpha
        | blx_alpha
        | blend_crossover
-     - Blend crossover (BLX‑α) for real values.
+     - Blend crossover (BLX-:math:`\alpha`) for real values.
      - | - crossover_prob (1.0)
        | - pairing_method ("random")
        | - alpha (0.5)
@@ -458,6 +458,7 @@ Differential Evolution
      - | - F (0.8)
        | - Cr (0.9)
        | - p (0.1)
+
 ----
 
 .. _swarm_operators:
@@ -685,9 +686,9 @@ To register a new one, use
    * - ``tikhinov``
      - scipy‑univar
      - vonmises
-     - Von Mises (circular) distribution. ``scale`` is converted to concentration ``kappa = 1/scale``.
-     - | - mu
-       | - scale
+     - Von Mises (circular) distribution. ``kappa`` (:math:`\kappa`) is converted to concentration :math:`\kappa = \frac{1}{\text{scale}}`.
+     - | - kappa
+       | - loc
 
    * - ``multivariate_normal``
      - scipy‑multivar
@@ -717,6 +718,7 @@ To register a new one, use
      - Multivariate categorical distribution (per‑row probability weights).
      - | - categories
        | - weight_matrix
+
 When a parameter can be an array, its shape must be compatible with the
 population matrix (number of individuals × number of variables).  The special
 self‑adaptation operators (``mutate_1_sigma``, ``mutate_n_sigmas``,
@@ -730,15 +732,15 @@ Implemented Selection Methods
 
 Parent and survivor selection are created through dedicated **factory functions**:
 
-* :py:func:`create_parent_selection<metaheuristic_designer.parent_selection.parent_selection.create_parent_selection>` – returns a :py:class:`ParentSelection<metaheuristic_designer.parent_selection.ParentSelection>` instance.
-* :py:func:`create_survivor_selection<metaheuristic_designer.survivor_selection.survivor_selection.create_survivor_selection>` – returns a :py:class:`SurvivorSelection<metaheuristic_designer.survivor_selection.SurvivorSelection>` instance.
+* :py:func:`~metaheuristic_designer.parent_selection.parent_selection.create_parent_selection` – returns a :py:class:`~metaheuristic_designer.parent_selection.ParentSelection` instance.
+* :py:func:`~metaheuristic_designer.survivor_selection.survivor_selection.create_survivor_selection` – returns a :py:class:`~metaheuristic_designer.survivor_selection.SurvivorSelection` instance.
 
 Both accept a case‑insensitive method name as the first argument, followed by any
 method‑specific parameters as keyword arguments.
 
 To **skip** a selection step entirely, use the
-:py:class:`NullParentSelection<metaheuristic_designer.parent_selection.NullParentSelection>` /
-:py:class:`NullSurvivorSelection<metaheuristic_designer.survivor_selection.NullSurvivorSelection>` classes.
+:py:class:`~metaheuristic_designer.parent_selection.NullParentSelection` /
+:py:class:`~metaheuristic_designer.survivor_selection.NullSurvivorSelection` classes.
 
 Parent Selection
 ================
@@ -961,6 +963,7 @@ Survivor Selection
        | mu,lambda
      - Replace the whole population with the best offspring (offspring size must be ≥ population size).
      -
+
 registering them with the factories, refer to :doc:`Custom Components <api_reference.custom_components>`.
 
 .. _selection-discovery-note:

@@ -803,6 +803,7 @@ Plotly's ``FigureWidget``:
        fig.data[0].y = df["best_objective"]
 
 .. note::
+
    No plot is shown for this example, we encourage you to check out the ``real_time_plotting_tutorial.ipynb`` file in the ``tutorials/`` directory.
 
 

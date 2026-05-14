@@ -46,6 +46,7 @@ matches what you want to do right now:
   :doc:`Extending the Framework <api_reference.custom_components>` guide.
 * **Plot results** – Turn recorded history into convergence, diversity, and
   parameter evolution plots with the :doc:`Plotting Tutorial <api_reference.plotting>`.
+
 .. * **Design philosophy** – Read about the architectural vision behind the
   library in the :doc:`Design philosophy <design_philosophy>` page.
 

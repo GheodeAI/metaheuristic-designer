@@ -64,23 +64,33 @@ A stopping condition is defined by a logical expression that combines **tokens**
 its corresponding numeric limit provided; limits for unused tokens can be left as
 ``None``.
 
+In the following table we indicate the token used in the ``stopping_condition`` string as well as the parameter that configures
+when that condition in the :py:class:`~metaheuristic_designer.stopping_condition.StoppingCondition`
+
 .. list-table:: Tokens and their meaning
-   :widths: 30 60
+   :widths: 20 20 60
    :header-rows: 1
 
    * - Token
+     - Parmeter
      - Meaning
    * - ``max_evaluations``
+     - ``max_evaluations``
      - Maximum number of objective function evaluations.
    * - ``max_iterations``
+     - ``max_iterations``
      - Maximum number of iterations (generations).
    * - ``real_time_limit``
+     - ``real_time_limit``
      - Wall-clock time limit in seconds.
    * - ``cpu_time_limit``
+     - ``cpu_time_limit``
      - CPU time limit in seconds.
    * - ``objective_target``
+     - ``objective_target``
      - Target value for the raw objective. For minimisation (``mode="min"``), the algorithm stops when ``best_objective <= objective_target``; for maximisation (``mode="max"``), when ``best_objective >= objective_target``.
    * - ``convergence``
+     - ``max_patience``
      - Stops when the best fitness has not improved for ``max_patience`` consecutive iterations.  This token requires ``max_patience`` to be set.
 
 **How to combine tokens**  

@@ -1,4 +1,4 @@
-.. _design-philosophy:
+.. _design-philosophy2:
 
 Design Philosophy
 =================
