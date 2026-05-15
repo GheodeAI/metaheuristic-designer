@@ -1,58 +1,79 @@
+"""
+Ready-to-run Bayesian Optimisation wrappers.
+"""
+
 from __future__ import annotations
-from ..objective_function import VectorObjectiveFunc
+from typing import Optional
+
+from ..encoding import Encoding
+from ..objective_function import ObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer
 from ..strategies import BayesianOptimization
-from ..algorithms import GeneralAlgorithm
+from ..utils import RNGLike, check_random_state
 
 
-def bayesian_optimization(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
+def bayesian_optimization_binary(
+    objfunc: ObjectiveFunc,
+    population_size: int = 50,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
     """
-    Instantiates a bayesian optimization algorithm to optimize the given objective function.
+    Bayesian Optimisation for binary-coded vectors (not supported yet).
+    """
+    raise NotImplementedError("Bayesian Optimisation is only available for real-coded vectors.")
+
+
+def bayesian_optimization_discrete(
+    objfunc: ObjectiveFunc,
+    population_size: int = 50,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """
+    Bayesian Optimisation for integer-coded vectors (not supported yet).
+    """
+    raise NotImplementedError("Bayesian Optimisation is only available for real-coded vectors.")
+
+
+def bayesian_optimization_real(
+    objfunc: ObjectiveFunc,
+    population_size: int = 50,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Bayesian Optimisation for real-coded vectors.
 
     Parameters
     ----------
-    objfunc: ObjectiveFunc
-        Objective function to be optimized.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters of the algorithm.
-
-    Returns
-    -------
-    algorithm: Algorithm
-        Configured optimization algorithm.
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    population_size : int, optional
+        Number of individuals in the initial population (default 50).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
-    if "encoding" not in params:
-        raise ValueError('You must specify the encoding in the params structure, the algorithm is just implemented for the "real" encoding.')
-
-    encoding_str = params["encoding"]
-
-    if encoding_str.lower() == "real":
-        alg = _bayesian_optimization_real_vec(params, objfunc)
-    else:
-        raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real"')
-
-    return alg
-
-
-def _bayesian_optimization_real_vec(params, objfunc):
-    """
-    Instantiates a bayesian optimization algorithm to optimize the given objective function.
-    This objective function should accept binary coded vectors.
-    """
-
-    pop_size = params.get("pop_size", 100)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else -100)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
-
-    search_strat = BayesianOptimization(
-        initializer=UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size),
-        params=params,
+    random_state = check_random_state(random_state)
+    pop_initializer = UniformInitializer(
+        objfunc.dimension,
+        objfunc.lower_bound,
+        objfunc.upper_bound,
+        population_size=population_size,
+        dtype=float,
+        encoding=encoding,
+        random_state=random_state,
     )
-
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    search_strategy = BayesianOptimization(
+        initializer=pop_initializer,
+        random_state=random_state,
+    )
+    return Algorithm(objfunc, search_strategy, **kwargs)

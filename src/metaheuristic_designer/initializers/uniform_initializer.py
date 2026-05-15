@@ -1,55 +1,60 @@
+"""
+Initializer that samples from a uniform distribution.
+"""
+
 from __future__ import annotations
 import numpy as np
 from ..initializer import Initializer
-from ..encoding import ExtendedEncoding
-from ..utils import RAND_GEN
 
 
 class UniformInitializer(Initializer):
     """
-    Initializer that generates individuals with vectors following an uniform distribution.
+    Initializer that generates individuals with values drawn from a
+    uniform distribution.
 
     Parameters
     ----------
-    genotype_size: ndarray
-        The dimension of the vectors accepted by the objective function.
-    low_lim: ndarray or float
-        Lower limit restriction for the vectors.
-    up_lim: ndarray or float
-        Upper limit restriction for the vectors.
-    pop_size: int, optional
-        Number of individuals to be generated.
-    encoding: Encoding, optional
+    dimension : int
+        Length of the genotype vector.
+    lower_bound : float or array
+        Lower bound(s) of the distribution.  If an array is given,
+        it must have length `dimension`.
+    upper_bound : float or array
+        Upper bound(s) of the distribution.  Must match the shape
+        of `lower_bound`.
+    population_size : int, optional
+        Number of individuals to generate (default 1).
+    encoding : Encoding, optional
         Encoding that will be passed to each individual.
-    dtype: type, optional
-        Data type used in each of the components of the vector in the individual.
+    dtype : type, optional
+        Desired NumPy dtype of the generated vectors (default ``float``).
+    random_state : RNGLike, optional
+        Random number generator.
     """
 
-    def __init__(self, genotype_size, low_lim, up_lim, pop_size=1, encoding=None, dtype=float):
-        super().__init__(pop_size, encoding)
+    def __init__(self, dimension, lower_bound, upper_bound, population_size=1, encoding=None, dtype=float, random_state=None):
+        super().__init__(dimension=dimension, population_size=population_size, encoding=encoding, random_state=random_state)
 
-        self.genotype_size = genotype_size
+        if type(lower_bound) in [list, tuple, np.ndarray]:
+            if len(lower_bound) != dimension:
+                raise ValueError(f"If lower_bound is a sequence it must be of length {dimension}.")
 
-        if type(low_lim) in [list, tuple, np.ndarray]:
-            if len(low_lim) != genotype_size:
-                raise ValueError(f"If low_lim is a sequence it must be of length {genotype_size}.")
-
-            self.low_lim = low_lim
+            self.lower_bound = lower_bound
         else:
-            self.low_lim = np.repeat(low_lim, self.genotype_size)
+            self.lower_bound = np.repeat(lower_bound, self.dimension)
 
-        if type(up_lim) in [list, tuple, np.ndarray]:
-            if len(up_lim) != genotype_size:
-                raise ValueError(f"If up_lim is a sequence it must be of length {genotype_size}.")
+        if type(upper_bound) in [list, tuple, np.ndarray]:
+            if len(upper_bound) != dimension:
+                raise ValueError(f"If upper_bound is a sequence it must be of length {dimension}.")
 
-            self.up_lim = up_lim
+            self.upper_bound = upper_bound
         else:
-            self.up_lim = np.repeat(up_lim, self.genotype_size)
+            self.upper_bound = np.repeat(upper_bound, self.dimension)
 
         self.dtype = dtype
 
     def generate_random(self):
-        new_vector_float = RAND_GEN.uniform(self.low_lim, self.up_lim, size=self.genotype_size)
+        new_vector_float = self.random_state.uniform(self.lower_bound, self.upper_bound, size=self.dimension)
         if self.dtype is int:
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:

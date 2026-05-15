@@ -6,6 +6,6 @@ locations = "noxfile.py"
 
 @nox.session
 def test(session):
-    session.install(".")
-    session.install("pytest", "coverage")
-    session.run("coverage", "run", "--data-file", ".coverage.nox", "--parallel", "-m", "pytest")
+    session.install("-e", ".[test]")
+
+    session.run("pytest", "--cov=metaheuristic_designer", "--cov-report=term-missing", "--cov-report=html", "--continue-on-collection-errors")

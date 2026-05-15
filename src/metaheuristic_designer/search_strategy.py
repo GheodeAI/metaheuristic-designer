@@ -1,56 +1,73 @@
+"""
+Base class for the Search strategy module.
+
+This module implements the procedure applied in each iteration of the algorithm.
+"""
+
 from __future__ import annotations
-from typing import Tuple, Any
-from abc import ABC
-from .param_scheduler import ParamScheduler
-from .selection_methods import (
-    SurvivorSelection,
-    ParentSelection,
-    NullSurvivorSelection,
-    NullParentSelection,
-)
+import logging
+from typing import Tuple, Any, Optional, Callable
+
+from .parent_selection_base import ParentSelection, NullParentSelection, ParentSelectionFromLambda
+from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection, SurvivorSelectionFromLambda
 from .population import Population
 from .initializer import Initializer
 from .objective_function import ObjectiveFunc
-from .operator import Operator, NullOperator
+from .operator import Operator, NullOperator, OperatorFromLambda
+from .parametrizable_mixin import ParametrizableMixin
+from .utils import check_random_state, RNGLike
+from .initializer import InitializerFromLambda
+from .encoding import Encoding, EncodingFromLambda
+
+logger = logging.getLogger(__name__)
 
 
-class SearchStrategy:
-    """
-    Abstract Search Strategy class.
+class SearchStrategy(ParametrizableMixin):
+    """Orchestrates one iteration of an optimisation loop.
 
-    This is the class that defines how the optimization will be carried out.
+    A search strategy holds together an :class:`Initializer`, an
+    :class:`Operator`, a :class:`ParentSelection`, and a
+    :class:`SurvivorSelection`.  Together they define how the
+    population is created, perturbed, and pruned each generation.
+    Subclasses can override any step to implement algorithm-specific
+    logic.
 
     Parameters
     ----------
-    initializer: Initializer
-        Population initializer that will generate the initial population of the search strategy.
-    operator: Operator, optional
-        Operator that will be applied to the population each iteration. Defaults to null operator.
-    parent_sel: ParentSelection, optional
-        Parent selection method that will be applied to the population each iteration. Defaults to returning the entire population.
-    survivor_sel: SurvivorSelection, optional
-        Survivor selection method that will be applied to the population each iteration. Defaults to a generational selection.
-    params: ParamScheduler | dict, optional
-        Dictionary of parameters to define the stopping condition and output of the search strategy.
-    name: str, optional
-        The name that will be displayed for this search strategy in the reports.
+    initializer : Initializer
+        Creates the starting population.
+    operator : Operator, optional
+        The perturbation operator (mutation, crossover, …).
+        Defaults to :class:`NullOperator`.
+    parent_sel : ParentSelection, optional
+        Selects which individuals are used to generate offspring.
+        Defaults to :class:`NullParentSelection`.
+    survivor_sel : SurvivorSelection, optional
+        Selects which individuals survive to the next generation.
+        Defaults to :class:`NullSurvivorSelection`.
+    name : str, optional
+        Display name used in reports.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Additional keyword arguments stored as schedulable
+        parameters.
     """
 
     def __init__(
         self,
-        initializer: Initializer = None,
-        operator: Operator = None,
-        parent_sel: ParentSelection = None,
-        survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
+        initializer: Initializer,
+        operator: Optional[Operator] = None,
+        parent_sel: Optional[ParentSelection] = None,
+        survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "some strategy",
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
     ):
-        """
-        Constructor of the SearchStrategy class
-        """
+        super().__init__()
 
         self.name = name
-        self._initializer = initializer
+        self.initializer = initializer
 
         if operator is None:
             operator = NullOperator()
@@ -65,63 +82,37 @@ class SearchStrategy:
         self.survivor_sel = survivor_sel
 
         self.population = None
-
         self.best = None
-
-        self.param_scheduler = None
-        if params is None:
-            self.params = {}
-        elif isinstance(params, ParamScheduler):
-            self.param_scheduler = params
-            self.params = self.param_scheduler.get_params()
-        else:
-            self.params = params
-
         self.finish = False
-
-        self._find_operator_attributes()
-
-    def _find_operator_attributes(self):
-        """
-        Saves the attributes that represent operators or other relevant information
-        about the search strategy.
-        """
-
-        attr_dict = vars(self).copy()
-
-        self.parent_sel_register = []
-        self.operator_register = []
-        self.survivor_sel_register = []
-
-        for var_key in attr_dict:
-            attr = attr_dict[var_key]
-
-            if attr:
-                # We have a parent selection method
-                if isinstance(attr, ParentSelection):
-                    self.parent_sel_register.append(attr)
-
-                # We have an operator
-                if isinstance(attr, Operator):
-                    self.operator_register.append(attr)
-
-                # We have a survivor selection method
-                if isinstance(attr, SurvivorSelection):
-                    self.survivor_sel_register.append(attr)
-
-                # We have a list of operators
-                if isinstance(attr, list) and isinstance(attr[0], Operator):
-                    self.operator_register += attr
+        self.random_state = check_random_state(random_state)
+        self.store_kwargs(**kwargs)
 
     @property
-    def pop_size(self):
+    def population_size(self) -> int:
         """
-        Gets the amount of inidividuals in the population.
+        Gets the amount of individuals in the population.
         """
 
-        return self._initializer.pop_size
+        return self.initializer.population_size
 
-    def best_solution(self, decoded: bool = False) -> Tuple[Any, float]:
+    def gather_parameters(self):
+        """Collect the current parameters from all sub-components.
+
+        Returns
+        -------
+        dict
+            A flat dictionary with dotted keys like
+            ``"operator.F"``, ``"parent_sel.amount"``, etc.
+        """
+
+        param_dict = {f"{self.parent_sel.name}.{k}": v for k, v in self.parent_sel.gather_params().items()}
+        param_dict.update({f"{self.operator.name}.{k}": v for k, v in self.operator.gather_params().items()})
+        param_dict.update({f"{self.survivor_sel.name}.{k}": v for k, v in self.survivor_sel.gather_params().items()})
+        if self.population is not None:
+            param_dict.update({f"{self.population.encoding.name}.{k}": v for k, v in self.population.encoding.gather_params().items()})
+        return param_dict
+
+    def best_solution(self) -> Tuple[Any, float]:
         """
         Returns the best solution found by the search strategy and its fitness.
 
@@ -131,15 +122,7 @@ class SearchStrategy:
             A pair of the best individual with its fitness.
         """
 
-        return self.population.best_solution(decoded)
-
-    @property
-    def initializer(self):
-        return self._initializer
-
-    @initializer.setter
-    def initializer(self, new_initializer: Initializer):
-        self._initializer = new_initializer
+        return self.population.best_solution()
 
     def initialize(self, objfunc: ObjectiveFunc) -> Population:
         """
@@ -156,12 +139,7 @@ class SearchStrategy:
             The initial population to be used in the algoritm.
         """
 
-        if self._initializer is None:
-            raise ValueError("Initializer not indicated.")
-
-        self.population = self._initializer.generate_population(objfunc)
-
-        return self.population
+        return self.initializer.generate_population(objfunc)
 
     def evaluate_population(self, population: Population, parallel: bool = False, threads: int = 8) -> Population:
         """
@@ -171,7 +149,7 @@ class SearchStrategy:
         ----------
         population: Population
         parallel: bool, optional
-            Wheather to evaluate the individuals in the population in parallel.
+            Whether to evaluate the individuals in the population in parallel.
         threads: int, optional
             Number of processes to use at once if calculating the fitness in parallel.
 
@@ -183,7 +161,7 @@ class SearchStrategy:
 
         return population.calculate_fitness(parallel=parallel, threads=threads)
 
-    def select_parents(self, population: Population, **kwargs) -> Population:
+    def select_parents(self, population: Population, amount: Optional[int] = None) -> Population:
         """
         Selects the individuals that will be perturbed in this generation to generate the offspring.
 
@@ -198,7 +176,8 @@ class SearchStrategy:
             A pair of the list of individuals considered as parents and their position in the original population.
         """
 
-        return self.parent_sel(population)
+        logger.debug("Selected parents...")
+        return self.parent_sel(population, amount=amount)
 
     def perturb(self, parents: Population, **kwargs) -> Population:
         """
@@ -218,11 +197,12 @@ class SearchStrategy:
         offspring = self.operator.evolve(parents, self.initializer)
         offspring = self.repair_population(offspring)
 
+        logger.debug("Applied perturbation operators...")
         return offspring
 
     def repair_population(self, population: Population) -> Population:
         """
-        Repairs the individuals in the population to make them fullfill the problem's restrictions.
+        Repairs the individuals in the population to make them fulfill the problem's restrictions.
 
         Parameters
         ----------
@@ -235,6 +215,7 @@ class SearchStrategy:
             The population of repaired individuals
         """
 
+        logger.debug("Applied hard constraints...")
         return population.repair_solutions()
 
     def select_individuals(self, population: Population, offspring: Population, **kwargs) -> Population:
@@ -254,16 +235,25 @@ class SearchStrategy:
             The list of individuals selected for the next generation.
         """
 
+        logger.debug("Selected survivors...")
         return self.survivor_sel(population, offspring)
 
-    def update_params(self, **kwargs):
-        """
-        Updates the parameters of the search strategy and the operators.
+    def step(self, progress: float):
+        """Update internal parameters and forward progress to sub-components.
+
+        Parameters
+        ----------
+        progress : float
+            Current progress of the algorithm (0-1).
         """
 
-        self.population.update()
+        super().step(progress)
 
-    def get_state(self, show_population: bool = False) -> dict:
+        self.operator.step(progress)
+        self.parent_sel.step(progress)
+        self.survivor_sel.step(progress)
+
+    def get_state(self, store_population: bool = False) -> dict:
         """
         Gets the current state of the search strategy as a dictionary.
 
@@ -278,39 +268,107 @@ class SearchStrategy:
             The complete state of the search strategy.
         """
 
-        data = {"name": self.name, "intializer": type(self.initializer).__name__}
-
-        if self.param_scheduler:
-            data["param_scheduler"] = self.param_scheduler.get_state()
-            data["params"] = self.param_scheduler.get_params()
-        elif self.params:
-            data["params"] = self.params
-
-        if self.parent_sel_register:
-            data["parent_sel"] = [par.get_state() for par in self.parent_sel_register]
-
-        if self.operator_register:
-            data["operators"] = [op.get_state() for op in self.operator_register]
-
-        if self.survivor_sel_register:
-            data["survivor_sel"] = [surv.get_state() for surv in self.survivor_sel_register]
-
-        if show_population:
-            data["population"] = self.population.get_state()
+        data = {
+            "class_name": type(self).__name__,
+            "name": self.name,
+            "random_generator": type(self.random_state).__name__,
+            "random_state": self.random_state.bit_generator.state,
+            "initializer": self.initializer.get_state(),
+            "parent_sel": self.parent_sel.get_state(),
+            "operators": self.operator.get_state(),
+            "survivor_sel": self.survivor_sel.get_state(),
+            "population": self.population.get_state() if store_population else None,
+            **self.get_params(),
+        }
 
         return data
 
     def extra_step_info(self):
-        """
-        Specific information to report relevant to this search strategy each iteration.
-        """
+        """Hook called after each generation (intended for subclasses)."""
 
-    def extra_report(self, show_plots: bool):
-        """
-        Specific information to display relevant to this search strategy at the end of the algorithm.
+    def extra_report(self):
+        """Hook called at the end of the optimisation (intended for subclasses)."""
 
-        Parameters
-        ----------
-        show_plots: bool
-            Display plots specific to this search strategy.
-        """
+
+class SearchStrategyFromLambda(SearchStrategy):
+    """Strategy whose components can be plain functions.
+
+    Accepts each component as either a properly constructed object
+    or a callable; if a callable is provided it is automatically
+    wrapped with the appropriate ``*FromLambda`` class.  This is
+    the simplest way to build a custom strategy in one go.
+
+    Parameters
+    ----------
+    initializer : callable or Initializer
+        Function ``(random_state) -> genotype``, or an initializer
+        instance.
+    operator : callable or Operator, optional
+        Function ``(population, initializer, random_state, **kwargs) -> Population``,
+        or an operator instance.
+    parent_sel : callable or ParentSelection, optional
+        Function ``(population, amount, random_state, **kwargs) -> indices``,
+        or a selection instance.
+    survivor_sel : callable or SurvivorSelection, optional
+        Function ``(parent_fitness, offspring_fitness, random_state, **kwargs) -> indices``,
+        or a selection instance.
+    name : str, optional
+        Display name (default ``"Strategy from lambda"``).
+    encoding : Encoding, optional
+        Encoding that wraps encode/decode; overridden by
+        *encode_fn*/*decode_fn* if both are given.
+    encode_fn / decode_fn : callable, optional
+        Standalone encode/decode functions.
+    parent_selection_amount : int, optional
+        Amount of parents to select (used only when wrapping a
+        callable *parent_sel*).
+    pop_size : int, optional
+        Population size (used only when wrapping a callable
+        *initializer*).  Default 100.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Forwarded to :class:`SearchStrategy`.
+    """
+
+    def __init__(
+        self,
+        initializer: Callable | Initializer,
+        operator: Optional[Callable | Operator] = None,
+        parent_sel: Optional[Callable | ParentSelection] = None,
+        survivor_sel: Optional[Callable | SurvivorSelection] = None,
+        name: str = "Strategy from lambda",
+        encoding: Optional[Encoding] = None,
+        encode_fn: Optional[Callable] = None,
+        decode_fn: Optional[Callable] = None,
+        parent_selection_amount: Optional[int] = None,
+        pop_size: int = 100,
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
+    ):
+        if encoding is None and callable(encode_fn) and callable(decode_fn):
+            encoding = EncodingFromLambda(encode_fn=encode_fn, decode_fn=decode_fn)
+
+        if callable(initializer):
+            initializer = InitializerFromLambda(initializer, pop_size=pop_size, encoding=encoding, random_state=random_state)
+
+        if callable(parent_sel):
+            if parent_selection_amount is None:
+                parent_selection_amount = initializer.population_size
+            parent_sel = ParentSelectionFromLambda(selection_fn=parent_sel, amount=parent_selection_amount, random_state=random_state)
+
+        if callable(operator):
+            operator = OperatorFromLambda(operator_fn=operator, encoding=encoding, random_state=random_state)
+
+        if callable(survivor_sel):
+            survivor_sel = SurvivorSelectionFromLambda(selection_fn=survivor_sel, random_state=random_state)
+
+        super().__init__(
+            initializer=initializer,
+            operator=operator,
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
+            name=name,
+            random_state=random_state,
+            **kwargs,
+        )

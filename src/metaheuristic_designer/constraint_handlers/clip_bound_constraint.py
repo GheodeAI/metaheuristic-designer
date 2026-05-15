@@ -1,27 +1,33 @@
 from __future__ import annotations
 import numpy as np
-from numpy import ndarray
-from ..constraint_handler import RepareConstraint
+from ..constraint_handler import RepairConstraint
+from ..utils import MatrixLike, ScalarLike, VectorLike
 
 
-class ClipBoundConstraint(RepareConstraint):
+class ClipBoundConstraint(RepairConstraint):
     """
     Encodes a bound constraint by clipping solutions to the nearest point in the boundary.
 
     Parameters
     ----------
-    vecsize: int
+    dimension: int
         size of the input vector (decoded).
-    low_lim: float | ndarray, optional
+    lower_bound: float | ndarray, optional
         lower limit of the bounds.
-    up_lim: float | ndarray, optional
+    upper_bound: float | ndarray, optional
         upper limit of the bounds.
     """
 
-    def __init__(self, vecsize, low_lim: float = -100, up_lim: float = 100):
-        self.vecsize = vecsize
-        self.low_lim = low_lim
-        self.up_lim = up_lim
+    def __init__(self, dimension, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100, **kwargs):
+        self.dimension = dimension
+        self.lower_bound = np.asarray(lower_bound)
+        self.upper_bound = np.asarray(upper_bound)
+        super().__init__(**kwargs)
 
-    def repair_solution(self, vector: ndarray) -> ndarray:
-        return np.clip(vector, self.low_lim, self.up_lim)
+    def repair_solution(self, population_matrix: MatrixLike) -> MatrixLike:
+        if np.all(self.upper_bound == self.lower_bound):
+            if self.upper_bound.ndim == 0:
+                return np.full_like(population_matrix, self.upper_bound)
+            return np.tile(self.upper_bound, (population_matrix.shape[0], 1))
+
+        return np.clip(population_matrix, self.lower_bound, self.upper_bound)

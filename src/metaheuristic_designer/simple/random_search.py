@@ -1,129 +1,108 @@
+"""
+Ready-to-run Random Search wrappers.
+"""
+
 from __future__ import annotations
-from ..objective_function import VectorObjectiveFunc
-from ..algorithm import Algorithm
+from typing import Optional
+import numpy as np
+
+from metaheuristic_designer.encoding import Encoding
+from metaheuristic_designer.objective_function import ObjectiveFunc
 from ..initializers import UniformInitializer, PermInitializer
 from ..encodings import TypeCastEncoding
 from ..strategies import RandomSearch
-from ..algorithms import GeneralAlgorithm
+from ..algorithms import Algorithm
+from ..utils import RNGLike, check_random_state
 
 
-def random_search(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
-    """
-    Instantiates a random search algorithm to optimize the given objective function.
+def random_search_binary(objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs) -> Algorithm:
+    """Random Search for binary-coded vectors.
 
     Parameters
     ----------
-    objfunc: ObjectiveFunc
-        Objective function to be optimized.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters of the algorithm.
-
-    Returns
-    -------
-    algorithm: Algorithm
-        Configured optimization algorithm.
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    encoding : Encoding, optional
+        Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
-    if "encoding" not in params:
-        raise ValueError('You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
-
-    encoding_str = params["encoding"]
-
-    if encoding_str.lower() == "bin":
-        alg = _random_search_bin_vec(params, objfunc)
-    elif encoding_str.lower() == "int":
-        alg = _random_search_int_vec(params, objfunc)
-    elif encoding_str.lower() == "perm":
-        alg = _random_search_perm_vec(params, objfunc)
-    elif encoding_str.lower() == "real":
-        alg = _random_search_real_vec(params, objfunc)
-    else:
-        raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real", "int" or "bin"')
-
-    return alg
+    random_state = check_random_state(random_state)
+    encoding = TypeCastEncoding(int, bool) if encoding is None else encoding
+    pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, population_size=1, dtype=np.uint8, encoding=encoding, random_state=random_state)
+    search_strat = RandomSearch(pop_initializer, random_state=random_state)
+    return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def _random_search_bin_vec(params, objfunc):
-    """
-    Instantiates a random search algorithm to optimize the given objective function.
-    This objective function should accept binary coded vectors.
-    """
+def random_search_permutation(
+    objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs
+) -> Algorithm:
+    """Random Search for permutation-coded vectors.
 
-    pop_size = params.get("pop_size", 100)
-
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-
-    encoding = TypeCastEncoding(int, bool)
-
-    pop_initializer = UniformInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
-
-    search_strat = RandomSearch(pop_initializer)
-
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
-
-
-def _random_search_perm_vec(params, objfunc):
-    """
-    Instantiates a random search algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
-    pop_size = params.get("pop_size", 100)
-
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-
-    pop_initializer = PermInitializer(vecsize, pop_size=pop_size)
-
-    search_strat = RandomSearch(pop_initializer)
-
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    random_state = check_random_state(random_state)
+    pop_initializer = PermInitializer(objfunc.dimension, population_size=1, encoding=encoding, random_state=random_state)
+    search_strat = RandomSearch(pop_initializer, random_state=random_state)
+    return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def _random_search_int_vec(params, objfunc):
-    """
-    Instantiates a random search algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
-    """
+def random_search_discrete(
+    objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs
+) -> Algorithm:
+    """Random Search for integer-coded vectors.
 
-    pop_size = params.get("pop_size", 100)
-
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
-
-    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=int)
-
-    search_strat = RandomSearch(pop_initializer)
-
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
-
-
-def _random_search_real_vec(params, objfunc):
-    """
-    Instantiates a random search algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
-    pop_size = params.get("pop_size", 100)
+    random_state = check_random_state(random_state)
+    pop_initializer = UniformInitializer(
+        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, dtype=int, encoding=encoding, random_state=random_state
+    )
+    search_strat = RandomSearch(pop_initializer, random_state=random_state)
+    return Algorithm(objfunc, search_strat, **kwargs)
 
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
 
-    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
+def random_search_real(objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs) -> Algorithm:
+    """Random Search for real-coded vectors.
 
-    search_strat = RandomSearch(pop_initializer)
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
+    """
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    random_state = check_random_state(random_state)
+    pop_initializer = UniformInitializer(
+        objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, dtype=float, encoding=encoding, random_state=random_state
+    )
+    search_strat = RandomSearch(pop_initializer, random_state=random_state)
+    return Algorithm(objfunc, search_strat, **kwargs)

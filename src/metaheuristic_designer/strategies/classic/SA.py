@@ -1,65 +1,104 @@
+"""
+Simulated Annealing strategy.
+"""
+
 from __future__ import annotations
+from typing import Optional
 import numpy as np
 from ...initializer import Initializer
-from ...param_scheduler import ParamScheduler
-from ...selection_methods import SurvivorSelection
+from ...survivor_selection import create_survivor_selection
 from ...operator import Operator
 from ..hill_climb import HillClimb
+from ...schedulable_parameter import SchedulableParameter
+from ...utils import check_random_state, RNGLike
 
 
 class SA(HillClimb):
     """
-    Simulated annealing
+    Simulated Annealing algorithm.
+
+    A single solution is perturbed each iteration.  The new solution
+    is accepted if it is better, or probabilistically if it is worse,
+    according to an exponentially decaying temperature schedule.
+
+    .. warning::
+       The current handling of the annealing schedule is tightly
+       coupled to the strategy.  The survivor selection should be
+       refactored to manage its own temperature and acceptance
+       logic independently.
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer (usually creates a single individual).
+    operator : Operator
+        Perturbation operator.
+    name : str, optional
+        Display name (default ``"SA"``).
+    iterations : int or SchedulableParameter, optional
+        Number of iterations at constant temperature (default 100).
+    temperature_init : float or SchedulableParameter, optional
+        Starting temperature (default 100).
+    alpha : float or SchedulableParameter, optional
+        Cooling factor (default 0.99).
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Forwarded to :class:`HillClimb`.
     """
 
     def __init__(
         self,
         initializer: Initializer,
         operator: Operator,
-        params: ParamScheduler | dict = None,
         name: str = "SA",
+        iterations: int | SchedulableParameter = 100,
+        temperature_init: float | SchedulableParameter = 100,
+        alpha: float | SchedulableParameter = 0.99,
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
     ):
-        if params is None:
-            params = {}
 
-        self.iter = params.get("iter", 100)
+        # We need to do the check earlier since it will be injected into the survivor selection
+        # and we want everything to share the random state if possible.
+        random_state = check_random_state(random_state)
+
+        # We can't access temperature_init yet, it could be a SchedulableParameter,
+        # we fix the p after the constructor.
+        survivor_sel = create_survivor_selection("probabilistic_hillclimb", p=None, random_state=random_state)
+
         self.iter_count = 0
-        self.temp_init = params.get("temp_init", 100)
-        self.temp = self.temp_init
-        self.alpha = params.get("alpha", 0.99)
-
-        survivor_sel = SurvivorSelection("ProbHillClimb", {"p": np.exp(-1 / self.temp_init)})
-
         super().__init__(
             initializer,
             operator=operator,
             survivor_sel=survivor_sel,
-            params=params,
             name=name,
+            random_state=random_state,
+            # Forced kwargs
+            iterations=iterations,
+            temperature_init=temperature_init,
+            alpha=alpha,
+            **kwargs,
         )
 
-    def update_params(self, **kwargs):
-        super().update_params(**kwargs)
+        self.temperature = self.params.temperature_init
+        survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
 
-        progress = kwargs["progress"]
-
-        if isinstance(self.operator, Operator):
-            self.operator.step(progress)
-
-        if self.param_scheduler:
-            self.param_scheduler.step(progress)
-            self.params = self.param_scheduler.get_params()
-            self.iter = round(self.params["iter"])
-            self.alpha = self.params["alpha"]
+    def step(self, progress):
+        super().step(progress=progress)
 
         self.iter_count += 1
-        if self.iter_count > self.iter:
-            self.temp = self.temp * self.alpha
-            self.survivor_sel.params["p"] = np.exp(-1 / self.temp)
+        if self.iter_count > self.params.iterations:
+            self.temperature *= self.params.alpha
             self.iter_count = 0
+            self.survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
 
     def extra_step_info(self):
+        """
+        Diplays temperature values and acceptance probability.
+        """
+
         print()
-        print(f"\tTemp iters: {self.iter_count}/{self.iter}")
-        print(f"\tTemperature: {float(self.temp):0.3}")
-        print(f"\tAccept prob: {np.exp(-1 / self.temp):0.3}")
+        print(f"\tTemp iters: {self.iter_count}/{self.params.iterations}")
+        print(f"\tTemperature: {self.temperature:0.4f}")
+        print(f"\tAccept prob: {np.exp(-1 / self.temperature):0.4f}")

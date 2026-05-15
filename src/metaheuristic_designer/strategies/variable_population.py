@@ -1,70 +1,134 @@
+"""
+Strategy where offspring size differs from population size (μ+λ / μ,λ style).
+"""
+
 from __future__ import annotations
+import logging
+from typing import Optional
 from ..population import Population
 from ..initializer import Initializer
-from ..param_scheduler import ParamScheduler
-from ..selection_methods import SurvivorSelection, ParentSelection
+from ..parent_selection_base import ParentSelection
+from ..survivor_selection_base import SurvivorSelection
+from ..parent_selection import create_parent_selection
 from ..search_strategy import SearchStrategy
 from ..operator import Operator
+from ..utils import check_random_state, RNGLike
+from ..schedulable_parameter import SchedulableParameter
+
+logger = logging.getLogger(__name__)
 
 
 class VariablePopulation(SearchStrategy):
     """
-    Population-based optimization strategy where the number of individuals generated is different from the size of the population
+    Population-based strategy with separate parent and offspring sizes.
+
+    This is the base for (μ+λ) and (μ,λ) Evolution Strategies, GAs
+    with elitism, and similar algorithms.  The number of parents
+    selected and the number of offspring generated can be configured
+    independently.
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    operator : Operator
+        Perturbation operator.
+    parent_sel : ParentSelection, optional
+        Parent selection method.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method.
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring to generate.  Defaults to the
+        initializer's population size.
+    shuffle_with_replacement : bool, optional
+        If ``True``, shuffle the parent pool with replacement;
+        otherwise without replacement (default ``False``).
+    name : str, optional
+        Display name.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Forwarded to :class:`SearchStrategy`.
     """
 
     def __init__(
         self,
         initializer: Initializer,
         operator: Operator,
-        parent_sel: ParentSelection = None,
-        survivor_sel: SurvivorSelection = None,
-        n_offspring: int = None,
-        params: ParamScheduler | dict = None,
+        parent_sel: Optional[ParentSelection] = None,
+        survivor_sel: Optional[SurvivorSelection] = None,
+        offspring_size: Optional[int | SchedulableParameter] = None,
+        shuffle_with_replacement: bool = False,
         name: str = "Variable Population Evolution",
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
     ):
-        self.params = params
+        # We need to set up the random state beforehand to handle the initializer correctly
+        self.random_state = check_random_state(random_state)
 
-        if n_offspring is None and initializer is not None:
-            n_offspring = initializer.pop_size
-        self.n_offspring = n_offspring
+        self.using_custom_offspring_size = offspring_size is not None
 
-        self.population_shuffler = ParentSelection("Random", {"amount": self.n_offspring})
+        if offspring_size is None:
+            offspring_size = initializer.population_size
+        self.offspring_size = offspring_size
+
+        self.shuffle_with_replacement = shuffle_with_replacement
 
         super().__init__(
             initializer,
             operator=operator,
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            params=params,
             name=name,
+            random_state=random_state,
+            # Forced kwargs
+            offspring_size=offspring_size,
+            **kwargs,
         )
 
     @property
-    def initializer(self):
+    def initializer(self) -> Initializer:
         return self._initializer
 
     @initializer.setter
-    def initializer(self, new_initializer):
-        self.n_offspring = new_initializer.pop_size
-        self.population_shuffler = ParentSelection("Random", {"amount": self.n_offspring})
+    def initializer(self, new_initializer: Initializer):
+        """Update the offspring size and shuffler when the initializer changes.
+
+        Parameters
+        ----------
+        new_initializer : Initializer
+            The new initializer.
+        """
+
+        if not self.using_custom_offspring_size:
+            self.update_kwargs(offspring_size=new_initializer.population_size)
+
+        if hasattr(self.params, "offspring_size"):
+            offspring_size = self.params.offspring_size
+        else:
+            offspring_size = self.offspring_size
+
+        if self.shuffle_with_replacement:
+            self.population_shuffler = create_parent_selection("random_with_replacement", amount=offspring_size, random_state=self.random_state)
+        else:
+            self.population_shuffler = create_parent_selection("random_without_replacement", amount=offspring_size, random_state=self.random_state)
+
         self._initializer = new_initializer
 
-    def select_parents(self, population: Population, **kwargs) -> Population:
-        next_population = self.parent_sel(population)
+    def select_parents(self, population: Population) -> Population:
+        """Select parents, then optionally shuffle the pool.
+
+        Parameters
+        ----------
+        population : Population
+            Current population.
+
+        Returns
+        -------
+        Population
+            The (possibly shuffled) selected parents.
+        """
+
+        next_population = super().select_parents(population)
         next_population = self.population_shuffler(next_population)
         return next_population
-
-    def update_params(self, **kwargs):
-        super().update_params(**kwargs)
-
-        progress = kwargs["progress"]
-
-        if isinstance(self.operator, Operator):
-            self.operator.step(progress)
-
-        if isinstance(self.survivor_sel, SurvivorSelection):
-            self.survivor_sel.step(progress)
-
-        if self.param_scheduler:
-            self.param_scheduler.step(progress)
-            self.params = self.param_scheduler.get_params()

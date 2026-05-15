@@ -1,17 +1,51 @@
+"""
+Population-Based Incremental Learning (PBIL) strategies.
+"""
+
 from __future__ import annotations
+from typing import Optional
 import numpy as np
-from ...operators import VectorOperator
-from ...selection_methods import ParentSelection, SurvivorSelection
+from ...operators import create_operator
+from ...parent_selection_base import ParentSelection
+from ...survivor_selection_base import SurvivorSelection
 from ...initializer import Initializer
-from ...param_scheduler import ParamScheduler
 from ..variable_population import VariablePopulation
-from ...utils import RAND_GEN
+from ...schedulable_parameter import SchedulableParameter
+from ...utils import check_random_state
 
 
 class BernoulliPBIL(VariablePopulation):
     """
-    Estimation of distribution algorithm for binary vectors.
-    https://doi.org/10.1016/j.swevo.2011.08.003
+    PBIL for binary vectors using a Bernoulli distribution.
+
+    The probability vector *p* is updated each generation with a
+    learning rate and optional Gaussian noise, then a new population
+    is sampled.
+
+    Reference: https://doi.org/10.1016/j.swevo.2011.08.003
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    parent_sel : ParentSelection, optional
+        Parent selection method.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method.
+    name : str, optional
+        Display name (default ``"BernoulliPBIL"``).
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring per generation.
+    random_state : RNGLike, optional
+        Random number generator.
+    p : array-like, optional
+        Initial probability vector.  Defaults to uniform over [0,1].
+    lr : float, optional
+        Learning rate for updating *p* (default 1e-3).
+    noise : float, optional
+        Standard deviation of Gaussian noise added to *p* (default 0).
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(
@@ -19,28 +53,26 @@ class BernoulliPBIL(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
         name: str = "BernoulliPBIL",
+        offspring_size: Optional[int | SchedulableParameter] = None,
+        random_state=None,
+        p=None,
+        lr=1e-3,
+        noise=0,
+        **kwargs,
     ):
-        if params is None:
-            params = {}
-
-        self.p = params.get("p", None)
-
-        evolve_op = VectorOperator("RandSample", {"distrib": "bernoulli", "p": self.p})
-        offspring_size = params.get("offspringSize", initializer.pop_size)
-
-        self.lr = params.get("lr")
-        self.noise = params.get("noise", 0)
+        self.random_state = check_random_state(random_state)
 
         super().__init__(
             initializer,
-            evolve_op,
+            operator=create_operator("full_resampling", distribution="bernoulli", p=p, random_state=random_state),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
-            params=params,
+            offspring_size=offspring_size,
             name=name,
+            lr=lr,
+            noise=noise,
+            **kwargs,
         )
 
     def _batch_fit(self, population):
@@ -50,23 +82,49 @@ class BernoulliPBIL(VariablePopulation):
         return p_hat
 
     def perturb(self, parents, **kwargs):
-        new_p = self._batch_fit(parents)
-        if self.p is not None:
-            self.p = (1 - self.lr) * self.p + self.lr * new_p
-            self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
-            self.p = np.clip(self.p, 0, 1)
-        else:
-            self.p = new_p
+        old_p = self.operator.params.p
 
-        self.operator = VectorOperator("RandSample", {"distrib": "bernoulli", "p": self.p})
+        new_p = self._batch_fit(parents)
+        if old_p is not None:
+            new_p = (1 - self.params.lr) * old_p + self.params.lr * new_p
+            new_p += self.random_state.normal(0, self.params.noise, size=np.asarray(old_p).shape)
+            new_p = np.clip(new_p, 0, 1)
+
+        self.operator.update_kwargs(p=new_p)
 
         return super().perturb(parents, **kwargs)
 
 
 class BinomialPBIL(VariablePopulation):
     """
-    Estimation of distribution algorithm for binary vectors.
-    https://doi.org/10.1016/j.swevo.2011.08.003
+    PBIL for discrete vectors using a Binomial distribution.
+
+    Reference: https://doi.org/10.1016/j.swevo.2011.08.003
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    parent_sel : ParentSelection, optional
+        Parent selection method.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method.
+    name : str, optional
+        Display name (default ``"BinomialPBIL"``).
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring per generation.
+    random_state : RNGLike, optional
+        Random number generator.
+    p : float or array-like, optional
+        Initial success probability (default 0.5).
+    n : int or array-like
+        Number of trials. **Must be provided**; there is no default.
+    lr : float, optional
+        Learning rate (default 1e-3).
+    noise : float, optional
+        Gaussian noise standard deviation (default 0).
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(
@@ -74,61 +132,89 @@ class BinomialPBIL(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
         name: str = "BernoulliPBIL",
+        offspring_size: Optional[int | SchedulableParameter] = None,
+        random_state=None,
+        p=0.5,
+        n=None,
+        lr=1e-3,
+        noise=0,
+        **kwargs,
     ):
-        if params is None:
-            params = {}
+        self.random_state = check_random_state(random_state)
 
-        self.p = params.get("p", None)
-
-        if "n" not in params:
-            raise Exception("A parameter 'n' must be specified which indicates the maximum value of the Binomial distribution.")
-
-        self.n = params["n"]
-
-        evolve_op = VectorOperator("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
-        self.prob_vec_mutate = evolve_op
-
-        offspring_size = params.get("offspringSize", initializer.pop_size)
-
-        self.lr = params.get("lr")
-        self.noise = params.get("noise", 0)
+        if n is None:
+            raise ValueError("You must specify the value for the parameters `n`, usually it will be the number of possible categorical values.")
 
         super().__init__(
             initializer,
-            evolve_op,
+            operator=create_operator("full_resampling", distribution="Binomial", p=np.asarray(p), n=np.asarray(n), random_state=random_state),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
-            params=params,
+            offspring_size=offspring_size,
             name=name,
+            # Forced kwargs
+            noise=noise,
+            lr=lr,
+            **kwargs,
         )
 
     def _batch_fit(self, population):
+        n = self.operator.params.n
         population_matrix = population.genotype_matrix
-        p_hat = population_matrix.sum(axis=0) / (self.n * population_matrix.shape[0])
+        p_hat = population_matrix.sum(axis=0) / (n * population_matrix.shape[0])
 
         return p_hat
 
     def perturb(self, parents, **kwargs):
-        new_p = self._batch_fit(parents)
-        if self.p is not None:
-            self.p = (1 - self.lr) * self.p + self.lr * new_p
-            self.p += RAND_GEN.normal(0, self.noise, size=self.p.shape)
-            self.p = np.clip(self.p, 0, 1)
-        else:
-            self.p = new_p
+        old_p = self.operator.params.p
 
-        self.operator = VectorOperator("RandSample", {"distrib": "Bernoulli", "p": self.p, "n": self.n})
+        new_p = self._batch_fit(parents)
+        if old_p is not None:
+            new_p = (1 - self.params.lr) * old_p + self.params.lr * new_p
+            new_p += self.random_state.normal(0, self.params.noise, size=old_p.shape)
+            new_p = np.clip(new_p, 0, 1)
+
+        self.operator.update_kwargs(p=new_p)
 
         return super().perturb(parents, **kwargs)
 
 
 class GaussianPBIL(VariablePopulation):
     """
-    Estimation of distribution algorithm for binary vectors.
-    https://doi.org/10.1016/j.swevo.2011.08.003
+    PBIL for continuous vectors using a Gaussian distribution.
+
+    The location vector *loc* is updated each generation with a
+    learning rate and optional Gaussian noise, then a new population
+    is sampled.
+
+    Reference: https://doi.org/10.1016/j.swevo.2011.08.003
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    parent_sel : ParentSelection, optional
+        Parent selection method.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method.
+    name : str, optional
+        Display name (default ``"GaussianPBIL"``).
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring per generation.
+    random_state : RNGLike, optional
+        Random number generator.
+    loc : array-like, optional
+        Initial mean vector (default ``None``; the operator uses a
+        fallback).
+    scale : float or array-like, optional
+        Standard deviation (default 1).
+    lr : float, optional
+        Learning rate (default 1e-3).
+    noise : float, optional
+        Gaussian noise standard deviation added to *loc* (default 0).
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(
@@ -136,29 +222,28 @@ class GaussianPBIL(VariablePopulation):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         survivor_sel: SurvivorSelection = None,
-        params: ParamScheduler | dict = None,
         name: str = "GaussianPBIL",
+        offspring_size: Optional[int | SchedulableParameter] = None,
+        random_state=None,
+        loc=None,
+        scale=1,
+        lr=1e-3,
+        noise=0,
+        **kwargs,
     ):
-        if params is None:
-            params = {}
-
-        self.loc = params.get("loc", None)
-        self.scale = params.get("scale", 1)
-
-        evolve_op = VectorOperator("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
-        offspring_size = params.get("offspringSize", initializer.pop_size)
-
-        self.lr = params.get("lr")
-        self.noise = params.get("noise", 0)
+        self.random_state = check_random_state(random_state)
 
         super().__init__(
             initializer,
-            evolve_op,
+            operator=create_operator("full_resampling", distribution="gaussian", loc=loc, scale=np.asarray(scale)),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
-            n_offspring=offspring_size,
-            params=params,
+            offspring_size=offspring_size,
             name=name,
+            # Forced kwargs
+            lr=lr,
+            noise=noise,
+            **kwargs,
         )
 
     def _batch_fit(self, population):
@@ -168,13 +253,13 @@ class GaussianPBIL(VariablePopulation):
         return loc_hat
 
     def perturb(self, parents, **kwargs):
-        new_loc = self._batch_fit(parents)
-        if self.loc is not None:
-            self.loc = (1 - self.lr) * self.loc + self.lr * new_loc
-            self.loc += RAND_GEN.normal(0, self.noise, size=self.loc.shape)
-        else:
-            self.loc = new_loc
+        old_loc = self.operator.params.loc
 
-        self.operator = VectorOperator("RandSample", {"distrib": "Gaussian", "loc": self.loc, "scale": self.scale})
+        new_loc = self._batch_fit(parents)
+        if old_loc is not None:
+            new_loc = (1 - self.params.lr) * old_loc + self.params.lr * new_loc
+            new_loc += self.random_state.normal(0, self.params.noise, size=old_loc.shape)
+
+        self.operator.update_kwargs(loc=new_loc)
 
         return super().perturb(parents, **kwargs)

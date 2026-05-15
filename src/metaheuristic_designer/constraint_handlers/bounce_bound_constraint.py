@@ -1,11 +1,11 @@
 from __future__ import annotations
 from copy import copy
 import numpy as np
-from numpy import ndarray
-from ..constraint_handler import RepareConstraint
+from ..constraint_handler import RepairConstraint
+from ..utils import MatrixLike, ScalarLike, VectorLike
 
 
-class BounceBoundConstraint(RepareConstraint):
+class BounceBoundConstraint(RepairConstraint):
     """
     Encodes a bound constraint by bouncing through the bounds, substracting the leftover part of the vector
     that lies outisde the bounds. If the substraction still lies outside the bounds, the leftover part is added,
@@ -13,30 +13,33 @@ class BounceBoundConstraint(RepareConstraint):
 
     Parameters
     ----------
-    vecsize: int
+    dimension: int
         size of the input vector (decoded).
-    low_lim: float | ndarray, optional
+    lower_bound: float | ndarray, optional
         lower limit of the bounds.
-    up_lim: float | ndarray, optional
+    upper_bound: float | ndarray, optional
         upper limit of the bounds.
     """
 
-    def __init__(self, vecsize, low_lim: float = -100, up_lim: float = 100):
-        self.vecsize = vecsize
-        self.low_lim = low_lim
-        self.up_lim = up_lim
-        self.range_lim = up_lim - low_lim
+    def __init__(self, dimension, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100, **kwargs):
+        self.dimension = dimension
+        self.lower_bound = np.asarray(lower_bound)
+        self.upper_bound = np.asarray(upper_bound)
+        self.range_lim = self.upper_bound - self.lower_bound
+        super().__init__(**kwargs)
 
-    def repair_solution(self, vector: ndarray) -> ndarray:
-        if np.all(self.up_lim == self.low_lim):
-            return self.up_lim
+    def repair_solution(self, population_matrix: MatrixLike) -> MatrixLike:
+        if np.all(self.upper_bound == self.lower_bound):
+            if self.upper_bound.ndim == 0:
+                return np.full_like(population_matrix, self.upper_bound)
+            return np.tile(self.upper_bound, (population_matrix.shape[0], 1))
 
-        shifted_vector = vector - self.low_lim
+        shifted_vector = population_matrix - self.lower_bound
         bounce_times = np.floor_divide(shifted_vector, self.range_lim)
-        fixed_solution = np.mod((-1.0) ** bounce_times * shifted_vector, self.range_lim) + self.low_lim
+        fixed_solution = np.mod((-1.0) ** bounce_times * shifted_vector, self.range_lim) + self.lower_bound
 
-        ouside_bound_mask = (vector < self.low_lim) | (vector > self.up_lim)
-        vector = copy(vector)
-        vector[ouside_bound_mask] = fixed_solution[ouside_bound_mask]
+        ouside_bound_mask = (population_matrix < self.lower_bound) | (population_matrix > self.upper_bound)
+        population_matrix = copy(population_matrix)
+        population_matrix[ouside_bound_mask] = fixed_solution[ouside_bound_mask]
 
-        return vector
+        return population_matrix

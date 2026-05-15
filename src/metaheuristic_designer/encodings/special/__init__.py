@@ -1,3 +1,8 @@
-from .CMA_encoding import CMAEncoding
+"""
+Specialized encodings for specific algorithms (PSO, self-adapting ES).
+"""
+
 from .PSO_encoding import PSOEncoding
-from .GWO_encoding import GWOEncoding
+from .self_adapting_ES_encoding import SelfAdaptingESEncoding
+
+__all__ = ["PSOEncoding", "SelfAdaptingESEncoding"]

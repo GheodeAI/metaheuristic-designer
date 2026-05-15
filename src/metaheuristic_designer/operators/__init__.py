@@ -1,8 +1,34 @@
-from .vector_operator import VectorOperator, VectorOpMethods, vector_ops_map
-from .swarm_operator import SwarmOperator, SwarmOpMethods, swarm_ops_map
-from .perm_operator import PermOperator, PermOpMethods, perm_ops_map
-from .meta_operator import MetaOperator, MetaOpMethods, meta_ops_map
-from .BO_operator import BOOperator
-from .adaptative_operator import AdaptativeOperator
+"""
+Operator interfaces and base implementations.
+"""
+
+from ..operator import Operator, OperatorFromLambda, NullOperator
+
+from .composite_operator import CompositeOperator
+from .branch_operator import BranchOperator, BranchOpMethods, branch_ops_map
+from .masked_operator import MaskedOperator
 from .extended_operator import ExtendedOperator
+from .adaptive_operator import AdaptiveOperator
+from .BO_operator import BOOperator
+
 from .operator_functions import *
+from . import operator_functions
+
+from .factories import *
+from . import factories
+
+__all__ = [
+    "NullOperator",
+    "Operator",
+    "OperatorFromLambda",
+    "AdaptiveOperator",
+    "BOOperator",
+    "BranchOpMethods",
+    "BranchOperator",
+    "CompositeOperator",
+    "ExtendedOperator",
+    "MaskedOperator",
+    "branch_ops_map",
+    *operator_functions.__all__,
+    *factories.__all__,
+]

@@ -1,207 +1,220 @@
+"""
+Ready-to-run Genetic Algorithm wrappers.
+"""
+
 from __future__ import annotations
-from ..objective_function import VectorObjectiveFunc
+from typing import Optional
+import numpy as np
+
+from ..encoding import Encoding
+from ..objective_function import ObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer, PermInitializer
-from ..operators import VectorOperator, PermOperator
-from ..selection_methods import SurvivorSelection, ParentSelection
+from ..operators import create_operator
+from ..parent_selection import create_parent_selection
+from ..survivor_selection import create_survivor_selection
 from ..encodings import TypeCastEncoding
 from ..strategies import GA
-from ..algorithms import GeneralAlgorithm
+from ..utils import RNGLike, check_random_state
 
 
-def genetic_algorithm(params: dict, objfunc: VectorObjectiveFunc = None) -> Algorithm:
-    """
-    Instantiates a genetic algorithm to optimize the given objective function.
+def genetic_algorithm_binary(
+    objfunc: ObjectiveFunc,
+    mutated_bits: int = 1,
+    population_size: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Genetic Algorithm for binary-coded vectors.
 
     Parameters
     ----------
-    objfunc: ObjectiveFunc
-        Objective function to be optimized.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters of the algorithm.
-
-    Returns
-    -------
-    algorithm: Algorithm
-        Configured optimization algorithm.
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    mutated_bits : int, optional
+        Number of bits flipped per mutation (default 1).
+    population_size : int, optional
+        Population size (default 100).
+    encoding : Encoding, optional
+        Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
-    if "encoding" not in params:
-        raise ValueError('You must specify the encoding in the params structure, the options are "real", "int" and "bin"')
-
-    encoding_str = params["encoding"]
-
-    if encoding_str.lower() == "bin":
-        alg = _genetic_algorithm_bin_vec(params, objfunc)
-    elif encoding_str.lower() == "int":
-        alg = _genetic_algorithm_int_vec(params, objfunc)
-    elif encoding_str.lower() == "perm":
-        alg = _genetic_algorithm_perm_vec(params, objfunc)
-    elif encoding_str.lower() == "real":
-        alg = _genetic_algorithm_real_vec(params, objfunc)
-    else:
-        raise ValueError(f'The encoding "{encoding_str}" does not exist, try "real", "int", "perm" or "bin"')
-
-    return alg
-
-
-def _genetic_algorithm_bin_vec(params, objfunc):
-    """
-    Instantiates a genetic algorithm to optimize the given objective function.
-    This objective function should accept binary coded vectors.
-    """
-
-    pop_size = params.get("pop_size", 100)
-    n_parents = params.get("n_parents", 20)
-    cross_method = params.get("cross", "Multipoint")
-    pcross = params.get("pcross", 0.8)
-    pmut = params.get("pmut", 0.1)
-    mutstr = params.get("mutstr", 1)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-
-    encoding = TypeCastEncoding(int, bool)
-
-    pop_initializer = UniformInitializer(vecsize, 0, 1, pop_size=pop_size, dtype=int, encoding=encoding)
-
-    cross_op = VectorOperator(cross_method)
-    mutation_op = VectorOperator("Flip", {"N": mutstr})
-
-    parent_sel_op = ParentSelection("Best", {"amount": n_parents})
-    selection_op = SurvivorSelection("KeepBest")
-
+    random_state = check_random_state(random_state)
+    encoding = TypeCastEncoding(int, bool) if encoding is None else encoding
+    pop_initializer = UniformInitializer(
+        objfunc.dimension, 0, 1, population_size=population_size, dtype=np.uint8, encoding=encoding, random_state=random_state
+    )
+    mutation_op = create_operator("mutation.bitflip", N=mutated_bits, random_state=random_state)
+    crossover_op = create_operator("crossover.multipoint", random_state=random_state)
+    parent_sel = create_parent_selection("tournament", amount=20, random_state=random_state)
+    survivor_sel = create_survivor_selection("elitism", amount=10, random_state=random_state)
     search_strat = GA(
         pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
+        mutation_op=mutation_op,
+        crossover_op=crossover_op,
+        parent_sel=parent_sel,
+        survivor_sel=survivor_sel,
+        mutation_prob=0.1,
+        crossover_prob=0.8,
+        random_state=random_state,
     )
+    return Algorithm(objfunc, search_strat, **kwargs)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
+def genetic_algorithm_permutation(
+    objfunc: ObjectiveFunc,
+    swapped_positions: int = 2,
+    population_size: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Genetic Algorithm for permutation-coded vectors.
 
-def _genetic_algorithm_int_vec(params, objfunc):
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    swapped_positions : int, optional
+        Number of positions swapped per mutation (default 2).
+    population_size : int, optional
+        Population size (default 100).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
-    Instantiates a genetic algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
-    """
 
-    pop_size = params.get("pop_size", 100)
-    n_parents = params.get("n_parents", 20)
-    cross_method = params.get("cross", "Multipoint")
-    pcross = params.get("pcross", 0.8)
-    pmut = params.get("pmut", 0.1)
-    mutstr = params.get("mutstr", 1)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
-
-    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=int)
-
-    cross_op = VectorOperator(cross_method)
-    mutation_op = VectorOperator(
-        "MutRand",
-        {
-            "distrib": "Uniform",
-            "min": objfunc.low_lim if objfunc is not None else min_val,
-            "max": objfunc.up_lim if objfunc is not None else max_val,
-            "N": mutstr,
-        },
-    )
-
-    parent_sel_op = ParentSelection("Best", {"amount": n_parents})
-    selection_op = SurvivorSelection("KeepBest")
-
+    random_state = check_random_state(random_state)
+    pop_initializer = PermInitializer(objfunc.dimension, population_size=population_size, encoding=encoding, random_state=random_state)
+    mutation_op = create_operator("permutation.swap", N=swapped_positions, random_state=random_state)
+    crossover_op = create_operator("crossover.multipoint", random_state=random_state)
+    parent_sel = create_parent_selection("tournament", amount=20, random_state=random_state)
+    survivor_sel = create_survivor_selection("elitism", amount=10, random_state=random_state)
     search_strat = GA(
         pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
+        mutation_op=mutation_op,
+        crossover_op=crossover_op,
+        parent_sel=parent_sel,
+        survivor_sel=survivor_sel,
+        mutation_prob=0.1,
+        crossover_prob=0.8,
+        random_state=random_state,
     )
+    return Algorithm(objfunc, search_strat, **kwargs)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
+def genetic_algorithm_discrete(
+    objfunc: ObjectiveFunc,
+    resampled_components: int = 1,
+    population_size: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Genetic Algorithm for integer-coded vectors.
 
-def _genetic_algorithm_perm_vec(params, objfunc):
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    resampled_components : int, optional
+        Number of components resampled per mutation (default 1).
+    population_size : int, optional
+        Population size (default 100).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
-    Instantiates a genetic algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
-    """
 
-    pop_size = params.get("pop_size", 100)
-    n_parents = params.get("n_parents", 20)
-    cross_method = params.get("cross", "OrderCross")
-    pcross = params.get("pcross", 0.8)
-    pmut = params.get("pmut", 0.1)
-    mutstr = params.get("mutstr", 1)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-
-    pop_initializer = PermInitializer(vecsize, pop_size=pop_size)
-
-    cross_op = PermOperator(cross_method)
-    mutation_op = PermOperator("Perm", {"N": mutstr})
-
-    parent_sel_op = ParentSelection("Best", {"amount": n_parents})
-    selection_op = SurvivorSelection("KeepBest")
-
+    random_state = check_random_state(random_state)
+    pop_initializer = UniformInitializer(
+        objfunc.dimension,
+        objfunc.lower_bound,
+        objfunc.upper_bound,
+        population_size=population_size,
+        dtype=int,
+        encoding=encoding,
+        random_state=random_state,
+    )
+    mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
+    crossover_op = create_operator("crossover.multipoint", random_state=random_state)
+    parent_sel = create_parent_selection("tournament", amount=20, random_state=random_state)
+    survivor_sel = create_survivor_selection("elitism", amount=10, random_state=random_state)
     search_strat = GA(
         pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
+        mutation_op=mutation_op,
+        crossover_op=crossover_op,
+        parent_sel=parent_sel,
+        survivor_sel=survivor_sel,
+        mutation_prob=0.1,
+        crossover_prob=0.8,
+        random_state=random_state,
     )
+    return Algorithm(objfunc, search_strat, **kwargs)
 
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
 
+def genetic_algorithm_real(
+    objfunc: ObjectiveFunc,
+    mutation_strength: float = 1e-2,
+    mutated_components: int = 1,
+    population_size: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Genetic Algorithm for real-coded vectors.
 
-def _genetic_algorithm_real_vec(params, objfunc):
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    mutation_strength : float, optional
+        Standard deviation of Gaussian mutation (default 1e-2).
+    mutated_components : int, optional
+        Number of components mutated per individual (default 1).
+    population_size : int, optional
+        Population size (default 100).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
-    Instantiates a genetic algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
-    """
 
-    pop_size = params.get("pop_size", 100)
-    n_parents = params.get("n_parents", 20)
-    cross_method = params.get("cross", "Multipoint")
-    pcross = params.get("pcross", 0.8)
-    pmut = params.get("pmut", 0.1)
-    mutstr = params.get("mutstr", 1e-5)
-    if objfunc is None:
-        vecsize = params["vecsize"]
-    else:
-        vecsize = objfunc.vecsize
-    min_val = params.get("min", objfunc.low_lim if objfunc else 0)
-    max_val = params.get("max", objfunc.up_lim if objfunc else 100)
-
-    pop_initializer = UniformInitializer(vecsize, min_val, max_val, pop_size=pop_size, dtype=float)
-
-    cross_op = VectorOperator(cross_method)
-    mutation_op = VectorOperator("MutNoise", {"distrib": "Gauss", "F": mutstr, "N": 1})
-
-    parent_sel_op = ParentSelection("Best", {"amount": n_parents})
-    selection_op = SurvivorSelection("KeepBest")
-
+    random_state = check_random_state(random_state)
+    pop_initializer = UniformInitializer(
+        objfunc.dimension,
+        objfunc.lower_bound,
+        objfunc.upper_bound,
+        population_size=population_size,
+        dtype=float,
+        encoding=encoding,
+        random_state=random_state,
+    )
+    mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
+    crossover_op = create_operator("crossover.multipoint", random_state=random_state)
+    parent_sel = create_parent_selection("tournament", amount=20, random_state=random_state)
+    survivor_sel = create_survivor_selection("elitism", amount=10, random_state=random_state)
     search_strat = GA(
         pop_initializer,
-        mutation_op,
-        cross_op,
-        parent_sel_op,
-        selection_op,
-        {"pcross": pcross, "pmut": pmut},
+        mutation_op=mutation_op,
+        crossover_op=crossover_op,
+        parent_sel=parent_sel,
+        survivor_sel=survivor_sel,
+        mutation_prob=0.1,
+        crossover_prob=0.8,
+        random_state=random_state,
     )
-
-    return GeneralAlgorithm(objfunc, search_strat, params=params)
+    return Algorithm(objfunc, search_strat, **kwargs)

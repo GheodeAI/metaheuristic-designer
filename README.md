@@ -1,248 +1,413 @@
-# Metaheuristic-designer
+# Metaheuristic‑designer
+
 [![Documentation Status](https://readthedocs.org/projects/metaheuristic-designer/badge/?version=latest)](https://metaheuristic-designer.readthedocs.io/en/latest/?badge=latest)
 
-This is an object-oriented framework for the development, testing and analysis of metaheuristic optimization algorithms.
+**A modular, object‑oriented framework for building, testing, and analysing
+population‑based optimisation algorithms.**  
+Designed for researchers who demand **reproducible, composable, and
+rigorously comparable** metaheuristics – and for practitioners who want
+to get results quickly without sacrificing control.
 
-It defines the components of a general evolutionary algorithm and offers some implementations of algorithms along with components
-that can be used directly. Those components will be explained below.
+The library is a direct implementation of the vision laid out in
+[Metaheuristics “In the Large”](https://doi.org/10.1016/j.ejor.2021.05.042).
+Many design decisions follow the principles of
+[Introduction to Evolutionary Computing](https://doi.org/10.1007/978-3-662-44874-8)
+by Eiben and Smith.
 
-It was inspired by the article [Metaheuristics “in the large”](https://doi.org/10.1016/j.ejor.2021.05.042) that 
-discusses some of the issues in the research on metaheuristic optimization, sugesting the development of libraries for the standarization
-of metaheuristic algorithms.
+---
 
-Most of the design decisions are based on the book [Introduction to evolutionary computing by Eiben, Agoston E.,
-and James E. Smith](https://doi.org/10.1007/978-3-662-44874-8) which is very well expained and is highly recomended to anyone willing to learn about the topic.
-
-This framework doesn't claim to have a high performance, specially since the chosen language is Python and the code has not been 
-designed for speed. This shouldn't really be an issue since the highest amount of time spent in these kind of algorithms
-tends to be in the evaluation of the objective function. If you want to compare an algorithm made with this tool with another
-one that is available by other means, it is recomended to use the number of evaluations of the objective function as a metric instead of execution time.
-
-## Instalation
-
-The package is available in the PyPi repository (https://pypi.org/project/metaheuristic-designer/).
-
-To install it, use the pip command as follows:
+## Installation
 
 ```bash
 pip install metaheuristic-designer
 ```
 
-## Examples
-- There are 2 scripts to test this repository:
-    - "examples/exec_basic.py": Optimize a simple function, in this case, the "sphere" function that calculates the squared norm of a vector, we want a vector that minmizes this function. There are two possible flags that can be added:
-        - "-a \[Alg\]" use one of the available algorithms, the choices are:
-            - HillClimb: simple hill climbing algorithm.
-            - LocalSearch: take the best of 20 randomly chosen neighbours.
-            - ES: (100+150)-ES, basic evolutionary strategy.
-            - HS: Harmony search algorithm.
-            - GA: genetic algorithm.
-            - SA: simulated annealing algorithm.
-            - DE: DE/best/1, differential evolution algorithm.
-            - PSO: simple particle swarm algorithm.
-            - NoSearch: no search is done.
-        - "-m" use a memetic search like structure, do local search after mutation.
-    - "examples/exec_basic.py": Evolve an image so that it matches the one given as an input. 
-        - The same parameters as the previous script.
-        - "-i \[Image path\]" read the image and evolve a random image into this one.
-
-It is recomended that you create a virtual environment to test the examples.
-
-This is done with the following commands:
-```bash
-python -m venv venv
-source venv/bin/activate
-pip install .[examples]
-```
-
-Once you have activate the virtual environment, you can execute one of the examples like this:
-```
-python examples/example_basic.py
-``` 
-
-or
-
-```
-python examples/image_evolution.py
-``` 
-
-To run the tests you need to install nox, to execute the tests use the command
+To use the plotting examples, install the optional dependencies:
 
 ```bash
-nox test
+pip install metaheuristic-designer[examples]
 ```
 
-## Implemented components
-This package comes with some already made components that can be used in any algorithm in this framework
+---
 
-### Search strategies
-The algorithms implemented are:
-| Class name | Strategy | Params | Other info |
-|------------|-----------|--------|------------|
-|NoSearch|Do nothing||For debugging purposes||
-|RandomSearch|Random Search|||
-|HillClimb|Hill climb |||
-|LocalSearch|Local seach |**iters** (number of neighbors to test each time)||
-|SA|Simulated annealing|**iter** (iterations per temperature change), **temp_init** (initial temperature), **alpha** (exponent of the temperature change) ||
-|GA|Genetic algorithm|**pmut** (probability of mutation), **pcross** (probability of crossover)||
-|ES|Evolution strategy|**offspringSize** (number of indiviuals to generate each generation)||
-|HS|Harmony search|**HSM**, **HMCR**, **BW**, **PAR**||
-|PSO|Particle Swarm optimization|**w**,**c1**,**c2**||
-|DE|Differential evolution|||
-|CRO|Coral Reef Optimization|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
-|CRO_SL|Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
-|PCRO_SL|probabilistic Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**||
-|DPCRO_SL|Dynamic probabilistic Coral Reef Optimization with substrate layers|**rho**,**Fb**,**Fd**,**Pd**,**attempts**,**group_subs**,**dyn_method**,**dyn_steps**,**prob_amp**||
-|VND| Variable neighborhood descent|||
-|RVNS| Restricted variable neighborhood search||In progress|
-|VNS| Variable neighborhood search||In progress|
-|CMA_ES| Covariance matrix adaptation - Evolution strategy|| Not implemented yet|
+## Why metaheuristic‑designer?
 
-### Survivor selection methods
-These are methods of selecting the individuals to use in future generations.
+- **Reproducibility by default** – Every component accepts a `random_state`
+  (a NumPy Generator or a seed).  Passing the same seed guarantees
+  identical runs, making your experiments truly reproducible.
+- **Truly composable** – Algorithms are built by plugging together
+  abstract interfaces (`Initializer`, `Encoding`, `Operator`,
+  `ParentSelection`, `SurvivorSelection`, `SearchStrategy`).  Any piece
+  can be swapped independently, enabling systematic exploration of
+  algorithm design space.
+- **Transparent and open** – The architecture hides no hidden mechanisms.
+  Every operator, selection method, and schedule is explicitly configured,
+  and the source code is designed to be read and extended.
+- **Built‑in parameter scheduling** – Mutation strengths, probabilities,
+  temperatures – any numeric parameter can follow a schedule that adapts
+  during the search, giving you fine‑grained control over exploration
+  vs. exploitation.
+- **Rich analysis capabilities** – Track best, median, worst, full
+  population fitness, diversity, and scheduled parameter values across
+  generations.  The recorded data is easily exported to a pandas DataFrame
+  for plotting with your favourite library (seaborn, matplotlib, plotly, …).
+- **Safe checkpointing** – The algorithm can periodically save its entire
+  state to disk.  If the process is interrupted (Ctrl+C, SIGTERM), the
+  latest checkpoint is automatically preserved.  You can resume the run
+  later without losing any progress.
+- **Modular monitoring** – Choose between a silent run, a `tqdm` progress
+  bar, or periodic text reports.  The reporting interface is extensible:
+  you can write your own reporter to log custom metrics or integrate with
+  external dashboards.
+- **Research‑grade yet beginner‑friendly** – Start with the
+  `metaheuristic_designer.simple` module for one‑line instantiation of
+  common algorithms (GA, DE, PSO, SA, …).  When you need more control,
+  dive into the object‑oriented configuration.
 
-The methods implemented are:
-| Method name | Algorithm | Params | Other info |
-|-------------|-----------|--------|------------|
-|"Elitism"|Elitism|**amount**||
-|"CondElitism"|Conditional Elitism|**amount**||
-|"nothing" or "generational"|Replace all the parents with their children|| Needs the offspring size to be equal to the population size|
-|"One-to-one" or "HillClimb"|One to one (compare each parent with its child)||Needs the offspring size to be equal to the population size|
-|"Prob-one-to-one" or "ProbHillClimb"|Probabilitisc One to one (with a chance to always choose the child)|**p**|Needs the offspring size to be equal to the population size|
-|"(m+n)" or "keepbest"|(λ+μ), or choosing the λ best individuals taking parents and children|||
-|"(m,n)" or "keepoffspring"|(λ,μ), or taking the best λ children||λ must be smaller than μ|
-|"CRO"|A 2 step survivor selection method used in the CRO algorithm. Each individual attempts to enter the population K times and then a percentage of the worse individuals will be eliminated from the population|**Fd**,**Pd**,**attempts**,**maxPopSize**|Can return a population with a variable number of individuals|
+---
+## Tutorials
 
-### Parent selection methods
-These are methods of selecting the individuals that will be mutated/perturbed in each generation
+The best way to learn is to run the interactive notebooks – they cover everything from basic setup to
+advanced self‑adaptation and live plotting. Each notebook is a self‑contained, commented
+Python script (Jupytext format) that you can open as a notebook or run as a script.
 
-The methods implemented are:
-| Method name | Algorithm | Params | Other info |
-|-------------|-----------|--------|------------|
-|"Torunament"|Choose parents by tournament|**amount**, **p**||
-|"Best"| Select the n best individuals|**amount**||
-|"Random"| Take n individuals at random|**amount**||
-|"Roulette"| Perform a selection with the roullette method|**amount**, **method**, **F**||
-|"SUS"| Stochastic universal sampling|**amount**, **method**, **F**||
-|"Nothing"| Take all the individuals from the population||
+| Notebook | What you’ll learn |
+|----------|--------------------|
+| [Genetic Algorithm Quickstart](tutorials/genetic_algorithm_tutorial.ipynb) | Minimise the Sphere function with a GA, convergence plots, log‑scale |
+| [Simple API](tutorials/simple_api_tutorial.ipynb) | One‑line GA, DE, PSO; compare algorithms side‑by‑side |
+| [Custom Components](tutorials/custom_components_tutorial.ipynb) | Build your own objective, operator, selection, and wiring |
+| [Scheduled Parameters](tutorials/parameter_schedules_tutorial.ipynb) | Decay mutation strength, step‑change probabilities, live tracking |
+| [Self‑Adapting ES](tutorials/self_adaption_tutorial.ipynb) | Evolution Strategy with evolving sigma, parameter‑extending encodings |
+| [Algorithm Selection & Reporting](tutorials/algorithm_selection_tutorial.ipynb) | Run contests, collect raw data, produce statistical reports |
+| [Plotting and History Analysis](tutorials/plotting.ipynb) | Fitness distribution boxplots, diversity, scheduled parameter evolution |
+| [Real time algorithm progress](tutorials/real_time_plotting_tutorial.ipynb) | Real time demonstration of differential evolution over a 2-D function |
+| [Permutation Problems (TSP)](tutorials/tsp_tutorial.ipynb) | PMX crossover, swap mutation, real‑time tour visualisation |
 
-### Operators
+All tutorials are in the `tutorials/` directory of this repository. Open them with Jupyter,
+VS Code (Jupyter extension), or any editor that supports Jupytext. If you prefer a live
+environment, you can go to [interactive](https://mybinder.org/v2/gh/GheodeAI/metaheuristic-designer/main?filepath=tutorials%2Fgenetic_algorithm_tutorial.py)
 
-| Class name | Domain | Other info|
-|------------|--------|----|
-|OperatorReal|Real valued vectors||
-|OperatorInt|Integer valued vectors||
-|OperatorBinary|Binary vectors||
-|OperatorPerm|Permutations||
-|OperatorList|Variable length lists||
-|OperatorMeta|Other operators||
-|OperatorLambda|Any|Lets you specify a function as an operator|
+---
 
-The Operators functions available in the operator classes are:
-| Method name | Algorithm | Params | Domains |
-|-------------|-----------|--------|---------|
-|"1point"|1 point crossover||Real, Int, Bin|
-|"2point"|2 point crossover||Real, Int, Bin|
-|"Multipoint"|multipoint crossover||Real, Int, Bin|
-|"WeightedAvg"|Weighted average crossover|**F**|Real, Int|
-|"BLXalpha"|BLX-alpha crossover|**Cr**|Real|
-|"Multicross"|multi-individual multipoint crossover|**Nindiv**|Real, Int, Bin|
-|"XOR"|Bytewise XOR with a random vector|**N**|Int|
-|"XORCross"|Bytewise XOR between 2 vectors component by component||Int|
-|"sbx"|SBX crossover|**Cr**|Real|
-|"Perm"|Permutate vector components|**N**|Real, Int, Bin, Perm|
-|"Gauss"|Add Gaussian noise|**F**|Real, Int|
-|"Laplace"|Add noise following a Laplace distribution|**F**|Real, Int|
-|"Cauchy"|Add noise following a Cauchy distribution|**F**|Real, Int|
-|"Poisson"|Add noise following a Cauchy distribution|**F**|Int|
-|"Uniform"|Add Uniform noise|**Low**, **Up**|Real, Int|
-|"MutRand" or "MutNoise"|Add random noise to a number of vector components|**method**, **N**, optionaly: **Low**, **Up**, **F**|Real, Int|
-|"MutSample"|Take a sample from a probability distribution and put it on a number of vector components|**method**, **N**, optionaly: **Low**, **Up**, **F**|Real, Int|
-|"RandNoise"|Add random noise|**method**, optionaly: **Low**, **Up**, **F**|Real, Int|
-|"RandSample"|Sample from a probability distribution|**method**, optionaly: **Low**, **Up**, **F**|Real, Int|
-|"DE/Rand/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Best/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Rand/2"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Best/2"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Current-to-rand/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Current-to-best/1"|Sample from a probability distribution|**F**, **Cr**|Real, Int|
-|"DE/Current-to-pbest/1"|Sample from a probability distribution|**F**, **Cr**, **p**|Real, Int|
-|"PSO"|Sample from a probability distribution|**w**, **c1**, **c2**|Real, Int|
-|"Firefly"|Sample from a probability distribution|**a**,**b**,**c**,**g**|Real, Int|
-|"Random"|Sample from a probability distribution||Real, Int, Bin, Perm|
-|"RandomMask"|Randomly sample a number of vector components|**N**|Real, Int||
-|"Swap"|Swap two components||Perm||
-|"Insert"|Insert a component and shift to the left||Perm||
-|"Scramble"|Scramble permutation order|**N**|Perm||
-|"Invert"|Reverse order of components||Perm||
-|"Roll"|Roll components to the right|**N**|Perm||
-|"PMX"|Partially mapped crossover||Perm||
-|"OrderCross"|Ordered crossover||Perm||
-|"branch"|Choose one of the provided operators randomly||Operators|
-|"sequence"|Apply all the provided operators in order||Operators|
-|"split"|Apply each operator to a subset of vector components following the mask provided||Operators|
-|"pick"|Manually pick one of the operators provided (setting the ```chosen_idx``` attribute)||Operators|
-|"Dummy"|Assing the vector to a predefined value||All|
-|"Custom"|Provide a lambda function to apply as an operator|**function**|All|
-|"Nothing"|Do nothing||All|
+## Quick Start – minimise the Sphere function with a Genetic Algorithm
+
+```python
+import metaheuristic_designer as mhd
+from metaheuristic_designer.benchmarks import Sphere
+from metaheuristic_designer.strategies import GA
+from metaheuristic_designer.initializers import UniformInitializer
+from metaheuristic_designer.operators import create_operator
+from metaheuristic_designer.parent_selection import create_parent_selection
+from metaheuristic_designer.survivor_selection import create_survivor_selection
+from metaheuristic_designer.algorithms import Algorithm
+
+# 1. Define the problem (5‑dimensional, minimisation)
+objfunc = Sphere(dimension=5, mode="min")
+
+# 2. Create an initializer – random vectors between -10 and 10
+rng = mhd.check_random_state(42)   # fix the random seed for reproducibility
+init = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
+                          pop_size=100, random_state=rng)
+
+# 3. Build the operators (Gaussian mutation + uniform crossover)
+mutation = create_operator("mutation.gaussian_mutation", F=0.1, N=1, random_state=rng)
+crossover = create_operator("crossover.uniform", random_state=rng)
+
+# 4. Selection methods
+parent_sel = create_parent_selection("tournament", amount=50, tournament_size=3, random_state=rng)
+survivor_sel = create_survivor_selection("elitism", amount=25, random_state=rng)
+
+# 5. Assemble the search strategy (Genetic Algorithm)
+strategy = GA(
+    initializer=init,
+    mutation_op=mutation,
+    crossover_op=crossover,
+    parent_sel=parent_sel,
+    survivor_sel=survivor_sel,
+    mutation_prob=0.3,
+    crossover_prob=0.9,
+    random_state=rng,
+)
+
+# 6. Run the algorithm for 200 generations
+alg = Algorithm(
+    objfunc, strategy,
+    stop_cond="max_iterations",
+    max_iterations=200,
+    reporter="tqdm",
+)
+population = alg.optimize()
+
+# 7. Inspect the result
+solution, objective = population.best_solution()
+print(f"Best objective: {objective:.6g}")
+print(f"Decoded solution: {solution}")
+```
+
+More interactive examples are available in the `tutorials/` directory, and
+executable scripts in the `examples/` directory demonstrate a wide range of
+algorithms on classic optimisation tasks.
+
+**Discover all built‑in components** – The complete catalogue of operators,
+parent/survivor selection methods, encodings, initializers, and search
+strategies – including all accepted parameters – is always up‑to‑date in the
+online documentation.  You can also call `list_operators()`,
+`list_parent_selection_methods()`, and `list_survivor_selection_methods()`
+to print the registered keys directly from Python.
+
+---
+
+## Design Overview
+
+The library is built around a small number of abstract, composable pieces.
+
+By default, every function works with numpy arrays in vectorized operators. `Encodings` allow for non-matrix representations in case it is needed.
+
+### Objective function
+Objective function define the optimization problem we want to solve. They will be implemented as `ObjectiveFunc` objects which have an `.objective(solution)` method that evaluates each solution.
+
+This kind of functions also accept full populations (numpy arrays or iterables) as `.objective(solutions)` returning a vector with the objective of each solution so operations can be vectorized, obtaining very significant performance gains.
+
+It is recommended to define objectives as plain python functions, and pass them to `OperatorFromLambda` to cretate the objective function object.
+
+### Algorithm
+An `Algorithm` runs the optimisation loop — initialisation, stopping conditions,
+progress tracking, and logging.  It can be configured with object‑oriented
+components or with simple keyword arguments.
+
+The `MemeticAlgorithm` subclass adds a local search step, implementing both
+Baldwinian and Lamarckian memetic algorithms.
+
+### Search Strategy (Single iteration)
+A `SearchStrategy` defines how the population evolves each generation.
+It holds an initializer, an operator, and optionally parent/survivor selection.
+Pre‑built strategies include:
+
+- `HillClimb`, `LocalSearch`, `SA` (Simulated Annealing)
+- `GA`, `ES`, `DE`, `PSO`
+- `CrossEntropyMethod`, `GaussianUMDA`, `GaussianPBIL`, `BernoulliUMDA`, `BernoulliPBIL`, `CMA‑ES`
+- `RandomSearch`
+- `TabuSearch`, `IteratedLocalSearch` (coming in v1.1)
+
+Custom strategies can be assembled directly with `SearchStrategy` or defined
+from scratch.
+
+### Operators (Mutation/crossover)
+Operators modify the genotype of individuals.  
+
+This includes both mutation operators, crossover and any other operations that perturb the population in any way.
+
+They are created through a
+**factory** that accepts a string key and optional parameters:
+
+```python
+create_operator("mutation.gaussian_mutation", F=0.2, N=3, random_state=42)
+create_operator("crossover.one_point_crossover", random_state=42)
+create_operator("DE/best/1", F=0.8, Cr=0.9)
+create_operator("permutation.swap", N=2)
+```
+
+A generic factory supports dot‑notation and runtime registration of custom
+operators via `add_operator_entry`.  To see all available operator keys,
+call `list_operators()`.
+
+### Selection Methods (Parent/Survivor selection)
+Two separate selection steps are distinguished:
+
+- **Parent selection** – chooses which solutions will be used to generate
+  new candidates.  Created via `create_parent_selection`.
+- **Survivor selection** – decides which solutions survive to the next
+  generation.  Created via `create_survivor_selection`.
+
+Both factories accept a method name and optional parameters:
+
+```python
+create_parent_selection("tournament", amount=20, tournament_size=3)
+create_survivor_selection("(m+n)")
+create_survivor_selection("elitism", amount=5)
+```
+
+Available keys include `"best"`, `"random"`, `"roulette"`, `"sus"`,
+`"one_to_one"`, `"prob_one_to_one"`, `"(m+n)"`, `"(m,n)"`, `"elitism"`,
+`"cond_elitism"`, `"generational"`, and more.  To list all registered
+methods, use `list_parent_selection_methods()` and
+`list_survivor_selection_methods()`.
+
+### Population
+A `Population` stores a genotype matrix, fitness & objective values, the
+best individual, and per‑spot historical bests.  Use `best_solution()` to
+obtain the decoded best solution and its raw objective, and
+`best_individual()` to get the genotype and its fitness value.
+
+### Encodings 
+An `Encoding` translates between the internal genotype and the phenotype
+evaluated by the objective function. 
+
+It effectively mantains a different representation for the solution (the final result of the optimization) and the internal representation during the search.
+
+Built‑in encodings:
+
+- `DefaultEncoding` (identity)
+- `TypeCastEncoding` (float / int / bool)
+- `MatrixEncoding` / `ImageEncoding`
+- `SigmoidEncoding` (binary problems with continuous operators)
+- `ParameterExtendingEncoding` — attach extra per‑individual parameters
+  (velocity for PSO, sigma for self‑adaptation, …)
 
 ### Initializers
-Initializers create the initial population that will be evolved in the optimization process.
+Initializers generate the starting population: `UniformInitializer`,
+`GaussianInitializer`, `PermInitializer`, `SeedDetermInitializer`,
+`SeedProbInitializer`, `DirectInitializer`, and `ExtendedInitializer`
+(for parameter‑extending encodings).
 
-Some of the implemente Initializers are:
-| Class name | Description | Other info |
-|------------|-----------|------------|
-|DirectInitializer|Initialize the population to a preset list of individuals||
-|SeedProbInitializer|Initializes the population with another initializer and inserts user-specified individuals with a probability||
-|SeedDetermInitializer|Initializes the population with another initializer and inserts a number of user-specified individuals into the population||
-|GaussianVectorInitializer|Initialize individuals with normally distributed vectors||
-|UniformVectorInitializer|Initialize individuals with uniformly random distributed vectors||
-|PermInitializer|Initialize individuals with random permuations||
-|LambdaInitializer|Initialize individuals with a user-defined function||
+### Constraint Handling
+Constraint handlers implement repair or penalty strategies:
+`ClipBoundConstraint`, `BounceBoundConstraint`, `CycleBoundConstraint`,
+`CompositeConstraint`, and linear penalty methods.
 
+### Parameter Scheduling
+Any numeric parameter can be a **schedulable** value (e.g., a decay schedule).
+The library provides `LinearSchedule`, `LogisticSchedule`, `StepSchedule`,
+`RandomSchedule`, and `ThresholdSchedule`.  Callable values are evaluated
+each generation; you can also access current values via `.get_params()` or
+the `.params` attribute.
 
-### Encodings
-Specifying the Encoding is optional but can be very helpful for some types of problems.
+## Algorithm configuration
 
-An encoding will represent each solution differently in the optimization process and the evaluation of the fintess, since most algorithm work only with vectors, but we might need other types of datatypes for our optimization.
+Algorithms can be configured with different stopping conditions, reporters (real time tracking of the progress), history tracking (what information to collect across iterations) and checkpointing strategies. 
 
-Some of the implemented Encodings are:
-| Class name | Encoding | Decoding | Other info |
-|------------|----------|----------|------------|
-|DefaultEncoding|Makes no changes to the input|Makes no changes to the input|
-|TypeCastEncoding|Changes the datatype of the vector from **T1** to **T2**|Changes the datatype of the vectorfrom **T1** to **T2**||
-|MatrixEncoding|Converts a vector into a matrix of size **NxM**|Converts a matrix to a vector with the ```.flatten()``` method||
-|ImageEncoding|Converts a vector into a matrix of size **NxMx1** or **NxMx3**, each component is an unsigned 8bit number|Converts a matrix to a vector with the ```.flatten()``` method|
-|LambdaEncoding|Applies the user-defined ```encode``` function|Applies the user-defined ```decode``` function||
+Each will correspond to a different class that is passed to the `Algorithm` class at construction.
 
+### Stopping condition
 
-### Benchmark functions
-The benchmark functions you can use to test the algorithms are:
-| Class name | Domain | Other info |
-|------------|--------|------------|
-|MaxOnes||Integer||
-|DiophantineEq||Integer||
-|MaxOnesReal||Real||
-|Sphere||Real||
-|HighCondElliptic||Real||
-|BentCigar||Real||
-|Discus||Real||
-|Rosenbrock||Real||
-|Ackley||Real||
-|Weistrass||Real||
-|Griewank||Real||
-|Rastrigin||Real||
-|ModSchwefel||Real||
-|Katsuura||Real||
-|HappyCat||Real||
-|HGBat||Real||
-|SumPowell||Real||
-|N4XinSheYang||Real||
-|ThreeSAT||Real||
-|BinKnapsack||Binary||
-|MaxClique||Permutation||
-|TSP||Permutation||
-|ImgApprox||Integer||
-|ImgStd||Integer||
-|ImgEntropy||Integer||
+Stopping conditions are indicated with the `StoppingCondition` class, which decides when to stop the execution of the algorithm. 
 
+It also has a progress value that is used by some algorithms internally to modify the internal parameters. 
+
+Stopping conditions can be indicated as logical expressions, such as `max_iterations or real_time_limit` (stop when **EITHER** the maximum number of iteratios have passed or a time limit is reached) or `convergence and real_time_limit` (stop when **BOTH** a number of iterations without improvement and a certain time has passed).
+
+### History tracker
+
+History trackers (`HistoryTracker`) store informtion about each iteration for plots and post-execution analysis. 
+
+It can store the best/median/worst solutions and their objective values, diversity metrics and even a historic of the full population and their objective.
+
+### Reporters
+Reporters control what information is displayed during a run.  Three
+implementations are provided out‑of‑the‑box:
+
+- `TQDMReporter` – a progress bar (requires `tqdm`)
+- `VerboseReporter` – periodic text summaries
+- `SilentReporter` – no output
+
+You can also create your own reporter by subclassing `Reporter` and
+implementing `log_init`, `log_step`, and `log_end`.
+
+### Checkpointer
+Long‑running experiments can be protected with the built‑in `Checkpointer`:
+- **Periodic saving** – The full algorithm state is automatically saved
+  every *N* iterations or after a configurable time interval.
+- **OS‑signal safety** – If the process receives a `SIGINT` (Ctrl+C) or
+  `SIGTERM` (e.g., from a batch scheduler), the current state is
+  immediately dumped to disk before the program exits.  You can resume
+  the interrupted run later with
+  `checkpointer.load("checkpoint.pkl")` and continue as if nothing happened.
+- **Tunable frequency** – Choose between iteration‑based or time‑based
+  checkpoints, or use both simultaneously.
+
+This makes metaheuristic‑designer suitable for expensive, long‑running
+optimisation tasks on shared clusters or cloud instances where interruptions
+are expected.
+
+### Benchmarks
+A collection of test problems is included:
+
+- Continuous — `Sphere`, `Rastrigin`, `Rosenbrock`, `Ackley`, `Griewank`,
+  `Weierstrass`, etc.
+- Binary — `MaxOnes`, `BinKnapsack`, `ThreeSAT`
+- Permutation — `MaxClique`, `TSP`
+- Image approximation — `ImgApprox`, `ImgEntropy`, `ImgStd`
+
+---
+
+## Reproducibility and Scientific Rigour
+
+- **Seeded randomness everywhere** – Every random component (initializers,
+  operators, selection, even parameter schedules with randomness) is
+  driven by a `random_state` that you can fix.  Use
+  `mhd.check_random_state(42)` to get a managed `numpy.random.Generator`.
+
+- **Deterministic experiments** – When you pass the same seed, the entire
+  optimisation run, including the initial population, mutation steps, and
+  selection events, is bit‑for‑bit identical.
+
+- **Tracking for analysis** – The `HistoryTracker` records per‑generation
+  statistics (best, median, worst, diversity, scheduled parameters, full
+  fitness vector) into a pandas‑compatible DataFrame.  This lets you produce
+  publication‑quality convergence plots, statistical comparisons, and
+  parameter‑evolution analyses with tools like seaborn or matplotlib.
+
+- **Algorithm comparison made easy** – The `AlgorithmSelection` and
+  `StrategySelection` classes allow you to run multiple algorithms across
+  multiple trials and automatically collect their histories, simplifying
+  rigorous benchmarking.
+
+- **Open‑source, LGPLv3 licensed** – Use it freely in your research, and
+  contribute back if you extend it.
+
+---
+
+## Extending the Framework
+
+All components inherit from abstract bases, making custom additions
+straightforward:
+
+- **Custom Operator** — use `OperatorVectorDef` (matrix‑level) or
+  `OperatorFromLambda` (population‑level), then register with
+  `add_operator_entry`.
+- **Custom Selection** — subclass `ParentSelection` or `SurvivorSelection`,
+  or use `*FromLambda` wrappers.
+- **Custom Strategy** — subclass `SearchStrategy` and override the methods
+  you need, or use `SearchStrategyFromLambda`.
+- **Custom Encoding / Initializer / Constraint Handler** — implement the
+  corresponding abstract class or use the `*FromLambda` wrappers.
+
+The documentation includes a full guide on
+**Extending the Framework with Custom Components**.
+
+---
+
+## Documentation
+
+The **primary source** for exploring the library’s capabilities is the
+online documentation at
+[https://metaheuristic-designer.readthedocs.io](https://metaheuristic-designer.readthedocs.io).
+It contains:
+
+- A searchable, browsable API reference covering every class and method.
+- **Full catalogues** of built‑in operators, selection methods, encodings,
+  initializers, search strategies, and benchmarks, with parameter tables.
+- Step‑by‑step tutorials (including custom components, parameter schedules,
+  self‑adaptive ES, real‑time plotting, and reproducible benchmarking).
+- A plotting guide with example visualizations for convergence, diversity,
+  fitness distributions, and scheduled parameters.
+
+If you find yourself unsure which operator or selection method to use,
+start there – the documentation is designed as a discovery tool as much
+as a reference.
+
+---
+## License
+
+This framework is distributed under the GNU Lesser General Public License version 3 (LGPL‑v3).  
+The full license text is available in the [LICENSE](LICENSE) file.
+
+### What this means for you
+
+- **You are free to use this framework in any project** – academic, commercial, or personal – without opening your own code. You can build your optimisation algorithms, experiments, and proprietary applications on top of it, just like you would with a permissively licensed library.
+- **If you modify the framework itself** (its core classes, operators, or infrastructure) and distribute your modified version to others, you must make the source of those changes available under the same LGPL‑v3 license. This keeps the core open and ensures improvements benefit the whole community.
+- There is **no warranty** – the software is provided “as is”, as is standard for open‑source research code.
+
+### Why LGPL‑v3?
+
+The LGPL was designed exactly for libraries and frameworks: it protects the shared foundation while giving you complete freedom over the unique work you build on top of it. This is the same licensing model used by **DEAP** (Distributed Evolutionary Algorithms in Python) and many other scientific frameworks. It promotes a healthy ecosystem where the core stays open and everyone – academia and industry alike – can build on it without friction.

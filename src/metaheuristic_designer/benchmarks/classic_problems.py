@@ -1,9 +1,15 @@
-import numpy as np
+from typing import Iterable
 import warnings
-from ..objective_function import ObjectiveFunc, VectorObjectiveFunc
+from pathlib import Path
+import numpy as np
+import pandas as pd
+from ..objective_function import ObjectiveFunc
+from ..utils import MatrixLike, VectorLike
+
+__all__ = ["ThreeSAT", "BinKnapsack", "MaxClique", "TSP"]
 
 
-class ThreeSAT(VectorObjectiveFunc):
+class ThreeSAT(ObjectiveFunc):
     """
     This is the 3-SAT problem that consist in finding if a logical expression
     given in 3CNF (conjunctive normal form with 3 variables per clause) is satisfiable,
@@ -28,7 +34,7 @@ class ThreeSAT(VectorObjectiveFunc):
         self.clauses = clauses
         self.n_vars = np.abs(clauses).max()
 
-        super().__init__(self.n_vars, low_lim=0, up_lim=1, name="3-SAT")
+        super().__init__(self.n_vars, lower_bound=0, upper_bound=1, name="3-SAT")
 
     @staticmethod
     def from_cnf_file(path):
@@ -79,7 +85,7 @@ class ThreeSAT(VectorObjectiveFunc):
         return n_satisfied / self.clauses.shape[0]
 
 
-class BinKnapsack(VectorObjectiveFunc):
+class BinKnapsack(ObjectiveFunc):
     """
     This is the 0-1 Knapsack problem that consist in choosing from set of elements
     which have a certain cost and value to maximize the value without reaching a weight threshold.
@@ -103,7 +109,7 @@ class BinKnapsack(VectorObjectiveFunc):
         self.cost = cost
         self.value = value
         self.max_weight = max_weight
-        super().__init__(cost.size, low_lim=0, up_lim=1, mode="max", name="0-1 Knapsack Problem")
+        super().__init__(cost.size, lower_bound=0, upper_bound=1, mode="max", name="0-1 Knapsack Problem")
 
     def objective(self, solution):
         """
@@ -134,7 +140,7 @@ class BinKnapsack(VectorObjectiveFunc):
         return (np.round(solution) != 0).astype(int)
 
 
-class MaxClique(VectorObjectiveFunc):
+class MaxClique(ObjectiveFunc):
     """
     This is the Maximum clique problem which consists on finding the size of the largest
     subgraph that has all its nodes interconected (a clique).
@@ -147,7 +153,7 @@ class MaxClique(VectorObjectiveFunc):
 
     def __init__(self, adjacency_matrix):
         self.adj_mat = adjacency_matrix
-        super().__init__(adjacency_matrix.shape[0], low_lim=0, up_lim=adjacency_matrix.shape[0], name="Max Clique")
+        super().__init__(adjacency_matrix.shape[0], lower_bound=0, upper_bound=adjacency_matrix.shape[0], name="Max Clique")
 
     def objective(self, solution):
         """
@@ -169,7 +175,7 @@ class MaxClique(VectorObjectiveFunc):
 
         n_cliques = 1
         is_clique = True
-        while n_cliques < self.vecsize and is_clique:
+        while n_cliques < self.dimension and is_clique:
             for i in range(1, n_cliques):
                 idx_i = solution[i]
                 idx_j = solution[n_cliques]
@@ -181,20 +187,53 @@ class MaxClique(VectorObjectiveFunc):
         return n_cliques
 
 
-class TSP(VectorObjectiveFunc):
-    def __init__(self):
-        super().__init__(1, name="TSP")
+class TSP(ObjectiveFunc):
+    def __init__(self, adjacency_matrix: MatrixLike, name: str = None, mode: str = "min"):
+        if name is None:
+            name = "TSP"
 
-    def objective(self, solution):
+        self.adjacency_matrix = adjacency_matrix
+        n_nodes = adjacency_matrix.shape[0]
+        super().__init__(dimension=n_nodes, lower_bound=0, upper_bound=n_nodes - 1, name=name, mode=mode, vectorized=True)
+
+    @classmethod
+    def from_csv(cls, problem_path: Path, name: str = None, mode: str = "min"):
         """
-        Not implemented.
+        Constructs the objective function from a .csv file.
+
+        Parameters
+        ----------
+        problem_path : Path
+            Path to the .csv file containing the weights of each edge.
+            The expected format of the file is a table with 3 columns: Edge 1, Edge 2, Weights
+        name : str, optional
+            Name to use when showing the user which function is being optimized, by default None
+        mode : str, optional
+            Optimization mode to use, by default "min"
+
+        Returns
+        -------
+        An object of type TSP (Objective function on vectors)
         """
 
-        raise NotImplementedError()
+        graph_df = pd.read_csv(problem_path)
 
-    def repair_solution(self, solution):
-        """
-        Not implemented.
-        """
+        n_nodes = max(graph_df.iloc[:, 0].max(), graph_df.iloc[:, 1].max()) + 1
 
-        raise NotImplementedError()
+        upper_bound_weights = graph_df.iloc[:, 2].max() * (n_nodes + 1)
+        adjacency_matrix = np.full((n_nodes, n_nodes), upper_bound_weights)
+        for _, row in graph_df.iterrows():
+            in_node, out_node, w = row["Edge1"].astype(int), row["Edge2"].astype(int), row["Weight"]
+            adjacency_matrix[in_node, out_node] = w
+            adjacency_matrix[out_node, in_node] = w
+
+        np.fill_diagonal(adjacency_matrix, 0)
+
+        return cls(adjacency_matrix, name=name, mode=mode)
+
+    def objective(self, solutions: MatrixLike) -> VectorLike:
+        edge_costs = self.adjacency_matrix[solutions[:, :-1], solutions[:, 1:]]
+
+        objective_vector = edge_costs.sum(axis=1) + self.adjacency_matrix[solutions[:, -1], solutions[:, 0]]
+
+        return objective_vector

@@ -3,111 +3,141 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to metaheuristic-designer's documentation!
-==================================================
+Welcome to metaheuristic‑designer
+==================================
+
+Metaheuristic‑designer is a modular, object‑oriented framework for building,
+testing, and analysing population‑based optimisation algorithms.  It is
+designed to address the challenges identified in `Metaheuristics “In the
+Large” <https://doi.org/10.1016/j.ejor.2021.05.042>`_ (Swan et al., 2022): the
+field’s fragmentation, lack of reproducibility, and the need for common
+protocols that let researchers explore the design space of metaheuristics
+systematically.
+
+Whether you want a standard genetic algorithm in one line or a custom hybrid
+strategy assembled from scratch, this library provides the building blocks.
+Its architecture follows the **algorithm template** philosophy advocated by
+that paper and draws on the design principles of `Introduction to
+Evolutionary Computing <https://doi.org/10.1007/978-3-662-44874-8>`_ by Eiben
+and Smith.
+
+.. For the architectural vision and the research context behind the library,
+.. read the :doc:`Design philosophy <design_philosophy>` page.
+
+.. _first-steps:
+
+Where to Start
+--------------
+
+The documentation is organised by topics, pick the entry point that
+matches what you want to do right now:
+
+* **Quick start** – Run a ready‑to‑use algorithm in under a minute on the
+  :doc:`Quick Start <quick_start>` page.
+* **Simple subpackage** – Browse the full catalogue of :doc:`pre‑packaged algorithms
+  <simple>` and see which encodings each supports.
+* **Algorithm configuration** – Learn how to set stopping conditions, reporters,
+  history trackers, and checkpointers in the
+  :doc:`Algorithm Configuration <api_reference.algorithm_config>` guide.
+* **All built‑in methods** – Detailed tables of :doc:`operators and selection
+  methods <api_reference.methods>`, including all probability distributions.
+* **Custom components** – Write your own operators, selection methods,
+  encodings, and more with the
+  :doc:`Extending the Framework <api_reference.custom_components>` guide.
+* **Plot results** – Turn recorded history into convergence, diversity, and
+  parameter evolution plots with the :doc:`Plotting Tutorial <api_reference.plotting>`.
+
+.. * **Design philosophy** – Read about the architectural vision behind the
+  library in the :doc:`Design philosophy <design_philosophy>` page.
+
+.. _description:
 
 Description
 -----------
-This is an object-oriented framework for the development, testing and analysis of metaheuristic optimization algorithms.
 
-It defines the components of a general evolutionary algorithm and offers some implementations of algorithms along with components
-that can be used directly. Those components will be explained below.
+The library is built with a focus on **clean architecture** and
+**composability**, while remaining practical for research and application.
+When comparing algorithms, we recommend using the **number of objective
+evaluations** rather than wall‑clock time to obtain a fair,
+implementation‑independent measure.
 
-It was inspired by the article `Metaheuristics “in the large” <https://doi.org/10.1016/j.ejor.2021.05.042>`_ that 
-discusses some of the issues in the research on metaheuristic optimization, sugesting the development of libraries for the standarization
-of metaheuristic algorithms.
-
-Most of the design decisions are based on the book `Introduction to evolutionary computing by Eiben, Agoston E.,
-and James E. Smith <https://doi.org/10.1007/978-3-662-44874-8>`_ which is very well expained and is highly recomended to anyone willing to 
-learn about the topic.
-
-This framework doesn't claim to have a high performance, specially since the chosen language is Python and the code has not been 
-designed for speed. This shouldn't really be an issue since the highest amount of time spent in these kind of algorithms
-tends to be in the evaluation of the objective function. If you want to compare an algorithm made with this tool with another
-one that is available by other means, it is recomended to use the number of evaluations of the objective function as a metric instead of 
-execution time.   
-
+.. _structure:
 
 Structure
 ---------
 
-Explanation
-~~~~~~~~~~~
+Conceptual overview
+~~~~~~~~~~~~~~~~~~~
 
-The terminology used is inherited mainly from genetic algorithms and classical optimization algorithms.
+Many optimisation algorithms follow the same general pattern:
 
-The structure of the optimization algorithms are very much inspired on the development of the
-`DPCRO_SL algorithm <https://doi.org/10.3390/math11071666>`_ of which I was a part of, which gave me the realization that evolutionary
-algorithms and some other optimization algorithms tend share a common structure:
+1. **Initialise** a set of tentative solutions.
+2. **Repeat** until a stopping condition is met:
 
-1. **Initialize** a random solution or population of solutions.
+   #. **Select** a subset of the current solutions to generate new ones.
+   #. **Apply perturbation operators** to the selected solutions to produce
+      new candidate solutions.
+   #. **Choose** which solutions will form the next iteration’s population.
+3. **Return** the best solution found during the run.
 
-2. **Repeat** until a stopping condition is met (time passed, number of evaluations, iterations without improvement...).
-
-   2.1. **Select parents** (trivial in algorithms with only one solution).
-
-   2.2. **Perturb the parents** (might involve a sequence of operators like a cross and a mutation).
-
-   2.3. **Select individuals** for the next iteration.
-
-3. **Return the best solution**.
-
-Implementation
+Key components
 ~~~~~~~~~~~~~~
 
-This is implemented as Interfaces (or more accurately, abstract classes) that are related to each other and which must be implemented
-to constuct an optimization algorithm. Most common implementations of these interfaces are already available in the package.
+The library provides an abstract interface for each step of this loop.  Every
+component can be replaced independently, which makes it easy to experiment with
+different algorithm variants.
 
-First, **objective functions** are implemented as instances of the class :class:`ObjectiveFunc <metaheuristic_designer.ObjectiveFunc>` which receive
-an input in some unspecified format (an array, a tree or any other object) and output a single numerical value. Our goal is to find
-an input that maximizes (or minimizes) this output value.
+* :class:`~metaheuristic_designer.ObjectiveFunc` — the function to optimise.
+* :class:`~metaheuristic_designer.Initializer` — creates the initial set of
+  tentative solutions.
+* :class:`~metaheuristic_designer.Encoding` — transforms between the internal
+  numerical representation (genotype) and the representation understood by the
+  objective function.
+* :class:`~metaheuristic_designer.Operator` — generates new candidate
+  solutions by modifying existing ones (for example, adding random noise,
+  recombining two solutions, or performing a local search step).
+* :class:`~metaheuristic_designer.ParentSelection` /
+  :class:`~metaheuristic_designer.SurvivorSelection` — choose which solutions
+  are used to generate new ones and which ones are carried over to the next
+  iteration.
+* :class:`~metaheuristic_designer.SearchStrategy` — combines the above
+  components into a single iteration step.
+* :class:`~metaheuristic_designer.Algorithm` — runs the loop, tracks progress,
+  manages stopping conditions, reporting, history, and checkpointing.
 
-Objective functions often come with constraints, which can be dealt with in several ways, including specifically engineered encodings or operators 
-(explained later), appliying a solution fixing procedure or applying a penalty to the objective when constraints are violated. For solution repairing
-and penalty we have the :class:`ConstraintHandler <metaheuristic_designer.ConstraintHandler>` class, that is hooked up to the objective function. Penalties
-are added at the same time as the objective is caluclated, and solution repairing is performed immediately after applying the operators to the population.
-
-Our algorithms will work with **populations**, represented as instances of the class :class:`Population <metaheuristic_designer.Population>` which are a collections
-of solutions to our optimization problem. These populations will hold the solutions, their value on the optimization problem and the best solution found so far.
-
-The solutions that an individual has are encoded in a certain way, but our objective function might need an input encoded in a different way. 
-This is where **encodings** are used, they are represented as instances of the class :class:`Encoding <metaheuristic_designer.Encoding>` which isolates the 
-representation of the solution in the optimization prodecure and the one used in the calculation of the objective function.
-
-For the **initialization step**, there will be an instance of the class :class:`Initializer <metaheuristic_designer.Initializer>` that will generate
-an initial population, often completely at random, and will be used whenever a random solution needs to be generated. This class will
-also indicate the size of the population (1 if the algorithm works with only one solution).
-
-Both **parent selection** and **survivor selection** are implemented as instances of the class :class:`SelectionMethod <metaheuristic_designer.SelectionMethod>` 
-although it is recomended to use the classes :class:`ParentSelection <metaheuristic_designer.selection_methods.ParentSelection>` and
-:class:`SurvivorSelection <metaheuristic_designer.selection_methods.SurvivorSelection>` respectively.
-
-To perturb individuals we use operators that are instances of the class :class:`Operator <metaheuristic_designer.Operator>` which take a population
-and returns a new population of modified indiviuals. This could represent a crossing operation, a mutation, generating a completely random individual or
-even a sequence of operators.
-
-We define a search strategy as the way of combining of the previous elements and specifies how each iteration or step is carried out and
-is implemented as as instance of the class :class:`SearchStrategy <metaheuristic_designer.SearchStrategy>`.
-
-The proper optimization is carried repeating steps until a stopping condition is reached, this is implemented as an instance of the class 
-:class:`Algorithm <metaheuristic_designer.Algorithm>` which also provides some information about the progress of the algorithm and is the interface that is
-used for the optimization.
-
-All of these components have working implementations in their respective subpackages except for individuals, which are already implemented since
-there is not much room for customization there.
-
-There is also some default implementation of popular optimization algorithms available in the :any:`metaheuristic_designer.simple` such 
-as genetic algorithms, particle swarm and simulated annealing.
+All of these have ready‑to‑use implementations in their respective
+sub‑packages.  You can also supply your own components as plain Python
+functions via the ``*FromLambda`` classes described in the
+:doc:`Custom Components <api_reference.custom_components>` guide.
 
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`search`
+:ref:`genindex`
+
+:ref:`search`
 
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
-   
+
+    Quick Start <quick_start>
+    Simple subpackage <simple>
     API reference <api_reference>
-    Documentation <metaheuristic_designer>
+    Algorithm Configuration <api_reference.algorithm_config>
+    Operators and selection methods <api_reference.methods>
+    Custom components <api_reference.custom_components>
+    Plotting Tutorial <api_reference.plotting>
+    Module Details <auto/modules>
+
+.. _references:
+
+Further reading
+---------------
+
+* Swan, J., Adriaensen, S., Brownlee, A. E. I., et al. (2022).
+  `Metaheuristics “In the Large” <https://doi.org/10.1016/j.ejor.2021.05.042>`_.
+  *European Journal of Operational Research*, 297(2), 393–406.
+* Eiben, A. E., & Smith, J. E. (2015).
+  `Introduction to Evolutionary Computing <https://doi.org/10.1007/978-3-662-44874-8>`_.
+  Springer.
