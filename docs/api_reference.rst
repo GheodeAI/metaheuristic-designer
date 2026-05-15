@@ -298,29 +298,26 @@ the last value.
     - | Uses a negative exponential curve to model the parameter, when iterative, ignores the final value:
       | when iterative is ``False``: :math:`v(p) = v(0) + (v(1) - v(0)) e^{-\alpha p}`
       | when iterative is ``True``: :math:`v_i = v(0) + (v_{i-1} - v(0)) \alpha`
-    - | init_value
-      | final_value (0)
-      | alpha (0.9)
-      | iterative (False)
+    - | - init_value
+      | - final_value (0)
+      | - alpha (0.9)
+      | - iterative (False)
 
   * - :py:class:`parameter_schedules.RandomSchedule<metaheuristic_designer.parameter_schedules.random_schedule.RandomSchedule>`
     - Completely randomizes the parameter value within a range of values. Follows an uniform distribution:
-    - | init_value
-      | final_value
+    - | - init_value
+      | - final_value
 
   * - :py:class:`parameter_schedules.ThresholdSchedule<metaheuristic_designer.parameter_schedules.threshold_schedule.ThresholdSchedule>`
     - Chooses a value to assign for progress values below the threshold and another for values above it.
-    - | init_value
-      | final_value
-      | threshold (0.5)
+    - | - init_value
+      | - final_value
+      | - threshold (0.5)
 
   * - :py:class:`parameter_schedules.StepSchedule<metaheuristic_designer.parameter_schedules.step_schedule.StepSchedule>`
     - | Splits the range of 0 to 1 into :math:`N` steps indicated by a dictionary of the form:
       | ``{0.1: 34, 0.2: 4, 0.3: 1, ...}``
-    - | steps
-
-..     - | steps
-
+    - | - steps
 
 Prepackaged Algorithms
 ----------------------
