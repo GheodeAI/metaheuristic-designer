@@ -1,189 +1,556 @@
 ====================================
-API reference, Implemented Operators
+API reference – Implemented Methods
 ====================================
 
 Discovering Available Components
 --------------------------------
 
-The library’s operator and selection factories can be explored **interactively**
-at runtime.  Every registered method is accessible by name, and you can list
-all currently available keys with a single function call.
+The library provides several **factory functions** to create operators and
+selection methods by name.  You can explore all registered methods interactively
+by calling the appropriate ``list_*`` functions:
 
 .. code-block:: python
 
    from metaheuristic_designer.operators import list_operators
    from metaheuristic_designer.parent_selection import list_parent_selection_methods
    from metaheuristic_designer.survivor_selection import list_survivor_selection_methods
+   from metaheuristic_designer.operators.operator_functions.probability_distributions_factory import list_distributions
 
-   # Print every operator (mutation, crossover, DE, swarm, …)
-   print(list_operators())
+   print(list_operators())                      # all operators (mutation, crossover, DE, …)
+   print(list_parent_selection_methods())       # all parent selection methods
+   print(list_survivor_selection_methods())     # all survivor selection methods
+   print(list_distributions())                  # all available probability distributions
 
-   # Print every parent / survivor selection method
-   print(list_parent_selection_methods())
-   print(list_survivor_selection_methods())
-
-These lists update automatically when you register custom components with
-:func:`add_operator_entry` or the corresponding selection registration
-functions, so they always reflect the current state of your environment.
-
-You can also filter by category, e.g. all mutation operators:
-
-.. code-block:: python
-
-   mut_ops = [op for op in list_operators() if op.startswith("mutation.")]
-
-The tables below catalogue every built‑in operator and selection method,
-along with their parameters.  Treat this page as your **interactive cheat
-sheet** – open it while you code.
+These lists grow automatically when you register custom components through
+:py:func:`~metaheuristic_designer.operators.factories.generic.add_operator_entry`,
+:py:func:`~metaheuristic_designer.parent_selection.parent_selection.add_parent_selection_entry`,
+:py:func:`~metaheuristic_designer.survivor_selection.survivor_selection.add_survivor_selection_entry`, or
+:py:func:`~metaheuristic_designer.operators.operator_functions.probability_distributions_factory.add_distribution_entry`.
 
 .. _operator-methods:
 
 Implemented Operators
 =====================
 
-.. _operator-methods:
+All operators are created through the factory function
+:py:func:`~metaheuristic_designer.operators.factories.generic.create_operator`
+using a ``"category.method"`` string (or just ``"method"`` when unambiguous).
+The available categories are:
 
-Operator Methods
-================
+* ``"mutation"`` – alter existing values (:ref:`mutation_operators`).
+* ``"crossover"`` – recombine multiple parents (:ref:`crossover_operators`).
+* ``"permutation"`` – operators for permutation‑based genotypes (:ref:`perm_operators`).
+* ``"de"`` – Differential Evolution mutation variants (:ref:`de_operators`).
+* ``"swarm"`` – swarm intelligence specific operators (:ref:`swarm_operators`).
+* ``"random"`` – replace values with random ones using initializers (:ref:`random_operators`).
+* ``"debug"`` – placeholder operators for testing (:ref:`debug_operators`)
+* ``"custom"`` – user‑registered operators (:ref:`custom_operators`)
 
-All methods are accessible through :py:func:`create_operator<metaheuristic_designer.operators.any_operator.create_operator>` using the ``"category.method"`` string.
-
-The following categories are available:
-
-- ``"mutation"``: alter existing values
-- ``"crossover"``:  recombine multiple parents
-- ``"permutation"``:  operators designed for permutation-based genotypes
-- ``"de"``: Differential Evolution mutation variants
-- ``"swarm"``: swarm intelligence specific operators (PSO, Firefly)
-- ``"random"``: replace values with random ones using initializers
-- ``"debug"``: placeholder operators used to diagnose optimization logic
-- ``"custom"``: user-registered operators (see :py:func:`add_operator_entry<metaheuristic_designer.operators.any_operator.add_operator_entry>`)
-
-Within each category, many **aliases** are defined for convenience. The tables below list
-the primary name and all recognized aliases, along with a description and the parameters
-they accept. Parameters can be passed as keyword arguments to :py:func:`create_operator<metaheuristic_designer.operators.any_operator.create_operator>`
-and will override defaults.
+Within each category, many **aliases** are defined.  The tables below list every
+built‑in operator along with its parameters.  Parameters shown with a value in
+parentheses are defaults; they can be overridden by passing keyword arguments to
+:func:`create_operator`.
 
 ----
+
+.. _mutation_operators:
 
 Mutation
 --------
 
-.. csv-table::
-   :header: "Primary name", "Aliases", "Description", "Parameters"
+.. list-table::
+   :header-rows: 1
 
-   "mutation.gaussian_mutation", "gauss_mut, normal_mutation", "Add Gaussian noise to existing values.", "loc (0), scale (1), N (all)"
-   "mutation.uniform_mutation", "uniform_mut", "Add unform noise to components with uniform random numbers.", "low (-1), high (1), N (all)"
-   "mutation.gaussian_noise", "gauss, normal, normal_noise", "Replace with new values from a Gaussian distribution.", "loc, scale"
-   "mutation.laplace_mutation", "laplace_mut, laplace_mutation", "Add Laplace noise.", "loc (0), scale (1), N (all)"
-   "mutation.cauchy_mutation", "cauchy_mut, cauchy_mutation", "Add Cauchy noise.", "loc (0), scale (1), N (all)"
-   "mutation.uniform", "uniform_noise", "Replace with uniform random values (independent resampling).", "low, high"
-   "mutation.poisson_mutation", "poisson_mut, poisson_mutation", "Add Poisson noise.", "lam (1), N"
-   "mutation.bernoulli_mutation", "bernoulli_mut, coinflip_mut, coinflip_mutation", "Adds binary values with Bernoulli probability.", "p (0.5), N"
-   "mutation.coinflip", "coinflip_noise, coinflip", "Replace each component with a Bernoulli trial.", "p (0.5)"
-   "mutation.additive_noise_mutation", "mutnoise, noise_mutation", "Add noise (distribution determined by extra kwargs `distrib`).", "loc, scale, N, distrib"
-   "mutation.sampling_mutation", "mutsample, replacement_mutation", "Replace some components with samples from a distribution.", "loc, scale, N, distrib"
-   "mutation.full_additive_noise", "randnoise, random_noise, full_mutation", "Replace the entire genotype with noisy values.", "loc, scale, distrib"
-   "mutation.full_random_sampling", "randsample, random_sampling, regenerate", "Replace the entire genotype with new samples from a distribution.", "loc, scale, distrib"
-   "mutation.mutate_1_sigma", "mutate1sigma", "Self-adaptation: mutate a single sigma stored in the genotype (requires ParameterExtendingEncoding).", "epsilon (1e-10), tau (1.0)"
-   "mutation.mutate_n_sigmas", "mutatensigmas", "Self-adaptation: mutate per-variable sigmas.", "epsilon (1e-10), tau (1.0), tau_multiple (1.0)"
-   "mutation.sample_1_sigma", "sample1sigma", "Replace genotype with a sample from a Gaussian using the stored sigma.", "epsilon, tau, n (all)"
+   * - Primary name
+     - Aliases
+     - Description
+     - Parameters
 
-Many operators accept a ``distrib`` parameter to choose a probability distribution.
-See :ref:`Probability Distributions <probability-distributions>` for the complete list.
+   * - mutation.gaussian_noise
+     - | normal_mutation
+       | gauss_noise
+       | gaussian
+       | normal
+       | gauss       
+     - Add Gaussian noise to the entire vector multiplied by a scaling factor `F`.
+     - | - F
+       | - loc (0)
+       | - scale (1)
+   * - mutation.gaussian_mutation
+     - | normal_mutation
+       | gauss_mutation
+       | gaussian_mut
+       | normal_mut
+       | gauss_mut
+     - Add Gaussian noise to `N` randomly selected components multiplied by a scaling factor `F`.
+     - | - F
+       | - N
+       | - loc (0)
+       | - scale (1)
+   
+   * - mutation.uniform_noise
+     - | uniform
+     - Add Gaussian noise to the entire vector multiplied by a scaling factor `F`.
+     - | - F
+       | - min (-1)
+       | - max (1)
+   * - mutation.uniform_mutation
+     - | uniform_mut
+     - Add Uniform noise to `N` randomly selected components multiplied by a scaling factor `F`.
+     - | - F
+       | - N
+       | - min (-1)
+       | - max (1)
+   
+   * - mutation.laplace_mutation
+     - | laplace_mut
+     - Add Laplace noise to the entire vector multiplied by a scaling factor `F`.
+     - | - F
+       | - loc (0)
+       | - scale (1)
+   * - mutation.laplace_noise
+     - | laplace
+     - Add Laplace noise to `N` randomly selected components multiplied by a scaling factor `F`.
+     - | - F
+       | - N
+       | - loc (0)
+       | - scale (1)
+   
+   * - mutation.cauchy_mutation
+     - | cauchy_mut
+     - Add Cauchy noise to the entire vector multiplied by a scaling factor `F`.
+     - | - F
+       | - loc (0)
+       | - scale (1)
+   * - mutation.cauchy_noise
+     - | cauchy
+     - Add Cauchy noise to `N` randomly selected components multiplied by a scaling factor `F`.
+     - | - F
+       | - N
+       | - loc (0)
+       | - scale (1)
+   
+   * - mutation.poisson_mutation
+     - | poisson_mut
+     - Add Poisson noise to the entire vector multiplied by a scaling factor `F`.
+     - | - F
+       | - mu
+       | - scale (1)
+   * - mutation.poisson_noise
+     - | poisson
+     - Add Poisson noise to `N` randomly selected components multiplied by a scaling factor `F`.
+     - | - F
+       | - N
+       | - mu
+       | - scale (1)
+   
+   * - mutation.bernoulli_mutation
+     - | bernoulli_mut
+     - Add Bernoulli noise to the entire vector multiplied by a scaling factor `F`.
+     - | - F
+       | - p
+       | - loc (0)
+   * - mutation.bernoulli_noise
+     - | bernoulli
+     - Add Bernoulli noise to `N` randomly selected components multiplied by a scaling factor `F`.
+     - | - F
+       | - N
+       | - p
+       | - loc (0)
+   
+   * - mutation.bernoulli_sample
+     - | coinflip
+     - Replaces the vector randomly with 0 or 1.
+     - | - p
+   * - mutation.bernoulli_reset
+     - | coinflip_reset
+     - Replaces `N` randomly selected components with 0 or 1.
+     - | - N
+       | - p
+
+
+   * - mutation.additive_noise_mutation
+     - | noise_mutation
+       | mutnoise
+     - | Add randomly distributed noise to `N` randomly selected components multiplied by a scaling factor `F`.
+       | (distributions available in :ref:`probability-distributions`)
+     - | - distribution
+       | - F
+       | - N
+       | - `parameters of the distribution`
+   * - mutation.sampling_mutation
+     - | replacement_mutation
+       | mutsample
+     - | Replaces `N` randomly selected components with random samples from a distribution.
+       | (distributions available in :ref:`probability-distributions`)
+     - | - distribution
+       | - N
+       | - `parameters of the distribution`
+   * - mutation.full_additive_noise
+     - | additive_noise
+       | full_mutation
+       | random_noise
+       | randnoise
+     - | Add randomly distributed noise to the entire vector multiplied by a scaling factor `F`.
+       | (distributions available in :ref:`probability-distributions`)
+     - | - distribution
+       | - F
+       | - `parameters of the distribution`
+   * - mutation.full_random_sampling
+     - | full_resampling
+       | random_sampling
+       | randsample
+       | regenerate
+     - | Replace the entire genotype with new samples from a distribution. 
+       | (distributions available in :ref:`probability-distributions`)
+     - | - distribution
+       | - `parameters of the distribution`
+   
+   * - mutation.xor
+     - | byte_xor
+       | int_xor
+       | bit_xor
+       | bitflip
+     - | Applies an XOR operator between `N` components of the vector and a random mask.
+     - | - mode ("bit", "byte", "int")
+       | - N 
+
+   * - mutation.mutate_1_sigma
+     - mutate1sigma
+     - Self-adaptation: mutate a single sigma stored in the genotype.
+     - | - epsilon (1e-10)
+       | - tau (1.0) 
+   * - mutation.mutate_n_sigmas
+     - mutatensigmas
+     - Self-adaptation: mutate per-variable sigmas.
+     - | - epsilon (1e-10)
+       | - tau (1.0) 
+       | - tau_multiple (1.0) 
+   * - mutation.sample_1_sigma
+     - sample1sigma
+     - Replace genotype with a sample from a Gaussian using the stored sigma.
+     - | - epsilon (1e-10)
+       | - tau (1.0) 
+       | - n (all) 
+
+Many mutation operators accept a ``distribution`` parameter to choose the
+underlying probability distribution.  The available distribution names and their
+parameters are described in the :ref:`probability-distributions` section below.
 
 ----
+
+.. _crossover_operators:
 
 Crossover
 ---------
 
-.. csv-table::
-   :header: "Primary name", "Aliases", "Description", "Parameters"
+.. list-table::
+   :header-rows: 1
 
-   "crossover.one_point_crossover", "1point, onepoint, one_point", "Exchange segments after a single crossing point.", ""
-   "crossover.two_point_crossover", "2point, twopoint, two_point", "Exchange the middle segment between two points.", ""
-   "crossover.uniform_crossover", "multipoint, uniform", "Swap each component independently with probability 0.5.", "p (0.5)"
-   "crossover.multi_parent_discrete_crossover", "multicross, multi_parent, multi_parent_crossover", "For each position, choose a random parent's value.", "N (3)"
-   "crossover.average_crossover", "avgcross, averagecross, arithmetic_crossover, intermediate_crossover", "Arithmetic mean of parents.", "alpha (0.5)"
-   "crossover.intermediate_avg", "crossinteravg, interavg, multi_parent_avg", "Weighted average of multiple parents.", "N (3), alpha"
-   "crossover.blx_alpha_crossover", "blxalpha, blx_alpha", "Blend crossover (BLX-α) for real values.", "alpha (0.5), low, high"
-   "crossover.sbx_crossover", "sbx, simulated_binary, simulated_binary_crossover", "Simulated binary crossover for real values.", "F (1)"
-   "crossover.bitwise_xor_crossover", "xorcross, xor_crossover, bitwise_xor, flipcross, bitflip_cross", "Bitwise XOR for binary genotypes.", ""
+   * - Primary name
+     - Aliases
+     - Description
+     - Parameters
 
-Crossover methods will deterministically take half of each population and cross it with the other half.
+   * - crossover.one_point_crossover
+     - | one_point
+       | onepoint
+       | 1point
+     - Exchange segments after a single crossing point.
+     - | - crossover_prob (1)
+       | - pairing_method (random)
+   * - crossover.two_point_crossover
+     - | two_point
+       | twopoint
+       | 2point
+     - Exchange the middle segment between two points.
+     - | - crossover_prob (1.0)
+       | - pairing_method ("random")
+   * - crossover.k_point_crossover
+     - | k-point_crossover
+       | kpoint_crossover
+       | k_point
+       | k-point
+       | kpoint
+       | multipoint_crossover
+       | multipoint
+     - k-point crossover with a configurable number of cut points.
+     - | - crossover_prob (1.0)
+       | - pairing_method ("random")
+       | - k
+   * - crossover.uniform_crossover
+     - uniform
+     - Swap each component independently with probability 0.5.
+     - | - crossover_prob (1.0)
+       | - pairing_method ("random")
+   * - crossover.average_crossover
+     - | avgcross
+       | averagecross
+       | arithmetic_crossover
+       | intermediate_crossover
+     - Arithmetic mean of parents.
+     - | - crossover_prob (1.0)
+       | - pairing_method ("random")
+       | - alpha (0.5)
+   * - crossover.blend_crossover
+     - | blxalpha
+       | blx_alpha
+       | blend_crossover
+     - Blend crossover (BLX-:math:`\alpha`) for real values.
+     - | - crossover_prob (1.0)
+       | - pairing_method ("random")
+       | - alpha (0.5)
+   * - crossover.sbx_crossover
+     - | sbx
+       | simulated_binary
+       | simulated_binary_crossover
+     - Simulated binary crossover for real values.
+     - | - crossover_prob (1.0)
+       | - pairing_method ("random")
+       | - eta (0.5)
+   * - crossover.bitwise_xor_crossover
+     - | xorcross
+       | xor_crossover
+       | bitwise_xor
+       | flipcross
+       | bitflip_cross
+     - Bitwise XOR for binary genotypes.
+     - | - crossover_prob (1.0)
+       | - pairing_method ("random")
+   * - crossover.multi_parent_discrete_crossover
+     - | multicross
+       | multi_parent
+       | multi_parent_crossover
+     - Perform uniform recombination between `k` parents.
+     - | - crossover_prob (1.0)
+       | - k (3)
+   * - crossover.multiparent_intermediate_crossover
+     - | crossinteravg
+       | interavg
+       | multiparent_avg
+     - Perform arithmetic recombination between `k` parents.
+     - | - crossover_prob (1.0)
+       | - k (3)
+
+All dual‑parent crossovers accept a ``pairing_method`` parameter (``"random"``
+or ``"stable"``) that controls how parents are paired.  The ``crossover_prob``
+parameter (default 1) is applied per pair.
 
 ----
+
+.. _perm_operators:
 
 Permutation operators
 ---------------------
 
-.. csv-table::
-   :header: "Primary name", "Aliases", "Description", "Parameters"
+.. list-table::
+   :header-rows: 1
 
-   "permutation.swap", "swap_mutation, two_swap", "Swap two random positions.", "N (2)"
-   "permutation.scramble", "scramble_mutation, perm, permutate, permutation_mutation, permute_components", "Randomly reorder a segment.", ""
-   "permutation.invert", "reverse, inversion_mutation", "Reverse the order of a subsequence.", ""
-   "permutation.roll", "roll_mutation, cyclic_shift", "Cyclically shift the genotype.", "N (1)"
-   "permutation.pmx", "pmx_crossover, partially_mapped_crossover", "Partially mapped crossover for permutations.", ""
-   "permutation.ox", "order_cross, order_crossover", "Order crossover for permutations.", ""
-   "permutation.shift", "insert, roll1, block_shift", "Remove a block and insert it elsewhere.", ""
+   * - Primary name
+     - Aliases
+     - Description
+     - Parameters
+
+   * - permutation.swap
+     - | swap_mutation
+       | two_swap
+     - Swap two random positions.
+     - | - N (2)
+
+   * - permutation.scramble
+     - | scramble_mutation
+       | perm
+       | permutate
+       | permutation_mutation
+       | permute_components
+     - Randomly reorder a segment.
+     -
+
+   * - permutation.invert
+     - | reverse
+       | inversion_mutation
+     - Reverse the order of a subsequence.
+     -
+
+   * - permutation.roll
+     - | roll_mutation
+       | cyclic_shift
+     - Cyclically shift the genotype.
+     - | - N (1)
+
+   * - permutation.pmx
+     - | pmx_crossover
+       | partially_mapped_crossover
+     - Partially mapped crossover for permutations.
+     - | - pairing_method (random)
+       | - crossover_prob (1)
+
+   * - permutation.ox
+     - | order_cross
+       | order_crossover
+     - Order crossover for permutations.
+     - | - pairing_method (random)
+       | - crossover_prob (1)
+
+   * - permutation.shift
+     - | insert
+       | roll1
+       | block_shift
+     - Remove a block and insert it elsewhere.
+     -
 
 These operators assume the genotype represents a permutation of integers.
 
 ----
 
+.. _de_operators:
+
 Differential Evolution
 ----------------------
 
-.. csv-table::
-   :header: "Method", "Aliases", "Parameters"
+.. list-table::
+   :header-rows: 1
 
-   "DE/rand/1", "de_rand_1, de.rand.1", "F (0.8), Cr (0.9)"
-   "DE/best/1", "de_best_1, de.best.1", "F, Cr"
-   "DE/rand/2", "de_rand_2, de.rand.2", "F, Cr"
-   "DE/best/2", "de_best_2, de.best.2", "F, Cr"
-   "DE/current-to-rand/1", "de_current_to_rand_1, de.current-to-rand.1", "F, Cr"
-   "DE/current-to-best/1", "de_current_to_best_1, de.current-to-best.1", "F, Cr"
-   "DE/current-to-pbest/1", "de_current_to_pbest_1, de.current-to-pbest.1", "F (0.8), Cr (0.9), p (0.1)"
+   * - Primary name
+     - Aliases
+     - Description
+     - Parameters
+
+   * - DE/rand/1
+     - de_rand_1
+     - Classic rand/1 mutation and binomial crossover.
+     - | - F (0.8)
+       | - Cr (0.9)
+
+   * - DE/best/1
+     - de_best_1
+     - Uses the best individual as base vector.
+     - | - F (0.8)
+       | - Cr (0.9)
+
+   * - DE/rand/2
+     - de_rand_2
+     - Two difference vectors for increased perturbation.
+     - | - F (0.8)
+       | - Cr (0.9)
+
+   * - DE/best/2
+     - de_best_2
+     - Best individual with two difference vectors.
+     - | - F (0.8)
+       | - Cr (0.9)
+
+   * - DE/current-to-rand/1
+     - de_current_to_rand_1
+     - Blends the current individual with a random donor.
+     - | - F (0.8)
+       | - Cr (0.9)
+
+   * - DE/current-to-best/1
+     - de_current_to_best_1
+     - Blends the current individual towards the best.
+     - | - F (0.8)
+       | - Cr (0.9)
+
+   * - DE/current-to-pbest/1
+     - de_current_to_pbest_1
+     - Blends the current individual towards a p‑best.
+     - | - F (0.8)
+       | - Cr (0.9)
+       | - p (0.1)
 
 ----
+
+.. _swarm_operators:
 
 Swarm operators
 ---------------
 
-.. csv-table::
-   :header: "Primary name", "Aliases", "Description", "Parameters"
+.. list-table::
+   :header-rows: 1
 
-   "swarm.pso", "pso_operator", "Particle Swarm velocity and position update.", "w (0.7), c1 (1.5), c2 (1.5)"
-   "swarm.firefly", "", "Firefly algorithm movement.", "alpha_0 (0.2), beta_0 (1.0), delta (1.0), gamma (1.0)"
+   * - Primary name
+     - Aliases
+     - Description
+     - Parameters
 
-These operators require a `ParameterExtendingEncoding` (e.g., `PSOEncoding`) and
-an `ExtendedInitializer` to manage the extra data (velocity, etc.).
+   * - swarm.pso
+     - pso_operator
+     - Particle Swarm velocity and position update.
+     - | - w (0.7)
+       | - c1 (1.5)
+       | - c2 (1.5)
+
+These operators require a :class:`~metaheuristic_designer.encodings.ParameterExtendingEncoding`
+(e.g., :class:`~metaheuristic_designer.encodings.special.PSO_encoding.PSOEncoding`) and an
+:class:`~metaheuristic_designer.initializers.extended_initializer.ExtendedInitializer` to manage
+the extra data (velocity, etc.).
 
 ----
+
+.. _random_operators:
 
 Random / reinitialization operators
 -----------------------------------
 
-.. csv-table::
-   :header: "Primary name", "Aliases", "Description", "Parameters"
+.. list-table::
+   :header-rows: 1
 
-   "random.reinitialize", "random, regenerate, full_random_reset", "Replace the entire population with fresh random individuals.", ""
-   "random.reset", "reset_n, reset_random, reset_components", "Replace a subset of components with random values.", "n (1)"
+   * - Primary name
+     - Aliases
+     - Description
+     - Parameters
+
+   * - random.reinitialize
+     - | random
+       | regenerate
+       | full_random_reset
+     - Replace the entire population with fresh random individuals.
+     -
+
+   * - random.reset
+     - | reset_n
+       | reset_random
+       | reset_components
+     - Replace a subset of components with random values.
+     - | - n (1)
 
 ----
+
+.. _debug_operators:
 
 Debug operators
 ---------------
 
-.. csv-table::
-   :header: "Primary name", "Aliases", "Description", "Parameters"
+.. list-table::
+   :header-rows: 1
 
-   "debug.dummy", "debug, constant, set_to_value", "Set all genotype values to a constant `f`.", "f (0)"
-   "debug.zeros", "", "Set all values to 0.", ""
-   "debug.ones", "", "Set all values to 1.", ""
+   * - Primary name
+     - Aliases
+     - Description
+     - Parameters
+
+   * - debug.dummy
+     - | debug
+       | constant
+       | set_to_value
+     - Set all genotype values to a constant ``f``.
+     - | - f (0)
+
+   * - debug.zeros
+     -
+     - Set all values to 0.
+     -
+
+   * - debug.ones
+     -
+     - Set all values to 1.
+     - 
+
 
 ----
+
+.. _custom_operators:
 
 Custom operators
 ----------------
@@ -195,164 +562,409 @@ You can register your own operator functions and use them with the factory:
     from metaheuristic_designer.operators import add_operator_entry, OperatorVectorDef
     from metaheuristic_designer.utils import MatrixLike, VectorLike, RNGLike
 
+    @OperatorFnDef
     def my_operator(population_matrix: MatrixLike, fitness_array: VectorLike, random_state: RNGLike, **kwargs) -> MatrixLike:
         ...
 
-    add_operator_entry(OperatorVectorDef(my_operator), "myop", "custom")
+    add_operator_entry(my_operator, "myop", "custom")
 
     op = create_operator("custom.myop")
 
-
-We need the wrapper :py:class:`OperatorVectorDef<metaheuristic_designer.operators.operator_functions.utils.OperatorVectorDef>` since operators lambdas work on :py:class:`Population<metaheuristic_designer.population.Population>` objects, this wrapper
-manages the wiring so the population matrix is updated correctly into a new copy of the :py:class:`Population<metaheuristic_designer.population.Population>` object.
-
-In case you want to access the population object directly, the function signature must use the :py:class:`Population<metaheuristic_designer.population.Population>` class
-directly along with an instance of an :py:class:`Initializer<metaheuristic_designer.initializer.Initializer>`, 
-ensuring neither is modified in place. It is recommended to create a copy of the population at the start of the function. Initializers don't usually
-need to be copied since we would never modify them in an operator.
-The implementation would go like this:
-
-.. code-block:: python
-
-    from metaheuristic_designer.operators import add_operator_entry
-    from metaheuristic_designer.population import Population
-    from metaheuristic_designer.initializer import Initializer
-    from metaheuristic_designer.utils import RNGLike
-
-    def my_operator_on_population(population: Population, initializer: Initializer, random_state: RNGLike, **kwargs) -> Population:
-        ...
-
-    add_operator_entry(my_operator_on_population, "myop-on-population", "custom")
-
-    op = create_operator("custom.myop-on-population")
-
-For a complete walk‑through, including the required function signatures for every
-component, see the :doc:`Custom Components <api_reference.custom_components>` page.
+For a complete walk‑through, including the required function signatures, see
+:doc:`Custom Components <api_reference.custom_components>`.
 
 .. _probability-distributions:
 
 Probability Distributions
-^^^^^^^^^^^^^^^^^^^^^^^^^
-Operator methods that involve randomness choose the underlying probability distribution
-via the ``distrib`` parameter.  The name is a case-insensitive string.
+-------------------------
 
-.. csv-table::
-   :header: "Distribution name", "Aliases", "Parameters", "Description"
+Mutation operators that involve randomness accept a ``distribution`` parameter.
+The name is a case‑insensitive string that can optionally include the registry
+prefix (e.g., ``"scipy-univar.norm"``).  Distributions are organised in three
+sub‑registries: ``scipy-univar`` (standard univariate distributions),
+``scipy-multivar`` (multivariate distributions), and ``custom`` (user‑defined
+distributions).
 
-   "Uniform", "", "min, max", "Uniform distribution between ``min`` and ``max`` (mapped internally to ``loc=min, scale=max-min``)."
-   "Gaussan", "Gauss, Normal", "loc, scale", "Normal (Gaussian) distribution with mean ``loc`` and standard deviation ``scale``."
-   "Multivariate Normal", "Multigauss", "mean, cov (or loc, scale)", "Multivariate normal distribution. If ``loc``/``scale`` are scalars, an isotropic covariance is built; otherwise pass ``mean`` and ``cov`` arrays."
-   "Cauchy", "", "loc, scale", "Cauchy distribution."
-   "Laplace", "", "loc, scale", "Laplace distribution."
-   "Gamma", "", "a, loc, scale", "Gamma distribution (shape ``a``)."
-   "Exponential", "Expon, Exp", "loc, scale", "Exponential distribution."
-   "LevyStable", "levy_stable", "a, b, loc, scale", "Lévy-stable distribution (stability ``a``, skewness ``b``)."
-   "Tikhonov", "vonMises, vonMises-Fisher", "mu, scale", "von Mises-Fisher distribution (kappa = 1/``scale``). ``mu`` must be a direction vector."
-   "Poisson", "", "mu, loc", "Poisson distribution with mean ``mu``."
-   "Bernoulli", "", "p", "Bernoulli distribution (probability of success ``p``)."
-   "Binomial", "", "n, p, loc", "Binomial distribution (``n`` trials, success probability ``p``)."
-   "Categorical", "", "p", "Categorical distribution given by a probability vector ``p``."
-   "Multivariate Categorical", "Multicategorical", "p", "Multivariate categorical distribution; ``p`` is a 2-D array of probabilities (rows sum to 1)."
-   "Custom", "", "distrib_class (any scipy distribution)", "Any user-provided probability distribution from ``scipy.stats`` (the class itself, not an instance)."
+To list all available distributions at runtime, call
+:func:`~metaheuristic_designer.operators.operator_functions.probability_distributions_factory.list_distributions`.
+To register a new one, use
+:func:`~metaheuristic_designer.operators.operator_functions.probability_distributions_factory.add_distribution_entry`.
 
-When a parameter can be an array, its shape must be compatible with the population matrix
-(number of individuals x number of variables).
+.. list-table::
+   :header-rows: 1
 
-.. note::
+   * - Distribution name
+     - Registry
+     - Aliases
+     - Short Description
+     - Parameters
 
-   The special **self-adaptation operators** (``mutate_1_sigma``, ``mutate_n_sigmas``,
-   ``sample_1_sigma``) use their own internal parameters (``epsilon``, ``tau``, …)
-   and **do not** accept a ``distrib`` argument.
+   * - ``norm``
+     - scipy‑univar
+     - | normal
+       | gauss
+       | gaussian
+     - Normal (Gaussian) distribution.
+     - | - loc (0)
+       | - scale (1)
+
+   * - ``uniform``
+     - scipy‑univar
+     -
+     - Uniform distribution. Accepts ``min``/``max``, automatically converted to ``loc``/``scale``.
+     - | - loc (0)
+       | - scale (1)
+       | - min & max (optional)
+
+   * - ``cauchy``
+     - scipy‑univar
+     -
+     - Cauchy distribution.
+     - | - loc (0)
+       | - scale (1)
+
+   * - ``laplace``
+     - scipy‑univar
+     -
+     - Laplace distribution.
+     - | - loc (0)
+       | - scale (1)
+
+   * - ``gamma``
+     - scipy‑univar
+     -
+     - Gamma distribution (shape ``a``).
+     - | - a
+       | - loc (0)
+       | - scale (1)
+
+   * - ``exponential``
+     - scipy‑univar
+     - | expon
+       | exp
+     - Exponential distribution.
+     - | - loc (0)
+       | - scale (1)
+
+   * - ``levy_stable``
+     - scipy‑univar
+     - levy
+     - Lévy‑stable distribution.
+     - | - alpha (2)
+       | - beta (0)
+       | - loc (0)
+       | - scale (1)
+
+   * - ``poisson``
+     - scipy‑univar
+     -
+     - Poisson distribution.
+     - | - mu
+       | - loc (0)
+
+   * - ``bernoulli``
+     - scipy‑univar
+     -
+     - Bernoulli distribution.
+     - | - p
+       | - loc (0)
+
+   * - ``binomial``
+     - scipy‑univar
+     - binom
+     - Binomial distribution.
+     - | - n
+       | - p
+       | - loc (0)
+
+   * - ``categorical``
+     - scipy‑univar
+     -
+     - Categorical distribution given by a probability vector.
+     - | - p
+
+   * - ``tikhinov``
+     - scipy‑univar
+     - vonmises
+     - Von Mises (circular) distribution. ``kappa`` (:math:`\kappa`) is converted to concentration :math:`\kappa = \frac{1}{\text{scale}}`.
+     - | - kappa
+       | - loc
+
+   * - ``multivariate_normal``
+     - scipy‑multivar
+     - | multigauss
+       | multinormal
+       | mvn
+     - Multivariate normal distribution.
+     - | - mean
+       | - cov
+
+   * - ``dirichlet``
+     - scipy‑multivar
+     -
+     - Dirichlet distribution.
+     - | - alpha
+
+   * - ``vonmises_fisher``
+     - scipy‑multivar
+     -
+     - Von Mises‑Fisher distribution on the hypersphere.
+     - | - mu
+       | - kappa
+
+   * - ``multicategorical``
+     - custom
+     -
+     - Multivariate categorical distribution (per‑row probability weights).
+     - | - categories
+       | - weight_matrix
+
+When a parameter can be an array, its shape must be compatible with the
+population matrix (number of individuals × number of variables).  The special
+self‑adaptation operators (``mutate_1_sigma``, ``mutate_n_sigmas``,
+``sample_1_sigma``) use their own internal parameters and **do not** accept a
+``distribution`` argument.
 
 .. _selection-methods:
 
 Implemented Selection Methods
-=============================
+-----------------------------
 
 Parent and survivor selection are created through dedicated **factory functions**:
 
-* :py:func:`create_parent_selection<metaheuristic_designer.parent_selection_methods.parent_selection.create_parent_selection>` – returns a :py:class:`ParentSelection<metaheuristic_designer.parent_selection.ParentSelection>` instance.
-* :py:func:`create_survivor_selection<metaheuristic_designer.survivor_selection_methods.survivor_selection.create_survivor_selection>` – returns a :py:class:`SurvivorSelection<metaheuristic_designer.survivor_selection.SurvivorSelection>` instance.
+* :py:func:`~metaheuristic_designer.parent_selection.parent_selection.create_parent_selection` – returns a :py:class:`~metaheuristic_designer.parent_selection.ParentSelection` instance.
+* :py:func:`~metaheuristic_designer.survivor_selection.survivor_selection.create_survivor_selection` – returns a :py:class:`~metaheuristic_designer.survivor_selection.SurvivorSelection` instance.
 
-Both accept a case-insensitive method name as the first argument, followed by any
-method-specific parameters as keyword arguments.
+Both accept a case‑insensitive method name as the first argument, followed by any
+method‑specific parameters as keyword arguments.
 
 To **skip** a selection step entirely, use the
-:py:class:`NullParentSelection<metaheuristic_designer.parent_selection.NullParentSelection>` / :py:class:`NullSurvivorSelection<metaheuristic_designer.survivor_selection.NullSurvivorSelection>` classes.
+:py:class:`~metaheuristic_designer.parent_selection.NullParentSelection` /
+:py:class:`~metaheuristic_designer.survivor_selection.NullSurvivorSelection` classes.
 
 Parent Selection
-----------------
+================
 
 .. function:: create_parent_selection(method, amount=None, ...)
 
-   Available method keys (case-insensitive). The primary (recommended) name is listed first;
-   aliases are shown in the second column. Parameters can be passed as keyword arguments.
+   Available method keys (case‑insensitive).  The primary name is listed first;
+   aliases are shown in the second column.
 
-   .. csv-table::
-      :header: "Method (primary)", "Aliases", "Parameters", "Description"
+.. list-table::
+   :header-rows: 1
 
-      "``tournament_selection``", "``tournament``", "``amount`` (int), ``tournament_size`` (int, default 3), ``p`` (float, default 1.0)", "Tournament selection: pick ``tournament_size`` random individuals and keep the best with probability ``p`` (default 1.0 ensures the best always wins)."
-      "``probabilistic_tournament``", "", "``amount`` (int), ``tournament_size`` (int, default 3), ``p`` (float, default 0.5)", "Tournament selection where the winner is chosen with probability ``p`` (default 0.5)."
-      "``select_best``", "``best``, ``truncation``", "``amount`` (int)", "Select the ``amount`` individuals with the highest fitness."
-      "``uniform``", "``random``", "``amount`` (int)", "Uniformly random selection without replacement."
-      "``roulette``", "", "``amount`` (int), ``method`` (str, see :ref:`roulette-weighting`), ``F`` (float)", "Fitness-proportionate (roulette wheel) selection. The weighting method can be chosen via the ``method`` parameter."
-      "``fitness_proportional``", "", "``amount`` (int), ``F`` (float)", "Roulette selection with **fitness proportional** weighting (shortcut for ``roulette, method='fitness_prop'``)."
-      "``sigma_scaling``", "``std_roulette``", "``amount`` (int), ``F`` (float)", "Roulette selection with **sigma scaling** weighting."
-      "``linear_rank``", "``rank_roulette``", "``amount`` (int), ``F`` (float)", "Roulette selection with **linear rank** weighting."
-      "``exponential_rank``", "``exp_rank_roulette``", "``amount`` (int), ``F`` (float)", "Roulette selection with **exponential rank** weighting."
-      "``stochastic_universal_sampling``", "``sus``", "``amount`` (int), ``method`` (str, see :ref:`roulette-weighting`), ``F`` (float)", "Stochastic universal sampling. Same weighting options as ``roulette``."
-      "``sus_fitness_proportional``", "``sus_fit_prop``, ``sus_proportional``, ``sus_prop``", "``amount`` (int), ``F`` (float)", "SUS with **fitness proportional** weighting."
-      "``sus_sigma``", "``sus_std``", "``amount`` (int), ``F`` (float)", "SUS with **sigma scaling** weighting."
-      "``sus_rank``", "", "``amount`` (int), ``F`` (float)", "SUS with **linear rank** weighting."
-      "``sus_exponential``", "``sus_exp``", "``amount`` (int), ``F`` (float)", "SUS with **exponential rank** weighting."
+   * - Primary name
+     - Aliases
+     - Description
+     - Parameters
 
-   .. note::
+   * - tournament
+     - tournament_selection
+     - Tournament selection: pick ``tournament_size`` random individuals and keep the best with probability ``prob`` (default 1.0 ensures the best always wins).
+     - | - amount
+       | - tournament_size (3)
+       | - prob (1.0)
 
-      The convenience shortcuts (``fitness_proportional``, ``sigma_scaling``, …,
-      and their SUS counterparts) fix the weighting method internally and do **not**
-      require a ``method`` argument. Use the base ``roulette`` / ``sus`` names when
-      you need to supply the ``method`` explicitly.
+   * - probabilistic_tournament
+     -
+     - Tournament where the winner is chosen with probability ``prob`` (default 0.5).
+     - | - amount
+       | - tournament_size (3)
+       | - prob (0.5)
+
+   * - best
+     - | truncation
+       | select_best
+     - Select the ``amount`` individuals with the highest fitness.
+     - | - amount
+
+   * - random
+     - uniform
+     - Uniformly random selection with replacement.
+     - | - amount
+
+   * - random_without_replacement
+     - | shuffle
+       | permute
+       | random_subset
+     - Random selection without replacement (shuffle).
+     - | - amount
+
+   * - roulette
+     -
+     - Fitness‑proportionate (roulette wheel) selection. Weighting method selected via ``method`` (see :ref:`roulette-weighting`).
+     - | - amount
+       | - scaling_factor
+       | - method
+
+   * - fitness_proportional
+     -
+     - Roulette with fitness proportional weighting.
+     - | - amount
+       | - scaling_factor
+
+   * - sigma_scaling
+     - std_roulette
+     - Roulette with sigma scaling.
+     - | - amount
+       | - scaling_factor
+
+   * - linear_rank
+     - rank_roulette
+     - Roulette with linear ranking.
+     - | - amount
+       | - scaling_factor
+
+   * - exponential_rank
+     - exp_rank_roulette
+     - Roulette with exponential ranking.
+     - | - amount
+       | - scaling_factor
+
+   * - sus
+     - stochastic_universal_sampling
+     - Stochastic universal sampling. Same weighting options as ``roulette``.
+     - | - amount
+       | - scaling_factor
+       | - method
+
+   * - sus_fitness_proportional
+     - | sus_fit_prop
+       | sus_proportional
+       | sus_prop
+     - SUS with fitness proportional weighting.
+     - | - amount
+       | - scaling_factor
+
+   * - sus_sigma
+     - sus_std
+     - SUS with sigma scaling.
+     - | - amount
+       | - scaling_factor
+
+   * - sus_rank
+     -
+     - SUS with linear ranking.
+     - | - amount
+       | - scaling_factor
+
+   * - sus_exponential
+     - sus_exp
+     - SUS with exponential ranking.
+     - | - amount
+       | - scaling_factor
 
 .. _roulette-weighting:
 
 Roulette & SUS weighting methods
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When using ``"roulette"`` or ``"sus"``, the ``method`` parameter selects how fitness is
-mapped to selection probabilities. The available values are **case-insensitive**:
+When using ``"roulette"`` or ``"sus"``, the ``method`` parameter selects how
+fitness is mapped to selection probabilities.  The available values are
+case‑insensitive:
 
-.. csv-table::
-   :header: "``method`` value", "Aliases", "Description"
+.. list-table::
+   :header-rows: 1
 
-   "``fitness_proportional``", "``fitness_prop``", "Fitness proportional scaling. The minimum fitness is subtracted to avoid negative values, then an offset ``F`` is added."
-   "``sigma_scaling``", "", "Sigma scaling: weights are based on standard deviations above the mean."
-   "``linear_rank``", "``lin_rank``", "Linear ranking: the weight of the i-th best individual is proportional to its rank."
-   "``exponential_rank``", "``exp_rank``", "Exponential ranking: weights are exponentially decayed with rank."
+   * - method value
+     - Aliases
+     - Description
+     - Parameters
 
-If no ``method`` is given, plain fitness proportional scaling is applied.
+   * - fitness_proportional
+     - fitness_prop
+     - Fitness proportional scaling. Minimum fitness is subtracted and an offset ``scaling_factor`` is added.
+     - scaling_factor
+
+   * - sigma_scaling
+     -
+     - Sigma scaling: weights based on standard deviations above the mean.
+     - scaling_factor
+
+   * - linear_rank
+     - lin_rank
+     - Linear ranking: weight proportional to rank.
+     - scaling_factor
+
+   * - exponential_rank
+     - exp_rank
+     - Exponential ranking: weight decays exponentially with rank.
+     - scaling_factor
+
+If no ``method`` is given, ``fitness_proportional`` is applied.
 
 Survivor Selection
-------------------
+==================
 
 .. function:: create_survivor_selection(method, ...)
 
-   Available method keys (case-insensitive), with the recommended explicit name shown first.
+   Available method keys (case‑insensitive).
 
-   .. csv-table::
-      :header: "Method (primary)", "Aliases", "Parameters", "Description"
+.. list-table::
+   :header-rows: 1
 
-      "``elitism``", "", "``amount`` (int)", "Preserve the ``amount`` fittest parents and fill the remaining slots with the best offspring."
-      "``conditional_elitism``", "``cond_elitism``", "``amount`` (int)", "Like ``elitism``, but only preserves elites if the offspring's best fitness is worse than the parent's best."
-      "``generational``", "``nothing``", "", "Discard parents; the offspring becomes the new population."
-      "``one_to_one``", "``hillclimb``, ``hill_climb``", "", "Each offspring competes against its corresponding parent; the winner stays."
-      "``probabilistic_one_to_one``", "``prob_one_to_one``, ``prob_hillclimb``, ``prob_hill_climb``, ``probabilistic_hillclimb``, ``probabilistic_hill_climb``", "``p`` (float)", "Like ``one_to_one``, but the offspring wins with probability ``p`` regardless of fitness."
-      "``many_to_one``", "``local_search``", "", "Each parent is compared to the corresponding offspring and the better one is kept."
-      "``probabilistic_many_to_one``", "``prob_many_to_one``, ``prob_local_search``, ``probabilistic_local_search``", "``p`` (float)", "Like ``many_to_one``, but the offspring wins with probability ``p`` even if it is worse."
-      "``keep_best``", "``(m+n)``, ``(mu+lambda)``, ``mu+lambda``", "", "Keep the best ``pop_size`` individuals from the union of parents and offspring. The size of the population is determined by the size of the previous generation."
-      "``keep_offspring``", "``(m,n)``, ``(mu,lambda)``, ``mu,lambda``", "", "Replace the whole population with the best individuals from the offspring (offspring size must be ≥ population size)."
+   * - Primary name
+     - Aliases
+     - Description
+     - Parameters
 
-For guidance on writing your own parent or survivor selection functions and
-registering them with the factories, refer to the :doc:`Custom Components <api_reference.custom_components>` page.
+   * - elitism
+     -
+     - Preserve the ``amount`` fittest parents; fill remaining slots with best offspring.
+     - | - amount
+
+   * - conditional_elitism
+     - cond_elitism
+     - Like ``elitism``, but only preserves elites if offspring's best fitness is worse.
+     - | - amount
+
+   * - generational
+     - nothing
+     - Discard parents; the offspring become the new population.
+     -
+
+   * - one_to_one
+     - | hillclimb
+       | hill_climb
+     - Each offspring competes against its corresponding parent; the winner stays.
+     -
+
+   * - probabilistic_one_to_one
+     - | prob_one_to_one
+       | prob_hillclimb
+       | prob_hill_climb
+       | probabilistic_hillclimb
+       | probabilistic_hill_climb
+     - Like ``one_to_one``, but the offspring wins with probability ``p`` regardless of fitness.
+     - | - p
+
+   * - many_to_one
+     - local_search
+     - Each parent is compared to several offspring; the best among them survives.
+     -
+
+   * - probabilistic_many_to_one
+     - | prob_many_to_one
+       | prob_local_search
+       | probabilistic_local_search
+     - Like ``many_to_one``, but the winner is chosen randomly with probability ``p``.
+     - | - p
+
+   * - keep_best
+     - | (m+n)
+       | (mu+lambda)
+       | mu+lambda
+     - Keep the best ``pop_size`` individuals from the union of parents and offspring.
+     -
+
+   * - keep_offspring
+     - | (m,n)
+       | (mu,lambda)
+       | mu,lambda
+     - Replace the whole population with the best offspring (offspring size must be ≥ population size).
+     -
+
+registering them with the factories, refer to :doc:`Custom Components <api_reference.custom_components>`.
 
 .. _selection-discovery-note:
 

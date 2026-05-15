@@ -1,3 +1,7 @@
+"""
+Initializer that samples from a uniform distribution.
+"""
+
 from __future__ import annotations
 import numpy as np
 from ..initializer import Initializer
@@ -5,22 +9,27 @@ from ..initializer import Initializer
 
 class UniformInitializer(Initializer):
     """
-    Initializer that generates individuals with vectors following an uniform distribution.
+    Initializer that generates individuals with values drawn from a
+    uniform distribution.
 
     Parameters
     ----------
-    genotype_size: ndarray
-        The dimension of the vectors accepted by the objective function.
-    lower_bound: ndarray or float
-        Lower limit restriction for the vectors.
-    upper_bound: ndarray or float
-        Upper limit restriction for the vectors.
-    pop_size: int, optional
-        Number of individuals to be generated.
-    encoding: Encoding, optional
+    dimension : int
+        Length of the genotype vector.
+    lower_bound : float or array
+        Lower bound(s) of the distribution.  If an array is given,
+        it must have length `dimension`.
+    upper_bound : float or array
+        Upper bound(s) of the distribution.  Must match the shape
+        of `lower_bound`.
+    population_size : int, optional
+        Number of individuals to generate (default 1).
+    encoding : Encoding, optional
         Encoding that will be passed to each individual.
-    dtype: type, optional
-        Data type used in each of the components of the vector in the individual.
+    dtype : type, optional
+        Desired NumPy dtype of the generated vectors (default ``float``).
+    random_state : RNGLike, optional
+        Random number generator.
     """
 
     def __init__(self, dimension, lower_bound, upper_bound, population_size=1, encoding=None, dtype=float, random_state=None):

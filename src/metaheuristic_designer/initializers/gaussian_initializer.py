@@ -1,3 +1,7 @@
+"""
+Initializer that samples from a Gaussian (normal) distribution.
+"""
+
 from __future__ import annotations
 from numbers import Integral
 import numpy as np
@@ -6,22 +10,27 @@ from ..initializer import Initializer
 
 class GaussianInitializer(Initializer):
     """
-    Initializer that generates individuals with vectors following a normal distribution.
+    Initializer that generates individuals with values drawn from a
+    Gaussian (normal) distribution.
 
     Parameters
     ----------
-    genotype_size: ndarray
-        The dimension of the vectors accepted by the objective function.
-    g_mean: ndarray or float
-        Mean of the probability distribution used to generate the individuals.
-    g_std: ndarray or float
-        Standard deviation of the probability distribution used to generate the individuals.
-    pop_size: int, optional
-        Number of individuals to be generated.
-    encoding: Encoding, optional
+    dimension : int
+        Length of the genotype vector.
+    g_mean : float or array
+        Mean of the distribution.  If an array is given, it must have
+        length `dimension`.
+    g_std : float or array
+        Standard deviation of the distribution.  If an array is given,
+        it must have length `dimension`.
+    pop_size : int, optional
+        Number of individuals to generate (default 1).
+    encoding : Encoding, optional
         Encoding that will be passed to each individual.
-    dtype: type, optional
-        Data type used in each of the components of the vector in the individual.
+    dtype : type, optional
+        Desired NumPy dtype of the generated vectors (default ``float``).
+    random_state : RNGLike, optional
+        Random number generator.
     """
 
     def __init__(self, dimension, g_mean, g_std, pop_size=1, encoding=None, dtype=float, random_state=None):

@@ -1,3 +1,7 @@
+"""
+Encoding that chains a sequence of encodings into a single composite operation.
+"""
+
 from __future__ import annotations
 from typing import Iterable, Optional
 from ..encoding import Encoding
@@ -7,7 +11,18 @@ from ..utils import MatrixLike
 
 class CompositeEncoding(ParameterExtendingEncoding):
     """
-    Default encoder that uses the genotype directly as a solution.
+    Encoding that applies a sequence of encodings in order.
+
+    Encodings are applied from first to last for decoding, and in reverse
+    order for encoding.  This allows stacking transformations such as
+    type casting followed by reshaping or sigmoid mapping.
+
+    Parameters
+    ----------
+    encodings : iterable of Encoding
+        The encodings to apply in sequence.
+    **kwargs
+        Forwarded to :class:`ParameterExtendingEncoding`.
     """
 
     def __init__(self, encodings: Iterable[Encoding], **kwargs):
@@ -20,7 +35,7 @@ class CompositeEncoding(ParameterExtendingEncoding):
                 dimension = encoding.dimension if dimension is None else min(dimension, encoding.dimension)
 
         super().__init__(dimension=dimension, param_sizes=param_sizes, **kwargs)
-    
+
     def gather_params(self):
         all_params = self.get_params()
         for enc in self.encodings:

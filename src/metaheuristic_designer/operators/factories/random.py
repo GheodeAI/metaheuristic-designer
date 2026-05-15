@@ -1,7 +1,11 @@
-""" """
+"""
+Random-generation operator registry and factory.
+"""
 
+from typing import Optional
+from ...encoding import Encoding
 from ..operator_functions.random_generation import *
-from ..operator_functions.utils import OperatorFnDef, OperatorRandomDef
+from ..operator_functions import OperatorRandomDef
 from ...operator import OperatorFromLambda
 
 # fmt: off
@@ -21,9 +25,30 @@ random_ops_map = {
 # fmt: on
 
 
-def create_random_operator(method, encoding=None, name=None, **kwargs):
+def create_random_operator(
+    method: str,
+    encoding: Optional[Encoding] = None,
+    name: Optional[str] = None,
+    **kwargs
+) -> OperatorFromLambda:
     """
-    Create operators that utilize the Initializer interface for random generation.
+    Create a random operator that uses an Initializer for fresh values.
+
+    Parameters
+    ----------
+    method : str
+        Key into :data:`random_ops_map`.
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    name : str, optional
+        Display name; defaults to *method*.
+    **kwargs
+        Forwarded to the operator function.
+
+    Returns
+    -------
+    OperatorFromLambda
+        The wrapped random operator.
     """
 
     if name is None:

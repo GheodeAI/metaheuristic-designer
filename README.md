@@ -12,8 +12,7 @@ The library is a direct implementation of the vision laid out in
 [Metaheuristics “In the Large”](https://doi.org/10.1016/j.ejor.2021.05.042).
 Many design decisions follow the principles of
 [Introduction to Evolutionary Computing](https://doi.org/10.1007/978-3-662-44874-8)
-by Eiben and Smith.  For a deeper discussion of the philosophy behind the
-framework, see the **Design Philosophy** page in the documentation.
+by Eiben and Smith.
 
 ---
 
@@ -64,6 +63,29 @@ pip install metaheuristic-designer[examples]
   `metaheuristic_designer.simple` module for one‑line instantiation of
   common algorithms (GA, DE, PSO, SA, …).  When you need more control,
   dive into the object‑oriented configuration.
+
+---
+## Tutorials
+
+The best way to learn is to run the interactive notebooks – they cover everything from basic setup to
+advanced self‑adaptation and live plotting. Each notebook is a self‑contained, commented
+Python script (Jupytext format) that you can open as a notebook or run as a script.
+
+| Notebook | What you’ll learn |
+|----------|--------------------|
+| [Genetic Algorithm Quickstart](tutorials/genetic_algorithm_tutorial.ipynb) | Minimise the Sphere function with a GA, convergence plots, log‑scale |
+| [Simple API](tutorials/simple_api_tutorial.ipynb) | One‑line GA, DE, PSO; compare algorithms side‑by‑side |
+| [Custom Components](tutorials/custom_components_tutorial.ipynb) | Build your own objective, operator, selection, and wiring |
+| [Scheduled Parameters](tutorials/parameter_schedules_tutorial.ipynb) | Decay mutation strength, step‑change probabilities, live tracking |
+| [Self‑Adapting ES](tutorials/self_adaption_tutorial.ipynb) | Evolution Strategy with evolving sigma, parameter‑extending encodings |
+| [Algorithm Selection & Reporting](tutorials/algorithm_selection_tutorial.ipynb) | Run contests, collect raw data, produce statistical reports |
+| [Plotting and History Analysis](tutorials/plotting.ipynb) | Fitness distribution boxplots, diversity, scheduled parameter evolution |
+| [Real time algorithm progress](tutorials/real_time_plotting_tutorial.ipynb) | Real time demonstration of differential evolution over a 2-D function |
+| [Permutation Problems (TSP)](tutorials/tsp_tutorial.ipynb) | PMX crossover, swap mutation, real‑time tour visualisation |
+
+All tutorials are in the `tutorials/` directory of this repository. Open them with Jupyter,
+VS Code (Jupyter extension), or any editor that supports Jupytext. If you prefer a live
+environment, you can go to [interactive](https://mybinder.org/v2/gh/GheodeAI/metaheuristic-designer/main?filepath=tutorials%2Fgenetic_algorithm_tutorial.py)
 
 ---
 
@@ -139,6 +161,15 @@ to print the registered keys directly from Python.
 
 The library is built around a small number of abstract, composable pieces.
 
+By default, every function works with numpy arrays in vectorized operators. `Encodings` allow for non-matrix representations in case it is needed.
+
+### Objective function
+Objective function define the optimization problem we want to solve. They will be implemented as `ObjectiveFunc` objects which have an `.objective(solution)` method that evaluates each solution.
+
+This kind of functions also accept full populations (numpy arrays or iterables) as `.objective(solutions)` returning a vector with the objective of each solution so operations can be vectorized, obtaining very significant performance gains.
+
+It is recommended to define objectives as plain python functions, and pass them to `OperatorFromLambda` to cretate the objective function object.
+
 ### Algorithm
 An `Algorithm` runs the optimisation loop — initialisation, stopping conditions,
 progress tracking, and logging.  It can be configured with object‑oriented
@@ -147,7 +178,7 @@ components or with simple keyword arguments.
 The `MemeticAlgorithm` subclass adds a local search step, implementing both
 Baldwinian and Lamarckian memetic algorithms.
 
-### Search Strategy
+### Search Strategy (Single iteration)
 A `SearchStrategy` defines how the population evolves each generation.
 It holds an initializer, an operator, and optionally parent/survivor selection.
 Pre‑built strategies include:
@@ -161,14 +192,18 @@ Pre‑built strategies include:
 Custom strategies can be assembled directly with `SearchStrategy` or defined
 from scratch.
 
-### Operators
-Operators modify the genotype of individuals.  They are created through a
+### Operators (Mutation/crossover)
+Operators modify the genotype of individuals.  
+
+This includes both mutation operators, crossover and any other operations that perturb the population in any way.
+
+They are created through a
 **factory** that accepts a string key and optional parameters:
 
 ```python
 create_operator("mutation.gaussian_mutation", F=0.2, N=3, random_state=42)
 create_operator("crossover.one_point_crossover", random_state=42)
-create_operator("de.best.1", F=0.8, Cr=0.9)
+create_operator("DE/best/1", F=0.8, Cr=0.9)
 create_operator("permutation.swap", N=2)
 ```
 
@@ -176,7 +211,7 @@ A generic factory supports dot‑notation and runtime registration of custom
 operators via `add_operator_entry`.  To see all available operator keys,
 call `list_operators()`.
 
-### Selection Methods
+### Selection Methods (Parent/Survivor selection)
 Two separate selection steps are distinguished:
 
 - **Parent selection** – chooses which solutions will be used to generate
@@ -204,9 +239,13 @@ best individual, and per‑spot historical bests.  Use `best_solution()` to
 obtain the decoded best solution and its raw objective, and
 `best_individual()` to get the genotype and its fitness value.
 
-### Encodings
+### Encodings 
 An `Encoding` translates between the internal genotype and the phenotype
-evaluated by the objective function.  Built‑in encodings:
+evaluated by the objective function. 
+
+It effectively mantains a different representation for the solution (the final result of the optimization) and the internal representation during the search.
+
+Built‑in encodings:
 
 - `DefaultEncoding` (identity)
 - `TypeCastEncoding` (float / int / bool)
@@ -221,15 +260,6 @@ Initializers generate the starting population: `UniformInitializer`,
 `SeedProbInitializer`, `DirectInitializer`, and `ExtendedInitializer`
 (for parameter‑extending encodings).
 
-### Benchmarks
-A collection of test problems is included:
-
-- Continuous — `Sphere`, `Rastrigin`, `Rosenbrock`, `Ackley`, `Griewank`,
-  `Weierstrass`, etc.
-- Binary — `MaxOnes`, `BinKnapsack`, `ThreeSAT`
-- Permutation — `MaxClique`, `TSP`
-- Image approximation — `ImgApprox`, `ImgEntropy`, `ImgStd`
-
 ### Constraint Handling
 Constraint handlers implement repair or penalty strategies:
 `ClipBoundConstraint`, `BounceBoundConstraint`, `CycleBoundConstraint`,
@@ -241,6 +271,26 @@ The library provides `LinearSchedule`, `LogisticSchedule`, `StepSchedule`,
 `RandomSchedule`, and `ThresholdSchedule`.  Callable values are evaluated
 each generation; you can also access current values via `.get_params()` or
 the `.params` attribute.
+
+## Algorithm configuration
+
+Algorithms can be configured with different stopping conditions, reporters (real time tracking of the progress), history tracking (what information to collect across iterations) and checkpointing strategies. 
+
+Each will correspond to a different class that is passed to the `Algorithm` class at construction.
+
+### Stopping condition
+
+Stopping conditions are indicated with the `StoppingCondition` class, which decides when to stop the execution of the algorithm. 
+
+It also has a progress value that is used by some algorithms internally to modify the internal parameters. 
+
+Stopping conditions can be indicated as logical expressions, such as `max_iterations or real_time_limit` (stop when **EITHER** the maximum number of iteratios have passed or a time limit is reached) or `convergence and real_time_limit` (stop when **BOTH** a number of iterations without improvement and a certain time has passed).
+
+### History tracker
+
+History trackers (`HistoryTracker`) store informtion about each iteration for plots and post-execution analysis. 
+
+It can store the best/median/worst solutions and their objective values, diversity metrics and even a historic of the full population and their objective.
 
 ### Reporters
 Reporters control what information is displayed during a run.  Three
@@ -269,6 +319,15 @@ This makes metaheuristic‑designer suitable for expensive, long‑running
 optimisation tasks on shared clusters or cloud instances where interruptions
 are expected.
 
+### Benchmarks
+A collection of test problems is included:
+
+- Continuous — `Sphere`, `Rastrigin`, `Rosenbrock`, `Ackley`, `Griewank`,
+  `Weierstrass`, etc.
+- Binary — `MaxOnes`, `BinKnapsack`, `ThreeSAT`
+- Permutation — `MaxClique`, `TSP`
+- Image approximation — `ImgApprox`, `ImgEntropy`, `ImgStd`
+
 ---
 
 ## Reproducibility and Scientific Rigour
@@ -293,7 +352,7 @@ are expected.
   multiple trials and automatically collect their histories, simplifying
   rigorous benchmarking.
 
-- **Open‑source, MIT licensed** – Use it freely in your research, and
+- **Open‑source, LGPLv3 licensed** – Use it freely in your research, and
   contribute back if you extend it.
 
 ---
@@ -332,7 +391,6 @@ It contains:
   self‑adaptive ES, real‑time plotting, and reproducible benchmarking).
 - A plotting guide with example visualizations for convergence, diversity,
   fitness distributions, and scheduled parameters.
-- The design philosophy behind the library.
 
 If you find yourself unsure which operator or selection method to use,
 start there – the documentation is designed as a discovery tool as much

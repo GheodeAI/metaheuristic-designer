@@ -13,10 +13,23 @@ from .utils import MatrixLike
 
 
 class Encoding(ParametrizableMixin, ABC):
-    """
-    Abstract Encoding class
+    """Translate between internal genotypes and problem-specific phenotypes.
 
-    This class transforms between phenotype and genotype.
+    An :class:`Encoding` is responsible for converting a population
+    matrix (the internal representation used by operators) into a
+    collection of solutions that the objective function understands,
+    and vice versa.
+
+    Parameters
+    ----------
+    decode_as_array : bool, optional
+        If ``True``, :meth:`decode` returns a NumPy array instead of
+        an iterable of arbitrary objects. Default ``False``.
+    name : str, optional
+        Display name for this encoding.
+    **kwargs
+        Additional keyword arguments stored as schedulable
+        parameters.
     """
 
     def __init__(self, decode_as_array: bool = False, name=None, **kwargs):
@@ -25,7 +38,7 @@ class Encoding(ParametrizableMixin, ABC):
         self.decode_as_array = decode_as_array
         self.store_kwargs(**kwargs)
 
-    def gather_params(self):
+    def gather_params(self) -> dict:
         """
         Overridable thin wrapper around get_params
         """
@@ -69,8 +82,16 @@ class Encoding(ParametrizableMixin, ABC):
 
 
 class DefaultEncoding(Encoding):
-    """
-    Default encoder that uses the genotype directly as a solution.
+    """Identity encoding - the internal genotype is used directly.
+
+    No transformation is applied; :meth:`encode` and :meth:`decode`
+    return their arguments unchanged.  This is the encoding used
+    when no other is specified.
+
+    Parameters
+    ----------
+    decode_as_array : bool, optional
+        See :class:`Encoding`. Default ``True``.
     """
 
     def __init__(self, decode_as_array: bool = True):
@@ -84,8 +105,18 @@ class DefaultEncoding(Encoding):
 
 
 class EncodingFromLambda(Encoding):
-    """
-    Decoder that uses user specified functions.
+    """Encoding built from two callables.
+
+    Parameters
+    ----------
+    encode_fn : callable
+        ``(solutions) -> population_matrix``.
+    decode_fn : callable
+        ``(population_matrix) -> solutions``.
+    decode_as_array : bool, optional
+        See :class:`Encoding`.
+    **kwargs
+        Forwarded to :class:`Encoding`.
     """
 
     def __init__(self, encode_fn: Callable, decode_fn: Callable, **kwargs):

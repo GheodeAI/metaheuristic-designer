@@ -1,16 +1,33 @@
+"""
+Ready-to-run Random Search wrappers.
+"""
+
 from __future__ import annotations
+from typing import Optional
 import numpy as np
+
+from metaheuristic_designer.encoding import Encoding
+from metaheuristic_designer.objective_function import ObjectiveFunc
 from ..initializers import UniformInitializer, PermInitializer
 from ..encodings import TypeCastEncoding
 from ..strategies import RandomSearch
 from ..algorithms import Algorithm
-from ..utils import check_random_state
+from ..utils import RNGLike, check_random_state
 
 
-def random_search_binary(objfunc, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept binary coded vectors.
+def random_search_binary(objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs) -> Algorithm:
+    """Random Search for binary-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    encoding : Encoding, optional
+        Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -20,10 +37,21 @@ def random_search_binary(objfunc, encoding=None, random_state=None, **kwargs):
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def random_search_permutation(objfunc, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
+def random_search_permutation(
+    objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs
+) -> Algorithm:
+    """Random Search for permutation-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -32,10 +60,21 @@ def random_search_permutation(objfunc, encoding=None, random_state=None, **kwarg
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def random_search_discrete(objfunc, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
+def random_search_discrete(
+    objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs
+) -> Algorithm:
+    """Random Search for integer-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -46,10 +85,19 @@ def random_search_discrete(objfunc, encoding=None, random_state=None, **kwargs):
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def random_search_real(objfunc, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
+def random_search_real(objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, **kwargs) -> Algorithm:
+    """Random Search for real-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)

@@ -8,7 +8,6 @@ from __future__ import annotations
 import logging
 from typing import Tuple, Any, Optional
 import json
-import numpy as np
 import signal
 
 from .history_tracker import HistoryTracker
@@ -34,44 +33,67 @@ class TerminationException(Exception):
 
 class Algorithm:
     """
-    Abstract Algorithm class.
+    Orchestrates a complete optimisation run.
 
-    This class defines the structure of all iterative optimization algorithms.
+    An :class:`Algorithm` combines a :class:`ObjectiveFunc` with a
+    :class:`SearchStrategy` and manages the iteration loop, stopping
+    conditions, reporting, history tracking, and checkpointing.
+
+    All runtime settings can be supplied as plain keyword arguments
+    (e.g., ``max_iterations=200``) or as pre-built objects
+    (:class:`StoppingCondition`, :class:`Reporter`, etc.).  The
+    keyword-argument style is convenient for quick experiments; the
+    object-based style gives finer control and reusability.
 
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        _description_
+        The objective function to optimise.
     search_strategy : SearchStrategy
-        _description_
-    name : Optional[str], optional
-        _description_, by default None
+        Strategy that defines one iteration of the algorithm.
+    name : str, optional
+        Display name for the algorithm (defaults to the strategy's name).
     stop_cond : str, optional
-        _description_, by default "time_limit"
-    progress_metric : Optional[str], optional
-        _description_, by default None
-    ngen : int, optional
-        _description_, by default 1000
-    neval : int, optional
-        _description_, by default 1e5
-    time_limit : float, optional
-        _description_, by default 60.0
+        Expression that defines the stopping condition (see
+        :class:`StoppingCondition`). Default ``"real_time_limit"``.
+    progress_metric : str, optional
+        Token used to compute the 0-1 progress value for parameter
+        schedules. Defaults to the same tokens as *stop_cond*.
+    max_iterations : int, optional
+        Maximum number of iterations (default 1000).
+    max_evaluations : int, optional
+        Maximum number of objective evaluations (default 1e5).
+    real_time_limit : float, optional
+        Wall-clock time limit in seconds (default 60).
     cpu_time_limit : float, optional
-        _description_, by default 60.0
-    fit_target : float, optional
-        _description_, by default 1e-10
-    patience : int, optional
-        _description_, by default 100
+        CPU time limit in seconds (default 60).
+    objective_target : float, optional
+        Target value for the raw objective (default 1e-10).
+    max_patience : int, optional
+        Iterations without improvement before ``convergence`` stops
+        (default 100).
     verbose_timer : float, optional
-        _description_, by default 0.5
-    stopping_condition : Optional[StoppingCondition], optional
-        _description_, by default None
-    reporter : Optional[Reporter], optional
-        _description_, by default None
+        Interval in seconds between prints when using the default
+        :class:`VerboseReporter` (default 0.5).
+    track_median / track_worst / track_full_objective / track_full_population / track_diversity : bool, optional
+        Flags forwarded to the :class:`HistoryTracker` when one is not
+        supplied explicitly.
+    checkpoint_file / checkpoint_time_frequency / checkpoint_iteration_frequency : optional
+        Arguments used to construct a :class:`Checkpointer` when
+        *checkpointer* is not given.
+    stopping_condition : StoppingCondition, optional
+        Explicit stopping condition object.
+    reporter : str or Reporter, optional
+        Reporter instance or name (``"tqdm"``, ``"silent"``, ``"verbose"``).
+    history_tracker : HistoryTracker, optional
+        Explicit history tracker.
+    checkpointer : Checkpointer, optional
+        Explicit checkpointer.
     parallel : bool, optional
-        _description_, by default False
+        Whether to evaluate the population in parallel (currently
+        reserved for future use).
     threads : int, optional
-        _description_, by default 8
+        Number of threads for parallel evaluation (reserved).
     """
 
     def __init__(
@@ -166,6 +188,14 @@ class Algorithm:
         signal.signal(signal.SIGTERM, self._signal_handler)
 
     def _signal_handler(self, signum, frame):
+        """Handles SIGINT Os-level signals.
+
+        Parameters
+        ----------
+        signum : Signal number identifier (unused)
+        frame : Frame of the signal (unused)
+        """
+
         self._stop_requested = True
 
     @property
@@ -196,12 +226,21 @@ class Algorithm:
     def population(self) -> Population:
         return self.search_strategy.population
 
-    def gather_parameters(self):
+    def gather_parameters(self) -> dict:
+        """
+        Collect the current parameters of the underlying search strategy.
+
+        Returns
+        -------
+        dict
+            A dictionary of parameter names and their current values.
+        """
+
         return self.search_strategy.gather_parameters()
 
     def best_solution(self) -> Tuple[Any, float]:
         """
-        Returns the best solution so far in the population.
+        Return the best decoded solution and its raw objective value.
 
         Returns
         -------
@@ -213,7 +252,7 @@ class Algorithm:
 
     def best_individual(self) -> Tuple[VectorLike, float]:
         """
-        Returns the best individual so far in the population.
+        Return the best genotype and its internal fitness value.
 
         Returns
         -------
@@ -225,7 +264,13 @@ class Algorithm:
 
     def restart(self, restart_objfunc: bool = True):
         """
-        Resets the internal values of the algorithm and the number of evaluations of the fitness function.
+        Reset internal counters and, optionally, the objective function.
+
+        Parameters
+        ----------
+        restart_objfunc : bool, optional
+            If ``True``, also reset the objective function's evaluation
+            counter.
         """
 
         if restart_objfunc:
@@ -237,29 +282,19 @@ class Algorithm:
 
         logger.debug("Reset the data of the algorithm.")
 
-    def save_solution(self, file_name: str = "solution.csv"):
+    def initialize(self, reset_objfunc: bool = True) -> Population:
         """
-        Save the result of an execution to a csv file in disk.
+        Create and evaluate the initial population.
 
         Parameters
         ----------
-
-        file_name: str
-            Path to the file where the solution will be stored.
-        """
-
-        individual, _ = self.search_strategy.best_solution(problem_space=True)
-        np.savetxt(file_name, individual.reshape([1, -1]), delimiter=",")
-        logger.info("Successfully saved the optimization history to %s", file_name)
-
-    def initialize(self, reset_objfunc=True) -> Population:
-        """
-        Initializes the optimization algorithm.
+        reset_objfunc : bool, optional
+            Passed through to :meth:`restart`.
 
         Returns
         -------
-        initial_population: Population
-            The first set of individuals generated in order to perform the optimization.
+        Population
+            The evaluated initial population.
         """
 
         self.restart(reset_objfunc)
@@ -270,10 +305,32 @@ class Algorithm:
         return initial_population
 
     def _log_debug(self, text, population):
+        """
+        Util for debugging population info.
+        """
+
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(text, population.debug_repr())
 
-    def step(self, population=None):
+    def step(self, population: Population = None) -> Population:
+        """
+        Execute one iteration of the optimisation loop.
+
+        The default implementation performs: parent selection ->
+        perturbation -> evaluation -> survivor selection.
+
+        Parameters
+        ----------
+        population : Population, optional
+            The population at the start of the iteration.  If not given,
+            the currently stored population is used.
+
+        Returns
+        -------
+        Population
+            The population after the iteration.
+        """
+
         # Get the population of this generation
         if population is None:
             population = self.search_strategy.population
@@ -307,18 +364,37 @@ class Algorithm:
         return new_population
 
     def resume(self) -> Population:
+        """
+        Resume an interrupted run from the last checkpoint.
+
+        Returns
+        -------
+        Population
+            The final population after the run completes.
+        """
+
         return self.optimize(resume=True)
 
     def optimize(self, resume: bool = False) -> Population:
         """
-        Execute the algorithm to get the best solution possible along with its evaluation.
-        It will initialize the algorithm and repeat steps of the algorithm until the
-        stopping condition is met.
+        Run the optimisation loop until a stopping condition is met.
+
+        Parameters
+        ----------
+        resume : bool, optional
+            If ``True``, do not reset the algorithm state - continue
+            from the current population and counters.
 
         Returns
         -------
-        current_population: Population
-            Population of the best individuals found by the algorithm.
+        Population
+            The final population.
+
+        Raises
+        ------
+        KeyboardInterrupt, TerminationException
+            If the process is interrupted, a checkpoint is attempted
+            before re-raising.
         """
 
         self.reporter.log_init(self)
@@ -365,17 +441,17 @@ class Algorithm:
 
     def get_state(self, store_population: bool = False) -> dict:
         """
-        Gets the current state of the algorithm as a dictionary.
+        Serialise the current algorithm state to a dictionary.
 
         Parameters
         ----------
-        store_population: bool, optional
-            Save the entire population of the last iteration.
+        store_population : bool, optional
+            If ``True``, include the complete genotype matrix.
 
         Returns
         -------
-        state: dict
-            The complete state of the algorithm.
+        dict
+            Dictionary representation of the algorithm state.
         """
 
         data = {
@@ -395,23 +471,42 @@ class Algorithm:
         readable: bool = False,
     ):
         """
-        Dumps the current state of the algorithm to a JSON file.
+        Serialise the current algorithm state to a JSON file.
 
         Parameters
         ----------
-        file_name: str
-            Path to the file where the json file will be stored.
-        readable: bool, optional
-            Indent the JSON file to make it human-readable (comes at the cost of a higher file size).
+        file_name : str, optional
+            Destination path (default ``"dumped_state.json"``).
+        readable : bool, optional
+            If ``True``, produce indented JSON (larger but human
+            readable).
         """
 
         dumped = json.dumps(self.get_state(), cls=NumpyEncoder, indent=4 if readable else None)
 
         with open(file_name, "w", encoding="utf-8") as fp:
             fp.write(dumped)
-        
+
     def to_pandas(self):
+        """
+        Shorthand for ``self.history_tracker.to_pandas()``.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Per-iteration summary of tracked metrics.
+        """
         return self.history_tracker.to_pandas()
 
     def to_pandas_full_objective(self):
+        """
+        Shorthand for ``self.history_tracker.to_pandas_full_objective()``.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Wide-format DataFrame with the full objective vector per
+            generation.
+        """
+
         return self.history_tracker.to_pandas_full_objective()

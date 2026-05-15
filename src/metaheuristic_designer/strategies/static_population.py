@@ -1,3 +1,7 @@
+"""
+Strategy where the population size remains constant, no explicit parent selection.
+"""
+
 from __future__ import annotations
 from typing import Optional
 from ..initializer import Initializer
@@ -10,7 +14,28 @@ from ..utils import RNGLike
 
 class StaticPopulation(SearchStrategy):
     """
-    Population-based algorithm where each individual is iteratively evolved with a given operator
+    Population-based strategy with constant size and no parent selection.
+
+    The entire population is perturbed each generation.  By default,
+    parent selection is the identity (all individuals are used) and
+    survivor selection is generational (offspring replace parents).
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    operator : Operator
+        Perturbation operator.
+    parent_sel : ParentSelection, optional
+        Parent selection; defaults to identity (keep all).
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection; defaults to generational replacement.
+    name : str, optional
+        Display name (default ``"Static Population Evolution"``).
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Forwarded to :class:`SearchStrategy`.
     """
 
     def __init__(

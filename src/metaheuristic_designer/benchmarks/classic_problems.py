@@ -3,13 +3,13 @@ import warnings
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from ..objective_function import VectorObjectiveFunc
+from ..objective_function import ObjectiveFunc
 from ..utils import MatrixLike, VectorLike
 
 __all__ = ["ThreeSAT", "BinKnapsack", "MaxClique", "TSP"]
 
 
-class ThreeSAT(VectorObjectiveFunc):
+class ThreeSAT(ObjectiveFunc):
     """
     This is the 3-SAT problem that consist in finding if a logical expression
     given in 3CNF (conjunctive normal form with 3 variables per clause) is satisfiable,
@@ -85,7 +85,7 @@ class ThreeSAT(VectorObjectiveFunc):
         return n_satisfied / self.clauses.shape[0]
 
 
-class BinKnapsack(VectorObjectiveFunc):
+class BinKnapsack(ObjectiveFunc):
     """
     This is the 0-1 Knapsack problem that consist in choosing from set of elements
     which have a certain cost and value to maximize the value without reaching a weight threshold.
@@ -140,7 +140,7 @@ class BinKnapsack(VectorObjectiveFunc):
         return (np.round(solution) != 0).astype(int)
 
 
-class MaxClique(VectorObjectiveFunc):
+class MaxClique(ObjectiveFunc):
     """
     This is the Maximum clique problem which consists on finding the size of the largest
     subgraph that has all its nodes interconected (a clique).
@@ -187,7 +187,7 @@ class MaxClique(VectorObjectiveFunc):
         return n_cliques
 
 
-class TSP(VectorObjectiveFunc):
+class TSP(ObjectiveFunc):
     def __init__(self, adjacency_matrix: MatrixLike, name: str = None, mode: str = "min"):
         if name is None:
             name = "TSP"

@@ -34,6 +34,7 @@ def random_split(population_array: MatrixLike, fitness_array: VectorLike, random
         Two arrays ``(parents1, parents2)`` of equal shape ``(ceil(N/2), M)``
         representing the randomly paired groups.
     """
+
     population_size, _ = population_array.shape
 
     total_parent_count = 2 * np.ceil(population_size / 2).astype(int)
@@ -67,6 +68,7 @@ def stable_split(population_array: MatrixLike, fitness_array: VectorLike, random
     tuple[MatrixLike, MatrixLike]
         Two arrays ``(parents1, parents2)`` of equal shape ``(ceil(N/2), M)``.
     """
+
     population_size, _ = population_array.shape
 
     half_size = math.ceil(population_size / 2)
@@ -105,6 +107,7 @@ def create_pairing_fn(method: str) -> Callable:
     ValueError
         If *method* is not present in :data:`pairing_map`.
     """
+
     if method not in pairing_map:
         raise ValueError(f"Pairing strategy {method} doesn't exist.")
 
@@ -126,7 +129,7 @@ def k_point_crossover(
 
     The population is split into paired halves using *pairing_method*.
     For each pair, *k* distinct crossover points are drawn uniformly from
-    :math:`\{1, \dots, M-1\}` (sorted).  The alternating mask built from
+    :math:`\\{1, \\dots, M-1\\}` (sorted).  The alternating mask built from
     these points determines which parent contributes each gene.
 
     With probability *crossover_prob* the children are formed using the
@@ -153,6 +156,7 @@ def k_point_crossover(
     MatrixLike
         Offspring population of shape (N, M).
     """
+
     random_state = check_random_state(random_state)
 
     population_size, n_components = population_array.shape
@@ -214,6 +218,7 @@ def uniform_crossover(
     MatrixLike
         Offspring population of shape (N, M).
     """
+
     random_state = check_random_state(random_state)
 
     population_size, n_components = population_array.shape
@@ -250,10 +255,10 @@ def averaged_crossover(
 
     .. math::
 
-        c_1 &= (1-\alpha)\,p_1 + \alpha\,p_2,\\
-        c_2 &= (1-\alpha)\,p_2 + \alpha\,p_1,
+        c_1 &= (1-\\alpha)\\,p_1 + \\alpha\\,p_2,\\\\
+        c_2 &= (1-\\alpha)\\,p_2 + \\alpha\\,p_1,
 
-    where :math:`\alpha \in [0,1]` controls the blend.  With probability
+    where :math:`\\alpha \\in [0,1]` controls the blend.  With probability
     *crossover_prob* the pair is recombined; otherwise the parents are
     copied unchanged.
 
@@ -278,6 +283,7 @@ def averaged_crossover(
     MatrixLike
         Offspring population of shape (N, M).
     """
+
     random_state = check_random_state(random_state)
 
     population_size, _ = population_array.shape
@@ -307,16 +313,16 @@ def blend_crossover(
     crossover_prob: float = 1,
     random_state: Optional[RNGLike] = None,
 ) -> MatrixLike:
-    """Blend crossover (BLX-:math:`\alpha`) with per-pair probability.
+    """Blend crossover (BLX-:math:`\\alpha`) with per-pair probability.
 
     For a pair of parents the smaller/larger values per gene are taken as
-    :math:`x_{\min}` and :math:`x_{\max}`.  Each child gene is then sampled
+    :math:`x_{\\min}` and :math:`x_{\\max}`.  Each child gene is then sampled
     uniformly from the expanded interval
 
     .. math::
 
-        [x_{\min} - \alpha\,(x_{\max}-x_{\min}),\;
-         x_{\max} + \alpha\,(x_{\max}-x_{\min})].
+        [x_{\\min} - \\alpha\\,(x_{\\max}-x_{\\min}),\\;
+         x_{\\max} + \\alpha\\,(x_{\\max}-x_{\\min})].
 
     The pair undergoes crossover with probability *crossover_prob*; otherwise
     the parents are kept intact.
@@ -346,6 +352,7 @@ def blend_crossover(
     MatrixLike
         Offspring population of shape (N, M).
     """
+
     random_state = check_random_state(random_state)
 
     population_size, _ = population_array.shape
@@ -382,20 +389,20 @@ def sbx_crossover(
 
     .. math::
 
-        c_1 &= 0.5(p_1+p_2) - 0.5\,\beta\,|p_1-p_2|,\\
-        c_2 &= 0.5(p_1+p_2) + 0.5\,\beta\,|p_1-p_2|,
+        c_1 &= 0.5(p_1+p_2) - 0.5\\,\\beta\\,|p_1-p_2|,\\\\
+        c_2 &= 0.5(p_1+p_2) + 0.5\\,\\beta\\,|p_1-p_2|,
 
-    where the spread factor :math:`\beta` is drawn from a polynomial
-    distribution with index :math:`\eta`:
+    where the spread factor :math:`\\beta` is drawn from a polynomial
+    distribution with index :math:`\\eta`:
 
     .. math::
 
-        \beta = \begin{cases}
-            (2u)^{1/(\eta+1)}, & u \le 0.5,\\
-            \bigl(\frac{1}{2(1-u)}\bigr)^{1/(\eta+1)}, & u > 0.5,
-        \end{cases}
+        \\beta = \\begin{cases}
+            (2u)^{1/(\\eta+1)}, & u \\le 0.5,\\\\
+            \\bigl(\\frac{1}{2(1-u)}\\bigr)^{1/(\\eta+1)}, & u > 0.5,
+        \\end{cases}
 
-    with :math:`u \sim \mathcal{U}(0,1)`.  Larger *eta* keeps children
+    with :math:`u \\sim \\mathcal{U}(0,1)`.  Larger *eta* keeps children
     closer to the parents.
 
     Reference
@@ -423,6 +430,7 @@ def sbx_crossover(
     MatrixLike
         Offspring population of shape (N, M).
     """
+
     eps = np.finfo(population_array.dtype).tiny
 
     random_state = check_random_state(random_state)
@@ -468,10 +476,10 @@ def bitwise_xor_crossover(
 
     .. math::
 
-        c_1 &= p_1 \oplus p_2,\\
-        c_2 &= p_1 \oplus \neg p_2,
+        c_1 &= p_1 \\oplus p_2,\\\\
+        c_2 &= p_1 \\oplus \\neg p_2,
 
-    where :math:`\oplus` denotes bitwise XOR and :math:`\neg` is bitwise
+    where :math:`\\oplus` denotes bitwise XOR and :math:`\\neg` is bitwise
     NOT.  This operator is intended for Boolean arrays (0/1).  With
     probability *crossover_prob* the pair is crossed; otherwise the parents
     are kept unchanged.
@@ -495,6 +503,7 @@ def bitwise_xor_crossover(
     MatrixLike
         Offspring population of shape (N, M).
     """
+
     random_state = check_random_state(random_state)
 
     population_size, _ = population_array.shape
@@ -558,6 +567,7 @@ def multiparent_discrete_crossover(
     MatrixLike
         Offspring population of shape (N, M).
     """
+
     random_state = check_random_state(random_state)
     population_size, n_components = population_array.shape
 
@@ -613,6 +623,7 @@ def multiparent_intermediate_crossover(
     MatrixLike
         Offspring population of shape (N, M).
     """
+
     random_state = check_random_state(random_state)
     population_size, _ = population_array.shape
 

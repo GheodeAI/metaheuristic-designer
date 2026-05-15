@@ -21,7 +21,9 @@ class LinearBoundPenaltyConstraint(PenalizeConstraint):
         upper limit of the bounds.
     """
 
-    def __init__(self, dimension, alpha: ScalarLike = 1, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100, **kwargs):
+    def __init__(
+        self, dimension, alpha: ScalarLike = 1, lower_bound: ScalarLike | VectorLike = -100, upper_bound: ScalarLike | VectorLike = 100, **kwargs
+    ):
         self.dimension = dimension
         self.alpha = alpha
         if np.ndim(upper_bound) < 1:

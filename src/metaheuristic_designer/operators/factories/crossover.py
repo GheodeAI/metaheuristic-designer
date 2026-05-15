@@ -1,8 +1,11 @@
 """
-Implementation of generic vector operators.
-
-Provides a factory method to generate the operator from a name.
+Crossover operator registry and factory.
 """
+
+from typing import Optional
+
+from ...encoding import Encoding
+from ...utils import RNGLike
 
 from ..operator_functions.utils import OperatorFnDef
 from ..operator_functions.crossover import (
@@ -21,26 +24,26 @@ from ...operator import OperatorFromLambda
 crossover_ops_map = {
     # ------ dual parent crossover -------------
     # 1 point crossover
-    "1point":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
-    "onepoint":                         OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
-    "one_point":                        OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
     "one_point_crossover":              OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
+    "one_point":                        OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
+    "onepoint":                         OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
+    "1point":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 1}),
 
     # 2 point crossover
-    "2point":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
-    "twopoint":                         OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
-    "two_point":                        OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
     "two_point_crossover":              OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
+    "two_point":                        OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
+    "twopoint":                         OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
+    "2point":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}, forced_params={"k": 2}),
 
     # k-point crossover
-    "multipoint":                       OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "kpoint":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "k-point":                          OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "k_point":                          OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "multipoint_crossover":             OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "kpoint_crossover":                 OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
-    "k-point_crossover":                OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
     "k_point_crossover":                OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "k-point_crossover":                OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "kpoint_crossover":                 OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "k_point":                          OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "k-point":                          OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "kpoint":                           OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "multipoint_crossover":             OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
+    "multipoint":                       OperatorFnDef(k_point_crossover, params={"crossover_prob": 1}),
 
     # Uniform crossover
     "uniform":                          OperatorFnDef(uniform_crossover, params={"crossover_prob": 1}),
@@ -92,7 +95,37 @@ crossover_ops_map = {
 # fmt: on
 
 
-def create_crossover_operator(method, encoding=None, random_state=None, name=None, **kwargs):
+def create_crossover_operator(
+    method: str,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    name: Optional[str] = None,
+    **kwargs
+) -> OperatorFromLambda:
+    """
+    Create a crossover operator by name.
+
+    Parameters
+    ----------
+    method : str
+        Key into :data:`crossover_ops_map` (e.g., ``"one_point"``,
+        ``"uniform"``).
+    encoding : Encoding, optional
+        Encoding applied to the genotype after crossover.
+    random_state : RNGLike, optional
+        Random number generator.
+    name : str, optional
+        Display name; defaults to *method*.
+    **kwargs
+        Additional parameters forwarded to the operator function
+        (e.g., ``k``, ``crossover_prob``, ``pairing_method``).
+
+    Returns
+    -------
+    OperatorFromLambda
+        The wrapped crossover operator.
+    """
+
     if name is None:
         name = method
 

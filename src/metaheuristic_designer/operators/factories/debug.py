@@ -1,3 +1,10 @@
+"""
+Debug operator registry and factory.
+"""
+
+from typing import Optional
+
+from ...encoding import Encoding
 from ...operator import OperatorFromLambda
 from ..operator_functions.utils import OperatorFnDef, dummy_op
 
@@ -11,9 +18,30 @@ debug_ops_map = {
 }
 
 
-def create_debug_operator(method, encoding=None, name=None, **kwargs):
+def create_debug_operator(
+    method: str,
+    encoding: Optional[Encoding] = None,
+    name: Optional[str] = None,
+    **kwargs
+) -> OperatorFromLambda:
     """
-    Create operators that utilize the Initializer interface for random generation.
+    Create a debug operator by name.
+
+    Parameters
+    ----------
+    method : str
+        Key into :data:`debug_ops_map`.
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    name : str, optional
+        Display name; defaults to *method*.
+    **kwargs
+        Forwarded to the operator function.
+
+    Returns
+    -------
+    OperatorFromLambda
+        The wrapped debug operator.
     """
 
     if name is None:

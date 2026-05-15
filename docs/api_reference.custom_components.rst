@@ -43,7 +43,7 @@ Wrap an evaluation function with
    def sphere(vec, offset=0):
        return -np.sum((vec - offset) ** 2)   # maximise negative squared distance
 
-   objfunc = ObjectiveFromLambda(sphere, offset=3.0, mode="max")
+   objfunc = ObjectiveFromLambda(sphere, dimension=3, offset=3.0, mode="max")
 
 Constraint Handler
 ------------------
@@ -89,10 +89,10 @@ Wrap a generator function with
 
    from metaheuristic_designer import InitializerFromLambda
 
-   def uniform_gen(random_state, low=0.0, high=1.0, size=5):
-       return random_state.uniform(low, high, size=size)
+   def uniform_gen(random_state, low=0.0, high=1.0):
+       return random_state.uniform(low, high, size=5)
 
-   init = InitializerFromLambda(uniform_gen, pop_size=100, low=-10, high=10, size=5)
+   init = InitializerFromLambda(uniform_gen, dimension=5, pop_size=100, low=-10, high=10, size=5)
 
 Encoding
 --------
@@ -132,7 +132,7 @@ Matrix‑level (recommended for most cases)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Write a function that works on the raw NumPy arrays and wrap it with
-:py:class:`OperatorVectorDef<metaheuristic_designer.operators.operator_functions.utils.OperatorVectorDef>`. The wrapper handles
+:py:class:`OperatorFnDef<metaheuristic_designer.operators.operator_functions.utils.OperatorFnDef>`. The wrapper handles
 population bookkeeping (extracting the genotype matrix, fitness, and updating a copy
 of the population).
 
@@ -149,15 +149,15 @@ of the population).
 
 .. code-block:: python
 
-   from metaheuristic_designer.operators import add_operator_entry, OperatorVectorDef, create_operator
+   from metaheuristic_designer.operators import add_operator_entry, OperatorFnDef, create_operator
 
-   @OperatorVectorDef
+   @OperatorFnDef
    def add_gaussian_noise(matrix, fitness, random_state, F=0.1):
        rng = np.random.default_rng(random_state)
        noise = rng.normal(0, F, size=matrix.shape)
        return matrix + noise
 
-   # Register the operator – you must wrap it in OperatorVectorDef
+   # Register the operator – you must wrap it in OperatorFnDef
    add_operator_entry(add_gaussian_noise, "my_noise", "custom")
    op = create_operator("custom.my_noise", F=0.3)
 
@@ -181,7 +181,7 @@ Register it **without** a wrapper:
 .. code-block:: python
 
    from metaheuristic_designer.operators import add_operator_entry
-
+    
    def duplicate_best(population, initializer, random_state):
        pop_copy = copy(population)
        best_gen = pop_copy.genotype_matrix[pop_copy.best_idx]
@@ -202,6 +202,7 @@ instantiate :py:class:`ParentSelectionFromLambda<metaheuristic_designer.parent_s
 
 .. code-block:: python
 
+   @ParentSelectionDef
    def my_parent_select(fitness: VectorLike, amount: int,
                         random_state: RNGLike, **kwargs) -> np.ndarray:
        """Return indices of selected individuals."""
@@ -211,11 +212,16 @@ instantiate :py:class:`ParentSelectionFromLambda<metaheuristic_designer.parent_s
 * ``amount`` – how many individuals to select.
 * Must return a 1‑D integer array (no duplicates).
 
+For it to be accepted into the registry, it must be passed to the :py:class:`~metaheuristic_designer.parent_selection.ParentSelectionDef` wrapper since
+the :py:class:`~metaheuristic_designer.parent_selection.ParentSelection` class works directly with :py:class:`metaheuristic_designer.population.Population` objects. This can be easily done by using 
+:py:class:`~metaheuristic_designer.parent_selection.ParentSelectionDef` as a decorator.
+
 .. code-block:: python
 
-   from metaheuristic_designer.parent_selection_methods import add_parent_selection_entry
+   from metaheuristic_designer.parent_selection_methods import add_parent_selection_entry, ParentSelectionDef
    from metaheuristic_designer import create_parent_selection
 
+   @ParentSelectionDef
    def pick_top_k(fitness, amount, random_state, **kwargs):
        # Maximisation: higher fitness is better → use argpartition for top k
        top_idx = np.argpartition(-fitness, amount - 1)[:amount]
@@ -251,6 +257,7 @@ to the Population objects.
 
 .. code-block:: python
 
+   @SurvivorSelectionDef
    def my_survivor_select(parent_fitness: VectorLike,
                           offspring_fitness: VectorLike,
                           random_state: RNGLike, **kwargs) -> np.ndarray:
@@ -261,11 +268,16 @@ to the Population objects.
 * ``offspring_fitness`` – fitness of the offspring.
 * The returned indices refer to the array obtained by joining parents and offspring.
 
+For it to be accepted into the registry, it must be passed to the :py:class:`~metaheuristic_designer.parent_selection.SurvivorSelectionDef` wrapper since
+the :py:class:`~metaheuristic_designer.parent_selection.SurvivorSelection` class works directly with :py:class:`metaheuristic_designer.population.Population` objects.
+This can be easily done by using :py:class:`~metaheuristic_designer.parent_selection.SurvivorSelectionDef` as a decorator.
+
 .. code-block:: python
 
    from metaheuristic_designer.survivor_selection_methods import add_survivor_selection_entry
    from metaheuristic_designer import create_survivor_selection
-
+   
+   @SurvivorSelectionDef
    def keep_all_offspring(parent_fit, offspring_fit, random_state, **kwargs):
        n_parents = len(parent_fit)
        n_offspring = len(offspring_fit)
@@ -313,7 +325,7 @@ think in terms of “apply this function to each individual’s row”. Two deco
        return row + rng.normal(0, scale, size=row.shape)
 
    # Now small_noise_vector can be used as a matrix‑level operator function
-   from metaheuristic_designer.operators import OperatorVectorDef, add_operator_entry
+   from metaheuristic_designer.operators import OperatorFnDef, add_operator_entry
 
-   add_operator_entry(OperatorVectorDef(small_noise_vector), "tiny_noise", "custom")
+   add_operator_entry(OperatorFnDef(small_noise_vector), "tiny_noise", "custom")
    op = create_operator("custom.tiny_noise", scale=0.05, random_state=42)

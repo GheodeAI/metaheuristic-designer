@@ -1,8 +1,19 @@
+"""
+CMA-ES (Covariance Matrix Adaptation Evolution Strategy) implementation.
+
+.. warning::
+   The current implementation is architecturally a temporary solution.
+   It will be refactored once the EDA (Distribution-based) interface is
+   finalised.
+"""
+
 from __future__ import annotations
 from typing import Optional
 import logging
 import numpy as np
 import scipy as sp
+
+from metaheuristic_designer.objective_function import ObjectiveFunc
 
 from ...search_strategy import SearchStrategy
 from ...parent_selection import create_parent_selection
@@ -10,7 +21,6 @@ from ...population import Population
 from ...initializer import Initializer
 from ...schedulable_parameter import SchedulableParameter
 from ...survivor_selection_base import SurvivorSelection
-from ..variable_population import VariablePopulation
 from ...operators import create_operator
 from ...utils import VectorLike, check_random_state
 
@@ -19,10 +29,40 @@ logger = logging.getLogger(__name__)
 
 class CMA_ES(SearchStrategy):
     """
-    CMA-ES algorithm.
+    Covariance Matrix Adaptation Evolution Strategy (CMA-ES).
 
-    The current implementation is suboptimal from the point of view of the architecture.
-    It will be refactored when the EDA interface gets finalized.
+    This is a population-based algorithm that samples new solutions
+    from a multivariate normal distribution whose mean and covariance
+    are adapted each generation based on the best individuals.
+
+    .. note::
+       The architecture of this class is provisional.  It currently
+       overrides :meth:`initialize` and :meth:`perturb` directly.
+       Once the distribution-based (EDA) abstraction is in place,
+       CMA-ES will be rewritten to use that common interface.
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Provides population size and genotype shape, but does **not**
+        generate the initial solutions.
+    survivor_sel : SurvivorSelection, optional
+        How survivors are selected.  Defaults to the strategy's
+        default (generational).
+    name : str, optional
+        Display name (default ``"CMA-ES"``).
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring per generation.  If ``None``, the
+        initializer's population size is used.
+    random_state : RNGLike, optional
+        Random number generator.
+    mean : VectorLike, optional
+        Initial mean vector.  If not given, it is computed from the
+        objective's bounds (or randomly if no bounds exist).
+    sigma : VectorLike, optional
+        Initial step size.  If not given, a default is computed.
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(
@@ -67,25 +107,25 @@ class CMA_ES(SearchStrategy):
         self._weights = weights / np.sum(weights)
 
         # Initialize internal parameters
-        self._effective_pop_size = 1/np.sum(self._weights**2)
+        self._effective_pop_size = 1 / np.sum(self._weights**2)
 
         n = self.initializer.dimension
-        norm_eff_pop = self._effective_pop_size/n
+        norm_eff_pop = self._effective_pop_size / n
         term1 = 4 + norm_eff_pop
-        term2 = n + 4 + 2*norm_eff_pop
+        term2 = n + 4 + 2 * norm_eff_pop
         self._cc = term1 / term2
 
         term1 = self._effective_pop_size + 2
         term2 = n + self._effective_pop_size + 5
-        self._csigma = term1/term2
+        self._csigma = term1 / term2
 
         term1_a = 1 / self._effective_pop_size
-        term1_b = 2 / (n + np.sqrt(2))**2
+        term1_b = 2 / (n + np.sqrt(2)) ** 2
         term1 = term1_a * term1_b
 
-        term2_a = (1 - term1_a)
-        term3_a = 2*self._effective_pop_size - 1
-        term3_b = (n + 2)**2 + self._effective_pop_size
+        term2_a = 1 - term1_a
+        term3_a = 2 * self._effective_pop_size - 1
+        term3_b = (n + 2) ** 2 + self._effective_pop_size
         term3 = term3_a / term3_b
         term2_b = np.minimum(term3, 1)
         term2 = term2_a * term2_b
@@ -95,10 +135,10 @@ class CMA_ES(SearchStrategy):
         term1_b = np.sqrt(term1_a) - 1
         term1 = 2 * np.maximum(term1_b, 0)
         self._dsigma = 1 + term1 + self._csigma
-        
+
         self._A = np.eye(n)
 
-        self._xin = np.sqrt(n) * (1 - (1/(4*n)) + (1/(21*n*n)))
+        self._xin = np.sqrt(n) * (1 - (1 / (4 * n)) + (1 / (21 * n * n)))
 
         # Declare internal parameters, assign dummy values
         self._path_cov = np.zeros(n)
@@ -106,7 +146,21 @@ class CMA_ES(SearchStrategy):
 
         self.n = n
 
-    def initialize(self, objfunc):
+    def initialize(self, objfunc: ObjectiveFunc) -> Population:
+        """Create the initial population by sampling from the current distribution.
+
+        Parameters
+        ----------
+        objfunc : ObjectiveFunc
+            The objective function, used to infer bounds if *mean* or
+            *sigma* are not provided.
+
+        Returns
+        -------
+        Population
+            A freshly sampled population with unevaluated fitness.
+        """
+
         if self.params.mean is None:
             if hasattr(objfunc, "lower_bound") and hasattr(objfunc, "upper_bound"):
                 computed_mean = 0.5 * (objfunc.upper_bound + objfunc.lower_bound)
@@ -129,7 +183,6 @@ class CMA_ES(SearchStrategy):
                 sigma = 0.5
             self.update_kwargs(sigma=np.atleast_1d(sigma).astype(float))
 
-
         # In CMA-ES the initialization is done from random sampling of the distribution, the initializer is not used.
         mean = self.params.mean
         sigma = self.params.sigma
@@ -141,7 +194,26 @@ class CMA_ES(SearchStrategy):
 
         return Population(objfunc, genotype, encoding=self.initializer.encoding)
 
-    def perturb(self, parents, **kwargs):
+    def perturb(self, parents: Population, **kwargs) -> Population:
+        """Update the distribution parameters and generate offspring.
+
+        The parents (the best μ individuals from the previous generation)
+        are used to update *mean*, *sigma*, *covariance*, and the
+        evolution paths.  A new offspring population is then sampled from
+        the updated distribution.
+
+        Parameters
+        ----------
+        parents : Population
+            The selected parents (must be already evaluated).
+        **kwargs
+            Forwarded to the parent's :meth:`perturb`.
+
+        Returns
+        -------
+        Population
+            Offspring population of size *offspring_size*.
+        """
 
         pop_order = np.argsort(parents.fitness)[::-1]
         pop_matrix = parents.genotype_matrix[pop_order, :]
@@ -149,46 +221,46 @@ class CMA_ES(SearchStrategy):
         new_mean = np.average(pop_matrix, axis=0, weights=self._weights)
 
         y_best = (pop_matrix - self.params.mean) / self.params.sigma
-        mean_diff = (new_mean - self.params.mean)/self.params.sigma
+        mean_diff = (new_mean - self.params.mean) / self.params.sigma
 
         # Compute path values
         term1 = (1 - self._cc) * self._path_cov
-        term2_a = self._cc * (2 - self._cc)*self._effective_pop_size
-        term2 = np.sqrt(term2_a)*mean_diff
+        term2_a = self._cc * (2 - self._cc) * self._effective_pop_size
+        term2 = np.sqrt(term2_a) * mean_diff
         self._path_cov = term1 + term2
 
         w = sp.linalg.solve_triangular(self._A.T, mean_diff, lower=False)
 
-        term1 = (1 - self._csigma)*self._path_sigma
-        term2_a = self._csigma * (2 - self._csigma)*self._effective_pop_size
+        term1 = (1 - self._csigma) * self._path_sigma
+        term2_a = self._csigma * (2 - self._csigma) * self._effective_pop_size
         term2 = np.sqrt(term2_a) * w
         self._path_sigma = term1 + term2
 
         term1 = (1 - self._ccov) * self._cov
-        term2 = (self._ccov / self._effective_pop_size)*np.outer(self._path_cov, self._path_cov)
-        term3_a = self._ccov*(1 - (1/self._effective_pop_size))
+        term2 = (self._ccov / self._effective_pop_size) * np.outer(self._path_cov, self._path_cov)
+        term3_a = self._ccov * (1 - (1 / self._effective_pop_size))
         term_b = np.zeros((self.n, self.n))
         for i in range(self.mu):
             term_b += self._weights[i] * np.outer(y_best[i], y_best[i])
         term3 = term3_a * term_b
         self._cov = term1 + term2 + term3
-        
+
         self._A = np.linalg.cholesky(self._cov)
 
         # update sigma
         term1_a = np.linalg.norm(self._path_sigma) - self._xin
         term1_b = self._dsigma * self._xin
-        new_sigma = self.params.sigma * np.exp(term1_a/term1_b)
+        new_sigma = self.params.sigma * np.exp(term1_a / term1_b)
 
         # Breaks to ensure numerical stability
         if new_sigma < 1e-10:
             self.finish = True
-        
+
         if np.linalg.cond(self._cov) > 1e14:
             self.finish = True
 
         self.update_kwargs(mean=new_mean, sigma=new_sigma)
 
-        self.operator.update_kwargs(mean=new_mean, cov=new_sigma*new_sigma*self._cov)
+        self.operator.update_kwargs(mean=new_mean, cov=new_sigma * new_sigma * self._cov)
 
         return super().perturb(parents, **kwargs)

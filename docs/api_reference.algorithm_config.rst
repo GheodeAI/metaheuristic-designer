@@ -8,8 +8,8 @@ runtime setting in two forms:
 
 * **direct constructor arguments** : pass numeric limits, reporter type, history flags,
   etc. as keyword arguments.  This is the quickest way to get started.
-* **pre-built objects** : provide an explicit :class:`StoppingCondition`,
-  :class:`Reporter`, :class:`HistoryTracker`, or :class:`Checkpointer` instance.
+* **pre-built objects** : provide an explicit :class:`~metaheuristic_designer.stopping_condition.StoppingCondition`,
+  :class:`~metaheuristic_designer.reporter.Reporter`, :class:`~metaheuristic_designer.history_tracker.HistoryTracker`, or :class:`~metaheuristic_designer.checkpointer.Checkpointer` instance.
   This gives you finer control, reusability across runs, and the ability to extend
   behaviour through custom subclasses.
 
@@ -21,6 +21,8 @@ keyword-argument style.
 Quick examples:
 
 .. code-block:: python
+   
+   from metaheuristic_designer import Algorithm
 
    # Direct arguments : compact
    algo = Algorithm(
@@ -51,7 +53,7 @@ Quick examples:
        history_tracker    = HistoryTracker(track_median=True),
    )
 
-All components are optional; if omitted the ``Algorithm`` creates sensible defaults.
+Except for ``objfunc`` and ``strategy``, every other component is optional; if omitted the ``Algorithm`` creates sensible defaults.
 
 
 Stopping Condition
@@ -62,24 +64,50 @@ A stopping condition is defined by a logical expression that combines **tokens**
 its corresponding numeric limit provided; limits for unused tokens can be left as
 ``None``.
 
+In the following table we indicate the token used in the ``stopping_condition`` string as well as the parameter that configures
+when that condition in the :py:class:`~metaheuristic_designer.stopping_condition.StoppingCondition`
+
 .. list-table:: Tokens and their meaning
-   :widths: 30 60
+   :widths: 20 20 60
    :header-rows: 1
 
    * - Token
+     - Parmeter
      - Meaning
    * - ``max_evaluations``
+     - ``max_evaluations``
      - Maximum number of objective function evaluations.
    * - ``max_iterations``
+     - ``max_iterations``
      - Maximum number of iterations (generations).
    * - ``real_time_limit``
+     - ``real_time_limit``
      - Wall-clock time limit in seconds.
    * - ``cpu_time_limit``
+     - ``cpu_time_limit``
      - CPU time limit in seconds.
    * - ``objective_target``
+     - ``objective_target``
      - Target value for the raw objective. For minimisation (``mode="min"``), the algorithm stops when ``best_objective <= objective_target``; for maximisation (``mode="max"``), when ``best_objective >= objective_target``.
    * - ``convergence``
+     - ``max_patience``
      - Stops when the best fitness has not improved for ``max_patience`` consecutive iterations.  This token requires ``max_patience`` to be set.
+
+**How to combine tokens**  
+``and``, ``or``, and parentheses work exactly as in a logical expression:
+
+* ``and`` : the algorithm stops only when **both** sides are satisfied.  
+  Example ``"max_iterations and convergence"`` → stop when the maximum number of iterations has been reached **and** the convergence criterion is met.
+
+* ``or`` : the algorithm stops as soon as **any** of the sides is satisfied.  
+  Example ``"max_iterations or real_time_limit"`` → stop when either the iteration limit is reached or the time runs out, whichever happens first.
+
+* Parentheses allow more complex combinations.  
+  Example ``"(max_iterations or real_time_limit) and convergence"`` → stop only if (iterations or time) have passed **and** convergence is reached.
+
+You can chain as many tokens as you like; the expression will be evaluated as a
+boolean tree with ``and`` having higher precedence than ``or`` (like standard
+Boolean algebra), so ``"a and b or c"`` is equivalent to ``"(a and b) or c"``.
 
 **Note** : ``objective_target`` is compared directly against the raw objective that your
 ``ObjectiveFunc`` returns.  No internal conversion is applied.  Supply the target in
@@ -94,7 +122,7 @@ Create a ``StoppingCondition`` object:
    stop = StoppingCondition(
        condition_str       = "max_iterations or real_time_limit",
        progress_metric_str = None,               # defaults to condition_str
-       max_iterations     = 500,
+       max_iterations      = 500,
        real_time_limit     = 30.0,
        max_evaluations     = None,
        cpu_time_limit      = None,
@@ -108,7 +136,7 @@ When using ``convergence``, provide ``max_patience``:
 
    stop = StoppingCondition(
        condition_str    = "max_iterations and convergence",
-       max_iterations  = 200,
+       max_iterations   = 200,
        max_patience     = 50,
        optimization_mode= objfunc.mode,
    )
@@ -123,11 +151,13 @@ Or a target-driven stop:
        optimization_mode= objfunc.mode,
    )
 
-**Validation** : If a token appears in the condition string but its limit is not
-supplied, an error is raised immediately.  For example, forgetting
-``max_iterations`` when using ``"max_iterations"`` will produce a clear message
-telling you what is missing.  Conversely, parameters that are not required by the
-expression are ignored.
+.. caution::
+
+   If a token appears in the condition string but its limit is not
+   supplied, an error is raised immediately.  For example, forgetting
+   ``max_iterations`` when using ``"max_iterations"`` will produce a clear message
+   telling you what is missing.  Conversely, parameters that are not required by the
+   expression are ignored.
 
 **Progress metric** : The ``progress_metric_str`` controls how the algorithm computes
 its progress (a number between 0 and 1).  This progress value is **not** merely for
@@ -190,12 +220,12 @@ except ``track_best``, which is always active.
    from metaheuristic_designer.history_tracker import HistoryTracker
 
    history = HistoryTracker(
-       track_best         = True,    # always recorded
-       track_median       = False,
-       track_worst        = False,
-       track_diversity    = False,
-       track_parameters   = False,   # record scheduled parameter values
-       track_full_objective = False,   # store the full fitness vector per generation
+       track_best            = True,    # always recorded
+       track_median          = False,
+       track_worst           = False,
+       track_diversity       = False,
+       track_parameters      = False,   # record scheduled parameter values
+       track_full_objective  = False,   # store the full fitness vector per generation
        track_full_population = False,   # store entire population each generation
    )
 
@@ -212,20 +242,16 @@ except ``track_best``, which is always active.
    memory for long runs or large populations.  Use these options only when you need
    the full evolution trace or detailed fitness distributions.
 
+   Be very careful to combine these flags with checkpoints, they can cause checkpoints to be multiple Gigabytes in size
+   and storage might consume a long time.
 
-When ``track_full_objective`` is enabled, you also have:
+
+When ``track_full_objective`` is enabled, you can retrieve the data as a DataFrame:
 
 .. code-block:: python
 
-   dist_df = algo.history_tracker.to_pandas_full_objective()
+   wide_df = algo.history_tracker.to_pandas_full_objective()
    # wide‑format: iteration, Individual_0, Individual_1, ... (one column per individual)
-
-.. code-block:: python
-
-   dist_df = algo.history_tracker.to_pandas_full_fitness()
-   # long-format: iteration, Individual_0, Individual_1, ...
-
-The column names refer to raw objectives, not the internally maximised fitness values.
 
 
 Checkpointer
@@ -249,7 +275,7 @@ can manually stop a run and later reload it.
 Only one of ``iteration_frequency`` or ``time_frequency`` needs to be set, and both
 can be active at the same time.
 
-To load a previous checkpoint and continue:
+To load a previous checkpoint and continue **you must call** :meth:`resume` **instead of** :meth:`optimize`:
 
 .. code-block:: python
 
@@ -258,12 +284,19 @@ To load a previous checkpoint and continue:
        history_tracker = HistoryTracker(),   # reuse or fresh
        reporter        = TQDMReporter(),     # re-attach a reporter
    )
-   algo.optimize()    # resumes from where it left off
+
+   # ⚠️  ABSOLUTELY DO NOT call algo.optimize() here, that would RESTART from scratch!
+   algo = algo.resume()
 
 .. warning::
 
-   After loading, the reporter and history tracker are **not** saved inside the
-   checkpoint.  You must provide them again explicitly when calling ``load()``.
+   **DO NOT** call :meth:`~metaheuristic_designer.algorithm.Algorithm.optimize` on a loaded
+   algorithm, it will **silently discard the checkpoint and start a brand-new run**!.
+
+   Always use :meth:`~metaheuristic_designer.algorithm.Algorithm.resume` when you want to pick up where you left off.
+
+   After loading, the reporter is **not** saved inside the
+   checkpoint.  You must provide it again explicitly when calling ``load()``.
    Running without a reporter is possible but not recommended for long runs.
 
 
@@ -297,7 +330,7 @@ can call them directly on the algorithm instance.
    genotype, fitness   = population.best_individual()
 
 When you provide a stopping target, use ``objective_target`` with
-:class:`StoppingCondition`.  The comparison is direct: for minimisation the algorithm
+:class:`~metaheuristic_designer.stopping_condition.StoppingCondition`.  The comparison is direct: for minimisation the algorithm
 stops when ``best_objective <= objective_target``; for maximisation when
 ``best_objective >= objective_target``.  You do not need to think in fitness units
 at all.
@@ -311,7 +344,7 @@ using object-based configuration.
 .. code-block:: python
 
    import numpy as np
-   from metaheuristic_designer import Algorithm, SearchStrategy, check_random_state
+   from metaheuristic_designer import Algorithm, check_random_state
    from metaheuristic_designer.benchmarks import Sphere
    from metaheuristic_designer.strategies import GA
    from metaheuristic_designer.initializers import UniformInitializer
@@ -328,9 +361,9 @@ using object-based configuration.
 
    # Build the search strategy
    strategy = GA(
-       initializer   = UniformInitializer(objfunc.vecsize, objfunc.lower_bound, objfunc.upper_bound, pop_size=100, random_state=rng),
+       initializer   = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=rng),
        mutation_op   = create_operator("mutation.gaussian_mutation", N=1, F=0.1, random_state=rng),
-       crossover_op  = create_operator("crossover.uniform", random_state=rng),
+       crossover_op  = create_operator("crossover.uniform_crossover", random_state=rng),
        parent_sel    = create_parent_selection("tournament", amount=50, tournament_size=3, random_state=rng),
        survivor_sel  = create_survivor_selection("elitism", amount=25, random_state=rng),
        mutation_prob = 0.3,

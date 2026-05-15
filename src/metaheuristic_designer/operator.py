@@ -10,7 +10,6 @@ import logging
 from copy import copy
 from abc import ABC, abstractmethod
 from typing import Optional, Callable
-import numpy as np
 from .encoding import Encoding, DefaultEncoding
 from .population import Population
 from .initializer import Initializer
@@ -21,17 +20,28 @@ logger = logging.getLogger(__name__)
 
 
 class Operator(ParametrizableMixin, ABC):
-    """
-    Abstract Operator class.
+    """Abstract base for all perturbation operators.
 
-    This class modifies the genotype of one individual in order to perform some optimization task.
+    An :class:`Operator` modifies a population (typically by
+    applying mutation, crossover, or a composite of several steps).
+    Subclasses must implement :meth:`evolve`.
 
     Parameters
     ----------
-    name: str, optional
-        Name that is associated with the operator.
-    encoding: Encoding, optional
-        Postprocessing to the operator output.
+    name : str, optional
+        Display name for this operator.
+    encoding : Encoding, optional
+        Post-processing applied to the genotype matrix after the
+        operator runs.  Defaults to :class:`DefaultEncoding`.
+    preserves_order : bool, optional
+        If ``True``, the operator keeps individuals in the same
+        order (useful for one-to-one survivor selection).
+        Default ``False``.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Additional keyword arguments stored as schedulable
+        parameters.
     """
 
     _last_id: int = 0
@@ -44,15 +54,10 @@ class Operator(ParametrizableMixin, ABC):
         random_state: Optional[RNGLike] = None,
         **kwargs,
     ):
-        """
-        Constructor for the Operator class.
-        """
         super().__init__()
 
         self.id = Operator._last_id
         Operator._last_id += 1
-
-        self.param_scheduler = None
 
         self.name = name
 
@@ -66,17 +71,11 @@ class Operator(ParametrizableMixin, ABC):
         self.store_kwargs(**kwargs)
 
     def __call__(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
-        """
-        A shorthand for calling the 'evolve' method.
-        """
-
+        """Shorthand for :meth:`evolve`."""
         return self.evolve(population, initializer)
 
     def gather_params(self):
-        """
-        Overridable thin wrapper around get_params
-        """
-
+        """Return the current parameter dictionary (thin wrapper around :meth:`get_params`)."""
         return self.get_params()
 
     @abstractmethod
@@ -101,6 +100,7 @@ class Operator(ParametrizableMixin, ABC):
         """
         Updates the internal parameters.
         """
+
         super().step(progress)
 
         self.encoding.step(progress)
@@ -125,6 +125,8 @@ class NullOperator(Operator):
     Operator class that returns the individual without changes.
     Surprisingly useful.
 
+    Since it's a no-op, it has the `preserves_order` flag set to True.
+
     Parameters
     ----------
     name: str, optional
@@ -132,10 +134,6 @@ class NullOperator(Operator):
     """
 
     def __init__(self, name: Optional[str] = None):
-        """
-        Constructor for the OperatorNull class
-        """
-
         if name is None:
             name = "Nothing"
 
@@ -146,15 +144,27 @@ class NullOperator(Operator):
 
 
 class OperatorFromLambda(Operator):
-    """
-    Operator class that applies a custom operator specified as a function.
+    """Operator that wraps a user‑supplied function.
+
+    The function receives a :class:`Population`, an
+    :class:`Initializer`, a random state, and any stored keyword
+    arguments, and must return a modified :class:`Population`.
 
     Parameters
     ----------
-    fn: Callable
-        Function that will be applied when operating on an individual.
-    name: str, optional
-        Name that is associated with the operator.
+    operator_fn : callable
+        A function ``(population, initializer, random_state, **kwargs) -> Population``.
+    name : str, optional
+        Display name (defaults to the function's ``__name__``).
+    encoding : Encoding, optional
+        See :class:`Operator`.
+    preserves_order : bool, optional
+        See :class:`Operator`.
+    random_state : RNGLike, optional
+        See :class:`Operator`.
+    **kwargs
+        Keyword arguments forwarded to :class:`Operator` and also
+        passed to *operator_fn* on each call.
     """
 
     def __init__(
@@ -166,10 +176,6 @@ class OperatorFromLambda(Operator):
         random_state: Optional[RNGLike] = None,
         **kwargs,
     ):
-        """
-        Constructor for the OperatorLambda class
-        """
-
         self._validate_function(operator_fn)
         if name is None:
             name = operator_fn.__name__ if hasattr(operator_fn, "__name__") else "Custom operator"
@@ -190,7 +196,9 @@ class OperatorFromLambda(Operator):
 
         required_min_count = 3
         if count < required_min_count:
-            raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is.")
+            raise TypeError(
+                f"The function should have at least {required_min_count} positional arguments (`population`, `initializer`, `random_state`)."
+            )
 
     def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
         return self.operator_fn(population, initializer, self.random_state, **self.current_kwargs)

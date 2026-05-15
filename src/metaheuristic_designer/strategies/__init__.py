@@ -1,3 +1,7 @@
+"""
+Built-in search strategy implementations.
+"""
+
 from ..search_strategy import SearchStrategy
 
 from .hill_climb import HillClimb

@@ -1,3 +1,7 @@
+"""
+Initializer that samples from an exponential distribution.
+"""
+
 from __future__ import annotations
 from numbers import Integral
 import numpy as np
@@ -6,20 +10,23 @@ from ..initializer import Initializer
 
 class ExponentialInitializer(Initializer):
     """
-    Initializer that generates individuals with vectors following an uniform distribution.
+    Initializer that generates individuals with values drawn from an
+    exponential distribution.
 
     Parameters
     ----------
-    genotype_size: ndarray
-        The dimension of the vectors accepted by the objective function.
-    beta: ndarray or float
-        Beta parameter of the exponential distribution
-    pop_size: int, optional
-        Number of individuals to be generated.
-    encoding: Encoding, optional
+    dimension : int
+        Length of the genotype vector.
+    beta : float or array
+        Scale parameter of the exponential distribution (1 / rate).
+    pop_size : int, optional
+        Number of individuals to generate (default 1).
+    encoding : Encoding, optional
         Encoding that will be passed to each individual.
-    dtype: type, optional
-        Data type used in each of the components of the vector in the individual.
+    dtype : type, optional
+        Desired NumPy dtype of the generated vectors (default ``float``).
+    random_state : RNGLike, optional
+        Random number generator.
     """
 
     def __init__(self, dimension, beta, pop_size=1, encoding=None, dtype=float, random_state=None):

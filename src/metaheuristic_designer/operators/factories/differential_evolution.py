@@ -1,8 +1,10 @@
 """
-Implementation of generic vector operators.
-
-Provides a factory method to generate the operator from a name.
+Differential Evolution operator registry and factory.
 """
+
+from typing import Optional
+
+from ...encoding import Encoding
 
 from ..operator_functions.utils import OperatorFnDef
 from ..operator_functions.differential_evolution import (
@@ -42,19 +44,33 @@ de_ops_map = {
 # fmt: on
 
 
-def create_differential_evolution_operator(method, encoding=None, vectorized=True, name=None, **kwargs):
+def create_differential_evolution_operator(
+    method: str,
+    encoding: Optional[Encoding] = None,
+    vectorized: bool = True,
+    name: Optional[str] = None,
+    **kwargs
+) -> OperatorFromLambda:
     """
+    Create a DE operator by name.
 
     Parameters
     ----------
-    method
-        _description_
-    encoding, optional
-        _description_, by default None
+    method : str
+        DE variant string, e.g., ``"de/rand/1"``.
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    vectorized : bool, optional
+        Unused; kept for interface compatibility.
+    name : str, optional
+        Display name; defaults to *method*.
+    **kwargs
+        Forwarded to the DE operator function (e.g., ``F``, ``Cr``).
 
     Returns
     -------
-        _description_
+    OperatorFromLambda
+        The wrapped DE operator.
     """
 
     if name is None:

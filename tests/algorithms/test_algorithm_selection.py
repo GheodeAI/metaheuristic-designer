@@ -28,7 +28,7 @@ def test_strategy_selection_optimize(dummy_objfunc, dummy_strategy):
     strat_sel = StrategySelection(
         objfunc=dummy_objfunc,
         strategy_list=[dummy_strategy, dummy_strategy],
-        algorithm_params={"max_iterations": 1, "max_evaluations": 1, "verbose": False},
+        kwargs={"max_iterations": 1, "max_evaluations": 1, "verbose": False},
         params={"repetitions": 2, "verbose": False},
     )
     _, _, report = strat_sel.optimize()

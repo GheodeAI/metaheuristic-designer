@@ -1,6 +1,13 @@
+"""
+Ready-to-run Genetic Algorithm wrappers.
+"""
+
 from __future__ import annotations
+from typing import Optional
 import numpy as np
 
+from ..encoding import Encoding
+from ..objective_function import ObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer, PermInitializer
 from ..operators import create_operator
@@ -8,13 +15,33 @@ from ..parent_selection import create_parent_selection
 from ..survivor_selection import create_survivor_selection
 from ..encodings import TypeCastEncoding
 from ..strategies import GA
-from ..utils import check_random_state
+from ..utils import RNGLike, check_random_state
 
 
-def genetic_algorithm_binary(objfunc, mutated_bits=1, population_size=100, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept binary coded vectors.
+def genetic_algorithm_binary(
+    objfunc: ObjectiveFunc,
+    mutated_bits: int = 1,
+    population_size: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Genetic Algorithm for binary-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    mutated_bits : int, optional
+        Number of bits flipped per mutation (default 1).
+    population_size : int, optional
+        Population size (default 100).
+    encoding : Encoding, optional
+        Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -39,10 +66,30 @@ def genetic_algorithm_binary(objfunc, mutated_bits=1, population_size=100, encod
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def genetic_algorithm_permutation(objfunc, swapped_positions=2, population_size=100, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
+def genetic_algorithm_permutation(
+    objfunc: ObjectiveFunc,
+    swapped_positions: int = 2,
+    population_size: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Genetic Algorithm for permutation-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    swapped_positions : int, optional
+        Number of positions swapped per mutation (default 2).
+    population_size : int, optional
+        Population size (default 100).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -64,10 +111,30 @@ def genetic_algorithm_permutation(objfunc, swapped_positions=2, population_size=
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def genetic_algorithm_discrete(objfunc, resampled_components=1, population_size=100, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
+def genetic_algorithm_discrete(
+    objfunc: ObjectiveFunc,
+    resampled_components: int = 1,
+    population_size: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Genetic Algorithm for integer-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    resampled_components : int, optional
+        Number of components resampled per mutation (default 1).
+    population_size : int, optional
+        Population size (default 100).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -97,10 +164,33 @@ def genetic_algorithm_discrete(objfunc, resampled_components=1, population_size=
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def genetic_algorithm_real(objfunc, mutation_strength=1e-2, mutated_components=1, population_size=100, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
+def genetic_algorithm_real(
+    objfunc: ObjectiveFunc,
+    mutation_strength: float = 1e-2,
+    mutated_components: int = 1,
+    population_size: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Genetic Algorithm for real-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    mutation_strength : float, optional
+        Standard deviation of Gaussian mutation (default 1e-2).
+    mutated_components : int, optional
+        Number of components mutated per individual (default 1).
+    population_size : int, optional
+        Population size (default 100).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)

@@ -1,9 +1,18 @@
+"""
+Operator that randomly applies one operator from a list to each individual.
+"""
+
 from __future__ import annotations
-from typing import Iterable
+from typing import Iterable, Optional
 import enum
 from enum import Enum
 from copy import copy
 import numpy as np
+
+from ..encoding import Encoding
+from ..initializer import Initializer
+from ..population import Population
+from ..utils import RNGLike
 from ..operator import Operator
 
 
@@ -12,7 +21,7 @@ class BranchOpMethods(Enum):
     PICK = enum.auto()
 
     @staticmethod
-    def from_str(str_input):
+    def from_str(str_input: str) -> BranchOpMethods:
         str_input = str_input.lower()
 
         if str_input not in branch_ops_map:
@@ -25,26 +34,46 @@ branch_ops_map = {"random": BranchOpMethods.RANDOM, "rand": BranchOpMethods.RAND
 
 
 class BranchOperator(Operator):
-    """
-    Operator class that utilizes a list of operators to modify individuals.
+    """Operator that stochastically selects among several operators.
+
+    For each individual, one operator from `op_list` is chosen
+    according to the configured method (random with given probability,
+    or manually picked).  This allows e.g. applying mutation with a
+    certain probability while leaving the rest untouched.
 
     Parameters
     ----------
-    method: str
-        Type of operator that will be applied.
-    op_list: List[Operator]
-        List of operators that will be used.
-    params: ParamScheduler or dict, optional
-        Dictionary of parameters to define the operator.
-    name: str, optional
-        Name that is associated with the operator.
+    op_list : list of Operator
+        The candidate operators.
+    method : str, optional
+        Branching method, ``"random"`` or ``"pick"`` (default ``"random"``).
+    name : str, optional
+        Display name; defaults to ``"method(op_names)"``.
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random number generator.
+    idx : int, optional
+        Index of the operator to use when method is ``"pick"`` (default -1).
+    p : float, optional
+        Probability of selecting the first operator (default 0.5).
+        The second operator (usually :class:`NullOperator`) gets
+        probability ``1 - p``.
+    **kwargs
+        Additional keyword arguments stored as schedulable parameters.
     """
 
-    def __init__(self, op_list: Iterable[Operator], method: str = None, name: str = None, encoding=None, random_state=None, idx=-1, p=0.5, **kwargs):
-        """
-        Constructor for the OperatorMeta class
-        """
-
+    def __init__(
+        self,
+        op_list: Iterable[Operator],
+        method: str = None,
+        name: str = None,
+        encoding: Optional[Encoding] = None,
+        random_state: Optional[RNGLike] = None,
+        idx: int = -1,
+        p: float = 0.5,
+        **kwargs,
+    ):
         self.op_list = op_list
 
         if name is None:
@@ -67,15 +96,38 @@ class BranchOperator(Operator):
 
         self.chosen_idx = idx
         self.weights = np.array([self.params.p, 1 - self.params.p])
-    
-    def gather_params(self):
+
+    def gather_params(self) -> dict:
+        """Collect parameters from this operator and all sub-operators.
+
+        Returns
+        -------
+        dict
+            Flat dictionary with dotted keys.
+        """
+
         all_params = self.get_params()
         for op in self.op_list:
             all_params.update(op.gather_params())
 
         return all_params
 
-    def evolve(self, population, initializer=None):
+    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+        """Apply a random operator to each individual according to the branch method.
+
+        Parameters
+        ----------
+        population : Population
+            The current population.
+        initializer : Initializer, optional
+            The population initializer.
+
+        Returns
+        -------
+        Population
+            The modified population.
+        """
+
         new_population = copy(population)
 
         if self.method == BranchOpMethods.RANDOM:
@@ -109,6 +161,14 @@ class BranchOperator(Operator):
         self.chosen_idx = idx
 
     def step(self, progress: float):
+        """Update schedulable parameters and propagate to sub-operators.
+
+        Parameters
+        ----------
+        progress : float
+            Current progress of the algorithm (0-1).
+        """
+
         super().step(progress)
 
         for op in self.op_list:

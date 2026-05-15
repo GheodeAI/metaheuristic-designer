@@ -1,3 +1,6 @@
+"""
+Univariate Marginal Distribution Algorithm (UMDA) strategies. 
+"""
 from __future__ import annotations
 from typing import Optional
 import numpy as np
@@ -12,8 +15,33 @@ from ...utils import check_random_state, RNGLike, VectorLike, ScalarLike
 
 class BernoulliUMDA(VariablePopulation):
     """
-    Estimation of distribution algorithm for binary vectors.
-    https://doi.org/10.1016/j.swevo.2011.08.003
+    UMDA for binary vectors using a Bernoulli distribution.
+
+    The probability vector is estimated from the selected parents
+    (no smoothing).  Gaussian noise can optionally be added.
+
+    Reference: https://doi.org/10.1016/j.swevo.2011.08.003
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    parent_sel : ParentSelection, optional
+        Parent selection method.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method.
+    name : str, optional
+        Display name (default ``"BernoulliUMDA"``).
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring per generation.
+    random_state : RNGLike, optional
+        Random number generator.
+    p : float or array-like, optional
+        Initial probability (default 0.5).
+    noise : float, optional
+        Gaussian noise standard deviation (default 0).
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(
@@ -62,8 +90,32 @@ class BernoulliUMDA(VariablePopulation):
 
 class BinomialUMDA(VariablePopulation):
     """
-    Estimation of distribution algorithm for binary vectors.
-    https://doi.org/10.1016/j.swevo.2011.08.003
+    UMDA for discrete vectors using a Binomial distribution.
+
+    Reference: https://doi.org/10.1016/j.swevo.2011.08.003
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    parent_sel : ParentSelection, optional
+        Parent selection method.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method.
+    name : str, optional
+        Display name (default ``"BinomialUMDA"``).
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring per generation.
+    random_state : RNGLike, optional
+        Random number generator.
+    p : float or array-like, optional
+        Initial success probability (default 0.5).
+    n : int or array-like
+        Number of trials. **Must be provided**; there is no default.
+    noise : float, optional
+        Gaussian noise standard deviation (default 0).
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(
@@ -117,8 +169,35 @@ class BinomialUMDA(VariablePopulation):
 
 class GaussianUMDA(VariablePopulation):
     """
-    Estimation of distribution algorithm for binary vectors.
-    https://doi.org/10.1016/j.swevo.2011.08.003
+    UMDA for continuous vectors using a Gaussian distribution.
+
+    The location vector is estimated from the selected parents.
+    Gaussian noise can optionally be added.
+
+    Reference: https://doi.org/10.1016/j.swevo.2011.08.003
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Population initializer.
+    parent_sel : ParentSelection, optional
+        Parent selection method.
+    survivor_sel : SurvivorSelection, optional
+        Survivor selection method.
+    name : str, optional
+        Display name (default ``"GaussianUMDA"``).
+    offspring_size : int or SchedulableParameter, optional
+        Number of offspring per generation.
+    random_state : RNGLike, optional
+        Random number generator.
+    loc : float or array-like, optional
+        Initial mean (default 0).
+    scale : float or array-like, optional
+        Standard deviation (default 1).
+    noise : float, optional
+        Gaussian noise standard deviation added to *loc* (default 0).
+    **kwargs
+        Forwarded to :class:`VariablePopulation`.
     """
 
     def __init__(
@@ -138,7 +217,9 @@ class GaussianUMDA(VariablePopulation):
 
         super().__init__(
             initializer=initializer,
-            operator=create_operator("full_resampling", distribution="gaussian", loc=np.asarray(loc), scale=np.asarray(scale), random_state=random_state),
+            operator=create_operator(
+                "full_resampling", distribution="gaussian", loc=np.asarray(loc), scale=np.asarray(scale), random_state=random_state
+            ),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,

@@ -1,3 +1,7 @@
+"""
+Concrete encoding implementations provided by the library.
+"""
+
 from ..initializer import InitializerFromLambda, Initializer
 from .extended_initializer import ExtendedInitializer
 from .exponential_initializer import ExponentialInitializer

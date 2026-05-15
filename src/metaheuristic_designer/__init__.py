@@ -1,6 +1,15 @@
+"""
+Metaheuristic-designer: a modular framework for building, testing, and
+analysing population-based optimisation algorithms.
+
+The library provides composable building blocks (initializers, encodings,
+operators, selection methods, and search strategies) that can be assembled
+into classical and custom metaheuristics with full reproducibility.
+"""
+
 from .utils import check_random_state
 
-from .objective_function import ObjectiveFunc, NullObjectiveFunc, VectorObjectiveFunc, ObjectiveFromLambda
+from .objective_function import ObjectiveFunc, NullObjectiveFunc, ObjectiveFunc, ObjectiveFromLambda
 from . import benchmarks
 
 from .constraint_handler import ConstraintHandler, ConstraintHandlerFromLambda, NullConstraint, PenalizeConstraint, RepairConstraint
@@ -47,13 +56,13 @@ from . import survivor_selection
 from . import simple
 from . import analysis
 
-__version__ = "0.4.0"
+__version__ = "1.0.0"
 
 __all__ = [
     "check_random_state",
     "ObjectiveFunc",
     "NullObjectiveFunc",
-    "VectorObjectiveFunc",
+    "ObjectiveFunc",
     "ObjectiveFromLambda",
     "benchmarks",
     "ConstraintHandler",

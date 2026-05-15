@@ -1,18 +1,25 @@
+"""
+Ready-to-run Bayesian Optimisation wrappers.
+"""
+
 from __future__ import annotations
+from typing import Optional
+
+from ..encoding import Encoding
+from ..objective_function import ObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer
 from ..strategies import BayesianOptimization
-from ..utils import check_random_state
+from ..utils import RNGLike, check_random_state
 
 
 def bayesian_optimization_binary(
-    objfunc,
+    objfunc: ObjectiveFunc,
     population_size: int = 50,
-    acquisition_function: str = "EI",
-    encoding=None,
-    random_state=None,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
     **kwargs,
-):
+) -> Algorithm:
     """
     Bayesian Optimisation for binary-coded vectors (not supported yet).
     """
@@ -20,13 +27,12 @@ def bayesian_optimization_binary(
 
 
 def bayesian_optimization_discrete(
-    objfunc,
+    objfunc: ObjectiveFunc,
     population_size: int = 50,
-    acquisition_function: str = "EI",
-    encoding=None,
-    random_state=None,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
     **kwargs,
-):
+) -> Algorithm:
     """
     Bayesian Optimisation for integer-coded vectors (not supported yet).
     """
@@ -34,15 +40,28 @@ def bayesian_optimization_discrete(
 
 
 def bayesian_optimization_real(
-    objfunc,
+    objfunc: ObjectiveFunc,
     population_size: int = 50,
-    encoding=None,
-    random_state=None,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
     **kwargs,
-):
+) -> Algorithm:
+    """Bayesian Optimisation for real-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    population_size : int, optional
+        Number of individuals in the initial population (default 50).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
-    Bayesian Optimisation for real-coded vectors.
-    """
+
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
         objfunc.dimension,

@@ -1,17 +1,45 @@
+"""
+Ready-to-run Local Search wrappers.
+"""
+
 from __future__ import annotations
+from typing import Optional
 import numpy as np
+
+from metaheuristic_designer.encoding import Encoding
+from metaheuristic_designer.objective_function import ObjectiveFunc
 from ..initializers import UniformInitializer, PermInitializer
 from ..encodings import TypeCastEncoding
 from ..strategies import LocalSearch
 from ..algorithms import Algorithm
 from ..operators import create_operator
-from ..utils import check_random_state
+from ..utils import RNGLike, check_random_state
 
 
-def local_search_binary(objfunc, mutated_bits=1, samples_per_iteration=100, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept binary coded vectors.
+def local_search_binary(
+    objfunc: ObjectiveFunc,
+    mutated_bits: int = 1,
+    samples_per_iteration: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Local Search for binary-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    mutated_bits : int, optional
+        Number of bits flipped per mutation (default 1).
+    samples_per_iteration : int, optional
+        Number of samples evaluated per iteration (default 100).
+    encoding : Encoding, optional
+        Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -22,10 +50,30 @@ def local_search_binary(objfunc, mutated_bits=1, samples_per_iteration=100, enco
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def local_search_permutation(objfunc, swapped_positions=2, samples_per_iteration=100, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
+def local_search_permutation(
+    objfunc: ObjectiveFunc,
+    swapped_positions: int = 2,
+    samples_per_iteration: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Local Search for permutation-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    swapped_positions : int, optional
+        Number of positions swapped per mutation (default 2).
+    samples_per_iteration : int, optional
+        Number of samples evaluated per iteration (default 100).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -35,10 +83,30 @@ def local_search_permutation(objfunc, swapped_positions=2, samples_per_iteration
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def local_search_discrete(objfunc, resampled_components=1, samples_per_iteration=100, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept integer coded vectors.
+def local_search_discrete(
+    objfunc: ObjectiveFunc,
+    resampled_components: int = 1,
+    samples_per_iteration: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Local Search for integer-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    resampled_components : int, optional
+        Number of components resampled per mutation (default 1).
+    samples_per_iteration : int, optional
+        Number of samples evaluated per iteration (default 100).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)
@@ -50,10 +118,33 @@ def local_search_discrete(objfunc, resampled_components=1, samples_per_iteration
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def local_search_real(objfunc, mutation_strength=1e-2, mutated_components=1, samples_per_iteration=100, encoding=None, random_state=None, **kwargs):
-    """
-    Instantiates a hill climbing algorithm to optimize the given objective function.
-    This objective function should accept real coded vectors.
+def local_search_real(
+    objfunc: ObjectiveFunc,
+    mutation_strength: float = 1e-2,
+    mutated_components: int = 1,
+    samples_per_iteration: int = 100,
+    encoding: Optional[Encoding] = None,
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
+) -> Algorithm:
+    """Local Search for real-coded vectors.
+
+    Parameters
+    ----------
+    objfunc : ObjectiveFunc
+        The objective function to optimise.
+    mutation_strength : float, optional
+        Standard deviation of Gaussian mutation (default 1e-2).
+    mutated_components : int, optional
+        Number of components mutated per individual (default 1).
+    samples_per_iteration : int, optional
+        Number of samples evaluated per iteration (default 100).
+    encoding : Encoding, optional
+        Encoding applied to the genotype.
+    random_state : RNGLike, optional
+        Random seed or generator.
+    **kwargs
+        Forwarded to :class:`Algorithm`.
     """
 
     random_state = check_random_state(random_state)

@@ -1,4 +1,4 @@
-.. _design-philosophy:
+.. _design-philosophy2:
 
 Design Philosophy
 =================
@@ -14,7 +14,7 @@ Motivation: a field in need of infrastructure
 The field of metaheuristics faces a well‑documented set of challenges.  Swan et
 al. (2015) identified the need for *standardized, explicit, machine‑readable
 descriptions of metaheuristics* to advance scientific progress through greater
-communicability, reproducibility, and interoperability[reference:0].  In a
+communicability, reproducibility, and interoperability [Swan2015]_.  In a
 subsequent paper, Swan et al. (2022) argued that the field suffers from
 fragmentation and that what is needed is **truly extensible algorithm templates
 that support reuse without modification**, together with **white‑box problem
@@ -26,17 +26,17 @@ A related and equally pressing problem is the proliferation of “novel”
 metaheuristics that are merely old algorithms wrapped in new metaphors.
 Weyland (2010) proved that Harmony Search—a method inspired by jazz music
 improvisation—is a special case of Evolution Strategies, with mathematically
-identical selection, mutation, and recombination operators[reference:1].  He
+identical selection, mutation, and recombination operators [Weyland2010]_.  He
 concluded that research on the method was “fundamentally misguided” and that
-future effort “could better be devoted to more promising areas”[reference:2].
+future effort “could better be devoted to more promising areas” [Weyland2010]_.
 Similarly, Camacho‑Villalón et al. (2019) demonstrated that the Intelligent
 Water Drops algorithm is simply a particular instantiation of Ant Colony
 Optimization, and that the natural metaphor of “water drops flowing in rivers”
-is “unnecessary, misleading and based on unconvincing assumptions”[reference:3].
+is “unnecessary, misleading and based on unconvincing assumptions” [Camacho2019]_.
 Sörensen (2015) surveyed this landscape more broadly, arguing that the
 increasing use of metaphors as inspiration and justification for new methods
 “is threatening to lead the area of metaheuristics away from scientific
-rigor”[reference:4].
+rigor” [Soerensen2015]_.
 
 Metaheuristic‑designer is a direct answer to these calls.  Its architecture
 embodies the **algorithm template** philosophy: the abstract interfaces are
@@ -75,10 +75,10 @@ observation about how they *already* are, once the metaphors are stripped away.
 Weyland put it clearly: “I would propose to treat heuristics from a purely
 mathematical and technical way.  Metaphors and analogies might (or might not)
 help in the construction of heuristics, but the resulting methods should be
-treated from a mathematical and technical point of view”[reference:5].
+treated from a mathematical and technical point of view” [Weyland2010]_.
 Swan et al. (2015) made the same point earlier, noting that “metaphors often
 inspire new metaheuristics, but without mathematical rigor, it can be hard to
-tell if a new metaheuristic is really distinct from a familiar one”[reference:6].
+tell if a new metaheuristic is really distinct from a familiar one” [Swan2015]_.
 
 From template to interfaces
 ----------------------------
@@ -138,7 +138,7 @@ Swan et al. (2015) argued that making inputs and outputs explicit and avoiding
 side‑effects “greatly facilitates automated assembly of metaheuristics,”
 allowing software to “search for effective ways to combine metaheuristics
 ‘bottom‑up’, avoiding the human bias inherent in choosing specific
-metaheuristics a priori”[reference:7].  The same authors later identified
+metaheuristics a priori” [Swan2015]_.  The same authors later identified
 three conceptual pillars for moving the field forward: extensible algorithm
 templates that support reuse without modification, white‑box problem
 descriptions that let domain knowledge be injected generically, and
@@ -172,7 +172,7 @@ documentation we prefer optimisation‑native language: “tentative solutions�
 “candidate solutions”, “perturbation operators”, and “selecting which
 solutions to retain”.  This follows the recommendation of Swan et al. (2015)
 that we adopt “a purely functional description of metaheuristics — separate
-from any metaphors that inspire them and with no hidden mechanisms”[reference:8],
+from any metaphors that inspire them and with no hidden mechanisms” [Swan2015]_,
 and echoes Weyland’s call to treat heuristics mathematically rather than
 metaphorically.  Metaphors may inspire algorithm design, but they should not
 obscure what the algorithm actually does.
@@ -181,29 +181,29 @@ obscure what the algorithm actually does.
 References
 ----------
 
-* Swan, J., Adriaensen, S., Brownlee, A. E. I., et al. (2022).
-  `Metaheuristics “In the Large” <https://doi.org/10.1016/j.ejor.2021.05.042>`_.
-  *European Journal of Operational Research*, 297(2), 393–406.
+.. [Swan2022] Swan, J., Adriaensen, S., Brownlee, A. E. I., et al. (2022).
+   `Metaheuristics “In the Large” <https://doi.org/10.1016/j.ejor.2021.05.042>`_.
+   *European Journal of Operational Research*, 297(2), 393–406.
 
-* Swan, J., Adriaensen, S., Bishr, M., et al. (2015).
-  `A Research Agenda for Metaheuristic Standardization <http://www.cs.nott.ac.uk/~pszeo/docs/publications/research-agenda-metaheuristic.pdf>`_.
-  *Proceedings of the XI Metaheuristics International Conference (MIC 2015)*.
+.. [Swan2015] Swan, J., Adriaensen, S., Bishr, M., et al. (2015).
+   `A Research Agenda for Metaheuristic Standardization <http://www.cs.nott.ac.uk/~pszeo/docs/publications/research-agenda-metaheuristic.pdf>`_.
+   *Proceedings of the XI Metaheuristics International Conference (MIC 2015)*.
 
-* Sörensen, K. (2015).
-  `Metaheuristics—the metaphor exposed <https://doi.org/10.1111/itor.12001>`_.
-  *International Transactions in Operational Research*, 22(1), 3–18.
+.. [Soerensen2015] Sörensen, K. (2015).
+   `Metaheuristics—the metaphor exposed <https://doi.org/10.1111/itor.12001>`_.
+   *International Transactions in Operational Research*, 22(1), 3–18.
 
-* Weyland, D. (2010).
-  `A Rigorous Analysis of the Harmony Search Algorithm: How the Research
-  Community can be Misled by a “Novel” Methodology <https://people.idsia.ch/~weyland/harmony_search.pdf>`_.
-  *International Journal of Applied Metaheuristic Computing*, 1(2), 50–60.
+.. [Weyland2010] Weyland, D. (2010).
+   `A Rigorous Analysis of the Harmony Search Algorithm: How the Research
+   Community can be Misled by a “Novel” Methodology <https://people.idsia.ch/~weyland/harmony_search.pdf>`_.
+   *International Journal of Applied Metaheuristic Computing*, 1(2), 50–60.
 
-* Camacho‑Villalón, C. L., Dorigo, M., & Stützle, T. (2019).
-  `The intelligent water drops algorithm: why it cannot be considered a novel
-  algorithm <https://doi.org/10.1007/s11721-019-00165-y>`_.
-  *Swarm Intelligence*, 13, 173–192.
+.. [Camacho2019] Camacho‑Villalón, C. L., Dorigo, M., & Stützle, T. (2019).
+   `The intelligent water drops algorithm: why it cannot be considered a novel
+   algorithm <https://doi.org/10.1007/s11721-019-00165-y>`_.
+   *Swarm Intelligence*, 13, 173–192.
 
-* Weyland, D. (2015).
-  `The Harmony Search Algorithm – My personal experience with this “novel”
-  metaheuristic <http://www.dennisweyland.net/blog/?p=12>`_.
-  Personal blog.
+.. [Weyland2015] Weyland, D. (2015).
+   `The Harmony Search Algorithm – My personal experience with this “novel”
+   metaheuristic <http://www.dennisweyland.net/blog/?p=12>`_.
+   Personal blog.

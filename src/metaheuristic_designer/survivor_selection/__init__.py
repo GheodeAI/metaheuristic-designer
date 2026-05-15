@@ -1,3 +1,7 @@
+"""
+Survivor selection methods.
+"""
+
 from ..survivor_selection_base import SurvivorSelection, SurvivorSelectionFromLambda, NullSurvivorSelection
 from .survivor_selection import (
     surv_method_map,

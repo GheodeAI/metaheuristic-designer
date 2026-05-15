@@ -1,3 +1,7 @@
+"""
+Particle Swarm Optimization strategy.
+"""
+
 from __future__ import annotations
 import logging
 from typing import Optional
@@ -20,7 +24,39 @@ logger = logging.getLogger(__name__)
 
 class PSO(StaticPopulation):
     """
-    Particle swarm optimization
+    Particle Swarm Optimization (PSO).
+
+    Each individual (particle) has a position and a velocity.  The
+    velocity is updated using personal and global bests, and the
+    position is moved accordingly.  This requires a
+    :class:`ParameterExtendingEncoding` that stores a speed vector;
+    if not supplied, a default :class:`PSOEncoding` is created.
+
+    Parameters
+    ----------
+    initializer : Initializer
+        Initializer for the solution part.  An
+        :class:`ExtendedInitializer` is automatically created to
+        handle the velocity parameter.
+    lower_bound : float, optional
+        Lower bound of the search space (default -100).
+    upper_bound : float, optional
+        Upper bound of the search space (default 100).
+    name : str, optional
+        Display name (default ``"PSO"``).
+    w : float, optional
+        Inertia weight (default 0.7).
+    c1 : float, optional
+        Cognitive acceleration coefficient (default 1.5).
+    c2 : float, optional
+        Social acceleration coefficient (default 1.5).
+    encoding : ParameterExtendingEncoding, optional
+        Encoding that includes a ``"speed"`` parameter.  If ``None``,
+        a :class:`PSOEncoding` is used.
+    random_state : RNGLike, optional
+        Random number generator.
+    **kwargs
+        Forwarded to :class:`StaticPopulation`.
     """
 
     def __init__(
@@ -63,7 +99,28 @@ class PSO(StaticPopulation):
         super().__init__(initializer, operator=pso_op, name=name, **kwargs)
 
     def initialize(self, objfunc: ObjectiveFunc):
-        print("Hello")
+        """Set up the initial population and attach velocity constraints.
+
+        Parameters
+        ----------
+        objfunc : ObjectiveFunc
+            The objective function.  Its constraint handler is extended
+            with a :class:`BounceBoundConstraint` for the velocity so
+            that speeds stay within the feasible range.
+
+        .. warning::
+        There is a known bug: the objective function **does not**
+        automatically remove the extended constraint handler after
+        a PSO run finishes.  Reusing the same objective function
+        instance for other algorithms may cause unexpected
+        behaviour.  This will be resolved in a future release.
+
+        Returns
+        -------
+        Population
+            The initialised and evaluated population.
+        """
+
         if not isinstance(objfunc.constraint_handler, ExtendedConstraintHandler):
             objfunc.add_parameter_constraints(
                 self.encoding, {"speed": BounceBoundConstraint(self.encoding.dimension, -self.abs_upper_bound, self.abs_upper_bound)}
