@@ -170,3 +170,5 @@ examples/results/*
 *.log
 .hidden
 coverage*
+
+docs/design_philosophy.rstt

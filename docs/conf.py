@@ -84,19 +84,4 @@ html_css_files = ["custom.css"]
 
 suppress_warnings = ['autosectionlabel.*']
 
-
-# import pprint
-
-# def _debug_html_context(app, config):
-#     ctx = config.html_context
-#     print("\n=== html_context contents ===")
-#     for key, val in ctx.items():
-#         # check for callables, classes, modules, etc.
-#         if callable(val) or isinstance(val, type) or hasattr(val, '__module__'):
-#             print(f"⚠️  '{key}': {type(val)} (likely unpickleable)")
-#         else:
-#             print(f"   '{key}': {type(val).__name__} = {val!r}")
-#     print("============================\n")
-
-# def setup(app):
-#     app.connect('config-inited', _debug_html_context)
+nitpicky = False

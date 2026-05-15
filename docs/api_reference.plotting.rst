@@ -547,7 +547,7 @@ A dual-axis plot is often the clearest:
 Evolution of Schedulable Parameters
 ------------------------------------
 
-When you use parameter schedules (see :doc:`parameter_schedules`), the tracker
+When you use parameter schedules (see :doc:`api_reference`), the tracker
 automatically records the current value of each scheduled parameter at every generation
 if ``track_parameters`` is enabled.  The parameter names are built from the component
 hierarchy, e.g. ``"mutation.gaussian_mutation.F"`` for the mutation strength
