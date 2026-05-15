@@ -1,0 +1,80 @@
+from ..objective_function import ObjectiveFunc
+import numpy as np
+from skimage import metrics
+
+__all__ = ["ImgApprox", "ImgEntropy", "ImgStd"]
+
+
+class ImgApprox(ObjectiveFunc):
+    def __init__(self, img_dim, reference, mode=None, img_name="", diff_func="MSE", name=None):
+        self.img_dim = tuple(img_dim) + (3,)
+        self.size = img_dim[0] * img_dim[1] * 3
+        self.reference = reference.resize((img_dim[0], img_dim[1]))
+        self.reference = np.asarray(self.reference)[:, :, :3].astype(np.uint8)
+
+        if name is None:
+            if img_name == "":
+                name = "Image approximation"
+            else:
+                name = f'Approximating "{img_name}"'
+
+        self.diff_func = diff_func
+        if mode is None:
+            if diff_func in ["MSE", "MAE"]:
+                mode = "min"
+            else:
+                mode = "max"
+
+        super().__init__(self.size, mode=mode, lower_bound=0, upper_bound=256, name=name, vectorized=True)
+
+    def objective(self, solution):
+        error = np.zeros(solution.shape[0])
+        image_size = np.prod(solution.shape[1:])
+        match self.diff_func:
+            case "MSE":
+                error = np.ndarray.astype(np.sum((solution - self.reference) ** 2, axis=(1, 2, 3)) / image_size, float)
+            case "MAE":
+                error = np.ndarray.astype(np.sum(np.abs(solution - self.reference), axis=(1, 2, 3)) / image_size, float)
+            case "SSIM":
+                for idx, s in enumerate(solution):
+                    for s_ch, ref_ch in zip(s.transpose((2, 0, 1)), self.reference.transpose((2, 0, 1))):
+                        error[idx] += metrics.structural_similarity(s_ch, ref_ch)
+                    error[idx] /= 3
+            case "NMI":
+                for idx, s in enumerate(solution):
+                    for s_ch, ref_ch in zip(s.transpose((2, 0, 1)), self.reference.transpose((2, 0, 1))):
+                        error[idx] += metrics.normalized_mutual_information(s_ch, ref_ch, bins=32)
+                    error[idx] /= 3
+
+        return error
+
+
+class ImgStd(ObjectiveFunc):
+    def __init__(self, img_dim, mode=None):
+        self.size = img_dim[0] * img_dim[1] * 3
+        if mode is None:
+            mode = "max"
+
+        super().__init__(self.size, mode=mode, lower_bound=0, upper_bound=256, name="Image standard deviation")
+
+    def objective(self, solution):
+        solution_color = solution.reshape([3, -1])
+        return solution_color.std(axis=1).mean()
+
+
+class ImgEntropy(ObjectiveFunc):
+    def __init__(self, img_dim, nbins=10, mode=None):
+        self.size = img_dim[0] * img_dim[1] * 3
+        self.nbins = nbins
+        if mode is None:
+            mode = "max"
+
+        super().__init__(self.size, mode=mode, lower_bound=0, upper_bound=256, name="Image entropy", vectorized=False)
+
+    def objective(self, solution):
+        solution_channels = solution.reshape([3, -1])
+        img_hists = [np.histogram(solution_channels[i], bins=np.linspace(0, 256, self.nbins))[0] for i in range(3)]
+        img_hists = np.array(img_hists) / solution_channels.shape[1]
+        img_hists_no_zeros = img_hists
+        img_hists_no_zeros[img_hists == 0] = 1
+        return np.sum(-img_hists * np.log(img_hists_no_zeros))

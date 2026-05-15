@@ -1,0 +1,111 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metaheuristic-designer"
+version = "1.0.0"
+authors = [
+    {name = "eugenioLR", email = "eugeniolorente0@gmail.com"}
+]
+description = "A python package to design metaheuristic optimization algorithms from components."
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["optimization", "genetic-algorithm", "evolutionary-algorithms", "metaheuristics"]
+license = {text = "LICENSE"}
+dependencies = [
+    "numpy",
+    "scipy",
+    "pyparsing",
+    "pandas",
+    "scikit-image",
+    "scikit-learn",
+    "cloudpickle",
+    "tqdm"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+
+[project.urls]
+Homepage = "https://github.com/eugenioLR/metaheuristic-designer"
+
+[project.optional-dependencies]
+examples = [
+    "pygame",    
+    "scikit-image",
+    "networkx",
+    "opencv-python",
+    "matplotlib",
+    "seaborn",
+    "jupyter",
+    "ipywidgets",
+    "plotly",
+    "anywidget"
+]
+
+docs = [
+    "matplotlib",
+    "seaborn",
+    "sphinx",
+    "sphinx_material",
+    "plotly",
+    "kaleido",          # for static plotly images (optional)
+]
+
+test = [
+    "nox",
+    "pytest",
+    "pytest-cov",
+    "coverage",
+    "black[jupyter]",
+]
+
+benchmarking = [
+    "ioh",
+    "autorank",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "deap",
+    "cma",
+    "nevergrad",
+    "pygmo"
+
+]
+
+dev = [
+    "pre-commit",
+    "nbstripout",
+    "metaheuristic-designer[examples,docs,benchmarking,test]"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 150
+target-version = ['py310']
+
+[tool.coverage.run]
+source = ["metaheuristic_designer"]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::sklearn.exceptions.ConvergenceWarning",
+]
