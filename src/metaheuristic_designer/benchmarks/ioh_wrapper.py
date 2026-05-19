@@ -7,10 +7,10 @@ except ImportError:
     ioh = None
     ProblemClass = None
 
-from metaheuristic_designer.objective_function import VectorObjectiveFunc
+from metaheuristic_designer.objective_function import ObjectiveFunc
 
 
-class IOHObjective(VectorObjectiveFunc):
+class IOHObjective(ObjectiveFunc):
     """
     Adapts an IOH benchmark problem to the ObjectiveFunc interface.
 

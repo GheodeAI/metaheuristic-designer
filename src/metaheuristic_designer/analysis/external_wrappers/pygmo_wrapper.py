@@ -38,16 +38,16 @@ class PyGMOWrapper:
                 "The 'pygmo' library is required. Install with `pip install pygmo`."
             )
         self.objfunc = objfunc
-        self.algorithm = algorithm if isinstance(algorithm, str) else algorithm
+        self.algorithm = algorithm 
         self.pop_size = pop_size
         self.generations = generations
         self.seed = seed
         self.name = name
         self.algo_kwargs = algo_kwargs
 
-        self._history_df = None
+        self.history_df = None
         self._best_x = None
-        self._best_obj = None
+        self.best_obj = None
 
     def optimize(self):
         # Minimal PyGMO problem: just wraps the objective
@@ -95,19 +95,14 @@ class PyGMOWrapper:
 
             trace.append({"iteration": gen, "best_objective": best_obj})
 
-        self._best_obj = best_obj
-        self._history_df = pd.DataFrame(trace)
+        self.best_obj = best_obj
+        self.history_df = pd.DataFrame(trace)
         return self
 
     def best_solution(self):
-        return (list(self._best_x) if self._best_x is not None else None,
-                self._best_obj)
+        solution = list(self._best_x) if self._best_x is not None else None,
+        objective = self.best_obj
+        return solution, objective
 
-    @property
-    def history_tracker(self):
-        class _Hist:
-            def __init__(self, df):
-                self._df = df
-            def to_pandas(self):
-                return self._df.copy()
-        return _Hist(self._history_df)
+    def to_pandas(self):
+        return self.history_df

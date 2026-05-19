@@ -34,7 +34,7 @@ class SciPyWrapper:
         self.name = name
         self.opt_kwargs = opt_kwargs
 
-        self._history_df = None
+        self.history_df = None
         self._best_x = None
         self._best_obj = None
 
@@ -94,18 +94,12 @@ class SciPyWrapper:
             raise ValueError(f"Unknown SciPy method: {self.method}")
 
         self._best_obj = res.fun
-        self._history_df = pd.DataFrame(records)
+        self.history_df = pd.DataFrame(records)
         return self
 
     def best_solution(self):
         return (list(self._best_x) if self._best_x is not None else None,
                 self._best_obj)
 
-    @property
-    def history_tracker(self):
-        class _Hist:
-            def __init__(self, df):
-                self._df = df
-            def to_pandas(self):
-                return self._df.copy()
-        return _Hist(self._history_df)
+    def to_pandas(self):
+        return self.history_df
