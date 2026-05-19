@@ -6,7 +6,7 @@ from metaheuristic_designer.analysis import CMAWrapper
 from metaheuristic_designer.analysis import DEAPWrapper
 from metaheuristic_designer.analysis import NevergradWrapper
 from metaheuristic_designer.analysis import PyGMOWrapper
-from metaheuristic_designer.analysis import SciPyWrapper
+from metaheuristic_designer.analysis import ScipyWrapper
 
 from metaheuristic_designer.benchmarks import Sphere
 
@@ -98,7 +98,7 @@ def test_pygmo_improves(sphere, random_initial_obj):
 
 # ----- SciPy -----------------------------------------------------------
 def test_scipy_improves(sphere, random_initial_obj):
-    solver = SciPyWrapper(sphere, method="differential_evolution",
+    solver = ScipyWrapper(sphere, method="differential_evolution",
                           maxiter=10, seed=42)
     solver.optimize()
     _, best = solver.best_solution()

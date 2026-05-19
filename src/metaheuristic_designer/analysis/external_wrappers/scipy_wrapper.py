@@ -3,7 +3,7 @@ import pandas as pd
 from scipy.optimize import differential_evolution, basinhopping, dual_annealing
 
 
-class SciPyWrapper:
+class ScipyWrapper:
     """
     Duck-typed wrapper around SciPy optimisation algorithms.
 
@@ -40,8 +40,7 @@ class SciPyWrapper:
 
     def optimize(self):
         dim = self.objfunc.dimension
-        bounds = [(self.objfunc.lower_bound, self.objfunc.upper_bound)
-                  for _ in range(dim)]
+        bounds = np.asarray([self.objfunc.lower_bound, self.objfunc.upper_bound]).T
 
         best = float("inf") if self.objfunc.mode == "min" else float("-inf")
         records = []
@@ -64,7 +63,6 @@ class SciPyWrapper:
                 self.objfunc.objective,
                 bounds,
                 maxiter=self.maxiter,
-                seed=self.seed,
                 callback=callback,
                 **self.opt_kwargs
             )
@@ -77,7 +75,6 @@ class SciPyWrapper:
             res = basinhopping(
                 self.objfunc.objective,
                 x0,
-                seed=self.seed,
                 callback=callback,
                 **kwargs
             )
@@ -86,7 +83,6 @@ class SciPyWrapper:
                 self.objfunc.objective,
                 bounds,
                 maxiter=self.maxiter,
-                seed=self.seed,
                 callback=callback,
                 **self.opt_kwargs
             )
