@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class StoppingCondition:
-    """Encapsulate the logic that decides when an optimisation run should end.
+    """Encapsulate the logic that decides when an optimization run should end.
 
     A stopping condition is built from a logical expression that
     combines **tokens** with ``and``, ``or`` and parentheses.  Each
@@ -112,7 +112,7 @@ class StoppingCondition:
         self.prev_best_objective = None
         self.first_best_objective = None
 
-    def step(self, current_population: Population):
+    def update(self, current_population: Population):
         """Advance internal counters after one generation.
 
         Parameters

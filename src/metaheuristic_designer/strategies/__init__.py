@@ -23,6 +23,9 @@ from . import EDA
 from .bayesian_optimization import *
 from . import bayesian_optimization
 
+from .hybrid import *
+from . import hybrid
+
 __all__ = [
     "NoSearch",
     "SearchStrategy",
@@ -34,4 +37,5 @@ __all__ = [
     *swarm.__all__,
     *EDA.__all__,
     *bayesian_optimization.__all__,
+    *hybrid.__all__,
 ]

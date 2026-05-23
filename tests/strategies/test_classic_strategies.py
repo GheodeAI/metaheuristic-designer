@@ -117,6 +117,6 @@ def test_sa_temperature_decreases_after_many_steps(rng, dummy_initializer, dummy
     assert algo.temperature == 100
     # Call step many times to guarantee temperature drops
     for _ in range(10):
-        algo.step(0)
+        algo.update(0)
     # Temperature must be less than initial
     assert algo.temperature < 100

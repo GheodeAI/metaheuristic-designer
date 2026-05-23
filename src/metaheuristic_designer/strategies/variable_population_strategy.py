@@ -115,7 +115,7 @@ class VariablePopulationStrategy(SearchStrategy):
 
         self._initializer = new_initializer
 
-    def iterate(self, prev_population: Population) -> Population:
+    def step(self, prev_population: Population) -> Population:
         population = self.parent_sel.select(prev_population)  # implicit copy
         population = self.population_shuffler(population)
         population = self.operator.evolve(population, self.initializer)

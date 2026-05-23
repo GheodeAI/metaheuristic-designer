@@ -91,7 +91,7 @@ class MaskedOperator(Operator):
 
         return new_population
 
-    def step(self, progress: float):
+    def update(self, progress: float):
         """Update schedulable parameters and propagate to sub-operators.
 
         Parameters
@@ -100,11 +100,11 @@ class MaskedOperator(Operator):
             Current progress of the algorithm (0-1).
         """
 
-        super().step(progress)
+        super().update(progress)
 
         for op in self.op_list:
             if isinstance(op, Operator):
-                op.step(progress)
+                op.update(progress)
 
     def get_state(self) -> dict:
         data = super().get_state()

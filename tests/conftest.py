@@ -43,6 +43,7 @@ from metaheuristic_designer.benchmarks.benchmark_funcs import MaxOnes, Sphere
 from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.operators.factories.mutation import create_mutation_operator
 from metaheuristic_designer.survivor_selection import create_survivor_selection
+from metaheuristic_designer.strategies import StaticPopulationStrategy
 
 
 # ===================================================================
@@ -364,7 +365,7 @@ class MockGaussianModel:
 # ===================================================================
 @pytest.fixture
 def dummy_strategy(dummy_initializer, dummy_operator, dummy_parent_selection, dummy_survivor_selection):
-    return SearchStrategy(
+    return StaticPopulationStrategy(
         initializer=dummy_initializer,
         operator=dummy_operator,
         parent_sel=dummy_parent_selection,

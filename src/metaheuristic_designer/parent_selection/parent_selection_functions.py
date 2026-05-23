@@ -174,6 +174,29 @@ def create_scaling_fn(method: str, scaling_factor: ScalarLike = 2) -> Callable:
 # ---------------------------------------------
 # Population selection methods
 # ---------------------------------------------
+def repeating_selection(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None) -> MaskLike:
+    """
+    Chooses the entire population repeated in order duplicated enough times to reach the specified amount.
+
+    Parameters
+    ----------
+    population: ndarray
+        List of individuals from which the parents will be replicated.
+    amount: int
+        Amount of individuals to be chosen as parents.
+
+    Returns
+    -------
+    parents: ndarray
+        List of individuals chosen as parents.
+    """
+
+    n_individuals = fitness.shape[0]
+    repetitions = amount//n_individuals
+    selected_idx = np.tile(np.arange(n_individuals), repetitions)
+
+    return selected_idx[:amount]
+
 def select_best(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None) -> MaskLike:
     """
     Selects the best parent of the population as parents.

@@ -46,7 +46,7 @@ class SingleSolutionStrategy(SearchStrategy):
     ):
         super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs)
 
-    def iterate(self, prev_population: Population) -> Population:
+    def step(self, prev_population: Population) -> Population:
         self.population = copy(prev_population)
         self.population = self.operator.evolve(self.population, self.initializer)
         self.population = self.population.repair_solutions()
