@@ -16,13 +16,13 @@ from ...constraint_handlers.bounce_bound_constraint import BounceBoundConstraint
 from ...initializers import UniformInitializer, ExtendedInitializer
 from ...operators import create_swarm_operator
 from ...encodings import ParameterExtendingEncoding
-from ..static_population import StaticPopulation
+from ..static_population_strategy import StaticPopulationStrategy
 from ...utils import RNGLike
 
 logger = logging.getLogger(__name__)
 
 
-class PSO(StaticPopulation):
+class PSO(StaticPopulationStrategy):
     """
     Particle Swarm Optimization (PSO).
 
@@ -56,7 +56,7 @@ class PSO(StaticPopulation):
     random_state : RNGLike, optional
         Random number generator.
     **kwargs
-        Forwarded to :class:`StaticPopulation`.
+        Forwarded to :class:`StaticPopulationStrategy`.
     """
 
     def __init__(
@@ -113,12 +113,12 @@ class PSO(StaticPopulation):
         automatically remove the extended constraint handler after
         a PSO run finishes.  Reusing the same objective function
         instance for other algorithms may cause unexpected
-        behaviour.  This will be resolved in a future release.
+        behavior.  This will be resolved in a future release.
 
         Returns
         -------
         Population
-            The initialised and evaluated population.
+            The initialized and evaluated population.
         """
 
         if not isinstance(objfunc.constraint_handler, ExtendedConstraintHandler):

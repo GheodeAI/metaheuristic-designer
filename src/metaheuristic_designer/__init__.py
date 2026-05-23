@@ -21,7 +21,6 @@ from . import parameter_schedules
 
 from .algorithm import Algorithm
 from . import algorithms
-from .algorithms import MemeticAlgorithm
 
 from .checkpointer import Checkpointer
 from .reporter import Reporter

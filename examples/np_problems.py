@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import networkx as nx
 
-from metaheuristic_designer.algorithms import Algorithm, MemeticAlgorithm
+from metaheuristic_designer.algorithms import Algorithm
 from metaheuristic_designer.operators import create_operator
 from metaheuristic_designer.initializers import UniformInitializer, PermInitializer
 from metaheuristic_designer.encodings import TypeCastEncoding
@@ -126,16 +126,17 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
     search_strategy = search_strategy_map[alg_name]
 
     # ---- Memetic branch ----
-    if memetic:
-        mem_select = create_parent_selection("best", amount=5, random_state=random_state)
-        local_search = LocalSearch(
-            initializer=pop_initializer,
-            operator=create_operator("mutation.cauchy_mutation", F=0.0002, random_state=random_state),
-            iterations=10,
-        )
-        alg = MemeticAlgorithm(objfunc, search_strategy, local_search, mem_select, **algorithm_params)
-    else:
-        alg = Algorithm(objfunc, search_strategy, **algorithm_params)
+    # if memetic:
+    #     mem_select = create_parent_selection("best", amount=5, random_state=random_state)
+    #     local_search = LocalSearch(
+    #         initializer=pop_initializer,
+    #         operator=create_operator("mutation.cauchy_mutation", F=0.0002, random_state=random_state),
+    #         iterations=10,
+    #     )
+    #     alg = MemeticAlgorithm(objfunc, search_strategy, local_search, mem_select, **algorithm_params)
+    # else:
+    #     alg = Algorithm(objfunc, search_strategy, **algorithm_params)
+    alg = Algorithm(objfunc, search_strategy, **algorithm_params)
 
     population = alg.optimize()
     best_solution, best_objective = population.best_solution()

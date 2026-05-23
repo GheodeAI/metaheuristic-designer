@@ -4,16 +4,17 @@ Local Search strategy (single solution, multiple perturbations per iteration).
 
 from __future__ import annotations
 from typing import Optional
-from ..initializer import Initializer
-from ..search_strategy import SearchStrategy
-from ..operator import Operator
-from ..population import Population
-from ..survivor_selection_base import SurvivorSelection
-from ..survivor_selection import create_survivor_selection
-from ..utils import RNGLike
+from ...initializer import Initializer
+from ...search_strategy import SearchStrategy
+from ...operator import Operator
+from ...population import Population
+from ...survivor_selection_base import SurvivorSelection
+from ...survivor_selection import create_survivor_selection
+from ...utils import RNGLike
+from ..static_population_strategy import StaticPopulationStrategy
 
 
-class LocalSearch(SearchStrategy):
+class LocalSearch(StaticPopulationStrategy):
     """
     Local Search algorithm.
 

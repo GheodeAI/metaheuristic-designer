@@ -4,15 +4,17 @@ Evolution Strategy.
 
 from __future__ import annotations
 from typing import Optional
+
 from ...initializer import Initializer
 from ...operator import Operator
 from ...survivor_selection_base import SurvivorSelection
 from ...parent_selection_base import ParentSelection
 from ...operators import CompositeOperator
-from ..variable_population import VariablePopulation
+from ..variable_population_strategy import VariablePopulationStrategy
+from ...utils import RNGLike, check_random_state
 
 
-class ES(VariablePopulation):
+class ES(VariablePopulationStrategy):
     """
     Evolution Strategy (μ+λ or μ,λ).
 
@@ -49,13 +51,22 @@ class ES(VariablePopulation):
         survivor_sel: Optional[SurvivorSelection] = None,
         offspring_size: Optional[int] = None,
         name: str = "ES",
+        random_state: Optional[RNGLike] = None,
         **kwargs,
     ):
+        random_state = check_random_state(random_state)
         if crossover_op is None:
             evolve_op = mutation_op
         else:
             evolve_op = CompositeOperator([mutation_op, crossover_op])
 
         super().__init__(
-            initializer, operator=evolve_op, parent_sel=parent_sel, survivor_sel=survivor_sel, offspring_size=offspring_size, name=name, **kwargs
+            initializer,
+            operator=evolve_op,
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
+            offspring_size=offspring_size,
+            name=name,
+            random_state=random_state,
+            **kwargs,
         )

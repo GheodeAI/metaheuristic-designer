@@ -4,15 +4,16 @@ Hill Climbing strategy (single-solution, greedy local improvement).
 
 from __future__ import annotations
 from typing import Optional
-from ..initializer import Initializer
-from ..survivor_selection_base import SurvivorSelection
-from ..search_strategy import SearchStrategy
-from ..operator import Operator
-from ..survivor_selection import create_survivor_selection
-from ..utils import check_random_state, RNGLike
+from ...initializer import Initializer
+from ...survivor_selection_base import SurvivorSelection
+from ...search_strategy import SearchStrategy
+from ...operator import Operator
+from ...survivor_selection import create_survivor_selection
+from ...utils import RNGLike
+from ..single_solution_strategy import SingleSolutionStrategy
 
 
-class HillClimb(SearchStrategy):
+class HillClimb(SingleSolutionStrategy):
     """
     Hill Climbing algorithm.
 

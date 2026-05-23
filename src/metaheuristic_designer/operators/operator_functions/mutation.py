@@ -12,12 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def mutate_sample(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    distribution: str,
-    N: int,
-    random_state: Optional[RNGLike] = None,
-    **kwargs
+    population_matrix: MatrixLike, fitness_array: VectorLike, distribution: str, N: int, random_state: Optional[RNGLike] = None, **kwargs
 ) -> MatrixLike:
     """
     Replace `N` components of each individual with random values.
@@ -50,12 +45,12 @@ def mutate_sample(
     random_state = check_random_state(random_state)
     population_size, n_components = population_matrix.shape
 
-    distribution = create_prob_distribution(distribution, population_matrix, **kwargs)
+    distribution = create_prob_distribution(distribution, population_matrix, random_state=random_state, **kwargs)
 
     mask_pos = np.tile(np.arange(n_components) < N, (population_size, 1))
     mask_pos = random_state.permuted(mask_pos, axis=1)
 
-    rand_samples = distribution.sample(population_matrix.shape, random_state)
+    rand_samples = distribution.sample(population_matrix.shape)
 
     population_matrix[mask_pos] = rand_samples[mask_pos]
 
@@ -71,7 +66,7 @@ def mutate_noise(
     F: ScalarLike | VectorLike,
     N: int,
     random_state: Optional[RNGLike] = None,
-    **kwargs
+    **kwargs,
 ) -> MatrixLike:
     """
     Add random noise to `N` components of each individual.
@@ -106,12 +101,12 @@ def mutate_noise(
 
     population_size, n_components = population_matrix.shape
 
-    distribution = create_prob_distribution(distribution, population_matrix, **kwargs)
+    distribution = create_prob_distribution(distribution, population_matrix, random_state=random_state, **kwargs)
 
     mask_pos = np.tile(np.arange(n_components) < N, (population_size, 1))
     mask_pos = random_state.permuted(mask_pos, axis=1)
 
-    rand_samples = distribution.sample(population_matrix.shape, random_state)
+    rand_samples = distribution.sample(population_matrix.shape)
 
     population_matrix[mask_pos] = population_matrix[mask_pos] + (F * rand_samples)[mask_pos]
 
@@ -126,11 +121,7 @@ def mutate_noise(
 
 
 def rand_sample(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    distribution: str,
-    random_state: Optional[RNGLike] = None,
-    **kwargs
+    population_matrix: MatrixLike, fitness_array: VectorLike, distribution: str, random_state: Optional[RNGLike] = None, **kwargs
 ) -> MatrixLike:
     """
     Replace the entire population with new random values.
@@ -160,9 +151,9 @@ def rand_sample(
 
     random_state = check_random_state(random_state)
 
-    distribution = create_prob_distribution(distribution, population_matrix, **kwargs)
+    distribution = create_prob_distribution(distribution, population_matrix, random_state=random_state, **kwargs)
 
-    rand_samples = distribution.sample(population_matrix.shape, random_state)
+    rand_samples = distribution.sample(population_matrix.shape)
 
     logger.debug("Resampled vector %s", rand_samples)
 
@@ -170,12 +161,7 @@ def rand_sample(
 
 
 def rand_noise(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    distribution: str,
-    F: ScalarLike,
-    random_state: Optional[RNGLike] = None,
-    **kwargs
+    population_matrix: MatrixLike, fitness_array: VectorLike, distribution: str, F: ScalarLike, random_state: Optional[RNGLike] = None, **kwargs
 ) -> MatrixLike:
     """
     Add random noise to the entire population.
@@ -206,9 +192,9 @@ def rand_noise(
 
     random_state = check_random_state(random_state)
 
-    distribution = create_prob_distribution(distribution, population_matrix, **kwargs)
+    distribution = create_prob_distribution(distribution, population_matrix, random_state=random_state, **kwargs)
 
-    rand_samples = distribution.sample(population_matrix.shape, random_state)
+    rand_samples = distribution.sample(population_matrix.shape)
     result = population_matrix + F * rand_samples
 
     logger.debug("Added noise to vector %s", result)
@@ -216,12 +202,7 @@ def rand_noise(
     return result
 
 
-def sample_1_sigma(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
-    **kwargs
-) -> MatrixLike:
+def sample_1_sigma(population_matrix: MatrixLike, fitness_array: VectorLike, random_state: Optional[RNGLike] = None, **kwargs) -> MatrixLike:
     """
     Replace `n` components using a log-normal perturbation with a
     stored sigma value.
@@ -261,12 +242,7 @@ def sample_1_sigma(
     return population_matrix
 
 
-def mutate_1_sigma(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
-    **kwargs
-) -> MatrixLike:
+def mutate_1_sigma(population_matrix: MatrixLike, fitness_array: VectorLike, random_state: Optional[RNGLike] = None, **kwargs) -> MatrixLike:
     """
     Mutate a single sigma value using a log-normal update.
 
@@ -297,12 +273,7 @@ def mutate_1_sigma(
     return np.maximum(epsilon, population_matrix * np.exp(tau * random_state.normal(0, 1, population_matrix.shape[0])[:, None]))
 
 
-def mutate_n_sigmas(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
-    **kwargs
-) -> MatrixLike:
+def mutate_n_sigmas(population_matrix: MatrixLike, fitness_array: VectorLike, random_state: Optional[RNGLike] = None, **kwargs) -> MatrixLike:
     """
     Mutate multiple sigma values with global and local learning rates.
 
@@ -342,12 +313,7 @@ def mutate_n_sigmas(
 
 
 def xor_mask(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    N: int,
-    mode: str = "byte",
-    random_state: Optional[RNGLike] = None,
-    **kwargs
+    population_matrix: MatrixLike, fitness_array: VectorLike, N: int, mode: str = "byte", random_state: Optional[RNGLike] = None, **kwargs
 ) -> MatrixLike:
     """
     Apply bitwise XOR with random masks to `N` components per individual.

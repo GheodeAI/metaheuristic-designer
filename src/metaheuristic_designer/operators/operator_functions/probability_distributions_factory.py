@@ -6,7 +6,7 @@ import logging
 from typing import Callable, Optional
 import scipy as sp
 
-from metaheuristic_designer.utils import MatrixLike
+from ...utils import MatrixLike, RNGLike
 from .probability_distributions import (
     Distribution,
     ScipyMultivarDistribution,
@@ -109,7 +109,8 @@ def create_prob_distribution(
     distribution_name: str,
     population_matrix: Optional[MatrixLike] = None,
     parameter_heuristic_fn: Optional[Callable] = None,
-    **kwargs
+    random_state: Optional[RNGLike] = None,
+    **kwargs,
 ) -> Distribution:
     """Instantiate a probability distribution by name.
 
@@ -135,7 +136,6 @@ def create_prob_distribution(
     Distribution
         A callable distribution object ready for sampling.
     """
-
     distrib_name_lower = distribution_name.lower()
 
     if "." in distrib_name_lower:
@@ -155,20 +155,21 @@ def create_prob_distribution(
     distrib_fn, param_processor, param_heuristic = distribution_registry[distrib_reg_name][distrib_name_lower]
     if param_processor is not None:
         kwargs = param_processor(**kwargs)
-    if parameter_heuristic_fn is None:
+    if parameter_heuristic_fn is not None:
         param_heuristic = parameter_heuristic_fn
     if param_heuristic is None:
         param_heuristic = lambda _, **kwargs: kwargs
     kwargs = param_heuristic(population_matrix, **kwargs)
 
     if distrib_reg_name == "scipy-univar":
-        distrib = ScipyUnivarDistribution(distrib_fn, **kwargs)
+        distrib = ScipyUnivarDistribution(distrib_fn, random_state=random_state, **kwargs)
     elif distrib_reg_name == "scipy-multivar":
-        distrib = ScipyMultivarDistribution(distrib_fn, **kwargs)
+        distrib = ScipyMultivarDistribution(distrib_fn, random_state=random_state, **kwargs)
     elif distrib_reg_name == "custom":
-        distrib = distrib_fn(**kwargs)
+        distrib = distrib_fn(random_state=random_state, **kwargs)
 
     return distrib
+
 
 def add_distribution_entry(
     distribution_class: Distribution,

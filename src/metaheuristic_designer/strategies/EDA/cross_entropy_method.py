@@ -3,15 +3,17 @@ Cross-Entropy Method (CEM) strategy.
 """
 
 from typing import Optional
+
+from ...population import Population
 from ...initializer import Initializer
 from ...parent_selection import create_parent_selection
 from ...operators import create_mutation_operator
-from ..static_population import StaticPopulation
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import VectorLike, check_random_state, RNGLike
+from ..eda_strategy import EDAStrategy
 
 
-class CrossEntropyMethod(StaticPopulation):
+class CrossEntropyMethod(EDAStrategy):
     """
     Cross-Entropy Method for continuous optimisation.
 
@@ -53,9 +55,12 @@ class CrossEntropyMethod(StaticPopulation):
     ):
         random_state = check_random_state(random_state)
 
-        operator = create_mutation_operator("RandSample", distribution="Normal", loc="calculated", scale=scale, random_state=random_state)
+        operator = create_mutation_operator("RandSample", distribution="normal", loc="calculated", scale=scale, random_state=random_state)
         parent_sel = create_parent_selection("best", amount=elite_amount)
 
-        super().__init__(initializer=initializer, operator=operator, parent_sel=parent_sel, name=name, **kwargs)
+        super().__init__(initializer=initializer, operator=operator, parent_sel=parent_sel, name=name, random_state=random_state, **kwargs)
 
-    # TODO: add alpha smoothing for the mean each time the parent selection method is called.
+    def estimate_parameters(self, population: Population) -> Population:
+        # TODO: add alpha smoothing for the mean each time the parent selection method is called.
+
+        return self.operator

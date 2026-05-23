@@ -3,13 +3,16 @@ Bayesian Optimization strategy.
 """
 
 from __future__ import annotations
-from ...search_strategy import SearchStrategy
+from typing import Optional
+
 from ...initializer import Initializer
 from ...parent_selection_base import ParentSelection
 from ...operators.BO_operator import BOOperator
+from ..static_population_strategy import StaticPopulationStrategy
+from ...utils import RNGLike
 
 
-class BayesianOptimization(SearchStrategy):
+class BayesianOptimization(StaticPopulationStrategy):
     """
     Bayesian Optimization using a Gaussian Process surrogate.
 
@@ -31,5 +34,12 @@ class BayesianOptimization(SearchStrategy):
         ``max_samples``, ``kernel``).
     """
 
-    def __init__(self, initializer: Initializer, parent_sel: ParentSelection = None, name: str = "Bayesian Optimization", **kwargs):
-        super().__init__(initializer, operator=BOOperator(**kwargs), parent_sel=parent_sel, name=name, **kwargs)
+    def __init__(
+        self,
+        initializer: Initializer,
+        parent_sel: ParentSelection = None,
+        name: str = "Bayesian Optimization",
+        random_state: Optional[RNGLike] = None,
+        **kwargs,
+    ):
+        super().__init__(initializer, operator=BOOperator(random_state=random_state, **kwargs), parent_sel=parent_sel, name=name, **kwargs)

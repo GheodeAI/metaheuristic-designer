@@ -11,12 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def differential_evolution_rand1(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
-    F: float = 0.8,
-    Cr: float = 0.9,
-    **kwargs
+    population_matrix: MatrixLike, fitness_array: VectorLike, random_state: Optional[RNGLike] = None, F: float = 0.8, Cr: float = 0.9, **kwargs
 ) -> MatrixLike:
     """
     DE/rand/1 mutation and binomial crossover.
@@ -63,12 +58,7 @@ def differential_evolution_rand1(
 
 
 def differential_evolution_best1(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
-    F: float = 0.8,
-    Cr: float = 0.9,
-    **kwargs
+    population_matrix: MatrixLike, fitness_array: VectorLike, random_state: Optional[RNGLike] = None, F: float = 0.8, Cr: float = 0.9, **kwargs
 ) -> MatrixLike:
     """
     DE/best/1 mutation and binomial crossover.
@@ -118,12 +108,7 @@ def differential_evolution_best1(
 
 
 def differential_evolution_rand2(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
-    F: float = 0.8,
-    Cr: float = 0.9,
-    **kwargs
+    population_matrix: MatrixLike, fitness_array: VectorLike, random_state: Optional[RNGLike] = None, F: float = 0.8, Cr: float = 0.9, **kwargs
 ) -> MatrixLike:
     """
     DE/rand/2 mutation and binomial crossover.
@@ -168,12 +153,7 @@ def differential_evolution_rand2(
 
 
 def differential_evolution_best2(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
-    F: float = 0.8,
-    Cr: float = 0.9,
-    **kwargs
+    population_matrix: MatrixLike, fitness_array: VectorLike, random_state: Optional[RNGLike] = None, F: float = 0.8, Cr: float = 0.9, **kwargs
 ) -> MatrixLike:
     """
     DE/best/2 mutation and binomial crossover.
@@ -221,12 +201,7 @@ def differential_evolution_best2(
 
 
 def differential_evolution_current_to_rand1(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
-    F: float = 0.8,
-    Cr: float = 0.9,
-    **kwargs
+    population_matrix: MatrixLike, fitness_array: VectorLike, random_state: Optional[RNGLike] = None, F: float = 0.8, Cr: float = 0.9, **kwargs
 ) -> MatrixLike:
     """
     DE/current-to-rand/1 mutation and binomial crossover.
@@ -274,12 +249,7 @@ def differential_evolution_current_to_rand1(
 
 
 def differential_evolution_current_to_best1(
-    population_matrix: MatrixLike,
-    fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
-    F: float = 0.8,
-    Cr: float = 0.9,
-    **kwargs
+    population_matrix: MatrixLike, fitness_array: VectorLike, random_state: Optional[RNGLike] = None, F: float = 0.8, Cr: float = 0.9, **kwargs
 ) -> MatrixLike:
     """
     DE/current-to-best/1 mutation and binomial crossover.
@@ -333,7 +303,7 @@ def differential_evolution_current_to_pbest1(
     F: float = 0.8,
     Cr: float = 0.9,
     p: float = 0.1,
-    **kwargs
+    **kwargs,
 ) -> MatrixLike:
     """
     DE/current-to-pbest/1 mutation and binomial crossover.
