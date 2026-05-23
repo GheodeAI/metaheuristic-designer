@@ -149,22 +149,19 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
     else:
         search_strategy = search_strategy_map[alg_name]
 
-    # if memetic:
-    #     local_search = LocalSearch(
-    #         initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=search_strategy.initializer.pop_size),
-    #         operator=create_operator("mutation.gaussian_noise", F=2e-4),
-    #         params={"iters": 20},
-    #     )
-    #     alg = MemeticAlgorithm(
-    #         objfunc=objfunc,
-    #         search_strategy=search_strategy,
-    #         local_search=local_search,
-    #         improvement_selection=create_parent_selection("Best", amount=5),
-    #         keep_improved_solutions=True,
-    #         **algorithm_params,
-    #     )
-    # else:
-    #     alg = Algorithm(objfunc, search_strategy, reporter=reporter, **algorithm_params)
+    if memetic:
+        local_search = LocalSearch(
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=search_strategy.initializer.pop_size),
+            operator=create_operator("mutation.gaussian_noise", F=2e-4),
+            params={"iters": 20},
+        )
+        # alg = MemeticStrategy(
+        #     search_strategy,
+        #     local_search,
+        #     lamarckian=True
+        #     **algorithm_params,
+        # )
+
     alg = Algorithm(objfunc, search_strategy, reporter=reporter, **algorithm_params)
 
     population = alg.optimize()
@@ -203,7 +200,7 @@ def main():
         "-o", "--objective", dest="objective", help=f"Name of the objective function. Available options are {available_objectives}", default="Sphere"
     )
     parser.add_argument("-d", "--dim", dest="dim", help="Dimension of the vectors to optimize.", default=3, type=int)
-    parser.add_argument("-r", "--seed", dest="seed", help="Random seed to use", default=42, type=int)
+    parser.add_argument("-r", "--seed", dest="seed", help="Random seed to use", default=None, type=int)
     parser.add_argument("--log", default="WARNING", help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     parser.add_argument("-v", "--reporter", default="tqdm", help="Reporter to use for progress tracking. Avaliable options are")
     parser.add_argument(
@@ -216,9 +213,6 @@ def main():
     args = parser.parse_args()
 
     rng = check_random_state(args.seed)
-    # rng = check_random_state(42)
-    print(rng.integers(19))
-    print(rng.integers(19))
     logging.basicConfig()
     logging.getLogger("metaheuristic_designer").setLevel(args.log.upper())
 
