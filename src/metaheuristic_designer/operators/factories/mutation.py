@@ -121,12 +121,7 @@ mutation_ops_map = {
 # fmt: on
 
 
-def create_mutation_operator(
-    method: str,
-    encoding: Optional[Encoding] = None,
-    name: Optional[str] = None,
-    **kwargs
-) -> OperatorFromLambda:
+def create_mutation_operator(method: str, encoding: Optional[Encoding] = None, name: Optional[str] = None, **kwargs) -> OperatorFromLambda:
     """
     Create a mutation operator by name.
 

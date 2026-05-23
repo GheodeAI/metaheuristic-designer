@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
+from typing import Optional
 import numpy as np
 import scipy as sp
 from ...utils import RNGLike, TensorLike, check_random_state
@@ -17,6 +18,9 @@ class Distribution(ABC):
     a ``sample`` method to generate random variates and an optional
     ``estimate_parameters`` method to compute heuristic parameters from data.
     """
+
+    def __init__(self, random_state: Optional[RNGLike] = None):
+        self.random_state = check_random_state(random_state)
 
     @abstractmethod
     def sample(self, shape: tuple, random_state: RNGLike) -> TensorLike:
@@ -67,10 +71,11 @@ class ScipyUnivarDistribution(Distribution):
         Parameters forwarded to the distribution constructor.
     """
 
-    def __init__(self, distribution_cls, **kwargs):
+    def __init__(self, distribution_cls, random_state, **kwargs):
         self.dist = distribution_cls(**kwargs)
+        super().__init__(random_state=random_state)
 
-    def sample(self, shape: tuple, random_state: RNGLike) -> TensorLike:
+    def sample(self, shape: tuple) -> TensorLike:
         """Draw random samples.
 
         Parameters
@@ -85,7 +90,7 @@ class ScipyUnivarDistribution(Distribution):
         np.ndarray
             Array of independent samples of the requested shape.
         """
-        return self.dist.rvs(size=shape, random_state=random_state)
+        return self.dist.rvs(size=shape, random_state=self.random_state)
 
 
 class ScipyMultivarDistribution(Distribution):
@@ -99,10 +104,11 @@ class ScipyMultivarDistribution(Distribution):
         Parameters forwarded to the distribution constructor.
     """
 
-    def __init__(self, distribution_cls, **kwargs):
+    def __init__(self, distribution_cls, random_state=None, **kwargs):
         self.dist = distribution_cls(**kwargs)
+        super().__init__(random_state=random_state)
 
-    def sample(self, shape: tuple, random_state: RNGLike) -> TensorLike:
+    def sample(self, shape: tuple) -> TensorLike:
         """Draw random samples.
 
         For a multivariate distribution, ``shape[1]`` is ignored;
@@ -121,7 +127,7 @@ class ScipyMultivarDistribution(Distribution):
         np.ndarray
             Array of shape ``(shape[0], dim)``.
         """
-        return self.dist.rvs(size=shape[0], random_state=random_state)
+        return self.dist.rvs(size=shape[0], random_state=self.random_state)
 
 
 class multivariate_categorical(Distribution):
@@ -137,13 +143,14 @@ class multivariate_categorical(Distribution):
         row-wise before sampling.
     """
 
-    def __init__(self, categories, weight_matrix):
+    def __init__(self, categories, weight_matrix, random_state):
         self.categories = categories
         weight_matrix = weight_matrix / weight_matrix.sum(axis=1, keepdims=True)
         self.cumsum_matrix = weight_matrix.cumsum(axis=1)
         self.sample_fn = np.vectorize(np.searchsorted, signature="(n),()->()", cache=True)
+        super().__init__(random_state=random_state)
 
-    def sample(self, shape: tuple, random_state: RNGLike) -> TensorLike:
+    def sample(self, shape: tuple) -> TensorLike:
         """Draw random samples.
 
         Parameters
@@ -167,9 +174,7 @@ class multivariate_categorical(Distribution):
         else:
             shape = tuple(shape) + (len(self.categories),)
 
-        random_state = check_random_state(random_state)
-
-        index_rnd = random_state.random(size=shape)
+        index_rnd = self.random_state.random(size=shape)
         return self.sample_fn(self.cumsum_matrix, index_rnd)
 
 
@@ -228,12 +233,13 @@ def normal_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved ``loc`` and ``scale``.
     """
-    if loc == "calculated":
+
+    if isinstance(loc, str) and loc == "calculated":
         kwargs["loc"] = population_matrix.mean(axis=0)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         kwargs["scale"] = population_matrix.std(axis=0)
     elif scale is not None:
         kwargs["scale"] = scale
@@ -265,12 +271,12 @@ def uniform_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved ``loc`` and ``scale``.
     """
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         kwargs["loc"] = population_matrix.min(axis=0)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         kwargs["scale"] = population_matrix.max(axis=0) - population_matrix.min(axis=0)
     elif scale is not None:
         kwargs["scale"] = scale
@@ -302,12 +308,12 @@ def cauchy_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved ``loc`` and ``scale``.
     """
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         kwargs["loc"] = np.median(population_matrix, axis=0)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         kwargs["scale"] = sp.stats.iqr(population_matrix, axis=0) / 2
     elif scale is not None:
         kwargs["scale"] = scale
@@ -339,12 +345,12 @@ def laplace_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved ``loc`` and ``scale``.
     """
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         kwargs["loc"] = np.median(population_matrix, axis=0)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         kwargs["scale"] = sp.stats.median_abs_deviation(population_matrix, axis=0)
     elif scale is not None:
         kwargs["scale"] = scale
@@ -378,14 +384,14 @@ def gamma_heuristic(population_matrix, a=None, scale=None, **kwargs):
     """
     mean = None
     var = None
-    if a == "calculated":
+    if isinstance(a, str) and a == "calculated":
         mean = population_matrix.mean(axis=0)
         var = population_matrix.var(axis=0)
         kwargs["a"] = mean * mean / var
     elif a is not None:
         kwargs["a"] = a
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         if mean is None and var is None:
             mean = population_matrix.mean(axis=0)
             var = population_matrix.var(axis=0)
@@ -417,7 +423,7 @@ def expon_heuristic(population_matrix, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved *scale*.
     """
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         loc = kwargs.get("loc", 0)
         kwargs["scale"] = population_matrix.mean(axis=0) - loc
     elif scale is not None:
@@ -451,12 +457,12 @@ def levy_stable_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved ``loc`` and ``scale``.
     """
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         kwargs["loc"] = np.median(population_matrix, axis=0)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         kwargs["scale"] = sp.stats.median_abs_deviation(population_matrix, axis=0)
     elif scale is not None:
         kwargs["scale"] = scale
@@ -485,7 +491,7 @@ def poisson_heuristic(population_matrix, mu=None, **kwargs):
     dict
         The updated *kwargs* with resolved *mu*.
     """
-    if mu == "calculated":
+    if isinstance(mu, str) and mu == "calculated":
         loc = kwargs.get("loc", 0)
         kwargs["mu"] = population_matrix.mean(axis=0) - loc
     elif mu is not None:
@@ -514,7 +520,7 @@ def bernoulli_heuristic(population_matrix, p=None, **kwargs):
     dict
         The updated *kwargs* with resolved *p*.
     """
-    if p == "calculated":
+    if isinstance(p, str) and p == "calculated":
         loc = kwargs.get("loc", 0)
         kwargs["p"] = population_matrix.mean(axis=0) - loc
     elif p is not None:
@@ -544,7 +550,7 @@ def binomial_heuristic(population_matrix, p=None, **kwargs):
     dict
         The updated *kwargs* with resolved *p*.
     """
-    if p == "calculated":
+    if isinstance(p, str) and p == "calculated":
         loc = kwargs.get("loc", 0)
         n = kwargs["n"]
         kwargs["p"] = (population_matrix.mean(axis=0) - loc) / n
@@ -581,14 +587,14 @@ def tikhinov_heuristic(population_matrix, loc=None, kappa=None, **kwargs):
     """
     mean_cos = None
     mean_sin = None
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         mean_cos = np.cos(population_matrix).mean(axis=0)
         mean_sin = np.sin(population_matrix).mean(axis=0)
         kwargs["loc"] = np.arctan2(mean_sin, mean_cos)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if kappa == "calculated":
+    if isinstance(kappa, str) and kappa == "calculated":
         if mean_cos is None and mean_sin is None:
             mean_cos = np.cos(population_matrix).mean(axis=0)
             mean_sin = np.sin(population_matrix).mean(axis=0)
@@ -629,12 +635,12 @@ def multivariate_normal_heuristic(population_matrix, mean=None, cov=None, **kwar
         If *cov* is ``"calculated"``, automatic covariance estimation is
         not supported.
     """
-    if mean == "calculated":
+    if isinstance(mean, str) and mean == "calculated":
         kwargs["mean"] = population_matrix.mean(axis=0)
     elif mean is not None:
         kwargs["mean"] = mean
 
-    if cov == "calculated":
+    if isinstance(cov, str) and cov == "calculated":
         raise ValueError("Automatic covariance estimation is not supported. " "Provide an explicit covariance matrix.")
     elif cov is not None:
         kwargs["cov"] = cov
@@ -668,7 +674,7 @@ def dirichlet_heuristic(population_matrix, alpha=None, **kwargs):
         If *alpha* is ``"calculated"``, automatic estimation is not
         supported.
     """
-    if alpha == "calculated":
+    if isinstance(alpha, str) and alpha == "calculated":
         raise ValueError("Automatic Dirichlet parameter estimation is not supported. " "Provide an explicit `alpha` vector.")
     elif alpha is not None:
         kwargs["alpha"] = alpha
@@ -704,14 +710,14 @@ def tikhinov_fisher_heuristic(population_matrix, loc=None, kappa=None, **kwargs)
         The updated *kwargs* with resolved ``loc`` and ``kappa``.
     """
     sample_mean = None
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         sample_mean = population_matrix.mean(axis=0)
         radius = np.linalg.norm(sample_mean)
         kwargs["loc"] = sample_mean / radius
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if kappa == "calculated":
+    if isinstance(kappa, str) and kappa == "calculated":
         if sample_mean is None:
             sample_mean = population_matrix.mean(axis=0)
             radius = np.linalg.norm(sample_mean)

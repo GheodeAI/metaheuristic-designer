@@ -4,7 +4,7 @@ CMA-ES (Covariance Matrix Adaptation Evolution Strategy) implementation.
 .. warning::
    The current implementation is architecturally a temporary solution.
    It will be refactored once the EDA (Distribution-based) interface is
-   finalised.
+   finalized.
 """
 
 from __future__ import annotations
@@ -15,7 +15,6 @@ import scipy as sp
 
 from metaheuristic_designer.objective_function import ObjectiveFunc
 
-from ...search_strategy import SearchStrategy
 from ...parent_selection import create_parent_selection
 from ...population import Population
 from ...initializer import Initializer
@@ -23,11 +22,12 @@ from ...schedulable_parameter import SchedulableParameter
 from ...survivor_selection_base import SurvivorSelection
 from ...operators import create_operator
 from ...utils import VectorLike, check_random_state
+from ..eda_strategy import EDAStrategy
 
 logger = logging.getLogger(__name__)
 
 
-class CMA_ES(SearchStrategy):
+class CMA_ES(EDAStrategy):
     """
     Covariance Matrix Adaptation Evolution Strategy (CMA-ES).
 
@@ -74,33 +74,42 @@ class CMA_ES(SearchStrategy):
         random_state=None,
         mean: Optional[VectorLike] = None,
         sigma: Optional[VectorLike] = None,
+        cond_tol: float = 1e8,
+        sigma_tol: float = 1e-10,
         **kwargs,
     ):
-        self.random_state = check_random_state(random_state)
+        random_state = check_random_state(random_state)
 
         logger.info(
             "In CMA-ES the initializer does not generate solutions, it merely indicates the population size and encoding. Don't expect different results from changing the initializer."
         )
 
+        self.offspring_size = offspring_size if offspring_size is not None else initializer.population_size
+        self.cond_tol = cond_tol
+        self.sigma_tol = sigma_tol
+
         super().__init__(
             initializer,
-            operator=create_operator("mutation.full_resampling", distribution="multivariate_normal", mean=None, cov=None, allow_singular=True),
-            parent_sel=create_parent_selection("best", amount=initializer.population_size),
+            operator=create_operator(
+                "mutation.full_resampling", distribution="multivariate_normal", mean=None, cov=None, allow_singular=True, random_state=random_state
+            ),
+            parent_sel=create_parent_selection("best", amount=initializer.population_size, random_state=random_state),
             survivor_sel=survivor_sel,
             name=name,
+            random_state=random_state,
             # Forced kwargs
-            mean=mean,
             sigma=sigma,
             **kwargs,
         )
 
-        self.offspring_size = offspring_size
+        self._initialize_parameters()
 
-        self._cov = np.eye(initializer.dimension)
+    def _initialize_parameters(self):
+        self._cov = np.eye(self.initializer.dimension)
 
-        # intialize weights
-        self.mu = initializer.population_size
-        self.lambda_ = offspring_size
+        # initialize weights
+        self.mu = self.initializer.population_size
+        self.lambda_ = self.offspring_size
 
         val_range = np.arange(self.mu) + 1
         weights = np.log(self.mu + 0.5) - np.log(val_range)
@@ -161,7 +170,7 @@ class CMA_ES(SearchStrategy):
             A freshly sampled population with unevaluated fitness.
         """
 
-        if self.params.mean is None:
+        if self.operator.params.mean is None:
             if hasattr(objfunc, "lower_bound") and hasattr(objfunc, "upper_bound"):
                 computed_mean = 0.5 * (objfunc.upper_bound + objfunc.lower_bound)
             else:
@@ -187,27 +196,27 @@ class CMA_ES(SearchStrategy):
         mean = self.params.mean
         sigma = self.params.sigma
         cov_matrix = sigma * sigma * self._cov
-        genotype = np.random.multivariate_normal(mean=mean, cov=cov_matrix, size=self.offspring_size)
+        genotype = self.random_state.multivariate_normal(mean=mean, cov=cov_matrix, size=(self.offspring_size,))
 
         # Update the operator's parameters since they were undefined in the constructor
         self.operator.update_kwargs(mean=mean, cov=cov_matrix)
 
-        return Population(objfunc, genotype, encoding=self.initializer.encoding)
+        initial_population = Population(objfunc, genotype, encoding=self.initializer.encoding)
+        initial_population = initial_population.calculate_fitness()
 
-    def perturb(self, parents: Population, **kwargs) -> Population:
-        """Update the distribution parameters and generate offspring.
+        return initial_population
+
+    def estimate_parameters(self, population):
+        """Update the distribution parameters
 
         The parents (the best μ individuals from the previous generation)
         are used to update *mean*, *sigma*, *covariance*, and the
-        evolution paths.  A new offspring population is then sampled from
-        the updated distribution.
+        evolution paths.
 
         Parameters
         ----------
-        parents : Population
+        population : Population
             The selected parents (must be already evaluated).
-        **kwargs
-            Forwarded to the parent's :meth:`perturb`.
 
         Returns
         -------
@@ -215,8 +224,8 @@ class CMA_ES(SearchStrategy):
             Offspring population of size *offspring_size*.
         """
 
-        pop_order = np.argsort(parents.fitness)[::-1]
-        pop_matrix = parents.genotype_matrix[pop_order, :]
+        pop_order = np.argsort(population.fitness)[::-1]
+        pop_matrix = population.genotype_matrix[pop_order, :]
 
         new_mean = np.average(pop_matrix, axis=0, weights=self._weights)
 
@@ -253,14 +262,13 @@ class CMA_ES(SearchStrategy):
         new_sigma = self.params.sigma * np.exp(term1_a / term1_b)
 
         # Breaks to ensure numerical stability
-        if new_sigma < 1e-10:
+        if new_sigma < self.sigma_tol:
             self.finish = True
 
-        if np.linalg.cond(self._cov) > 1e14:
+        if np.linalg.cond(self._cov) > self.cond_tol:
             self.finish = True
 
-        self.update_kwargs(mean=new_mean, sigma=new_sigma)
-
+        self.update_kwargs(sigma=new_sigma)
         self.operator.update_kwargs(mean=new_mean, cov=new_sigma * new_sigma * self._cov)
 
-        return super().perturb(parents, **kwargs)
+        return self.operator

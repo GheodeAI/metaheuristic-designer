@@ -93,7 +93,7 @@ class ExtendedOperator(Operator):
 
         return self.main_operator.evolve(population, initializer=initializer)
 
-    def step(self, progress: float):
+    def update(self, progress: float):
         """Update schedulable parameters and propagate to sub-operators.
 
         Parameters
@@ -101,10 +101,10 @@ class ExtendedOperator(Operator):
         progress : float
             Current progress of the algorithm (0-1).
         """
-        super().step(progress)
+        super().update(progress)
 
-        self.base_operator.step(progress)
+        self.base_operator.update(progress)
 
         for _, op in self.param_operators.items():
             if isinstance(op, Operator):
-                op.step(progress)
+                op.update(progress)

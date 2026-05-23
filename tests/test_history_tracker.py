@@ -40,10 +40,8 @@ def test_record_after_one_step(algo_with_full_tracker):
     pop = algo.initialize()
 
     # Simulate the initial generation record (should be done by optimize)
-    algo.history_tracker.step(algo)  # generation 0
-    pop = algo.step(population=pop)
-    algo.stopping_condition.step(pop)
-    algo.history_tracker.step(algo)  # generation 1
+    algo.history_tracker.update(algo)  # generation 0
+    pop = algo.step(prev_population=pop)
 
     tracker = algo.history_tracker
     assert tracker.recorded_iterations == [0, 1]
@@ -57,7 +55,7 @@ def test_record_after_one_step(algo_with_full_tracker):
 def test_best_solution_is_feasible(algo_with_full_tracker):
     algo = algo_with_full_tracker
     algo.initialize()
-    algo.history_tracker.step(algo)
+    algo.history_tracker.update(algo)
 
     best = algo.history_tracker.best_solutions[-1]
     assert best.shape == (3,)  # dimension of dummy_objfunc
@@ -66,11 +64,9 @@ def test_best_solution_is_feasible(algo_with_full_tracker):
 
 def test_to_pandas_output(algo_with_full_tracker):
     algo = algo_with_full_tracker
-    algo.initialize()
-    algo.history_tracker.step(algo)  # gen 0
-    pop = algo.step()  # gen 1
-    algo.stopping_condition.step(pop)
-    algo.history_tracker.step(algo)
+    pop = algo.initialize()
+    algo.history_tracker.update(algo)  # gen 0
+    pop = algo.step(pop)  # gen 1
 
     df = algo.history_tracker.to_pandas()
     assert len(df) == 2
@@ -82,7 +78,7 @@ def test_to_pandas_output(algo_with_full_tracker):
 def test_get_state(algo_with_full_tracker):
     algo = algo_with_full_tracker
     algo.initialize()
-    algo.history_tracker.step(algo)
+    algo.history_tracker.update(algo)
 
     state = algo.history_tracker.get_state()
     assert "class_name" in state
@@ -96,7 +92,7 @@ def test_get_state(algo_with_full_tracker):
 def test_restart_clears_all(algo_with_full_tracker):
     algo = algo_with_full_tracker
     algo.initialize()
-    algo.history_tracker.step(algo)
+    algo.history_tracker.update(algo)
     algo.history_tracker.restart()
 
     tracker = algo.history_tracker
@@ -121,8 +117,8 @@ def test_correctness_best_median_worst(dummy_objfunc, algo_with_full_tracker):
     pop.objective = pop.fitness.copy()
     pop.fitness_calculated = np.ones(5, dtype=bool)
 
-    algo.search_strategy.population = pop
-    tracker.step(algo)
+    algo.population = pop
+    tracker.update(algo)
 
     # Best: index 1 (fitness 5.0)
     np.testing.assert_array_equal(tracker.best_solutions[0], genotypes[1])

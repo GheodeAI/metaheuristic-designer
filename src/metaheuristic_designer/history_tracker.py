@@ -99,7 +99,7 @@ class HistoryTracker:
 
         self.recorded_iterations = []
 
-    def step(self, algorithm: Algorithm):
+    def update(self, algorithm: Algorithm):
         """Record metrics for the current generation.
 
         Parameters

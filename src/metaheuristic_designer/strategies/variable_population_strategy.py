@@ -18,7 +18,7 @@ from ..schedulable_parameter import SchedulableParameter
 logger = logging.getLogger(__name__)
 
 
-class VariablePopulation(SearchStrategy):
+class VariablePopulationStrategy(SearchStrategy):
     """
     Population-based strategy with separate parent and offspring sizes.
 
@@ -54,7 +54,7 @@ class VariablePopulation(SearchStrategy):
     def __init__(
         self,
         initializer: Initializer,
-        operator: Operator,
+        operator: Operator = None,
         parent_sel: Optional[ParentSelection] = None,
         survivor_sel: Optional[SurvivorSelection] = None,
         offspring_size: Optional[int | SchedulableParameter] = None,
@@ -64,7 +64,7 @@ class VariablePopulation(SearchStrategy):
         **kwargs,
     ):
         # We need to set up the random state beforehand to handle the initializer correctly
-        self.random_state = check_random_state(random_state)
+        random_state = check_random_state(random_state)
 
         self.using_custom_offspring_size = offspring_size is not None
 
@@ -115,20 +115,11 @@ class VariablePopulation(SearchStrategy):
 
         self._initializer = new_initializer
 
-    def select_parents(self, population: Population) -> Population:
-        """Select parents, then optionally shuffle the pool.
-
-        Parameters
-        ----------
-        population : Population
-            Current population.
-
-        Returns
-        -------
-        Population
-            The (possibly shuffled) selected parents.
-        """
-
-        next_population = super().select_parents(population)
-        next_population = self.population_shuffler(next_population)
-        return next_population
+    def step(self, prev_population: Population) -> Population:
+        population = self.parent_sel.select(prev_population)  # implicit copy
+        population = self.population_shuffler(population)
+        population = self.operator.evolve(population, self.initializer)
+        population = population.repair_solutions()
+        population = population.calculate_fitness()
+        population = self.survivor_sel.select(population=prev_population, offspring=population)
+        return population

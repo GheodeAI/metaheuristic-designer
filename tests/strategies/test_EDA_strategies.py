@@ -45,7 +45,7 @@ def test_bernoulli_pbil_perturb_updates_p(rng, dummy_objfunc, dummy_initializer)
         random_state=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_p = algo.operator.params.p
     assert_array_equal(actual_p, expected_p)
@@ -70,7 +70,7 @@ def test_binomial_pbil_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
         random_state=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_p = algo.operator.params.p
     assert_array_equal(actual_p, expected_p)
@@ -95,7 +95,7 @@ def test_gaussian_pbil_perturb_updates_loc(rng, dummy_objfunc, dummy_initializer
         random_state=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_loc = algo.operator.params.loc
     assert_array_equal(actual_loc, expected_loc)
@@ -118,7 +118,7 @@ def test_bernoulli_umda_perturb_updates_p(rng, dummy_objfunc, dummy_initializer)
         random_state=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_p = algo.operator.params.p
     assert_array_equal(actual_p, expected_p)
@@ -142,7 +142,7 @@ def test_binomial_umda_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
         random_state=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_p = algo.operator.params.p
     assert_array_equal(actual_p, expected_p)
@@ -166,7 +166,7 @@ def test_gaussian_umda_perturb_updates_loc(rng, dummy_objfunc, dummy_initializer
         random_state=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_loc = algo.operator.params.loc
     assert_array_equal(actual_loc, expected_loc)

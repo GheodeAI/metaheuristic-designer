@@ -4,13 +4,12 @@ Built-in search strategy implementations.
 
 from ..search_strategy import SearchStrategy
 
-from .hill_climb import HillClimb
-from .local_search import LocalSearch
-
-from .static_population import StaticPopulation
-from .variable_population import VariablePopulation
-
 from .no_search import NoSearch
+from .single_solution_strategy import SingleSolutionStrategy
+from .static_population_strategy import StaticPopulationStrategy
+from .variable_population_strategy import VariablePopulationStrategy
+from .eda_strategy import EDAStrategy
+
 
 from .classic import *
 from . import classic
@@ -24,15 +23,19 @@ from . import EDA
 from .bayesian_optimization import *
 from . import bayesian_optimization
 
+from .hybrid import *
+from . import hybrid
+
 __all__ = [
-    "HillClimb",
-    "LocalSearch",
     "NoSearch",
     "SearchStrategy",
-    "StaticPopulation",
-    "VariablePopulation",
+    "SingleSolutionStrategy",
+    "VariablePopulationStrategy",
+    "VariablePopulationStrategy",
+    "EDAStrategy",
     *classic.__all__,
     *swarm.__all__,
     *EDA.__all__,
     *bayesian_optimization.__all__,
+    *hybrid.__all__,
 ]

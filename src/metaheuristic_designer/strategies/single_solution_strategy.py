@@ -1,25 +1,23 @@
 """
-Hill Climbing strategy (single-solution, greedy local improvement).
+Single solution abstract strategy
 """
 
 from __future__ import annotations
+from copy import copy
 from typing import Optional
+
+from metaheuristic_designer.population import Population
 from ..initializer import Initializer
 from ..survivor_selection_base import SurvivorSelection
 from ..search_strategy import SearchStrategy
 from ..operator import Operator
-from ..survivor_selection import create_survivor_selection
-from ..utils import check_random_state, RNGLike
+from ..utils import RNGLike
 
 
-class HillClimb(SearchStrategy):
+class SingleSolutionStrategy(SearchStrategy):
     """
-    Hill Climbing algorithm.
 
-    A single solution is perturbed each iteration.  If the new
-    solution is better, it replaces the current one.  By default,
-    the survivor selection is set to one-to-one competition
-    (``"hill_climb"`` in the survivor registry).
+    No parent selection method exists, we only have one solution at each given time
 
     Parameters
     ----------
@@ -29,8 +27,6 @@ class HillClimb(SearchStrategy):
         Perturbation operator.  Defaults to :class:`NullOperator`.
     survivor_sel : SurvivorSelection, optional
         Survivor selection method; defaults to ``"hill_climb"``.
-    params : dict, optional
-        Additional parameters stored as schedulable values.
     name : str, optional
         Display name (default ``"HillClimb"``).
     random_state : RNGLike, optional
@@ -44,13 +40,16 @@ class HillClimb(SearchStrategy):
         initializer: Initializer,
         operator: Optional[Operator] = None,
         survivor_sel: Optional[SurvivorSelection] = None,
-        params: Optional[dict] = None,
         name: str = "HillClimb",
         random_state: Optional[RNGLike] = None,
         **kwargs,
     ):
+        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs)
 
-        if survivor_sel is None:
-            survivor_sel = create_survivor_selection("hill_climb")
-
-        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name, random_state=random_state, **kwargs)
+    def step(self, prev_population: Population) -> Population:
+        self.population = copy(prev_population)
+        self.population = self.operator.evolve(self.population, self.initializer)
+        self.population = self.population.repair_solutions()
+        self.population = self.population.calculate_fitness()
+        self.population = self.survivor_sel.select(population=prev_population, offspring=self.population)
+        return self.population

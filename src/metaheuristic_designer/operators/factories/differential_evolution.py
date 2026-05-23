@@ -45,11 +45,7 @@ de_ops_map = {
 
 
 def create_differential_evolution_operator(
-    method: str,
-    encoding: Optional[Encoding] = None,
-    vectorized: bool = True,
-    name: Optional[str] = None,
-    **kwargs
+    method: str, encoding: Optional[Encoding] = None, vectorized: bool = True, name: Optional[str] = None, **kwargs
 ) -> OperatorFromLambda:
     """
     Create a DE operator by name.

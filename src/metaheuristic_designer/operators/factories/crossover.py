@@ -96,11 +96,7 @@ crossover_ops_map = {
 
 
 def create_crossover_operator(
-    method: str,
-    encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
-    name: Optional[str] = None,
-    **kwargs
+    method: str, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, name: Optional[str] = None, **kwargs
 ) -> OperatorFromLambda:
     """
     Create a crossover operator by name.

@@ -3,6 +3,7 @@ No-op strategy that returns the population unchanged (debug / baseline).
 """
 
 from __future__ import annotations
+from copy import copy
 from ..initializer import Initializer
 from ..search_strategy import SearchStrategy
 from ..population import Population
@@ -26,22 +27,7 @@ class NoSearch(SearchStrategy):
     """
 
     def __init__(self, initializer: Initializer, name: str = "No search", **kwargs):
-        super().__init__(initializer, params={}, name=name, **kwargs)
+        super().__init__(initializer, name=name, **kwargs)
 
-    def perturb(self, parents: Population, **kwargs) -> Population:
-        """Return the parents unchanged.
-
-        Parameters
-        ----------
-        parents : Population
-            The current population.
-        **kwargs
-            Unused.
-
-        Returns
-        -------
-        Population
-            The same population, unmodified.
-        """
-
-        return parents
+    def step(self, population: Population) -> Population:
+        return copy(population)

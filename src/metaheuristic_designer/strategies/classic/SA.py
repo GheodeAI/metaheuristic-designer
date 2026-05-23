@@ -8,12 +8,12 @@ import numpy as np
 from ...initializer import Initializer
 from ...survivor_selection import create_survivor_selection
 from ...operator import Operator
-from ..hill_climb import HillClimb
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import check_random_state, RNGLike
+from ..single_solution_strategy import SingleSolutionStrategy
 
 
-class SA(HillClimb):
+class SA(SingleSolutionStrategy):
     """
     Simulated Annealing algorithm.
 
@@ -84,8 +84,8 @@ class SA(HillClimb):
         self.temperature = self.params.temperature_init
         survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
 
-    def step(self, progress):
-        super().step(progress=progress)
+    def update(self, progress):
+        super().update(progress=progress)
 
         self.iter_count += 1
         if self.iter_count > self.params.iterations:
