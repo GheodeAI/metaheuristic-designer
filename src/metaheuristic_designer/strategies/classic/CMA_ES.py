@@ -74,6 +74,8 @@ class CMA_ES(EDAStrategy):
         random_state=None,
         mean: Optional[VectorLike] = None,
         sigma: Optional[VectorLike] = None,
+        cond_tol: float = 1e8,
+        sigma_tol: float = 1e-10,
         **kwargs,
     ):
         random_state = check_random_state(random_state)
@@ -83,6 +85,8 @@ class CMA_ES(EDAStrategy):
         )
 
         self.offspring_size = offspring_size
+        self.cond_tol = cond_tol
+        self.sigma_tol = sigma_tol
 
         super().__init__(
             initializer,
@@ -98,6 +102,8 @@ class CMA_ES(EDAStrategy):
             sigma=sigma,
             **kwargs,
         )
+
+        self._initialize_parameters()
 
     def _initialize_parameters(self):
         self._cov = np.eye(self.initializer.dimension)
@@ -164,8 +170,6 @@ class CMA_ES(EDAStrategy):
         Population
             A freshly sampled population with unevaluated fitness.
         """
-
-        self._initialize_parameters()
 
         if self.params.mean is None:
             if hasattr(objfunc, "lower_bound") and hasattr(objfunc, "upper_bound"):
@@ -256,10 +260,10 @@ class CMA_ES(EDAStrategy):
         new_sigma = self.params.sigma * np.exp(term1_a / term1_b)
 
         # Breaks to ensure numerical stability
-        if new_sigma < 1e-10:
+        if new_sigma < self.sigma_tol:
             self.finish = True
 
-        if np.linalg.cond(self._cov) > 1e8:
+        if np.linalg.cond(self._cov) > self.cond_tol:
             self.finish = True
 
         self.update_kwargs(mean=new_mean, sigma=new_sigma)
