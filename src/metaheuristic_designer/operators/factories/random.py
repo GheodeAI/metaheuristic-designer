@@ -25,12 +25,7 @@ random_ops_map = {
 # fmt: on
 
 
-def create_random_operator(
-    method: str,
-    encoding: Optional[Encoding] = None,
-    name: Optional[str] = None,
-    **kwargs
-) -> OperatorFromLambda:
+def create_random_operator(method: str, encoding: Optional[Encoding] = None, name: Optional[str] = None, **kwargs) -> OperatorFromLambda:
     """
     Create a random operator that uses an Initializer for fresh values.
 

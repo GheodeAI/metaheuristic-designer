@@ -5,16 +5,18 @@ Population-Based Incremental Learning (PBIL) strategies.
 from __future__ import annotations
 from typing import Optional
 import numpy as np
-from ...operators import create_operator
+
+from ...population import Population
+from ...operators import create_operator, Operator
 from ...parent_selection_base import ParentSelection
 from ...survivor_selection_base import SurvivorSelection
 from ...initializer import Initializer
-from ..variable_population import VariablePopulation
 from ...schedulable_parameter import SchedulableParameter
+from ..eda_strategy import EDAStrategy
 from ...utils import check_random_state
 
 
-class BernoulliPBIL(VariablePopulation):
+class BernoulliPBIL(EDAStrategy):
     """
     PBIL for binary vectors using a Bernoulli distribution.
 
@@ -45,7 +47,8 @@ class BernoulliPBIL(VariablePopulation):
     noise : float, optional
         Standard deviation of Gaussian noise added to *p* (default 0).
     **kwargs
-        Forwarded to :class:`VariablePopulation`.
+        Forwarded to :class:`EDAStrategy
+    `.
     """
 
     def __init__(
@@ -61,7 +64,7 @@ class BernoulliPBIL(VariablePopulation):
         noise=0,
         **kwargs,
     ):
-        self.random_state = check_random_state(random_state)
+        random_state = check_random_state(random_state)
 
         super().__init__(
             initializer,
@@ -70,32 +73,29 @@ class BernoulliPBIL(VariablePopulation):
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,
             name=name,
+            random_state=random_state,
+            # Forced kwargs
             lr=lr,
             noise=noise,
             **kwargs,
         )
 
-    def _batch_fit(self, population):
-        population_matrix = population.genotype_matrix
-        p_hat = population_matrix.mean(axis=0)
-
-        return p_hat
-
-    def perturb(self, parents, **kwargs):
+    def estimate_parameters(self, population):
         old_p = self.operator.params.p
 
-        new_p = self._batch_fit(parents)
+        population_matrix = population.genotype_matrix
+        new_p = population_matrix.mean(axis=0)
         if old_p is not None:
             new_p = (1 - self.params.lr) * old_p + self.params.lr * new_p
             new_p += self.random_state.normal(0, self.params.noise, size=np.asarray(old_p).shape)
-            new_p = np.clip(new_p, 0, 1)
+        new_p = np.clip(new_p, 0, 1)
 
         self.operator.update_kwargs(p=new_p)
 
-        return super().perturb(parents, **kwargs)
+        return self.operator
 
 
-class BinomialPBIL(VariablePopulation):
+class BinomialPBIL(EDAStrategy):
     """
     PBIL for discrete vectors using a Binomial distribution.
 
@@ -124,7 +124,8 @@ class BinomialPBIL(VariablePopulation):
     noise : float, optional
         Gaussian noise standard deviation (default 0).
     **kwargs
-        Forwarded to :class:`VariablePopulation`.
+        Forwarded to :class:`EDAStrategy
+    `.
     """
 
     def __init__(
@@ -141,7 +142,7 @@ class BinomialPBIL(VariablePopulation):
         noise=0,
         **kwargs,
     ):
-        self.random_state = check_random_state(random_state)
+        random_state = check_random_state(random_state)
 
         if n is None:
             raise ValueError("You must specify the value for the parameters `n`, usually it will be the number of possible categorical values.")
@@ -153,23 +154,20 @@ class BinomialPBIL(VariablePopulation):
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,
             name=name,
+            random_state=random_state,
             # Forced kwargs
             noise=noise,
             lr=lr,
             **kwargs,
         )
 
-    def _batch_fit(self, population):
+    def estimate_parameters(self, population: Population) -> Operator:
         n = self.operator.params.n
-        population_matrix = population.genotype_matrix
-        p_hat = population_matrix.sum(axis=0) / (n * population_matrix.shape[0])
-
-        return p_hat
-
-    def perturb(self, parents, **kwargs):
         old_p = self.operator.params.p
 
-        new_p = self._batch_fit(parents)
+        population_matrix = population.genotype_matrix
+        new_p = population_matrix.sum(axis=0) / (n * population_matrix.shape[0])
+
         if old_p is not None:
             new_p = (1 - self.params.lr) * old_p + self.params.lr * new_p
             new_p += self.random_state.normal(0, self.params.noise, size=old_p.shape)
@@ -177,10 +175,10 @@ class BinomialPBIL(VariablePopulation):
 
         self.operator.update_kwargs(p=new_p)
 
-        return super().perturb(parents, **kwargs)
+        return self.operator
 
 
-class GaussianPBIL(VariablePopulation):
+class GaussianPBIL(EDAStrategy):
     """
     PBIL for continuous vectors using a Gaussian distribution.
 
@@ -214,7 +212,8 @@ class GaussianPBIL(VariablePopulation):
     noise : float, optional
         Gaussian noise standard deviation added to *loc* (default 0).
     **kwargs
-        Forwarded to :class:`VariablePopulation`.
+        Forwarded to :class:`EDAStrategy
+    `.
     """
 
     def __init__(
@@ -231,35 +230,32 @@ class GaussianPBIL(VariablePopulation):
         noise=0,
         **kwargs,
     ):
-        self.random_state = check_random_state(random_state)
+        random_state = check_random_state(random_state)
 
         super().__init__(
             initializer,
-            operator=create_operator("full_resampling", distribution="gaussian", loc=loc, scale=np.asarray(scale)),
+            operator=create_operator("full_resampling", distribution="gaussian", loc=loc, scale=np.asarray(scale), random_state=random_state),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,
             name=name,
+            random_state=random_state,
             # Forced kwargs
             lr=lr,
             noise=noise,
             **kwargs,
         )
 
-    def _batch_fit(self, population):
-        population_matrix = population.genotype_matrix
-        loc_hat = population_matrix.mean(axis=0)
-
-        return loc_hat
-
-    def perturb(self, parents, **kwargs):
+    def estimate_parameters(self, population):
         old_loc = self.operator.params.loc
 
-        new_loc = self._batch_fit(parents)
+        population_matrix = population.genotype_matrix
+        new_loc = population_matrix.mean(axis=0)
+
         if old_loc is not None:
             new_loc = (1 - self.params.lr) * old_loc + self.params.lr * new_loc
             new_loc += self.random_state.normal(0, self.params.noise, size=old_loc.shape)
 
         self.operator.update_kwargs(loc=new_loc)
 
-        return super().perturb(parents, **kwargs)
+        return self.operator

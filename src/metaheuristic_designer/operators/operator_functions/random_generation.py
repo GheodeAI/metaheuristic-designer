@@ -55,11 +55,11 @@ def random_initialize(population_matrix, initializer: Initializer, random_state=
         Randomly initialized population
     """
 
-    random_population_marix = np.empty_like(population_matrix)
+    random_population_matrix = np.empty_like(population_matrix)
     for i, _ in enumerate(population_matrix):
-        random_population_marix[i, :] = initializer.generate_random()
+        random_population_matrix[i, :] = initializer.generate_random()
 
-    return random_population_marix
+    return random_population_matrix
 
 
 def random_reset(population_matrix, initializer: Initializer, random_state=None, n: int = 1):
@@ -82,14 +82,14 @@ def random_reset(population_matrix, initializer: Initializer, random_state=None,
 
     random_state = check_random_state(random_state)
 
-    random_population_marix = np.empty_like(population_matrix)
+    random_population_matrix = np.empty_like(population_matrix)
     for i, _ in enumerate(population_matrix):
-        random_population_marix[i, :] = initializer.generate_random()
+        random_population_matrix[i, :] = initializer.generate_random()
 
     mask_pos = np.tile(np.arange(population_matrix.shape[1]) < n, population_matrix.shape[0]).reshape(population_matrix.shape)
 
     mask_pos = random_state.permuted(mask_pos, axis=1)
 
-    population_matrix[mask_pos] = random_population_marix[mask_pos]
+    population_matrix[mask_pos] = random_population_matrix[mask_pos]
 
     return population_matrix

@@ -1,9 +1,13 @@
 """
-Strategy where the population size remains constant, no explicit parent selection.
+Strategy that generates solutions from a model.
 """
 
 from __future__ import annotations
+from abc import abstractmethod
+from copy import copy
 from typing import Optional
+
+from metaheuristic_designer.population import Population
 from ..initializer import Initializer
 from ..parent_selection_base import ParentSelection
 from ..survivor_selection_base import SurvivorSelection
@@ -12,7 +16,7 @@ from ..operator import Operator
 from ..utils import RNGLike
 
 
-class StaticPopulation(SearchStrategy):
+class EDAStrategy(SearchStrategy):
     """
     Population-based strategy with constant size and no parent selection.
 
@@ -48,6 +52,38 @@ class StaticPopulation(SearchStrategy):
         random_state: Optional[RNGLike] = None,
         **kwargs,
     ):
+        self.sampler = initializer
         super().__init__(
-            initializer, operator=operator, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs
+            initializer=initializer,
+            operator=operator,
+            parent_sel=parent_sel,
+            survivor_sel=survivor_sel,
+            name=name,
+            random_state=random_state,
+            **kwargs,
         )
+
+    @abstractmethod
+    def estimate_parameters(self, population: Population) -> Operator:
+        """Utilizes the samples present in the input population to
+        estimate the parameters used by the operator.
+
+        Parameters
+        ----------
+        population : Population
+            Data to use for estimating parameters.
+
+        Returns
+        -------
+        Operator
+            Newly configured operator.
+        """
+
+    def iterate(self, prev_population: Population) -> Population:
+        self.population = self.parent_sel.select(prev_population)
+        self.operator = self.estimate_parameters(self.population)
+        self.population = self.operator.evolve(self.population, self.initializer)
+        self.population = self.population.repair_solutions()
+        self.population = self.population.calculate_fitness()
+        self.population = self.survivor_sel.select(population=prev_population, offspring=self.population)
+        return self.population

@@ -36,11 +36,7 @@ order_preserving_operators = {}
 
 
 def create_operator(
-    method: str,
-    encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
-    name: Optional[str] = None,
-    **kwargs
+    method: str, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None, name: Optional[str] = None, **kwargs
 ) -> OperatorFromLambda:
     """
     Create an operator by name from any registry.

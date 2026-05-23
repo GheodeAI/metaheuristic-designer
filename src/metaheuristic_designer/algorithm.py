@@ -185,6 +185,7 @@ class Algorithm:
             self.checkpointer = None
 
         self._stop_requested = False
+        self.population = None
         signal.signal(signal.SIGTERM, self._signal_handler)
 
     def _signal_handler(self, signum, frame):
@@ -222,10 +223,6 @@ class Algorithm:
     def progress(self) -> float:
         return self.stopping_condition.get_progress()
 
-    @property
-    def population(self) -> Population:
-        return self.search_strategy.population
-
     def gather_parameters(self) -> dict:
         """
         Collect the current parameters of the underlying search strategy.
@@ -236,7 +233,11 @@ class Algorithm:
             A dictionary of parameter names and their current values.
         """
 
-        return self.search_strategy.gather_parameters()
+        param_dict = {}
+        if self.population is not None:
+            param_dict.update({f"{self.population.encoding.name}.{k}": v for k, v in self.population.encoding.gather_params().items()})
+        param_dict.update(self.search_strategy.gather_parameters())
+        return param_dict
 
     def best_solution(self) -> Tuple[Any, float]:
         """
@@ -248,7 +249,7 @@ class Algorithm:
             A pair of the best individual with its objective value.
         """
 
-        return self.search_strategy.best_solution()
+        return self.population.best_solution()
 
     def best_individual(self) -> Tuple[VectorLike, float]:
         """
@@ -260,7 +261,7 @@ class Algorithm:
             A pair of the best individual with its fitness.
         """
 
-        return self.search_strategy.best_individual()
+        return self.population.best_individual()
 
     def restart(self, restart_objfunc: bool = True):
         """
@@ -282,28 +283,6 @@ class Algorithm:
 
         logger.debug("Reset the data of the algorithm.")
 
-    def initialize(self, reset_objfunc: bool = True) -> Population:
-        """
-        Create and evaluate the initial population.
-
-        Parameters
-        ----------
-        reset_objfunc : bool, optional
-            Passed through to :meth:`restart`.
-
-        Returns
-        -------
-        Population
-            The evaluated initial population.
-        """
-
-        self.restart(reset_objfunc)
-        initial_population = self.search_strategy.initialize(self.objfunc)
-        initial_population = self.search_strategy.evaluate_population(initial_population, self.parallel, self.threads)
-        self.search_strategy.population = initial_population
-
-        return initial_population
-
     def _log_debug(self, text, population):
         """
         Util for debugging population info.
@@ -311,57 +290,6 @@ class Algorithm:
 
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(text, population.debug_repr())
-
-    def step(self, population: Population = None) -> Population:
-        """
-        Execute one iteration of the optimisation loop.
-
-        The default implementation performs: parent selection ->
-        perturbation -> evaluation -> survivor selection.
-
-        Parameters
-        ----------
-        population : Population, optional
-            The population at the start of the iteration.  If not given,
-            the currently stored population is used.
-
-        Returns
-        -------
-        Population
-            The population after the iteration.
-        """
-
-        # Get the population of this generation
-        if population is None:
-            population = self.search_strategy.population
-        else:
-            self.search_strategy.population = population
-
-        self._log_debug("Original population:\n%s", population)
-
-        # Generate their parents
-        parents = self.search_strategy.select_parents(population)
-        self._log_debug("Parent selection\n%s", parents)
-
-        # Evolve the selected parents
-        offspring = self.search_strategy.perturb(parents)
-        self._log_debug("Perturbed\n%s", offspring)
-
-        # Get the fitness of the individuals
-        offspring = self.search_strategy.evaluate_population(offspring, self.parallel, self.threads)
-        self._log_debug("Evaluated\n%s", offspring)
-
-        # Select the individuals that remain for the next generation
-        new_population = self.search_strategy.select_individuals(population, offspring)
-        self._log_debug("Selected\n%s", new_population)
-
-        self.search_strategy.population = new_population
-
-        # Update in cascade all the objects involved in the optimization
-        self.search_strategy.step(progress=self.progress)
-        self._log_debug("Updated end\n%s", new_population)
-
-        return new_population
 
     def resume(self) -> Population:
         """
@@ -375,9 +303,53 @@ class Algorithm:
 
         return self.optimize(resume=True)
 
+    def initialize(self) -> Population:
+        """Generates the initial population from the search strategy.
+
+        This method stores the population in the `.population` attribute and returns it.
+
+        Returns
+        -------
+        initial_population
+            The initial population generated.
+        """
+
+        self.population = self.search_strategy.initialize(self.objfunc)
+        return self.population
+
+    def iterate(self, prev_population: Population):
+        """Performs a single step of the optimization algorithm.
+
+        This method stores the population in the `.population` attribute and returns it.
+
+        Parameters
+        ----------
+        prev_population : Population
+            Population to be improved in this step of the optimization.
+
+        Returns
+        -------
+        population
+            The improved next population.
+        """
+
+        self.population = self.search_strategy.iterate(prev_population=prev_population)
+        return self.population
+
+    def step(self):
+        """Updates the internal state of the algorithm."""
+        self.stopping_condition.step(self.population)
+        self.reporter.log_step(self)
+        self.history_tracker.step(self)
+
+        self.search_strategy.step(self.stopping_condition.get_progress())
+
+        if self.checkpointer is not None:
+            self.checkpointer.checkpoint(self)
+
     def optimize(self, resume: bool = False) -> Population:
         """
-        Run the optimisation loop until a stopping condition is met.
+        Run the optimization loop until a stopping condition is met.
 
         Parameters
         ----------
@@ -399,14 +371,15 @@ class Algorithm:
 
         self.reporter.log_init(self)
 
+        # Initialize search strategy and record initial values.
+        logger.info("Generating initial solutions...")
+
         # initialize clocks
         if not resume:
             self.restart()
             self.stopping_condition.restart()
+            self.population = self.initialize()
 
-        # Initialize search strategy and record initial values.
-        logger.info("Generating initial solutions...")
-        population = self.population if resume else self.initialize()
         self.history_tracker.step(self)
 
         # Search until the stopping condition is met
@@ -415,14 +388,8 @@ class Algorithm:
             while not self.stopping_condition.is_finished(self.search_strategy.finish):
                 logger.debug("Started iteration %d...", self.iterations)
 
-                population = self.step(population=population)
-
-                self.stopping_condition.step(self.population)
-                self.reporter.log_step(self)
-                self.history_tracker.step(self)
-
-                if self.checkpointer is not None:
-                    self.checkpointer.checkpoint(self)
+                self.population = self.iterate(self.population)
+                self.step()
 
                 if self._stop_requested:
                     raise TerminationException
@@ -437,7 +404,7 @@ class Algorithm:
         self.reporter.log_end(self)
         logger.info("Optimization finished.")
 
-        return population
+        return self.population
 
     def get_state(self, store_population: bool = False) -> dict:
         """
@@ -460,6 +427,7 @@ class Algorithm:
             "objfunc": self.objfunc.get_state(),
             "stopping_condition": self.stopping_condition.get_state(),
             "search_strategy": self.search_strategy.get_state(store_population),
+            "population": self.population.get_state() if store_population else None,
             "history": self.history_tracker.get_state(),
         }
 
