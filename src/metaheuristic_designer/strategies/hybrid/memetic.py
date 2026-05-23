@@ -82,7 +82,7 @@ class MemeticStrategy(SearchStrategy):
 
             # Assign improved individuals to the population
             offspring = offspring.apply_selection(improved_offspring, chosen_idx)
-            offspring = offspring.calculate_fitness()
+            offspring = offspring.update_fitness()
             prev_population = improved_offspring
 
         return offspring, chosen_idx

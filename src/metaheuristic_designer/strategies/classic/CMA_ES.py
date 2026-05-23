@@ -202,7 +202,7 @@ class CMA_ES(EDAStrategy):
         self.operator.update_kwargs(mean=mean, cov=cov_matrix)
 
         initial_population = Population(objfunc, genotype, encoding=self.initializer.encoding)
-        initial_population = initial_population.calculate_fitness()
+        initial_population = initial_population.update_fitness()
 
         return initial_population
 

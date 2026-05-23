@@ -417,7 +417,7 @@ def test_step_updates_best_and_calls_encoding_step(dummy_objfunc, simple_encodin
     pop.fitness = np.array([5.0, 10.0])
     pop.encoding = simple_encoding
     # simple_encoding.step returns the same genotype (identity)
-    pop.step()
+    pop.update()
     # best should be the one with max fitness (index 1)
     np.testing.assert_array_equal(pop.best, np.array([1.0, 1.0]))
     assert pop.best_fitness == 10.0
@@ -431,7 +431,7 @@ def test_step_no_current_best(dummy_objfunc, simple_encoding):
     pop.best = None
     pop.best_fitness = None
     pop.encoding = simple_encoding
-    pop.step()
+    pop.update()
     np.testing.assert_array_equal(pop.best, np.array([0.0, 0.0]))
     assert pop.best_fitness == 7.0
 
@@ -501,7 +501,7 @@ def test_calculate_fitness_updates_historical_and_best(dummy_objfunc):
 
     # Mock to return higher fitness for first individual, lower for second
     pop.objfunc._fitness_return = np.array([10.0, 1.0])
-    pop.calculate_fitness()
+    pop.update_fitness()
 
     np.testing.assert_array_equal(pop.fitness, [10.0, 1.0])
     # historical best should be updated for improved individuals (first only)

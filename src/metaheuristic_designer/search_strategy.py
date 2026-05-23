@@ -128,7 +128,7 @@ class SearchStrategy(ParametrizableMixin, ABC):
         """
 
         initial_population = self.initializer.generate_population(objfunc)
-        initial_population = initial_population.calculate_fitness()
+        initial_population = initial_population.update_fitness()
         return initial_population
 
     def update(self, progress: float):

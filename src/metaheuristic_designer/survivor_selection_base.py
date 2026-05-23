@@ -107,7 +107,7 @@ class NullSurvivorSelection(SurvivorSelection):
 
     def select(self, population: Population, offspring: Population) -> Population:
         self.last_selection_idx = np.arange(population.population_size, population.population_size + offspring.population_size)
-        offspring = offspring.update_best_from_parents(population)
+        offspring = offspring.update_best(population)
         return offspring
 
 

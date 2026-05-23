@@ -123,7 +123,7 @@ class BOOperator(Operator):
         """
 
         # Obtain training data from the population
-        population = population.calculate_fitness()
+        population = population.update_fitness()
 
         X = population.genotype_matrix
         y = population.fitness
