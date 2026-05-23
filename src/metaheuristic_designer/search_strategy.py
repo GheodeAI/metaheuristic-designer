@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class SearchStrategy(ParametrizableMixin, ABC):
-    """Orchestrates one iteration of an optimisation loop.
+    """Orchestrates one iteration of an optimization loop.
 
     A search strategy holds together an :class:`Initializer`, an
     :class:`Operator`, a :class:`ParentSelection`, and a
@@ -131,7 +131,7 @@ class SearchStrategy(ParametrizableMixin, ABC):
         initial_population = initial_population.calculate_fitness()
         return initial_population
 
-    def step(self, progress: float):
+    def update(self, progress: float):
         """Advances the state of the search by one iteration.
 
         Parameters
@@ -140,13 +140,13 @@ class SearchStrategy(ParametrizableMixin, ABC):
             Current progress of the algorithm (0-1).
         """
 
-        super().step(progress)
-        self.operator.step(progress)
-        self.parent_sel.step(progress)
-        self.survivor_sel.step(progress)
+        super().update(progress)
+        self.operator.update(progress)
+        self.parent_sel.update(progress)
+        self.survivor_sel.update(progress)
 
     @abstractmethod
-    def iterate(self, prev_population: Population) -> Population:
+    def step(self, prev_population: Population) -> Population:
         """Performs a single iteration of the algorithm on a given population.
 
         Parameters
@@ -160,7 +160,7 @@ class SearchStrategy(ParametrizableMixin, ABC):
             Next population after performing all the steps in the iteration.
         """
 
-    def get_state(self, store_population: bool = False) -> dict:
+    def get_state(self) -> dict:
         """
         Gets the current state of the search strategy as a dictionary.
 
@@ -257,5 +257,5 @@ class SearchStrategyFromLambda(SearchStrategy):
             **kwargs,
         )
 
-    def iterate(self, population):
+    def step(self, population):
         return self.iterate_fn(population)

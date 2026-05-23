@@ -96,14 +96,14 @@ class Operator(ParametrizableMixin, ABC):
             The modified population.
         """
 
-    def step(self, progress: float = 0):
+    def update(self, progress: float = 0):
         """
         Updates the internal parameters.
         """
 
-        super().step(progress)
+        super().update(progress)
 
-        self.encoding.step(progress)
+        self.encoding.update(progress)
 
     def get_state(self) -> dict:
         """

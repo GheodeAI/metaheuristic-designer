@@ -79,7 +79,7 @@ class EDAStrategy(SearchStrategy):
             Newly configured operator.
         """
 
-    def iterate(self, prev_population: Population) -> Population:
+    def step(self, prev_population: Population) -> Population:
         self.population = self.parent_sel.select(prev_population)
         self.operator = self.estimate_parameters(self.population)
         self.population = self.operator.evolve(self.population, self.initializer)

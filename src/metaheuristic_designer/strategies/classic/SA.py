@@ -84,8 +84,8 @@ class SA(SingleSolutionStrategy):
         self.temperature = self.params.temperature_init
         survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
 
-    def step(self, progress):
-        super().step(progress=progress)
+    def update(self, progress):
+        super().update(progress=progress)
 
         self.iter_count += 1
         if self.iter_count > self.params.iterations:

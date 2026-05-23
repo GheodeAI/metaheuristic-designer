@@ -55,7 +55,7 @@ class StaticPopulationStrategy(SearchStrategy):
             initializer, operator=operator, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs
         )
 
-    def iterate(self, prev_population: Population) -> Population:
+    def step(self, prev_population: Population) -> Population:
         population = self.parent_sel.select(prev_population)  # implicit copy
         population = self.operator.evolve(population, self.initializer)
         population = population.repair_solutions()

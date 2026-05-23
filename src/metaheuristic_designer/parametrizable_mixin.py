@@ -34,9 +34,9 @@ class ParametrizableMixin:
         """
 
         self.raw_kwargs.update(kwargs)
-        self.step(progress=progress)
+        self.update(progress=progress)
 
-    def step(self, progress: float):
+    def update(self, progress: float):
         """Re-evaluate all stored parameters at the current progress.
 
         Parameters

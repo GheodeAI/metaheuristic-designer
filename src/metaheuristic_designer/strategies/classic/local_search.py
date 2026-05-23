@@ -4,6 +4,8 @@ Local Search strategy (single solution, multiple perturbations per iteration).
 
 from __future__ import annotations
 from typing import Optional
+
+from ...parent_selection import create_parent_selection
 from ...initializer import Initializer
 from ...search_strategy import SearchStrategy
 from ...operator import Operator
@@ -57,6 +59,7 @@ class LocalSearch(StaticPopulationStrategy):
 
         super().__init__(
             initializer,
+            parent_sel=create_parent_selection("repeat", amount=iterations*initializer.population_size),
             operator=operator,
             survivor_sel=survivor_sel,
             name=name,
@@ -65,22 +68,3 @@ class LocalSearch(StaticPopulationStrategy):
             iterations=iterations,
             **kwargs,
         )
-
-    def perturb(self, parents: Population, **kwargs) -> Population:
-        """Duplicate the parent *iterations* times, then apply the operator.
-
-        Parameters
-        ----------
-        parents : Population
-            The current solution(s).
-        **kwargs
-            Forwarded to :class:`SearchStrategy.perturb`.
-
-        Returns
-        -------
-        Population
-            The perturbed copies.
-        """
-
-        new_population = parents.repeat(self.params.iterations)
-        return super().perturb(new_population, **kwargs)

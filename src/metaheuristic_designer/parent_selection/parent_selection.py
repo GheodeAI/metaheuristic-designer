@@ -8,7 +8,7 @@ import logging
 from typing import Optional
 from ..parent_selection_base import ParentSelection, ParentSelectionFromLambda, NullParentSelection
 from ..population import Population
-from .parent_selection_functions import prob_tournament, select_best, roulette, shuffle_population, uniform_selection, sus
+from .parent_selection_functions import repeating_selection, prob_tournament, select_best, roulette, shuffle_population, uniform_selection, sus
 from ..utils import RNGLike, null_aliases
 
 logger = logging.getLogger(__name__)
@@ -65,6 +65,10 @@ parent_sel_map = {
     "random_subset":            ParentSelectionDef(shuffle_population),
     "shuffle":                  ParentSelectionDef(shuffle_population),
     "permute":                  ParentSelectionDef(shuffle_population),
+
+    # Repeat
+    "repeat":                   ParentSelectionDef(repeating_selection),
+    "replicate":                ParentSelectionDef(repeating_selection),
 
     # Roulette
     "roulette":                 ParentSelectionDef(roulette),

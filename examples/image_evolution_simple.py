@@ -70,7 +70,7 @@ def run_algorithm(alg_name, img_file_name, img_size, obj_name, mode, ngen, displ
     # ---- Manual optimization loop with display ----
     population = alg.initialize()
     alg.stopping_condition.restart()
-    alg.stopping_condition.step(population)
+    alg.stopping_condition.update(population)
     alg.reporter.log_init(alg)
 
     while not alg.stopping_condition.is_finished(alg.search_strategy.finish):
@@ -80,11 +80,11 @@ def run_algorithm(alg_name, img_file_name, img_size, obj_name, mode, ngen, displ
                     exit(0)
             src.fill("#000000")
 
-        population = alg.step(population=population)
+        population = alg.update(population=population)
 
-        alg.history_tracker.step(alg)
+        alg.history_tracker.update(alg)
         alg.reporter.log_step(alg)
-        alg.stopping_condition.step(alg.population)
+        alg.stopping_condition.update(alg.population)
 
         if display:
             image, _ = alg.best_solution()

@@ -23,7 +23,7 @@ class Population:
     A ``Population`` holds the genotype matrix, fitness and objective
     values, historical bests, and the current best individual.  It
     is the central data structure passed between components of the
-    optimisation loop.
+    optimization loop.
 
     Parameters
     ----------
@@ -107,14 +107,14 @@ class Population:
         return copied_pop
 
     def best_individual(self) -> Tuple[MatrixLike, float]:
-        """Return the best genotype and its maximised fitness value.
+        """Return the best genotype and its maximized fitness value.
 
         Returns
         -------
         best_genotype : MatrixLike
             The genotype vector of the best individual.
         best_fitness : float
-            The internal fitness (always maximised).
+            The internal fitness (always maximized).
         """
 
         return self.best, self.best_fitness
@@ -155,7 +155,7 @@ class Population:
         -------
         Population
             ``self``, with updated genotypes and, if the size changed,
-            re-initialised fitness and historical bests.
+            re-initialized fitness and historical bests.
         """
 
         if isinstance(genotype_source, Population):

@@ -4,7 +4,7 @@ CMA-ES (Covariance Matrix Adaptation Evolution Strategy) implementation.
 .. warning::
    The current implementation is architecturally a temporary solution.
    It will be refactored once the EDA (Distribution-based) interface is
-   finalised.
+   finalized.
 """
 
 from __future__ import annotations
@@ -84,7 +84,7 @@ class CMA_ES(EDAStrategy):
             "In CMA-ES the initializer does not generate solutions, it merely indicates the population size and encoding. Don't expect different results from changing the initializer."
         )
 
-        self.offspring_size = offspring_size
+        self.offspring_size = offspring_size if offspring_size is not None else initializer.population_size
         self.cond_tol = cond_tol
         self.sigma_tol = sigma_tol
 
@@ -98,7 +98,6 @@ class CMA_ES(EDAStrategy):
             name=name,
             random_state=random_state,
             # Forced kwargs
-            mean=mean,
             sigma=sigma,
             **kwargs,
         )
@@ -108,7 +107,7 @@ class CMA_ES(EDAStrategy):
     def _initialize_parameters(self):
         self._cov = np.eye(self.initializer.dimension)
 
-        # intialize weights
+        # initialize weights
         self.mu = self.initializer.population_size
         self.lambda_ = self.offspring_size
 
@@ -171,7 +170,7 @@ class CMA_ES(EDAStrategy):
             A freshly sampled population with unevaluated fitness.
         """
 
-        if self.params.mean is None:
+        if self.operator.params.mean is None:
             if hasattr(objfunc, "lower_bound") and hasattr(objfunc, "upper_bound"):
                 computed_mean = 0.5 * (objfunc.upper_bound + objfunc.lower_bound)
             else:
@@ -197,12 +196,15 @@ class CMA_ES(EDAStrategy):
         mean = self.params.mean
         sigma = self.params.sigma
         cov_matrix = sigma * sigma * self._cov
-        genotype = self.random_state.multivariate_normal(mean=mean, cov=cov_matrix, size=self.offspring_size)
+        genotype = self.random_state.multivariate_normal(mean=mean, cov=cov_matrix, size=(self.offspring_size,))
 
         # Update the operator's parameters since they were undefined in the constructor
         self.operator.update_kwargs(mean=mean, cov=cov_matrix)
 
-        return Population(objfunc, genotype, encoding=self.initializer.encoding)
+        initial_population = Population(objfunc, genotype, encoding=self.initializer.encoding)
+        initial_population = initial_population.calculate_fitness()
+
+        return initial_population
 
     def estimate_parameters(self, population):
         """Update the distribution parameters
@@ -266,7 +268,7 @@ class CMA_ES(EDAStrategy):
         if np.linalg.cond(self._cov) > self.cond_tol:
             self.finish = True
 
-        self.update_kwargs(mean=new_mean, sigma=new_sigma)
+        self.update_kwargs(sigma=new_sigma)
         self.operator.update_kwargs(mean=new_mean, cov=new_sigma * new_sigma * self._cov)
 
         return self.operator

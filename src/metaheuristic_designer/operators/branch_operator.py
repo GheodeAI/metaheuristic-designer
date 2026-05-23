@@ -160,7 +160,7 @@ class BranchOperator(Operator):
 
         self.chosen_idx = idx
 
-    def step(self, progress: float):
+    def update(self, progress: float):
         """Update schedulable parameters and propagate to sub-operators.
 
         Parameters
@@ -169,11 +169,11 @@ class BranchOperator(Operator):
             Current progress of the algorithm (0-1).
         """
 
-        super().step(progress)
+        super().update(progress)
 
         for op in self.op_list:
             if isinstance(op, Operator):
-                op.step(progress)
+                op.update(progress)
 
         self.weights = np.array([self.params.p, 1 - self.params.p])
 

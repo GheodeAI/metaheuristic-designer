@@ -6,11 +6,10 @@ import cv2
 import os
 from PIL import Image
 
-from metaheuristic_designer.algorithms import Algorithm, MemeticAlgorithm
+from metaheuristic_designer.algorithms import Algorithm
 from metaheuristic_designer.operators import create_operator
 from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.parent_selection import create_parent_selection
-from metaheuristic_designer.strategies.classic import CMA_ES
 from metaheuristic_designer.survivor_selection import create_survivor_selection
 from metaheuristic_designer.encodings import ImageEncoding, PSOEncoding
 from metaheuristic_designer.strategies import (
@@ -20,12 +19,14 @@ from metaheuristic_designer.strategies import (
     ES,
     GA,
     DE,
+    CMA_ES,
     GaussianUMDA,
     GaussianPBIL,
     CrossEntropyMethod,
     RandomSearch,
     PSO,
     NoSearch,
+    MemeticStrategy
 )
 from metaheuristic_designer.benchmarks import ImgApprox, ImgEntropy, ImgStd
 from metaheuristic_designer.utils import check_random_state
@@ -112,7 +113,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
             Cr=0.8,
         ),
         "cmaes": CMA_ES(
-            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, random_state=random_state),
             random_state=random_state,
         ),
         "gaussianumda": GaussianUMDA(
@@ -173,16 +174,16 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
             operator=create_operator("mutation.uniform_noise", min=-10, max=10, N=3),
             iterations=20,
         )
-        alg = MemeticAlgorithm(
-            objfunc=objfunc,
-            search_strategy=search_strategy,
-            local_search=local_search,
+        search_strategy = MemeticStrategy(
+            main_strategy=search_strategy,
+            local_search_heuristic=local_search,
+            local_search_depth=10,
+            local_search_frequency=5,
             improvement_selection=create_parent_selection("best", amount=5),
             keep_improved_solutions=True,
-            **algorithm_params,
+            random_state=random_state,
         )
-    else:
-        alg = Algorithm(objfunc, search_strategy, **algorithm_params)
+    alg = Algorithm(objfunc, search_strategy, **algorithm_params)
 
 
     # Pygame display setup
@@ -195,7 +196,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     # Manual optimization loop with pygame display
     population = alg.initialize()
     alg.stopping_condition.restart()
-    alg.stopping_condition.step(population)
+    alg.stopping_condition.update(population)
     alg.reporter.log_init(alg)
 
     while not alg.stopping_condition.is_finished(alg.search_strategy.finish):
@@ -205,10 +206,10 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
                     exit(0)
             src.fill("#000000")
 
-        population = alg.step(population=population)
+        population = alg.step(prev_population=population)
 
-        alg.stopping_condition.step(alg.population)
-        alg.history_tracker.step(alg)
+        alg.stopping_condition.update(alg.population)
+        alg.history_tracker.update(alg)
         alg.reporter.log_step(alg)
 
         if display:

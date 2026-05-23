@@ -66,7 +66,7 @@ def test_survivor_selection_get_state(dummy_survivor_selection):
 #  SearchStrategy
 # ===================================================================
 def test_search_strategy_get_state(dummy_strategy):
-    state = dummy_strategy.get_state(store_population=False)
+    state = dummy_strategy.get_state()
     assert state["name"] == "dummy_strategy"
     assert "initializer" in state
     # "params" not present; check for "class_name" or other keys
@@ -92,7 +92,7 @@ def test_algorithm_get_state(dummy_objfunc, dummy_strategy):
     assert "search_strategy" in state
     assert "history" in state
     # Check that search_strategy contains population (since store_population=True)
-    assert "population" in state["search_strategy"]
+    assert "population" in state
     # Check that history contains the expected fields (track_best is always True)
     assert "class_name" in state["history"]
     assert state["history"]["class_name"] == "HistoryTracker"

@@ -33,7 +33,7 @@ class TerminationException(Exception):
 
 class Algorithm:
     """
-    Orchestrates a complete optimisation run.
+    Orchestrates a complete optimization run.
 
     An :class:`Algorithm` combines a :class:`ObjectiveFunc` with a
     :class:`SearchStrategy` and manages the iteration loop, stopping
@@ -48,7 +48,7 @@ class Algorithm:
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     search_strategy : SearchStrategy
         Strategy that defines one iteration of the algorithm.
     name : str, optional
@@ -317,7 +317,7 @@ class Algorithm:
         self.population = self.search_strategy.initialize(self.objfunc)
         return self.population
 
-    def iterate(self, prev_population: Population):
+    def step(self, prev_population: Population):
         """Performs a single step of the optimization algorithm.
 
         This method stores the population in the `.population` attribute and returns it.
@@ -333,16 +333,17 @@ class Algorithm:
             The improved next population.
         """
 
-        self.population = self.search_strategy.iterate(prev_population=prev_population)
+        self.population = self.search_strategy.step(prev_population=prev_population)
+        self.update()
         return self.population
 
-    def step(self):
+    def update(self):
         """Updates the internal state of the algorithm."""
-        self.stopping_condition.step(self.population)
+        self.stopping_condition.update(self.population)
         self.reporter.log_step(self)
-        self.history_tracker.step(self)
+        self.history_tracker.update(self)
 
-        self.search_strategy.step(self.stopping_condition.get_progress())
+        self.search_strategy.update(self.stopping_condition.get_progress())
 
         if self.checkpointer is not None:
             self.checkpointer.checkpoint(self)
@@ -380,7 +381,7 @@ class Algorithm:
             self.stopping_condition.restart()
             self.population = self.initialize()
 
-        self.history_tracker.step(self)
+        self.history_tracker.update(self)
 
         # Search until the stopping condition is met
         logger.info("Starting main optimization loop...")
@@ -388,8 +389,7 @@ class Algorithm:
             while not self.stopping_condition.is_finished(self.search_strategy.finish):
                 logger.debug("Started iteration %d...", self.iterations)
 
-                self.population = self.iterate(self.population)
-                self.step()
+                self.population = self.step(self.population)
 
                 if self._stop_requested:
                     raise TerminationException
@@ -408,7 +408,7 @@ class Algorithm:
 
     def get_state(self, store_population: bool = False) -> dict:
         """
-        Serialise the current algorithm state to a dictionary.
+        Serializes the current algorithm state to a dictionary.
 
         Parameters
         ----------
@@ -426,7 +426,7 @@ class Algorithm:
             "name": self.name,
             "objfunc": self.objfunc.get_state(),
             "stopping_condition": self.stopping_condition.get_state(),
-            "search_strategy": self.search_strategy.get_state(store_population),
+            "search_strategy": self.search_strategy.get_state(),
             "population": self.population.get_state() if store_population else None,
             "history": self.history_tracker.get_state(),
         }
@@ -439,7 +439,7 @@ class Algorithm:
         readable: bool = False,
     ):
         """
-        Serialise the current algorithm state to a JSON file.
+        Serialize the current algorithm state to a JSON file.
 
         Parameters
         ----------

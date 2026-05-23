@@ -1,5 +1,5 @@
 """
-Module for checkpointing and resuming optimisation runs.
+Module for checkpointing and resuming optimizations runs.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class Checkpointer:
-    """Periodically save and restore the state of an optimisation run.
+    """Periodically save and restore the state of an optimizations run.
 
     The checkpointer can be triggered by iteration count, elapsed
     wall-clock time, or both.  It writes the entire
@@ -87,7 +87,7 @@ class Checkpointer:
         final location, preventing corruption if the process crashes
         mid-write.  The reporter, parallel flag, and
         the checkpointer itself are temporarily removed before pickling
-        to avoid serialisation issues, and then restored.
+        to avoid serialization issues, and then restored.
 
         Parameters
         ----------
@@ -108,7 +108,7 @@ class Checkpointer:
             tmp_file = self.checkpoint_file + ".tmp"
             with open(tmp_file, "wb") as f:
                 cloudpickle.dump(algorithm, f, protocol=5)
-            # Once we know the checkpoint has finished writing we can replace the preivous one.
+            # Once we know the checkpoint has finished writing we can replace the previous one.
             os.replace(tmp_file, self.checkpoint_file)
         except (OSError, PermissionError, PicklingError, TypeError, MemoryError) as e:
             logger.error("Failed to save checkpoint: %s", e)
