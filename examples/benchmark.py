@@ -61,7 +61,7 @@ def run_algorithm(alg_name, memetic, save_state, show_plots, objective, dim, rep
     search_strategy_map = {
         "hillclimb": HillClimb(
             initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, random_state=random_state),
-            operator=create_operator("mutation.gaussian_mutation", F=1e-2, N=1, random_state=random_state),
+            operator=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, random_state=random_state),
             random_state=random_state,
         ),
         "localsearch": LocalSearch(

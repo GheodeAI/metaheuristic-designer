@@ -192,10 +192,11 @@ def repeating_selection(fitness: VectorLike, amount: int, random_state: Optional
     """
 
     n_individuals = fitness.shape[0]
-    repetitions = amount//n_individuals
+    repetitions = amount // n_individuals
     selected_idx = np.tile(np.arange(n_individuals), repetitions)
 
     return selected_idx[:amount]
+
 
 def select_best(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None) -> MaskLike:
     """

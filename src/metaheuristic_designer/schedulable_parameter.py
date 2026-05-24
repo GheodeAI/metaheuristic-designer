@@ -8,7 +8,7 @@ from .utils import check_random_state, RNGLike
 
 
 class SchedulableParameter(ABC):
-    """Abstract base for parameters that depend on the optimisation progress.
+    """Abstract base for parameters that depend on the optimization progress.
 
     A schedulable parameter is a callable that receives a progress
     value between 0 and 1 and returns the parameter's value at that
@@ -40,7 +40,7 @@ class SchedulableParameter(ABC):
         Returns
         -------
         Any
-            The parameter value at this stage of the optimisation.
+            The parameter value at this stage of the optimization.
 
         Notes
         -----

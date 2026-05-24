@@ -11,6 +11,7 @@ from ...operator import Operator
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import check_random_state, RNGLike
 from ..single_solution_strategy import SingleSolutionStrategy
+from ...parameter_schedules import ProbabilityAnnealingSchedule
 
 
 class SA(SingleSolutionStrategy):
@@ -58,47 +59,32 @@ class SA(SingleSolutionStrategy):
         random_state: Optional[RNGLike] = None,
         **kwargs,
     ):
-
         # We need to do the check earlier since it will be injected into the survivor selection
         # and we want everything to share the random state if possible.
         random_state = check_random_state(random_state)
+        p = ProbabilityAnnealingSchedule(temperature_init, iterations=iterations, alpha=alpha)
 
-        # We can't access temperature_init yet, it could be a SchedulableParameter,
-        # we fix the p after the constructor.
-        survivor_sel = create_survivor_selection("probabilistic_hillclimb", p=None, random_state=random_state)
-
-        self.iter_count = 0
         super().__init__(
             initializer,
             operator=operator,
-            survivor_sel=survivor_sel,
+            survivor_sel=create_survivor_selection("probabilistic_hillclimb", p=p, random_state=random_state),
             name=name,
             random_state=random_state,
-            # Forced kwargs
-            iterations=iterations,
-            temperature_init=temperature_init,
-            alpha=alpha,
             **kwargs,
         )
 
-        self.temperature = self.params.temperature_init
-        survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
-
-    def update(self, progress):
-        super().update(progress=progress)
-
-        self.iter_count += 1
-        if self.iter_count > self.params.iterations:
-            self.temperature *= self.params.alpha
-            self.iter_count = 0
-            self.survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
+    @property
+    def temperature(self):
+        return self.survivor_sel.raw_kwargs["p"].temperature
 
     def extra_step_info(self):
         """
-        Diplays temperature values and acceptance probability.
+        Displays temperature values and acceptance probability.
         """
 
+        prob_schedule = self.survivor_sel.raw_kwargs["p"]
+
         print()
-        print(f"\tTemp iters: {self.iter_count}/{self.params.iterations}")
-        print(f"\tTemperature: {self.temperature:0.4f}")
-        print(f"\tAccept prob: {np.exp(-1 / self.temperature):0.4f}")
+        print(f"\tTemp iters: {prob_schedule.iteration_counter}/{prob_schedule.iterations}")
+        print(f"\tTemperature: {prob_schedule.temperature:0.4f}")
+        print(f"\tAccept prob: {np.exp(-1 / prob_schedule.temperature):0.4f}")

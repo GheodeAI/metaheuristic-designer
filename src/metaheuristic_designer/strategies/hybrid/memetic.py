@@ -54,7 +54,7 @@ class MemeticStrategy(SearchStrategy):
             random_state=random_state,
             # Forced kwargs
             local_search_depth=local_search_depth,
-            local_search_frequency=local_search_frequency
+            local_search_frequency=local_search_frequency,
         )
 
     def _do_local_search(self, offspring: Population) -> Tuple[Population, MaskLike]:

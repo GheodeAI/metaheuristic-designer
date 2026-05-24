@@ -25,8 +25,7 @@ class ScipyWrapper:
         Extra keyword arguments forwarded to the SciPy routine.
     """
 
-    def __init__(self, objfunc, method="differential_evolution", maxiter=1000,
-                 seed=None, name="SciPy", **opt_kwargs):
+    def __init__(self, objfunc, method="differential_evolution", maxiter=1000, seed=None, name="SciPy", **opt_kwargs):
         self.objfunc = objfunc
         self.method = method
         self.maxiter = maxiter
@@ -94,8 +93,7 @@ class ScipyWrapper:
         return self
 
     def best_solution(self):
-        return (list(self._best_x) if self._best_x is not None else None,
-                self._best_obj)
+        return (list(self._best_x) if self._best_x is not None else None, self._best_obj)
 
     def to_pandas(self):
         return self.history_df

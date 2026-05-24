@@ -3,9 +3,11 @@ import pandas as pd
 
 try:
     import nevergrad as ng
+
     _NEVERGRAD_AVAILABLE = True
 except ImportError:
     _NEVERGRAD_AVAILABLE = False
+
 
 class NevergradWrapper:
     """
@@ -28,12 +30,9 @@ class NevergradWrapper:
         Additional arguments passed to the Nevergrad optimizer constructor.
     """
 
-    def __init__(self, objfunc, optimizer_name="NGOpt", budget=1000,
-                 seed=None, name="Nevergrad", **opt_kwargs):
+    def __init__(self, objfunc, optimizer_name="NGOpt", budget=1000, seed=None, name="Nevergrad", **opt_kwargs):
         if not _NEVERGRAD_AVAILABLE:
-            raise ImportError(
-                "The 'nevergrad' library is required. Install with `pip install nevergrad`."
-            )
+            raise ImportError("The 'nevergrad' library is required. Install with `pip install nevergrad`.")
         self.objfunc = objfunc
         self.optimizer_name = optimizer_name
         self.budget = budget
@@ -55,21 +54,12 @@ class NevergradWrapper:
 
         # Seed via random_state (newer Nevergrad) or global numpy seed
         try:
-            opt = ng.optimizers.registry[self.optimizer_name](
-                parametrization=param,
-                budget=self.budget,
-                random_state=self.seed,
-                **self.opt_kwargs
-            )
+            opt = ng.optimizers.registry[self.optimizer_name](parametrization=param, budget=self.budget, random_state=self.seed, **self.opt_kwargs)
         except TypeError:
             # Fallback for older Nevergrad versions
             if self.seed is not None:
                 np.random.seed(self.seed)
-            opt = ng.optimizers.registry[self.optimizer_name](
-                parametrization=param,
-                budget=self.budget,
-                **self.opt_kwargs
-            )
+            opt = ng.optimizers.registry[self.optimizer_name](parametrization=param, budget=self.budget, **self.opt_kwargs)
 
         best_so_far = float("inf") if self.objfunc.mode == "min" else float("-inf")
         evals = 0
@@ -108,16 +98,17 @@ class NevergradWrapper:
         return self
 
     def best_solution(self):
-        return (list(self._best_x) if self._best_x is not None else None,
-                self._best_obj)
+        return (list(self._best_x) if self._best_x is not None else None, self._best_obj)
 
     @property
     def history_tracker(self):
         class _Hist:
             def __init__(self, df):
                 self._df = df
+
             def to_pandas(self):
                 return self._df.copy()
+
         return _Hist(self._history_df)
 
 
@@ -125,13 +116,7 @@ if __name__ == "__main__":
     from metaheuristic_designer.benchmarks import Sphere
 
     objfunc = Sphere(dim=5, mode="min")
-    solver = NevergradWrapper(
-        objfunc,
-        optimizer_name="DE",
-        budget=5000,
-        seed=42,
-        name="Nevergrad-DE"
-    )
+    solver = NevergradWrapper(objfunc, optimizer_name="DE", budget=5000, seed=42, name="Nevergrad-DE")
     solver.optimize()
     best_x, best_val = solver.best_solution()
     print(f"Best objective: {best_val}")

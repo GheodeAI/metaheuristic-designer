@@ -3,9 +3,11 @@ import pandas as pd
 
 try:
     import pygmo as pg
+
     _PYGMO_AVAILABLE = True
 except ImportError:
     _PYGMO_AVAILABLE = False
+
 
 class PyGMOWrapper:
     """
@@ -31,12 +33,9 @@ class PyGMOWrapper:
         Extra arguments forwarded to the PyGMO algorithm constructor.
     """
 
-    def __init__(self, objfunc, algorithm="de", pop_size=50, generations=100,
-                 seed=None, name="PyGMO", **algo_kwargs):
+    def __init__(self, objfunc, algorithm="de", pop_size=50, generations=100, seed=None, name="PyGMO", **algo_kwargs):
         if not _PYGMO_AVAILABLE:
-            raise ImportError(
-                "The 'pygmo' library is required. Install with `pip install pygmo`."
-            )
+            raise ImportError("The 'pygmo' library is required. Install with `pip install pygmo`.")
         self.objfunc = objfunc
         self.algorithm = algorithm 
         self.pop_size = pop_size
@@ -100,9 +99,24 @@ class PyGMOWrapper:
         return self
 
     def best_solution(self):
+<<<<<<< HEAD
         solution = list(self._best_x) if self._best_x is not None else None,
         objective = self.best_obj
         return solution, objective
 
     def to_pandas(self):
         return self.history_df
+=======
+        return (list(self._best_x) if self._best_x is not None else None, self._best_obj)
+
+    @property
+    def history_tracker(self):
+        class _Hist:
+            def __init__(self, df):
+                self._df = df
+
+            def to_pandas(self):
+                return self._df.copy()
+
+        return _Hist(self._history_df)
+>>>>>>> 49ad336 (Added new schedules and restructured SA)

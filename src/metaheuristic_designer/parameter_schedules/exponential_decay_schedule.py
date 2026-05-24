@@ -48,8 +48,9 @@ class ExponentialDecaySchedule(SchedulableParameter):
         self.iterative = iterative
 
     def evaluate(self, progress: float) -> float:
-        if self.iterative:
-            self.curr_value = self.final_value + (self.curr_value - self.final_value) * self.alpha
-        else:
-            self.curr_value = self.final_value + (self.init_value - self.final_value) * np.exp(-self.alpha * progress)
+        if progress != 0:
+            if self.iterative:
+                self.curr_value = self.final_value + (self.curr_value - self.final_value) * self.alpha
+            else:
+                self.curr_value = self.final_value + (self.init_value - self.final_value) * np.exp(-self.alpha * progress)
         return self.curr_value

@@ -9,6 +9,10 @@ from .random_schedule import RandomSchedule
 from .threshold_schedule import ThresholdSchedule
 from .step_schedule import StepSchedule
 from .exponential_decay_schedule import ExponentialDecaySchedule
+from .cosine_schedule import CosineSchedule
+from .noisy_schedule import NoisySchedule
+from .exponential_annealing_schedule import ProbabilityAnnealingSchedule
+from .strided_schedule import StridedSchedule
 
 __all__ = [
     "LinearSchedule",
@@ -18,4 +22,8 @@ __all__ = [
     "StepSchedule",
     "ThresholdSchedule",
     "ExponentialDecaySchedule",
+    "ProbabilityAnnealingSchedule",
+    "StridedSchedule",
+    "CosineSchedule",
+    "NoisySchedule",
 ]

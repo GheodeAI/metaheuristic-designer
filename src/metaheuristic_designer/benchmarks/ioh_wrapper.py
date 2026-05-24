@@ -30,53 +30,53 @@ class IOHObjective(ObjectiveFunc):
         Custom display name; auto-generated if None.
     """
 
-    def __init__(self, fid, dimension, instance=1, problem_class=None,
-                 ioh_options=None, name=None):
+    def __init__(self, fid, dimension, instance=1, problem_class=None, ioh_options=None, name=None):
         if ioh is None:
-            raise ImportError(
-                "IOHexperimenter is required for IOHObjective. "
-                "Install it with `pip install ioh`."
-            )
+            raise ImportError("IOHexperimenter is required for IOHObjective. " "Install it with `pip install ioh`.")
 
         if problem_class is None:
             problem_class = ProblemClass.BBOB
 
+        if ioh_options is None:
+            ioh_options = {}
+
         self._fid = fid
         self._instance = instance
 
-        self._ioh_problem = ioh.get_problem(
-            fid,
-            instance=instance,
-            dimension=dimension,
-            problem_class=problem_class,
-            **(ioh_options or {})
-        )
+        self.problem = ioh.get_problem(fid, instance=instance, dimension=dimension, problem_class=problem_class, **ioh_options)
 
-        bounds = self._ioh_problem.bounds
-
-        # Generate name before super().__init__ so it's ready
+        # Generate name if not specified
         if name is None:
             base = fid if isinstance(fid, str) else f"F{fid}"
-            name = f"IOH-bbob-{base}-D{dimension}-ins{instance}"
+            name = f"IOH-{problem_class}-{base}-D{dimension}-ins{instance}"
 
         super().__init__(
             dimension=dimension,
-            lower_bound=bounds.lb,
-            upper_bound=bounds.ub,
-            mode="min",
+            lower_bound=self.problem.bounds.lb,
+            upper_bound=self.problem.bounds.ub,
+            mode="max",
             name=name,
-            constraint_handler=None
+            constraint_handler=None,
         )
 
     def objective(self, x):
-        return self._ioh_problem(np.asarray(x, dtype=float))
+        return self.problem(np.asarray(x, dtype=float))
 
     def attach_logger(self, logger):
-        self._ioh_problem.attach_logger(logger)
+        self.problem.attach_logger(logger)
 
     def detach_logger(self):
-        self._ioh_problem.detach_logger()
+        self.problem.detach_logger()
 
     def restart(self):
         super().restart()
-        self._ioh_problem.reset()
+        self.problem.reset()
+
+
+class BBOBObjective(IOHObjective):
+    def __init__(self, fid, dimension, instance, ioh_options=None, name=None):
+        if name is None:
+            base = fid if isinstance(fid, str) else f"F{fid}"
+            name = f"BBOB-{base}-D{dimension}-ins{instance}"
+
+        super().__init__(fid=fid, dimension=dimension, instance=instance, problem_class=ProblemClass.BBOB, ioh_options=ioh_options, name=name)

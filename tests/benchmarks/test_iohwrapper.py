@@ -52,7 +52,7 @@ def test_objective_returns_float(problem_sphere):
 # ----- Logger lifecycle --------------------------------------------------
 
 def test_attach_detach_writes_files(problem_sphere, tmp_path):
-    problem_sphere.reset()
+    problem_sphere.restart()
 
     logger = ioh.logger.Analyzer(
         root=str(tmp_path),
@@ -74,11 +74,10 @@ def test_attach_detach_writes_files(problem_sphere, tmp_path):
 
 
 def test_reset_clears_counter(problem_sphere):
-    problem_sphere.reset()
+    problem_sphere.restart()
     for _ in range(3):
         problem_sphere.objective(np.array([0.5, 0.5]))
-    problem_sphere.reset()
-    assert True
+    problem_sphere.restart()
 
 
 # ----- Optional dependency guard ----------------------------------------
