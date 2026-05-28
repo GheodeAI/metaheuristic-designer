@@ -29,7 +29,7 @@ def differential_evolution_binary(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     population_size : int, optional
         Population size (default 100).
     F : float, optional
@@ -83,7 +83,7 @@ def differential_evolution_discrete(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     population_size : int, optional
         Population size (default 100).
     F : float, optional
@@ -137,7 +137,7 @@ def differential_evolution_real(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimizes.
     population_size : int, optional
         Population size (default 100).
     F : float, optional

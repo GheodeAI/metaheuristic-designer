@@ -21,7 +21,7 @@ def random_search_binary(objfunc: ObjectiveFunc, encoding: Optional[Encoding] = 
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     encoding : Encoding, optional
         Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
     random_state : RNGLike, optional
@@ -45,7 +45,7 @@ def random_search_permutation(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     encoding : Encoding, optional
         Encoding applied to the genotype.
     random_state : RNGLike, optional
@@ -68,7 +68,7 @@ def random_search_discrete(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     encoding : Encoding, optional
         Encoding applied to the genotype.
     random_state : RNGLike, optional
@@ -91,7 +91,7 @@ def random_search_real(objfunc: ObjectiveFunc, encoding: Optional[Encoding] = No
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     encoding : Encoding, optional
         Encoding applied to the genotype.
     random_state : RNGLike, optional

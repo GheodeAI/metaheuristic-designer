@@ -10,25 +10,17 @@ from typing import Tuple, Any, Optional
 import json
 import signal
 
-from .history_tracker import HistoryTracker
-from .reporters import create_reporter
-from .reporter import Reporter
-from .reporters import VerboseReporter
+from .history_tracker import ConfigurableHistoryTracker, HistoryTracker
+from .reporters import create_reporter, Reporter, VerboseReporter
 from .objective_function import ObjectiveFunc
 from .search_strategy import SearchStrategy
 from .population import Population
-from .stopping_condition import StoppingCondition
+from .stopping_condition import StoppingCondition, ParsedStoppingCondition
 from .initializer import Initializer
-from .checkpointer import Checkpointer
-from .utils import NumpyEncoder, VectorLike
+from .checkpointer import Checkpointer, PickleCheckpointer
+from .utils import NumpyEncoder, VectorLike, TerminationException
 
 logger = logging.getLogger(__name__)
-
-
-class TerminationException(Exception):
-    """
-    Custom exception to handle SIGTERM
-    """
 
 
 class Algorithm:
@@ -101,29 +93,32 @@ class Algorithm:
         objfunc: ObjectiveFunc,
         search_strategy: SearchStrategy,
         name: Optional[str] = None,
-        stop_cond: str = "real_time_limit",
-        progress_metric: Optional[str] = None,
-        max_iterations: int = 1000,
-        max_evaluations: int = 1e5,
-        real_time_limit: float = 60.0,
-        cpu_time_limit: float = 60.0,
-        objective_target: float = 1e-10,
-        max_patience: int = 100,
+        stopping_condition: Optional[StoppingCondition] = None,
+        history_tracker: Optional[HistoryTracker] = None,
+        reporter: Optional[str | Reporter] = None,
+        checkpointer: Optional[Checkpointer] = None,
+        *,
+        # Stopping condition
+        stop_condition_str: str = "real_time_limit",
+        progress_metric_str: Optional[str] = None,
+        max_iterations: Optional[int] = None,
+        max_evaluations: Optional[int] = None,
+        real_time_limit: Optional[float] = None,
+        cpu_time_limit: Optional[float] = None,
+        objective_target: Optional[float] = None,
+        max_patience: Optional[int] = None,
+        # Reporter
         verbose_timer: float = 0.5,
+        # History tracker
         track_median: bool = False,
         track_worst: bool = False,
         track_full_objective: bool = False,
         track_full_population: bool = False,
         track_diversity: bool = False,
+        # Checkpointer
         checkpoint_file: Optional[str] = None,
         checkpoint_time_frequency: Optional[float] = None,
         checkpoint_iteration_frequency: Optional[float] = None,
-        stopping_condition: Optional[StoppingCondition] = None,
-        reporter: Optional[str | Reporter] = None,
-        history_tracker: Optional[HistoryTracker] = None,
-        checkpointer: Optional[Checkpointer] = None,
-        parallel: bool = False,
-        threads: int = 8,
     ):
         super().__init__()
 
@@ -133,15 +128,11 @@ class Algorithm:
             name = self.search_strategy.name
         self.name = name
 
-        # Parallel parameters
-        self.parallel = parallel
-        self.threads = threads
-
         # Stopping conditions
         if stopping_condition is None:
-            stopping_condition = StoppingCondition(
-                condition_str=stop_cond,
-                progress_metric_str=progress_metric,
+            stopping_condition = ParsedStoppingCondition(
+                condition_str=stop_condition_str,
+                progress_metric_str=progress_metric_str,
                 real_time_limit=real_time_limit,
                 cpu_time_limit=cpu_time_limit,
                 objective_target=objective_target,
@@ -161,7 +152,7 @@ class Algorithm:
 
         # History Tracker
         if history_tracker is None:
-            history_tracker = HistoryTracker(
+            history_tracker = ConfigurableHistoryTracker(
                 track_best=True,
                 track_median=track_median,
                 track_worst=track_worst,
@@ -174,7 +165,7 @@ class Algorithm:
         # Checkpointer
         if checkpointer is not None or checkpoint_file is not None:
             if checkpointer is None:
-                checkpointer = Checkpointer(
+                checkpointer = PickleCheckpointer(
                     checkpoint_file=checkpoint_file,
                     iteration_frequency=checkpoint_iteration_frequency,
                     time_frequency=checkpoint_time_frequency,
@@ -398,7 +389,7 @@ class Algorithm:
             if self.checkpointer is not None:
                 self.checkpointer.save(self)
             self.reporter.log_end(self)
-            logger.info("Optimization aborted by an OS signal.")
+            logger.info(f"Optimization aborted by an OS signal.")
             raise e
 
         self.reporter.log_end(self)

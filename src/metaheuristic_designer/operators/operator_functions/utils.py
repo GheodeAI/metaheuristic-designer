@@ -206,7 +206,7 @@ class ObtainStatisticDef:
         Parameters
         ----------
         population : Population
-            The current population (its genotype matrix is analysed).
+            The current population (its genotype matrix is analyzed).
         initializer : Initializer
             Not used by this wrapper (included for interface compatibility).
         random_state : np.random.Generator, optional

@@ -204,7 +204,7 @@ def test_sbx_crossover_symmetry(rng):
     result = sbx_crossover(pop, None, eta=20.0, crossover_prob=1.0, random_state=rng)
     # Children should not exceed the parent range too far (moderate spread)
     # They should be within [min-epsilon, max+epsilon]
-    assert np.all(result >= -0.5) and np.all(result <= 3.0)   # or even use pop.min() - 0.5, pop.max() + 0.5
+    assert np.all(result >= -0.5) and np.all(result <= 3.0)  # or even use pop.min() - 0.5, pop.max() + 0.5
 
 
 # ===================================================================

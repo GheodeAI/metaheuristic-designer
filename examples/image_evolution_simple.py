@@ -49,11 +49,11 @@ def run_algorithm(alg_name, img_file_name, img_size, obj_name, mode, ngen, displ
     alg_map = {
         "hillclimb": simple.hill_climb_discrete(objfunc, **algo_params),
         "localsearch": simple.local_search_real(objfunc, **algo_params),
-        "sa":        simple.simulated_annealing_real(objfunc, **algo_params),
-        "es":        simple.evolution_strategy_real(objfunc, **algo_params),
-        "ga":        simple.genetic_algorithm_real(objfunc, **algo_params),
-        "de":        simple.differential_evolution_real(objfunc, **algo_params),
-        "pso":       simple.particle_swarm_real(objfunc, **algo_params),
+        "sa": simple.simulated_annealing_real(objfunc, **algo_params),
+        "es": simple.evolution_strategy_real(objfunc, **algo_params),
+        "ga": simple.genetic_algorithm_real(objfunc, **algo_params),
+        "de": simple.differential_evolution_real(objfunc, **algo_params),
+        "pso": simple.particle_swarm_real(objfunc, **algo_params),
         "randomsearch": simple.random_search_real(objfunc, **algo_params),
     }
     if alg_name not in alg_map:
@@ -123,14 +123,13 @@ def render(image, display_dim, src):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", default="ga", type=str.lower,
-                        choices=["hillclimb","sa","es","ga","de","pso","randomsearch","localsearch"])
+    parser.add_argument(
+        "-a", "--algorithm", default="ga", type=str.lower, choices=["hillclimb", "sa", "es", "ga", "de", "pso", "randomsearch", "localsearch"]
+    )
     parser.add_argument("-i", "--image", default="data/images/cat.png")
-    parser.add_argument("-s", "--img-size", type=int, default=32,
-                        help="Width and height of the image")
+    parser.add_argument("-s", "--img-size", type=int, default=32, help="Width and height of the image")
     parser.add_argument("--mode", default="min", help="'min' or 'max'.")
-    parser.add_argument("-o", "--objective", default="mse", type=str.lower,
-                        choices=["mse","mae","entropy","std"])
+    parser.add_argument("-o", "--objective", default="mse", type=str.lower, choices=["mse", "mae", "entropy", "std"])
     parser.add_argument("--ngen", type=int, default=1000)
     parser.add_argument("-r", "--seed", dest="seed", help="Random seed to use", default=None, type=int)
     parser.add_argument("--log", default="WARNING", help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")

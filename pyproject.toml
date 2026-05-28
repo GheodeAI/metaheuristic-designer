@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "metaheuristic-designer"
-version = "1.0.0"
+version = "1.1.0"
 authors = [
     {name = "eugenioLR", email = "eugeniolorente0@gmail.com"}
 ]
@@ -69,10 +69,23 @@ test = [
     "black[jupyter]",
 ]
 
+benchmarking = [
+    "ioh",
+    "autorank",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "deap",
+    "cma",
+    "nevergrad",
+    "pygmo"
+
+]
+
 dev = [
     "pre-commit",
     "nbstripout",
-    "metaheuristic-designer[examples,docs,test]"
+    "metaheuristic-designer[examples,docs,benchmarking,test]"
 ]
 
 [tool.setuptools.packages.find]

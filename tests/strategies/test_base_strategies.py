@@ -89,6 +89,12 @@ def test_static_population(rng, dummy_initializer, dummy_operator, dummy_objfunc
     new_pop = algo.step(initial_pop)
 
 
+def test_static_population(rng, dummy_initializer, dummy_operator, dummy_objfunc):
+    algo = StaticPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
+    initial_pop = algo.initialize(dummy_objfunc)
+    new_pop = algo.step(initial_pop)
+
+
 # ===================================================================
 #  VariablePopulationStrategy
 # ===================================================================
@@ -123,6 +129,7 @@ def test_variable_population_initializer_update_changes_offspring_size(rng, dumm
     parents = new_init.generate_population(dummy_objfunc)
     shuffled = algo.parent_sel.select(parents)
     assert len(shuffled) == 6
+
 
 def test_variable_population(rng, dummy_initializer, dummy_operator, dummy_objfunc):
     algo = VariablePopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, offspring_size=5, random_state=rng)

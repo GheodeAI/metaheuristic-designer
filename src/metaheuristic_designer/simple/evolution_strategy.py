@@ -32,7 +32,7 @@ def evolution_strategy_binary(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     mutated_bits : int, optional
         Number of bits flipped per mutation (default 1).
     population_size : int, optional
@@ -78,7 +78,7 @@ def evolution_strategy_permutation(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     swapped_positions : int, optional
         Number of positions swapped per mutation (default 2).
     population_size : int, optional
@@ -121,7 +121,7 @@ def evolution_strategy_discrete(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     resampled_components : int, optional
         Number of components resampled per mutation (default 1).
     population_size : int, optional
@@ -173,7 +173,7 @@ def evolution_strategy_real(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     resampled_components : int, optional
         Number of components resampled per mutation (default 1).
     population_size : int, optional

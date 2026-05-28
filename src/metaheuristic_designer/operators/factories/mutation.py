@@ -44,8 +44,8 @@ mutation_ops_map = {
     "gauss_mut":            OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),    
 
     # Uniform distribution
-    "uniform_noise":        OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}),
-    "uniform":              OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}),
+    "uniform_noise":        OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}, params={"F": 1}),
+    "uniform":              OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}, params={"F": 1}),
 
     "uniform_mutation":     OperatorFnDef(mutate_noise, forced_params={"distribution": "uniform"}),
     "uniform_mut":          OperatorFnDef(mutate_noise, forced_params={"distribution": "uniform"}),

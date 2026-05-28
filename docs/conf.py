@@ -13,8 +13,9 @@
 import os
 import sys
 import matplotlib
-matplotlib.use('Agg')
-plot_rcparams = {'backend': 'Agg'}
+
+matplotlib.use("Agg")
+plot_rcparams = {"backend": "Agg"}
 
 sys.path.insert(0, os.path.abspath("../src/metaheuristic_designer"))
 sys.path.insert(0, os.path.abspath("./src/metaheuristic_designer"))
@@ -39,7 +40,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosectionlabel",
-    'matplotlib.sphinxext.plot_directive',
+    "matplotlib.sphinxext.plot_directive",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -68,8 +69,8 @@ html_theme_options = {
     "globaltoc_includehidden": False,
     "globaltoc_depth": 1,
     "nav_links": [
-        {"href": "quick_start",   "title": "Quick Start",   "internal": True},
-        {"href": "simple",        "title": "Simple subpackage",    "internal": True},
+        {"href": "quick_start", "title": "Quick Start", "internal": True},
+        {"href": "simple", "title": "Simple subpackage", "internal": True},
         {"href": "api_reference", "title": "API Reference", "internal": True},
         {"href": "auto/metaheuristic_designer", "title": "Module Docs", "internal": True},
     ],
@@ -82,6 +83,6 @@ html_static_path = ["_static"]
 
 html_css_files = ["custom.css"]
 
-suppress_warnings = ['autosectionlabel.*']
+suppress_warnings = ["autosectionlabel.*"]
 
 nitpicky = False

@@ -7,7 +7,7 @@ from ..utils import MatrixLike, ScalarLike
 
 class CompositeConstraint(ConstraintHandler):
     """
-    Aplies every constraint handler in succession.
+    applies every constraint handler in succession.
 
     Parameters
     ----------

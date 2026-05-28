@@ -7,4 +7,6 @@ from . import img_funcs
 from .classic_problems import *
 from . import classic_problems
 
-__all__ = [*benchmark_funcs.__all__, *img_funcs.__all__, *classic_problems.__all__]
+from .ioh_wrapper import IOHObjective, BBOBObjective
+
+__all__ = [*benchmark_funcs.__all__, *img_funcs.__all__, *classic_problems.__all__, "IOHObjective", "BBOBObjective"]

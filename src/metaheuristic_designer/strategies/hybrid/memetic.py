@@ -54,7 +54,11 @@ class MemeticStrategy(SearchStrategy):
             random_state=random_state,
             # Forced kwargs
             local_search_depth=local_search_depth,
+<<<<<<< HEAD
             local_search_frequency=local_search_frequency
+=======
+            local_search_frequency=local_search_frequency,
+>>>>>>> feature/stats
         )
 
     def _do_local_search(self, offspring: Population) -> Tuple[Population, MaskLike]:
@@ -78,7 +82,11 @@ class MemeticStrategy(SearchStrategy):
         for _ in range(self.params.local_search_depth):
             population = self.local_search_heuristic.parent_sel.select(prev_population)
             population = self.local_search_heuristic.operator.evolve(population)
+<<<<<<< HEAD
             improved_offspring = self.local_search_heuristic.survivor_sel.select(population, prev_population)
+=======
+            improved_offspring = self.local_search_heuristic.survivor_sel.select(prev_population, population)
+>>>>>>> feature/stats
 
             # Assign improved individuals to the population
             offspring = offspring.apply_selection(improved_offspring, chosen_idx)

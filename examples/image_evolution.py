@@ -37,9 +37,9 @@ available_algorithms = ("hillclimb", "localsearch", "sa", "es", "ga", "de", "gau
 
 def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size, display, reporter, random_state):
     algorithm_params = {
-        "stop_cond": "convergence or real_time_limit",
-        "progress_metric": "real_time_limit",
-        "real_time_limit": 500.0,
+        "stop_condition_str": "convergence or max_evaluation",
+        "progress_metric_str": "max_evaluations",
+        "max_evaluations": 1e5,
         "max_patience": 500,
         "reporter": reporter,
     }
@@ -144,17 +144,26 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
             random_state=random_state,
         ),
         "randomsearch": RandomSearch(
-            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, random_state=random_state)
+            UniformInitializer(
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, random_state=random_state
+            )
         ),
         "nosearch": NoSearch(
-            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, random_state=random_state)
+            UniformInitializer(
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, random_state=random_state
+            )
         ),
     }
 
     if alg_name == "pso":
         search_strategy = PSO(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=600, encoding=PSOEncoding(objfunc.dimension), random_state=random_state
+                objfunc.dimension,
+                objfunc.lower_bound,
+                objfunc.upper_bound,
+                population_size=600,
+                encoding=PSOEncoding(objfunc.dimension),
+                random_state=random_state,
             ),
             encoding=encoding,
             w=0.5,
@@ -169,9 +178,13 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     if memetic:
         local_search = LocalSearch(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=search_strategy.initializer.pop_size, encoding=encoding
+                objfunc.dimension,
+                objfunc.lower_bound,
+                objfunc.upper_bound,
+                population_size=search_strategy.initializer.population_size,
+                encoding=encoding,
             ),
-            operator=create_operator("mutation.uniform_noise", min=-10, max=10, N=3),
+            operator=create_operator("mutation.uniform_noise", min=-10, max=10),
             iterations=20,
         )
         search_strategy = MemeticStrategy(
@@ -184,7 +197,6 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
             random_state=random_state,
         )
     alg = Algorithm(objfunc, search_strategy, **algorithm_params)
-
 
     # Pygame display setup
     display_dim = [600, 600]
@@ -259,7 +271,7 @@ def main():
     )
     parser.add_argument("-i", "--image", dest="img", default="data/images/cat.png", help="Path to reference image.")
     parser.add_argument("-s", "--img_size", default="32,32", help="Image size as 'H,W'.")
-    parser.add_argument("--hide", action="store_true", help="Disable real‑time display.")
+    parser.add_argument("--hide", action="store_true", help="Disable real-time display.")
     parser.add_argument("--mode", default="min", help="'min' or 'max'.")
     parser.add_argument(
         "-o", "--objective", dest="objective", help=f"Name of the objective function. Available options are {available_objectives}", default="MSE"

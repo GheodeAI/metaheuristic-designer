@@ -336,9 +336,9 @@ def order_cross_single(
     seg_mask = (range_vec >= cross_point1) & (range_vec <= cross_point2)
     child[seg_mask] = vector1[seg_mask]
 
-    remianing_unused = np.setdiff1d(vector2, child)
-    remianing_unused = np.roll(remianing_unused, cross_point1)
+    remaining_unused = np.setdiff1d(vector2, child)
+    remaining_unused = np.roll(remaining_unused, cross_point1)
 
-    child[~seg_mask] = remianing_unused
+    child[~seg_mask] = remaining_unused
 
     return child

@@ -79,7 +79,7 @@ def test_search_strategy_get_state(dummy_strategy):
 #  Algorithm (using Algorithm, not StandardAlgorithm)
 # ===================================================================
 def test_algorithm_get_state(dummy_objfunc, dummy_strategy):
-    algo = Algorithm(dummy_objfunc, dummy_strategy, max_iterations=1, reporter="silent")
+    algo = Algorithm(dummy_objfunc, dummy_strategy, stop_condition_str="max_iterations", max_iterations=1, reporter="silent")
     algo.initialize()  # creates population, evaluates fitness
     state = algo.get_state(store_population=True)
     # Check top-level keys
@@ -95,7 +95,7 @@ def test_algorithm_get_state(dummy_objfunc, dummy_strategy):
     assert "population" in state
     # Check that history contains the expected fields (track_best is always True)
     assert "class_name" in state["history"]
-    assert state["history"]["class_name"] == "HistoryTracker"
+    assert state["history"]["class_name"] == "ConfigurableHistoryTracker"
     assert "best_objective" in state["history"]
     assert "best_solutions" in state["history"]
 
@@ -104,7 +104,7 @@ def test_algorithm_get_state(dummy_objfunc, dummy_strategy):
 #  store_state (write to JSON)
 # ===================================================================
 def test_store_state_to_json(dummy_objfunc, dummy_strategy, tmp_path):
-    algo = Algorithm(dummy_objfunc, dummy_strategy, max_iterations=1, reporter="silent")
+    algo = Algorithm(dummy_objfunc, dummy_strategy, stop_condition_str="max_iterations", max_iterations=1, reporter="silent")
     algo.initialize()
     file_path = tmp_path / "state.json"
     algo.store_state(str(file_path), readable=True)

@@ -1,6 +1,4 @@
-"""
-Utility functions, type aliases, and a JSON encoder used across the library.
-"""
+"""Utility functions, type aliases, and a JSON encoder used across the library."""
 
 from typing import Optional
 import json
@@ -9,6 +7,7 @@ from enum import Enum
 import numpy as np
 
 null_aliases = {"null", "nothing", "identity", "passthrough"}
+
 RNGLike = int | np.random.Generator
 
 RealVector = np.ndarray[tuple[int], np.floating]
@@ -29,6 +28,12 @@ MatrixLike = RealMatrix | IntMatrix | BinMatrix
 TensorLike = RealTensor | IntTensor | BinTensor
 
 MaskLike = IntTensor | BinTensor
+
+
+class TerminationException(Exception):
+    """
+    Custom exception to handle SIGTERM
+    """
 
 
 class NumpyEncoder(json.JSONEncoder):

@@ -1,6 +1,4 @@
-"""
-Module providing the :class:`ParametrizableMixin` for managing schedulable parameters.
-"""
+"""Module providing the :class:`ParametrizableMixin` for managing schedulable parameters."""
 
 import logging
 

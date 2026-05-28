@@ -9,7 +9,7 @@ from collections import Counter
 import pandas as pd
 from tqdm.auto import tqdm
 
-from ..history_tracker import HistoryTracker
+from ..history_tracker import ConfigurableHistoryTracker, HistoryTracker
 from ..reporters import SilentReporter
 from ..population import Population
 from ..algorithm import Algorithm
@@ -50,7 +50,7 @@ class AlgorithmSelection:
             name_counter.update([prev_name])
             alg_copy = copy(alg)
             alg_copy.reporter = SilentReporter()
-            alg_copy.history_tracker = HistoryTracker(track_best=True, track_median=True, track_worst=True)
+            alg_copy.history_tracker = ConfigurableHistoryTracker(track_best=True, track_median=True, track_worst=True)
             self.algorithm_list.append(alg_copy)
 
         self.opt_mode = algorithm_list[0].objfunc.mode

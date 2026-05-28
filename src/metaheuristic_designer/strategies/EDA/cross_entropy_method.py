@@ -15,7 +15,7 @@ from ..eda_strategy import EDAStrategy
 
 class CrossEntropyMethod(EDAStrategy):
     """
-    Cross-Entropy Method for continuous optimisation.
+    Cross-Entropy Method for continuous optimization.
 
     At each generation, the best individuals are selected and the
     mean of a Gaussian distribution is updated to their location,
@@ -24,7 +24,7 @@ class CrossEntropyMethod(EDAStrategy):
 
     .. note::
        This class will be refactored when the EDA interface is
-       finalised.  Smoothing (learning rate) for the mean still
+       finalized.  Smoothing (learning rate) for the mean still
        needs to be added.
 
     Parameters

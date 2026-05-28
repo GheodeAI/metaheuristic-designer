@@ -49,6 +49,7 @@ def test_img_approx_single_vs_batch(img_size):
     assert batch[0] == pytest.approx(single0.item())
     assert batch[1] == pytest.approx(single1.item())
 
+
 # ---------- Repair preserves already valid values ----------
 @pytest.mark.parametrize("img_size", [(8, 8), (10, 10)])
 def test_repair_preserves_valid_values(img_size):

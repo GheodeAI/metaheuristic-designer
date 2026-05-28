@@ -177,9 +177,9 @@ def test_elitism(population_fitness, offspring_fitness, amount):
     "offspring_fitness, better_offspring_exists",
     [
         (OFFSPRING_FITNESS_BETTER, True),
-        (OFFSPRING_FITNESS_WORSE,  False),
-        (OFFSPRING_FITNESS_EQUAL,  True),   # equal counts as "not strictly better"
-        (OFFSPRING_FITNESS_MIXED,  True),
+        (OFFSPRING_FITNESS_WORSE, False),
+        (OFFSPRING_FITNESS_EQUAL, True),  # equal counts as "not strictly better"
+        (OFFSPRING_FITNESS_MIXED, True),
     ],
 )
 @pytest.mark.parametrize("amount", [0, 1, 5, 8, 10])

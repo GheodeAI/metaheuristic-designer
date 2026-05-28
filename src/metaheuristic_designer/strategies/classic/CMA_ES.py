@@ -262,7 +262,11 @@ class CMA_ES(EDAStrategy):
         new_sigma = self.params.sigma * np.exp(term1_a / term1_b)
 
         # Breaks to ensure numerical stability
+<<<<<<< HEAD
         if new_sigma < self.sigma_tol:
+=======
+        if np.all(new_sigma < self.sigma_tol):
+>>>>>>> feature/stats
             self.finish = True
 
         if np.linalg.cond(self._cov) > self.cond_tol:
