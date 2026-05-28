@@ -11,7 +11,7 @@ from conftest import (
 
 from metaheuristic_designer.algorithm import Algorithm
 from metaheuristic_designer.strategies import StaticPopulationStrategy
-from metaheuristic_designer.checkpointer import Checkpointer
+from metaheuristic_designer.checkpointer import PickleCheckpointer
 from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.operators.factories.mutation import create_mutation_operator
 from metaheuristic_designer.survivor_selection import create_survivor_selection
@@ -31,7 +31,7 @@ def test_checkpoint_split_vs_continuous(tmp_path, rng, dummy_objfunc):
     mut_a = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv_a = create_survivor_selection("generational", random_state=rng_a)
     strat_a = StaticPopulationStrategy(init_a, operator=mut_a, survivor_sel=surv_a, name="cont")
-    algo_a = Algorithm(dummy_objfunc, strat_a, stop_cond="max_iterations", max_iterations=10, reporter="silent")
+    algo_a = Algorithm(dummy_objfunc, strat_a, stop_condition_str="max_iterations", max_iterations=10, reporter="silent")
     pop_a = algo_a.optimize()
     best_a = pop_a.best_solution()[1]
 
@@ -46,7 +46,7 @@ def test_checkpoint_split_vs_continuous(tmp_path, rng, dummy_objfunc):
         strat_b,
         checkpoint_file=str(checkpoint),
         checkpoint_iteration_frequency=5,  # save at gen 5
-        stop_cond="max_iterations",
+        stop_condition_str="max_iterations",
         max_iterations=5,
         reporter="silent",
     )
@@ -54,7 +54,7 @@ def test_checkpoint_split_vs_continuous(tmp_path, rng, dummy_objfunc):
     assert checkpoint.exists()
 
     # resume
-    ckp = Checkpointer(str(checkpoint))
+    ckp = PickleCheckpointer(str(checkpoint))
     algo_c = ckp.load(str(checkpoint), reporter="silent")
     algo_c.stopping_condition.max_iterations = 10
     pop_c = algo_c.optimize()
@@ -81,14 +81,14 @@ def test_checkpoint_iteration_frequency(tmp_path, rng, dummy_objfunc):
         strat,
         checkpoint_file=str(checkpoint),
         checkpoint_iteration_frequency=2,  # save every 2 iterations
-        stop_cond="max_iterations",
+        stop_condition_str="max_iterations",
         max_iterations=5,
         reporter="silent",
     )
     algo.optimize()
 
     # When the algorithm stops at gen=5, the last checkpoint was at gen=4.
-    loaded = Checkpointer(str(checkpoint)).load(str(checkpoint), reporter="silent")
+    loaded = PickleCheckpointer(str(checkpoint)).load(str(checkpoint), reporter="silent")
     assert loaded.stopping_condition.iterations == 4
 
 
@@ -110,20 +110,20 @@ def test_checkpoint_time_frequency(tmp_path, rng):
         strat,
         checkpoint_file=str(checkpoint),
         checkpoint_time_frequency=0.05,  # 50 ms
-        stop_cond="max_iterations",
+        stop_condition_str="max_iterations",
         max_iterations=3,
         reporter="silent",
     )
     algo.optimize()
 
     assert checkpoint.exists()
-    loaded = Checkpointer(str(checkpoint)).load(str(checkpoint), reporter="silent")
+    loaded = PickleCheckpointer(str(checkpoint)).load(str(checkpoint), reporter="silent")
     # The exact iteration depends on timing, but must be ≤ 3
     assert loaded.stopping_condition.iterations <= 3
 
 
 # ---------------------------------------------------------------
-# Checkpointer disabled when no file is provided
+# PickleCheckpointer disabled when no file is provided
 # ---------------------------------------------------------------
 def test_checkpoint_disabled(rng, dummy_objfunc):
     rng_a = np.random.default_rng(42)
@@ -134,7 +134,7 @@ def test_checkpoint_disabled(rng, dummy_objfunc):
     algo = Algorithm(
         dummy_objfunc,
         strat,
-        stop_cond="max_iterations",
+        stop_condition_str="max_iterations",
         max_iterations=3,
         reporter="silent",
     )
@@ -161,7 +161,7 @@ def test_checkpoint_interruption_saves(tmp_path, rng, dummy_objfunc):
         strat,
         checkpoint_file=str(checkpoint),
         checkpoint_iteration_frequency=1,
-        stop_cond="max_iterations",
+        stop_condition_str="max_iterations",
         max_iterations=5,
         reporter="silent",
     )
@@ -171,7 +171,7 @@ def test_checkpoint_interruption_saves(tmp_path, rng, dummy_objfunc):
 
     assert checkpoint.exists()
 
-    loaded = Checkpointer(str(checkpoint)).load(str(checkpoint), reporter="silent")
+    loaded = PickleCheckpointer(str(checkpoint)).load(str(checkpoint), reporter="silent")
     # The interrupt happened before the first generation finished
     assert loaded.stopping_condition.iterations == 0
     # Population must be initialised
@@ -195,14 +195,14 @@ def test_checkpoint_load_with_reporter(tmp_path, rng, dummy_objfunc):
         strat,
         checkpoint_file=str(checkpoint),
         checkpoint_iteration_frequency=1,
-        stop_cond="max_iterations",
+        stop_condition_str="max_iterations",
         max_iterations=2,
         reporter="silent",
     )
     algo.optimize()
 
     # Load with verbose reporter
-    loaded = Checkpointer(str(checkpoint)).load(str(checkpoint), reporter="verbose")
+    loaded = PickleCheckpointer(str(checkpoint)).load(str(checkpoint), reporter="verbose")
     # We can't compare types across packages easily, but at least ensure it's not silent
     assert not isinstance(loaded.reporter, SilentReporter)
 
@@ -212,6 +212,6 @@ def test_checkpoint_load_with_reporter(tmp_path, rng, dummy_objfunc):
 # ---------------------------------------------------------------
 def test_checkpoint_load_missing_file(tmp_path):
     missing = tmp_path / "ghost.pkl"
-    ckp = Checkpointer(str(missing))
+    ckp = PickleCheckpointer(str(missing))
     with pytest.raises(FileNotFoundError):
         ckp.load(str(missing))

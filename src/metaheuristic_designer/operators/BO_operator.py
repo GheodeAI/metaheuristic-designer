@@ -54,7 +54,7 @@ class BOOperator(Operator):
     """Bayesian Optimization operator using a GP surrogate.
 
     Fits a Gaussian Process model to the current population, then
-    maximises the Expected Improvement acquisition function to
+    maximizes the Expected Improvement acquisition function to
     propose a new candidate solution.  The new solution is merged
     back into the population.
 
@@ -69,7 +69,7 @@ class BOOperator(Operator):
     random_state : RNGLike, optional
         Random number generator.
     batch_size : int, optional
-        Number of random starting points for acquisition optimisation (default 100).
+        Number of random starting points for acquisition optimization (default 100).
     max_samples : int, optional
         Maximum number of training points used (default 100).  If the
         population exceeds this, a random subset is selected.
@@ -107,14 +107,14 @@ class BOOperator(Operator):
         self.gaussian_model = GaussianProcessRegressor(kernel=kernel, normalize_y=True, copy_X_train=False)
 
     def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
-        """Fit GP, optimise acquisition, and merge the proposed point.
+        """Fit GP, optimize acquisition, and merge the proposed point.
 
         Parameters
         ----------
         population : Population
             The current population.
         initializer : Initializer, optional
-            Used to generate random starting points for acquisition optimisation.
+            Used to generate random starting points for acquisition optimization.
 
         Returns
         -------

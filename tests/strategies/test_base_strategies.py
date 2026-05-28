@@ -83,6 +83,7 @@ def test_static_population_accepts_parent_sel(rng, dummy_initializer, dummy_oper
     algo = StaticPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, parent_sel=parent_sel, random_state=rng)
     assert algo.parent_sel is parent_sel
 
+
 def test_static_population(rng, dummy_initializer, dummy_operator, dummy_objfunc):
     algo = StaticPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
     initial_pop = algo.initialize(dummy_objfunc)
@@ -123,6 +124,7 @@ def test_variable_population_initializer_update_changes_offspring_size(rng, dumm
     parents = new_init.generate_population(dummy_objfunc)
     shuffled = algo.parent_sel.select(parents)
     assert len(shuffled) == 6
+
 
 def test_variable_population(rng, dummy_initializer, dummy_operator, dummy_objfunc):
     algo = VariablePopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, offspring_size=5, random_state=rng)

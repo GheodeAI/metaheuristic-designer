@@ -1,5 +1,5 @@
 """
-Encoding for image-based optimisation tasks.
+Encoding for image-based optimization tasks.
 """
 
 from __future__ import annotations

@@ -21,7 +21,7 @@ def pso_operator(
     c2: float = 1.5,
 ) -> tuple[MatrixLike, MatrixLike]:
     """
-    Perform a single step of the standard Particle Swarm Optimisation (PSO).
+    Perform a single step of the standard Particle Swarm optimization (PSO).
 
     Velocity is updated as:
 

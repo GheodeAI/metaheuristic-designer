@@ -35,8 +35,8 @@ class CycleBoundConstraint(RepairConstraint):
 
         fixed_solution = np.mod(population_matrix - self.lower_bound, self.range_lim) + self.lower_bound
 
-        ouside_bound_mask = (population_matrix < self.lower_bound) | (population_matrix > self.upper_bound)
+        outside_bound_mask = (population_matrix < self.lower_bound) | (population_matrix > self.upper_bound)
         population_matrix = copy(population_matrix)
-        population_matrix[ouside_bound_mask] = fixed_solution[ouside_bound_mask]
+        population_matrix[outside_bound_mask] = fixed_solution[outside_bound_mask]
 
         return population_matrix

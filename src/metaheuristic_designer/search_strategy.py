@@ -7,10 +7,10 @@ This module implements the procedure applied in each iteration of the algorithm.
 from __future__ import annotations
 from abc import ABC, abstractmethod
 import logging
-from typing import Tuple, Any, Optional, Callable
+from typing import Optional, Callable
 
-from .parent_selection_base import ParentSelection, NullParentSelection, ParentSelectionFromLambda
-from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection, SurvivorSelectionFromLambda
+from .parent_selection_base import ParentSelection, NullParentSelection
+from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection
 from .population import Population
 from .initializer import Initializer, InitializerFromLambda
 from .objective_function import ObjectiveFunc
@@ -209,28 +209,10 @@ class SearchStrategyFromLambda(SearchStrategy):
     initializer : callable or Initializer
         Function ``(random_state) -> genotype``, or an initializer
         instance.
-    operator : callable or Operator, optional
-        Function ``(population, initializer, random_state, **kwargs) -> Population``,
-        or an operator instance.
-    parent_sel : callable or ParentSelection, optional
-        Function ``(population, amount, random_state, **kwargs) -> indices``,
-        or a selection instance.
-    survivor_sel : callable or SurvivorSelection, optional
-        Function ``(parent_fitness, offspring_fitness, random_state, **kwargs) -> indices``,
-        or a selection instance.
+    iterate_fn: callable
+        Function that advances the state of the algorithm by one full iteration.
     name : str, optional
         Display name (default ``"Strategy from lambda"``).
-    encoding : Encoding, optional
-        Encoding that wraps encode/decode; overridden by
-        *encode_fn*/*decode_fn* if both are given.
-    encode_fn / decode_fn : callable, optional
-        Standalone encode/decode functions.
-    parent_selection_amount : int, optional
-        Amount of parents to select (used only when wrapping a
-        callable *parent_sel*).
-    pop_size : int, optional
-        Population size (used only when wrapping a callable
-        *initializer*).  Default 100.
     random_state : RNGLike, optional
         Random number generator.
     **kwargs

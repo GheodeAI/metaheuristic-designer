@@ -492,7 +492,7 @@ class Population:
         prev_fitness = copy(self.fitness)
 
         # Objective values and fitness values are modified in place after the call
-        self.fitness = self.objfunc.fitness(self, parallel=parallel, threads=threads)
+        self.fitness = self.objfunc.fitness(self)
 
         improved_mask = prev_fitness < self.fitness
         self.historical_best_fitness[improved_mask] = self.fitness[improved_mask]

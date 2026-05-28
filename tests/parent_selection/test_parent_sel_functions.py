@@ -53,8 +53,7 @@ def test_uniform_selection(amount, rng):
 
 def test_uniform_selection_reproducible(rng):
     amount = 4
-    expected = uniform_selection(EXAMPLE_FITNESS, amount,
-                                 random_state=np.random.default_rng(42))
+    expected = uniform_selection(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42))
     result = uniform_selection(EXAMPLE_FITNESS, amount, random_state=rng)
     assert_array_equal(result, expected)
 
@@ -86,29 +85,22 @@ def test_shuffle_large_amount(rng):
 # ===================================================================
 def test_prob_tournament_prob_1(rng):
     amount = 4
-    expected = prob_tournament(EXAMPLE_FITNESS, amount,
-                               random_state=np.random.default_rng(42),
-                               tournament_size=3, prob=1.0)
-    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng,
-                             tournament_size=3, prob=1.0)
+    expected = prob_tournament(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42), tournament_size=3, prob=1.0)
+    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng, tournament_size=3, prob=1.0)
     assert_array_equal(result, expected)
 
 
 def test_prob_tournament_prob_0(rng):
     amount = 4
-    expected = prob_tournament(EXAMPLE_FITNESS, amount,
-                               random_state=np.random.default_rng(42),
-                               tournament_size=3, prob=0.0)
-    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng,
-                             tournament_size=3, prob=0.0)
+    expected = prob_tournament(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42), tournament_size=3, prob=0.0)
+    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng, tournament_size=3, prob=0.0)
     assert_array_equal(result, expected)
 
 
 @pytest.mark.parametrize("amount", [0, 3, 8])
 @pytest.mark.parametrize("prob", [0.1, 0.5, 0.9])
 def test_prob_tournament_shape(amount, prob, rng):
-    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng,
-                             tournament_size=3, prob=prob)
+    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng, tournament_size=3, prob=prob)
     assert len(result) == amount
     if amount > 0:
         assert result.max() < len(EXAMPLE_FITNESS)
@@ -122,7 +114,7 @@ def test_scaling_fitness_proportional():
     fitness = np.array([1, 2, 3], dtype=float)
     fn = create_scaling_fn("fitness_proportional", scaling_factor=1)
     weights = fn(fitness)
-    expected = np.array([1/6, 1/3, 1/2])
+    expected = np.array([1 / 6, 1 / 3, 1 / 2])
     assert_array_equal(weights, expected)
 
 
@@ -145,7 +137,7 @@ def test_scaling_linear_rank():
     # ranks: worst=0, best=3
     # linear_ranking with f=0: (2-0)+(2*rank*(0-1))/(3) => 2 - (2*rank/3)
     # ranks: 0,1,2,3 -> weights: 2, 4/3, 2/3, 0 -> normalized sum = 4 => [0.5, 0.333, 0.167, 0]
-    expected = np.array([0.5, 1/3, 1/6, 0.0])
+    expected = np.array([0.5, 1 / 3, 1 / 6, 0.0])
     assert_allclose(weights, expected, atol=1e-6)
 
 
@@ -167,17 +159,14 @@ def test_scaling_exponential_rank():
     [
         ("fitness_proportional", 1),
         ("sigma_scaling", 1),
-        ("linear_ranking", 0),        # extreme linear ranking
+        ("linear_ranking", 0),  # extreme linear ranking
         ("exponential_ranking", None),
     ],
 )
 def test_roulette_deterministic(method, scaling_factor, rng):
     amount = 5
-    expected = roulette(EXAMPLE_FITNESS, amount,
-                        random_state=np.random.default_rng(42),
-                        method=method, scaling_factor=scaling_factor)
-    result = roulette(EXAMPLE_FITNESS, amount, random_state=rng,
-                      method=method, scaling_factor=scaling_factor)
+    expected = roulette(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42), method=method, scaling_factor=scaling_factor)
+    result = roulette(EXAMPLE_FITNESS, amount, random_state=rng, method=method, scaling_factor=scaling_factor)
     assert_array_equal(result, expected)
 
 
@@ -203,11 +192,8 @@ def test_roulette_sanity(rng):
 )
 def test_sus_deterministic(method, scaling_factor, rng):
     amount = 5
-    expected = sus(EXAMPLE_FITNESS, amount,
-                   random_state=np.random.default_rng(42),
-                   method=method, scaling_factor=scaling_factor)
-    result = sus(EXAMPLE_FITNESS, amount, random_state=rng,
-                 method=method, scaling_factor=scaling_factor)
+    expected = sus(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42), method=method, scaling_factor=scaling_factor)
+    result = sus(EXAMPLE_FITNESS, amount, random_state=rng, method=method, scaling_factor=scaling_factor)
     assert_array_equal(result, expected)
 
 
@@ -259,7 +245,7 @@ def test_parent_selection_def_passes_fitness_and_kwargs():
         ("best", ParentSelectionFromLambda),
         ("tournament", ParentSelectionFromLambda),
         ("random", ParentSelectionFromLambda),
-        ("shuffle", ParentSelectionFromLambda),      # new entry
+        ("shuffle", ParentSelectionFromLambda),  # new entry
         ("roulette", ParentSelectionFromLambda),
         ("sus", ParentSelectionFromLambda),
         ("nothing", NullParentSelection),

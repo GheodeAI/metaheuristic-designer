@@ -4,6 +4,7 @@ import pandas as pd
 
 try:
     from deap import algorithms
+
     _DEAP_AVAILABLE = True
 except ImportError:
     _DEAP_AVAILABLE = False
@@ -16,9 +17,7 @@ class DEAPWrapper:
     population, stats, hall-of-fame) and it runs the show.
     """
 
-    def __init__(self, objfunc, toolbox, pop, stats, hof,
-                 ngen=100, seed=None, algorithm=algorithms.eaSimple,
-                 **algo_kwargs):
+    def __init__(self, objfunc, toolbox, pop, stats, hof, ngen=100, seed=None, algorithm=algorithms.eaSimple, **algo_kwargs):
         if not _DEAP_AVAILABLE:
             raise ImportError("deap is not installed")
 
@@ -44,21 +43,13 @@ class DEAPWrapper:
             np.random.seed(self.seed)
 
         # Run the DEAP algorithm
-        _, logbook = self.algorithm(
-            self.pop,
-            self.toolbox,
-            ngen=self.ngen,
-            stats=self.stats,
-            halloffame=self.hof,
-            verbose=False,
-            **self.algo_kwargs
-        )
+        _, logbook = self.algorithm(self.pop, self.toolbox, ngen=self.ngen, stats=self.stats, halloffame=self.hof, verbose=False, **self.algo_kwargs)
 
         # Build a simple history of best objective per generation
         records = []
         for entry in logbook:
             gen = entry.get("gen", 0)
-            deap_best = entry.get("max", None)   # DEAP tracks max of fitness
+            deap_best = entry.get("max", None)  # DEAP tracks max of fitness
             if deap_best is None:
                 continue
             # Convert back to raw objective (minimization => fitness = -obj)

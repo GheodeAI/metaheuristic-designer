@@ -126,17 +126,25 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
     search_strategy = search_strategy_map[alg_name]
 
     # ---- Memetic branch ----
-    # if memetic:
-    #     mem_select = create_parent_selection("best", amount=5, random_state=random_state)
-    #     local_search = LocalSearch(
-    #         initializer=pop_initializer,
-    #         operator=create_operator("mutation.cauchy_mutation", F=0.0002, random_state=random_state),
-    #         iterations=10,
-    #     )
-    #     alg = MemeticAlgorithm(objfunc, search_strategy, local_search, mem_select, **algorithm_params)
-    # else:
-    #     alg = Algorithm(objfunc, search_strategy, **algorithm_params)
-    alg = Algorithm(objfunc, search_strategy, **algorithm_params)
+    if memetic:
+        local_search = LocalSearch(
+            initializer=UniformInitializer(
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=search_strategy.initializer.population_size
+            ),
+            operator=create_operator("mutation.gaussian_noise", F=1e-2, random_state=random_state),
+            params={"iters": 20},
+        )
+        search_strategy = MemeticStrategy(
+            main_strategy=search_strategy,
+            local_search_heuristic=local_search,
+            local_search_depth=10,
+            local_search_frequency=5,
+            improvement_selection=create_parent_selection("best", amount=10),
+            keep_improved_solutions=True,
+            random_state=random_state,
+        )
+
+    alg = Algorithm(objfunc, search_strategy, reporter=reporter, **algorithm_params)
 
     population = alg.optimize()
     best_solution, best_objective = population.best_solution()

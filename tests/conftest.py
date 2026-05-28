@@ -20,7 +20,7 @@ from metaheuristic_designer.encoding import (
 from metaheuristic_designer.encodings.parameter_extending_encoding import (
     ParameterExtendingEncoding,
 )
-from metaheuristic_designer.history_tracker import HistoryTracker
+from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
 from metaheuristic_designer.population import Population
 from metaheuristic_designer.objective_function import (
     ObjectiveFunc,
@@ -124,8 +124,6 @@ class DummyObjectiveFunction(ObjectiveFunc):
     def fitness(
         self,
         population: Population,
-        parallel: bool = False,
-        threads: int = 8,
     ) -> np.ndarray:
         self.fitness_called += 1
         if callable(self._fitness_return):
@@ -397,7 +395,7 @@ def run_and_get_best(wrapper_func, objfunc, seed, **kwargs):
     """Run a simple wrapper for 5 generations and return the best objective."""
     run_kwargs = {
         "reporter": "silent",
-        "stop_cond": "max_iterations",
+        "stop_condition_str": "max_iterations",
         "max_iterations": 5,
         "max_evaluations": 1000,
         **kwargs,
@@ -409,12 +407,12 @@ def run_and_get_best(wrapper_func, objfunc, seed, **kwargs):
 
 
 # ===================================================================
-#  HistoryTracker fixtures
+#  ConfigurableHistoryTracker fixtures
 # ===================================================================
 @pytest.fixture
 def full_tracker():
     """Tracker that records best, median, worst, and complete population."""
-    return HistoryTracker(
+    return ConfigurableHistoryTracker(
         track_best=True,
         track_median=True,
         track_worst=True,
@@ -424,11 +422,11 @@ def full_tracker():
 
 @pytest.fixture
 def algo_with_full_tracker(dummy_objfunc, dummy_strategy, full_tracker):
-    """Algorithm with a pre-configured HistoryTracker and minimal stopping."""
+    """Algorithm with a pre-configured ConfigurableHistoryTracker and minimal stopping."""
     return Algorithm(
         dummy_objfunc,
         dummy_strategy,
-        stop_cond="max_iterations",
+        stop_condition_str="max_iterations",
         max_iterations=1,
         reporter="silent",
         history_tracker=full_tracker,

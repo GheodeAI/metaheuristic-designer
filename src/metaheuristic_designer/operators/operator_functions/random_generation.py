@@ -12,7 +12,7 @@ def compute_statistic(population_matrix, stat_name="mean", weights=None):
     population_matrix: numpy.array
         Matrix containing the set of tentative solutions.
     initializer: Initializer
-        Initializer instance that handles random initializtion of the population.
+        Initializer instance that handles random initialization of the population.
     stat_name: str, optional
         Name of the statistic to use, options are "mean", "average", "median" and "std", by default "mean".
     weights: numpy.array, optional
@@ -48,7 +48,7 @@ def random_initialize(population_matrix, initializer: Initializer, random_state=
     population_matrix: numpy.array
         Matrix containing the set of tentative solutions.
     initializer: Initializer
-        Initializer instance that handles random initializtion of the population.
+        Initializer instance that handles random initialization of the population.
 
     Returns
     -------
@@ -71,7 +71,7 @@ def random_reset(population_matrix, initializer: Initializer, random_state=None,
     population_matrix: numpy.array
         Matrix containing the set of tentative solutions.
     initializer: Initializer
-        Initializer instance that handles random initializtion of the population.
+        Initializer instance that handles random initialization of the population.
     n: int, optional
         Number of components to reset, by default 1
 

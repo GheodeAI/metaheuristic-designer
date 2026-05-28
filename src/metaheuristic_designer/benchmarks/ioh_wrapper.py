@@ -26,35 +26,35 @@ class IOHObjective(ObjectiveFunc):
         IOH problem type (default ``ProblemClass.BBOB``).
     ioh_options : dict, optional
         Extra keyword arguments passed to ``ioh.get_problem``.
-    name : str, optional
-        Custom display name; auto-generated if None.
+    compact_name : str, optional
+        Use a shortened name for the benchmark when compact_name is True.
     """
 
-    def __init__(self, fid, dimension, instance=1, problem_class=None, ioh_options=None, name=None):
+    def __init__(self, fid: int | str, dimension: int, instance: int = 1, problem_class: ProblemClass = None, compact_name: bool = False):
         if ioh is None:
             raise ImportError("IOHexperimenter is required for IOHObjective. " "Install it with `pip install ioh`.")
 
         if problem_class is None:
             problem_class = ProblemClass.BBOB
 
-        if ioh_options is None:
-            ioh_options = {}
+        self.fid = fid
+        self.instance = instance
 
-        self._fid = fid
-        self._instance = instance
-
-        self.problem = ioh.get_problem(fid, instance=instance, dimension=dimension, problem_class=problem_class, **ioh_options)
+        self.problem = ioh.get_problem(fid, instance=instance, dimension=dimension, problem_class=problem_class)
 
         # Generate name if not specified
-        if name is None:
+        fname = self.problem.meta_data.name
+        if compact_name:
+            name = f"IOH-{problem_class.name}-{fname}-D{dimension}"
+        else:
             base = fid if isinstance(fid, str) else f"F{fid}"
-            name = f"IOH-{problem_class}-{base}-D{dimension}-ins{instance}"
+            name = f"IOH-{problem_class.name}-{base}-{fname}-D{dimension}-ins{instance}"
 
         super().__init__(
             dimension=dimension,
-            lower_bound=self.problem.bounds.lb,
-            upper_bound=self.problem.bounds.ub,
-            mode="max",
+            lower_bound=self.problem.bounds.lb.squeeze(),
+            upper_bound=self.problem.bounds.ub.squeeze(),
+            mode="min",
             name=name,
             constraint_handler=None,
         )
@@ -74,9 +74,11 @@ class IOHObjective(ObjectiveFunc):
 
 
 class BBOBObjective(IOHObjective):
-    def __init__(self, fid, dimension, instance, ioh_options=None, name=None):
-        if name is None:
-            base = fid if isinstance(fid, str) else f"F{fid}"
-            name = f"BBOB-{base}-D{dimension}-ins{instance}"
+    def __init__(self, fid, dimension, instance, compact_name=None):
+        super().__init__(fid=fid, dimension=dimension, instance=instance, problem_class=ProblemClass.BBOB)
 
-        super().__init__(fid=fid, dimension=dimension, instance=instance, problem_class=ProblemClass.BBOB, ioh_options=ioh_options, name=name)
+        if compact_name:
+            self.name = f"BBOB-{self.problem.meta_data.name}-d{dimension}"
+        else:
+            base = fid if isinstance(fid, str) else f"F{fid}"
+            self.name = f"BBOB-{base}-{self.problem.meta_data.name}-d{dimension}-ins{instance}"

@@ -37,7 +37,7 @@ class PyGMOWrapper:
         if not _PYGMO_AVAILABLE:
             raise ImportError("The 'pygmo' library is required. Install with `pip install pygmo`.")
         self.objfunc = objfunc
-        self.algorithm = algorithm 
+        self.algorithm = algorithm
         self.pop_size = pop_size
         self.generations = generations
         self.seed = seed
@@ -45,7 +45,7 @@ class PyGMOWrapper:
         self.algo_kwargs = algo_kwargs
 
         self.history_df = None
-        self._best_x = None
+        self.best_x = None
         self.best_obj = None
 
     def optimize(self):
@@ -87,10 +87,10 @@ class PyGMOWrapper:
             champ_fit = pop.champion_f[0]
             if self.objfunc.mode == "min" and champ_fit < best_obj:
                 best_obj = champ_fit
-                self._best_x = pop.champion_x
+                self.best_x = pop.champion_x
             elif self.objfunc.mode == "max" and champ_fit > best_obj:
                 best_obj = champ_fit
-                self._best_x = pop.champion_x
+                self.best_x = pop.champion_x
 
             trace.append({"iteration": gen, "best_objective": best_obj})
 
@@ -99,24 +99,9 @@ class PyGMOWrapper:
         return self
 
     def best_solution(self):
-<<<<<<< HEAD
-        solution = list(self._best_x) if self._best_x is not None else None,
+        solution = (list(self.best_x) if self.best_x is not None else None,)
         objective = self.best_obj
         return solution, objective
 
     def to_pandas(self):
         return self.history_df
-=======
-        return (list(self._best_x) if self._best_x is not None else None, self._best_obj)
-
-    @property
-    def history_tracker(self):
-        class _Hist:
-            def __init__(self, df):
-                self._df = df
-
-            def to_pandas(self):
-                return self._df.copy()
-
-        return _Hist(self._history_df)
->>>>>>> 49ad336 (Added new schedules and restructured SA)

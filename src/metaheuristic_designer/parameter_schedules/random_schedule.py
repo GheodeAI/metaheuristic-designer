@@ -1,6 +1,4 @@
-"""
-Schedule that picks a random value at each evaluation.
-"""
+"""Schedule that picks a random value at each evaluation."""
 
 from typing import Optional
 
@@ -9,8 +7,7 @@ from ..schedulable_parameter import SchedulableParameter
 
 
 class RandomSchedule(SchedulableParameter):
-    """
-    Schedule that returns a uniform random value between `init_value` and
+    """Schedule that returns a uniform random value between `init_value` and
     `final_value` at every call, ignoring progress.
 
     Parameters

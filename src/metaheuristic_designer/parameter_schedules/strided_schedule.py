@@ -1,6 +1,4 @@
-"""
-Strided schedule that applies a subschedule making the parameter updates in long intervals.
-"""
+"""Strided schedule that applies a subschedule making the parameter updates in long intervals."""
 
 import logging
 from ..schedulable_parameter import SchedulableParameter

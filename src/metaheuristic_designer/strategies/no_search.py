@@ -29,5 +29,5 @@ class NoSearch(SearchStrategy):
     def __init__(self, initializer: Initializer, name: str = "No search", **kwargs):
         super().__init__(initializer, name=name, **kwargs)
 
-    def step(self, population: Population) -> Population:
-        return copy(population)
+    def step(self, prev_population: Population) -> Population:
+        return copy(prev_population)

@@ -685,7 +685,7 @@ def dirichlet_heuristic(population_matrix, alpha=None, **kwargs):
 def tikhinov_fisher_heuristic(population_matrix, loc=None, kappa=None, **kwargs):
     """Heuristic parameter estimation for the von Mises-Fisher distribution.
 
-    *loc* is estimated by normalising the mean vector of the data.
+    *loc* is estimated by normalizing the mean vector of the data.
     *kappa* is approximated using the mean resultant length *R* and the
     dimension *d*:
     ``kappa = R * (d - R²) / (1 - R²)``.
@@ -697,7 +697,7 @@ def tikhinov_fisher_heuristic(population_matrix, loc=None, kappa=None, **kwargs)
         *d*-dimensional sphere.
     loc : None, array-like, or ``"calculated"``
         Mean direction (unit vector). If ``"calculated"``, it is set to the
-        normalised sample mean.
+        normalized sample mean.
     kappa : None, float, or ``"calculated"``
         Concentration parameter. If ``"calculated"``, it is approximated
         from the mean resultant length.

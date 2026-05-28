@@ -78,7 +78,7 @@ class MemeticStrategy(SearchStrategy):
         for _ in range(self.params.local_search_depth):
             population = self.local_search_heuristic.parent_sel.select(prev_population)
             population = self.local_search_heuristic.operator.evolve(population)
-            improved_offspring = self.local_search_heuristic.survivor_sel.select(population, prev_population)
+            improved_offspring = self.local_search_heuristic.survivor_sel.select(prev_population, population)
 
             # Assign improved individuals to the population
             offspring = offspring.apply_selection(improved_offspring, chosen_idx)

@@ -21,8 +21,7 @@ def sphere():
 def random_initial_obj(sphere):
     """Worst-case baseline: a random point in the bounds."""
     rng = np.random.default_rng(42)
-    x0 = rng.uniform(sphere.lower_bound, sphere.upper_bound,
-                     size=sphere.dimension)
+    x0 = rng.uniform(sphere.lower_bound, sphere.upper_bound, size=sphere.dimension)
     return sphere.objective(x0)
 
 
@@ -31,8 +30,7 @@ def test_cma_improves(sphere, random_initial_obj):
     solver = CMAWrapper(sphere, sigma0=0.3, max_iterations=20, seed=42)
     solver.optimize()
     _, best = solver.best_solution()
-    assert best < random_initial_obj, \
-        f"CMA did not improve: best {best} >= random {random_initial_obj}"
+    assert best < random_initial_obj, f"CMA did not improve: best {best} >= random {random_initial_obj}"
 
 
 # ----- DEAP ------------------------------------------------------------
@@ -53,8 +51,7 @@ def test_deap_improves(sphere, random_initial_obj):
             creator.create("Individual", list, fitness=creator.FitnessMin)
         toolbox = base.Toolbox()
         toolbox.register("attr_float", random.uniform, -5.12, 5.12)
-        toolbox.register("individual", tools.initRepeat, creator.Individual,
-                         toolbox.attr_float, n=DIM)
+        toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, n=DIM)
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
         toolbox.register("evaluate", lambda ind: (objfunc.objective(np.array(ind)),))
         toolbox.register("mate", tools.cxBlend, alpha=0.5)
@@ -66,42 +63,34 @@ def test_deap_improves(sphere, random_initial_obj):
         stats.register("max", np.max)
         return toolbox, pop, stats, hof
 
-    solver = DEAPWrapper(sphere, build_fn=build_ga, ngen=20, seed=42,
-                         cxpb=0.7, mutpb=0.3, algorithm=algorithms.eaSimple)
+    solver = DEAPWrapper(sphere, build_fn=build_ga, ngen=20, seed=42, cxpb=0.7, mutpb=0.3, algorithm=algorithms.eaSimple)
     solver.optimize()
     _, best = solver.best_solution()
-    assert best < random_initial_obj, \
-        f"DEAP did not improve: best {best} >= random {random_initial_obj}"
+    assert best < random_initial_obj, f"DEAP did not improve: best {best} >= random {random_initial_obj}"
 
 
 # ----- Nevergrad -------------------------------------------------------
 def test_nevergrad_improves(sphere, random_initial_obj):
     pytest.importorskip("nevergrad")
-    solver = NevergradWrapper(sphere, optimizer_name="DE", budget=400,
-                              seed=42)
+    solver = NevergradWrapper(sphere, optimizer_name="DE", budget=400, seed=42)
     solver.optimize()
     _, best = solver.best_solution()
-    assert best < random_initial_obj, \
-        f"Nevergrad did not improve: best {best} >= random {random_initial_obj}"
+    assert best < random_initial_obj, f"Nevergrad did not improve: best {best} >= random {random_initial_obj}"
 
 
 # ----- PyGMO -----------------------------------------------------------
 def test_pygmo_improves(sphere, random_initial_obj):
     pytest.importorskip("pygmo")
-    solver = PyGMOWrapper(sphere, algorithm="de", pop_size=10,
-                          generations=20, seed=42)
+    solver = PyGMOWrapper(sphere, algorithm="de", pop_size=10, generations=20, seed=42)
     solver.optimize()
     _, best = solver.best_solution()
-    assert best < random_initial_obj, \
-        f"PyGMO did not improve: best {best} >= random {random_initial_obj}"
+    assert best < random_initial_obj, f"PyGMO did not improve: best {best} >= random {random_initial_obj}"
 
 
 # ----- SciPy -----------------------------------------------------------
 def test_scipy_improves(sphere, random_initial_obj):
-    solver = ScipyWrapper(sphere, method="differential_evolution",
-                          maxiter=10, seed=42)
+    solver = ScipyWrapper(sphere, method="differential_evolution", maxiter=10, seed=42)
     solver.optimize()
     _, best = solver.best_solution()
     # SciPy's differential_evolution needs a few more iterations; we use 10
-    assert best < random_initial_obj, \
-        f"SciPy did not improve: best {best} >= random {random_initial_obj}"
+    assert best < random_initial_obj, f"SciPy did not improve: best {best} >= random {random_initial_obj}"

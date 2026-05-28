@@ -33,16 +33,13 @@ def test_create_mutation_operator_invalid_method():
 #  Integration: calling the operator modifies population
 # -------------------------------------------------------------------
 def test_gauss_operator_modifies_genotype(rng, dummy_objfunc, simple_encoding):
-    pop = make_pop([1.0, 2.0], dummy_objfunc)   # shape (N,2) – 1 individual? Actually make_pop returns (2,?) I'll use a suitable pop.
+    pop = make_pop([1.0, 2.0], dummy_objfunc)  # shape (N,2) – 1 individual? Actually make_pop returns (2,?) I'll use a suitable pop.
     # Use a multi-individual population for clarity
     pop = Population(dummy_objfunc, np.array([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]]))
     pop.fitness = np.zeros(3)
     original = pop.genotype_matrix.copy()
 
-    op = create_mutation_operator(
-        "gauss", encoding=simple_encoding, random_state=rng,
-        loc=0, scale=1.0, F=0.5
-    )
+    op = create_mutation_operator("gauss", encoding=simple_encoding, random_state=rng, loc=0, scale=1.0, F=0.5)
     result = op(pop)
 
     assert result is pop
@@ -70,10 +67,8 @@ def test_mutation_operator_reproducible(rng, dummy_objfunc, simple_encoding):
     rng1 = np.random.default_rng(42)
     rng2 = np.random.default_rng(42)
 
-    op1 = create_mutation_operator("gauss", encoding=simple_encoding, random_state=rng1,
-                                   loc=0, scale=1.0, F=0.5)
-    op2 = create_mutation_operator("gauss", encoding=simple_encoding, random_state=rng2,
-                                   loc=0, scale=1.0, F=0.5)
+    op1 = create_mutation_operator("gauss", encoding=simple_encoding, random_state=rng1, loc=0, scale=1.0, F=0.5)
+    op2 = create_mutation_operator("gauss", encoding=simple_encoding, random_state=rng2, loc=0, scale=1.0, F=0.5)
 
     op1(pop1)
     op2(pop2)
@@ -86,8 +81,7 @@ def test_mutate_noise_operator_modifies_subset(rng, dummy_objfunc, simple_encodi
     pop = Population(dummy_objfunc, np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]))
     pop.fitness = np.zeros(2)
 
-    op = create_mutation_operator("mutnoise", encoding=simple_encoding, random_state=rng,
-                                  distribution="normal", loc=0, scale=1.0, F=1.0, N=2)
+    op = create_mutation_operator("mutnoise", encoding=simple_encoding, random_state=rng, distribution="normal", loc=0, scale=1.0, F=1.0, N=2)
     result = op(pop)
 
     assert result is pop

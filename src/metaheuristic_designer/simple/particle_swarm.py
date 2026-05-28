@@ -1,6 +1,4 @@
-"""
-Ready-to-run Particle Swarm Optimisation wrappers.
-"""
+"""Ready-to-run Particle Swarm Optimization wrappers."""
 
 from __future__ import annotations
 from typing import Optional
@@ -24,12 +22,12 @@ def particle_swarm_binary(
     random_state: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
-    """Particle Swarm Optimisation for binary-coded vectors.
+    """Particle Swarm optimization for binary-coded vectors.
 
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     population_size : int, optional
         Swarm size (default 100).
     w : float, optional
@@ -78,12 +76,12 @@ def particle_swarm_discrete(
     random_state: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
-    """Particle Swarm Optimisation for integer-coded vectors.
+    """Particle Swarm optimization for integer-coded vectors.
 
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     population_size : int, optional
         Swarm size (default 100).
     w : float, optional
@@ -99,7 +97,6 @@ def particle_swarm_discrete(
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
-
     random_state = check_random_state(random_state)
     if encoding is None:
         encoding = TypeCastEncoding(float, int)
@@ -132,12 +129,12 @@ def particle_swarm_real(
     random_state: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
-    """Particle Swarm Optimisation for real-coded vectors.
+    """Particle Swarm Optimization for real-coded vectors.
 
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     population_size : int, optional
         Swarm size (default 100).
     w : float, optional
@@ -153,7 +150,6 @@ def particle_swarm_real(
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
-
     random_state = check_random_state(random_state)
     pop_initializer = UniformInitializer(
         objfunc.dimension,

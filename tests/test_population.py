@@ -444,6 +444,7 @@ def test_step_no_current_best(dummy_objfunc, simple_encoding):
 import numpy as np
 import pytest
 
+
 @pytest.mark.parametrize("amount, expected_rows", [(2, 6), (3, 9), (1, 3)])
 def test_repeat_genotype_structure(amount, expected_rows, dummy_objfunc):
     pop = Population(dummy_objfunc, SMALL_GENOTYPE.copy())

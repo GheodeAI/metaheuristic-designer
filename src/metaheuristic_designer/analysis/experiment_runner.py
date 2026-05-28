@@ -52,7 +52,6 @@ def run_experiment(
         ``instance``, ``run``, ``best_objective``.
     """
     records = []
-    n_problems = len(problems)
 
     seed_sequence = np.random.SeedSequence(base_seed)
     for p_idx, problem in enumerate(problems):

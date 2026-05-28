@@ -1,5 +1,5 @@
 """
-Ready-to-run Bayesian Optimisation wrappers.
+Ready-to-run Bayesian optimization wrappers.
 """
 
 from __future__ import annotations
@@ -21,9 +21,9 @@ def bayesian_optimization_binary(
     **kwargs,
 ) -> Algorithm:
     """
-    Bayesian Optimisation for binary-coded vectors (not supported yet).
+    Bayesian optimization for binary-coded vectors (not supported yet).
     """
-    raise NotImplementedError("Bayesian Optimisation is only available for real-coded vectors.")
+    raise NotImplementedError("Bayesian optimization is only available for real-coded vectors.")
 
 
 def bayesian_optimization_discrete(
@@ -34,9 +34,9 @@ def bayesian_optimization_discrete(
     **kwargs,
 ) -> Algorithm:
     """
-    Bayesian Optimisation for integer-coded vectors (not supported yet).
+    Bayesian optimization for integer-coded vectors (not supported yet).
     """
-    raise NotImplementedError("Bayesian Optimisation is only available for real-coded vectors.")
+    raise NotImplementedError("Bayesian optimization is only available for real-coded vectors.")
 
 
 def bayesian_optimization_real(
@@ -46,12 +46,12 @@ def bayesian_optimization_real(
     random_state: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
-    """Bayesian Optimisation for real-coded vectors.
+    """Bayesian optimization for real-coded vectors.
 
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     population_size : int, optional
         Number of individuals in the initial population (default 50).
     encoding : Encoding, optional

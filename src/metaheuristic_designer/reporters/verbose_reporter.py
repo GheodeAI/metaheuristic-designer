@@ -29,7 +29,7 @@ class VerboseReporter(Reporter):
         self.verbose_start = time.time()
 
     def log_init(self, algorithm: Algorithm):
-        """Print a header indicating the start of the optimisation."""
+        """Print a header indicating the start of the optimization."""
         self.verbose_start = time.time()
 
         objfunc_name = algorithm.objfunc.name

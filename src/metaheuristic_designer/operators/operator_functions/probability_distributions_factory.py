@@ -147,7 +147,7 @@ def create_prob_distribution(
                 if distrib_reg_name is None:
                     distrib_reg_name = k
                 else:
-                    logger.warning("Found duplicate distribuiton '%s' in both registries '%s' and '%s'", distrib_name_lower, distrib_reg_name, k)
+                    logger.warning("Found duplicate distribution '%s' in both registries '%s' and '%s'", distrib_name_lower, distrib_reg_name, k)
 
         if distrib_reg_name is None:
             raise ValueError("Distribution not found in any registry")

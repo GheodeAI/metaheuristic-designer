@@ -40,9 +40,9 @@ class NevergradWrapper:
         self.name = name
         self.opt_kwargs = opt_kwargs
 
-        self._history_df = None
-        self._best_x = None
-        self._best_obj = None
+        self.history_df = None
+        self.best_x = None
+        self.best_obj = None
 
     def optimize(self):
         dim = self.objfunc.dimension
@@ -79,11 +79,11 @@ class NevergradWrapper:
                 if self.objfunc.mode == "min":
                     if obj < best_so_far:
                         best_so_far = obj
-                        self._best_x = x
+                        self.best_x = x
                 else:
                     if obj > best_so_far:
                         best_so_far = obj
-                        self._best_x = x
+                        self.best_x = x
 
             for cand, loss in zip(candidates, losses):
                 opt.tell(cand, loss)
@@ -93,30 +93,12 @@ class NevergradWrapper:
             if evals >= self.budget:
                 break
 
-        self._best_obj = best_so_far
-        self._history_df = pd.DataFrame(trace)
+        self.best_obj = best_so_far
+        self.history_df = pd.DataFrame(trace)
         return self
 
     def best_solution(self):
-        return (list(self._best_x) if self._best_x is not None else None, self._best_obj)
+        return (list(self.best_x) if self.best_x is not None else None, self.best_obj)
 
-    @property
-    def history_tracker(self):
-        class _Hist:
-            def __init__(self, df):
-                self._df = df
-
-            def to_pandas(self):
-                return self._df.copy()
-
-        return _Hist(self._history_df)
-
-
-if __name__ == "__main__":
-    from metaheuristic_designer.benchmarks import Sphere
-
-    objfunc = Sphere(dim=5, mode="min")
-    solver = NevergradWrapper(objfunc, optimizer_name="DE", budget=5000, seed=42, name="Nevergrad-DE")
-    solver.optimize()
-    best_x, best_val = solver.best_solution()
-    print(f"Best objective: {best_val}")
+    def to_pandas(self):
+        return self.history_df

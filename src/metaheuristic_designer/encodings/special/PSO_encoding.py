@@ -1,5 +1,5 @@
 """
-Encoding for Particle Swarm Optimisation that appends a velocity vector to the genotype.
+Encoding for Particle Swarm optimization that appends a velocity vector to the genotype.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from ...encoding import Encoding
 
 class PSOEncoding(ParameterExtendingEncoding):
     """
-    Encoding for Particle Swarm Optimisation that stores a velocity vector.
+    Encoding for Particle Swarm optimization that stores a velocity vector.
 
     The genotype is split into the solution vector and a velocity vector
     of the same dimension.  Both are used by the PSO operator.

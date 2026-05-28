@@ -47,7 +47,7 @@ parent_sel_map = {
     "tournament":               ParentSelectionDef(prob_tournament, forced_params={"prob": 1.0}, params={"tournament_size": 3}),
     "tournament_selection":     ParentSelectionDef(prob_tournament, forced_params={"prob": 1.0}, params={"tournament_size": 3}),
 
-    # Probabilistic Torunament
+    # Probabilistic tournament
     "probabilistic_tournament": ParentSelectionDef(prob_tournament, params={"tournament_size": 3, "prob": 0.5}),
 
     # Keep best

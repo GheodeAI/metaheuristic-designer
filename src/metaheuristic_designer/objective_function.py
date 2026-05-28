@@ -26,8 +26,8 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
     Subclasses must implement :meth:`objective`, which returns the
     raw objective value.  The base class automatically converts it
-    to a *fitness* that is always maximised (flipping the sign for
-    minimisation) and applies a penalty if a
+    to a *fitness* that is always maximized (flipping the sign for
+    minimization) and applies a penalty if a
     :class:`ConstraintHandler` is present.
 
     Parameters
@@ -43,7 +43,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
     constraint_handler : ConstraintHandler, optional
         Handler that can repair solutions and/or compute penalties.
     mode : str, optional
-        ``"max"`` or ``"min"``.  The fitness is always maximised
+        ``"max"`` or ``"min"``.  The fitness is always maximized
         internally; the mode controls the sign conversion.
     name : str, optional
         Human-readable name for this function.
@@ -109,7 +109,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         """Evaluate fitness for the whole population.
 
         The raw objective values are computed via :meth:`objective`,
-        penalties are subtracted, and the result (always maximised) is
+        penalties are subtracted, and the result (always maximized) is
         stored in ``population.fitness``.  Individuals that already have
         a valid fitness are skipped unless :attr:`recalculate` is set.
 
@@ -259,7 +259,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 class NullObjectiveFunc(ObjectiveFunc):
     """Objective function that always returns zero.
 
-    Useful as a placeholder in tests or when the optimisation
+    Useful as a placeholder in tests or when the optimization
     criterion is handled entirely by constraints.
 
     Parameters

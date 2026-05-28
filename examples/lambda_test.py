@@ -60,9 +60,7 @@ def run_algorithm():
     print("Building components from lambdas...")
 
     # Wrap the repair function into a constraint handler
-    constraint_handler = ConstraintHandlerFromLambda(
-        repair_solution_fn=constraint_repair_fn
-    )
+    constraint_handler = ConstraintHandlerFromLambda(repair_solution_fn=constraint_repair_fn)
 
     # Wrap the objective function (minimisation mode)
     objfunc = ObjectiveFromLambda(
@@ -73,9 +71,7 @@ def run_algorithm():
     )
 
     # Wrap the initializer
-    pop_init = InitializerFromLambda(
-        initializer_fn, vecsize=10, pop_size=100
-    )
+    pop_init = InitializerFromLambda(initializer_fn, vecsize=10, pop_size=100)
 
     # Wrap the mutation operator (note: OperatorVectorDef can be used as decorator too)
     mutation_op = OperatorFromLambda(mutate_fn)
@@ -86,8 +82,8 @@ def run_algorithm():
     # Configure runtime parameters
     params = {
         "stop_cond": "max_iterations",
-        "max_iterations": 5e4,     # run for 10 seconds
-        "reporter": "tqdm",        # nice progress bar
+        "max_iterations": 5e4,  # run for 10 seconds
+        "reporter": "tqdm",  # nice progress bar
     }
 
     alg = Algorithm(objfunc, search_strategy, **params)

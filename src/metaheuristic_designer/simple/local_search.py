@@ -29,7 +29,7 @@ def local_search_binary(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     mutated_bits : int, optional
         Number of bits flipped per mutation (default 1).
     samples_per_iteration : int, optional
@@ -63,7 +63,7 @@ def local_search_permutation(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     swapped_positions : int, optional
         Number of positions swapped per mutation (default 2).
     samples_per_iteration : int, optional
@@ -96,7 +96,7 @@ def local_search_discrete(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     resampled_components : int, optional
         Number of components resampled per mutation (default 1).
     samples_per_iteration : int, optional
@@ -132,7 +132,7 @@ def local_search_real(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     mutation_strength : float, optional
         Standard deviation of Gaussian mutation (default 1e-2).
     mutated_components : int, optional

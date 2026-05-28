@@ -24,8 +24,8 @@ class CMAWrapper:
         self.name = name
 
         self.history_df = None
-        self._best_x = None
-        self._best_obj = None
+        self.best_x = None
+        self.best_obj = None
 
     def optimize(self):
         if self.seed is not None:
@@ -43,20 +43,17 @@ class CMAWrapper:
         # CMA‑ES stores the best per generation in es.result
         if hasattr(es.result, "historical_fbest") and es.result.historical_fbest:
             fbest = es.result.historical_fbest
-            self.history_df = pd.DataFrame({
-                'iteration': np.arange(len(fbest)),
-                'best_objective': fbest
-            })
+            self.history_df = pd.DataFrame({"iteration": np.arange(len(fbest)), "best_objective": fbest})
         else:
-            self.history_df = pd.DataFrame(columns=['iteration', 'best_objective'])
+            self.history_df = pd.DataFrame(columns=["iteration", "best_objective"])
 
-        self._best_x = es.result.xfavorite
-        self._best_obj = es.result.fbest
+        self.best_x = es.result.xfavorite
+        self.best_obj = es.result.fbest
 
         return self
 
     def best_solution(self):
-        return list(self._best_x), self._best_obj
+        return list(self.best_x), self.best_obj
 
     def to_pandas(self):
         return self.history_df

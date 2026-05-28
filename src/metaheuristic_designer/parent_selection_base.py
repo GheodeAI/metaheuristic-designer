@@ -1,6 +1,4 @@
-"""
-Base class for the Parent Selection module.
-"""
+"""Base class for the Parent Selection module."""
 
 from __future__ import annotations
 from abc import ABC, abstractmethod

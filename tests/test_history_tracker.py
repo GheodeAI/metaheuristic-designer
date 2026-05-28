@@ -11,14 +11,14 @@ from conftest import (
     algo_with_full_tracker,
 )
 
-from metaheuristic_designer.history_tracker import HistoryTracker
+from metaheuristic_designer import ConfigurableHistoryTracker
 
 
 # ----------------------------------------------------------------
 # Basic properties and empty state
 # ----------------------------------------------------------------
 def test_empty_tracker_to_pandas():
-    tracker = HistoryTracker(track_best=True)
+    tracker = ConfigurableHistoryTracker(track_best=True)
     df = tracker.to_pandas()
     assert len(df) == 0
     assert list(df.columns) == ["iteration", "best_objective"]

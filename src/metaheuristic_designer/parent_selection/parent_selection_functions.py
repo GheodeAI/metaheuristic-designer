@@ -12,7 +12,7 @@ from ..utils import MaskLike, RNGLike, ScalarLike, VectorLike, check_random_stat
 # ---------------------------------------------
 # Population ranking factory logic
 # ---------------------------------------------
-def fitness_propotional(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
+def fitness_proportional(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
     """Fitness proportional scaling.
 
     Shift fitness to be non-negative and add a constant offset.
@@ -27,7 +27,7 @@ def fitness_propotional(fitness: VectorLike, scaling_factor: ScalarLike) -> Vect
     Returns
     -------
     VectorLike
-        Unnormalised selection weights.
+        unnormalized selection weights.
     """
 
     return fitness - fitness.min() + scaling_factor
@@ -48,7 +48,7 @@ def sigma_scaling(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike
     Returns
     -------
     VectorLike
-        Unnormalised selection weights.
+        unnormalized selection weights.
     """
 
     return np.maximum(fitness - (fitness.mean() - scaling_factor * fitness.std()), 0)
@@ -71,7 +71,7 @@ def linear_ranking(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLik
     Returns
     -------
     VectorLike
-        Unnormalised selection weights.
+        unnormalized selection weights.
     """
 
     scaling_factor = np.minimum(scaling_factor, 2)
@@ -93,7 +93,7 @@ def exponential_ranking(fitness: VectorLike, scaling_factor: ScalarLike) -> Vect
     Returns
     -------
     VectorLike
-        Unnormalised selection weights.
+        unnormalized selection weights.
     """
 
     fit_order = np.argsort(np.argsort(fitness))  # Using the double-argsort trick
@@ -113,7 +113,7 @@ def flat_ranking(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
     Returns
     -------
     VectorLike
-        Unnormalised weights (all ones).
+        unnormalized weights (all ones).
     """
 
     return np.ones_like(fitness)
@@ -121,8 +121,8 @@ def flat_ranking(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
 
 # fmt: off
 scaling_map = {
-    "fitness_proportional": fitness_propotional,
-    "fitness_prop": fitness_propotional,
+    "fitness_proportional": fitness_proportional,
+    "fitness_prop": fitness_proportional,
 
     "sigma_scaling": sigma_scaling,
 
@@ -140,7 +140,7 @@ scaling_map = {
 
 
 def create_scaling_fn(method: str, scaling_factor: ScalarLike = 2) -> Callable:
-    """Create a callable that computes normalised selection weights.
+    """Create a callable that computes normalized selection weights.
 
     Parameters
     ----------
@@ -152,7 +152,7 @@ def create_scaling_fn(method: str, scaling_factor: ScalarLike = 2) -> Callable:
     Returns
     -------
     callable
-        A function ``(fitness) -> weights`` that returns a normalised
+        A function ``(fitness) -> weights`` that returns a normalized
         probability vector.
     """
 
@@ -285,7 +285,7 @@ def uniform_selection(fitness: VectorLike, amount: int, random_state: Optional[R
 def shuffle_population(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None) -> MaskLike:
     """
     Chooses a number of individuals from the population at random without replacement if amount < population_size.
-    If we cannot pich without replacement, we at least make sure we pick every individual at least
+    If we cannot pick without replacement, we at least make sure we pick every individual at least
     :math:`\\left\\lceil \\frac{\\text{amount}}{\\text{population\\_size}} \\right\\rceil` times
 
     Parameters

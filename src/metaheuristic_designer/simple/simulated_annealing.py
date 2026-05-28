@@ -31,7 +31,7 @@ def simulated_annealing_binary(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     mutated_bits : int, optional
         Number of bits flipped per mutation (default 1).
     initial_temperature : float, optional
@@ -73,7 +73,7 @@ def simulated_annealing_permutation(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     swapped_positions : int, optional
         Number of positions swapped per mutation (default 2).
     initial_temperature : float, optional
@@ -114,7 +114,7 @@ def simulated_annealing_discrete(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     resampled_components : int, optional
         Number of components resampled per mutation (default 1).
     initial_temperature : float, optional
@@ -158,7 +158,7 @@ def simulated_annealing_real(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     mutation_strength : float, optional
         Standard deviation of Gaussian mutation (default 1e-2).
     mutated_components : int, optional

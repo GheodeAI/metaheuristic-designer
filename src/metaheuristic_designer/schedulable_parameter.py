@@ -1,6 +1,4 @@
-"""
-Module for schedule-dependent parameters whose value changes with progress.
-"""
+"""Module for schedule-dependent parameters whose value changes with progress."""
 
 from abc import ABC, abstractmethod
 from typing import Callable, Optional, Any

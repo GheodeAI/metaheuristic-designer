@@ -1,6 +1,4 @@
-"""
-Module defining the abstract reporter interface for algorithm progress output.
-"""
+"""Module defining the abstract reporter interface for algorithm progress output."""
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
@@ -13,15 +11,15 @@ if TYPE_CHECKING:
 class Reporter(ABC):
     """Abstract interface for progress reporters.
 
-    A reporter is notified at three key moments of an optimisation
-    run: initialisation, after each generation, and at completion.
+    A reporter is notified at three key moments of an optimization
+    run: initialization, after each generation, and at completion.
     Implementations can display progress bars, log messages, update
     dashboards, etc.
     """
 
     @abstractmethod
     def log_init(self, algorithm: Algorithm):
-        """Called once, before the main optimisation loop starts.
+        """Called once, before the main optimization loop starts.
 
         Parameters
         ----------
@@ -42,7 +40,7 @@ class Reporter(ABC):
 
     @abstractmethod
     def log_end(self, algorithm: Algorithm):
-        """Called once, after the optimisation loop finishes.
+        """Called once, after the optimization loop finishes.
 
         Parameters
         ----------

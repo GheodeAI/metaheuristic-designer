@@ -1,5 +1,5 @@
 """
-Reporter that shows a tqdm progress bar during optimisation.
+Reporter that shows a tqdm progress bar during optimization.
 """
 
 from __future__ import annotations
