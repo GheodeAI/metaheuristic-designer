@@ -103,6 +103,9 @@ Implemented population initializers:
    ":py:class:`initializers.SeedDetermInitializer<metaheuristic_designer.initializers.seed_initializer.SeedDetermInitializer>`", "Initializer that inserts a fixed number of seeded solutions."
    ":py:class:`initializers.SeedProbInitializer<metaheuristic_designer.initializers.seed_initializer.SeedProbInitializer>`", "Initializer that randomly inserts seeded solutions with a given probability."
    ":py:class:`initializers.PermInitializer<metaheuristic_designer.initializers.perm_initializer.PermInitializer>`", "Initializer that produces random permutations of n elements."
+   ":py:class:`initializers.LatinHypercubeInitializer<metaheuristic_designer.initializers.latin_hypercube_initializer.LatinHypercubeInitializer>`", "Initializer based on uniform Latin Hypercube Sampling."
+   ":py:class:`initializers.SobolInitializer<metaheuristic_designer.initializers.sobol_initializer.SobolInitializer>`", "Initializer that produces randomly permuted Sobol sequences."
+   ":py:class:`initializers.HaltonInitializer<metaheuristic_designer.initializers.halton_initializer.HaltonInitializer>`", "Initializer that produces Halton sequences."
 
 Encodings
 ---------
@@ -201,17 +204,26 @@ or build your own by directly combining components with the general
 
 Both approaches result in an object that can be passed to :py:class:`~metaheuristic_designer.algorithm.Algorithm`.
 
-The following pre‑built strategies are available:
+To construct a Search strategy, you can use one of the available prototypes:
+
+.. csv-table::
+   :header: "Module name", "Description"
+
+   ":py:class:`strategies.NoSearch<metaheuristic_designer.strategies.no_search.NoSearch>`", "No‑op strategy (does nothing)."
+   ":py:class:`strategies.SingleSolutionStrategy<metaheuristic_designer.strategies.single_solution_strategy.SingleSolutionStrategy>`", "Strategy that works improving single solutions."
+   ":py:class:`strategies.StaticPopulationStrategy<metaheuristic_designer.strategies.single_solution_strategy.SingleSolutionStrategy>`", "Strategy that preserves the size of the population."
+   ":py:class:`strategies.VariablePopulationStrategy<metaheuristic_designer.strategies.variable_population_strategy.VariablePopulationStrategy>`", "Variable‑size population based evolution."
+   ":py:class:`strategies.EDAStrategy<metaheuristic_designer.strategies.eda_strategy.EDAStrategy>`", "Strategy that has a parameter estimation step between parent selection and the evolution of the solutions."
+
+The following pre‑built strategies are also available:
 
 .. csv-table::
    :header: "Module name", "Description"
 
    ":py:class:`strategies.NoSearch<metaheuristic_designer.strategies.no_search.NoSearch>`", "No‑op strategy (does nothing)."
    ":py:class:`strategies.RandomSearch<metaheuristic_designer.strategies.classic.random_search.RandomSearch>`", "Random search."
-   ":py:class:`strategies.StaticPopulation<metaheuristic_designer.strategies.static_population.StaticPopulation>`", "Fixed‑size population based evolution."
-   ":py:class:`strategies.VariablePopulation<metaheuristic_designer.strategies.variable_population.VariablePopulation>`", "Variable‑size population based evolution."
-   ":py:class:`strategies.HillClimb<metaheuristic_designer.strategies.hill_climb.HillClimb>`", "Greedy hill climbing."
-   ":py:class:`strategies.LocalSearch<metaheuristic_designer.strategies.local_search.LocalSearch>`", "Local search with a configurable number of iterations."
+   ":py:class:`strategies.HillClimb<metaheuristic_designer.strategies.classic.hill_climb.HillClimb>`", "Greedy hill climbing."
+   ":py:class:`strategies.LocalSearch<metaheuristic_designer.strategies.classic.local_search.LocalSearch>`", "Local search with a configurable number of iterations."
    ":py:class:`strategies.SA<metaheuristic_designer.strategies.classic.SA.SA>`", "Simulated annealing."
    ":py:class:`strategies.GA<metaheuristic_designer.strategies.classic.GA.GA>`", "Genetic Algorithm."
    ":py:class:`strategies.ES<metaheuristic_designer.strategies.classic.ES.ES>`", "Evolution Strategy."
@@ -223,6 +235,13 @@ The following pre‑built strategies are available:
    ":py:class:`strategies.BinomialUMDA<metaheuristic_designer.strategies.EDA.UMDA.BinomialUMDA>`", "Binomial UMDA."
    ":py:class:`strategies.BayesianOptimization<metaheuristic_designer.strategies.bayesian_optimization.bayesian_optimization.BayesianOptimization>`", "Bayesian Optimisation with Gaussian processes."
    ":py:class:`strategies.CMA_ES<metaheuristic_designer.strategies.classic.CMA_ES.CMA_ES>`", "Covariance Matrix Adaptation Evolution Strategy."
+
+Additionally, we provide an interface to hybridize search strategies (only memetic algorithms at the moment):
+
+.. csv-table::
+   :header: "Module name", "Description"
+
+   ":py:class:`strategies.MemeticStrategy<metaheuristic_designer.strategies.hybrid.memetic.MemeticStrategy>`", "Strategy that uses a local search procedure to improve the best individuals after evolving them."
 
 Algorithms
 ----------
@@ -242,7 +261,6 @@ Built‑in algorithm variants:
    :header: "Module name", "Description"
 
    ":py:class:`algorithms.Algorithm<metaheuristic_designer.algorithm.Algorithm>`", "Default algorithm with the classic parent → perturb → evaluate → survivor loop."
-   ":py:class:`algorithms.MemeticAlgorithm<metaheuristic_designer.algorithms.memetic_algorithm.MemeticAlgorithm>`", "Algorithm that embeds a local search step inside the main loop."
    ":py:class:`algorithms.AlgorithmSelection<metaheuristic_designer.algorithms.algorithm_selection.AlgorithmSelection>`", "Benchmarks a set of algorithms."
    ":py:class:`algorithms.StrategySelection<metaheuristic_designer.algorithms.strategy_selection.StrategySelection>`", "Benchmarks a set of search strategies."
 

@@ -10,6 +10,9 @@ from .gaussian_initializer import GaussianInitializer
 from .seed_initializer import SeedDetermInitializer, SeedProbInitializer
 from .direct_initializer import DirectInitializer
 from .perm_initializer import PermInitializer
+from .latin_hypercube_initializer import LatinHypercubeInitializer
+from .sobol_initializer import SobolInitializer
+from .halton_initializer import HaltonInitializer
 
 __all__ = [
     "DirectInitializer",
@@ -22,4 +25,7 @@ __all__ = [
     "SeedDetermInitializer",
     "SeedProbInitializer",
     "UniformInitializer",
+    "LatinHypercubeInitializer",
+    "SobolInitializer",
+    "HaltonInitializer"
 ]
