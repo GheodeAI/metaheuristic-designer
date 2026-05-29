@@ -35,11 +35,7 @@ from metaheuristic_designer.operators.operator_functions.probability_distributio
 #  Factory & sampling (univariate)
 # -------------------------------------------------------------------
 def test_create_normal_distribution(rng):
-<<<<<<< HEAD
-    dist = create_prob_distribution("norm", population_matrix=np.zeros((1,1)), loc=0, scale=1, random_state=rng)
-=======
     dist = create_prob_distribution("norm", population_matrix=np.zeros((1, 1)), loc=0, scale=1, random_state=rng)
->>>>>>> feature/stats
     assert isinstance(dist, ScipyUnivarDistribution)
     sample = dist.sample((10, 3))
     assert sample.shape == (10, 3)
@@ -48,11 +44,7 @@ def test_create_normal_distribution(rng):
 
 
 def test_create_uniform_distribution_with_min_max(rng):
-<<<<<<< HEAD
-    dist = create_prob_distribution("uniform", population_matrix=np.zeros((1,1)), min=0, max=10, random_state=rng)
-=======
     dist = create_prob_distribution("uniform", population_matrix=np.zeros((1, 1)), min=0, max=10, random_state=rng)
->>>>>>> feature/stats
     sample = dist.sample((100, 5))
     assert sample.shape == (100, 5)
     assert np.all(sample >= 0)
@@ -60,22 +52,14 @@ def test_create_uniform_distribution_with_min_max(rng):
 
 
 def test_create_uniform_distribution_with_loc_scale(rng):
-<<<<<<< HEAD
-    dist = create_prob_distribution("uniform", population_matrix=np.zeros((1,1)), loc=5, scale=5, random_state=rng)
-=======
     dist = create_prob_distribution("uniform", population_matrix=np.zeros((1, 1)), loc=5, scale=5, random_state=rng)
->>>>>>> feature/stats
     sample = dist.sample((100, 3))
     assert np.all(sample >= 5)
     assert np.all(sample <= 10)
 
 
 def test_create_poisson_distribution(rng):
-<<<<<<< HEAD
-    dist = create_prob_distribution("poisson", population_matrix=np.zeros((1,1)), mu=3, random_state=rng)
-=======
     dist = create_prob_distribution("poisson", population_matrix=np.zeros((1, 1)), mu=3, random_state=rng)
->>>>>>> feature/stats
     sample = dist.sample((50, 4))
     assert np.all(sample >= 0)
     assert 2.0 < sample.mean() < 4.0
@@ -87,11 +71,7 @@ def test_create_poisson_distribution(rng):
 def test_create_multivariate_normal(rng):
     mean = [0, 10]
     cov = [[1, 0.5], [0.5, 2]]
-<<<<<<< HEAD
-    dist = create_prob_distribution("multivariate_normal", population_matrix=np.zeros((1,2)), mean=mean, cov=cov, random_state=rng)
-=======
     dist = create_prob_distribution("multivariate_normal", population_matrix=np.zeros((1, 2)), mean=mean, cov=cov, random_state=rng)
->>>>>>> feature/stats
     sample = dist.sample((100, 2))
     assert sample.shape == (100, 2)
     assert_allclose(sample.mean(axis=0), mean, atol=0.5)

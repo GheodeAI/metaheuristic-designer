@@ -59,11 +59,7 @@ class LocalSearch(StaticPopulationStrategy):
 
         super().__init__(
             initializer,
-<<<<<<< HEAD
-            parent_sel=create_parent_selection("repeat", amount=iterations*initializer.population_size),
-=======
             parent_sel=create_parent_selection("repeat", amount=iterations * initializer.population_size),
->>>>>>> feature/stats
             operator=operator,
             survivor_sel=survivor_sel,
             name=name,

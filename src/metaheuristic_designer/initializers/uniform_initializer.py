@@ -1,6 +1,4 @@
-"""
-Initializer that samples from a uniform distribution.
-"""
+"""Initializer that samples from a uniform distribution."""
 
 from __future__ import annotations
 import numpy as np

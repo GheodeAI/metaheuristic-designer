@@ -11,10 +11,7 @@ from ...operator import Operator
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import check_random_state, RNGLike
 from ..single_solution_strategy import SingleSolutionStrategy
-<<<<<<< HEAD
-=======
 from ...parameter_schedules import ProbabilityAnnealingSchedule
->>>>>>> feature/stats
 
 
 class SA(SingleSolutionStrategy):
@@ -76,23 +73,9 @@ class SA(SingleSolutionStrategy):
             **kwargs,
         )
 
-<<<<<<< HEAD
-        self.temperature = self.params.temperature_init
-        survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
-
-    def update(self, progress):
-        super().update(progress=progress)
-
-        self.iter_count += 1
-        if self.iter_count > self.params.iterations:
-            self.temperature *= self.params.alpha
-            self.iter_count = 0
-            self.survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
-=======
     @property
     def temperature(self):
         return self.survivor_sel.raw_kwargs["p"].temperature
->>>>>>> feature/stats
 
     def extra_step_info(self):
         """

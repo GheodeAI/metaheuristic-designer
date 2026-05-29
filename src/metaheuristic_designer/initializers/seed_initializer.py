@@ -1,6 +1,4 @@
-"""
-Initializers that insert predefined solutions into the population.
-"""
+"""Initializers that insert predefined solutions into the population."""
 
 from __future__ import annotations
 from typing import Iterable, Optional

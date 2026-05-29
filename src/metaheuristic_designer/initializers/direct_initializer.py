@@ -1,6 +1,4 @@
-"""
-Initializer that uses a set of predefined solutions as the first generation.
-"""
+"""Initializer that uses a set of predefined solutions as the first generation."""
 
 from __future__ import annotations
 from copy import copy

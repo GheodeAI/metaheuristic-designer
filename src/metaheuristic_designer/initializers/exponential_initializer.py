@@ -1,6 +1,4 @@
-"""
-Initializer that samples from an exponential distribution.
-"""
+"""Initializer that samples from an exponential distribution."""
 
 from __future__ import annotations
 from numbers import Integral
@@ -44,6 +42,3 @@ class ExponentialInitializer(Initializer):
             new_vector = new_vector_float.astype(self.dtype)
 
         return new_vector
-
-    def generate_individual(self):
-        return self.generate_random()

@@ -1,6 +1,4 @@
-"""
-Initializer that samples from a Gaussian (normal) distribution.
-"""
+"""Initializer that samples from a Gaussian (normal) distribution."""
 
 from __future__ import annotations
 from numbers import Integral
@@ -62,6 +60,3 @@ class GaussianInitializer(Initializer):
             new_vector = new_vector_float.astype(self.dtype)
 
         return new_vector
-
-    def generate_individual(self):
-        return self.generate_random()

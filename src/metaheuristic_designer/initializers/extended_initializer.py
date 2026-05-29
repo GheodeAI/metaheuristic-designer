@@ -1,6 +1,4 @@
-"""
-Initializer for genotypes that contain both a solution and extra parameters.
-"""
+"""Initializer for genotypes that contain both a solution and extra parameters."""
 
 from __future__ import annotations
 import numpy as np
