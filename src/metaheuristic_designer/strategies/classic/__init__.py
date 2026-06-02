@@ -8,6 +8,7 @@ from .SA import SA
 from .GA import GA
 from .ES import ES
 from .DE import DE
+from .nelder_mead import NelderMead
 
 __all__ = [
     "CMA_ES",
@@ -16,4 +17,5 @@ __all__ = [
     "GA",
     "RandomSearch",
     "SA",
+    "NelderMead",
 ]
