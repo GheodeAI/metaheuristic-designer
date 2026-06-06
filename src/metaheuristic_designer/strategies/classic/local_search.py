@@ -13,10 +13,10 @@ from ...population import Population
 from ...survivor_selection_base import SurvivorSelection
 from ...survivor_selection import create_survivor_selection
 from ...utils import RNGLike
-from ..static_population_strategy import StaticPopulationStrategy
+from ..population_based_strategy import PopulationBasedStrategy
 
 
-class LocalSearch(StaticPopulationStrategy):
+class LocalSearch(PopulationBasedStrategy):
     """
     Local Search algorithm.
 
@@ -59,11 +59,7 @@ class LocalSearch(StaticPopulationStrategy):
 
         super().__init__(
             initializer,
-<<<<<<< HEAD
-            parent_sel=create_parent_selection("repeat", amount=iterations*initializer.population_size),
-=======
             parent_sel=create_parent_selection("repeat", amount=iterations * initializer.population_size),
->>>>>>> feature/stats
             operator=operator,
             survivor_sel=survivor_sel,
             name=name,

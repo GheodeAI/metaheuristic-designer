@@ -319,7 +319,7 @@ def keep_best_offspring(population_fitness: VectorLike, offspring_fitness: Vecto
     return fitness_order
 
 
-def random_replacement(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike) -> VectorLike:
+def random_replacement(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike, p: float = 0.5) -> VectorLike:
     """
     Randomly replaces the parents with some of the individuals.
 
@@ -339,4 +339,14 @@ def random_replacement(population_fitness: VectorLike, offspring_fitness: Vector
         they are distinguishable from parent indices.
     """
 
-    return np.arange(offspring_fitness.shape[0]) + population_fitness.shape[0]
+    random_state = check_random_state(random_state)
+
+    n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
+
+    replacement_idx = random_state.random(n_parents) > p
+    n_chosen = np.count_nonzero(replacement_idx)
+    parent_idx = np.arange(n_parents)
+    parent_idx[replacement_idx] = random_state.permutation(n_offspring)[:n_chosen]
+    return parent_idx
+    

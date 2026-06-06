@@ -12,10 +12,10 @@ from ...parent_selection_base import ParentSelection
 from ...operators import CompositeOperator, BranchOperator
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import check_random_state, RNGLike
-from ..static_population_strategy import StaticPopulationStrategy
+from ..population_based_strategy import PopulationBasedStrategy
 
 
-class GA(StaticPopulationStrategy):
+class GA(PopulationBasedStrategy):
     """
     Genetic Algorithm.
 

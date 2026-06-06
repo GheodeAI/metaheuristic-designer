@@ -15,7 +15,7 @@ from ..operator import Operator
 from ..utils import RNGLike
 
 
-class StaticPopulationStrategy(SearchStrategy):
+class PopulationBasedStrategy(SearchStrategy):
     """
     Population-based strategy with constant size and no parent selection.
 

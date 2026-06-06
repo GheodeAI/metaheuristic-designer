@@ -8,11 +8,11 @@ from typing import Optional
 from ...initializer import Initializer
 from ...parent_selection_base import ParentSelection
 from ...operators.BO_operator import BOOperator
-from ..static_population_strategy import StaticPopulationStrategy
+from ..population_based_strategy import PopulationBasedStrategy
 from ...utils import RNGLike
 
 
-class BayesianOptimization(StaticPopulationStrategy):
+class BayesianOptimization(PopulationBasedStrategy):
     """
     Bayesian Optimization using a Gaussian Process surrogate.
 

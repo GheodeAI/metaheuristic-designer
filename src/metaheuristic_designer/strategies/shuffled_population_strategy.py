@@ -18,7 +18,7 @@ from ..schedulable_parameter import SchedulableParameter
 logger = logging.getLogger(__name__)
 
 
-class VariablePopulationStrategy(SearchStrategy):
+class ShuffledPopulationStrategy(SearchStrategy):
     """
     Population-based strategy with separate parent and offspring sizes.
 

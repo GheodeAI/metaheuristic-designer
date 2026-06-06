@@ -16,13 +16,13 @@ from ...constraint_handlers.bounce_bound_constraint import BounceBoundConstraint
 from ...initializers import UniformInitializer, ExtendedInitializer
 from ...operators import create_swarm_operator
 from ...encodings import ParameterExtendingEncoding
-from ..static_population_strategy import StaticPopulationStrategy
+from ..population_based_strategy import PopulationBasedStrategy
 from ...utils import RNGLike
 
 logger = logging.getLogger(__name__)
 
 
-class PSO(StaticPopulationStrategy):
+class PSO(PopulationBasedStrategy):
     """
     Particle Swarm Optimization (PSO).
 

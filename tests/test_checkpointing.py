@@ -10,7 +10,7 @@ from conftest import (
 )
 
 from metaheuristic_designer.algorithm import Algorithm
-from metaheuristic_designer.strategies import StaticPopulationStrategy
+from metaheuristic_designer.strategies import PopulationBasedStrategy
 from metaheuristic_designer.checkpointer import PickleCheckpointer
 from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.operators.factories.mutation import create_mutation_operator
@@ -30,7 +30,7 @@ def test_checkpoint_split_vs_continuous(tmp_path, rng, dummy_objfunc):
     init_a = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_a)
     mut_a = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv_a = create_survivor_selection("generational", random_state=rng_a)
-    strat_a = StaticPopulationStrategy(init_a, operator=mut_a, survivor_sel=surv_a, name="cont")
+    strat_a = PopulationBasedStrategy(init_a, operator=mut_a, survivor_sel=surv_a, name="cont")
     algo_a = Algorithm(dummy_objfunc, strat_a, stop_condition_str="max_iterations", max_iterations=10, reporter="silent")
     pop_a = algo_a.optimize()
     best_a = pop_a.best_solution()[1]
@@ -40,7 +40,7 @@ def test_checkpoint_split_vs_continuous(tmp_path, rng, dummy_objfunc):
     init_b = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_b)
     mut_b = create_mutation_operator("gaussian_mutation", random_state=rng_b, N=1, F=0.1)
     surv_b = create_survivor_selection("generational", random_state=rng_b)
-    strat_b = StaticPopulationStrategy(init_b, operator=mut_b, survivor_sel=surv_b, name="split")
+    strat_b = PopulationBasedStrategy(init_b, operator=mut_b, survivor_sel=surv_b, name="split")
     algo_b = Algorithm(
         dummy_objfunc,
         strat_b,
@@ -75,7 +75,7 @@ def test_checkpoint_iteration_frequency(tmp_path, rng, dummy_objfunc):
     init = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_a)
     mut = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv = create_survivor_selection("generational", random_state=rng_a)
-    strat = StaticPopulationStrategy(init, operator=mut, survivor_sel=surv, name="freq")
+    strat = PopulationBasedStrategy(init, operator=mut, survivor_sel=surv, name="freq")
     algo = Algorithm(
         dummy_objfunc,
         strat,
@@ -104,7 +104,7 @@ def test_checkpoint_time_frequency(tmp_path, rng):
     init = UniformInitializer(2, -10, 10, population_size=3, random_state=rng_a)
     mut = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv = create_survivor_selection("generational", random_state=rng_a)
-    strat = StaticPopulationStrategy(init, operator=mut, survivor_sel=surv, name="time")
+    strat = PopulationBasedStrategy(init, operator=mut, survivor_sel=surv, name="time")
     algo = Algorithm(
         sleepy,
         strat,
@@ -130,7 +130,7 @@ def test_checkpoint_disabled(rng, dummy_objfunc):
     init = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_a)
     mut = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv = create_survivor_selection("generational", random_state=rng_a)
-    strat = StaticPopulationStrategy(init, operator=mut, survivor_sel=surv, name="none")
+    strat = PopulationBasedStrategy(init, operator=mut, survivor_sel=surv, name="none")
     algo = Algorithm(
         dummy_objfunc,
         strat,
@@ -155,7 +155,7 @@ def test_checkpoint_interruption_saves(tmp_path, rng, dummy_objfunc):
     init = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_a)
     mut = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv = create_survivor_selection("generational", random_state=rng_a)
-    strat = StaticPopulationStrategy(init, operator=mut, survivor_sel=surv, name="interrupt")
+    strat = PopulationBasedStrategy(init, operator=mut, survivor_sel=surv, name="interrupt")
     algo = InterruptOnStep(
         dummy_objfunc,
         strat,
@@ -189,7 +189,7 @@ def test_checkpoint_load_with_reporter(tmp_path, rng, dummy_objfunc):
     init = UniformInitializer(2, -10, 10, population_size=10, random_state=rng_a)
     mut = create_mutation_operator("gaussian_mutation", random_state=rng_a, N=1, F=0.1)
     surv = create_survivor_selection("generational", random_state=rng_a)
-    strat = StaticPopulationStrategy(init, operator=mut, survivor_sel=surv, name="reporter")
+    strat = PopulationBasedStrategy(init, operator=mut, survivor_sel=surv, name="reporter")
     algo = Algorithm(
         dummy_objfunc,
         strat,
@@ -206,7 +206,6 @@ def test_checkpoint_load_with_reporter(tmp_path, rng, dummy_objfunc):
     # We can't compare types across packages easily, but at least ensure it's not silent
     assert not isinstance(loaded.reporter, SilentReporter)
 
-
 # ---------------------------------------------------------------
 # Load non‑existent file raises FileNotFoundError
 # ---------------------------------------------------------------
@@ -214,4 +213,4 @@ def test_checkpoint_load_missing_file(tmp_path):
     missing = tmp_path / "ghost.pkl"
     ckp = PickleCheckpointer(str(missing))
     with pytest.raises(FileNotFoundError):
-        ckp.load(str(missing))
+        ckp.load()

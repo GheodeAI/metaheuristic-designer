@@ -61,14 +61,6 @@ docs = [
     "kaleido",          # for static plotly images (optional)
 ]
 
-test = [
-    "nox",
-    "pytest",
-    "pytest-cov",
-    "coverage",
-    "black[jupyter]",
-]
-
 benchmarking = [
     "ioh",
     "autorank",
@@ -79,7 +71,15 @@ benchmarking = [
     "cma",
     "nevergrad",
     "pygmo"
+]
 
+test = [
+    "nox",
+    "pytest",
+    "pytest-cov",
+    "coverage",
+    "black[jupyter]",
+    "metaheuristic-designer[benchmarking]"
 ]
 
 dev = [

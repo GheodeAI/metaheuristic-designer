@@ -53,7 +53,7 @@ class NumpyEncoder(json.JSONEncoder):
             return o.tolist()
         elif isinstance(o, Enum):
             return str(o)
-        return json.JSONEncoder.default(self, o)
+        return super().default(o)
 
 
 def check_random_state(seed: Optional[RNGLike]) -> np.random.Generator:
