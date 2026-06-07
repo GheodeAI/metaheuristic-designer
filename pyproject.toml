@@ -58,7 +58,7 @@ docs = [
     "sphinx",
     "pydata_sphinx_theme",
     "plotly",
-    "sphinx_autodoc_typehints"
+    "sphinx_autodoc_typehints",
     "numpydoc"
 ]
 
