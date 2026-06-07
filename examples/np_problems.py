@@ -18,7 +18,7 @@ from metaheuristic_designer.utils import check_random_state
 def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_state):
     # Common algorithm parameters
     algorithm_params = {
-        "stop_cond": "real_time_limit",
+        "stop_condition_str": "real_time_limit",
         "real_time_limit": 100.0,
         "verbose_timer": 0.5,
         "reporter": reporter,
@@ -144,7 +144,7 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
             random_state=random_state,
         )
 
-    alg = Algorithm(objfunc, search_strategy, reporter=reporter, **algorithm_params)
+    alg = Algorithm(objfunc, search_strategy, **algorithm_params)
 
     population = alg.optimize()
     best_solution, best_objective = population.best_solution()

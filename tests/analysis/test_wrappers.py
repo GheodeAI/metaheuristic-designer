@@ -41,29 +41,27 @@ def test_deap_improves(sphere, random_initial_obj):
     from deap import base, creator, tools, algorithms
     import random
 
-    def build_ga(objfunc, seed):
-        random.seed(seed)
-        np.random.seed(seed)
-        DIM = objfunc.dimension
-        if "FitnessMin" not in creator.__dict__:
-            creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-        if "Individual" not in creator.__dict__:
-            creator.create("Individual", list, fitness=creator.FitnessMin)
-        toolbox = base.Toolbox()
-        toolbox.register("attr_float", random.uniform, -5.12, 5.12)
-        toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, n=DIM)
-        toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-        toolbox.register("evaluate", lambda ind: (objfunc.objective(np.array(ind)),))
-        toolbox.register("mate", tools.cxBlend, alpha=0.5)
-        toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.1, indpb=0.2)
-        toolbox.register("select", tools.selTournament, tournsize=3)
-        pop = toolbox.population(n=20)
-        hof = tools.HallOfFame(1)
-        stats = tools.Statistics(lambda ind: ind.fitness.values[0])
-        stats.register("max", np.max)
-        return toolbox, pop, stats, hof
+    random.seed(42)
+    np.random.seed(42)
+    DIM = sphere.dimension
+    if "FitnessMin" not in creator.__dict__:
+        creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+    if "Individual" not in creator.__dict__:
+        creator.create("Individual", list, fitness=creator.FitnessMin)
+    toolbox = base.Toolbox()
+    toolbox.register("attr_float", random.uniform, -5.12, 5.12)
+    toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, n=DIM)
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    toolbox.register("evaluate", lambda ind: (sphere.objective(np.array(ind)),))
+    toolbox.register("mate", tools.cxBlend, alpha=0.5)
+    toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.1, indpb=0.2)
+    toolbox.register("select", tools.selTournament, tournsize=3)
+    pop = toolbox.population(n=20)
+    hof = tools.HallOfFame(1)
+    stats = tools.Statistics(lambda ind: ind.fitness.values[0])
+    stats.register("max", np.max)
 
-    solver = DEAPWrapper(sphere, build_fn=build_ga, ngen=20, seed=42, cxpb=0.7, mutpb=0.3, algorithm=algorithms.eaSimple)
+    solver = DEAPWrapper(objfunc=sphere, toolbox=toolbox, pop=pop, hof=hof, stats=stats, seed=42, cxpb=0.7, mutpb=0.3, algorithm=algorithms.eaSimple)
     solver.optimize()
     _, best = solver.best_solution()
     assert best < random_initial_obj, f"DEAP did not improve: best {best} >= random {random_initial_obj}"

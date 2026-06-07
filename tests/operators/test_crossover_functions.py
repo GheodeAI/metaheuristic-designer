@@ -7,6 +7,7 @@ from conftest import rng
 
 # Updated functions under test
 from metaheuristic_designer.operators.operator_functions.crossover import (
+    create_pairing_fn,
     k_point_crossover,
     uniform_crossover,
     averaged_crossover,
@@ -308,3 +309,11 @@ def test_multiparent_intermediate_fixed_seed(rng):
     res1 = multiparent_intermediate_crossover(pop, None, k=2, random_state=rng)
     res2 = multiparent_intermediate_crossover(pop, None, k=2, random_state=rng2)
     assert_array_equal(res1, res2)
+
+
+# ===================================================================
+#  misc.
+# ===================================================================
+def test_create_pairing_error():
+    with pytest.raises(ValueError):
+        create_pairing_fn("nonexistent")

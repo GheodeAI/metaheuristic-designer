@@ -10,11 +10,11 @@ from ...operator import Operator
 from ...survivor_selection_base import SurvivorSelection
 from ...parent_selection_base import ParentSelection
 from ...operators import CompositeOperator
-from ..variable_population_strategy import VariablePopulationStrategy
+from ..shuffled_population_strategy import ShuffledPopulationStrategy
 from ...utils import RNGLike, check_random_state
 
 
-class ES(VariablePopulationStrategy):
+class ES(ShuffledPopulationStrategy):
     """
     Evolution Strategy (μ+λ or μ,λ).
 

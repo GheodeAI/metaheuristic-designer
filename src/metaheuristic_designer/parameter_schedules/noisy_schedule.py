@@ -3,7 +3,9 @@ Schedule that applies gaussian noise to a subschedule.
 """
 
 import logging
+from typing import Optional
 from ..schedulable_parameter import SchedulableParameter
+from ..utils import RNGLike
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +21,8 @@ class NoisySchedule(SchedulableParameter):
         Standard deviation of the gaussian noise applied to the parameter value
     """
 
-    def __init__(self, subschedule: SchedulableParameter, noise_level: float = 1e-2):
-        super().__init__(random_state=None)
+    def __init__(self, subschedule: SchedulableParameter, noise_level: float = 1e-2, random_state: Optional[RNGLike] = None):
+        super().__init__(random_state=random_state)
 
         self.subschedule = subschedule
         self.noise_level = noise_level

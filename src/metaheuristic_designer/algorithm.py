@@ -305,6 +305,7 @@ class Algorithm:
             The initial population generated.
         """
 
+        self.reporter.log_init(self)
         self.population = self.search_strategy.initialize(self.objfunc)
         return self.population
 
@@ -360,8 +361,6 @@ class Algorithm:
             If the process is interrupted, a checkpoint is attempted
             before re-raising.
         """
-
-        self.reporter.log_init(self)
 
         # Initialize search strategy and record initial values.
         logger.info("Generating initial solutions...")

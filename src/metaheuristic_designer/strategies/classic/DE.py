@@ -9,10 +9,10 @@ from ...operators import create_differential_evolution_operator
 from ...survivor_selection import SurvivorSelection, create_survivor_selection
 from ...schedulable_parameter import SchedulableParameter
 from ...utils import check_random_state, RNGLike
-from ..static_population_strategy import StaticPopulationStrategy
+from ..population_based_strategy import PopulationBasedStrategy
 
 
-class DE(StaticPopulationStrategy):
+class DE(PopulationBasedStrategy):
     """
     Differential Evolution algorithm.
 

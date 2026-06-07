@@ -65,13 +65,14 @@ def run_algorithm():
     # Wrap the objective function (minimisation mode)
     objfunc = ObjectiveFromLambda(
         objective_fn,
+        dimension=10,
         constraint_handler=constraint_handler,
         mode="min",
         name="Sphere (lambda)",
     )
 
     # Wrap the initializer
-    pop_init = InitializerFromLambda(initializer_fn, vecsize=10, pop_size=100)
+    pop_init = InitializerFromLambda(initializer_fn, dimension=10)
 
     # Wrap the mutation operator (note: OperatorVectorDef can be used as decorator too)
     mutation_op = OperatorFromLambda(mutate_fn)
@@ -81,7 +82,7 @@ def run_algorithm():
 
     # Configure runtime parameters
     params = {
-        "stop_cond": "max_iterations",
+        "stop_condition_str": "max_iterations",
         "max_iterations": 5e4,  # run for 10 seconds
         "reporter": "tqdm",  # nice progress bar
     }

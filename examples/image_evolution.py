@@ -35,16 +35,25 @@ available_objectives = ("MSE", "MAE", "SSIM", "NMI", "ENTROPY", "STD")
 available_algorithms = ("hillclimb", "localsearch", "sa", "es", "ga", "de", "gaussianumda", "gaussianpbil", "crossentropy", "randomsearch", "pso")
 
 
-def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size, display, reporter, random_state):
+def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size, display, reporter, evaluations, random_state):
+    image_shape = tuple(map(int, img_size.split(",")))
+
+    if evaluations is None:
+        evaluations = image_shape[0] * image_shape[1] * 2000
+
     algorithm_params = {
-        "stop_condition_str": "convergence or max_evaluation",
+        "stop_condition_str": "convergence or max_evaluations",
         "progress_metric_str": "max_evaluations",
-        "max_evaluations": 1e5,
-        "max_patience": 500,
-        "reporter": reporter,
+        "max_evaluations": evaluations,
+        "max_patience": 100000,
+        "reporter": reporter
     }
 
-    image_shape = tuple(map(int, img_size.split(",")))
+    if mode == "max" and objfunc_name in ("MSE", "MAE"):
+        print(f"Maximizing {objfunc_name} might not yield meaningful results.")
+    elif mode == "min" and objfunc_name in ("NMI", "SSIM"):
+        print(f"Minimizing {objfunc_name} might not yield meaningful results.")
+
 
     if objfunc_name in ("MSE", "MAE", "SSIM", "NMI"):
         reference_img = Image.open(img_file_name)
@@ -206,10 +215,8 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         pygame.display.set_caption("Evo graphics")
 
     # Manual optimization loop with pygame display
+    alg.restart()
     population = alg.initialize()
-    alg.stopping_condition.restart()
-    alg.stopping_condition.update(population)
-    alg.reporter.log_init(alg)
 
     while not alg.stopping_condition.is_finished(alg.search_strategy.finish):
         if display:
@@ -219,10 +226,6 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
             src.fill("#000000")
 
         population = alg.step(prev_population=population)
-
-        alg.stopping_condition.update(alg.population)
-        alg.history_tracker.update(alg)
-        alg.reporter.log_step(alg)
 
         if display:
             image, _ = alg.best_solution()
@@ -260,7 +263,7 @@ def render(image, display_dim, src):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-a", "--algorithm", dest="algorithm", help=f"Specify an algorithm. Available options are {available_algorithms}.", default="ga"
+        "-a", "--algorithm", dest="algorithm", help=f"Specify an algorithm. Available options are {available_algorithms}.", default="es"
     )
     parser.add_argument(
         "-m",
@@ -270,12 +273,13 @@ def main():
         help="Does local search after mutation",
     )
     parser.add_argument("-i", "--image", dest="img", default="data/images/cat.png", help="Path to reference image.")
-    parser.add_argument("-s", "--img_size", default="32,32", help="Image size as 'H,W'.")
+    parser.add_argument("-s", "--img_size", default="24,24", help="Image size as 'H,W'.")
     parser.add_argument("--hide", action="store_true", help="Disable real-time display.")
-    parser.add_argument("--mode", default="min", help="'min' or 'max'.")
+    parser.add_argument("--mode", default=None, help="'min' or 'max'.")
     parser.add_argument(
-        "-o", "--objective", dest="objective", help=f"Name of the objective function. Available options are {available_objectives}", default="MSE"
+        "-o", "--objective", dest="objective", help=f"Name of the objective function. Available options are {available_objectives}", default="SSIM"
     )
+    parser.add_argument("-e", "--evaluations", default=None, help="Maximum number of evaluations.", type=int)
     parser.add_argument("-r", "--seed", dest="seed", help="Random seed to use", default=42, type=int)
     parser.add_argument("--log", default="WARNING", help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     parser.add_argument("-v", "--reporter", default="tqdm", help="Reporter to use for progress tracking.")
@@ -294,6 +298,7 @@ def main():
         img_size=args.img_size,
         display=not args.hide,
         reporter=args.reporter,
+        evaluations=args.evaluations,
         random_state=rng,
     )
 

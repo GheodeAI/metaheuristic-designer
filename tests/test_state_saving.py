@@ -14,7 +14,7 @@ from conftest import (
 from metaheuristic_designer.algorithms import Algorithm
 from metaheuristic_designer.operators import NullOperator
 from metaheuristic_designer.parent_selection import NullParentSelection
-from metaheuristic_designer.strategies import StaticPopulationStrategy
+from metaheuristic_designer.strategies import PopulationBasedStrategy
 from metaheuristic_designer.survivor_selection import NullSurvivorSelection
 
 
@@ -67,7 +67,7 @@ def test_survivor_selection_get_state(dummy_survivor_selection):
 # ===================================================================
 def test_search_strategy_get_state(dummy_strategy):
     state = dummy_strategy.get_state()
-    assert state["class_name"] == StaticPopulationStrategy.__name__
+    assert state["class_name"] == PopulationBasedStrategy.__name__
     assert state["name"] == "dummy_strategy"
     assert "initializer" in state
     assert "operators" in state

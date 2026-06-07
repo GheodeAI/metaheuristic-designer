@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from ...initializer import Initializer
 from ...operators import create_operator
-from ..static_population_strategy import StaticPopulationStrategy
+from ..population_based_strategy import PopulationBasedStrategy
 
 
-class RandomSearch(StaticPopulationStrategy):
+class RandomSearch(PopulationBasedStrategy):
     """
     Random search algorithm.
 

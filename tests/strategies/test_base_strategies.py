@@ -14,8 +14,8 @@ from conftest import (
 from metaheuristic_designer.strategies import HillClimb
 from metaheuristic_designer.strategies import LocalSearch
 from metaheuristic_designer.strategies import NoSearch
-from metaheuristic_designer.strategies import StaticPopulationStrategy
-from metaheuristic_designer.strategies import VariablePopulationStrategy
+from metaheuristic_designer.strategies import PopulationBasedStrategy
+from metaheuristic_designer.strategies import ShuffledPopulationStrategy
 
 from metaheuristic_designer.survivor_selection_base import SurvivorSelection
 from metaheuristic_designer.operator import OperatorFromLambda
@@ -72,7 +72,7 @@ def test_no_search_perturb_returns_same_population(rng, dummy_initializer, dummy
 #  StaticPopulationStrategy
 # ===================================================================
 def test_static_population_requires_operator(rng, dummy_initializer, dummy_operator):
-    algo = StaticPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
+    algo = PopulationBasedStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
     assert algo.operator is dummy_operator
 
 
@@ -80,17 +80,17 @@ def test_static_population_accepts_parent_sel(rng, dummy_initializer, dummy_oper
     from metaheuristic_designer.parent_selection_base import NullParentSelection
 
     parent_sel = NullParentSelection()
-    algo = StaticPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, parent_sel=parent_sel, random_state=rng)
+    algo = PopulationBasedStrategy(initializer=dummy_initializer, operator=dummy_operator, parent_sel=parent_sel, random_state=rng)
     assert algo.parent_sel is parent_sel
 
 def test_static_population(rng, dummy_initializer, dummy_operator, dummy_objfunc):
-    algo = StaticPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
+    algo = PopulationBasedStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
     initial_pop = algo.initialize(dummy_objfunc)
     new_pop = algo.step(initial_pop)
 
 
 def test_static_population(rng, dummy_initializer, dummy_operator, dummy_objfunc):
-    algo = StaticPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
+    algo = PopulationBasedStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
     initial_pop = algo.initialize(dummy_objfunc)
     new_pop = algo.step(initial_pop)
 
@@ -99,7 +99,7 @@ def test_static_population(rng, dummy_initializer, dummy_operator, dummy_objfunc
 #  VariablePopulationStrategy
 # ===================================================================
 def test_variable_population_shuffles_parents(rng, dummy_initializer, dummy_operator, dummy_objfunc):
-    algo = VariablePopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
+    algo = ShuffledPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
     parents = dummy_initializer.generate_population(dummy_objfunc)
     assert len(parents) == 10
 
@@ -112,14 +112,14 @@ def test_variable_population_shuffles_parents(rng, dummy_initializer, dummy_oper
 
 
 def test_variable_population_custom_offspring_size(rng, dummy_initializer, dummy_operator, dummy_objfunc):
-    algo = VariablePopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, offspring_size=5, random_state=rng)
+    algo = ShuffledPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, offspring_size=5, random_state=rng)
     parents = dummy_initializer.generate_population(dummy_objfunc)
     shuffled = algo.population_shuffler.select(parents)
     assert len(shuffled) == 5  # custom size
 
 
 def test_variable_population_initializer_update_changes_offspring_size(rng, dummy_initializer, dummy_operator):
-    algo = VariablePopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
+    algo = ShuffledPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, random_state=rng)
     # Change initializer with a different pop_size
     from metaheuristic_designer.initializers import UniformInitializer
 
@@ -132,6 +132,6 @@ def test_variable_population_initializer_update_changes_offspring_size(rng, dumm
 
 
 def test_variable_population(rng, dummy_initializer, dummy_operator, dummy_objfunc):
-    algo = VariablePopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, offspring_size=5, random_state=rng)
+    algo = ShuffledPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, offspring_size=5, random_state=rng)
     initial_pop = algo.initialize(dummy_objfunc)
     new_pop = algo.step(initial_pop)

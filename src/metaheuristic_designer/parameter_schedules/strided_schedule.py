@@ -27,7 +27,7 @@ class StridedSchedule(SchedulableParameter):
         self.current_value = None
 
     def evaluate(self, progress: float) -> float:
-        if self.current_value is None or self.iteration_counter > self.iterations:
+        if self.current_value is None or self.iteration_counter >= self.iterations-1:
             self.current_value = self.subschedule.evaluate(progress)
             self.iteration_counter = 0
         else:

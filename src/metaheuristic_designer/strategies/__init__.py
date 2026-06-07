@@ -6,8 +6,8 @@ from ..search_strategy import SearchStrategy
 
 from .no_search import NoSearch
 from .single_solution_strategy import SingleSolutionStrategy
-from .static_population_strategy import StaticPopulationStrategy
-from .variable_population_strategy import VariablePopulationStrategy
+from .population_based_strategy import PopulationBasedStrategy
+from .shuffled_population_strategy import ShuffledPopulationStrategy
 from .eda_strategy import EDAStrategy
 
 
@@ -30,8 +30,8 @@ __all__ = [
     "NoSearch",
     "SearchStrategy",
     "SingleSolutionStrategy",
-    "VariablePopulationStrategy",
-    "VariablePopulationStrategy",
+    "ShuffledPopulationStrategy",
+    "ShuffledPopulationStrategy",
     "EDAStrategy",
     *classic.__all__,
     *swarm.__all__,
