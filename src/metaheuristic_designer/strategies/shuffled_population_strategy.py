@@ -22,10 +22,9 @@ class ShuffledPopulationStrategy(SearchStrategy):
     """
     Population-based strategy with separate parent and offspring sizes.
 
-    This is the base for (μ+λ) and (μ,λ) Evolution Strategies, GAs
-    with elitism, and similar algorithms.  The number of parents
-    selected and the number of offspring generated can be configured
-    independently.
+    This is the base for (μ+λ) and (μ,λ) Evolution Strategies, GAs, and
+    similar algorithms.  The number of parents selected and the number of
+    offspring generated can be configured independently.
 
     Parameters
     ----------

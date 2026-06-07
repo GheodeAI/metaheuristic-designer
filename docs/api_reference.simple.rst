@@ -40,60 +40,60 @@ Available algorithms
      - Function names ("simple." prefix omitted)
      - Short description
    * - Random Search
-     - | ``random_search_real``,
-       | ``random_search_binary``,
-       | ``random_search_discrete``,
-       | ``random_search_permutation``
+     - | :py:class:`~metaheuristic_designer.simple.random_search_real`,
+       | :py:class:`~metaheuristic_designer.simple.random_search_binary`,
+       | :py:class:`~metaheuristic_designer.simple.random_search_discrete`,
+       | :py:class:`~metaheuristic_designer.simple.random_search_permutation`
      - Independent random sampling each generation.
    * - Hill Climbing
-     - | ``hill_climb_real``,
-       | ``hill_climb_binary``,
-       | ``hill_climb_discrete``,
-       | ``hill_climb_permutation``
-     - Single‑solution greedy local optimisation.
+     - | :py:class:`~metaheuristic_designer.simple.hill_climb_real`,
+       | :py:class:`~metaheuristic_designer.simple.hill_climb_binary`,
+       | :py:class:`~metaheuristic_designer.simple.hill_climb_discrete`,
+       | :py:class:`~metaheuristic_designer.simple.hill_climb_permutation`
+     - Single-solution greedy local optimization.
    * - Local Search
-     - | ``local_search_real``,
-       | ``local_search_binary``,
-       | ``local_search_discrete``,
-       | ``local_search_permutation``
+     - | :py:class:`~metaheuristic_designer.simple.local_search_real`,
+       | :py:class:`~metaheuristic_designer.simple.local_search_binary`,
+       | :py:class:`~metaheuristic_designer.simple.local_search_discrete`,
+       | :py:class:`~metaheuristic_designer.simple.local_search_permutation`
      - Multiple perturbations around a single solution per iteration.
    * - Simulated Annealing
-     - | ``simulated_annealing_real``,
-       | ``simulated_annealing_binary``,
-       | ``simulated_annealing_discrete``,
-       | ``simulated_annealing_permutation``
+     - | :py:class:`~metaheuristic_designer.simple.simulated_annealing_real`,
+       | :py:class:`~metaheuristic_designer.simple.simulated_annealing_binary`,
+       | :py:class:`~metaheuristic_designer.simple.simulated_annealing_discrete`,
+       | :py:class:`~metaheuristic_designer.simple.simulated_annealing_permutation`
      - Accepts worse solutions with a decaying temperature.
    * - Evolution Strategy (ES)
-     - | ``evolution_strategy_real``,
-       | ``evolution_strategy_binary``,
-       | ``evolution_strategy_discrete``,
-       | ``evolution_strategy_permutation``
+     - | :py:class:`~metaheuristic_designer.simple.evolution_strategy_real`,
+       | :py:class:`~metaheuristic_designer.simple.evolution_strategy_binary`,
+       | :py:class:`~metaheuristic_designer.simple.evolution_strategy_discrete`,
+       | :py:class:`~metaheuristic_designer.simple.evolution_strategy_permutation`
      - (μ+λ) / (μ,λ) strategy with mutation, optional crossover.
    * - Genetic Algorithm (GA)
-     - | ``genetic_algorithm_real``,
-       | ``genetic_algorithm_binary``,
-       | ``genetic_algorithm_discrete``,
-       | ``genetic_algorithm_permutation``
+     - | :py:class:`~metaheuristic_designer.simple.genetic_algorithm_real`,
+       | :py:class:`~metaheuristic_designer.simple.genetic_algorithm_binary`,
+       | :py:class:`~metaheuristic_designer.simple.genetic_algorithm_discrete`,
+       | :py:class:`~metaheuristic_designer.simple.genetic_algorithm_permutation`
      - Tournament selection, crossover, mutation, elitism.
    * - Differential Evolution (DE)
-     - | ``differential_evolution_real``,
-       | ``differential_evolution_binary``,
-       | ``differential_evolution_discrete``
-     - Population‑based method using difference vectors. No permutation variant.
+     - | :py:class:`~metaheuristic_designer.simple.differential_evolution_real`,
+       | :py:class:`~metaheuristic_designer.simple.differential_evolution_binary`,
+       | :py:class:`~metaheuristic_designer.simple.differential_evolution_discrete`
+     - Population-based method using difference vectors. No permutation variant.
    * - Particle Swarm (PSO)
-     - | ``particle_swarm_real``,
-       | ``particle_swarm_binary``,
-       | ``particle_swarm_discrete``
+     - | :py:class:`~metaheuristic_designer.simple.particle_swarm_real`,
+       | :py:class:`~metaheuristic_designer.simple.particle_swarm_binary`,
+       | :py:class:`~metaheuristic_designer.simple.particle_swarm_discrete`
      - Swarm intelligence with inertia weight and acceleration coefficients. No permutation variant.
-   * - Bayesian Optimisation
-     - ``bayesian_optimization_real``
-     - Gaussian‑process surrogate with Expected Improvement. Only continuous.
+   * - Bayesian Optimization
+     - :py:class:`~metaheuristic_designer.simple.bayesian_optimization_real`
+     - Gaussian-process surrogate with Expected Improvement. Only continuous.
 
 Example
 -------
 
-The following snippet minimises the 5‑dimensional Sphere function using a
-real‑coded Genetic Algorithm:
+The following snippet minimizes the 5-dimensional Sphere function using a
+real-coded Genetic Algorithm:
 
 .. code-block:: python
 

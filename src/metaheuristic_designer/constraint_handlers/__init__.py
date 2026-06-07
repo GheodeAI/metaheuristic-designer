@@ -1,3 +1,5 @@
+"""Constraint handling implementation provided by the library."""
+
 from ..constraint_handler import ConstraintHandler, ConstraintHandlerFromLambda, NullConstraint, PenalizeConstraint, RepairConstraint
 from .composite_constraint import CompositeConstraint
 from .extended_constraint import ExtendedConstraintHandler

@@ -36,6 +36,12 @@ class Algorithm:
     (:class:`StoppingCondition`, :class:`Reporter`, etc.).  The
     keyword-argument style is convenient for quick experiments; the
     object-based style gives finer control and reusability.
+    
+    .. note::
+        The constructor accepts **either** an explicit object (e.g., ``stopping_condition``)
+        **or** the individual keyword arguments that would build that object.  
+        If both are provided, the explicit object takes precedence and the keyword-only
+        arguments are silently ignored. 
 
     Parameters
     ----------
@@ -45,47 +51,34 @@ class Algorithm:
         Strategy that defines one iteration of the algorithm.
     name : str, optional
         Display name for the algorithm (defaults to the strategy's name).
-    stop_cond : str, optional
-        Expression that defines the stopping condition (see
-        :class:`StoppingCondition`). Default ``"real_time_limit"``.
-    progress_metric : str, optional
-        Token used to compute the 0-1 progress value for parameter
-        schedules. Defaults to the same tokens as *stop_cond*.
-    max_iterations : int, optional
-        Maximum number of iterations (default 1000).
-    max_evaluations : int, optional
-        Maximum number of objective evaluations (default 1e5).
-    real_time_limit : float, optional
-        Wall-clock time limit in seconds (default 60).
-    cpu_time_limit : float, optional
-        CPU time limit in seconds (default 60).
-    objective_target : float, optional
-        Target value for the raw objective (default 1e-10).
-    max_patience : int, optional
-        Iterations without improvement before ``convergence`` stops
-        (default 100).
-    verbose_timer : float, optional
-        Interval in seconds between prints when using the default
-        :class:`VerboseReporter` (default 0.5).
-    track_median / track_worst / track_full_objective / track_full_population / track_diversity : bool, optional
-        Flags forwarded to the :class:`HistoryTracker` when one is not
-        supplied explicitly.
-    checkpoint_file / checkpoint_time_frequency / checkpoint_iteration_frequency : optional
-        Arguments used to construct a :class:`Checkpointer` when
-        *checkpointer* is not given.
     stopping_condition : StoppingCondition, optional
-        Explicit stopping condition object.
+        Stopping condition object.
     reporter : str or Reporter, optional
         Reporter instance or name (``"tqdm"``, ``"silent"``, ``"verbose"``).
     history_tracker : HistoryTracker, optional
-        Explicit history tracker.
+        History tracker object.
     checkpointer : Checkpointer, optional
-        Explicit checkpointer.
-    parallel : bool, optional
-        Whether to evaluate the population in parallel (currently
-        reserved for future use).
-    threads : int, optional
-        Number of threads for parallel evaluation (reserved).
+        Checkpointer object.
+    stop_condition_str / progress_metric / max_iterations / max_evaluations / real_time_limit / cpu_time_limit / objective_target / max_patience: optional
+        Flags forwarded to the :class:`ParsedStoppingCondition` when one is not
+        supplied explicitly.
+
+        **Keyword-only, ignored if** ``stopping_condition`` **is given.**
+    verbose_timer : float, optional
+        Interval in seconds between prints when using the default
+        :class:`VerboseReporter` (default 0.5).
+
+        **Keyword-only, ignored if** ``reporter`` **is given.**
+    track_median / track_worst / track_full_objective / track_full_population / track_diversity : bool, optional
+        Flags forwarded to the :class:`HistoryTracker` when one is not
+        supplied explicitly.
+
+        **Keyword-only, ignored if** ``history_tracker`` **is given.**
+    checkpoint_file / checkpoint_time_frequency / checkpoint_iteration_frequency : optional
+        Arguments used to construct a :class:`Checkpointer` when
+        *checkpointer* is not given.
+
+        **Keyword-only, ignored if** ``checkpointer`` **is given.**
     """
 
     def __init__(

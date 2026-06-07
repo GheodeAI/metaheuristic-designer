@@ -1,3 +1,5 @@
+"""Benchmarking objective functions provided by the library to test algorithms."""
+
 from .benchmark_funcs import *
 from . import benchmark_funcs
 

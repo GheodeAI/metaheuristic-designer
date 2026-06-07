@@ -1,0 +1,8 @@
+/* Custom CSS to reduce page margins for PyData Sphinx Theme */
+.bd-main .bd-content .bd-article-container {
+  max-width: 85%; /* Overrides default 60em */
+}
+
+.bd-page-width {
+  max-width: 85%; /* Overrides default 88rem */
+}
