@@ -56,9 +56,10 @@ docs = [
     "matplotlib",
     "seaborn",
     "sphinx",
-    "sphinx_material",
+    "pydata_sphinx_theme",
     "plotly",
-    "kaleido",          # for static plotly images (optional)
+    "sphinx_autodoc_typehints"
+    "numpydoc"
 ]
 
 benchmarking = [
