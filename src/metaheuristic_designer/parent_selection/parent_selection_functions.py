@@ -197,6 +197,7 @@ def repeating_selection(fitness: VectorLike, amount: int, random_state: Optional
 
     return selected_idx[:amount]
 
+
 def select_best(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None) -> MaskLike:
     """
     Selects the best parent of the population as parents.
