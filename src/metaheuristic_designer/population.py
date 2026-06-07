@@ -69,7 +69,7 @@ class Population:
         self.index = 0
 
     def __len__(self) -> int:
-        return self.genotype_matrix.shape[0]
+        return self.population_size
 
     def __iter__(self) -> Iterator[VectorLike]:
         for row in self.genotype_matrix:

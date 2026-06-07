@@ -1,6 +1,4 @@
-"""
-Initializer that generates random permutations.
-"""
+"""Initializer that generates random permutations."""
 
 from __future__ import annotations
 from ..initializer import Initializer

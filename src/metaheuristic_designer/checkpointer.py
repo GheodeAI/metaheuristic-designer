@@ -79,7 +79,7 @@ class Checkpointer(ABC):
         """
 
 
-class PickleCheckpointer:
+class PickleCheckpointer(Checkpointer):
     """Periodically save and restore the state of an optimizations run.
 
     The checkpointer can be triggered by iteration count, elapsed

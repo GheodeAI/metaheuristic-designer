@@ -100,9 +100,14 @@ Implemented population initializers:
    ":py:class:`initializers.GaussianInitializer<metaheuristic_designer.initializers.gaussian_initializer.GaussianInitializer>`", "Initializer that uses a Gaussian distribution."
    ":py:class:`initializers.ExponentialInitializer<metaheuristic_designer.initializers.exponential_initializer.ExponentialInitializer>`", "Initializer that uses an exponential distribution."
    ":py:class:`initializers.DirectInitializer<metaheuristic_designer.initializers.direct_initializer.DirectInitializer>`", "Initializer with a predefined population of individuals."
-   ":py:class:`initializers.SeedDetermInitializer<metaheuristic_designer.initializers.seed_initializer.SeedDetermInitializer>`", "Initializer that inserts a fixed number of seeded solutions."
-   ":py:class:`initializers.SeedProbInitializer<metaheuristic_designer.initializers.seed_initializer.SeedProbInitializer>`", "Initializer that randomly inserts seeded solutions with a given probability."
    ":py:class:`initializers.PermInitializer<metaheuristic_designer.initializers.perm_initializer.PermInitializer>`", "Initializer that produces random permutations of n elements."
+   ":py:class:`initializers.LatinHypercubeInitializer<metaheuristic_designer.initializers.latin_hypercube_initializer.LatinHypercubeInitializer>`", "Initializer based on uniform Latin Hypercube Sampling."
+   ":py:class:`initializers.SobolInitializer<metaheuristic_designer.initializers.sobol_initializer.SobolInitializer>`", "Initializer that produces randomly permuted Sobol sequences."
+   ":py:class:`initializers.HaltonInitializer<metaheuristic_designer.initializers.halton_initializer.HaltonInitializer>`", "Initializer that produces Halton sequences."
+   ":py:class:`initializers.SeededInitializer<metaheuristic_designer.initializers.seed_initializer.SeededInitializer>`", "Initializer that randomly inserts seeded solutions with a given probability."
+   ":py:class:`initializers.FixedSeededInitializer<metaheuristic_designer.initializers.seed_initializer.FixedSeededInitializer>`",  "Initializer that inserts seeded solutions with deterministically."
+   ":py:class:`initializers.CompositeInitializer<metaheuristic_designer.initializers.composite_initializer.CompositeInitializer>`", "Initializer that combines other initializers and draws from them with a given probability."
+   ":py:class:`initializers.FixedCompositeInitializer<metaheuristic_designer.initializers.composite_initializer.FixedCompositeInitializer>`", "Initializer that combines other initializers and draws from them in a deterministic pattern."
 
 Encodings
 ---------
@@ -201,17 +206,26 @@ or build your own by directly combining components with the general
 
 Both approaches result in an object that can be passed to :py:class:`~metaheuristic_designer.algorithm.Algorithm`.
 
-The following pre‑built strategies are available:
+To construct a Search strategy, you can use one of the available prototypes:
+
+.. csv-table::
+   :header: "Module name", "Description"
+
+   ":py:class:`strategies.NoSearch<metaheuristic_designer.strategies.no_search.NoSearch>`", "No‑op strategy (does nothing)."
+   ":py:class:`strategies.SingleSolutionStrategy<metaheuristic_designer.strategies.single_solution_strategy.SingleSolutionStrategy>`", "Strategy that works improving single solutions."
+   ":py:class:`strategies.PopulationBasedStrategy<metaheuristic_designer.strategies.population_based_strategy.PopulationBasedStrategy>`", "Strategy that preserves the size of the population."
+   ":py:class:`strategies.ShuffledPopulationStrategy<metaheuristic_designer.strategies.shuffled_population_strategy.ShuffledPopulationStrategy>`", "Variable‑size population based evolution."
+   ":py:class:`strategies.EDAStrategy<metaheuristic_designer.strategies.eda_strategy.EDAStrategy>`", "Strategy that has a parameter estimation step between parent selection and the evolution of the solutions."
+
+The following pre‑built strategies are also available:
 
 .. csv-table::
    :header: "Module name", "Description"
 
    ":py:class:`strategies.NoSearch<metaheuristic_designer.strategies.no_search.NoSearch>`", "No‑op strategy (does nothing)."
    ":py:class:`strategies.RandomSearch<metaheuristic_designer.strategies.classic.random_search.RandomSearch>`", "Random search."
-   ":py:class:`strategies.StaticPopulation<metaheuristic_designer.strategies.static_population.StaticPopulation>`", "Fixed‑size population based evolution."
-   ":py:class:`strategies.VariablePopulation<metaheuristic_designer.strategies.variable_population.VariablePopulation>`", "Variable‑size population based evolution."
-   ":py:class:`strategies.HillClimb<metaheuristic_designer.strategies.hill_climb.HillClimb>`", "Greedy hill climbing."
-   ":py:class:`strategies.LocalSearch<metaheuristic_designer.strategies.local_search.LocalSearch>`", "Local search with a configurable number of iterations."
+   ":py:class:`strategies.HillClimb<metaheuristic_designer.strategies.classic.hill_climb.HillClimb>`", "Greedy hill climbing."
+   ":py:class:`strategies.LocalSearch<metaheuristic_designer.strategies.classic.local_search.LocalSearch>`", "Local search with a configurable number of iterations."
    ":py:class:`strategies.SA<metaheuristic_designer.strategies.classic.SA.SA>`", "Simulated annealing."
    ":py:class:`strategies.GA<metaheuristic_designer.strategies.classic.GA.GA>`", "Genetic Algorithm."
    ":py:class:`strategies.ES<metaheuristic_designer.strategies.classic.ES.ES>`", "Evolution Strategy."
@@ -224,9 +238,16 @@ The following pre‑built strategies are available:
    ":py:class:`strategies.BayesianOptimization<metaheuristic_designer.strategies.bayesian_optimization.bayesian_optimization.BayesianOptimization>`", "Bayesian Optimisation with Gaussian processes."
    ":py:class:`strategies.CMA_ES<metaheuristic_designer.strategies.classic.CMA_ES.CMA_ES>`", "Covariance Matrix Adaptation Evolution Strategy."
 
+Additionally, we provide an interface to hybridize search strategies (only memetic algorithms at the moment):
+
+.. csv-table::
+   :header: "Module name", "Description"
+
+   ":py:class:`strategies.MemeticStrategy<metaheuristic_designer.strategies.hybrid.memetic.MemeticStrategy>`", "Strategy that uses a local search procedure to improve the best individuals after evolving them."
+
 Algorithms
 ----------
-The :py:class:`~metaheuristic_designer.algorithm.Algorithm` class runs the optimisation loop.  You pass it an objective
+The :py:class:`~metaheuristic_designer.algorithm.Algorithm` class runs the optimization loop.  You pass it an objective
 function, a search strategy, and optionally a stopping condition, reporter,
 history tracker and checkpointer (see :doc:`Algorithm Configuration <api_reference.algorithm_config>`).
 
@@ -242,7 +263,6 @@ Built‑in algorithm variants:
    :header: "Module name", "Description"
 
    ":py:class:`algorithms.Algorithm<metaheuristic_designer.algorithm.Algorithm>`", "Default algorithm with the classic parent → perturb → evaluate → survivor loop."
-   ":py:class:`algorithms.MemeticAlgorithm<metaheuristic_designer.algorithms.memetic_algorithm.MemeticAlgorithm>`", "Algorithm that embeds a local search step inside the main loop."
    ":py:class:`algorithms.AlgorithmSelection<metaheuristic_designer.algorithms.algorithm_selection.AlgorithmSelection>`", "Benchmarks a set of algorithms."
    ":py:class:`algorithms.StrategySelection<metaheuristic_designer.algorithms.strategy_selection.StrategySelection>`", "Benchmarks a set of search strategies."
 
@@ -255,12 +275,13 @@ Stopping conditions can be defined as strings combining the following tokens wit
 
    ``"max_evaluations"``, "Maximum number of objective function evaluations."
    ``"max_iterations"``, "Maximum number of iterations (generations)."
-   ``"real_time_limit"``, "Wall‑clock time limit in seconds."
+   ``"real_time_limit"``, "Wall-clock time limit in seconds."
    ``"cpu_time_limit"``, "CPU time limit in seconds."
-   ``"objective_target"``, "Target value for the raw objective; stops when ``best_objective <= objective_target`` (minimisation) or ``best_objective >= objective_target`` (maximisation)."
+   ``"objective_target"``, "Target value for the raw objective; stops when ``best_objective <= objective_target`` (minimization) or ``best_objective >= objective_target`` (maximization)."
    ``"convergence"``, "Stops after ``max_patience`` consecutive iterations without improvement."
 
 Example: ``max_iterations or real_time_limit`` will halt when the maximum number of iterations is reached or we have exceeded the maximum time.
+
 
 .. _parameter-schedules:
 
@@ -270,9 +291,11 @@ Parameter schedules
 There are a number of already available schedules for parameters. Each of then calculate the parameter value
 from a progress value in the range [0, 1].
 
-To simplyfy the math, the progress value is :math:`p` and :math:`v` is the
-parameter value, so that :math:`v(0)` is the initial value and :math:`v(1)` is.
-the last value.
+To simplify the math, the progress value is :math:`p` and :math:`v` is the
+parameter value, so that :math:`v(0)` is the initial value and :math:`v(1)` is
+the last value. 
+
+When using iteration-based values, we use :math:`v_i` with :math:`i` being the iteration number.
 
 .. list-table::
   :header-rows: 1 
@@ -282,7 +305,7 @@ the last value.
     - Parameters
   
   * - :py:class:`parameter_schedules.LinearSchedule<metaheuristic_designer.parameter_schedules.linear_schedule.LinearSchedule>`
-    - | Lineraly interpolates the parameter between two values as:
+    - | Linearly interpolates the parameter between two values as:
       | :math:`v(p) = (1-p)v(0) + p\,v(1)`
     - | - init_value
       | - final_value
@@ -297,11 +320,19 @@ the last value.
   * - :py:class:`parameter_schedules.ExponentialDecaySchedule<metaheuristic_designer.parameter_schedules.exponential_decay_schedule.ExponentialDecaySchedule>`
     - | Uses a negative exponential curve to model the parameter, when iterative, ignores the final value:
       | when iterative is ``False``: :math:`v(p) = v(0) + (v(1) - v(0)) e^{-\alpha p}`
-      | when iterative is ``True``: :math:`v_i = v(0) + (v_{i-1} - v(0)) \alpha`
+      | when iterative is ``True``: :math:`v_i = v_0 + (v_{i-1} - v_0) \alpha`
     - | - init_value
       | - final_value (0)
       | - alpha (0.9)
       | - iterative (False)
+
+  * - :py:class:`parameter_schedules.CosineSchedule<metaheuristic_designer.parameter_schedules.cosine_schedule.CosineSchedule>`
+    - | Models the parameters as a cosine wave with:
+      | :math:`v(p) = A\cos(2 \pi f \, p + \varphi) + v(0)`
+    - | - offset (0)
+      | - amplitude (1)
+      | - frequency (1)
+      | - phase (1)
 
   * - :py:class:`parameter_schedules.RandomSchedule<metaheuristic_designer.parameter_schedules.random_schedule.RandomSchedule>`
     - Completely randomizes the parameter value within a range of values. Follows an uniform distribution:
@@ -318,6 +349,25 @@ the last value.
     - | Splits the range of 0 to 1 into :math:`N` steps indicated by a dictionary of the form:
       | ``{0.1: 34, 0.2: 4, 0.3: 1, ...}``
     - | - steps
+
+  * - :py:class:`parameter_schedules.NoisySchedule<metaheuristic_designer.parameter_schedules.noisy_schedule.NoisySchedule>`
+    - | Applies gaussian noise to a given parameter schedule.
+    - | - subschedule
+      | - noise_level (1e-2)
+
+  * - :py:class:`parameter_schedules.StridedSchedule<metaheuristic_designer.parameter_schedules.strided_schedule.StridedSchedule>`
+    - | Holds the previously seen parameter value for a number of iterations, ignoring the current evaluation of the parameter.
+    - | - subschedule
+      | - iterations (100)
+
+  * - :py:class:`parameter_schedules.ProbabilityAnnealingSchedule<metaheuristic_designer.parameter_schedules.probability_annealing_schedule.ProbabilityAnnealingSchedule>`
+    - | Schedule used by Simulated Annealing (:py:class:`~metaheuristic_designer.strategies.classic.SA.SA`) for modelling the acceptance probability
+      | as a temperature that decreases exponentially.
+      | :math:`T_i = T_0 + (T_i - T_0) \alpha`
+      | :math:`v_i = e^{-1/T_i}`
+    - | - temperature_init (100)
+      | - iterations (100)
+      | - alpha (0.99)
 
 Prepackaged Algorithms
 ----------------------

@@ -349,4 +349,3 @@ def random_replacement(population_fitness: VectorLike, offspring_fitness: Vector
     parent_idx = np.arange(n_parents)
     parent_idx[replacement_idx] = random_state.permutation(n_offspring)[:n_chosen]
     return parent_idx
-    

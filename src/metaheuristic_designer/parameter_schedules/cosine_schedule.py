@@ -24,9 +24,9 @@ class CosineSchedule(SchedulableParameter):
     def __init__(self, amplitude: float = 1, frequency: float = None, phase: float = 0, offset: float = 0):
         super().__init__(random_state=None)
         self.amplitude = amplitude
-        self.frequency = frequency if frequency is not None else 2 * np.pi
+        self.frequency = frequency if frequency is not None else 1
         self.phase = phase
         self.offset = offset
 
     def evaluate(self, progress: float) -> float:
-        return self.amplitude * np.cos(self.frequency * progress + self.phase) + self.offset
+        return self.amplitude * np.cos(2 * np.pi * self.frequency * progress + self.phase) + self.offset

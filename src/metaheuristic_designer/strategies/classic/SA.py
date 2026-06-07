@@ -22,12 +22,6 @@ class SA(SingleSolutionStrategy):
     is accepted if it is better, or probabilistically if it is worse,
     according to an exponentially decaying temperature schedule.
 
-    .. warning::
-       The current handling of the annealing schedule is tightly
-       coupled to the strategy.  The survivor selection should be
-       refactored to manage its own temperature and acceptance
-       logic independently.
-
     Parameters
     ----------
     initializer : Initializer
