@@ -88,9 +88,9 @@ suppress_warnings = ["autosectionlabel.*"]
 
 nitpicky = False
 
-exclude_patterns = [
-    "api_reference.plotting.rst"
-]
+# exclude_patterns = [
+#     "api_reference.plotting.rst"
+# ]
 
 def skip_properties(app, what, name, obj, skip, options):
     if isinstance(obj, property):
