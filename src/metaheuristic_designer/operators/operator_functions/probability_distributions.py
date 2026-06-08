@@ -90,7 +90,7 @@ class ScipyUnivarDistribution(Distribution):
         np.ndarray
             Array of independent samples of the requested shape.
         """
-        return self.dist.rvs(size=shape, rng=self.rng)
+        return self.dist.rvs(size=shape, random_state=self.rng)
 
 
 class ScipyMultivarDistribution(Distribution):
@@ -127,7 +127,7 @@ class ScipyMultivarDistribution(Distribution):
         np.ndarray
             Array of shape ``(shape[0], dim)``.
         """
-        return self.dist.rvs(size=shape[0], rng=self.rng)
+        return self.dist.rvs(size=shape[0], random_state=self.rng)
 
 
 class multivariate_categorical(Distribution):
