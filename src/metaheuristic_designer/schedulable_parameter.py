@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from typing import Callable, Optional, Any
-from .utils import check_random_state, RNGLike
+from .utils import check_rng, RNGLike
 
 
 class SchedulableParameter(ABC):
@@ -14,13 +14,13 @@ class SchedulableParameter(ABC):
 
     Parameters
     ----------
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator, made available for subclasses that
         need stochastic schedules.
     """
 
-    def __init__(self, random_state: Optional[RNGLike] = None):
-        self.random_state = check_random_state(random_state)
+    def __init__(self, rng: Optional[RNGLike] = None):
+        self.rng = check_rng(rng)
 
     def __call__(self, progress: float) -> Any:
         """Shorthand for :meth:`evaluate`."""
@@ -62,12 +62,12 @@ class ParameterFromLambda(SchedulableParameter):
     ----------
     schedule_fn : callable
         A function ``(progress) -> value`` that defines the schedule.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator (passed through to the base class).
     """
 
-    def __init__(self, schedule_fn: Callable, random_state: Optional[RNGLike] = None):
-        super().__init__(random_state)
+    def __init__(self, schedule_fn: Callable, rng: Optional[RNGLike] = None):
+        super().__init__(rng)
         self.schedule_fn = schedule_fn
 
     def evaluate(self, progress: float) -> Any:

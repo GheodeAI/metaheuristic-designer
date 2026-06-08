@@ -49,7 +49,7 @@ def test_initializer_from_lambda(rng):
     def my_gen(rs):
         return rs.uniform(10, 20, size=3)
 
-    init = InitializerFromLambda(my_gen, dimension=3, pop_size=2, random_state=rng)
+    init = InitializerFromLambda(my_gen, dimension=3, pop_size=2, rng=rng)
     vec = init.generate_random()
     assert vec.shape == (3,)
     assert np.all(vec >= 10) and np.all(vec <= 20)
@@ -65,7 +65,7 @@ def test_operator_from_lambda_applies_function(rng, dummy_objfunc):
     def add_ten(p, init, rng, **kw):
         return p.update_genotype(p.genotype_matrix + 10)
 
-    op = OperatorFromLambda(add_ten, random_state=rng)
+    op = OperatorFromLambda(add_ten, rng=rng)
     result = op.evolve(pop)
     expected = original + 10
     assert_array_equal(result.genotype_matrix, expected)
@@ -82,7 +82,7 @@ def test_parent_selection_from_lambda_selects_correctly(rng, dummy_objfunc):
         fitness = population.fitness
         return np.argsort(fitness)[::-1][:amount]
 
-    sel = ParentSelectionFromLambda(select_best_two, amount=2, random_state=rng)
+    sel = ParentSelectionFromLambda(select_best_two, amount=2, rng=rng)
     result = sel.select(pop, 2)
     assert len(result) == 2
     # Best fitness values are at indices 0 (5.0) and 2 (3.0)
@@ -104,7 +104,7 @@ def test_survivor_selection_from_lambda(rng, dummy_objfunc):
     def select_all_offspring(pop_fit, off_fit, rng):
         return np.array([0, 1]) + len(pop_fit)
 
-    sel = SurvivorSelectionFromLambda(select_all_offspring, random_state=rng)
+    sel = SurvivorSelectionFromLambda(select_all_offspring, rng=rng)
     result = sel.select(parents, offspring)
     assert len(result) == 2
     assert np.all(result.genotype_matrix == offspring.genotype_matrix)

@@ -3,7 +3,7 @@ import logging
 from typing import Optional
 import numpy as np
 import scipy as sp
-from ...utils import RNGLike, TensorLike, check_random_state
+from ...utils import RNGLike, TensorLike, check_rng
 
 logger = logging.getLogger(__name__)
 
@@ -19,18 +19,18 @@ class Distribution(ABC):
     ``estimate_parameters`` method to compute heuristic parameters from data.
     """
 
-    def __init__(self, random_state: Optional[RNGLike] = None):
-        self.random_state = check_random_state(random_state)
+    def __init__(self, rng: Optional[RNGLike] = None):
+        self.rng = check_rng(rng)
 
     @abstractmethod
-    def sample(self, shape: tuple, random_state: RNGLike) -> TensorLike:
+    def sample(self, shape: tuple, rng: RNGLike) -> TensorLike:
         """Draw random samples from the distribution.
 
         Parameters
         ----------
         shape : tuple
             Shape of the requested output array.
-        random_state : RNGLike
+        rng : RNGLike
             Random number generator.
 
         Returns
@@ -71,9 +71,9 @@ class ScipyUnivarDistribution(Distribution):
         Parameters forwarded to the distribution constructor.
     """
 
-    def __init__(self, distribution_cls, random_state, **kwargs):
+    def __init__(self, distribution_cls, rng, **kwargs):
         self.dist = distribution_cls(**kwargs)
-        super().__init__(random_state=random_state)
+        super().__init__(rng=rng)
 
     def sample(self, shape: tuple) -> TensorLike:
         """Draw random samples.
@@ -82,7 +82,7 @@ class ScipyUnivarDistribution(Distribution):
         ----------
         shape : tuple
             Desired output shape, e.g., ``(N, M)``.
-        random_state : RNGLike
+        rng : RNGLike
             Random number generator.
 
         Returns
@@ -90,7 +90,7 @@ class ScipyUnivarDistribution(Distribution):
         np.ndarray
             Array of independent samples of the requested shape.
         """
-        return self.dist.rvs(size=shape, random_state=self.random_state)
+        return self.dist.rvs(size=shape, rng=self.rng)
 
 
 class ScipyMultivarDistribution(Distribution):
@@ -104,9 +104,9 @@ class ScipyMultivarDistribution(Distribution):
         Parameters forwarded to the distribution constructor.
     """
 
-    def __init__(self, distribution_cls, random_state=None, **kwargs):
+    def __init__(self, distribution_cls, rng=None, **kwargs):
         self.dist = distribution_cls(**kwargs)
-        super().__init__(random_state=random_state)
+        super().__init__(rng=rng)
 
     def sample(self, shape: tuple) -> TensorLike:
         """Draw random samples.
@@ -119,7 +119,7 @@ class ScipyMultivarDistribution(Distribution):
         ----------
         shape : tuple
             Requested shape; only ``shape[0]`` is used.
-        random_state : RNGLike
+        rng : RNGLike
             Random number generator.
 
         Returns
@@ -127,7 +127,7 @@ class ScipyMultivarDistribution(Distribution):
         np.ndarray
             Array of shape ``(shape[0], dim)``.
         """
-        return self.dist.rvs(size=shape[0], random_state=self.random_state)
+        return self.dist.rvs(size=shape[0], rng=self.rng)
 
 
 class multivariate_categorical(Distribution):
@@ -143,12 +143,12 @@ class multivariate_categorical(Distribution):
         row-wise before sampling.
     """
 
-    def __init__(self, categories, weight_matrix, random_state):
+    def __init__(self, categories, weight_matrix, rng):
         self.categories = categories
         weight_matrix = weight_matrix / weight_matrix.sum(axis=1, keepdims=True)
         self.cumsum_matrix = weight_matrix.cumsum(axis=1)
         self.sample_fn = np.vectorize(np.searchsorted, signature="(n),()->()", cache=True)
-        super().__init__(random_state=random_state)
+        super().__init__(rng=rng)
 
     def sample(self, shape: tuple) -> TensorLike:
         """Draw random samples.
@@ -159,7 +159,7 @@ class multivariate_categorical(Distribution):
             Requested shape; if ``None`` the number of rows is taken from
             ``self.cumsum_matrix.shape[0]``.  Otherwise the first element
             gives the number of rows, and additional dimensions are appended.
-        random_state : RNGLike
+        rng : RNGLike
             Random number generator.
 
         Returns
@@ -174,7 +174,7 @@ class multivariate_categorical(Distribution):
         else:
             shape = tuple(shape) + (len(self.categories),)
 
-        index_rnd = self.random_state.random(size=shape)
+        index_rnd = self.rng.random(size=shape)
         return self.sample_fn(self.cumsum_matrix, index_rnd)
 
 

@@ -252,7 +252,7 @@ def test_lamb_comma_mu(population_fitness, offspring_fitness):
     ],
 )
 def test_lamb_comma_mu(population_fitness, offspring_fitness):
-    result_a = random_replacement(population_fitness, offspring_fitness, random_state=42)
-    result_b = random_replacement(population_fitness, offspring_fitness, random_state=45)
+    result_a = random_replacement(population_fitness, offspring_fitness, rng=42)
+    result_b = random_replacement(population_fitness, offspring_fitness, rng=45)
 
     assert not np.all(result_a == result_b)

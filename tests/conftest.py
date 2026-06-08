@@ -36,7 +36,7 @@ from metaheuristic_designer.survivor_selection_base import (
     SurvivorSelection,
     NullSurvivorSelection,
 )
-from metaheuristic_designer.utils import check_random_state
+from metaheuristic_designer.utils import check_rng
 from metaheuristic_designer.encodings import PSOEncoding
 from metaheuristic_designer.search_strategy import SearchStrategy
 from metaheuristic_designer.benchmarks.benchmark_funcs import MaxOnes, Sphere
@@ -254,7 +254,7 @@ def dummy_survivor_selection():
 @pytest.fixture
 def dummy_initializer(rng):
     """Initializer that produces a population of 10 vectors of length 3 (uniform)."""
-    return UniformInitializer(dimension=3, lower_bound=0, upper_bound=1, population_size=10, random_state=rng)
+    return UniformInitializer(dimension=3, lower_bound=0, upper_bound=1, population_size=10, rng=rng)
 
 
 # ===================================================================
@@ -264,7 +264,7 @@ def _expected_exponential(beta, size, seed=42):
     from metaheuristic_designer.initializers import ExponentialInitializer
 
     rng_fresh = np.random.default_rng(seed)
-    init = ExponentialInitializer(size, beta, random_state=rng_fresh)
+    init = ExponentialInitializer(size, beta, rng=rng_fresh)
     return init.generate_random()
 
 
@@ -272,7 +272,7 @@ def _expected_normal(mean, std, size, seed=42):
     from metaheuristic_designer.initializers import GaussianInitializer
 
     rng_fresh = np.random.default_rng(seed)
-    init = GaussianInitializer(size, mean, std, random_state=rng_fresh)
+    init = GaussianInitializer(size, mean, std, rng=rng_fresh)
     return init.generate_random()
 
 
@@ -280,7 +280,7 @@ def _expected_uniform(low, high, size, seed=42):
     from metaheuristic_designer.initializers import UniformInitializer
 
     rng_fresh = np.random.default_rng(seed)
-    init = UniformInitializer(size, low, high, random_state=rng_fresh)
+    init = UniformInitializer(size, low, high, rng=rng_fresh)
     return init.generate_random()
 
 
@@ -288,7 +288,7 @@ def _expected_permutation(n, seed=42):
     from metaheuristic_designer.initializers import PermInitializer
 
     rng_fresh = np.random.default_rng(seed)
-    init = PermInitializer(10, n, random_state=rng_fresh)
+    init = PermInitializer(10, n, rng=rng_fresh)
     return init.generate_random()
 
 
@@ -382,9 +382,9 @@ def sphere_objfunc():
 
 @pytest.fixture
 def simple_strategy(sphere_objfunc, rng):
-    init = UniformInitializer(2, -10, 10, population_size=10, random_state=rng)
-    mut = create_mutation_operator("gauss", random_state=rng, N=1, loc=0, scale=0.1)
-    surv = create_survivor_selection("generational", random_state=rng)
+    init = UniformInitializer(2, -10, 10, population_size=10, rng=rng)
+    mut = create_mutation_operator("gauss", rng=rng, N=1, loc=0, scale=0.1)
+    surv = create_survivor_selection("generational", rng=rng)
     return SearchStrategy(initializer=init, operator=mut, survivor_sel=surv, name="integration_strat")
 
 
@@ -400,7 +400,7 @@ def run_and_get_best(wrapper_func, objfunc, seed, **kwargs):
         "max_evaluations": 1000,
         **kwargs,
     }
-    algo = wrapper_func(objfunc, random_state=seed, **run_kwargs)
+    algo = wrapper_func(objfunc, rng=seed, **run_kwargs)
     population = algo.optimize()
     _, best = population.best_solution()
     return best

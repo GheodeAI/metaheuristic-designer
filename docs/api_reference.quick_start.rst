@@ -78,7 +78,7 @@ Wrap a generator function with
 
 .. code-block:: python
 
-   def my_gen(random_state: RNGLike, **kwargs) -> np.ndarray:
+   def my_gen(rng: RNGLike, **kwargs) -> np.ndarray:
        """Return a single new individual (genotype vector)."""
        ...
 
@@ -89,8 +89,8 @@ Wrap a generator function with
 
    from metaheuristic_designer import InitializerFromLambda
 
-   def uniform_gen(random_state, low=0.0, high=1.0):
-       return random_state.uniform(low, high, size=5)
+   def uniform_gen(rng, low=0.0, high=1.0):
+       return rng.uniform(low, high, size=5)
 
    init = InitializerFromLambda(uniform_gen, dimension=5, pop_size=100, low=-10, high=10, size=5)
 
@@ -139,7 +139,7 @@ of the population).
 .. code-block:: python
 
    def my_op(matrix: MatrixLike, fitness: VectorLike,
-             random_state: RNGLike, **kwargs) -> MatrixLike:
+             rng: RNGLike, **kwargs) -> MatrixLike:
        """Return a new genotype matrix of the same shape."""
        ...
 
@@ -151,8 +151,8 @@ of the population).
 
    from metaheuristic_designer.operators import add_operator_entry, OperatorFnDef, create_operator
 
-   def add_gaussian_noise(matrix, fitness, random_state, F=0.1):
-       rng = np.random.default_rng(random_state)
+   def add_gaussian_noise(matrix, fitness, rng, F=0.1):
+       rng = np.random.default_rng(rng)
        noise = rng.normal(0, F, size=matrix.shape)
        return matrix + noise
 
@@ -170,7 +170,7 @@ beginning; never mutate the original.
 .. code-block:: python
 
    def my_pop_op(population: Population, initializer: Initializer,
-                 random_state: RNGLike, **kwargs) -> Population:
+                 rng: RNGLike, **kwargs) -> Population:
        pop_copy = copy(population)   # or population.__copy__()
        # … modify pop_copy …
        return pop_copy
@@ -181,7 +181,7 @@ Register it **without** a wrapper:
 
    from metaheuristic_designer.operators import add_operator_entry
     
-   def duplicate_best(population, initializer, random_state):
+   def duplicate_best(population, initializer, rng):
        pop_copy = copy(population)
        best_gen = pop_copy.genotype_matrix[pop_copy.best_idx]
        pop_copy.genotype_matrix[:] = best_gen   # all individuals become the best
@@ -202,7 +202,7 @@ instantiate :py:class:`ParentSelectionFromLambda<metaheuristic_designer.parent_s
 .. code-block:: python
 
    def my_parent_select(fitness: VectorLike, amount: int,
-                        random_state: RNGLike, **kwargs) -> np.ndarray:
+                        rng: RNGLike, **kwargs) -> np.ndarray:
        """Return indices of selected individuals."""
        ...
 
@@ -219,7 +219,7 @@ the :py:class:`~metaheuristic_designer.parent_selection.ParentSelection` class w
    from metaheuristic_designer.parent_selection_methods import add_parent_selection_entry, ParentSelectionDef
    from metaheuristic_designer import create_parent_selection
 
-   def pick_top_k(fitness, amount, random_state, **kwargs):
+   def pick_top_k(fitness, amount, rng, **kwargs):
        # Maximisation: higher fitness is better → use argpartition for top k
        top_idx = np.argpartition(-fitness, amount - 1)[:amount]
        return top_idx
@@ -234,7 +234,7 @@ the :py:class:`~metaheuristic_designer.parent_selection.ParentSelection` class w
    from metaheuristic_designer import ParentSelectionFromLambda
 
    def pop_level_select(population: Population, amount: int,
-                        random_state: RNGLike, **kwargs) -> np.ndarray:
+                        rng: RNGLike, **kwargs) -> np.ndarray:
        # Access population.genotype_matrix, population.fitness, etc.
        fitness = population.fitness
        top_idx = np.argpartition(-fitness, amount - 1)[:amount]
@@ -256,7 +256,7 @@ to the Population objects.
 
    def my_survivor_select(parent_fitness: VectorLike,
                           offspring_fitness: VectorLike,
-                          random_state: RNGLike, **kwargs) -> np.ndarray:
+                          rng: RNGLike, **kwargs) -> np.ndarray:
        """Return indices into the concatenated [parents, offspring]."""
        ...
 
@@ -273,7 +273,7 @@ This can be easily done by using :py:class:`~metaheuristic_designer.parent_selec
    from metaheuristic_designer.survivor_selection_methods import add_survivor_selection_entry
    from metaheuristic_designer import create_survivor_selection
    
-   def keep_all_offspring(parent_fit, offspring_fit, random_state, **kwargs):
+   def keep_all_offspring(parent_fit, offspring_fit, rng, **kwargs):
        n_parents = len(parent_fit)
        n_offspring = len(offspring_fit)
        return np.arange(n_parents, n_parents + n_offspring)
@@ -289,7 +289,7 @@ This can be easily done by using :py:class:`~metaheuristic_designer.parent_selec
    from metaheuristic_designer.population import Population
 
    def pop_level_survivor(parents: Population, offspring: Population,
-                          random_state: RNGLike, **kwargs) -> np.ndarray:
+                          rng: RNGLike, **kwargs) -> np.ndarray:
        # Compute fitness arrays, decide survivors
        combined_fit = np.concatenate([parents.fitness, offspring.fitness])
        n = len(parents)
@@ -315,12 +315,12 @@ think in terms of “apply this function to each individual’s row”. Two deco
    from metaheuristic_designer.utils import per_individual
 
    @per_individual
-   def small_noise_vector(row, scale=0.1, random_state=None):
-       rng = np.random.default_rng(random_state)
+   def small_noise_vector(row, scale=0.1, rng=None):
+       rng = np.random.default_rng(rng)
        return row + rng.normal(0, scale, size=row.shape)
 
    # Now small_noise_vector can be used as a matrix‑level operator function
    from metaheuristic_designer.operators import OperatorFnDef, add_operator_entry
 
    add_operator_entry(OperatorFnDef(small_noise_vector), "tiny_noise", "custom")
-   op = create_operator("custom.tiny_noise", scale=0.05, random_state=42)
+   op = create_operator("custom.tiny_noise", scale=0.05, rng=42)

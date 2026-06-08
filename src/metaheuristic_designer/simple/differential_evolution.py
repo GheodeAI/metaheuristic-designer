@@ -11,7 +11,7 @@ from ..algorithm import Algorithm
 from ..initializers import UniformInitializer
 from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import DE
-from ..utils import RNGLike, check_random_state
+from ..utils import RNGLike, check_rng
 
 
 def differential_evolution_binary(
@@ -21,7 +21,7 @@ def differential_evolution_binary(
     Cr: float = 0.9,
     de_operator_name: str = "de/rand/1",
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Differential Evolution for binary-encoded vectors.
@@ -40,13 +40,13 @@ def differential_evolution_binary(
         DE variant (default ``"de/rand/1"``).
     encoding : Encoding, optional
         Encoding; defaults to :class:`SigmoidEncoding`.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     if encoding is None:
         encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
     pop_initializer = UniformInitializer(
@@ -56,14 +56,14 @@ def differential_evolution_binary(
         population_size=population_size,
         dtype=float,
         encoding=encoding,
-        random_state=random_state,
+        rng=rng,
     )
     search_strat = DE(
         initializer=pop_initializer,
         de_operator_name=de_operator_name,
         F=F,
         Cr=Cr,
-        random_state=random_state,
+        rng=rng,
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -75,7 +75,7 @@ def differential_evolution_discrete(
     Cr: float = 0.9,
     de_operator_name: str = "de/rand/1",
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Differential Evolution for integer-coded vectors.
@@ -94,13 +94,13 @@ def differential_evolution_discrete(
         DE variant (default ``"de/rand/1"``).
     encoding : Encoding, optional
         Encoding; defaults to :class:`TypeCastEncoding` (float → int).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     if encoding is None:
         encoding = TypeCastEncoding(float, int)
     pop_initializer = UniformInitializer(
@@ -110,14 +110,14 @@ def differential_evolution_discrete(
         population_size=population_size,
         dtype=float,
         encoding=encoding,
-        random_state=random_state,
+        rng=rng,
     )
     search_strat = DE(
         initializer=pop_initializer,
         de_operator_name=de_operator_name,
         F=F,
         Cr=Cr,
-        random_state=random_state,
+        rng=rng,
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -129,7 +129,7 @@ def differential_evolution_real(
     Cr: float = 0.9,
     de_operator_name: str = "de/rand/1",
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Differential Evolution for real-coded vectors.
@@ -148,13 +148,13 @@ def differential_evolution_real(
         DE variant (default ``"de/rand/1"``).
     encoding : Encoding, optional
         Encoding applied to the genotype.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     pop_initializer = UniformInitializer(
         objfunc.dimension,
         objfunc.lower_bound,
@@ -162,13 +162,13 @@ def differential_evolution_real(
         population_size=population_size,
         dtype=float,
         encoding=encoding,
-        random_state=random_state,
+        rng=rng,
     )
     search_strat = DE(
         initializer=pop_initializer,
         de_operator_name=de_operator_name,
         F=F,
         Cr=Cr,
-        random_state=random_state,
+        rng=rng,
     )
     return Algorithm(objfunc, search_strat, **kwargs)

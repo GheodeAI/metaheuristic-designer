@@ -19,7 +19,7 @@ class StridedSchedule(SchedulableParameter):
     """
 
     def __init__(self, subschedule: SchedulableParameter, iterations: int = 100):
-        super().__init__(random_state=None)
+        super().__init__(rng=None)
 
         self.subschedule = subschedule
         self.iterations = iterations

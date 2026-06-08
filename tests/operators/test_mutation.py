@@ -14,13 +14,13 @@ from metaheuristic_designer.population import Population
 # -------------------------------------------------------------------
 @pytest.mark.parametrize("method", ["gauss", "xor", "mutsample", "randnoise", "mutate1sigma"])
 def test_create_mutation_operator_returns_operator(method, rng, simple_encoding):
-    op = create_mutation_operator(method, encoding=simple_encoding, random_state=rng)
+    op = create_mutation_operator(method, encoding=simple_encoding, rng=rng)
     assert isinstance(op, OperatorFromLambda)
     assert op.name == method
 
 
 def test_create_mutation_operator_default_encoding(rng):
-    op = create_mutation_operator("uniform", random_state=rng)
+    op = create_mutation_operator("uniform", rng=rng)
     assert op.encoding is not None  # DefaultEncoding
 
 
@@ -39,7 +39,7 @@ def test_gauss_operator_modifies_genotype(rng, dummy_objfunc, simple_encoding):
     pop.fitness = np.zeros(3)
     original = pop.genotype_matrix.copy()
 
-    op = create_mutation_operator("gauss", encoding=simple_encoding, random_state=rng, loc=0, scale=1.0, F=0.5)
+    op = create_mutation_operator("gauss", encoding=simple_encoding, rng=rng, loc=0, scale=1.0, F=0.5)
     result = op(pop)
 
     assert result is pop
@@ -51,7 +51,7 @@ def test_xor_operator_on_zeros_population(rng, dummy_objfunc, simple_encoding):
     pop = Population(dummy_objfunc, np.zeros((3, 2), dtype=np.uint8))
     pop.fitness = np.zeros(3)
 
-    op = create_mutation_operator("xor", encoding=simple_encoding, random_state=rng, N=2, mode="byte")
+    op = create_mutation_operator("xor", encoding=simple_encoding, rng=rng, N=2, mode="byte")
     result = op(pop)
 
     assert result is pop
@@ -67,8 +67,8 @@ def test_mutation_operator_reproducible(rng, dummy_objfunc, simple_encoding):
     rng1 = np.random.default_rng(42)
     rng2 = np.random.default_rng(42)
 
-    op1 = create_mutation_operator("gauss", encoding=simple_encoding, random_state=rng1, loc=0, scale=1.0, F=0.5)
-    op2 = create_mutation_operator("gauss", encoding=simple_encoding, random_state=rng2, loc=0, scale=1.0, F=0.5)
+    op1 = create_mutation_operator("gauss", encoding=simple_encoding, rng=rng1, loc=0, scale=1.0, F=0.5)
+    op2 = create_mutation_operator("gauss", encoding=simple_encoding, rng=rng2, loc=0, scale=1.0, F=0.5)
 
     op1(pop1)
     op2(pop2)
@@ -81,7 +81,7 @@ def test_mutate_noise_operator_modifies_subset(rng, dummy_objfunc, simple_encodi
     pop = Population(dummy_objfunc, np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]))
     pop.fitness = np.zeros(2)
 
-    op = create_mutation_operator("mutnoise", encoding=simple_encoding, random_state=rng, distribution="normal", loc=0, scale=1.0, F=1.0, N=2)
+    op = create_mutation_operator("mutnoise", encoding=simple_encoding, rng=rng, distribution="normal", loc=0, scale=1.0, F=1.0, N=2)
     result = op(pop)
 
     assert result is pop

@@ -21,12 +21,12 @@ class NoisySchedule(SchedulableParameter):
         Standard deviation of the gaussian noise applied to the parameter value
     """
 
-    def __init__(self, subschedule: SchedulableParameter, noise_level: float = 1e-2, random_state: Optional[RNGLike] = None):
-        super().__init__(random_state=random_state)
+    def __init__(self, subschedule: SchedulableParameter, noise_level: float = 1e-2, rng: Optional[RNGLike] = None):
+        super().__init__(rng=rng)
 
         self.subschedule = subschedule
         self.noise_level = noise_level
 
     def evaluate(self, progress: float) -> float:
         next_value = self.subschedule.evaluate(progress)
-        return next_value + self.random_state.normal(0, self.noise_level)
+        return next_value + self.rng.normal(0, self.noise_level)

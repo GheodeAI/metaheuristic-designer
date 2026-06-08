@@ -11,7 +11,7 @@ import numpy as np
 from .population import Population
 from .encoding import Encoding, DefaultEncoding
 from .objective_function import ObjectiveFunc
-from .utils import check_random_state, RNGLike, VectorLike
+from .utils import check_rng, RNGLike, VectorLike
 
 
 class Initializer(ABC):
@@ -32,17 +32,17 @@ class Initializer(ABC):
     encoding : Encoding, optional
         Encoding that will be attached to every individual.
         Defaults to :class:`DefaultEncoding`.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
-    def __init__(self, dimension: int, population_size: int = 1, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None):
+    def __init__(self, dimension: int, population_size: int = 1, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None):
         self.dimension = dimension
         self.population_size = population_size
         if encoding is None:
             encoding = DefaultEncoding()
         self.encoding = encoding
-        self.random_state = check_random_state(random_state)
+        self.rng = check_rng(rng)
 
     @abstractmethod
     def generate_random(self) -> VectorLike:
@@ -115,7 +115,7 @@ class InitializerFromLambda(Initializer):
     Parameters
     ----------
     generator : callable
-        A function ``(random_state) -> genotype`` that returns a
+        A function ``(rng) -> genotype`` that returns a
         single genotype vector.
     dimension : int
         Length of the genotype vector.
@@ -123,16 +123,16 @@ class InitializerFromLambda(Initializer):
         Number of individuals to generate (default 1).
     encoding : Encoding, optional
         Encoding attached to every individual.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
     def __init__(
-        self, generator: Callable, dimension: int, pop_size: int = 1, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None
+        self, generator: Callable, dimension: int, pop_size: int = 1, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None
     ):
         self.generator = generator
 
-        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, random_state=random_state)
+        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, rng=rng)
 
     def generate_random(self) -> VectorLike:
-        return self.generator(self.random_state)
+        return self.generator(self.rng)

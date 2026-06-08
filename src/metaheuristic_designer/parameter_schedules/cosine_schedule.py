@@ -22,7 +22,7 @@ class CosineSchedule(SchedulableParameter):
     """
 
     def __init__(self, amplitude: float = 1, frequency: float = None, phase: float = 0, offset: float = 0):
-        super().__init__(random_state=None)
+        super().__init__(rng=None)
         self.amplitude = amplitude
         self.frequency = frequency if frequency is not None else 1
         self.phase = phase

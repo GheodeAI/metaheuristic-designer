@@ -9,7 +9,7 @@ from ...initializer import Initializer
 from ...survivor_selection import create_survivor_selection
 from ...operator import Operator
 from ...schedulable_parameter import SchedulableParameter
-from ...utils import check_random_state, RNGLike
+from ...utils import check_rng, RNGLike
 from ..single_solution_strategy import SingleSolutionStrategy
 from ...parameter_schedules import ProbabilityAnnealingSchedule
 
@@ -36,7 +36,7 @@ class SA(SingleSolutionStrategy):
         Starting temperature (default 100).
     alpha : float or SchedulableParameter, optional
         Cooling factor (default 0.99).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     **kwargs
         Forwarded to :class:`HillClimb`.
@@ -50,20 +50,20 @@ class SA(SingleSolutionStrategy):
         iterations: int | SchedulableParameter = 100,
         temperature_init: float | SchedulableParameter = 100,
         alpha: float | SchedulableParameter = 0.99,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
         # We need to do the check earlier since it will be injected into the survivor selection
         # and we want everything to share the random state if possible.
-        random_state = check_random_state(random_state)
+        rng = check_rng(rng)
         p = ProbabilityAnnealingSchedule(temperature_init, iterations=iterations, alpha=alpha)
 
         super().__init__(
             initializer,
             operator=operator,
-            survivor_sel=create_survivor_selection("probabilistic_hillclimb", p=p, random_state=random_state),
+            survivor_sel=create_survivor_selection("probabilistic_hillclimb", p=p, rng=rng),
             name=name,
-            random_state=random_state,
+            rng=rng,
             **kwargs,
         )
 

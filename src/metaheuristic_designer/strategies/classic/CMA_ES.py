@@ -21,7 +21,7 @@ from ...initializer import Initializer
 from ...schedulable_parameter import SchedulableParameter
 from ...survivor_selection_base import SurvivorSelection
 from ...operators import create_operator
-from ...utils import VectorLike, check_random_state
+from ...utils import VectorLike, check_rng
 from ..eda_strategy import EDAStrategy
 
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ class CMA_ES(EDAStrategy):
     offspring_size : int or SchedulableParameter, optional
         Number of offspring per generation.  If ``None``, the
         initializer's population size is used.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     mean : VectorLike, optional
         Initial mean vector.  If not given, it is computed from the
@@ -71,14 +71,14 @@ class CMA_ES(EDAStrategy):
         survivor_sel: SurvivorSelection = None,
         name: str = "CMA-ES",
         offspring_size: Optional[int | SchedulableParameter] = None,
-        random_state=None,
+        rng=None,
         mean: Optional[VectorLike] = None,
         sigma: Optional[VectorLike] = None,
         cond_tol: float = 1e8,
         sigma_tol: float = 1e-10,
         **kwargs,
     ):
-        random_state = check_random_state(random_state)
+        rng = check_rng(rng)
 
         logger.info(
             "In CMA-ES the initializer does not generate solutions, it merely indicates the population size and encoding. Don't expect different results from changing the initializer."
@@ -91,12 +91,12 @@ class CMA_ES(EDAStrategy):
         super().__init__(
             initializer,
             operator=create_operator(
-                "mutation.full_resampling", distribution="multivariate_normal", mean=None, cov=None, allow_singular=True, random_state=random_state
+                "mutation.full_resampling", distribution="multivariate_normal", mean=None, cov=None, allow_singular=True, rng=rng
             ),
-            parent_sel=create_parent_selection("best", amount=initializer.population_size, random_state=random_state),
+            parent_sel=create_parent_selection("best", amount=initializer.population_size, rng=rng),
             survivor_sel=survivor_sel,
             name=name,
-            random_state=random_state,
+            rng=rng,
             # Forced kwargs
             sigma=sigma,
             **kwargs,
@@ -196,7 +196,7 @@ class CMA_ES(EDAStrategy):
         mean = self.params.mean
         sigma = self.params.sigma
         cov_matrix = sigma * sigma * self._cov
-        genotype = self.random_state.multivariate_normal(mean=mean, cov=cov_matrix, size=(self.offspring_size,))
+        genotype = self.rng.multivariate_normal(mean=mean, cov=cov_matrix, size=(self.offspring_size,))
 
         # Update the operator's parameters since they were undefined in the constructor
         self.operator.update_kwargs(mean=mean, cov=cov_matrix)

@@ -109,7 +109,7 @@ def create_prob_distribution(
     distribution_name: str,
     population_matrix: Optional[MatrixLike] = None,
     parameter_heuristic_fn: Optional[Callable] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Distribution:
     """Instantiate a probability distribution by name.
@@ -162,11 +162,11 @@ def create_prob_distribution(
     kwargs = param_heuristic(population_matrix, **kwargs)
 
     if distrib_reg_name == "scipy-univar":
-        distrib = ScipyUnivarDistribution(distrib_fn, random_state=random_state, **kwargs)
+        distrib = ScipyUnivarDistribution(distrib_fn, rng=rng, **kwargs)
     elif distrib_reg_name == "scipy-multivar":
-        distrib = ScipyMultivarDistribution(distrib_fn, random_state=random_state, **kwargs)
+        distrib = ScipyMultivarDistribution(distrib_fn, rng=rng, **kwargs)
     elif distrib_reg_name == "custom":
-        distrib = distrib_fn(random_state=random_state, **kwargs)
+        distrib = distrib_fn(rng=rng, **kwargs)
 
     return distrib
 

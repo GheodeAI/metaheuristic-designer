@@ -7,7 +7,7 @@ import numpy as np
 from ...population import Population
 from ...initializer import Initializer
 from ...encodings import ParameterExtendingEncoding
-from ...utils import MatrixLike, check_random_state, RNGLike
+from ...utils import MatrixLike, check_rng, RNGLike
 
 
 def pso_operator(
@@ -15,7 +15,7 @@ def pso_operator(
     population_speed: MatrixLike,
     historical_best: MatrixLike,
     global_best: MatrixLike,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     w: float = 0.7,
     c1: float = 1.5,
     c2: float = 1.5,
@@ -45,7 +45,7 @@ def pso_operator(
         Personal best positions, shape ``(N, D)``.
     global_best : MatrixLike
         Global best position, shape ``(D,)`` (broadcast to ``(N, D)``).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     w : float, optional
         Inertia weight (default 0.7).
@@ -60,10 +60,10 @@ def pso_operator(
         The new positions and the new velocities, both shape ``(N, D)``.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
-    c1 = c1 * random_state.random(population_matrix.shape)
-    c2 = c2 * random_state.random(population_matrix.shape)
+    c1 = c1 * rng.random(population_matrix.shape)
+    c2 = c2 * rng.random(population_matrix.shape)
 
     speed = w * population_speed + c1 * (historical_best - population_matrix) + c2 * (global_best - population_matrix)
 
@@ -73,7 +73,7 @@ def pso_operator(
 def pso_operator_wrapper(
     population: Population,
     initializer: Initializer,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     w: float = 0.7,
     c1: float = 1.5,
     c2: float = 1.5,
@@ -94,7 +94,7 @@ def pso_operator_wrapper(
         that includes a ``"speed"`` parameter.
     _initializer : Initializer
         Initializer (unused; kept for interface compatibility).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     w : float, optional
         Inertia weight (default 0.7).
@@ -119,7 +119,7 @@ def pso_operator_wrapper(
     global_best_solution = population_encoding.extract_solution(population.best[None, :])[0]
 
     population_solutions, population_params["speed"] = pso_operator(
-        population_genotype, population_params["speed"], historical_best_solution, global_best_solution, random_state=random_state, w=w, c1=c1, c2=c2
+        population_genotype, population_params["speed"], historical_best_solution, global_best_solution, rng=rng, w=w, c1=c1, c2=c2
     )
 
     population_matrix = population.encoding.encode(population_solutions, population_params)

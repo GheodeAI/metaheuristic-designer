@@ -4,14 +4,14 @@ import pytest
 import numpy as np
 from metaheuristic_designer.utils import (
     NumpyEncoder,
-    check_random_state,
+    check_rng,
     per_individual,
     per_individual_list,
 )
 
-def test_random_state_fail():
+def test_rng_fail():
     with pytest.raises(ValueError):
-        check_random_state("not valid")
+        check_rng("not valid")
 
 def test_per_individual():
     def add_one(x):

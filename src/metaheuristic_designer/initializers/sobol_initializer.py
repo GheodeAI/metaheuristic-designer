@@ -34,7 +34,7 @@ class SobolInitializer(Initializer):
         Encoding that will be passed to each individual.
     dtype : type, optional
         Desired NumPy dtype of the generated vectors (default ``float``).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
@@ -48,9 +48,9 @@ class SobolInitializer(Initializer):
         fallback: Optional[Initializer] = None,
         encoding=None,
         dtype=float,
-        random_state=None,
+        rng=None,
     ):
-        super().__init__(dimension=dimension, population_size=population_size, encoding=encoding, random_state=random_state)
+        super().__init__(dimension=dimension, population_size=population_size, encoding=encoding, rng=rng)
         self.dtype = dtype
 
         if type(lower_bound) in [list, tuple, np.ndarray]:
@@ -70,7 +70,7 @@ class SobolInitializer(Initializer):
             self.upper_bound = np.repeat(upper_bound, self.dimension)
 
         if fallback is None:
-            fallback = UniformInitializer(dimension, lower_bound, upper_bound, dtype=dtype, random_state=random_state)
+            fallback = UniformInitializer(dimension, lower_bound, upper_bound, dtype=dtype, rng=rng)
         self.fallback = fallback
         self.scramble = scramble
 
@@ -98,7 +98,7 @@ class SobolInitializer(Initializer):
             n_individuals = self.population_size
 
         n_bits = int(np.ceil(np.log2(n_individuals)))
-        generator = sp.stats.qmc.Sobol(d=self.dimension, scramble=self.scramble, rng=self.random_state)
+        generator = sp.stats.qmc.Sobol(d=self.dimension, scramble=self.scramble, rng=self.rng)
         samples = generator.random_base2(n_bits)[:n_individuals]
         population_matrix = (self.upper_bound - self.lower_bound) * samples + self.lower_bound
 

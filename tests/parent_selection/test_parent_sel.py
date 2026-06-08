@@ -24,7 +24,7 @@ def test_parent_selection_def_calls_wrapped_function():
 
     def_obj = ParentSelectionDef(dummy)
     pop = make_pop([1.0, 2.0], dummy_objfunc)
-    result = def_obj(pop, amount=2, random_state=rng)
+    result = def_obj(pop, amount=2, rng=rng)
     assert_array_equal(result, [0, 2])
 
 
@@ -39,7 +39,7 @@ def test_parent_selection_def_passes_fitness_and_kwargs():
 
     def_obj = ParentSelectionDef(spy, params={"extra": 5})
     pop = make_pop([10.0, 20.0], dummy_objfunc)
-    def_obj(pop, amount=1, random_state=rng)
+    def_obj(pop, amount=1, rng=rng)
 
     assert_array_equal(captured["fitness"], [10.0, 20.0])
     assert captured["amount"] == 1
@@ -61,17 +61,17 @@ def test_parent_selection_def_passes_fitness_and_kwargs():
     ],
 )
 def test_create_returns_correct_type(method, expected_type, rng):
-    sel = create_parent_selection(method, random_state=rng)
+    sel = create_parent_selection(method, rng=rng)
     assert isinstance(sel, expected_type)
 
 
 def test_create_uses_given_name(rng):
-    sel = create_parent_selection("tournament", name="custom_name", random_state=rng)
+    sel = create_parent_selection("tournament", name="custom_name", rng=rng)
     assert sel.name == "custom_name"
 
 
 def test_create_default_name_is_method(rng):
-    sel = create_parent_selection("truncation", random_state=rng)
+    sel = create_parent_selection("truncation", rng=rng)
     assert sel.name == "truncation"
 
 
@@ -92,7 +92,7 @@ def test_factory_select_returns_valid_parents(method, kwargs, rng, dummy_objfunc
     population = make_pop([5.0, 1.0, 3.0, 2.0], dummy_objfunc)
     amount = 3
 
-    sel = create_parent_selection(method, random_state=rng, **kwargs)
+    sel = create_parent_selection(method, rng=rng, **kwargs)
     parents = sel.select(population, amount)
 
     # Must be a Population with the requested amount
@@ -125,7 +125,7 @@ def test_factory_select_returns_valid_parents(method, kwargs, rng, dummy_objfunc
     population = make_pop([5.0, 1.0, 3.0, 2.0], dummy_objfunc)
     amount = 3
 
-    sel = create_parent_selection(method, random_state=rng, **kwargs)
+    sel = create_parent_selection(method, rng=rng, **kwargs)
     parents = sel.select(population, amount)
 
     assert len(parents) == amount

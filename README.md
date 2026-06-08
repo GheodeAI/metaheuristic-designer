@@ -32,7 +32,7 @@ pip install metaheuristic-designer[examples]
 
 ## Why metaheuristic‑designer?
 
-- **Reproducibility by default** – Every component accepts a `random_state`
+- **Reproducibility by default** – Every component accepts a `rng`
   (a NumPy Generator or a seed).  Passing the same seed guarantees
   identical runs, making your experiments truly reproducible.
 - **Truly composable** – Algorithms are built by plugging together
@@ -105,17 +105,17 @@ from metaheuristic_designer.algorithms import Algorithm
 objfunc = Sphere(dimension=5, mode="min")
 
 # 2. Create an initializer – random vectors between -10 and 10
-rng = mhd.check_random_state(42)   # fix the random seed for reproducibility
+rng = mhd.check_rng(42)   # fix the random seed for reproducibility
 init = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
-                          pop_size=100, random_state=rng)
+                          pop_size=100, rng=rng)
 
 # 3. Build the operators (Gaussian mutation + uniform crossover)
-mutation = create_operator("mutation.gaussian_mutation", F=0.1, N=1, random_state=rng)
-crossover = create_operator("crossover.uniform", random_state=rng)
+mutation = create_operator("mutation.gaussian_mutation", F=0.1, N=1, rng=rng)
+crossover = create_operator("crossover.uniform", rng=rng)
 
 # 4. Selection methods
-parent_sel = create_parent_selection("tournament", amount=50, tournament_size=3, random_state=rng)
-survivor_sel = create_survivor_selection("elitism", amount=25, random_state=rng)
+parent_sel = create_parent_selection("tournament", amount=50, tournament_size=3, rng=rng)
+survivor_sel = create_survivor_selection("elitism", amount=25, rng=rng)
 
 # 5. Assemble the search strategy (Genetic Algorithm)
 strategy = GA(
@@ -126,7 +126,7 @@ strategy = GA(
     survivor_sel=survivor_sel,
     mutation_prob=0.3,
     crossover_prob=0.9,
-    random_state=rng,
+    rng=rng,
 )
 
 # 6. Run the algorithm for 200 generations
@@ -201,8 +201,8 @@ They are created through a
 **factory** that accepts a string key and optional parameters:
 
 ```python
-create_operator("mutation.gaussian_mutation", F=0.2, N=3, random_state=42)
-create_operator("crossover.one_point_crossover", random_state=42)
+create_operator("mutation.gaussian_mutation", F=0.2, N=3, rng=42)
+create_operator("crossover.one_point_crossover", rng=42)
 create_operator("DE/best/1", F=0.8, Cr=0.9)
 create_operator("permutation.swap", N=2)
 ```
@@ -334,8 +334,8 @@ A collection of test problems is included:
 
 - **Seeded randomness everywhere** – Every random component (initializers,
   operators, selection, even parameter schedules with randomness) is
-  driven by a `random_state` that you can fix.  Use
-  `mhd.check_random_state(42)` to get a managed `numpy.random.Generator`.
+  driven by a `rng` that you can fix.  Use
+  `mhd.check_rng(42)` to get a managed `numpy.random.Generator`.
 
 - **Deterministic experiments** – When you pass the same seed, the entire
   optimisation run, including the initial population, mutation steps, and

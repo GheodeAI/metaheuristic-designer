@@ -21,7 +21,7 @@ from metaheuristic_designer.population import Population
 #  CrossEntropyMethod
 # -------------------------------------------------------------------
 def test_cross_entropy_method_creation(rng, dummy_initializer):
-    algo = CrossEntropyMethod(initializer=dummy_initializer, elite_amount=5, random_state=rng)
+    algo = CrossEntropyMethod(initializer=dummy_initializer, elite_amount=5, rng=rng)
     assert algo.name == "CrossEntropyMethod"
     assert algo.operator is not None
     assert algo.parent_sel is not None
@@ -42,7 +42,7 @@ def test_bernoulli_pbil_perturb_updates_p(rng, dummy_objfunc, dummy_initializer)
         p=0.5,
         noise=0,
         lr=1.0,
-        random_state=rng,
+        rng=rng,
     )
 
     algo.estimate_parameters(pop)
@@ -67,7 +67,7 @@ def test_binomial_pbil_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
         n=3,
         noise=0,
         lr=1.0,
-        random_state=rng,
+        rng=rng,
     )
 
     algo.estimate_parameters(pop)
@@ -92,7 +92,7 @@ def test_gaussian_pbil_perturb_updates_loc(rng, dummy_objfunc, dummy_initializer
         scale=1.0,
         lr=1.0,
         noise=0,
-        random_state=rng,
+        rng=rng,
     )
 
     algo.estimate_parameters(pop)
@@ -115,7 +115,7 @@ def test_bernoulli_umda_perturb_updates_p(rng, dummy_objfunc, dummy_initializer)
         initializer=dummy_initializer,
         p=0.5,
         noise=0,
-        random_state=rng,
+        rng=rng,
     )
 
     algo.estimate_parameters(pop)
@@ -139,7 +139,7 @@ def test_binomial_umda_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
         p=0.5,
         n=5,
         noise=0,
-        random_state=rng,
+        rng=rng,
     )
 
     algo.estimate_parameters(pop)
@@ -163,7 +163,7 @@ def test_gaussian_umda_perturb_updates_loc(rng, dummy_objfunc, dummy_initializer
         loc=np.array([0.0, 1.0]),
         scale=1.0,
         noise=0,
-        random_state=rng,
+        rng=rng,
     )
 
     algo.estimate_parameters(pop)

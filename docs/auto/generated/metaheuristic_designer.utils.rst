@@ -8,7 +8,7 @@
 
    .. autosummary::
    
-      check_random_state
+      check_rng
       per_individual
       per_individual_list
    

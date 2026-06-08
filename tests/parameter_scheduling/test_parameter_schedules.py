@@ -81,14 +81,14 @@ def test_logistic_schedule(init, final, k, exact_bounds, progress, expected):
 #  RandomSchedule  (uses rng fixture)
 # ===================================================================
 def test_random_schedule_deterministic_with_seed(rng):
-    sched = RandomSchedule(init_value=0.0, final_value=1.0, random_state=rng)
+    sched = RandomSchedule(init_value=0.0, final_value=1.0, rng=rng)
     # First call with seed 42: pre‑computed value
     expected = np.random.default_rng(42).uniform(0.0, 1.0)
     assert sched.evaluate(0.5) == pytest.approx(expected)
 
 
 def test_random_schedule_values_in_range(rng):
-    sched = RandomSchedule(-10, 10, random_state=rng)
+    sched = RandomSchedule(-10, 10, rng=rng)
     for _ in range(20):
         val = sched.evaluate(0.0)
         assert -10 <= val <= 10
@@ -96,9 +96,9 @@ def test_random_schedule_values_in_range(rng):
 
 def test_random_schedule_reproducible_with_same_seed(rng):
     # Create two schedules with same seed, verify first call equal
-    sched1 = RandomSchedule(5, 15, random_state=rng)
+    sched1 = RandomSchedule(5, 15, rng=rng)
     rng2 = np.random.default_rng(42)  # fresh identical generator
-    sched2 = RandomSchedule(5, 15, random_state=rng2)
+    sched2 = RandomSchedule(5, 15, rng=rng2)
     assert sched1.evaluate(0.0) == sched2.evaluate(0.0)
 
 
@@ -207,7 +207,7 @@ def test_prob_annealing_log_warn():
 
 def test_noisy_schedule():
     base_sched = LinearSchedule(init_value=0, final_value=1)
-    sched = NoisySchedule(base_sched, random_state=42)
+    sched = NoisySchedule(base_sched, rng=42)
 
     assert sched.evaluate(0.1) != sched.evaluate(0.1)
 
@@ -217,6 +217,6 @@ def test_noisy_schedule():
 
 def test_noisy_schedule():
     base_sched = LinearSchedule(init_value=0, final_value=1)
-    sched = NoisySchedule(base_sched, random_state=42)
+    sched = NoisySchedule(base_sched, rng=42)
 
     assert sched.evaluate(0.1) != sched.evaluate(0.1)

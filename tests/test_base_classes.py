@@ -86,5 +86,5 @@ def test_schedulable_parameter_call_calls_evaluate():
         def evaluate(self, progress):
             return progress * 2
 
-    param = TestParam(random_state=42)
+    param = TestParam(rng=42)
     assert param(0.5) == 1.0

@@ -27,12 +27,12 @@ from metaheuristic_designer.strategies import (
     MemeticStrategy,
 )
 from metaheuristic_designer.benchmarks import BBOBObjective
-from metaheuristic_designer.utils import check_random_state
+from metaheuristic_designer.utils import check_rng
 
 available_algorithms = ("hillclimb", "localsearch", "sa", "es", "ga", "de", "gaussianumda", "gaussianpbil", "crossentropy", "randomsearch")
 
 
-def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations, reporter, random_state):
+def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations, reporter, rng):
     algorithm_params = {
         "stop_condition_str": "convergence or max_evaluations",
         "progress_metric_str": "max_evaluations",
@@ -44,113 +44,113 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
 
     search_strategy_map = {
         "hillclimb": HillClimb(
-            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, random_state=random_state),
-            operator=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, random_state=random_state),
-            random_state=random_state,
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, rng=rng),
+            operator=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, rng=rng),
+            rng=rng,
         ),
         "localsearch": LocalSearch(
-            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, random_state=random_state),
-            operator=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, random_state=random_state),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, rng=rng),
+            operator=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, rng=rng),
             iterations=20,
-            random_state=random_state,
+            rng=rng,
         ),
         "sa": SA(
-            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, random_state=random_state),
-            operator=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, random_state=random_state),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, rng=rng),
+            operator=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, rng=rng),
             iterations=100,
             temperature_init=1,
             alpha=0.997,
-            random_state=random_state,
+            rng=rng,
         ),
         "es": ES(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
             ),
-            mutation_op=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, random_state=random_state),
-            crossover_op=create_operator("crossover.uniform", random_state=random_state),
-            survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
+            mutation_op=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, rng=rng),
+            crossover_op=create_operator("crossover.uniform", rng=rng),
+            survivor_sel=create_survivor_selection("(m+n)", rng=rng),
             offspring_size=150,
-            random_state=random_state,
+            rng=rng,
         ),
         "ga": GA(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
             ),
-            mutation_op=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, random_state=random_state),
-            crossover_op=create_operator("crossover.uniform", random_state=random_state),
-            parent_sel=create_parent_selection("Best", amount=50, random_state=random_state),
-            survivor_sel=create_survivor_selection("Elitism", amount=20, random_state=random_state),
+            mutation_op=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, rng=rng),
+            crossover_op=create_operator("crossover.uniform", rng=rng),
+            parent_sel=create_parent_selection("Best", amount=50, rng=rng),
+            survivor_sel=create_survivor_selection("Elitism", amount=20, rng=rng),
             mutation_prob=0.2,
             crossover_prob=0.8,
-            random_state=random_state,
+            rng=rng,
         ),
         "de": DE(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
             ),
             de_operator_name="DE/best/1",
             F=0.8,
             Cr=0.8,
-            random_state=random_state,
+            rng=rng,
         ),
         "pso": PSO(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
             ),
             w=0.7,
             c1=1.5,
             c2=1.5,
-            random_state=random_state,
+            rng=rng,
         ),
         "cmaes": CMA_ES(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
             ),
             offspring_size=200,
-            random_state=random_state,
+            rng=rng,
         ),
         "gaussianumda": GaussianUMDA(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, rng=rng
             ),
-            parent_sel=create_parent_selection("Best", amount=20, random_state=random_state),
-            survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
+            parent_sel=create_parent_selection("Best", amount=20, rng=rng),
+            survivor_sel=create_survivor_selection("(m+n)", rng=rng),
             scale=0.1,
             noise=1e-3,
-            random_state=random_state,
+            rng=rng,
         ),
         "gaussianpbil": GaussianPBIL(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, rng=rng
             ),
-            parent_sel=create_parent_selection("Best", amount=20, random_state=random_state),
-            survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
+            parent_sel=create_parent_selection("Best", amount=20, rng=rng),
+            survivor_sel=create_survivor_selection("(m+n)", rng=rng),
             scale=0.1,
             lr=0.3,
             noise=1e-3,
-            random_state=random_state,
+            rng=rng,
         ),
         "crossentropy": CrossEntropyMethod(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, rng=rng
             ),
-            random_state=random_state,
+            rng=rng,
         ),
         "bayesianoptimization": BayesianOptimization(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
             ),
             batch_size=50,
             max_samples=100,
-            random_state=random_state,
+            rng=rng,
         ),
         "randomsearch": RandomSearch(
-            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
-            random_state=random_state,
+            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng),
+            rng=rng,
         ),
         "nosearch": NoSearch(
-            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
-            random_state=random_state,
+            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng),
+            rng=rng,
         ),
     }
     if alg_name not in search_strategy_map:
@@ -163,7 +163,7 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
             initializer=UniformInitializer(
                 objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=search_strategy.initializer.population_size
             ),
-            operator=create_operator("mutation.gaussian_noise", F=1e-2, random_state=random_state),
+            operator=create_operator("mutation.gaussian_noise", F=1e-2, rng=rng),
             params={"iters": 20},
         )
         search_strategy = MemeticStrategy(
@@ -173,7 +173,7 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
             local_search_frequency=5,
             improvement_selection=create_parent_selection("best", amount=10),
             keep_improved_solutions=True,
-            random_state=random_state,
+            rng=rng,
         )
 
     alg = Algorithm(objfunc, search_strategy, reporter=reporter, **algorithm_params)
@@ -188,7 +188,7 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
     best_solution, best_objective = population.best_solution()
 
     # Calculate random search baseline
-    random_initializer = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, random_state=42)
+    random_initializer = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, rng=42)
     n_samples = 5000
     population = random_initializer.generate_population(objfunc, n_samples)
     population.calculate_fitness()
@@ -256,7 +256,7 @@ def main():
     parser.add_argument("-v", "--reporter", default="tqdm", help="Reporter to use for progress tracking. Available options are")
     args = parser.parse_args()
 
-    rng = check_random_state(args.seed)
+    rng = check_rng(args.seed)
     logging.basicConfig()
     logging.getLogger("metaheuristic_designer").setLevel(args.log.upper())
 
@@ -269,7 +269,7 @@ def main():
         dim=args.dim,
         evaluations=args.evaluations,
         reporter=args.reporter,
-        random_state=rng,
+        rng=rng,
     )
 
 

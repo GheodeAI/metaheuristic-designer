@@ -12,7 +12,7 @@ from ..survivor_selection_base import SurvivorSelection
 from ..parent_selection import create_parent_selection
 from ..search_strategy import SearchStrategy
 from ..operator import Operator
-from ..utils import check_random_state, RNGLike
+from ..utils import check_rng, RNGLike
 from ..schedulable_parameter import SchedulableParameter
 
 logger = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ class ShuffledPopulationStrategy(SearchStrategy):
         otherwise without replacement (default ``False``).
     name : str, optional
         Display name.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     **kwargs
         Forwarded to :class:`SearchStrategy`.
@@ -59,11 +59,11 @@ class ShuffledPopulationStrategy(SearchStrategy):
         offspring_size: Optional[int | SchedulableParameter] = None,
         shuffle_with_replacement: bool = False,
         name: str = "Variable Population Evolution",
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
         # We need to set up the random state beforehand to handle the initializer correctly
-        random_state = check_random_state(random_state)
+        rng = check_rng(rng)
 
         self.using_custom_offspring_size = offspring_size is not None
 
@@ -79,7 +79,7 @@ class ShuffledPopulationStrategy(SearchStrategy):
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             name=name,
-            random_state=random_state,
+            rng=rng,
             # Forced kwargs
             offspring_size=offspring_size,
             **kwargs,
@@ -108,9 +108,9 @@ class ShuffledPopulationStrategy(SearchStrategy):
             offspring_size = self.offspring_size
 
         if self.shuffle_with_replacement:
-            self.population_shuffler = create_parent_selection("random_with_replacement", amount=offspring_size, random_state=self.random_state)
+            self.population_shuffler = create_parent_selection("random_with_replacement", amount=offspring_size, rng=self.rng)
         else:
-            self.population_shuffler = create_parent_selection("random_without_replacement", amount=offspring_size, random_state=self.random_state)
+            self.population_shuffler = create_parent_selection("random_without_replacement", amount=offspring_size, rng=self.rng)
 
         self._initializer = new_initializer
 

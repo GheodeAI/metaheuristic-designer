@@ -51,7 +51,7 @@ class BranchOperator(Operator):
         Display name; defaults to ``"method(op_names)"``.
     encoding : Encoding, optional
         Encoding applied to the genotype.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     idx : int, optional
         Index of the operator to use when method is ``"pick"`` (default -1).
@@ -69,7 +69,7 @@ class BranchOperator(Operator):
         method: str = None,
         name: str = None,
         encoding: Optional[Encoding] = None,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         idx: int = -1,
         p: float = 0.5,
         **kwargs,
@@ -87,7 +87,7 @@ class BranchOperator(Operator):
             joined_names = ", ".join(op_names)
             name = f"{method}({joined_names})"
 
-        super().__init__(name=name, encoding=encoding, random_state=random_state, p=p, **kwargs)
+        super().__init__(name=name, encoding=encoding, rng=rng, p=p, **kwargs)
 
         if method is None:
             self.method = BranchOpMethods.RANDOM
@@ -131,7 +131,7 @@ class BranchOperator(Operator):
         new_population = copy(population)
 
         if self.method == BranchOpMethods.RANDOM:
-            self.chosen_idx = self.random_state.choice(range(len(self.op_list)), size=(population.population_size,), replace=True, p=self.weights)
+            self.chosen_idx = self.rng.choice(range(len(self.op_list)), size=(population.population_size,), replace=True, p=self.weights)
 
         if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:
             chosen_idx = self.chosen_idx

@@ -53,7 +53,7 @@ class PSO(PopulationBasedStrategy):
     encoding : ParameterExtendingEncoding, optional
         Encoding that includes a ``"speed"`` parameter.  If ``None``,
         a :class:`PSOEncoding` is used.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     **kwargs
         Forwarded to :class:`StaticPopulationStrategy`.
@@ -69,7 +69,7 @@ class PSO(PopulationBasedStrategy):
         c1=1.5,
         c2=1.5,
         encoding: Optional[ParameterExtendingEncoding] = None,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
         if encoding is None:
@@ -86,15 +86,15 @@ class PSO(PopulationBasedStrategy):
             initializer = ExtendedInitializer(
                 solution_init=initializer,
                 param_init_dict={
-                    "speed": UniformInitializer(encoding.dimension, -self.abs_upper_bound, self.abs_upper_bound, random_state=random_state)
+                    "speed": UniformInitializer(encoding.dimension, -self.abs_upper_bound, self.abs_upper_bound, rng=rng)
                 },
-                random_state=random_state,
+                rng=rng,
                 encoding=encoding,
             )
 
         self.encoding = encoding
 
-        pso_op = create_swarm_operator("PSO", encoding=encoding, w=w, c1=c1, c2=c2, random_state=random_state)
+        pso_op = create_swarm_operator("PSO", encoding=encoding, w=w, c1=c1, c2=c2, rng=rng)
 
         super().__init__(initializer, operator=pso_op, name=name, **kwargs)
 

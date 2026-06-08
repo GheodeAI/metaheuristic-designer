@@ -7,7 +7,7 @@ import inspect
 import numpy as np
 from .parametrizable_mixin import ParametrizableMixin
 from .population import Population
-from .utils import check_random_state, RNGLike
+from .utils import check_rng, RNGLike
 
 
 class SurvivorSelection(ParametrizableMixin, ABC):
@@ -25,19 +25,19 @@ class SurvivorSelection(ParametrizableMixin, ABC):
         If ``True``, the order of individuals is kept
         (useful for one-to-one competition schemes).
         Default ``False``.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     **kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
 
-    def __init__(self, name: Optional[str] = None, preserves_order: bool = False, random_state: Optional[RNGLike] = None, **kwargs):
+    def __init__(self, name: Optional[str] = None, preserves_order: bool = False, rng: Optional[RNGLike] = None, **kwargs):
         super().__init__()
 
         self.name = name
         self.preserves_order = preserves_order
-        self.random_state = check_random_state(random_state)
+        self.rng = check_rng(rng)
         self.store_kwargs(**kwargs)
 
         self.last_selection_idx = None
@@ -101,7 +101,7 @@ class NullSurvivorSelection(SurvivorSelection):
     """
 
     def __init__(self, name: Optional[str] = "Nothing", **kwargs):
-        super().__init__(name, preserves_order=True, random_state=None, **kwargs)
+        super().__init__(name, preserves_order=True, rng=None, **kwargs)
 
     def select(self, population: Population, offspring: Population) -> Population:
         self.last_selection_idx = np.arange(population.population_size, population.population_size + offspring.population_size)
@@ -120,25 +120,25 @@ class SurvivorSelectionFromLambda(SurvivorSelection):
     Parameters
     ----------
     selection_fn : callable
-        A function ``(parents, offspring, random_state, **kwargs) -> indices``.
+        A function ``(parents, offspring, rng, **kwargs) -> indices``.
     name : str, optional
         Display name (defaults to the function's ``__name__``).
     preserves_order : bool, optional
         See :class:`SurvivorSelection`.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     **kwargs
         Keyword arguments forwarded to :class:`SurvivorSelection`.
     """
 
     def __init__(
-        self, selection_fn: Callable, name: Optional[str] = None, preserves_order: bool = False, random_state: Optional[RNGLike] = None, **kwargs
+        self, selection_fn: Callable, name: Optional[str] = None, preserves_order: bool = False, rng: Optional[RNGLike] = None, **kwargs
     ):
         if name is None:
             name = selection_fn.__name__ if hasattr(selection_fn, "__name__") else "Custom survivor selection"
 
         self.selection_fn = selection_fn
-        super().__init__(name, preserves_order=preserves_order, random_state=random_state, **kwargs)
+        super().__init__(name, preserves_order=preserves_order, rng=rng, **kwargs)
 
     @staticmethod
     def _validate_function(operator_fn: Callable):
@@ -156,5 +156,5 @@ class SurvivorSelectionFromLambda(SurvivorSelection):
             raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is.")
 
     def select(self, population: Population, offspring: Population) -> Population:
-        selected_idx = self.selection_fn(population, offspring, self.random_state, **self.current_kwargs)
+        selected_idx = self.selection_fn(population, offspring, self.rng, **self.current_kwargs)
         return Population.join_populations(population, offspring).take_selection(selected_idx)

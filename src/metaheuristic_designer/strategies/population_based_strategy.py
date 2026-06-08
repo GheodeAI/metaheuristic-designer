@@ -35,7 +35,7 @@ class PopulationBasedStrategy(SearchStrategy):
         Survivor selection; defaults to generational replacement.
     name : str, optional
         Display name (default ``"Static Population Evolution"``).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     **kwargs
         Forwarded to :class:`SearchStrategy`.
@@ -48,11 +48,11 @@ class PopulationBasedStrategy(SearchStrategy):
         parent_sel: Optional[ParentSelection] = None,
         survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "Static Population Evolution",
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
         super().__init__(
-            initializer, operator=operator, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs
+            initializer, operator=operator, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, rng=rng, **kwargs
         )
 
     def step(self, prev_population: Population) -> Population:

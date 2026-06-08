@@ -11,11 +11,11 @@ import metaheuristic_designer as mhd
 from metaheuristic_designer.benchmarks import ImgApprox, ImgEntropy, ImgStd
 from metaheuristic_designer.encodings import ImageEncoding
 from metaheuristic_designer import simple
-from metaheuristic_designer.utils import check_random_state
+from metaheuristic_designer.utils import check_rng
 
 
 def run_algorithm(alg_name, img_file_name, img_size, obj_name, mode, ngen, display, seed):
-    rng = mhd.check_random_state(seed)
+    rng = mhd.check_rng(seed)
     img_shape = (img_size, img_size)
 
     # ---- objective function ----
@@ -36,12 +36,12 @@ def run_algorithm(alg_name, img_file_name, img_size, obj_name, mode, ngen, displ
 
     # Shared parameters for the simple wrapper
     algo_params = {
-        "stop_cond": "convergence or real_time_limit",
-        "progress_metric": "real_time_limit",
+        "stop_condition_str": "convergence or real_time_limit",
+        "progress_metric_str": "real_time_limit",
         "real_time_limit": 500.0,
         "max_patience": 500,
         "reporter": "tqdm",
-        "random_state": rng,
+        "rng": rng,
         "encoding": img_enc,
     }
 
@@ -68,10 +68,8 @@ def run_algorithm(alg_name, img_file_name, img_size, obj_name, mode, ngen, displ
         pygame.display.set_caption("Evo graphics")
 
     # ---- Manual optimization loop with display ----
+    alg.restart()
     population = alg.initialize()
-    alg.stopping_condition.restart()
-    alg.stopping_condition.update(population)
-    alg.reporter.log_init(alg)
 
     while not alg.stopping_condition.is_finished(alg.search_strategy.finish):
         if display:
@@ -80,11 +78,7 @@ def run_algorithm(alg_name, img_file_name, img_size, obj_name, mode, ngen, displ
                     exit(0)
             src.fill("#000000")
 
-        population = alg.update(population=population)
-
-        alg.history_tracker.update(alg)
-        alg.reporter.log_step(alg)
-        alg.stopping_condition.update(alg.population)
+        population = alg.step(prev_population=population)
 
         if display:
             image, _ = alg.best_solution()
@@ -124,10 +118,10 @@ def render(image, display_dim, src):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-a", "--algorithm", default="ga", type=str.lower, choices=["hillclimb", "sa", "es", "ga", "de", "pso", "randomsearch", "localsearch"]
+        "-a", "--algorithm", default="de", type=str.lower, choices=["hillclimb", "sa", "es", "ga", "de", "pso", "randomsearch", "localsearch"]
     )
     parser.add_argument("-i", "--image", default="data/images/cat.png")
-    parser.add_argument("-s", "--img-size", type=int, default=32, help="Width and height of the image")
+    parser.add_argument("-s", "--img-size", type=int, default=24, help="Width and height of the image")
     parser.add_argument("--mode", default="min", help="'min' or 'max'.")
     parser.add_argument("-o", "--objective", default="mse", type=str.lower, choices=["mse", "mae", "entropy", "std"])
     parser.add_argument("--ngen", type=int, default=1000)
@@ -136,7 +130,7 @@ def main():
     parser.add_argument("--hide", action="store_true", help="Disable real-time display")
     args = parser.parse_args()
 
-    rng = check_random_state(args.seed)
+    rng = check_rng(args.seed)
     logging.basicConfig()
     logging.getLogger("metaheuristic_designer").setLevel(args.log.upper())
 

@@ -34,7 +34,7 @@ class ExponentialDecaySchedule(SchedulableParameter):
     """
 
     def __init__(self, init_value: float, final_value: float = 0, alpha: float = 0.9, iterative: bool = True):
-        super().__init__(random_state=None)
+        super().__init__(rng=None)
 
         if iterative and (alpha > 1 or alpha < 0):
             logger.warning(

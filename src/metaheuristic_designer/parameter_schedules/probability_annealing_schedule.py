@@ -24,11 +24,11 @@ class ProbabilityAnnealingSchedule(StridedSchedule):
         iterations to keep the previous parameter without updating, by default 100
     alpha : float, optional
         multiplier to apply to the temperature each update, by default 0.99
-    random_state
+    rng
         Random state.
     """
 
-    def __init__(self, temperature_init=100, iterations=100, alpha=0.99, random_state=None):
+    def __init__(self, temperature_init=100, iterations=100, alpha=0.99, rng=None):
         if alpha > 1 or alpha < 0:
             logger.warning(
                 "It is HIGHLY recommended that `alpha` stays between 0 and 1 when using iterative exponential decay. Please ensure you know what you're doing"

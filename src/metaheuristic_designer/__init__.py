@@ -7,7 +7,7 @@ operators, selection methods, and search strategies) that can be assembled
 into classical and custom metaheuristics with full reproducibility.
 """
 
-from .utils import check_random_state
+from .utils import check_rng
 
 from .objective_function import ObjectiveFunc, NullObjectiveFunc, ObjectiveFromLambda
 from . import benchmarks
@@ -58,7 +58,7 @@ from . import analysis
 __version__ = "1.0.0"
 
 __all__ = [
-    "check_random_state",
+    "check_rng",
     "ObjectiveFunc",
     "NullObjectiveFunc",
     "ObjectiveFunc",

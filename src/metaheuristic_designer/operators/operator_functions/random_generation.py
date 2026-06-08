@@ -2,7 +2,7 @@
 
 import numpy as np
 from ...initializer import Initializer
-from ...utils import check_random_state
+from ...utils import check_rng
 
 
 def compute_statistic(population_matrix, stat_name="mean", weights=None):
@@ -39,7 +39,7 @@ def compute_statistic(population_matrix, stat_name="mean", weights=None):
     return new_population
 
 
-def random_initialize(population_matrix, initializer: Initializer, random_state=None):
+def random_initialize(population_matrix, initializer: Initializer, rng=None):
     """
     Randomly regenerate the entire population from scratch with the initializer's distribution.
 
@@ -62,7 +62,7 @@ def random_initialize(population_matrix, initializer: Initializer, random_state=
     return random_population_matrix
 
 
-def random_reset(population_matrix, initializer: Initializer, random_state=None, n: int = 1):
+def random_reset(population_matrix, initializer: Initializer, rng=None, n: int = 1):
     """
     Randomly resets n components of each solution.
 
@@ -80,7 +80,7 @@ def random_reset(population_matrix, initializer: Initializer, random_state=None,
         Population matrix with randomly changed components.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
     random_population_matrix = np.empty_like(population_matrix)
     for i, _ in enumerate(population_matrix):
@@ -88,7 +88,7 @@ def random_reset(population_matrix, initializer: Initializer, random_state=None,
 
     mask_pos = np.tile(np.arange(population_matrix.shape[1]) < n, population_matrix.shape[0]).reshape(population_matrix.shape)
 
-    mask_pos = random_state.permuted(mask_pos, axis=1)
+    mask_pos = rng.permuted(mask_pos, axis=1)
 
     population_matrix[mask_pos] = random_population_matrix[mask_pos]
 

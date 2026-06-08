@@ -52,9 +52,9 @@ class NevergradWrapper:
             upper=self.objfunc.upper_bound,
         )
 
-        # Seed via random_state (newer Nevergrad) or global numpy seed
+        # Seed via rng (newer Nevergrad) or global numpy seed
         try:
-            opt = ng.optimizers.registry[self.optimizer_name](parametrization=param, budget=self.budget, random_state=self.seed, **self.opt_kwargs)
+            opt = ng.optimizers.registry[self.optimizer_name](parametrization=param, budget=self.budget, rng=self.seed, **self.opt_kwargs)
         except TypeError:
             # Fallback for older Nevergrad versions
             if self.seed is not None:

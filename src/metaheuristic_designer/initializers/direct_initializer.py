@@ -28,12 +28,12 @@ class DirectInitializer(Initializer):
     encoding : Encoding, optional
         Encoding attached to the population (used when *solutions* is
         a ``Population``).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
     def __init__(
-        self, default_init: Initializer, solutions: Population | List | np.ndarray, encoding: Encoding = None, random_state: Optional[RNGLike] = None
+        self, default_init: Initializer, solutions: Population | List | np.ndarray, encoding: Encoding = None, rng: Optional[RNGLike] = None
     ):
         assert len(solutions) > 0, "The solution set should not be empty."
         if isinstance(solutions, Population):
@@ -48,7 +48,7 @@ class DirectInitializer(Initializer):
         self.default_init = default_init
         self.init_counter = 0
 
-        super().__init__(dimension=inferred_dimension, population_size=len(solutions), random_state=random_state, encoding=encoding)
+        super().__init__(dimension=inferred_dimension, population_size=len(solutions), rng=rng, encoding=encoding)
 
     def generate_random(self) -> VectorLike:
         """Return a completely random individual generated from a fallback initializer strategy

@@ -29,11 +29,11 @@ class CompositeOperator(Operator):
         Display name; defaults to ``"Sequence (op_names)"``.
     encoding : Encoding, optional
         Encoding applied to the genotype.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator (shared with sub-operators).
     """
 
-    def __init__(self, op_list: Iterable[Operator], name: str = None, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None):
+    def __init__(self, op_list: Iterable[Operator], name: str = None, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None):
         if name is None:
             op_names = []
             for op in op_list:
@@ -48,7 +48,7 @@ class CompositeOperator(Operator):
         # We need to define the op_list before the constructor since it's used in the update method
         self.op_list = op_list
 
-        super().__init__(name=name, encoding=encoding, random_state=random_state)
+        super().__init__(name=name, encoding=encoding, rng=rng)
 
     def gather_params(self) -> dict:
         """Collect parameters from this operator and all sub-operators.

@@ -66,7 +66,7 @@ class BOOperator(Operator):
         Encoding applied to the genotype.
     kernel : sklearn Kernel, optional
         GP kernel. Defaults to ``RBF(length_scale=1.0) + WhiteKernel(noise_level=1.0)``.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     batch_size : int, optional
         Number of random starting points for acquisition optimization (default 100).
@@ -84,7 +84,7 @@ class BOOperator(Operator):
         name: str = "Gaussian Regression Surrogate Model",
         encoding: Optional[Encoding] = None,
         kernel: Optional[Callable] = None,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         batch_size: int = 100,
         max_samples: int = 100,
         rbf_scale: float = 1.0,
@@ -93,7 +93,7 @@ class BOOperator(Operator):
         super().__init__(
             name=name,
             encoding=encoding,
-            random_state=random_state,
+            rng=rng,
             # Forced kwargs
             batch_size=batch_size,
             max_samples=max_samples,
@@ -128,7 +128,7 @@ class BOOperator(Operator):
         X = population.genotype_matrix
         y = population.fitness
         if population.population_size > self.params.max_samples:
-            mask = self.random_state.choice(population.population_size, size=self.params.max_samples, replace=False)
+            mask = self.rng.choice(population.population_size, size=self.params.max_samples, replace=False)
             X = X[mask]
             y = y[mask]
 

@@ -18,7 +18,7 @@ def test_extended_operator_rejects_non_extending_encoding(rng):
 
     regular_enc = DefaultEncoding()
     with pytest.raises(TypeError):
-        ExtendedOperator(OperatorFromLambda(lambda p, i, rng, **kw: p, random_state=rng), {}, regular_enc)
+        ExtendedOperator(OperatorFromLambda(lambda p, i, rng, **kw: p, rng=rng), {}, regular_enc)
 
 
 def test_extended_operator_applies_masked_ops(rng, dummy_objfunc):
@@ -27,9 +27,9 @@ def test_extended_operator_applies_masked_ops(rng, dummy_objfunc):
     enc.dimension = 2
 
     # Base operator: adds 10 to the solution part (it receives only solution columns)
-    base_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix + 10), random_state=rng)
+    base_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix + 10), rng=rng)
     # Param operator: multiplies param part by 2
-    param_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix * 2), random_state=rng)
+    param_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix * 2), rng=rng)
 
     ext = ExtendedOperator(base_op, {"speed": param_op}, enc)
 
@@ -59,10 +59,10 @@ def test_adaptative_operator_updates_base_operator_kwargs(rng, dummy_objfunc):
             recorded_kwargs[k] = v
         return pop
 
-    base_op = OperatorFromLambda(record_kwargs, random_state=rng)
+    base_op = OperatorFromLambda(record_kwargs, rng=rng)
 
     # Param operator (identity)
-    param_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop, random_state=rng)
+    param_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop, rng=rng)
 
     adapt = AdaptiveOperator(base_op, {"speed": param_op}, enc)
 

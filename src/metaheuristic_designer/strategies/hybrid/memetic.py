@@ -29,7 +29,7 @@ class MemeticStrategy(SearchStrategy):
         to just update the fitness keeping the original solution values (Baldwinian memetic algorithms), by default True
     improvement_selection : ParentSelection, optional
         Selection method with which to pick the solutions that will be improved with local search, by default None
-    random_state : Operator[RNGLike], optional
+    rng : Operator[RNGLike], optional
         Random number generator, by default None
     """
 
@@ -41,7 +41,7 @@ class MemeticStrategy(SearchStrategy):
         local_search_frequency: int = 1,
         keep_improved_solutions: bool = True,
         improvement_selection: ParentSelection = None,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
     ):
         self.main_strategy = main_strategy
         self.local_search_heuristic = local_search_heuristic
@@ -51,7 +51,7 @@ class MemeticStrategy(SearchStrategy):
 
         super().__init__(
             main_strategy.initializer,
-            random_state=random_state,
+            rng=rng,
             # Forced kwargs
             local_search_depth=local_search_depth,
             local_search_frequency=local_search_frequency,

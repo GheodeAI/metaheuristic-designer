@@ -39,7 +39,7 @@ class BayesianOptimization(PopulationBasedStrategy):
         initializer: Initializer,
         parent_sel: ParentSelection = None,
         name: str = "Bayesian Optimization",
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
-        super().__init__(initializer, operator=BOOperator(random_state=random_state, **kwargs), parent_sel=parent_sel, name=name, **kwargs)
+        super().__init__(initializer, operator=BOOperator(rng=rng, **kwargs), parent_sel=parent_sel, name=name, **kwargs)

@@ -15,7 +15,7 @@ keywords = ["optimization", "genetic-algorithm", "evolutionary-algorithms", "met
 license = {text = "LICENSE"}
 dependencies = [
     "numpy",
-    "scipy",
+    "scipy>=1.15",
     "pyparsing",
     "pandas",
     "scikit-image",
@@ -45,7 +45,7 @@ examples = [
     "networkx",
     "opencv-python",
     "matplotlib",
-    "seaborn",
+    "seaborn>=0.13.2",
     "jupyter",
     "ipywidgets",
     "plotly",

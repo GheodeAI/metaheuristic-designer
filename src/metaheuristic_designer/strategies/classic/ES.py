@@ -11,7 +11,7 @@ from ...survivor_selection_base import SurvivorSelection
 from ...parent_selection_base import ParentSelection
 from ...operators import CompositeOperator
 from ..shuffled_population_strategy import ShuffledPopulationStrategy
-from ...utils import RNGLike, check_random_state
+from ...utils import RNGLike, check_rng
 
 
 class ES(ShuffledPopulationStrategy):
@@ -51,10 +51,10 @@ class ES(ShuffledPopulationStrategy):
         survivor_sel: Optional[SurvivorSelection] = None,
         offspring_size: Optional[int] = None,
         name: str = "ES",
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
-        random_state = check_random_state(random_state)
+        rng = check_rng(rng)
         if crossover_op is None:
             evolve_op = mutation_op
         else:
@@ -67,6 +67,6 @@ class ES(ShuffledPopulationStrategy):
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,
             name=name,
-            random_state=random_state,
+            rng=rng,
             **kwargs,
         )

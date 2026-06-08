@@ -151,7 +151,7 @@ keyword parameters.
 .. code-block:: python
 
     from metaheuristic_designer.operators import create_operator
-    op = create_operator("mutation.gaussian_mutation", F=0.2, random_state=42)
+    op = create_operator("mutation.gaussian_mutation", F=0.2, rng=42)
 
 A few built-in operators do **not** follow the factory pattern:
 

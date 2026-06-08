@@ -33,12 +33,12 @@ class LatinHypercubeInitializer(Initializer):
         Encoding that will be passed to each individual.
     dtype : type, optional
         Desired NumPy dtype of the generated vectors (default ``float``).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
-    def __init__(self, dimension, lower_bound, upper_bound, population_size=1, encoding=None, dtype=float, random_state=None):
-        super().__init__(dimension=dimension, population_size=population_size, encoding=encoding, random_state=random_state)
+    def __init__(self, dimension, lower_bound, upper_bound, population_size=1, encoding=None, dtype=float, rng=None):
+        super().__init__(dimension=dimension, population_size=population_size, encoding=encoding, rng=rng)
 
         if type(lower_bound) in [list, tuple, np.ndarray]:
             if len(lower_bound) != dimension:
@@ -57,7 +57,7 @@ class LatinHypercubeInitializer(Initializer):
             self.upper_bound = np.repeat(upper_bound, self.dimension)
 
         self.dtype = dtype
-        self.fallback = UniformInitializer(dimension, lower_bound, upper_bound, dtype=dtype, random_state=random_state)
+        self.fallback = UniformInitializer(dimension, lower_bound, upper_bound, dtype=dtype, rng=rng)
 
     def generate_random(self):
         return self.fallback.generate_random()
@@ -83,8 +83,8 @@ class LatinHypercubeInitializer(Initializer):
             n_individuals = self.population_size
 
         idx_matrix = np.tile(np.arange(n_individuals), reps=(self.dimension, 1)).T
-        perm_matrix = self.random_state.permuted(idx_matrix, axis=0)
-        unif_samples = self.random_state.random((n_individuals, self.dimension))
+        perm_matrix = self.rng.permuted(idx_matrix, axis=0)
+        unif_samples = self.rng.random((n_individuals, self.dimension))
         norm_pop_matrix = (perm_matrix + unif_samples) / n_individuals
         population_matrix = (self.upper_bound - self.lower_bound) * norm_pop_matrix + self.lower_bound
 

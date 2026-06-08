@@ -13,7 +13,7 @@ from metaheuristic_designer.encodings import ParameterExtendingEncoding
 #  Factory
 # ===================================================================
 def test_create_swarm_operator_returns_operator(rng, pso_population):
-    op = create_swarm_operator("pso", encoding=pso_population.encoding, random_state=rng)
+    op = create_swarm_operator("pso", encoding=pso_population.encoding, rng=rng)
     assert isinstance(op, OperatorFromLambda)
     assert op.name == "pso"
 
@@ -28,7 +28,7 @@ def test_create_swarm_operator_invalid_method(rng, pso_population):
 # ===================================================================
 def test_pso_operator_wrapper_updates_genotype(rng, pso_population):
     original_geno = pso_population.genotype_matrix.copy()
-    op = create_swarm_operator("pso", encoding=pso_population.encoding, random_state=rng, w=0.7, c1=1.5, c2=1.5)
+    op = create_swarm_operator("pso", encoding=pso_population.encoding, rng=rng, w=0.7, c1=1.5, c2=1.5)
     result = op(pso_population)
 
     # The population itself is returned (same object)
@@ -59,8 +59,8 @@ def test_pso_operator_wrapper_reproducible(rng, dummy_objfunc):
 
     rng1 = np.random.default_rng(42)
     rng2 = np.random.default_rng(42)
-    op1 = create_swarm_operator("pso", encoding=enc, random_state=rng1, w=0.7, c1=1.5, c2=1.5)
-    op2 = create_swarm_operator("pso", encoding=enc, random_state=rng2, w=0.7, c1=1.5, c2=1.5)
+    op1 = create_swarm_operator("pso", encoding=enc, rng=rng1, w=0.7, c1=1.5, c2=1.5)
+    op2 = create_swarm_operator("pso", encoding=enc, rng=rng2, w=0.7, c1=1.5, c2=1.5)
     op1(pop1)
     op2(pop2)
 

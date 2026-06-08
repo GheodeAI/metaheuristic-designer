@@ -10,14 +10,14 @@ from ..objective_function import ObjectiveFunc
 from ..algorithm import Algorithm
 from ..initializers import UniformInitializer
 from ..strategies import BayesianOptimization
-from ..utils import RNGLike, check_random_state
+from ..utils import RNGLike, check_rng
 
 
 def bayesian_optimization_binary(
     objfunc: ObjectiveFunc,
     population_size: int = 50,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """
@@ -30,7 +30,7 @@ def bayesian_optimization_discrete(
     objfunc: ObjectiveFunc,
     population_size: int = 50,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """
@@ -43,7 +43,7 @@ def bayesian_optimization_real(
     objfunc: ObjectiveFunc,
     population_size: int = 50,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Bayesian optimization for real-coded vectors.
@@ -56,13 +56,13 @@ def bayesian_optimization_real(
         Number of individuals in the initial population (default 50).
     encoding : Encoding, optional
         Encoding applied to the genotype.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     pop_initializer = UniformInitializer(
         objfunc.dimension,
         objfunc.lower_bound,
@@ -70,10 +70,10 @@ def bayesian_optimization_real(
         population_size=population_size,
         dtype=float,
         encoding=encoding,
-        random_state=random_state,
+        rng=rng,
     )
     search_strategy = BayesianOptimization(
         initializer=pop_initializer,
-        random_state=random_state,
+        rng=rng,
     )
     return Algorithm(objfunc, search_strategy, **kwargs)

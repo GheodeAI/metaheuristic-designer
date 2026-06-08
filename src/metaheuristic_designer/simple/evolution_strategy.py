@@ -14,7 +14,7 @@ from ..strategies import ES
 from ..algorithms import Algorithm
 from ..operators import create_operator
 from ..survivor_selection import create_survivor_selection
-from ..utils import RNGLike, check_random_state
+from ..utils import RNGLike, check_rng
 
 
 def evolution_strategy_binary(
@@ -24,7 +24,7 @@ def evolution_strategy_binary(
     offspring_size: int = 500,
     elitist: bool = False,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Evolution Strategy for binary-coded vectors.
@@ -43,22 +43,22 @@ def evolution_strategy_binary(
         If ``True``, use (μ+λ) selection; otherwise (μ,λ).
     encoding : Encoding, optional
         Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     encoding = TypeCastEncoding(int, bool) if encoding is None else encoding
     pop_initializer = UniformInitializer(
-        objfunc.dimension, 0, 1, population_size=population_size, dtype=np.uint8, encoding=encoding, random_state=random_state
+        objfunc.dimension, 0, 1, population_size=population_size, dtype=np.uint8, encoding=encoding, rng=rng
     )
-    mutation_op = create_operator("mutation.bitflip", N=mutated_bits, random_state=random_state)
+    mutation_op = create_operator("mutation.bitflip", N=mutated_bits, rng=rng)
     method = "keep_best" if elitist else "keep_offspring"
-    survivor_sel = create_survivor_selection(method, random_state=random_state)
+    survivor_sel = create_survivor_selection(method, rng=rng)
     search_strat = ES(
-        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, random_state=random_state
+        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, rng=rng
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -70,7 +70,7 @@ def evolution_strategy_permutation(
     offspring_size: int = 500,
     elitist: bool = False,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Evolution Strategy for permutation-coded vectors.
@@ -89,19 +89,19 @@ def evolution_strategy_permutation(
         If ``True``, use (μ+λ) selection; otherwise (μ,λ).
     encoding : Encoding, optional
         Encoding applied to the genotype.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
-    pop_initializer = PermInitializer(objfunc.dimension, population_size=population_size, encoding=encoding, random_state=random_state)
-    mutation_op = create_operator("permutation.swap", N=swapped_positions, random_state=random_state)
+    rng = check_rng(rng)
+    pop_initializer = PermInitializer(objfunc.dimension, population_size=population_size, encoding=encoding, rng=rng)
+    mutation_op = create_operator("permutation.swap", N=swapped_positions, rng=rng)
     method = "keep_best" if elitist else "keep_offspring"
-    survivor_sel = create_survivor_selection(method, random_state=random_state)
+    survivor_sel = create_survivor_selection(method, rng=rng)
     search_strat = ES(
-        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, random_state=random_state
+        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, rng=rng
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -113,7 +113,7 @@ def evolution_strategy_discrete(
     offspring_size: int = 500,
     elitist: bool = False,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Evolution Strategy for integer-coded vectors.
@@ -132,13 +132,13 @@ def evolution_strategy_discrete(
         If ``True``, use (μ+λ) selection; otherwise (μ,λ).
     encoding : Encoding, optional
         Encoding applied to the genotype.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     pop_initializer = UniformInitializer(
         objfunc.dimension,
         objfunc.lower_bound,
@@ -146,13 +146,13 @@ def evolution_strategy_discrete(
         population_size=population_size,
         dtype=int,
         encoding=encoding,
-        random_state=random_state,
+        rng=rng,
     )
-    mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
+    mutation_op = create_operator("random.reset", n=resampled_components, rng=rng)
     method = "keep_best" if elitist else "keep_offspring"
-    survivor_sel = create_survivor_selection(method, random_state=random_state)
+    survivor_sel = create_survivor_selection(method, rng=rng)
     search_strat = ES(
-        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, random_state=random_state
+        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, rng=rng
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -165,7 +165,7 @@ def evolution_strategy_real(
     offspring_size: int = 500,
     elitist: bool = False,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Evolution Strategy for integer-coded vectors.
@@ -184,13 +184,13 @@ def evolution_strategy_real(
         If ``True``, use (μ+λ) selection; otherwise (μ,λ).
     encoding : Encoding, optional
         Encoding applied to the genotype.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     pop_initializer = UniformInitializer(
         objfunc.dimension,
         objfunc.lower_bound,
@@ -198,12 +198,12 @@ def evolution_strategy_real(
         population_size=population_size,
         dtype=float,
         encoding=encoding,
-        random_state=random_state,
+        rng=rng,
     )
-    mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
+    mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, rng=rng)
     method = "keep_best" if elitist else "keep_offspring"
-    survivor_sel = create_survivor_selection(method, random_state=random_state)
+    survivor_sel = create_survivor_selection(method, rng=rng)
     search_strat = ES(
-        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, random_state=random_state
+        initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, rng=rng
     )
     return Algorithm(objfunc, search_strat, **kwargs)

@@ -16,14 +16,14 @@ class RandomSchedule(SchedulableParameter):
         Lower bound of the random interval.
     final_value : float
         Upper bound of the random interval.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
-    def __init__(self, init_value: float, final_value: float, random_state: Optional[RNGLike] = None):
-        super().__init__(random_state=random_state)
+    def __init__(self, init_value: float, final_value: float, rng: Optional[RNGLike] = None):
+        super().__init__(rng=rng)
         self.init_value = init_value
         self.final_value = final_value
 
     def evaluate(self, progress: float) -> float:
-        return self.random_state.uniform(self.init_value, self.final_value)
+        return self.rng.uniform(self.init_value, self.final_value)

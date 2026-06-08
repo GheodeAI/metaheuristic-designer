@@ -7,7 +7,7 @@ from metaheuristic_designer import simple
 
 
 def run_algorithm(alg_name, problem, ngen, seed):
-    rng = mhd.check_random_state(seed)
+    rng = mhd.check_rng(seed)
 
     # ---- objective ----
     if problem == "knapsack":
@@ -36,7 +36,7 @@ def run_algorithm(alg_name, problem, ngen, seed):
         "stop_condition_str": "max_iterations",
         "max_iterations": ngen,
         "reporter": "tqdm",
-        "random_state": rng,
+        "rng": rng,
     }
 
     # Choose the wrapper family based on encoding type

@@ -14,13 +14,13 @@ from metaheuristic_designer.population import Population
 # -------------------------------------------------------------------
 @pytest.mark.parametrize("method", ["swap", "scramble", "invert", "roll", "pmx", "order_cross"])
 def test_create_permutation_operator_returns_operator(method, rng, simple_encoding):
-    op = create_permutation_operator(method, encoding=simple_encoding, random_state=rng)
+    op = create_permutation_operator(method, encoding=simple_encoding, rng=rng)
     assert isinstance(op, OperatorFromLambda)
     assert op.name == method
 
 
 def test_create_permutation_operator_default_encoding(rng):
-    op = create_permutation_operator("swap", random_state=rng)
+    op = create_permutation_operator("swap", rng=rng)
     assert op.encoding is not None
 
 
@@ -38,7 +38,7 @@ def test_swap_operator_modifies_genotype(rng, dummy_objfunc, simple_encoding):
     pop = Population(dummy_objfunc, geno)
     pop.fitness = np.zeros(4)
 
-    op = create_permutation_operator("swap", encoding=simple_encoding, random_state=rng)
+    op = create_permutation_operator("swap", encoding=simple_encoding, rng=rng)
     result = op(pop)
 
     assert result is pop
@@ -54,8 +54,8 @@ def test_permutation_operator_reproducible(rng, dummy_objfunc, simple_encoding):
     rng1 = np.random.default_rng(42)
     rng2 = np.random.default_rng(42)
 
-    op1 = create_permutation_operator("swap", encoding=simple_encoding, random_state=rng1)
-    op2 = create_permutation_operator("swap", encoding=simple_encoding, random_state=rng2)
+    op1 = create_permutation_operator("swap", encoding=simple_encoding, rng=rng1)
+    op2 = create_permutation_operator("swap", encoding=simple_encoding, rng=rng2)
 
     op1(pop1)
     op2(pop2)

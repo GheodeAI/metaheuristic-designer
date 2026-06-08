@@ -5,20 +5,20 @@ import numpy as np
 import metaheuristic_designer as mhd
 from metaheuristic_designer.benchmarks import BBOBObjective
 from metaheuristic_designer.initializers import UniformInitializer
-from metaheuristic_designer.utils import check_random_state
+from metaheuristic_designer.utils import check_rng
 from metaheuristic_designer import simple
 
 available_algorithms = ("hillclimb", "localsearch", "sa", "es", "ga", "de", "pso", "randomsearch")
 
 
-def run_algorithm(alg_name, fid, instance, dim, reporter, evaluations, save_state, random_state):
+def run_algorithm(alg_name, fid, instance, dim, reporter, evaluations, save_state, rng):
     algorithm_params = {
         "stop_condition_str": "convergence or max_evaluations",
         "progress_metric_str": "max_evaluations",
         "max_evaluations": evaluations,
         "max_patience": 500,
         "reporter": reporter,
-        "random_state": random_state,
+        "rng": rng,
     }
 
     objfunc = BBOBObjective(fid=fid, dimension=dim, instance=instance, compact_name=False)
@@ -48,7 +48,7 @@ def run_algorithm(alg_name, fid, instance, dim, reporter, evaluations, save_stat
     best_solution, best_objective = population.best_solution()
 
     # Calculate random search baseline
-    random_initializer = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, random_state=42)
+    random_initializer = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, rng=42)
     n_samples = 5000
     population = random_initializer.generate_population(objfunc, n_samples)
     population.calculate_fitness()
@@ -109,7 +109,7 @@ def main():
     parser.add_argument("-v", "--reporter", default="tqdm", help="Reporter to use for progress tracking. Available options are")
     args = parser.parse_args()
 
-    rng = check_random_state(args.seed)
+    rng = check_rng(args.seed)
     logging.basicConfig()
     logging.getLogger("metaheuristic_designer").setLevel(args.log.upper())
 
@@ -121,7 +121,7 @@ def main():
         evaluations=args.evaluations,
         reporter=args.reporter,
         save_state=args.save_state,
-        random_state=rng,
+        rng=rng,
     )
 
 

@@ -23,17 +23,17 @@ class ExtendedInitializer(Initializer):
         Mapping of parameter names to their corresponding initializers.
     encoding : ParameterExtendingEncoding
         The extended encoding that defines the parameter layout.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
-    def __init__(self, solution_init: Initializer, param_init_dict: dict, encoding: ParameterExtendingEncoding, random_state=None):
+    def __init__(self, solution_init: Initializer, param_init_dict: dict, encoding: ParameterExtendingEncoding, rng=None):
         assert isinstance(encoding, ParameterExtendingEncoding), "An `ExtendedEncoding` instance must be used with this type of initializer"
         super().__init__(
             dimension=solution_init.dimension + encoding.nparams,
             population_size=solution_init.population_size,
             encoding=encoding,
-            random_state=random_state,
+            rng=rng,
         )
         self.solution_init = solution_init
         self.param_init_dict = param_init_dict

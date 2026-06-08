@@ -37,14 +37,14 @@ def test_cma_es_instantiation(rng, dummy_initializer):
 #  DE
 # ===================================================================
 def test_de_default_creation(rng, dummy_initializer):
-    algo = DE(initializer=dummy_initializer, random_state=rng)
+    algo = DE(initializer=dummy_initializer, rng=rng)
     assert algo.name == "DE"
     assert algo.operator is not None
     assert algo.survivor_sel is not None
 
 
 def test_de_custom_name_and_params(rng, dummy_initializer):
-    algo = DE(initializer=dummy_initializer, de_operator_name="DE/rand/1", name="MyDE", F=0.5, Cr=0.7, random_state=rng)
+    algo = DE(initializer=dummy_initializer, de_operator_name="DE/rand/1", name="MyDE", F=0.5, Cr=0.7, rng=rng)
     assert algo.name == "MyDE"
 
 
@@ -52,13 +52,13 @@ def test_de_custom_name_and_params(rng, dummy_initializer):
 #  ES
 # ===================================================================
 def test_es_mutation_only(rng, dummy_initializer, dummy_operator):
-    algo = ES(initializer=dummy_initializer, mutation_op=dummy_operator, random_state=rng)
+    algo = ES(initializer=dummy_initializer, mutation_op=dummy_operator, rng=rng)
     assert algo.operator is dummy_operator
     assert algo.name == "ES"
 
 
 def test_es_with_crossover(rng, dummy_initializer, dummy_operator):
-    algo = ES(initializer=dummy_initializer, mutation_op=dummy_operator, crossover_op=dummy_operator, random_state=rng)
+    algo = ES(initializer=dummy_initializer, mutation_op=dummy_operator, crossover_op=dummy_operator, rng=rng)
     from metaheuristic_designer.operators.composite_operator import CompositeOperator
 
     assert isinstance(algo.operator, CompositeOperator)
@@ -76,7 +76,7 @@ def test_ga_creation(rng, dummy_initializer, dummy_operator, dummy_parent_select
         survivor_sel=dummy_survivor_selection,
         mutation_prob=0.1,
         crossover_prob=0.9,
-        random_state=rng,
+        rng=rng,
     )
     assert algo.name == "GA"
     assert isinstance(algo.operator, Operator)
@@ -89,7 +89,7 @@ def test_ga_default_names(rng, dummy_initializer, dummy_operator, dummy_parent_s
         crossover_op=dummy_operator,
         parent_sel=dummy_parent_selection,
         survivor_sel=dummy_survivor_selection,
-        random_state=rng,
+        rng=rng,
     )
     assert algo.name == "GA"
 
@@ -98,7 +98,7 @@ def test_ga_default_names(rng, dummy_initializer, dummy_operator, dummy_parent_s
 #  RandomSearch
 # ===================================================================
 def test_random_search_creation(rng, dummy_initializer):
-    algo = RandomSearch(initializer=dummy_initializer, name="RS", random_state=rng)
+    algo = RandomSearch(initializer=dummy_initializer, name="RS", rng=rng)
     assert algo.name == "RS"
     assert algo.operator is not None
 
@@ -107,12 +107,12 @@ def test_random_search_creation(rng, dummy_initializer):
 #  Simulated Annealing
 # ===================================================================
 def test_sa_initial_temperature(rng, dummy_initializer, dummy_operator):
-    algo = SA(initializer=dummy_initializer, operator=dummy_operator, temperature_init=200, random_state=rng)
+    algo = SA(initializer=dummy_initializer, operator=dummy_operator, temperature_init=200, rng=rng)
     assert algo.temperature == 200
 
 
 def test_sa_temperature_decreases_after_many_steps(rng, dummy_initializer, dummy_operator):
-    algo = SA(initializer=dummy_initializer, operator=dummy_operator, iterations=2, temperature_init=100, alpha=0.5, random_state=rng)
+    algo = SA(initializer=dummy_initializer, operator=dummy_operator, iterations=2, temperature_init=100, alpha=0.5, rng=rng)
     # Initial temperature
     assert algo.temperature == 100
     # Call step many times to guarantee temperature drops

@@ -2,14 +2,14 @@
 
 from typing import Optional
 import numpy as np
-from ...utils import MatrixLike, RNGLike, VectorLike, check_random_state
+from ...utils import MatrixLike, RNGLike, VectorLike, check_rng
 from .crossover import create_pairing_fn
 
 
 def permute_mutation(
     population_array: MatrixLike,
     fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     N: Optional[int] = None,
 ) -> MatrixLike:
     """
@@ -25,7 +25,7 @@ def permute_mutation(
         Population of shape ``(pop_size, num_components)``.
     fitness_array : VectorLike
         Fitness values (unused; kept for interface consistency).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     N : int, optional
         Number of components to permute. Clipped between 2 and the number
@@ -36,7 +36,7 @@ def permute_mutation(
     MatrixLike
         The mutated population with permuted components.
     """
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
     if N is None:
         N = population_array.shape[0]
@@ -44,14 +44,14 @@ def permute_mutation(
     N = np.clip(N, 2, population_array.shape[0])
 
     mask_pos = np.tile(np.arange(population_array.shape[1]), (population_array.shape[0], 1))
-    mask_pos = random_state.permuted(mask_pos, axis=1)[:, :N]
+    mask_pos = rng.permuted(mask_pos, axis=1)[:, :N]
 
     if N == 2:
         population_array[np.arange(population_array.shape[0])[:, None], mask_pos] = population_array[
             np.arange(population_array.shape[0])[:, None], mask_pos
         ][:, ::-1]
     else:
-        population_array[np.arange(population_array.shape[0])[:, None], mask_pos] = random_state.permuted(
+        population_array[np.arange(population_array.shape[0])[:, None], mask_pos] = rng.permuted(
             population_array[np.arange(population_array.shape[0])[:, None], mask_pos], axis=1
         )
 
@@ -61,7 +61,7 @@ def permute_mutation(
 def roll_mutation(
     population_array: MatrixLike,
     fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     N: int = 1,
 ) -> MatrixLike:
     """
@@ -78,7 +78,7 @@ def roll_mutation(
         Population of shape ``(pop_size, num_components)``.
     fitness_array : VectorLike
         Fitness values (unused).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     N : int, optional
         Number of positions to roll inside the segment. Default is 1.
@@ -88,10 +88,10 @@ def roll_mutation(
     MatrixLike
         The mutated population.
     """
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
-    roll_start = random_state.integers(0, population_array.shape[1] - 2, population_array.shape[0])
-    roll_end = random_state.integers(roll_start + 2, population_array.shape[1] + 1, (population_array.shape[0]))
+    roll_start = rng.integers(0, population_array.shape[1] - 2, population_array.shape[0])
+    roll_end = rng.integers(roll_start + 2, population_array.shape[1] + 1, (population_array.shape[0]))
 
     def roll_individual(indiv, start, end, n):
         indiv_copy = indiv.copy()
@@ -106,7 +106,7 @@ def roll_mutation(
 def invert_mutation(
     population_array: MatrixLike,
     fitness_array: VectorLike,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
 ) -> MatrixLike:
     """
     Reverse the order of a random contiguous segment in each individual.
@@ -120,7 +120,7 @@ def invert_mutation(
         Population of shape ``(pop_size, num_components)``.
     fitness_array : VectorLike
         Fitness values (unused).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
 
     Returns
@@ -128,10 +128,10 @@ def invert_mutation(
     MatrixLike
         The mutated population.
     """
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
-    invert_start = random_state.integers(0, population_array.shape[1] - 2, population_array.shape[0])
-    invert_end = random_state.integers(invert_start + 2, population_array.shape[1] + 1, population_array.shape[0])
+    invert_start = rng.integers(0, population_array.shape[1] - 2, population_array.shape[0])
+    invert_end = rng.integers(invert_start + 2, population_array.shape[1] + 1, population_array.shape[0])
 
     def invert_individual(indiv, start, end):
         indiv_copy = indiv.copy()
@@ -148,7 +148,7 @@ def pmx(
     fitness_array: VectorLike,
     pairing_method: str = "random",
     crossover_prob: float = 1,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
 ) -> MatrixLike:
     """
     Partially Mapped Crossover (PMX) for permutation chromosomes.
@@ -171,7 +171,7 @@ def pmx(
         Pairing strategy (``"random"`` or ``"stable"``).
     crossover_prob : float, optional
         Probability of applying crossover to a pair.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
 
     Returns
@@ -179,19 +179,19 @@ def pmx(
     MatrixLike
         Offspring population of shape ``(N, M)``.
     """
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
     population_size, n_components = population_array.shape
 
     pairing_fn = create_pairing_fn(pairing_method)
-    parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
+    parents1, parents2 = pairing_fn(population_array, fitness_array, rng)
     n_parents, _ = parents1.shape
 
     crossed = np.empty((n_parents * 2, n_components))
     for i in range(n_parents):
-        if random_state.random() < crossover_prob:
-            crossed[i] = pmx_single(parents1[i], parents2[i], random_state=random_state)
-            crossed[i + n_parents] = pmx_single(parents2[i], parents1[i], random_state=random_state)
+        if rng.random() < crossover_prob:
+            crossed[i] = pmx_single(parents1[i], parents2[i], rng=rng)
+            crossed[i + n_parents] = pmx_single(parents2[i], parents1[i], rng=rng)
         else:
             crossed[i] = parents1[i]
             crossed[i + n_parents] = parents2[i]
@@ -202,7 +202,7 @@ def pmx(
 def pmx_single(
     vector1: VectorLike,
     vector2: VectorLike,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
 ) -> VectorLike:
     """
     Core PMX operation for a single pair of parents.
@@ -214,7 +214,7 @@ def pmx_single(
     ----------
     vector1, vector2 : VectorLike
         Two parent permutations (1-D arrays).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
 
     Returns
@@ -223,8 +223,8 @@ def pmx_single(
         One offspring permutation.
     """
 
-    cross_point1 = random_state.integers(0, vector1.size - 2)
-    cross_point2 = random_state.integers(cross_point1 + 1, vector1.size)
+    cross_point1 = rng.integers(0, vector1.size - 2)
+    cross_point2 = rng.integers(cross_point1 + 1, vector1.size)
 
     # Segmentamos
     child = np.full_like(vector1, -1)
@@ -260,7 +260,7 @@ def order_cross(
     fitness_array: VectorLike,
     pairing_method: str = "random",
     crossover_prob: float = 1,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
 ) -> MatrixLike:
     """
     Order Crossover (OX) for permutation chromosomes.
@@ -280,7 +280,7 @@ def order_cross(
         Pairing strategy.
     crossover_prob : float, optional
         Probability of applying crossover to a pair.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
 
     Returns
@@ -288,19 +288,19 @@ def order_cross(
     MatrixLike
         Offspring population of shape ``(N, M)``.
     """
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
     population_size, n_components = population_array.shape
 
     pairing_fn = create_pairing_fn(pairing_method)
-    parents1, parents2 = pairing_fn(population_array, fitness_array, random_state)
+    parents1, parents2 = pairing_fn(population_array, fitness_array, rng)
     n_parents, _ = parents1.shape
 
     crossed = np.empty((n_parents * 2, n_components))
     for i in range(n_parents):
-        if random_state.random() < crossover_prob:
-            crossed[i] = order_cross_single(parents1[i], parents2[i], random_state=random_state)
-            crossed[i + n_parents] = order_cross_single(parents2[i], parents1[i], random_state=random_state)
+        if rng.random() < crossover_prob:
+            crossed[i] = order_cross_single(parents1[i], parents2[i], rng=rng)
+            crossed[i + n_parents] = order_cross_single(parents2[i], parents1[i], rng=rng)
         else:
             crossed[i] = parents1[i]
             crossed[i + n_parents] = parents2[i]
@@ -311,7 +311,7 @@ def order_cross(
 def order_cross_single(
     vector1: VectorLike,
     vector2: VectorLike,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
 ) -> VectorLike:
     """
     Core OX operation for a single pair of parents.
@@ -320,7 +320,7 @@ def order_cross_single(
     ----------
     vector1, vector2 : VectorLike
         Two parent permutations.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
 
     Returns
@@ -328,8 +328,8 @@ def order_cross_single(
     VectorLike
         One offspring permutation.
     """
-    cross_point1 = random_state.integers(0, vector1.size - 2)
-    cross_point2 = random_state.integers(cross_point1, vector1.size)
+    cross_point1 = rng.integers(0, vector1.size - 2)
+    cross_point2 = rng.integers(cross_point1, vector1.size)
 
     child = np.full_like(vector1, -1)
     range_vec = np.arange(vector1.size)

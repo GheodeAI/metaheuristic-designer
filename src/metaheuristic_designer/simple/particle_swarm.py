@@ -9,7 +9,7 @@ from ..algorithm import Algorithm
 from ..initializers import UniformInitializer
 from ..encodings import TypeCastEncoding, SigmoidEncoding
 from ..strategies import PSO
-from ..utils import RNGLike, check_random_state
+from ..utils import RNGLike, check_rng
 
 
 def particle_swarm_binary(
@@ -19,7 +19,7 @@ def particle_swarm_binary(
     c1: float = 1.5,
     c2: float = 1.5,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Particle Swarm optimization for binary-coded vectors.
@@ -38,13 +38,13 @@ def particle_swarm_binary(
         Social acceleration coefficient (default 1.5).
     encoding : Encoding, optional
         Encoding; defaults to :class:`SigmoidEncoding`.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     if encoding is None:
         encoding = SigmoidEncoding(as_probability=False, threshold=0.5)
     pop_initializer = UniformInitializer(
@@ -54,14 +54,14 @@ def particle_swarm_binary(
         population_size=population_size,
         dtype=float,
         encoding=encoding,
-        random_state=random_state,
+        rng=rng,
     )
     search_strat = PSO(
         initializer=pop_initializer,
         w=w,
         c1=c1,
         c2=c2,
-        random_state=random_state,
+        rng=rng,
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -73,7 +73,7 @@ def particle_swarm_discrete(
     c1: float = 1.5,
     c2: float = 1.5,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Particle Swarm optimization for integer-coded vectors.
@@ -92,12 +92,12 @@ def particle_swarm_discrete(
         Social acceleration coefficient (default 1.5).
     encoding : Encoding, optional
         Encoding; defaults to :class:`TypeCastEncoding` (float → int).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     if encoding is None:
         encoding = TypeCastEncoding(float, int)
     pop_initializer = UniformInitializer(
@@ -107,14 +107,14 @@ def particle_swarm_discrete(
         population_size=population_size,
         dtype=float,
         encoding=encoding,
-        random_state=random_state,
+        rng=rng,
     )
     search_strat = PSO(
         initializer=pop_initializer,
         w=w,
         c1=c1,
         c2=c2,
-        random_state=random_state,
+        rng=rng,
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -126,7 +126,7 @@ def particle_swarm_real(
     c1: float = 1.5,
     c2: float = 1.5,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Particle Swarm Optimization for real-coded vectors.
@@ -145,12 +145,12 @@ def particle_swarm_real(
         Social acceleration coefficient (default 1.5).
     encoding : Encoding, optional
         Encoding applied to the genotype.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
     **kwargs
         Forwarded to :class:`Algorithm`.
     """
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     pop_initializer = UniformInitializer(
         objfunc.dimension,
         objfunc.lower_bound,
@@ -158,13 +158,13 @@ def particle_swarm_real(
         population_size=population_size,
         dtype=float,
         encoding=encoding,
-        random_state=random_state,
+        rng=rng,
     )
     search_strat = PSO(
         initializer=pop_initializer,
         w=w,
         c1=c1,
         c2=c2,
-        random_state=random_state,
+        rng=rng,
     )
     return Algorithm(objfunc, search_strat, **kwargs)

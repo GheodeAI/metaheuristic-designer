@@ -344,7 +344,7 @@ using object-based configuration.
 .. code-block:: python
 
    import numpy as np
-   from metaheuristic_designer import Algorithm, check_random_state
+   from metaheuristic_designer import Algorithm, check_rng
    from metaheuristic_designer.benchmarks import Sphere
    from metaheuristic_designer.strategies import GA
    from metaheuristic_designer.initializers import UniformInitializer
@@ -356,19 +356,19 @@ using object-based configuration.
    from metaheuristic_designer.reporters.tqdm_reporter import TQDMReporter
    from metaheuristic_designer.checkpointer import Checkpointer
 
-   rng = check_random_state(42)
+   rng = check_rng(42)
    objfunc = Sphere(5, mode="min")
 
    # Build the search strategy
    strategy = GA(
-       initializer   = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=rng),
-       mutation_op   = create_operator("mutation.gaussian_mutation", N=1, F=0.1, random_state=rng),
-       crossover_op  = create_operator("crossover.uniform_crossover", random_state=rng),
-       parent_sel    = create_parent_selection("tournament", amount=50, tournament_size=3, random_state=rng),
-       survivor_sel  = create_survivor_selection("elitism", amount=25, random_state=rng),
+       initializer   = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng),
+       mutation_op   = create_operator("mutation.gaussian_mutation", N=1, F=0.1, rng=rng),
+       crossover_op  = create_operator("crossover.uniform_crossover", rng=rng),
+       parent_sel    = create_parent_selection("tournament", amount=50, tournament_size=3, rng=rng),
+       survivor_sel  = create_survivor_selection("elitism", amount=25, rng=rng),
        mutation_prob = 0.3,
        crossover_prob= 0.9,
-       random_state  = rng,
+       rng  = rng,
    )
 
    # Configure runtime objects

@@ -44,7 +44,7 @@ def test_select_best(fitness, amount, expected):
 # ===================================================================
 @pytest.mark.parametrize("amount", [0, 3, 5])
 def test_uniform_selection(amount, rng):
-    result = uniform_selection(EXAMPLE_FITNESS, amount, random_state=rng)
+    result = uniform_selection(EXAMPLE_FITNESS, amount, rng=rng)
     assert len(result) == amount
     if amount > 0:
         assert result.max() < len(EXAMPLE_FITNESS)
@@ -53,8 +53,8 @@ def test_uniform_selection(amount, rng):
 
 def test_uniform_selection_reproducible(rng):
     amount = 4
-    expected = uniform_selection(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42))
-    result = uniform_selection(EXAMPLE_FITNESS, amount, random_state=rng)
+    expected = uniform_selection(EXAMPLE_FITNESS, amount, rng=np.random.default_rng(42))
+    result = uniform_selection(EXAMPLE_FITNESS, amount, rng=rng)
     assert_array_equal(result, expected)
 
 
@@ -64,7 +64,7 @@ def test_uniform_selection_reproducible(rng):
 def test_shuffle_small_amount(rng):
     amount = 3
     pop_size = len(EXAMPLE_FITNESS)
-    result = shuffle_population(EXAMPLE_FITNESS, amount, random_state=rng)
+    result = shuffle_population(EXAMPLE_FITNESS, amount, rng=rng)
     assert len(result) == amount
     # all indices must be distinct and within range
     assert len(set(result)) == amount
@@ -74,7 +74,7 @@ def test_shuffle_small_amount(rng):
 def test_shuffle_large_amount(rng):
     amount = 12  # > population size 8
     pop_size = len(EXAMPLE_FITNESS)
-    result = shuffle_population(EXAMPLE_FITNESS, amount, random_state=rng)
+    result = shuffle_population(EXAMPLE_FITNESS, amount, rng=rng)
     assert len(result) == amount
     # every index must appear at least once
     assert set(range(pop_size)).issubset(set(result))
@@ -85,22 +85,22 @@ def test_shuffle_large_amount(rng):
 # ===================================================================
 def test_prob_tournament_prob_1(rng):
     amount = 4
-    expected = prob_tournament(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42), tournament_size=3, prob=1.0)
-    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng, tournament_size=3, prob=1.0)
+    expected = prob_tournament(EXAMPLE_FITNESS, amount, rng=np.random.default_rng(42), tournament_size=3, prob=1.0)
+    result = prob_tournament(EXAMPLE_FITNESS, amount, rng=rng, tournament_size=3, prob=1.0)
     assert_array_equal(result, expected)
 
 
 def test_prob_tournament_prob_0(rng):
     amount = 4
-    expected = prob_tournament(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42), tournament_size=3, prob=0.0)
-    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng, tournament_size=3, prob=0.0)
+    expected = prob_tournament(EXAMPLE_FITNESS, amount, rng=np.random.default_rng(42), tournament_size=3, prob=0.0)
+    result = prob_tournament(EXAMPLE_FITNESS, amount, rng=rng, tournament_size=3, prob=0.0)
     assert_array_equal(result, expected)
 
 
 @pytest.mark.parametrize("amount", [0, 3, 8])
 @pytest.mark.parametrize("prob", [0.1, 0.5, 0.9])
 def test_prob_tournament_shape(amount, prob, rng):
-    result = prob_tournament(EXAMPLE_FITNESS, amount, random_state=rng, tournament_size=3, prob=prob)
+    result = prob_tournament(EXAMPLE_FITNESS, amount, rng=rng, tournament_size=3, prob=prob)
     assert len(result) == amount
     if amount > 0:
         assert result.max() < len(EXAMPLE_FITNESS)
@@ -165,14 +165,14 @@ def test_scaling_exponential_rank():
 )
 def test_roulette_deterministic(method, scaling_factor, rng):
     amount = 5
-    expected = roulette(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42), method=method, scaling_factor=scaling_factor)
-    result = roulette(EXAMPLE_FITNESS, amount, random_state=rng, method=method, scaling_factor=scaling_factor)
+    expected = roulette(EXAMPLE_FITNESS, amount, rng=np.random.default_rng(42), method=method, scaling_factor=scaling_factor)
+    result = roulette(EXAMPLE_FITNESS, amount, rng=rng, method=method, scaling_factor=scaling_factor)
     assert_array_equal(result, expected)
 
 
 def test_roulette_sanity(rng):
     amount = 4
-    result = roulette(EXAMPLE_FITNESS, amount, random_state=rng)
+    result = roulette(EXAMPLE_FITNESS, amount, rng=rng)
     assert len(result) == amount
     assert result.max() < len(EXAMPLE_FITNESS)
     assert result.min() >= 0
@@ -192,14 +192,14 @@ def test_roulette_sanity(rng):
 )
 def test_sus_deterministic(method, scaling_factor, rng):
     amount = 5
-    expected = sus(EXAMPLE_FITNESS, amount, random_state=np.random.default_rng(42), method=method, scaling_factor=scaling_factor)
-    result = sus(EXAMPLE_FITNESS, amount, random_state=rng, method=method, scaling_factor=scaling_factor)
+    expected = sus(EXAMPLE_FITNESS, amount, rng=np.random.default_rng(42), method=method, scaling_factor=scaling_factor)
+    result = sus(EXAMPLE_FITNESS, amount, rng=rng, method=method, scaling_factor=scaling_factor)
     assert_array_equal(result, expected)
 
 
 def test_sus_sanity(rng):
     amount = 4
-    result = sus(EXAMPLE_FITNESS, amount, random_state=rng)
+    result = sus(EXAMPLE_FITNESS, amount, rng=rng)
     assert len(result) == amount
     assert result.max() < len(EXAMPLE_FITNESS)
     assert result.min() >= 0
@@ -214,7 +214,7 @@ def test_parent_selection_def_calls_wrapped_function():
 
     def_obj = ParentSelectionDef(dummy)
     pop = make_pop([1.0, 2.0], dummy_objfunc)
-    result = def_obj(pop, amount=2, random_state=np.random.default_rng())
+    result = def_obj(pop, amount=2, rng=np.random.default_rng())
     assert_array_equal(result, [0, 2])
 
 
@@ -229,7 +229,7 @@ def test_parent_selection_def_passes_fitness_and_kwargs():
 
     def_obj = ParentSelectionDef(spy, params={"extra": 5})
     pop = make_pop([10.0, 20.0], dummy_objfunc)
-    def_obj(pop, amount=1, random_state=np.random.default_rng())
+    def_obj(pop, amount=1, rng=np.random.default_rng())
 
     assert_array_equal(captured["fitness"], [10.0, 20.0])
     assert captured["amount"] == 1
@@ -252,15 +252,15 @@ def test_parent_selection_def_passes_fitness_and_kwargs():
     ],
 )
 def test_create_returns_correct_type(method, expected_type, rng):
-    sel = create_parent_selection(method, random_state=rng)
+    sel = create_parent_selection(method, rng=rng)
     assert isinstance(sel, expected_type)
 
 
 def test_create_uses_given_name(rng):
-    sel = create_parent_selection("tournament", name="custom_name", random_state=rng)
+    sel = create_parent_selection("tournament", name="custom_name", rng=rng)
     assert sel.name == "custom_name"
 
 
 def test_create_default_name_is_method(rng):
-    sel = create_parent_selection("truncation", random_state=rng)
+    sel = create_parent_selection("truncation", rng=rng)
     assert sel.name == "truncation"

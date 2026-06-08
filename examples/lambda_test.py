@@ -30,26 +30,26 @@ def constraint_repair_fn(vector):
 # ----------------------------------------------------------------------
 # 3. Initializer: generate a random 10‑dimensional vector in [-100, 100]
 # ----------------------------------------------------------------------
-def initializer_fn(random_state=None):
+def initializer_fn(rng=None):
     """Return a single random candidate solution."""
-    return random_state.uniform(-100, 100, 10)
+    return rng.uniform(-100, 100, 10)
 
 
 # ----------------------------------------------------------------------
 # 4. Mutation operator: add Gaussian noise to ~70% of the components
 # ----------------------------------------------------------------------
 @OperatorFnDef
-def mutate_fn(population_matrix, fitness_array=None, random_state=None, **_):
+def mutate_fn(population_matrix, fitness_array=None, rng=None, **_):
     """
     Perturb each row (solution) by adding a small Gaussian noise
     to a random subset of its components.
     """
     # Boolean mask: True where we do NOT modify (the component stays unchanged)
-    mask = random_state.uniform(0, 1, size=population_matrix.shape) > 0.3
+    mask = rng.uniform(0, 1, size=population_matrix.shape) > 0.3
     # Number of components that will be changed
     num_changed = np.count_nonzero(~mask)
     # Add noise to those components
-    population_matrix[~mask] += random_state.normal(0, 1e-2, num_changed)
+    population_matrix[~mask] += rng.normal(0, 1e-2, num_changed)
     return population_matrix
 
 

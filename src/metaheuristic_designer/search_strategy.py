@@ -16,7 +16,7 @@ from .initializer import Initializer, InitializerFromLambda
 from .objective_function import ObjectiveFunc
 from .operator import Operator, NullOperator
 from .parametrizable_mixin import ParametrizableMixin
-from .utils import check_random_state, RNGLike
+from .utils import check_rng, RNGLike
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class SearchStrategy(ParametrizableMixin, ABC):
         Defaults to :class:`NullSurvivorSelection`.
     name : str, optional
         Display name used in reports.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     **kwargs
         Additional keyword arguments stored as schedulable
@@ -60,12 +60,12 @@ class SearchStrategy(ParametrizableMixin, ABC):
         parent_sel: Optional[ParentSelection] = None,
         survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "some strategy",
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
         super().__init__()
 
-        self.random_state = check_random_state(random_state)
+        self.rng = check_rng(rng)
 
         self.name = name
         self.initializer = initializer
@@ -178,8 +178,8 @@ class SearchStrategy(ParametrizableMixin, ABC):
         data = {
             "class_name": type(self).__name__,
             "name": self.name,
-            "random_generator": type(self.random_state).__name__,
-            "random_state": self.random_state.bit_generator.state,
+            "random_generator": type(self.rng).__name__,
+            "rng": self.rng.bit_generator.state,
             "initializer": self.initializer.get_state(),
             "parent_sel": self.parent_sel.get_state(),
             "operators": self.operator.get_state(),
@@ -207,13 +207,13 @@ class SearchStrategyFromLambda(SearchStrategy):
     Parameters
     ----------
     initializer : callable or Initializer
-        Function ``(random_state) -> genotype``, or an initializer
+        Function ``(rng) -> genotype``, or an initializer
         instance.
     iterate_fn: callable
         Function that advances the state of the algorithm by one full iteration.
     name : str, optional
         Display name (default ``"Strategy from lambda"``).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     **kwargs
         Forwarded to :class:`SearchStrategy`.
@@ -224,7 +224,7 @@ class SearchStrategyFromLambda(SearchStrategy):
         initializer: Callable | Initializer,
         iterate_fn: Callable,
         name: str = "Custom strategy",
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
         if not isinstance(initializer, Initializer):
@@ -235,7 +235,7 @@ class SearchStrategyFromLambda(SearchStrategy):
         super().__init__(
             initializer=initializer,
             name=name,
-            random_state=random_state,
+            rng=rng,
             **kwargs,
         )
 

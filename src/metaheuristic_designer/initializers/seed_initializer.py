@@ -25,7 +25,7 @@ class SeededInitializer(CompositeInitializer):
         Set of predefined solutions to draw from.
     insert_prob : float, optional
         Probability of using a predefined solution (default 0.1).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
@@ -35,7 +35,7 @@ class SeededInitializer(CompositeInitializer):
         solutions: Population | Iterable[VectorLike] | MatrixLike,
         insert_prob: float = 0.1,
         population_size: int = None,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
     ):
         assert len(solutions) > 0, "The solution set should not be empty."
         if isinstance(solutions, Population):
@@ -48,7 +48,7 @@ class SeededInitializer(CompositeInitializer):
             population_size = len(solutions)
 
         seed_initializer = DirectInitializer(
-            default_init=default_init, solutions=solutions, encoding=default_init.encoding, random_state=random_state
+            default_init=default_init, solutions=solutions, encoding=default_init.encoding, rng=rng
         )
 
         super().__init__(
@@ -56,7 +56,7 @@ class SeededInitializer(CompositeInitializer):
             initializers=[seed_initializer, default_init],
             weights=[insert_prob, 1 - insert_prob],
             population_size=population_size,
-            random_state=random_state,
+            rng=rng,
         )
 
 
@@ -77,7 +77,7 @@ class FixedSeededInitializer(FixedCompositeInitializer):
     n_to_insert : int, optional
         Exact number of predefined solutions to insert.  Defaults to
         the size of the solution set.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
@@ -87,7 +87,7 @@ class FixedSeededInitializer(FixedCompositeInitializer):
         solutions: Population | Iterable[VectorLike] | MatrixLike,
         n_to_insert: int = None,
         population_size: int = None,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
     ):
         assert len(solutions) > 0, "The solution set should not be empty."
         if isinstance(solutions, Population):
@@ -103,7 +103,7 @@ class FixedSeededInitializer(FixedCompositeInitializer):
             population_size = len(solutions)
 
         seed_initializer = DirectInitializer(
-            default_init=default_init, solutions=solutions, encoding=default_init.encoding, random_state=random_state
+            default_init=default_init, solutions=solutions, encoding=default_init.encoding, rng=rng
         )
 
         super().__init__(
@@ -111,5 +111,5 @@ class FixedSeededInitializer(FixedCompositeInitializer):
             population_size=population_size,
             initializers=[seed_initializer, default_init],
             amounts=[n_to_insert, max(population_size - n_to_insert, 0)],
-            random_state=random_state,
+            rng=rng,
         )

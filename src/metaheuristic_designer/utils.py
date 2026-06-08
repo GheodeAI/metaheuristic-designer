@@ -56,7 +56,7 @@ class NumpyEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-def check_random_state(seed: Optional[RNGLike]) -> np.random.Generator:
+def check_rng(seed: Optional[RNGLike]) -> np.random.Generator:
     """Turn seed into an np.random.Generator instance.
 
     Original implementation adapted from:

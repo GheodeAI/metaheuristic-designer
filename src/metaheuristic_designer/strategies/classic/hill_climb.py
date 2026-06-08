@@ -34,7 +34,7 @@ class HillClimb(SingleSolutionStrategy):
         Additional parameters stored as schedulable values.
     name : str, optional
         Display name (default ``"HillClimb"``).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     **kwargs
         Forwarded to :class:`SearchStrategy`.
@@ -47,11 +47,11 @@ class HillClimb(SingleSolutionStrategy):
         survivor_sel: Optional[SurvivorSelection] = None,
         params: Optional[dict] = None,
         name: str = "HillClimb",
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
 
         if survivor_sel is None:
             survivor_sel = create_survivor_selection("hill_climb")
 
-        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name, random_state=random_state, **kwargs)
+        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, params=params, name=name, rng=rng, **kwargs)

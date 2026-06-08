@@ -98,17 +98,17 @@ real-coded Genetic Algorithm:
 .. code-block:: python
 
    from metaheuristic_designer.benchmarks import Sphere
-   from metaheuristic_designer import simple, check_random_state
+   from metaheuristic_designer import simple, check_rng
 
    objfunc = Sphere(dimension=5, mode="min")
-   rng = check_random_state(42)
+   rng = check_rng(42)
 
    algo = simple.genetic_algorithm_real(
        objfunc,
        population_size=100,
        max_iterations=100,
        reporter="tqdm",
-       random_state=rng,
+       rng=rng,
    )
    population = algo.optimize()
    solution, obj = population.best_solution()

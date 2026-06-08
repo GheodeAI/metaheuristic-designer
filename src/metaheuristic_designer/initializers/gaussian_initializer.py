@@ -27,12 +27,12 @@ class GaussianInitializer(Initializer):
         Encoding that will be passed to each individual.
     dtype : type, optional
         Desired NumPy dtype of the generated vectors (default ``float``).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
-    def __init__(self, dimension, g_mean, g_std, pop_size=1, encoding=None, dtype=float, random_state=None):
-        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, random_state=random_state)
+    def __init__(self, dimension, g_mean, g_std, pop_size=1, encoding=None, dtype=float, rng=None):
+        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, rng=rng)
 
         if type(g_mean) in [list, tuple, np.ndarray]:
             if len(g_mean) != dimension:
@@ -53,7 +53,7 @@ class GaussianInitializer(Initializer):
         self.dtype = dtype
 
     def generate_random(self):
-        new_vector_float = self.random_state.normal(self.g_mean, self.g_std, size=self.dimension)
+        new_vector_float = self.rng.normal(self.g_mean, self.g_std, size=self.dimension)
         if isinstance(self.dtype, Integral):
             new_vector = np.round(new_vector_float).astype(self.dtype)
         else:

@@ -38,7 +38,7 @@ class LocalSearch(PopulationBasedStrategy):
         Display name (default ``"LocalSearch"``).
     iterations : int, optional
         Number of perturbed copies per iteration (default 100).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     **kwargs
         Forwarded to :class:`SearchStrategy`.
@@ -51,7 +51,7 @@ class LocalSearch(PopulationBasedStrategy):
         survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "LocalSearch",
         iterations: int = 100,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
         if survivor_sel is None:
@@ -63,7 +63,7 @@ class LocalSearch(PopulationBasedStrategy):
             operator=operator,
             survivor_sel=survivor_sel,
             name=name,
-            random_state=random_state,
+            rng=rng,
             # Forced kwargs
             iterations=iterations,
             **kwargs,

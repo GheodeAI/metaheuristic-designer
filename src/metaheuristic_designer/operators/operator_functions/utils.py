@@ -8,7 +8,7 @@ from ...initializer import Initializer
 
 
 def dummy_op(
-    population_matrix: np.ndarray, fitness_array: np.ndarray, random_state: Optional[np.random.Generator] = None, f: ScalarLike = 0
+    population_matrix: np.ndarray, fitness_array: np.ndarray, rng: Optional[np.random.Generator] = None, f: ScalarLike = 0
 ) -> np.ndarray:
     """Return a matrix of constant value *f* with the same shape as the input.
 
@@ -22,7 +22,7 @@ def dummy_op(
         2-D array of shape ``(N, M)`` (ignored, but its shape is used).
     _fitness_array : np.ndarray
         Fitness values (unused, kept for interface compatibility).
-    random_state : np.random.Generator, optional
+    rng : np.random.Generator, optional
         Random number generator (unused).
     f : ScalarLike, optional
         Value to fill the array with. Default is ``0``.
@@ -36,7 +36,7 @@ def dummy_op(
 
 
 def add_const(
-    population_matrix: np.ndarray, fitness_array: np.ndarray, random_state: Optional[np.random.Generator] = None, f: VectorLike | ScalarLike = 0
+    population_matrix: np.ndarray, fitness_array: np.ndarray, rng: Optional[np.random.Generator] = None, f: VectorLike | ScalarLike = 0
 ) -> np.ndarray:
     """Add a constant (or vector) to every gene of the population.
 
@@ -50,7 +50,7 @@ def add_const(
         2-D array of shape ``(N, M)``.
     fitness_array : np.ndarray
         Fitness values (unused).
-    random_state : np.random.Generator, optional
+    rng : np.random.Generator, optional
         Random number generator (unused).
     f : VectorLike or ScalarLike, optional
         Value(s) to add.  A scalar is broadcast to every gene; a 1-D array
@@ -84,7 +84,7 @@ class OperatorFnDef:
     ----------
     operator_fn : callable
         Function with signature
-        ``(population_matrix, fitness_array, random_state, **kwargs) -> np.ndarray``.
+        ``(population_matrix, fitness_array, rng, **kwargs) -> np.ndarray``.
     params : dict, optional
         Default keyword arguments for the operator.
     forced_params : dict, optional
@@ -95,7 +95,7 @@ class OperatorFnDef:
     params: dict = field(default_factory=dict)
     forced_params: dict = field(default_factory=dict)
 
-    def __call__(self, population: Population, initializer: Initializer, random_state: Optional[np.random.Generator] = None, **kwargs) -> Population:
+    def __call__(self, population: Population, initializer: Initializer, rng: Optional[np.random.Generator] = None, **kwargs) -> Population:
         """Execute the wrapped operator and return a new population.
 
         Parameters
@@ -104,7 +104,7 @@ class OperatorFnDef:
             The current population (its genotype matrix and fitness are used).
         initializer : Initializer
             Population initializer (forwarded to the operator if needed).
-        random_state : np.random.Generator, optional
+        rng : np.random.Generator, optional
             Random number generator.
         **kwargs
             Additional keyword arguments passed to the operator function.
@@ -121,7 +121,7 @@ class OperatorFnDef:
         modified_kwargs.update(self.forced_params)
 
         return population.update_genotype(
-            self.operator_fn(copy(population.genotype_matrix), population.fitness, random_state=random_state, **modified_kwargs)
+            self.operator_fn(copy(population.genotype_matrix), population.fitness, rng=rng, **modified_kwargs)
         )
 
 
@@ -138,7 +138,7 @@ class OperatorRandomDef:
     ----------
     operator_fn : callable
         Function with signature
-        ``(population_matrix, initializer, random_state, **kwargs) -> np.ndarray``.
+        ``(population_matrix, initializer, rng, **kwargs) -> np.ndarray``.
     params : dict, optional
         Default keyword arguments.
     forced_params : dict, optional
@@ -149,7 +149,7 @@ class OperatorRandomDef:
     params: dict = field(default_factory=dict)
     forced_params: dict = field(default_factory=dict)
 
-    def __call__(self, population: Population, initializer: Initializer, random_state: Optional[np.random.Generator] = None, **kwargs) -> Population:
+    def __call__(self, population: Population, initializer: Initializer, rng: Optional[np.random.Generator] = None, **kwargs) -> Population:
         """Execute the random operator and return a new population.
 
         Parameters
@@ -158,7 +158,7 @@ class OperatorRandomDef:
             The current population (its genotype matrix is used as a shape reference).
         initializer : Initializer
             Population initializer, forwarded to the operator.
-        random_state : np.random.Generator, optional
+        rng : np.random.Generator, optional
             Random number generator.
         **kwargs
             Additional keyword arguments for the operator function.
@@ -174,7 +174,7 @@ class OperatorRandomDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return population.update_genotype(self.operator_fn(population.genotype_matrix, initializer, random_state=random_state, **modified_kwargs))
+        return population.update_genotype(self.operator_fn(population.genotype_matrix, initializer, rng=rng, **modified_kwargs))
 
 
 @dataclass
@@ -189,7 +189,7 @@ class ObtainStatisticDef:
     ----------
     operator_fn : callable
         Function with signature
-        ``(population_matrix, random_state, **kwargs) -> np.ndarray``.
+        ``(population_matrix, rng, **kwargs) -> np.ndarray``.
     params : dict, optional
         Default keyword arguments.
     forced_params : dict, optional
@@ -200,7 +200,7 @@ class ObtainStatisticDef:
     params: dict = field(default_factory=dict)
     forced_params: dict = field(default_factory=dict)
 
-    def __call__(self, population: Population, initializer: Initializer, random_state: Optional[np.random.Generator] = None, **kwargs) -> Population:
+    def __call__(self, population: Population, initializer: Initializer, rng: Optional[np.random.Generator] = None, **kwargs) -> Population:
         """Compute a statistic and replace the population’s genotype.
 
         Parameters
@@ -209,7 +209,7 @@ class ObtainStatisticDef:
             The current population (its genotype matrix is analyzed).
         initializer : Initializer
             Not used by this wrapper (included for interface compatibility).
-        random_state : np.random.Generator, optional
+        rng : np.random.Generator, optional
             Random number generator.
         **kwargs
             Additional keyword arguments for the operator function.
@@ -225,7 +225,7 @@ class ObtainStatisticDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return population.update_genotype(self.operator_fn(population.genotype_matrix, random_state, **modified_kwargs))
+        return population.update_genotype(self.operator_fn(population.genotype_matrix, rng, **modified_kwargs))
 
 
 @dataclass
@@ -241,7 +241,7 @@ class OperatorSwarmDef:
     ----------
     operator_fn : callable
         Function with signature
-        ``(population, initializer, random_state, **kwargs) -> Population``.
+        ``(population, initializer, rng, **kwargs) -> Population``.
     params : dict, optional
         Default keyword arguments.
     forced_params : dict, optional
@@ -252,7 +252,7 @@ class OperatorSwarmDef:
     params: dict = field(default_factory=dict)
     forced_params: dict = field(default_factory=dict)
 
-    def __call__(self, population: Population, initializer: Initializer, random_state: np.random.Generator, **kwargs) -> Population:
+    def __call__(self, population: Population, initializer: Initializer, rng: np.random.Generator, **kwargs) -> Population:
         """Execute the swarm operator and return the new population.
 
         Parameters
@@ -261,7 +261,7 @@ class OperatorSwarmDef:
             The current population, passed directly to the operator.
         initializer : Initializer
             Population initializer, passed to the operator.
-        random_state : np.random.Generator
+        rng : np.random.Generator
             Random number generator (required for swarm operators).
         **kwargs
             Additional keyword arguments for the operator function.
@@ -277,4 +277,4 @@ class OperatorSwarmDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return self.operator_fn(population, initializer, random_state=random_state, **modified_kwargs)
+        return self.operator_fn(population, initializer, rng=rng, **modified_kwargs)

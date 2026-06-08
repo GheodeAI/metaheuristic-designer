@@ -27,5 +27,5 @@ class RandomSearch(PopulationBasedStrategy):
         Forwarded to :class:`HillClimb`.
     """
 
-    def __init__(self, initializer: Initializer, name="RandomSearch", random_state=None, **kwargs):
-        super().__init__(initializer=initializer, operator=create_operator(method="random.random", random_state=random_state), name=name, **kwargs)
+    def __init__(self, initializer: Initializer, name="RandomSearch", rng=None, **kwargs):
+        super().__init__(initializer=initializer, operator=create_operator(method="random.random", rng=rng), name=name, **kwargs)

@@ -563,7 +563,7 @@ You can register your own operator functions and use them with the factory:
     from metaheuristic_designer.utils import MatrixLike, VectorLike, RNGLike
 
     @OperatorFnDef
-    def my_operator(population_matrix: MatrixLike, fitness_array: VectorLike, random_state: RNGLike, **kwargs) -> MatrixLike:
+    def my_operator(population_matrix: MatrixLike, fitness_array: VectorLike, rng: RNGLike, **kwargs) -> MatrixLike:
         ...
 
     add_operator_entry(my_operator, "myop", "custom")

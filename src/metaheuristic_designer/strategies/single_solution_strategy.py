@@ -29,7 +29,7 @@ class SingleSolutionStrategy(SearchStrategy):
         Survivor selection method; defaults to ``"hill_climb"``.
     name : str, optional
         Display name (default ``"HillClimb"``).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     **kwargs
         Forwarded to :class:`SearchStrategy`.
@@ -41,10 +41,10 @@ class SingleSolutionStrategy(SearchStrategy):
         operator: Optional[Operator] = None,
         survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "HillClimb",
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
-        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs)
+        super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, name=name, rng=rng, **kwargs)
 
     def step(self, prev_population: Population) -> Population:
         self.population = copy(prev_population)
