@@ -1,12 +1,15 @@
 """Module for algorithm stopping conditions and progress metric evaluation."""
 
+from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 import logging
 import time
 from dataclasses import dataclass
 import pyparsing as pp
-from .population import Population
+
+if TYPE_CHECKING:
+    from .algorithm import Algorithm
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +20,7 @@ class StoppingCondition(ABC):
         """Reset all counters and timers for a fresh run."""
 
     @abstractmethod
-    def update(self, current_population: Population):
+    def update(self, algorithm: Algorithm):
         """Advance internal counters after one generation.
 
         Parameters
@@ -178,7 +181,7 @@ class ParsedStoppingCondition(StoppingCondition):
         self.prev_best_objective = None
         self.first_best_objective = None
 
-    def update(self, current_population: Population):
+    def update(self, algorithm: Algorithm):
         """Advance internal counters after one generation.
 
         Parameters
@@ -188,7 +191,8 @@ class ParsedStoppingCondition(StoppingCondition):
             best objective is used to update convergence tracking.
         """
 
-        objfunc = current_population.objfunc
+        current_population = algorithm.population
+        objfunc = algorithm.objfunc
 
         self.iterations += 1
         self.evaluations = objfunc.counter

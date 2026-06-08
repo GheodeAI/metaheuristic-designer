@@ -201,8 +201,8 @@ class CMA_ES(EDAStrategy):
         # Update the operator's parameters since they were undefined in the constructor
         self.operator.update_kwargs(mean=mean, cov=cov_matrix)
 
-        initial_population = Population(objfunc, genotype, encoding=self.initializer.encoding)
-        initial_population = initial_population.calculate_fitness()
+        initial_population = Population(genotype, encoding=self.initializer.encoding)
+        initial_population = objfunc.calculate_fitness(initial_population)
 
         return initial_population
 

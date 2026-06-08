@@ -72,14 +72,12 @@ class Initializer(ABC):
 
         return self.generate_random()
 
-    def generate_population(self, objfunc: ObjectiveFunc, n_individuals: Optional[int] = None) -> Population:
+    def generate_population(self, n_individuals: Optional[int] = None) -> Population:
         """
         Create a fully formed population of *n_individuals* individuals.
 
         Parameters
         ----------
-        objfunc: ObjectiveFunc
-            Objective function that will be propagated to each individual.
         n_individual: int, optional
             Number of individuals to generate
 
@@ -93,7 +91,7 @@ class Initializer(ABC):
             n_individuals = self.population_size
 
         population_matrix = np.asarray([self.generate_individual() for _ in range(n_individuals)])
-        return Population(objfunc, genotype_matrix=population_matrix, encoding=self.encoding)
+        return Population(genotype_matrix=population_matrix, encoding=self.encoding)
 
     def get_state(self) -> dict:
         """Return a minimal dictionary identifying this initializer.

@@ -127,8 +127,8 @@ class SearchStrategy(ParametrizableMixin, ABC):
             The initial population to be used in the algorithm.
         """
 
-        initial_population = self.initializer.generate_population(objfunc)
-        initial_population = initial_population.calculate_fitness()
+        initial_population = self.initializer.generate_population()
+        initial_population = objfunc.calculate_fitness(initial_population)
         return initial_population
 
     def update(self, progress: float):
@@ -146,7 +146,7 @@ class SearchStrategy(ParametrizableMixin, ABC):
         self.survivor_sel.update(progress)
 
     @abstractmethod
-    def step(self, prev_population: Population) -> Population:
+    def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
         """Performs a single iteration of the algorithm on a given population.
 
         Parameters
@@ -221,15 +221,13 @@ class SearchStrategyFromLambda(SearchStrategy):
 
     def __init__(
         self,
-        initializer: Callable | Initializer,
+        initializer: Initializer,
         iterate_fn: Callable,
         name: str = "Custom strategy",
+        dimension: int = None,
         rng: Optional[RNGLike] = None,
         **kwargs,
     ):
-        if not isinstance(initializer, Initializer):
-            initializer = InitializerFromLambda(initializer)
-
         self.iterate_fn = iterate_fn
 
         super().__init__(
@@ -239,5 +237,20 @@ class SearchStrategyFromLambda(SearchStrategy):
             **kwargs,
         )
 
-    def step(self, population):
-        return self.iterate_fn(population)
+    @staticmethod
+    def _validate_function(operator_fn: Callable):
+        operator_sig = inspect.signature(operator_fn)
+
+        count = 0
+        for p in operator_sig.parameters.values():
+            if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                count += 1
+            elif p.kind == inspect.Parameter.VAR_POSITIONAL:
+                return
+
+        required_min_count = 3
+        if count < required_min_count:
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is.")
+
+    def step(self, population: Population, objfunc: ObjectiveFunc):
+        return self.iterate_fn(population, objfunc)

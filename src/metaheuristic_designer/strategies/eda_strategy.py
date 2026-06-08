@@ -4,10 +4,10 @@ Strategy that generates solutions from a model.
 
 from __future__ import annotations
 from abc import abstractmethod
-from copy import copy
 from typing import Optional
 
-from metaheuristic_designer.population import Population
+from ..population import Population
+from ..objective_function import ObjectiveFunc
 from ..initializer import Initializer
 from ..parent_selection_base import ParentSelection
 from ..survivor_selection_base import SurvivorSelection
@@ -79,11 +79,11 @@ class EDAStrategy(SearchStrategy):
             Newly configured operator.
         """
 
-    def step(self, prev_population: Population) -> Population:
-        self.population = self.parent_sel.select(prev_population)
-        self.operator = self.estimate_parameters(self.population)
-        self.population = self.operator.evolve(self.population, self.initializer)
-        self.population = self.population.repair_solutions()
-        self.population = self.population.calculate_fitness()
-        self.population = self.survivor_sel.select(population=prev_population, offspring=self.population)
-        return self.population
+    def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
+        population = self.parent_sel.select(prev_population)
+        self.operator = self.estimate_parameters(population)
+        population = self.operator.evolve(population, self.initializer)
+        population = objfunc.repair_solutions(population)
+        population = objfunc.calculate_fitness(population)
+        population = self.survivor_sel.select(population=prev_population, offspring=population)
+        return population

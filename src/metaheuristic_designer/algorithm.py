@@ -318,13 +318,13 @@ class Algorithm:
             The improved next population.
         """
 
-        self.population = self.search_strategy.step(prev_population=prev_population)
+        self.population = self.search_strategy.step(prev_population=prev_population, objfunc=self.objfunc)
         self.update()
         return self.population
 
     def update(self):
         """Updates the internal state of the algorithm."""
-        self.stopping_condition.update(self.population)
+        self.stopping_condition.update(self)
         self.reporter.log_step(self)
         self.history_tracker.update(self)
 
@@ -381,7 +381,7 @@ class Algorithm:
             if self.checkpointer is not None:
                 self.checkpointer.save(self)
             self.reporter.log_end(self)
-            logger.info(f"Optimization aborted by an OS signal.")
+            logger.info("Optimization aborted by an OS signal.")
             raise e
 
         self.reporter.log_end(self)

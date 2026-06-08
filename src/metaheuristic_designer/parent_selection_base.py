@@ -133,13 +133,15 @@ class ParentSelectionFromLambda(ParentSelection):
         if name is None:
             name = selection_fn.__name__ if hasattr(selection_fn, "__name__") else "Custom parent selection"
 
-        super().__init__(name=name, amount=amount, rng=rng, **kwargs)
-
+        self._validate_function(selection_fn)
         self.selection_fn = selection_fn
 
+        super().__init__(name=name, amount=amount, rng=rng, **kwargs)
+
+
     @staticmethod
-    def _validate_function(operator_fn: Callable):
-        operator_sig = inspect.signature(operator_fn)
+    def _validate_function(selection_fn: Callable):
+        operator_sig = inspect.signature(selection_fn)
 
         count = 0
         for p in operator_sig.parameters.values():
@@ -148,7 +150,7 @@ class ParentSelectionFromLambda(ParentSelection):
             elif p.kind == inspect.Parameter.VAR_POSITIONAL:
                 return
 
-        required_min_count = 3
+        required_min_count = 2
         if count < required_min_count:
             raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is.")
 
