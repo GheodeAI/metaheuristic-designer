@@ -140,6 +140,7 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
             initializer=UniformInitializer(
                 objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
             ),
+            objfunc=objfunc,
             batch_size=50,
             max_samples=100,
             rng=rng,

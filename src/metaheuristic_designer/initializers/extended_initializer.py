@@ -90,7 +90,6 @@ class ExtendedInitializer(Initializer):
             n_individuals = self.population_size
 
         population_matrix = self.solution_init.generate_population(n_individuals).genotype_matrix
-        print(population_matrix.shape)
         extended_matrix = np.hstack(
             [population_matrix]
             + [self.param_init_dict[param_name].generate_population(n_individuals).genotype_matrix for param_name, _ in self.encoding.param_sizes]
