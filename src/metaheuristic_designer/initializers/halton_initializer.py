@@ -77,7 +77,7 @@ class HaltonInitializer(Initializer):
     def generate_random(self):
         return self.fallback.generate_random()
 
-    def generate_population(self, objfunc: ObjectiveFunc, n_individuals: Optional[int] = None) -> Population:
+    def generate_population(self, n_individuals: Optional[int] = None) -> Population:
         """
         Create a fully formed population of *n_individuals* individuals.
 
@@ -101,4 +101,4 @@ class HaltonInitializer(Initializer):
         samples = generator.random(n_individuals)
         population_matrix = (self.upper_bound - self.lower_bound) * samples + self.lower_bound
 
-        return Population(objfunc, genotype_matrix=population_matrix, encoding=self.encoding)
+        return Population(genotype_matrix=population_matrix, encoding=self.encoding)

@@ -213,7 +213,7 @@ def test_parent_selection_def_calls_wrapped_function():
         return np.array([0, 2])
 
     def_obj = ParentSelectionDef(dummy)
-    pop = make_pop([1.0, 2.0], dummy_objfunc)
+    pop = make_pop([1.0, 2.0])
     result = def_obj(pop, amount=2, rng=np.random.default_rng())
     assert_array_equal(result, [0, 2])
 
@@ -228,7 +228,7 @@ def test_parent_selection_def_passes_fitness_and_kwargs():
         return np.array([0])
 
     def_obj = ParentSelectionDef(spy, params={"extra": 5})
-    pop = make_pop([10.0, 20.0], dummy_objfunc)
+    pop = make_pop([10.0, 20.0])
     def_obj(pop, amount=1, rng=np.random.default_rng())
 
     assert_array_equal(captured["fitness"], [10.0, 20.0])

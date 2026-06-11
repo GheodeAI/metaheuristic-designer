@@ -40,7 +40,7 @@ def test_pso_operator_wrapper_updates_genotype(rng, pso_population):
     assert speed.shape[1] == 2
 
 
-def test_pso_operator_wrapper_reproducible(rng, dummy_objfunc):
+def test_pso_operator_wrapper_reproducible():
     # We'll create two identical populations with same encoding and call the wrapper.
     from metaheuristic_designer.encodings import PSOEncoding
     from metaheuristic_designer.encoding import DefaultEncoding
@@ -48,8 +48,8 @@ def test_pso_operator_wrapper_reproducible(rng, dummy_objfunc):
 
     enc = PSOEncoding(dimension=2, base_encoding=DefaultEncoding())
     geno = np.array([[1.0, 2.0, 0.1, 0.2], [3.0, 4.0, 0.3, 0.4]])
-    pop1 = Population(dummy_objfunc, geno.copy(), encoding=enc)
-    pop2 = Population(dummy_objfunc, geno.copy(), encoding=enc)
+    pop1 = Population(geno.copy(), encoding=enc)
+    pop2 = Population(geno.copy(), encoding=enc)
     for pop in (pop1, pop2):
         pop.fitness = np.array([0.5, 0.8])
         pop.historical_best_matrix = geno.copy()

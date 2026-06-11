@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 import numpy as np
+from ..population import Population
 from ..encodings import ParameterExtendingEncoding
 from ..initializer import Initializer
 
@@ -67,3 +68,30 @@ class ExtendedInitializer(Initializer):
             [solution_vector] + [self.param_init_dict[param_name].generate_individual() for param_name, _ in self.encoding.param_sizes]
         )
         return full_vector
+
+    def generate_population(self, n_individuals=None):
+        """
+        Create a new random population that included adaptive parameters.
+
+        Parameters
+        ----------
+        objfunc: ObjectiveFunc
+            Objective function that will be propagated to each individual.
+        n_individual: int, optional
+            Number of individuals to generate
+
+        Returns
+        -------
+        generated_population: Population
+            Newly generated population.
+        """
+
+        if n_individuals is None:
+            n_individuals = self.population_size
+
+        population_matrix = self.solution_init.generate_population(n_individuals).genotype_matrix
+        extended_matrix = np.hstack(
+            [population_matrix]
+            + [self.param_init_dict[param_name].generate_population(n_individuals).genotype_matrix for param_name, _ in self.encoding.param_sizes]
+        )
+        return Population(genotype_matrix=extended_matrix, encoding=self.encoding)

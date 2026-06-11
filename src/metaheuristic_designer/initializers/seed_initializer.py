@@ -47,9 +47,7 @@ class SeededInitializer(CompositeInitializer):
         if population_size is None:
             population_size = len(solutions)
 
-        seed_initializer = DirectInitializer(
-            default_init=default_init, solutions=solutions, encoding=default_init.encoding, rng=rng
-        )
+        seed_initializer = DirectInitializer(default_init=default_init, solutions=solutions, encoding=default_init.encoding, rng=rng)
 
         super().__init__(
             dimension=inferred_dimension,
@@ -102,9 +100,7 @@ class FixedSeededInitializer(FixedCompositeInitializer):
         if population_size is None:
             population_size = len(solutions)
 
-        seed_initializer = DirectInitializer(
-            default_init=default_init, solutions=solutions, encoding=default_init.encoding, rng=rng
-        )
+        seed_initializer = DirectInitializer(default_init=default_init, solutions=solutions, encoding=default_init.encoding, rng=rng)
 
         super().__init__(
             dimension=inferred_dimension,

@@ -5,7 +5,9 @@ Bayesian Optimization strategy.
 from __future__ import annotations
 from typing import Optional
 
+
 from ...initializer import Initializer
+from ...objective_function import ObjectiveFunc
 from ...parent_selection_base import ParentSelection
 from ...operators.BO_operator import BOOperator
 from ..population_based_strategy import PopulationBasedStrategy
@@ -37,9 +39,10 @@ class BayesianOptimization(PopulationBasedStrategy):
     def __init__(
         self,
         initializer: Initializer,
+        objfunc: ObjectiveFunc,
         parent_sel: ParentSelection = None,
         name: str = "Bayesian Optimization",
         rng: Optional[RNGLike] = None,
         **kwargs,
     ):
-        super().__init__(initializer, operator=BOOperator(rng=rng, **kwargs), parent_sel=parent_sel, name=name, **kwargs)
+        super().__init__(initializer, operator=BOOperator(objfunc=objfunc, rng=rng, **kwargs), parent_sel=parent_sel, name=name, **kwargs)

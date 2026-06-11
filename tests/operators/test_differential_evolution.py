@@ -25,8 +25,8 @@ def test_create_de_operator_invalid_method():
         create_differential_evolution_operator("invalid/de")
 
 
-def test_de_rand1_modifies_population(rng, dummy_objfunc, simple_encoding):
-    pop = make_pop([0.0, 0.0, 0.0, 0.0], dummy_objfunc)
+def test_de_rand1_modifies_population(rng, simple_encoding):
+    pop = make_pop([0.0, 0.0, 0.0, 0.0])
     original = pop.genotype_matrix.copy()
 
     op = create_differential_evolution_operator("de/rand/1", encoding=simple_encoding, rng=rng)

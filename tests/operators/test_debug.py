@@ -20,25 +20,25 @@ def test_create_debug_operator_invalid_method():
         create_debug_operator("not_a_debug_op")
 
 
-def test_zeros_operator_fills_with_zero(rng, dummy_objfunc, simple_encoding):
-    pop = make_pop([1.0, 2.0], dummy_objfunc)
+def test_zeros_operator_fills_with_zero(rng, simple_encoding):
+    pop = make_pop([1.0, 2.0])
     op = create_debug_operator("zeros", encoding=simple_encoding, rng=rng)
     result = op(pop)
     assert result is pop
     assert_array_equal(pop.genotype_matrix, np.zeros_like(pop.genotype_matrix))
 
 
-def test_ones_operator_fills_with_one(rng, dummy_objfunc, simple_encoding):
-    pop = make_pop([5.0, 5.0], dummy_objfunc)
+def test_ones_operator_fills_with_one(rng, simple_encoding):
+    pop = make_pop([5.0, 5.0])
     op = create_debug_operator("ones", encoding=simple_encoding, rng=rng)
     result = op(pop)
     assert result is pop
     assert_array_equal(pop.genotype_matrix, np.ones_like(pop.genotype_matrix))
 
 
-def test_debug_operator_reproducible(rng, dummy_objfunc, simple_encoding):
-    pop1 = make_pop([1.0, 2.0], dummy_objfunc)
-    pop2 = make_pop([1.0, 2.0], dummy_objfunc)
+def test_debug_operator_reproducible(simple_encoding):
+    pop1 = make_pop([1.0, 2.0])
+    pop2 = make_pop([1.0, 2.0])
     rng1 = np.random.default_rng(42)
     rng2 = np.random.default_rng(42)
     op1 = create_debug_operator("zeros", encoding=simple_encoding, rng=rng1)

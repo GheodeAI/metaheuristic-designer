@@ -5,6 +5,7 @@ This module implements the objective function that will measure the quality of t
 """
 
 from __future__ import annotations
+from copy import copy
 import logging
 from typing import Any, Callable, Optional, TYPE_CHECKING
 from abc import ABC, abstractmethod
@@ -98,14 +99,14 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
         self.store_kwargs(**kwargs)
 
-    def __call__(self, population: Population, adjusted: bool = True, parallel: bool = False, threads: int = 8) -> VectorLike:
+    def __call__(self, population: Population) -> VectorLike:
         """
         Shorthand for executing the objective function on a vector.
         """
 
-        return self.fitness(population, adjusted)
+        return self.calculate_fitness(population)
 
-    def fitness(self, population: Population, parallel: bool = False, threads: int = 8) -> VectorLike:
+    def calculate_fitness(self, population: Population) -> Population:
         """Evaluate fitness for the whole population.
 
         The raw objective values are computed via :meth:`objective`,
@@ -128,10 +129,8 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             The new fitness values (also written in-place).
         """
 
-        if parallel:
-            logger.warning("Parallel fitness computing not available at the moment. Ignoring parallel option.")
-
         logger.debug("Calculating fitness of the population...")
+        prev_fitness = copy(population.fitness)
         fitness = population.fitness
         objective = population.objective
         solutions = population.decode()
@@ -139,7 +138,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
         if not self.recalculate and np.all(population.fitness_calculated == 1):
             logger.debug("Fitness was not calculated. Every individual is duplicated.")
-            return population.fitness
+            return population
 
         if self.recalculate:
             fitness_mask = np.ones(population.population_size, dtype=bool)
@@ -174,14 +173,25 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
                     objective[idx] = objective_value
 
         self.counter += np.count_nonzero(fitness_mask)
-        population.fitness_calculated = np.ones_like(fitness_mask)
+        improved_mask = prev_fitness < population.fitness
+        population.fitness_calculated = improved_mask
 
         # Write the fitness and objective values in-place
         population.fitness = fitness
         population.objective = objective
 
+        # Update best solution
+        population.historical_best_fitness[improved_mask] = population.fitness[improved_mask]
+        population.historical_best_matrix[improved_mask, :] = population.genotype_matrix[improved_mask, :]
+
+        if population.best is None or np.any(population.fitness > population.best_fitness):
+            best_idx = np.argmax(population.fitness)
+            population.best = population.genotype_matrix[best_idx]
+            population.best_fitness = population.fitness[best_idx]
+            population.best_objective = population.objective[best_idx]
+
         logger.debug("Done calculating the fitness.")
-        return fitness
+        return population
 
     @abstractmethod
     def objective(self, solution: Any) -> VectorLike | ScalarLike:
@@ -199,7 +209,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             Value of the objective function given a solution.
         """
 
-    def repair_solution(self, solution: MatrixLike) -> MatrixLike:
+    def repair_solutions(self, population: Population) -> Population:
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
 
@@ -214,7 +224,11 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             A modified version of the solution passed that satisfies the restrictions of the problem.
         """
 
-        return self.constraint_handler.repair_solution(solution)
+        population_matrix = population.genotype_matrix
+        population_matrix = self.constraint_handler.repair_solution(population_matrix)
+        population.genotype_matrix = population_matrix
+
+        return population
 
     def add_parameter_constraints(self, parameter_extending_encoding: ParameterExtendingEncoding, param_handlers: dict[str, ConstraintHandler]):
         """Attach extra constraint handlers for extended encodings (e.g., PSO).

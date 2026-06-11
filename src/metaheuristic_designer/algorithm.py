@@ -36,12 +36,12 @@ class Algorithm:
     (:class:`StoppingCondition`, :class:`Reporter`, etc.).  The
     keyword-argument style is convenient for quick experiments; the
     object-based style gives finer control and reusability.
-    
+
     .. note::
         The constructor accepts **either** an explicit object (e.g., ``stopping_condition``)
-        **or** the individual keyword arguments that would build that object.  
+        **or** the individual keyword arguments that would build that object.
         If both are provided, the explicit object takes precedence and the keyword-only
-        arguments are silently ignored. 
+        arguments are silently ignored.
 
     Parameters
     ----------
@@ -318,13 +318,13 @@ class Algorithm:
             The improved next population.
         """
 
-        self.population = self.search_strategy.step(prev_population=prev_population)
+        self.population = self.search_strategy.step(prev_population=prev_population, objfunc=self.objfunc)
         self.update()
         return self.population
 
     def update(self):
         """Updates the internal state of the algorithm."""
-        self.stopping_condition.update(self.population)
+        self.stopping_condition.update(self)
         self.reporter.log_step(self)
         self.history_tracker.update(self)
 
@@ -381,7 +381,7 @@ class Algorithm:
             if self.checkpointer is not None:
                 self.checkpointer.save(self)
             self.reporter.log_end(self)
-            logger.info(f"Optimization aborted by an OS signal.")
+            logger.info("Optimization aborted by an OS signal.")
             raise e
 
         self.reporter.log_end(self)

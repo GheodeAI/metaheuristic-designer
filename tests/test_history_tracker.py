@@ -111,7 +111,7 @@ def test_correctness_best_median_worst(dummy_objfunc, algo_with_full_tracker):
 
     # Build a known population
     genotypes = np.array([[10, 20], [30, 40], [50, 60], [70, 80], [90, 95]], dtype=float)
-    pop = make_pop([1.0, 5.0, 2.0, 4.0, 3.0], dummy_objfunc)
+    pop = make_pop([1.0, 5.0, 2.0, 4.0, 3.0])
     pop.genotype_matrix = genotypes
     pop.fitness = np.array([1.0, 5.0, 2.0, 4.0, 3.0])
     pop.objective = pop.fitness.copy()

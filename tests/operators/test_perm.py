@@ -32,10 +32,10 @@ def test_create_permutation_operator_invalid_method():
 # -------------------------------------------------------------------
 #  Integration: calling the operator modifies population
 # -------------------------------------------------------------------
-def test_swap_operator_modifies_genotype(rng, dummy_objfunc, simple_encoding):
+def test_swap_operator_modifies_genotype(rng, simple_encoding):
     # Use an integer genotype matrix
     geno = np.array([[1, 2, 3, 4], [3, 4, 2, 1], [4, 1, 3, 2], [2, 3, 1, 4]])
-    pop = Population(dummy_objfunc, geno)
+    pop = Population(geno)
     pop.fitness = np.zeros(4)
 
     op = create_permutation_operator("swap", encoding=simple_encoding, rng=rng)
@@ -46,10 +46,10 @@ def test_swap_operator_modifies_genotype(rng, dummy_objfunc, simple_encoding):
     assert not np.array_equal(pop.genotype_matrix, geno)
 
 
-def test_permutation_operator_reproducible(rng, dummy_objfunc, simple_encoding):
+def test_permutation_operator_reproducible(simple_encoding):
     geno = np.array([[1, 2, 3, 4], [3, 4, 2, 1], [4, 1, 3, 2], [2, 3, 1, 4]])
-    pop1 = Population(dummy_objfunc, geno.copy())
-    pop2 = Population(dummy_objfunc, geno.copy())
+    pop1 = Population(geno.copy())
+    pop2 = Population(geno.copy())
 
     rng1 = np.random.default_rng(42)
     rng2 = np.random.default_rng(42)

@@ -6,7 +6,8 @@ from __future__ import annotations
 from copy import copy
 from typing import Optional
 
-from metaheuristic_designer.population import Population
+from ..population import Population
+from ..objective_function import ObjectiveFunc
 from ..initializer import Initializer
 from ..survivor_selection_base import SurvivorSelection
 from ..search_strategy import SearchStrategy
@@ -46,10 +47,10 @@ class SingleSolutionStrategy(SearchStrategy):
     ):
         super().__init__(initializer, operator=operator, survivor_sel=survivor_sel, name=name, rng=rng, **kwargs)
 
-    def step(self, prev_population: Population) -> Population:
-        self.population = copy(prev_population)
-        self.population = self.operator.evolve(self.population, self.initializer)
-        self.population = self.population.repair_solutions()
-        self.population = self.population.calculate_fitness()
-        self.population = self.survivor_sel.select(population=prev_population, offspring=self.population)
-        return self.population
+    def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
+        population = copy(prev_population)
+        population = self.operator.evolve(population, self.initializer)
+        population = objfunc.repair_solutions(population)
+        population = objfunc.calculate_fitness(population)
+        population = self.survivor_sel.select(population=prev_population, offspring=population)
+        return population

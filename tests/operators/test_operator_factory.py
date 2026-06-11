@@ -53,8 +53,8 @@ def test_create_operator_null_alias():
     assert isinstance(op, NullOperator)
 
 
-def test_create_operator_bo_alias(rng, simple_encoding):
-    op = create_operator("bo", encoding=simple_encoding, rng=rng)
+def test_create_operator_bo_alias(rng, simple_encoding, dummy_objfunc):
+    op = create_operator("bo", objfunc=dummy_objfunc, encoding=simple_encoding, rng=rng)
     assert isinstance(op, BOOperator)
     assert op.name == "bo"
 

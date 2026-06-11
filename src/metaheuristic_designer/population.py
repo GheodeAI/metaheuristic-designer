@@ -36,10 +36,7 @@ class Population:
         Defaults to :class:`DefaultEncoding`.
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, genotype_matrix: MatrixLike, encoding: Optional[Encoding] = None):
-        # Objective function
-        self.objfunc = objfunc
-
+    def __init__(self, genotype_matrix: MatrixLike, encoding: Optional[Encoding] = None):
         # Population of solutions
         self.genotype_matrix = genotype_matrix
 
@@ -78,7 +75,6 @@ class Population:
     def __repr__(self) -> str:
         return (
             "Population{"
-            f"\n\tobjfunc = {self.objfunc.name}"
             f"\n\tgenotype_matrix = {self.genotype_matrix}"
             f"\n\tpop_size = {self.population_size}"
             f"\n\tvec_size = {self.dimension}"
@@ -94,7 +90,7 @@ class Population:
         )
 
     def __copy__(self) -> Population:
-        copied_pop = Population(self.objfunc, copy(self.genotype_matrix), encoding=self.encoding)
+        copied_pop = Population(copy(self.genotype_matrix), encoding=self.encoding)
         copied_pop.fitness = copy(self.fitness)
         copied_pop.objective = copy(self.objective)
         copied_pop.fitness_calculated = copy(self.fitness_calculated)
@@ -199,7 +195,7 @@ class Population:
 
         selected_genotype_matrix = copy(self.genotype_matrix[selection_idx, :])
 
-        selected_pop = Population(self.objfunc, selected_genotype_matrix, encoding=self.encoding)
+        selected_pop = Population(selected_genotype_matrix, encoding=self.encoding)
         selected_pop.fitness = copy(self.fitness[selection_idx])
         selected_pop.objective = copy(self.objective[selection_idx])
         selected_pop.fitness_calculated = copy(self.fitness_calculated[selection_idx])
@@ -263,7 +259,7 @@ class Population:
 
         sliced_genotype_matrix = copy(self.genotype_matrix[:, mask])
 
-        sliced_pop = Population(self.objfunc, sliced_genotype_matrix, encoding=self.encoding)
+        sliced_pop = Population(sliced_genotype_matrix, encoding=self.encoding)
         sliced_pop.dimension = sliced_genotype_matrix.shape[1]
         sliced_pop.historical_best_matrix = copy(self.historical_best_matrix[:, mask])
         sliced_pop.historical_best_fitness = copy(self.historical_best_fitness)
@@ -326,7 +322,7 @@ class Population:
 
         joined_genotype_matrix = np.concatenate((population1.genotype_matrix, population2.genotype_matrix), axis=0)
 
-        joined_pop = Population(population1.objfunc, joined_genotype_matrix, encoding=population1.encoding)
+        joined_pop = Population(joined_genotype_matrix, encoding=population1.encoding)
         joined_pop.historical_best_matrix = np.concatenate((population1.historical_best_matrix, population2.historical_best_matrix), axis=0)
         joined_pop.historical_best_fitness = np.concatenate((population1.historical_best_fitness, population2.historical_best_fitness))
         joined_pop.fitness_calculated = np.concatenate((population1.fitness_calculated, population2.fitness_calculated))
@@ -461,7 +457,7 @@ class Population:
         best_fitness = self.best_fitness
         best_objective = self.best_objective
 
-        new_population = Population(self.objfunc, genotype_matrix, encoding=self.encoding)
+        new_population = Population(genotype_matrix, encoding=self.encoding)
         new_population.fitness_calculated = fitness_calculated
         new_population.fitness = fitness
         new_population.objective = objective
@@ -472,53 +468,6 @@ class Population:
         logger.debug("Added %d copies of each individual to the population", amount)
 
         return new_population
-
-    def calculate_fitness(self, parallel: bool = False, threads: int = 8) -> VectorLike:
-        """
-        Calculates the fitness of the individual if it has not been calculated before
-
-        Parameters
-        ----------
-        parallel: bool, optional
-            Whether to evaluate the individuals in the population in parallel.
-        threads: int, optional
-            Number of processes to use at once if calculating the fitness in parallel.
-
-        Returns
-        -------
-        fitness: ndarray
-        """
-
-        prev_fitness = copy(self.fitness)
-
-        # Objective values and fitness values are modified in place after the call
-        self.fitness = self.objfunc.fitness(self)
-
-        improved_mask = prev_fitness < self.fitness
-        self.historical_best_fitness[improved_mask] = self.fitness[improved_mask]
-        self.historical_best_matrix[improved_mask, :] = self.genotype_matrix[improved_mask, :]
-
-        if self.best is None or np.any(self.fitness > self.best_fitness):
-            best_idx = np.argmax(self.fitness)
-            self.best = self.genotype_matrix[best_idx]
-            self.best_fitness = self.fitness[best_idx]
-            self.best_objective = self.objective[best_idx]
-
-        logger.debug("Updated the fitness of the individuals.")
-
-        return self
-
-    def repair_solutions(self) -> Population:
-        """
-        Repairs the solutions in the population.
-
-        Returns
-        -------
-        self: Population
-        """
-
-        self.genotype_matrix = self.objfunc.repair_solution(self.genotype_matrix)
-        return self
 
     def decode(self, encoding: Optional[Encoding] = None) -> Iterable:
         """
@@ -632,7 +581,6 @@ class Population:
 
         return (
             f"Population(\n"
-            f"  objfunc={self.objfunc.name},\n"
             f"  size={self.population_size}, dims={self.dimension},\n"
             f"  fitness=[{self.fitness.min():.3e}, {self.fitness.max():.3e}],\n"
             f"  objective=[{self.objective.min():.3e}, {self.objective.max():.3e}],\n"

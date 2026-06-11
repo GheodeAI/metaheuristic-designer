@@ -37,9 +37,7 @@ def random_search_binary(objfunc: ObjectiveFunc, encoding: Optional[Encoding] = 
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def random_search_permutation(
-    objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None, **kwargs
-) -> Algorithm:
+def random_search_permutation(objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None, **kwargs) -> Algorithm:
     """Random Search for permutation-coded vectors.
 
     Parameters
@@ -60,9 +58,7 @@ def random_search_permutation(
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
-def random_search_discrete(
-    objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None, **kwargs
-) -> Algorithm:
+def random_search_discrete(objfunc: ObjectiveFunc, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None, **kwargs) -> Algorithm:
     """Random Search for integer-coded vectors.
 
     Parameters

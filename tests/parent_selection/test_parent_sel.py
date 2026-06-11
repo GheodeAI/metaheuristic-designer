@@ -23,7 +23,7 @@ def test_parent_selection_def_calls_wrapped_function():
         return np.array([0, 2])
 
     def_obj = ParentSelectionDef(dummy)
-    pop = make_pop([1.0, 2.0], dummy_objfunc)
+    pop = make_pop([1.0, 2.0])
     result = def_obj(pop, amount=2, rng=rng)
     assert_array_equal(result, [0, 2])
 
@@ -38,7 +38,7 @@ def test_parent_selection_def_passes_fitness_and_kwargs():
         return np.array([0])
 
     def_obj = ParentSelectionDef(spy, params={"extra": 5})
-    pop = make_pop([10.0, 20.0], dummy_objfunc)
+    pop = make_pop([10.0, 20.0])
     def_obj(pop, amount=1, rng=rng)
 
     assert_array_equal(captured["fitness"], [10.0, 20.0])
@@ -88,8 +88,8 @@ def test_create_default_name_is_method(rng):
         ("sus", {}),
     ],
 )
-def test_factory_select_returns_valid_parents(method, kwargs, rng, dummy_objfunc):
-    population = make_pop([5.0, 1.0, 3.0, 2.0], dummy_objfunc)
+def test_factory_select_returns_valid_parents(method, kwargs, rng):
+    population = make_pop([5.0, 1.0, 3.0, 2.0])
     amount = 3
 
     sel = create_parent_selection(method, rng=rng, **kwargs)
@@ -121,8 +121,8 @@ def test_factory_select_returns_valid_parents(method, kwargs, rng, dummy_objfunc
         ("sus", {}),
     ],
 )
-def test_factory_select_returns_valid_parents(method, kwargs, rng, dummy_objfunc):
-    population = make_pop([5.0, 1.0, 3.0, 2.0], dummy_objfunc)
+def test_factory_select_returns_valid_parents(method, kwargs, rng):
+    population = make_pop([5.0, 1.0, 3.0, 2.0])
     amount = 3
 
     sel = create_parent_selection(method, rng=rng, **kwargs)
@@ -139,8 +139,8 @@ def test_factory_select_returns_valid_parents(method, kwargs, rng, dummy_objfunc
         assert np.array_equal(parents.genotype_matrix[0], population.genotype_matrix[best_idx])
 
 
-def test_null_parent_selection_returns_original(rng, dummy_objfunc):
-    population = make_pop([1.0, 2.0], dummy_objfunc)
+def test_null_parent_selection_returns_original(rng):
+    population = make_pop([1.0, 2.0])
     sel = NullParentSelection()
     result = sel.select(population, None)
     assert len(result) == len(population)

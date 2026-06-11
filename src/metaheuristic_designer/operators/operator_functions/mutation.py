@@ -120,9 +120,7 @@ def mutate_noise(
     return population_matrix
 
 
-def rand_sample(
-    population_matrix: MatrixLike, fitness_array: VectorLike, distribution: str, rng: Optional[RNGLike] = None, **kwargs
-) -> MatrixLike:
+def rand_sample(population_matrix: MatrixLike, fitness_array: VectorLike, distribution: str, rng: Optional[RNGLike] = None, **kwargs) -> MatrixLike:
     """
     Replace the entire population with new random values.
 
@@ -305,10 +303,7 @@ def mutate_n_sigmas(population_matrix: MatrixLike, fitness_array: VectorLike, rn
     return np.maximum(
         epsilon,
         population_matrix
-        * np.exp(
-            tau * rng.normal(0, 1, population_matrix.shape[0])[:, None]
-            + tau_multiple * rng.normal(0, 1, population_matrix.shape[0])[:, None]
-        ),
+        * np.exp(tau * rng.normal(0, 1, population_matrix.shape[0])[:, None] + tau_multiple * rng.normal(0, 1, population_matrix.shape[0])[:, None]),
     )
 
 

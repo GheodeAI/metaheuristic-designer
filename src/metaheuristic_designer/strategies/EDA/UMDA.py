@@ -212,9 +212,7 @@ class GaussianUMDA(EDAStrategy):
 
         super().__init__(
             initializer=initializer,
-            operator=create_operator(
-                "full_resampling", distribution="gaussian", loc=np.asarray(loc), scale=np.asarray(scale), rng=rng
-            ),
+            operator=create_operator("full_resampling", distribution="gaussian", loc=np.asarray(loc), scale=np.asarray(scale), rng=rng),
             parent_sel=parent_sel,
             survivor_sel=survivor_sel,
             offspring_size=offspring_size,

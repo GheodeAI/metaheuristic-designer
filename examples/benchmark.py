@@ -140,6 +140,7 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
             initializer=UniformInitializer(
                 objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
             ),
+            objfunc=objfunc,
             batch_size=50,
             max_samples=100,
             rng=rng,
@@ -190,8 +191,8 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
     # Calculate random search baseline
     random_initializer = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, rng=42)
     n_samples = 5000
-    population = random_initializer.generate_population(objfunc, n_samples)
-    population.calculate_fitness()
+    population = random_initializer.generate_population(n_samples)
+    objfunc.calculate_fitness(population)
     min_fitness = population.objective.min()
 
     # computed values

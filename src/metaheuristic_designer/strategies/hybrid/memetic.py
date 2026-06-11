@@ -6,7 +6,7 @@ from copy import copy
 from typing import Optional, Tuple
 
 from ...population import Population
-from ...operator import Operator
+from ...objective_function import ObjectiveFunc
 from ...parent_selection import ParentSelection
 from ...utils import MaskLike, RNGLike
 from ...search_strategy import SearchStrategy
@@ -57,7 +57,7 @@ class MemeticStrategy(SearchStrategy):
             local_search_frequency=local_search_frequency,
         )
 
-    def _do_local_search(self, offspring: Population) -> Tuple[Population, MaskLike]:
+    def _do_local_search(self, offspring: Population, objfunc: ObjectiveFunc) -> Tuple[Population, MaskLike]:
         """Apply the local search procedure to a set of solutions.
 
         Parameters
@@ -78,11 +78,12 @@ class MemeticStrategy(SearchStrategy):
         for _ in range(self.params.local_search_depth):
             population = self.local_search_heuristic.parent_sel.select(prev_population)
             population = self.local_search_heuristic.operator.evolve(population)
+            population = objfunc.repair_solutions(population)
+            population = objfunc.calculate_fitness(population)
             improved_offspring = self.local_search_heuristic.survivor_sel.select(prev_population, population)
 
             # Assign improved individuals to the population
             offspring = offspring.apply_selection(improved_offspring, chosen_idx)
-            offspring = offspring.calculate_fitness()
             prev_population = improved_offspring
 
         return offspring, chosen_idx
@@ -93,7 +94,7 @@ class MemeticStrategy(SearchStrategy):
         self.local_search_heuristic.update(progress)
         self.improvement_selection.update(progress)
 
-    def step(self, prev_population: Population):
+    def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
         population = self.main_strategy.parent_sel.select(prev_population)  # implicit copy
         population = self.main_strategy.operator.evolve(population, self.initializer)
 
@@ -101,7 +102,7 @@ class MemeticStrategy(SearchStrategy):
         population_memetic = copy(population)
         self.local_search_counter += 1
         if self.local_search_counter >= self.params.local_search_frequency:
-            population_memetic, chosen_idx = self._do_local_search(population_memetic)
+            population_memetic, chosen_idx = self._do_local_search(population_memetic, objfunc)
 
             if not self.keep_improved_solutions:
                 fitness_obtained = population_memetic.fitness
@@ -110,8 +111,8 @@ class MemeticStrategy(SearchStrategy):
 
             self.local_search_counter = 0
 
-        population_memetic = population_memetic.repair_solutions()
-        population_memetic = population_memetic.calculate_fitness()
+        population_memetic = objfunc.repair_solutions(population_memetic)
+        population_memetic = objfunc.calculate_fitness(population_memetic)
 
         population = self.main_strategy.survivor_sel.select(population=prev_population, offspring=population_memetic)
         return population

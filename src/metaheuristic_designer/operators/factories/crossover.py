@@ -125,6 +125,4 @@ def create_crossover_operator(
     if name is None:
         name = method
 
-    return OperatorFromLambda(
-        operator_fn=crossover_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=False, rng=rng, **kwargs
-    )
+    return OperatorFromLambda(operator_fn=crossover_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=False, rng=rng, **kwargs)

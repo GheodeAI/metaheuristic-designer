@@ -27,7 +27,7 @@ from metaheuristic_designer.operator import OperatorFromLambda
 def test_hill_climb_default_survivor(rng, dummy_initializer, dummy_objfunc):
     algo = HillClimb(initializer=dummy_initializer, rng=rng)
     initial_pop = algo.initialize(dummy_objfunc)
-    new_pop = algo.step(initial_pop)
+    new_pop = algo.step(initial_pop, dummy_objfunc)
     assert algo.survivor_sel is not None
     assert isinstance(algo.survivor_sel, SurvivorSelection)
     # default name
@@ -45,13 +45,13 @@ def test_hill_climb_custom_survivor(rng, dummy_initializer):
 # ===================================================================
 #  LocalSearch
 # ===================================================================
-def test_local_search_perturb_repeats_parents(rng, dummy_objfunc):
+def test_local_search_perturb_repeats_parents(rng):
     # Use a small initializer for simplicity
     from metaheuristic_designer.initializers import UniformInitializer
 
     init = UniformInitializer(2, -1, 1, population_size=2, rng=rng)
     algo = LocalSearch(initializer=init, iterations=3, rng=rng)
-    parents = init.generate_population(dummy_objfunc)
+    parents = init.generate_population()
     original_size = len(parents)
     result = algo.parent_sel.select(parents)
 
@@ -64,7 +64,7 @@ def test_local_search_perturb_repeats_parents(rng, dummy_objfunc):
 def test_no_search_perturb_returns_same_population(rng, dummy_initializer, dummy_objfunc):
     algo = NoSearch(initializer=dummy_initializer, rng=rng)
     initial_pop = algo.initialize(dummy_objfunc)
-    new_pop = algo.step(initial_pop)
+    new_pop = algo.step(initial_pop, dummy_objfunc)
     np.testing.assert_allclose(new_pop.genotype_matrix, initial_pop.genotype_matrix)
 
 
@@ -83,24 +83,25 @@ def test_static_population_accepts_parent_sel(rng, dummy_initializer, dummy_oper
     algo = PopulationBasedStrategy(initializer=dummy_initializer, operator=dummy_operator, parent_sel=parent_sel, rng=rng)
     assert algo.parent_sel is parent_sel
 
+
 def test_static_population(rng, dummy_initializer, dummy_operator, dummy_objfunc):
     algo = PopulationBasedStrategy(initializer=dummy_initializer, operator=dummy_operator, rng=rng)
     initial_pop = algo.initialize(dummy_objfunc)
-    new_pop = algo.step(initial_pop)
+    new_pop = algo.step(initial_pop, dummy_objfunc)
 
 
 def test_static_population(rng, dummy_initializer, dummy_operator, dummy_objfunc):
     algo = PopulationBasedStrategy(initializer=dummy_initializer, operator=dummy_operator, rng=rng)
     initial_pop = algo.initialize(dummy_objfunc)
-    new_pop = algo.step(initial_pop)
+    new_pop = algo.step(initial_pop, dummy_objfunc)
 
 
 # ===================================================================
 #  VariablePopulationStrategy
 # ===================================================================
-def test_variable_population_shuffles_parents(rng, dummy_initializer, dummy_operator, dummy_objfunc):
+def test_variable_population_shuffles_parents(rng, dummy_initializer, dummy_operator):
     algo = ShuffledPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, rng=rng)
-    parents = dummy_initializer.generate_population(dummy_objfunc)
+    parents = dummy_initializer.generate_population()
     assert len(parents) == 10
 
     shuffled = algo.population_shuffler.select(parents)
@@ -111,9 +112,9 @@ def test_variable_population_shuffles_parents(rng, dummy_initializer, dummy_oper
         assert any(np.array_equal(row, original_row) for original_row in parents.genotype_matrix)
 
 
-def test_variable_population_custom_offspring_size(rng, dummy_initializer, dummy_operator, dummy_objfunc):
+def test_variable_population_custom_offspring_size(rng, dummy_initializer, dummy_operator):
     algo = ShuffledPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, offspring_size=5, rng=rng)
-    parents = dummy_initializer.generate_population(dummy_objfunc)
+    parents = dummy_initializer.generate_population()
     shuffled = algo.population_shuffler.select(parents)
     assert len(shuffled) == 5  # custom size
 
@@ -126,7 +127,7 @@ def test_variable_population_initializer_update_changes_offspring_size(rng, dumm
     new_init = UniformInitializer(2, 0, 1, population_size=6, rng=rng)
     algo.initializer = new_init
     # Since we didn't set custom offspring size originally, it should update offspring_size to 6
-    parents = new_init.generate_population(dummy_objfunc)
+    parents = new_init.generate_population()
     shuffled = algo.parent_sel.select(parents)
     assert len(shuffled) == 6
 
@@ -134,4 +135,4 @@ def test_variable_population_initializer_update_changes_offspring_size(rng, dumm
 def test_variable_population(rng, dummy_initializer, dummy_operator, dummy_objfunc):
     algo = ShuffledPopulationStrategy(initializer=dummy_initializer, operator=dummy_operator, offspring_size=5, rng=rng)
     initial_pop = algo.initialize(dummy_objfunc)
-    new_pop = algo.step(initial_pop)
+    new_pop = algo.step(initial_pop, dummy_objfunc)

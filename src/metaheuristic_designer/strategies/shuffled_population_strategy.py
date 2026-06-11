@@ -5,7 +5,9 @@ Strategy where offspring size differs from population size (μ+λ / μ,λ style)
 from __future__ import annotations
 import logging
 from typing import Optional
+
 from ..population import Population
+from ..objective_function import ObjectiveFunc
 from ..initializer import Initializer
 from ..parent_selection_base import ParentSelection
 from ..survivor_selection_base import SurvivorSelection
@@ -114,11 +116,11 @@ class ShuffledPopulationStrategy(SearchStrategy):
 
         self._initializer = new_initializer
 
-    def step(self, prev_population: Population) -> Population:
+    def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
         population = self.parent_sel.select(prev_population)  # implicit copy
         population = self.population_shuffler(population)
         population = self.operator.evolve(population, self.initializer)
-        population = population.repair_solutions()
-        population = population.calculate_fitness()
+        population = objfunc.repair_solutions(population)
+        population = objfunc.calculate_fitness(population)
         population = self.survivor_sel.select(population=prev_population, offspring=population)
         return population

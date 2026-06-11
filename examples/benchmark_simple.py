@@ -32,6 +32,7 @@ def run_algorithm(alg_name, fid, instance, dim, reporter, evaluations, save_stat
         "ga": simple.genetic_algorithm_real(objfunc, **algorithm_params),
         "de": simple.differential_evolution_real(objfunc, **algorithm_params),
         "pso": simple.particle_swarm_real(objfunc, **algorithm_params),
+        "bo": simple.bayesian_optimization_real(objfunc, **algorithm_params),
         "randomsearch": simple.random_search_real(objfunc, **algorithm_params),
     }
     if alg_name not in alg_map:
@@ -50,8 +51,8 @@ def run_algorithm(alg_name, fid, instance, dim, reporter, evaluations, save_stat
     # Calculate random search baseline
     random_initializer = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, rng=42)
     n_samples = 5000
-    population = random_initializer.generate_population(objfunc, n_samples)
-    population.calculate_fitness()
+    population = random_initializer.generate_population(n_samples)
+    population = objfunc.calculate_fitness(population)
     min_fitness = population.objective.min()
 
     # computed values

@@ -36,8 +36,8 @@ def test_null_constraint_penalty_zero():
 # ===================================================================
 #  NullOperator
 # ===================================================================
-def test_null_operator_returns_copy(rng, dummy_objfunc):
-    pop = make_pop([1.0, 2.0], dummy_objfunc)
+def test_null_operator_returns_copy():
+    pop = make_pop([1.0, 2.0])
     op = NullOperator()
     result = op.evolve(pop)
     # result should be a copy, not the same object
@@ -48,8 +48,8 @@ def test_null_operator_returns_copy(rng, dummy_objfunc):
 # ===================================================================
 #  NullParentSelection
 # ===================================================================
-def test_null_parent_selection_returns_same_population(rng, dummy_objfunc):
-    pop = make_pop([5.0, 1.0], dummy_objfunc)
+def test_null_parent_selection_returns_same_population():
+    pop = make_pop([5.0, 1.0])
     sel = NullParentSelection()
     result = sel.select(pop)
     np.testing.assert_allclose(result.genotype_matrix, pop.genotype_matrix)
@@ -58,9 +58,9 @@ def test_null_parent_selection_returns_same_population(rng, dummy_objfunc):
 # ===================================================================
 #  NullSurvivorSelection
 # ===================================================================
-def test_null_survivor_selection_returns_offspring(rng, dummy_objfunc):
-    parents = make_pop([10.0, 1.0], dummy_objfunc)
-    offspring = make_pop([5.0, 5.0], dummy_objfunc)
+def test_null_survivor_selection_returns_offspring():
+    parents = make_pop([10.0, 1.0])
+    offspring = make_pop([5.0, 5.0])
     sel = NullSurvivorSelection()
     result = sel.select(parents, offspring)
     # NullSurvivorSelection returns the offspring

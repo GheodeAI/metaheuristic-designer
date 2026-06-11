@@ -17,7 +17,7 @@ from metaheuristic_designer.parameter_schedules import (
     CosineSchedule,
     ExponentialDecaySchedule,
     NoisySchedule,
-    ProbabilityAnnealingSchedule
+    ProbabilityAnnealingSchedule,
 )
 
 
@@ -139,9 +139,11 @@ def test_step_schedule_empty_steps():
         sched = StepSchedule({})
         sched.evaluate(0.5)
 
+
 # ===================================================================
 #  StridedSchedule
 # ===================================================================
+
 
 def test_strided_schedule():
     base_sched = LinearSchedule(init_value=0, final_value=1)
@@ -154,30 +156,37 @@ def test_strided_schedule():
     assert sched.evaluate(0.7) == 0.5
     assert sched.evaluate(0.8) == 0.5
 
+
 # ===================================================================
 #  CosineSchedule
 # ===================================================================
+
 
 def test_cosine_schedule():
     sched = CosineSchedule()
     assert sched.evaluate(0) == 1
     np.testing.assert_almost_equal(sched.evaluate(0.25), 0)
 
+
 # ===================================================================
 #  ExponentialDecaySchedule
 # ===================================================================
+
 
 def test_exponential_decay_schedule():
     sched = ExponentialDecaySchedule(init_value=1)
     assert sched.evaluate(0) == 1
 
+
 def test_exponential_decay_log_warn():
     sched = ExponentialDecaySchedule(init_value=1, iterative=True, alpha=100)
     sched = ExponentialDecaySchedule(init_value=1, iterative=True, alpha=-100)
 
+
 def test_exponential_decay_schedule_non_iterative():
     sched = ExponentialDecaySchedule(init_value=1, final_value=0, iterative=False)
     assert sched.evaluate(0.1) == sched.evaluate(0.1)
+
 
 def test_exponential_decay_schedule_iterative():
     sched = ExponentialDecaySchedule(init_value=1, iterative=True)
@@ -188,22 +197,27 @@ def test_exponential_decay_schedule_iterative():
 
     assert sched.evaluate(0.1) != sched.evaluate(0.1)
 
+
 # ===================================================================
 #  ProbabilityAnnealingSchedule
 # ===================================================================
+
 
 def test_prob_annealing():
     sched = ProbabilityAnnealingSchedule()
     sched.evaluate(0)
     sched.evaluate(0.1)
 
+
 def test_prob_annealing_log_warn():
     sched = ProbabilityAnnealingSchedule(alpha=100)
     sched = ProbabilityAnnealingSchedule(alpha=-100)
 
+
 # ===================================================================
 #  NoisySchedule
 # ===================================================================
+
 
 def test_noisy_schedule():
     base_sched = LinearSchedule(init_value=0, final_value=1)
@@ -211,9 +225,11 @@ def test_noisy_schedule():
 
     assert sched.evaluate(0.1) != sched.evaluate(0.1)
 
+
 # ===================================================================
 #  ProbabilityAnnealingSchedule
 # ===================================================================
+
 
 def test_noisy_schedule():
     base_sched = LinearSchedule(init_value=0, final_value=1)

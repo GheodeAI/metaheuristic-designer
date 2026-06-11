@@ -314,9 +314,7 @@ def shuffle_population(fitness: VectorLike, amount: int, rng: Optional[RNGLike] 
     return picked_idx
 
 
-def roulette(
-    fitness: VectorLike, amount: int, rng: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None
-) -> MaskLike:
+def roulette(fitness: VectorLike, amount: int, rng: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None) -> MaskLike:
     """
     Fitness proportionate parent selection.
 
@@ -348,9 +346,7 @@ def roulette(
     return rng.choice(np.arange(fitness.shape[0]), size=amount, p=weights, axis=0)
 
 
-def sus(
-    fitness: VectorLike, amount: int, rng: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None
-) -> MaskLike:
+def sus(fitness: VectorLike, amount: int, rng: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None) -> MaskLike:
     """
     Stochastic universal sampling parent selection method.
 

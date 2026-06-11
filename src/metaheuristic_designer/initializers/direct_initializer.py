@@ -80,7 +80,7 @@ class DirectInitializer(Initializer):
 
         return indiv
 
-    def generate_population(self, objfunc: ObjectiveFunc, n_individuals: Optional[int] = None) -> Population:
+    def generate_population(self, n_individuals: Optional[int] = None) -> Population:
         """Create a population by drawing from the stored solutions.
 
         Parameters
@@ -106,6 +106,6 @@ class DirectInitializer(Initializer):
             population_matrix = self.solutions
 
         selection_idx = np.arange(n_individuals) % population_matrix.shape[0]
-        population = Population(objfunc, population_matrix[selection_idx, :], encoding=self.encoding)
+        population = Population(population_matrix[selection_idx, :], encoding=self.encoding)
 
         return population

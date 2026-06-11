@@ -119,24 +119,32 @@ class DummyObjectiveFunction(ObjectiveFunc):
         self.repair_called = 0
 
     def objective(self, solution: Any) -> np.ndarray:
-        raise NotImplementedError("Use fitness() directly in tests")
+        return self._fitness_return
 
-    def fitness(
+    def calculate_fitness(
         self,
         population: Population,
     ) -> np.ndarray:
         self.fitness_called += 1
         if callable(self._fitness_return):
             fitness = self._fitness_return(population)
-            return fitness
+        else:
+            fitness = self._fitness_return
         shape = (len(population.genotype_matrix),)
-        return np.broadcast_to(self._fitness_return, shape).copy()
+        fit_vector = np.broadcast_to(fitness, shape).copy()
+        population.fitness = fit_vector
+        population.objective = fit_vector
+        population.best = np.atleast_2d(population.genotype_matrix[np.argmax(fit_vector)])
+        population.best_objective = np.max(fit_vector)
+        population.best_fitness = np.max(fit_vector)
+        return population
 
-    def repair_solution(self, solution: np.ndarray) -> np.ndarray:
+    def repair_solution(self, population: Population) -> Population:
         self.repair_called += 1
         if self._repair_return is not None:
-            return self._repair_return(solution)
-        return solution
+            repaired_matrix = self._repair_return(population.genotype_matrix)
+            population.update_genotype(repaired_matrix)
+        return population
 
 
 @pytest.fixture
@@ -209,14 +217,14 @@ class DummyParameterExtendingEncoding(ParameterExtendingEncoding):
 #  Population fixtures
 # ===================================================================
 @pytest.fixture
-def empty_population(dummy_objfunc):
-    return Population(dummy_objfunc, np.zeros((0, 2)))
+def empty_population():
+    return Population(np.zeros((0, 2)))
 
 
 @pytest.fixture
-def example_population(dummy_objfunc):
-    """A 4‑individual population with pre‑set fitness, historical best, etc."""
-    pop = Population(dummy_objfunc, np.arange(8).reshape(4, 2).astype(float))
+def example_population():
+    """A 4‑individual population with pre-set fitness, historical best, etc."""
+    pop = Population(np.arange(8).reshape(4, 2).astype(float))
     pop.fitness = np.array([3.0, 1.0, 4.0, 2.0])
     pop.historical_best_matrix = np.ones((4, 2))
     pop.historical_best_fitness = np.array([10.0, 20.0, 30.0, 40.0])
@@ -295,9 +303,9 @@ def _expected_permutation(n, seed=42):
 # ===================================================================
 #  Helper: quick population with given fitness
 # ===================================================================
-def make_pop(fitness_list, objfunc):
-    """Return a Population with pre‑set fitness, shape (len, 2)."""
-    pop = Population(objfunc, np.arange(len(fitness_list) * 2).reshape(len(fitness_list), 2).astype(float))
+def make_pop(fitness_list):
+    """Return a Population with pre-set fitness, shape (len, 2)."""
+    pop = Population(np.arange(len(fitness_list) * 2).reshape(len(fitness_list), 2).astype(float))
     pop.fitness = np.array(fitness_list)
     return pop
 
@@ -322,11 +330,11 @@ def perm_pop():
 
 
 @pytest.fixture
-def pso_population(dummy_objfunc):
+def pso_population():
     """A small population with PSOEncoding, fitness, historical best, and speed."""
     enc = PSOEncoding(dimension=2, base_encoding=DefaultEncoding())
     geno = np.array([[1.0, 2.0, 0.1, 0.2], [3.0, 4.0, 0.3, 0.4]])
-    pop = Population(dummy_objfunc, geno, encoding=enc)
+    pop = Population(geno, encoding=enc)
     pop.fitness = np.array([0.5, 0.8])
     pop.historical_best_matrix = np.array([[1.0, 2.0, 0.1, 0.2], [3.0, 4.0, 0.3, 0.4]])
     pop.historical_best_fitness = np.array([0.5, 0.8])

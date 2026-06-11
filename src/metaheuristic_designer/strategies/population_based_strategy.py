@@ -6,7 +6,8 @@ from __future__ import annotations
 from copy import copy
 from typing import Optional
 
-from metaheuristic_designer.population import Population
+from ..population import Population
+from ..objective_function import ObjectiveFunc
 from ..initializer import Initializer
 from ..parent_selection_base import ParentSelection
 from ..survivor_selection_base import SurvivorSelection
@@ -51,14 +52,12 @@ class PopulationBasedStrategy(SearchStrategy):
         rng: Optional[RNGLike] = None,
         **kwargs,
     ):
-        super().__init__(
-            initializer, operator=operator, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, rng=rng, **kwargs
-        )
+        super().__init__(initializer, operator=operator, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, rng=rng, **kwargs)
 
-    def step(self, prev_population: Population) -> Population:
+    def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
         population = self.parent_sel.select(prev_population)  # implicit copy
         population = self.operator.evolve(population, self.initializer)
-        population = population.repair_solutions()
-        population = population.calculate_fitness()
+        population = objfunc.repair_solutions(population)
+        population = objfunc.calculate_fitness(population)
         population = self.survivor_sel.select(population=prev_population, offspring=population)
         return population

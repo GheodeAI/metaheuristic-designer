@@ -81,6 +81,7 @@ class BOOperator(Operator):
 
     def __init__(
         self,
+        objfunc: ObjectiveFunc,
         name: str = "Gaussian Regression Surrogate Model",
         encoding: Optional[Encoding] = None,
         kernel: Optional[Callable] = None,
@@ -99,6 +100,8 @@ class BOOperator(Operator):
             max_samples=max_samples,
             **kwargs,
         )
+
+        self.objfunc = objfunc
 
         if kernel is None:
             kernel = rbf_scale * RBF(length_scale=1.0) + WhiteKernel(noise_level=1.0)
@@ -123,7 +126,7 @@ class BOOperator(Operator):
         """
 
         # Obtain training data from the population
-        population = population.calculate_fitness()
+        population = self.objfunc.calculate_fitness(population)
 
         X = population.genotype_matrix
         y = population.fitness
@@ -136,20 +139,19 @@ class BOOperator(Operator):
         self.gaussian_model.fit(X, y)
 
         # Initialize optimization data structures
-        objfunc = population.objfunc
         max_y = np.max(self.gaussian_model.predict(X))
         min_ei = float("inf")
         new_best_point = X[0]
 
-        if isinstance(objfunc, ObjectiveFunc):
-            bounds = np.asarray((objfunc.lower_bound, objfunc.upper_bound)).T
+        if isinstance(self.objfunc, ObjectiveFunc):
+            bounds = np.asarray((self.objfunc.lower_bound, self.objfunc.upper_bound)).T
             if bounds.ndim == 1:
                 bounds = bounds[None, :]
         else:
             bounds = None
 
         # Optimize the acquisition function with a batch of initial points chosen at random
-        samples = initializer.generate_population(objfunc, self.params.batch_size).genotype_matrix
+        samples = initializer.generate_population(self.params.batch_size).genotype_matrix
         for x0 in samples:
             result = sp.optimize.minimize(
                 fun=lambda x_in: -_acquisition_function(self.gaussian_model, X, x_in, max_y), x0=x0, method="L-BFGS-B", bounds=bounds
@@ -159,8 +161,8 @@ class BOOperator(Operator):
                 new_best_point = result.x
 
         # Create new population from the optimization result and merge it with the previous one
-        new_sample_population = Population(objfunc, genotype_matrix=new_best_point[None, :], encoding=population.encoding)
+        new_sample_population = Population(genotype_matrix=new_best_point[None, :], encoding=population.encoding)
         new_population = Population.join_populations(population, new_sample_population)
-        new_population = new_population.repair_solutions()
+        new_population = self.objfunc.repair_solutions(new_population)
 
         return new_population
