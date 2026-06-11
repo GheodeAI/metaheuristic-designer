@@ -241,6 +241,7 @@ def test_lamb_comma_mu(population_fitness, offspring_fitness):
     assert result.min() >= 8  # only offspring indices
     assert len(result) == 8
 
+
 @pytest.mark.parametrize("population_fitness", [EXAMPLE_FITNESS])
 @pytest.mark.parametrize(
     "offspring_fitness",

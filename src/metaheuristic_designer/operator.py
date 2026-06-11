@@ -196,9 +196,7 @@ class OperatorFromLambda(Operator):
 
         required_min_count = 3
         if count < required_min_count:
-            raise TypeError(
-                f"The function should have at least {required_min_count} positional arguments (`population`, `initializer`, `rng`)."
-            )
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `initializer`, `rng`).")
 
     def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
         return self.operator_fn(population, initializer, self.rng, **self.current_kwargs)

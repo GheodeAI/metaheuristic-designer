@@ -75,6 +75,4 @@ class GA(PopulationBasedStrategy):
 
         evolve_op = CompositeOperator([crossover_op, prob_mut_op])
 
-        super().__init__(
-            initializer, operator=evolve_op, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, rng=rng, **kwargs
-        )
+        super().__init__(initializer, operator=evolve_op, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, rng=rng, **kwargs)

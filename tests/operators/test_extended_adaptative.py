@@ -21,7 +21,7 @@ def test_extended_operator_rejects_non_extending_encoding(rng):
         ExtendedOperator(OperatorFromLambda(lambda p, i, rng, **kw: p, rng=rng), {}, regular_enc)
 
 
-def test_extended_operator_applies_masked_ops(rng, dummy_objfunc):
+def test_extended_operator_applies_masked_ops(rng):
     # Encoding with solution size=2 and one param "speed" size=2 → total 4 columns
     enc = DummyParameterExtendingEncoding([("speed", 2)])
     enc.dimension = 2
@@ -34,7 +34,7 @@ def test_extended_operator_applies_masked_ops(rng, dummy_objfunc):
     ext = ExtendedOperator(base_op, {"speed": param_op}, enc)
 
     # Build population with known genotype
-    pop = Population(dummy_objfunc, np.array([[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0]]), encoding=enc)
+    pop = Population(np.array([[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0]]), encoding=enc)
     pop.fitness = np.zeros(2)
 
     result = ext.evolve(pop)
@@ -47,7 +47,7 @@ def test_extended_operator_applies_masked_ops(rng, dummy_objfunc):
 # ===================================================================
 #  AdaptativeOperator
 # ===================================================================
-def test_adaptative_operator_updates_base_operator_kwargs(rng, dummy_objfunc):
+def test_adaptative_operator_updates_base_operator_kwargs(rng):
     enc = DummyParameterExtendingEncoding([("speed", 2)])
     enc.dimension = 2
 
@@ -66,7 +66,7 @@ def test_adaptative_operator_updates_base_operator_kwargs(rng, dummy_objfunc):
 
     adapt = AdaptiveOperator(base_op, {"speed": param_op}, enc)
 
-    pop = Population(dummy_objfunc, np.array([[1.0, 2.0, 5.0, 6.0], [3.0, 4.0, 7.0, 8.0]]), encoding=enc)
+    pop = Population(np.array([[1.0, 2.0, 5.0, 6.0], [3.0, 4.0, 7.0, 8.0]]), encoding=enc)
     pop.fitness = np.zeros(2)
     adapt.evolve(pop)
 

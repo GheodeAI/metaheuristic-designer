@@ -74,6 +74,7 @@ def bayesian_optimization_real(
     )
     search_strategy = BayesianOptimization(
         initializer=pop_initializer,
+        objfunc=objfunc,
         rng=rng,
     )
     return Algorithm(objfunc, search_strategy, **kwargs)

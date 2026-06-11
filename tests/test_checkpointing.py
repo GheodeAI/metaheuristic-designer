@@ -206,6 +206,7 @@ def test_checkpoint_load_with_reporter(tmp_path, rng, dummy_objfunc):
     # We can't compare types across packages easily, but at least ensure it's not silent
     assert not isinstance(loaded.reporter, SilentReporter)
 
+
 # ---------------------------------------------------------------
 # Load non‑existent file raises FileNotFoundError
 # ---------------------------------------------------------------

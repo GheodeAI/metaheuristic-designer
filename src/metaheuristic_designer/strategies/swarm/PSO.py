@@ -85,9 +85,7 @@ class PSO(PopulationBasedStrategy):
         if not isinstance(initializer, ExtendedInitializer):
             initializer = ExtendedInitializer(
                 solution_init=initializer,
-                param_init_dict={
-                    "speed": UniformInitializer(encoding.dimension, -self.abs_upper_bound, self.abs_upper_bound, rng=rng)
-                },
+                param_init_dict={"speed": UniformInitializer(encoding.dimension, -self.abs_upper_bound, self.abs_upper_bound, rng=rng)},
                 rng=rng,
                 encoding=encoding,
             )

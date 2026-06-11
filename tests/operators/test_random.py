@@ -106,10 +106,10 @@ def test_create_random_operator_invalid_method():
 # -------------------------------------------------------------------
 #  Integration: operator modifies population via factory
 # -------------------------------------------------------------------
-def test_random_operator_full_reset(rng, dummy_objfunc, simple_encoding, dummy_initializer):
+def test_random_operator_full_reset(rng, simple_encoding, dummy_initializer):
     # Build a population with 3 columns to match dummy_initializer
     geno = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
-    pop = Population(dummy_objfunc, geno, encoding=simple_encoding)
+    pop = Population(geno, encoding=simple_encoding)
     pop.fitness = np.zeros(2)
     original = pop.genotype_matrix.copy()
 

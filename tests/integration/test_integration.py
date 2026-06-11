@@ -19,8 +19,8 @@ from metaheuristic_designer.search_strategy import SearchStrategy
 # ===================================================================
 #  Population
 # ===================================================================
-def test_population_get_state(dummy_objfunc):
-    pop = make_pop([1.0, 2.0], dummy_objfunc)
+def test_population_get_state():
+    pop = make_pop([1.0, 2.0])
     pop.best = np.array([1.0, 2.0])
     pop.best_fitness = 1.0
     state = pop.get_state()

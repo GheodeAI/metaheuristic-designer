@@ -58,8 +58,8 @@ def test_initializer_from_lambda(rng):
 # ===================================================================
 #  OperatorFromLambda
 # ===================================================================
-def test_operator_from_lambda_applies_function(rng, dummy_objfunc):
-    pop = make_pop([1.0, 2.0], dummy_objfunc)
+def test_operator_from_lambda_applies_function(rng):
+    pop = make_pop([1.0, 2.0])
     original = pop.genotype_matrix.copy()
 
     def add_ten(p, init, rng, **kw):
@@ -74,8 +74,8 @@ def test_operator_from_lambda_applies_function(rng, dummy_objfunc):
 # ===================================================================
 #  ParentSelectionFromLambda
 # ===================================================================
-def test_parent_selection_from_lambda_selects_correctly(rng, dummy_objfunc):
-    pop = make_pop([5.0, 1.0, 3.0, 2.0], dummy_objfunc)
+def test_parent_selection_from_lambda_selects_correctly(rng):
+    pop = make_pop([5.0, 1.0, 3.0, 2.0])
 
     # Select the two best individuals
     def select_best_two(population, amount, rng):
@@ -96,9 +96,9 @@ def test_parent_selection_from_lambda_selects_correctly(rng, dummy_objfunc):
 # ===================================================================
 #  SurvivorSelectionFromLambda
 # ===================================================================
-def test_survivor_selection_from_lambda(rng, dummy_objfunc):
-    parents = make_pop([5.0, 1.0], dummy_objfunc)
-    offspring = make_pop([10.0, 2.0], dummy_objfunc)
+def test_survivor_selection_from_lambda(rng):
+    parents = make_pop([5.0, 1.0])
+    offspring = make_pop([10.0, 2.0])
 
     # A lambda that always returns offspring indices [0,1] (so the offspring becomes the new population)
     def select_all_offspring(pop_fit, off_fit, rng):

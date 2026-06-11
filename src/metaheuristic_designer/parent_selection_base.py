@@ -127,9 +127,7 @@ class ParentSelectionFromLambda(ParentSelection):
         Keyword arguments forwarded to :class:`ParentSelection`.
     """
 
-    def __init__(
-        self, selection_fn: Callable, name: Optional[str] = None, amount: Optional[int] = None, rng: Optional[RNGLike] = None, **kwargs
-    ):
+    def __init__(self, selection_fn: Callable, name: Optional[str] = None, amount: Optional[int] = None, rng: Optional[RNGLike] = None, **kwargs):
         if name is None:
             name = selection_fn.__name__ if hasattr(selection_fn, "__name__") else "Custom parent selection"
 
@@ -137,7 +135,6 @@ class ParentSelectionFromLambda(ParentSelection):
         self.selection_fn = selection_fn
 
         super().__init__(name=name, amount=amount, rng=rng, **kwargs)
-
 
     @staticmethod
     def _validate_function(selection_fn: Callable):

@@ -52,9 +52,7 @@ def simulated_annealing_binary(
     encoding = TypeCastEncoding(int, bool) if encoding is None else encoding
     pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, population_size=1, dtype=np.uint8, encoding=encoding, rng=rng)
     mutation_op = create_operator("mutation.bitflip", N=mutated_bits, rng=rng)
-    search_strat = SA(
-        pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, rng=rng
-    )
+    search_strat = SA(pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, rng=rng)
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
@@ -93,9 +91,7 @@ def simulated_annealing_permutation(
     rng = check_rng(rng)
     pop_initializer = PermInitializer(objfunc.dimension, population_size=1, encoding=encoding, rng=rng)
     mutation_op = create_operator("permutation.swap", N=swapped_positions, rng=rng)
-    search_strat = SA(
-        pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, rng=rng
-    )
+    search_strat = SA(pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, rng=rng)
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
@@ -136,9 +132,7 @@ def simulated_annealing_discrete(
         objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, dtype=int, encoding=encoding, rng=rng
     )
     mutation_op = create_operator("random.reset", n=resampled_components, rng=rng)
-    search_strat = SA(
-        pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, rng=rng
-    )
+    search_strat = SA(pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, rng=rng)
     return Algorithm(objfunc, search_strat, **kwargs)
 
 
@@ -182,7 +176,5 @@ def simulated_annealing_real(
         objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, dtype=float, encoding=encoding, rng=rng
     )
     mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, rng=rng)
-    search_strat = SA(
-        pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, rng=rng
-    )
+    search_strat = SA(pop_initializer, mutation_op, temperature_init=initial_temperature, alpha=alpha, iterations=iterations, rng=rng)
     return Algorithm(objfunc, search_strat, **kwargs)

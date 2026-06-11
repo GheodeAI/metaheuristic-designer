@@ -32,8 +32,8 @@ def test_create_crossover_operator_invalid_method():
 # -------------------------------------------------------------------
 #  Integration: calling the operator modifies population
 # -------------------------------------------------------------------
-def test_one_point_operator_modifies_genotype(rng, dummy_objfunc, simple_encoding):
-    pop = make_pop([0.0, 0.0], dummy_objfunc)
+def test_one_point_operator_modifies_genotype(rng, simple_encoding):
+    pop = make_pop([0.0, 0.0])
     original = pop.genotype_matrix.copy()
 
     op = create_crossover_operator("one_point", encoding=simple_encoding, rng=rng)
@@ -43,8 +43,8 @@ def test_one_point_operator_modifies_genotype(rng, dummy_objfunc, simple_encodin
     assert not np.array_equal(pop.genotype_matrix, original)
 
 
-def test_xor_crossover_operator_on_zeros(rng, dummy_objfunc, simple_encoding):
-    pop = Population(dummy_objfunc, np.zeros((4, 3), dtype=np.uint8))
+def test_xor_crossover_operator_on_zeros(rng, simple_encoding):
+    pop = Population(np.zeros((4, 3), dtype=np.uint8))
     pop.fitness = np.zeros(4)
 
     op = create_crossover_operator("xor_crossover", encoding=simple_encoding, rng=rng)
@@ -53,9 +53,9 @@ def test_xor_crossover_operator_on_zeros(rng, dummy_objfunc, simple_encoding):
     assert result is pop
 
 
-def test_crossover_operator_reproducible(rng, dummy_objfunc, simple_encoding):
-    pop1 = make_pop([1.0, 2.0], dummy_objfunc)
-    pop2 = make_pop([1.0, 2.0], dummy_objfunc)
+def test_crossover_operator_reproducible(simple_encoding):
+    pop1 = make_pop([1.0, 2.0])
+    pop2 = make_pop([1.0, 2.0])
 
     rng1 = np.random.default_rng(42)
     rng2 = np.random.default_rng(42)

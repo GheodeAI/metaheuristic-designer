@@ -7,9 +7,7 @@ from ...population import Population
 from ...initializer import Initializer
 
 
-def dummy_op(
-    population_matrix: np.ndarray, fitness_array: np.ndarray, rng: Optional[np.random.Generator] = None, f: ScalarLike = 0
-) -> np.ndarray:
+def dummy_op(population_matrix: np.ndarray, fitness_array: np.ndarray, rng: Optional[np.random.Generator] = None, f: ScalarLike = 0) -> np.ndarray:
     """Return a matrix of constant value *f* with the same shape as the input.
 
     This operator is intended **only for debugging and testing**.  It ignores
@@ -120,9 +118,7 @@ class OperatorFnDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return population.update_genotype(
-            self.operator_fn(copy(population.genotype_matrix), population.fitness, rng=rng, **modified_kwargs)
-        )
+        return population.update_genotype(self.operator_fn(copy(population.genotype_matrix), population.fitness, rng=rng, **modified_kwargs))
 
 
 @dataclass

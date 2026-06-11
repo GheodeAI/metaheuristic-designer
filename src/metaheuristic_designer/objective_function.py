@@ -138,7 +138,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
         if not self.recalculate and np.all(population.fitness_calculated == 1):
             logger.debug("Fitness was not calculated. Every individual is duplicated.")
-            return population.fitness
+            return population
 
         if self.recalculate:
             fitness_mask = np.ones(population.population_size, dtype=bool)
@@ -229,7 +229,6 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         population.genotype_matrix = population_matrix
 
         return population
-
 
     def add_parameter_constraints(self, parameter_extending_encoding: ParameterExtendingEncoding, param_handlers: dict[str, ConstraintHandler]):
         """Attach extra constraint handlers for extended encodings (e.g., PSO).

@@ -36,12 +36,12 @@ class Algorithm:
     (:class:`StoppingCondition`, :class:`Reporter`, etc.).  The
     keyword-argument style is convenient for quick experiments; the
     object-based style gives finer control and reusability.
-    
+
     .. note::
         The constructor accepts **either** an explicit object (e.g., ``stopping_condition``)
-        **or** the individual keyword arguments that would build that object.  
+        **or** the individual keyword arguments that would build that object.
         If both are provided, the explicit object takes precedence and the keyword-only
-        arguments are silently ignored. 
+        arguments are silently ignored.
 
     Parameters
     ----------

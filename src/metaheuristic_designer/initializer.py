@@ -90,7 +90,7 @@ class Initializer(ABC):
         if n_individuals is None:
             n_individuals = self.population_size
 
-        population_matrix = np.asarray([self.generate_individual() for _ in range(n_individuals)])
+        population_matrix = np.atleast_2d([self.generate_individual() for _ in range(n_individuals)])
         return Population(genotype_matrix=population_matrix, encoding=self.encoding)
 
     def get_state(self) -> dict:
@@ -125,9 +125,7 @@ class InitializerFromLambda(Initializer):
         Random number generator.
     """
 
-    def __init__(
-        self, generator: Callable, dimension: int, pop_size: int = 1, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None
-    ):
+    def __init__(self, generator: Callable, dimension: int, pop_size: int = 1, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None):
         self.generator = generator
 
         super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, rng=rng)

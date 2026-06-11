@@ -32,10 +32,10 @@ def test_create_mutation_operator_invalid_method():
 # -------------------------------------------------------------------
 #  Integration: calling the operator modifies population
 # -------------------------------------------------------------------
-def test_gauss_operator_modifies_genotype(rng, dummy_objfunc, simple_encoding):
-    pop = make_pop([1.0, 2.0], dummy_objfunc)  # shape (N,2) – 1 individual? Actually make_pop returns (2,?) I'll use a suitable pop.
+def test_gauss_operator_modifies_genotype(rng, simple_encoding):
+    pop = make_pop([1.0, 2.0])  # shape (N,2) – 1 individual? Actually make_pop returns (2,?) I'll use a suitable pop.
     # Use a multi-individual population for clarity
-    pop = Population(dummy_objfunc, np.array([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]]))
+    pop = Population(np.array([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]]))
     pop.fitness = np.zeros(3)
     original = pop.genotype_matrix.copy()
 
@@ -47,8 +47,8 @@ def test_gauss_operator_modifies_genotype(rng, dummy_objfunc, simple_encoding):
     assert not np.array_equal(pop.genotype_matrix, original)
 
 
-def test_xor_operator_on_zeros_population(rng, dummy_objfunc, simple_encoding):
-    pop = Population(dummy_objfunc, np.zeros((3, 2), dtype=np.uint8))
+def test_xor_operator_on_zeros_population(rng, simple_encoding):
+    pop = Population(np.zeros((3, 2), dtype=np.uint8))
     pop.fitness = np.zeros(3)
 
     op = create_mutation_operator("xor", encoding=simple_encoding, rng=rng, N=2, mode="byte")
@@ -58,10 +58,10 @@ def test_xor_operator_on_zeros_population(rng, dummy_objfunc, simple_encoding):
     assert np.any(pop.genotype_matrix != 0)
 
 
-def test_mutation_operator_reproducible(rng, dummy_objfunc, simple_encoding):
-    pop1 = Population(dummy_objfunc, np.array([[1.0, 2.0], [3.0, 4.0]]))
+def test_mutation_operator_reproducible(rng, simple_encoding):
+    pop1 = Population(np.array([[1.0, 2.0], [3.0, 4.0]]))
     pop1.fitness = np.array([0.0, 0.0])
-    pop2 = Population(dummy_objfunc, np.array([[1.0, 2.0], [3.0, 4.0]]))
+    pop2 = Population(np.array([[1.0, 2.0], [3.0, 4.0]]))
     pop2.fitness = np.array([0.0, 0.0])
 
     rng1 = np.random.default_rng(42)
@@ -77,8 +77,8 @@ def test_mutation_operator_reproducible(rng, dummy_objfunc, simple_encoding):
 
 
 # Additional test for masked mutation (mutate_noise)
-def test_mutate_noise_operator_modifies_subset(rng, dummy_objfunc, simple_encoding):
-    pop = Population(dummy_objfunc, np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]))
+def test_mutate_noise_operator_modifies_subset(rng, simple_encoding):
+    pop = Population(np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]))
     pop.fitness = np.zeros(2)
 
     op = create_mutation_operator("mutnoise", encoding=simple_encoding, rng=rng, distribution="normal", loc=0, scale=1.0, F=1.0, N=2)

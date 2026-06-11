@@ -131,9 +131,7 @@ class SurvivorSelectionFromLambda(SurvivorSelection):
         Keyword arguments forwarded to :class:`SurvivorSelection`.
     """
 
-    def __init__(
-        self, selection_fn: Callable, name: Optional[str] = None, preserves_order: bool = False, rng: Optional[RNGLike] = None, **kwargs
-    ):
+    def __init__(self, selection_fn: Callable, name: Optional[str] = None, preserves_order: bool = False, rng: Optional[RNGLike] = None, **kwargs):
         if name is None:
             name = selection_fn.__name__ if hasattr(selection_fn, "__name__") else "Custom survivor selection"
 

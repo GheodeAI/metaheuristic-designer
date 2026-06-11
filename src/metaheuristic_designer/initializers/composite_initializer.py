@@ -59,7 +59,7 @@ class CompositeInitializer(Initializer):
         idx = self.rng.choice(len(self.initializers), p=self.weights)
         return self.initializers[idx].generate_individual()
 
-    def generate_population(self, objfunc, n_individuals=None):
+    def generate_population(self, n_individuals=None):
         """Generate a population from individuals chosen at random from the initializers.
 
         Parameters
@@ -81,14 +81,14 @@ class CompositeInitializer(Initializer):
         n_initializers = len(self.initializers)
 
         # Generate all populations from which to choose
-        populations = [i.generate_population(objfunc, n_individuals=n_individuals) for i in self.initializers]
+        populations = [i.generate_population(n_individuals=n_individuals) for i in self.initializers]
 
         # Randomly choose individuals from each population
         population_tensor = np.asarray([p.genotype_matrix for p in populations])
         choice_idx = self.rng.choice(n_initializers, n_individuals, p=self.weights)
         chosen_population = population_tensor[choice_idx, np.arange(n_individuals), :]
 
-        return Population(objfunc, genotype_matrix=chosen_population, encoding=self.encoding)
+        return Population(genotype_matrix=chosen_population, encoding=self.encoding)
 
 
 class FixedCompositeInitializer(Initializer):
@@ -146,7 +146,7 @@ class FixedCompositeInitializer(Initializer):
 
         return self.initializers[idx].generate_individual()
 
-    def generate_population(self, objfunc, n_individuals=None):
+    def generate_population(self, n_individuals=None):
         """Generate a population from individuals chosen at random from the initializers.
 
         Parameters
@@ -168,7 +168,7 @@ class FixedCompositeInitializer(Initializer):
         n_initializers = len(self.initializers)
 
         # Generate all populations from which to choose
-        populations = [i.generate_population(objfunc, n_individuals=n_individuals) for i in self.initializers]
+        populations = [i.generate_population(n_individuals=n_individuals) for i in self.initializers]
 
         # Choose individuals as indicated by the amount attribute
         population_tensor = np.asarray([p.genotype_matrix for p in populations])
@@ -176,4 +176,4 @@ class FixedCompositeInitializer(Initializer):
         choice_idx = np.resize(cyclic_amounts, n_individuals)
         chosen_population = population_tensor[choice_idx, np.arange(n_individuals), :]
 
-        return Population(objfunc, genotype_matrix=chosen_population, encoding=self.encoding)
+        return Population(genotype_matrix=chosen_population, encoding=self.encoding)
