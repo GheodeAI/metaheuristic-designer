@@ -141,8 +141,8 @@ class SurvivorSelectionFromLambda(SurvivorSelection):
         super().__init__(name, preserves_order=preserves_order, rng=rng, **kwargs)
 
     @staticmethod
-    def _validate_function(selection_fn: Callable):
-        operator_sig = inspect.signature(selection_fn)
+    def _validate_function(fn: Callable):
+        operator_sig = inspect.signature(fn)
 
         count = 0
         for p in operator_sig.parameters.values():
@@ -153,8 +153,8 @@ class SurvivorSelectionFromLambda(SurvivorSelection):
 
         required_min_count = 3
         if count < required_min_count:
-            raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is.")
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `offspring`, `rng`).")
 
     def select(self, population: Population, offspring: Population) -> Population:
-        selected_idx = self.selection_fn(population, offspring, self.rng, **self.current_kwargs)
+        selected_idx = self.selection_fn(population, offspring, rng=self.rng, **self.current_kwargs)
         return Population.join_populations(population, offspring).take_selection(selected_idx)

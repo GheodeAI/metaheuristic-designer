@@ -6,6 +6,7 @@ This module implements the procedure applied in each iteration of the algorithm.
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
+import inspect
 import logging
 from typing import Optional, Callable
 
@@ -228,6 +229,7 @@ class SearchStrategyFromLambda(SearchStrategy):
         rng: Optional[RNGLike] = None,
         **kwargs,
     ):
+        self._validate_function(iterate_fn)
         self.iterate_fn = iterate_fn
 
         super().__init__(
@@ -238,8 +240,8 @@ class SearchStrategyFromLambda(SearchStrategy):
         )
 
     @staticmethod
-    def _validate_function(operator_fn: Callable):
-        operator_sig = inspect.signature(operator_fn)
+    def _validate_function(fn: Callable):
+        operator_sig = inspect.signature(fn)
 
         count = 0
         for p in operator_sig.parameters.values():
@@ -248,9 +250,9 @@ class SearchStrategyFromLambda(SearchStrategy):
             elif p.kind == inspect.Parameter.VAR_POSITIONAL:
                 return
 
-        required_min_count = 3
+        required_min_count = 2
         if count < required_min_count:
-            raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is.")
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `objfunc`).")
 
     def step(self, population: Population, objfunc: ObjectiveFunc):
         return self.iterate_fn(population, objfunc)

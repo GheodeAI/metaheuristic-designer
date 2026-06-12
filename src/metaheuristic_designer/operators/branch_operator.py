@@ -10,28 +10,9 @@ from copy import copy
 import numpy as np
 
 from ..encoding import Encoding
-from ..initializer import Initializer
 from ..population import Population
 from ..utils import RNGLike
 from ..operator import Operator
-
-
-class BranchOpMethods(Enum):
-    RANDOM = enum.auto()
-    PICK = enum.auto()
-
-    @staticmethod
-    def from_str(str_input: str) -> BranchOpMethods:
-        str_input = str_input.lower()
-
-        if str_input not in branch_ops_map:
-            raise ValueError(f'Operator on operators "{str_input}" not defined')
-
-        return branch_ops_map[str_input]
-
-
-branch_ops_map = {"random": BranchOpMethods.RANDOM, "rand": BranchOpMethods.RANDOM, "pick": BranchOpMethods.PICK, "choose": BranchOpMethods.PICK}
-
 
 class BranchOperator(Operator):
     """Operator that stochastically selects among several operators.
@@ -66,7 +47,7 @@ class BranchOperator(Operator):
     def __init__(
         self,
         op_list: Iterable[Operator],
-        method: str = None,
+        random_pick: bool = True,
         name: str = None,
         encoding: Optional[Encoding] = None,
         rng: Optional[RNGLike] = None,
@@ -85,15 +66,11 @@ class BranchOperator(Operator):
                     op_names.append(op.name)
 
             joined_names = ", ".join(op_names)
-            name = f"{method}({joined_names})"
+            name = f"Branch({joined_names})"
 
         super().__init__(name=name, encoding=encoding, rng=rng, p=p, **kwargs)
 
-        if method is None:
-            self.method = BranchOpMethods.RANDOM
-        else:
-            self.method = BranchOpMethods.from_str(method)
-
+        self.random_pick = random_pick
         self.chosen_idx = idx
         self.weights = np.array([self.params.p, 1 - self.params.p])
 
@@ -128,7 +105,7 @@ class BranchOperator(Operator):
 
         new_population = copy(population)
 
-        if self.method == BranchOpMethods.RANDOM:
+        if self.random_pick:
             self.chosen_idx = self.rng.choice(range(len(self.op_list)), size=(population.population_size,), replace=True, p=self.weights)
 
         if isinstance(self.chosen_idx, np.ndarray) and self.chosen_idx.ndim > 0:

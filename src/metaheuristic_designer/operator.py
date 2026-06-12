@@ -182,8 +182,8 @@ class OperatorFromLambda(Operator):
         self.operator_fn = operator_fn
 
     @staticmethod
-    def _validate_function(operator_fn: Callable):
-        operator_sig = inspect.signature(operator_fn)
+    def _validate_function(fn: Callable):
+        operator_sig = inspect.signature(fn)
 
         count = 0
         for p in operator_sig.parameters.values():
@@ -194,7 +194,7 @@ class OperatorFromLambda(Operator):
 
         required_min_count = 2
         if count < required_min_count:
-            raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `initializer`, `rng`).")
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `rng`).")
 
     def evolve(self, population: Population) -> Population:
         return self.operator_fn(population, rng=self.rng, **self.current_kwargs)

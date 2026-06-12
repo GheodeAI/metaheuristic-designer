@@ -5,6 +5,7 @@ This module implements functions to generate the initial population of the algor
 """
 
 from __future__ import annotations
+import inspect
 from typing import Any, Optional, Callable
 from abc import ABC, abstractmethod
 import numpy as np
@@ -126,9 +127,25 @@ class InitializerFromLambda(Initializer):
     """
 
     def __init__(self, generator: Callable, dimension: int, pop_size: int = 1, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None):
+        self._validate_function(generator)
         self.generator = generator
 
         super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, rng=rng)
 
+    @staticmethod
+    def _validate_function(fn: Callable):
+        operator_sig = inspect.signature(fn)
+
+        count = 0
+        for p in operator_sig.parameters.values():
+            if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                count += 1
+            elif p.kind == inspect.Parameter.VAR_POSITIONAL:
+                return
+
+        required_min_count = 1
+        if count < required_min_count:
+            raise TypeError(f"The function should have at least a positional argument (`rng`).")
+
     def generate_random(self) -> VectorLike:
-        return self.generator(self.rng)
+        return self.generator(rng=self.rng)

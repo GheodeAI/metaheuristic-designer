@@ -137,8 +137,8 @@ class ParentSelectionFromLambda(ParentSelection):
         super().__init__(name=name, amount=amount, rng=rng, **kwargs)
 
     @staticmethod
-    def _validate_function(selection_fn: Callable):
-        operator_sig = inspect.signature(selection_fn)
+    def _validate_function(fn: Callable):
+        operator_sig = inspect.signature(fn)
 
         count = 0
         for p in operator_sig.parameters.values():
@@ -147,9 +147,9 @@ class ParentSelectionFromLambda(ParentSelection):
             elif p.kind == inspect.Parameter.VAR_POSITIONAL:
                 return
 
-        required_min_count = 2
+        required_min_count = 3
         if count < required_min_count:
-            raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is.")
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `amount`, `rng`).")
 
     def select(self, population: Population, amount: Optional[int] = None) -> Population:
         if amount is None:
@@ -161,5 +161,5 @@ class ParentSelectionFromLambda(ParentSelection):
         params = self.get_params()
         params.pop("amount", None)
 
-        self.last_selection_idx = self.selection_fn(population, amount, self.rng, **params)
+        self.last_selection_idx = self.selection_fn(population, amount, rng=self.rng, **params)
         return population.take_selection(self.last_selection_idx)

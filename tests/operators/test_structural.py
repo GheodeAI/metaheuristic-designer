@@ -60,7 +60,7 @@ def test_branch_operator_random_mode(rng):
 def test_branch_operator_pick_mode(rng):
     op_a = OperatorFromLambda(lambda pop, rng, **kw: pop.update_genotype(pop.genotype_matrix + 1), rng=rng)
     op_b = OperatorFromLambda(lambda pop, rng, **kw: pop.update_genotype(pop.genotype_matrix - 1), rng=rng)
-    branch = BranchOperator([op_a, op_b], method="pick", rng=rng, idx=1)
+    branch = BranchOperator([op_a, op_b], random_pick=False, rng=rng, idx=1)
 
     pop = make_pop([0.0, 0.0])
     pop.update_genotype(np.array([[10.0, 10.0], [20.0, 20.0]]))
