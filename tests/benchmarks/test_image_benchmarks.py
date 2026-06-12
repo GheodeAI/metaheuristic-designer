@@ -58,7 +58,7 @@ def test_repair_preserves_valid_values(img_size):
     objfunc = ImgApprox(img_dim=img_size, reference=ref, diff_func="MSE")
     dimension = objfunc.dimension
     valid = np.random.default_rng(42).uniform(0, 255, (1, dimension))
-    repaired = objfunc.repair_solutions(Population(valid)).genotype_matrix
+    repaired = objfunc.repair_population(Population(valid)).genotype_matrix
     np.testing.assert_array_almost_equal(repaired, valid)
 
 

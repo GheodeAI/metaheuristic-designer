@@ -118,7 +118,7 @@ def test_constraint_handler_from_lambda():
         repair_solution_fn=lambda x: x + 1,
         penalty_fn=lambda x: 2.0,
     )
-    assert_array_equal(handler.repair_solution(np.array([0.0])), [1.0])
+    assert_array_equal(handler.repair_solutions(np.array([0.0])), [1.0])
     assert handler.penalty(np.array([0.0])) == 2.0
 
 

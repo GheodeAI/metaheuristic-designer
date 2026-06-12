@@ -14,6 +14,7 @@ from ..population import Population
 from ..utils import RNGLike
 from ..operator import Operator
 
+
 class BranchOperator(Operator):
     """Operator that stochastically selects among several operators.
 

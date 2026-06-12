@@ -28,4 +28,6 @@ class RandomSearch(PopulationBasedStrategy):
     """
 
     def __init__(self, initializer: Initializer, name="RandomSearch", rng=None, **kwargs):
-        super().__init__(initializer=initializer, operator=create_operator(method="random.random", initializer=initializer, rng=rng), name=name, **kwargs)
+        super().__init__(
+            initializer=initializer, operator=create_operator(method="random.random", initializer=initializer, rng=rng), name=name, **kwargs
+        )

@@ -389,7 +389,7 @@ def sphere_objfunc():
 
 
 @pytest.fixture
-def simple_strategy(sphere_objfunc, rng):
+def simple_strategy(rng):
     init = UniformInitializer(2, -10, 10, population_size=10, rng=rng)
     mut = create_mutation_operator("gauss", rng=rng, N=1, loc=0, scale=0.1)
     surv = create_survivor_selection("generational", rng=rng)

@@ -1,4 +1,4 @@
-metaheuristic\_designer.operators.branch\_operator
+﻿metaheuristic\_designer.operators.branch\_operator
 ==================================================
 
 .. automodule:: metaheuristic_designer.operators.branch_operator
@@ -8,6 +8,5 @@ metaheuristic\_designer.operators.branch\_operator
 
    .. autosummary::
    
-      BranchOpMethods
       BranchOperator
    

@@ -113,7 +113,7 @@ class BOOperator(Operator):
         self.rbf_scale = rbf_scale
 
         self.gaussian_model = GaussianProcessRegressor(kernel=kernel, normalize_y=True, copy_X_train=False)
-
+    
     def evolve(self, population: Population) -> Population:
         """Fit GP, optimize acquisition, and merge the proposed point.
 
@@ -129,10 +129,9 @@ class BOOperator(Operator):
         """
 
         # Obtain training data from the population
-        population = self.objfunc.calculate_fitness(population)
-
         X = population.genotype_matrix
         y = population.fitness
+        
         if population.population_size > self.params.max_samples:
             mask = self.rng.choice(population.population_size, size=self.params.max_samples, replace=False)
             X = X[mask]
@@ -162,10 +161,10 @@ class BOOperator(Operator):
             if result.fun < min_ei:
                 min_ei = result.fun
                 new_best_point = result.x
-
+        
         # Create new population from the optimization result and merge it with the previous one
         new_sample_population = Population(genotype_matrix=new_best_point[None, :], encoding=population.encoding)
         new_population = Population.join_populations(population, new_sample_population)
-        new_population = self.objfunc.repair_solutions(new_population)
+        new_population = self.objfunc.calculate_fitness(new_population)
 
         return new_population

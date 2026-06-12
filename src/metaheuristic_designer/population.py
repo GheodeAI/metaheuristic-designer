@@ -6,13 +6,13 @@ This module implements a data structure to hold the collection of solutions we a
 
 from __future__ import annotations
 import logging
-from typing import Iterable, Tuple, Any, Optional, Iterator
+from typing import Iterable, Tuple, Any, Optional, Iterator, TYPE_CHECKING
 from copy import copy
 import numpy as np
-from .objective_function import ObjectiveFunc
 from .encoding import Encoding, DefaultEncoding
 from .encodings import ParameterExtendingEncoding
 from .utils import VectorLike, MatrixLike, MaskLike
+
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +138,7 @@ class Population:
 
         return best_solution_vec, self.best_objective
 
-    def update_genotype(self, genotype_source: MatrixLike | Population) -> Population:
+    def update_genotype(self, genotype_source: MatrixLike | Population, update_fitness_mask: bool = True) -> Population:
         """Replace the genotype matrix.
 
         Parameters
@@ -169,7 +169,7 @@ class Population:
             self.historical_best_fitness = np.full(len(genotype_matrix), -np.inf)
             self.historical_best_matrix = copy(genotype_matrix)
             logger.debug("Genotype matrix will change size.")
-        else:
+        elif update_fitness_mask:
             self.fitness_calculated = np.all(self.genotype_matrix == genotype_matrix, axis=1)
         self.genotype_matrix = genotype_matrix
         self.population_size = genotype_matrix.shape[0]

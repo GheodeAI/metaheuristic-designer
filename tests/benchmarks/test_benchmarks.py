@@ -60,8 +60,8 @@ def test_repair_solution(dimension, bench_class):
     geno_matrix = population.genotype_matrix
 
     # repair_solutions now works on genotypes (2‑D matrices).
-    repaired_population = objfunc.repair_solutions(population)
-    repaired = population.genotype_matrix
+    repaired_population = objfunc.repair_population(population)
+    repaired = repaired_population.genotype_matrix
     assert isinstance(repaired, np.ndarray) and repaired.ndim == 2
     assert repaired.shape == geno_matrix.shape
     assert repaired.min() >= objfunc.lower_bound

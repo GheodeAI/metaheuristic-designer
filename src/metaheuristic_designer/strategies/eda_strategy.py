@@ -83,7 +83,7 @@ class EDAStrategy(SearchStrategy):
         population = self.parent_sel.select(prev_population)
         self.operator = self.estimate_parameters(population)
         population = self.operator.evolve(population)
-        population = objfunc.repair_solutions(population)
+        population = objfunc.repair_population(population)
         population = objfunc.calculate_fitness(population)
         population = self.survivor_sel.select(population=prev_population, offspring=population)
         return population

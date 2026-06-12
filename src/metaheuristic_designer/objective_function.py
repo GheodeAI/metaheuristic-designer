@@ -12,12 +12,12 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from .encodings import ParameterExtendingEncoding
+from .constraint_handler import NullConstraint
 from .constraint_handlers import ConstraintHandler, ClipBoundConstraint, CompositeConstraint, ExtendedConstraintHandler
 from .parametrizable_mixin import ParametrizableMixin
 from .utils import MatrixLike, VectorLike, ScalarLike
 
-if TYPE_CHECKING:
-    from metaheuristic_designer.population import Population
+from metaheuristic_designer.population import Population
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +82,8 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
                 constraint_handler = bound_constraint_handler
             else:
                 constraint_handler = CompositeConstraint([constraint_handler, bound_constraint_handler])
+        else:
+            constraint_handler = NullConstraint()
 
         self.constraint_handler = constraint_handler
         self.name = name
@@ -134,7 +136,6 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         fitness = population.fitness
         objective = population.objective
         solutions = population.decode()
-        genotypes = population.genotype_matrix
 
         if not self.recalculate and np.all(population.fitness_calculated == 1):
             logger.debug("Fitness was not calculated. Every individual is duplicated.")
@@ -145,16 +146,16 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         else:
             fitness_mask = population.fitness_calculated == 0
 
+        if isinstance(solutions, np.ndarray):
+            solutions_masked = solutions[fitness_mask]
+        else:
+            solutions_masked = [solutions[i] for i, include_value in enumerate(fitness_mask) if include_value]
+
         # Penalty is always vectorized. We use the genotype instead of the decoded solutions
-        penalty_vector = self.constraint_handler.penalty(genotypes[fitness_mask])
+        penalty_vector = self.constraint_handler.penalty(solutions_masked)
 
         if self.vectorized:
-            if isinstance(solutions, np.ndarray):
-                solutions = solutions[fitness_mask]
-            else:
-                solutions = [solutions[i] for i, include_value in enumerate(fitness_mask) if include_value]
-
-            objective_values = self.objective(solutions)
+            objective_values = self.objective(solutions_masked)
             fitness_values = self.factor * (objective_values - penalty_vector)
             fitness[fitness_mask] = fitness_values
             objective[fitness_mask] = objective_values
@@ -209,7 +210,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             Value of the objective function given a solution.
         """
 
-    def repair_solutions(self, population: Population) -> Population:
+    def repair_population(self, population: Population) -> Population:
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
 
@@ -224,11 +225,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             A modified version of the solution passed that satisfies the restrictions of the problem.
         """
 
-        population_matrix = population.genotype_matrix
-        population_matrix = self.constraint_handler.repair_solution(population_matrix)
-        population.genotype_matrix = population_matrix
-
-        return population
+        return self.constraint_handler.repair_population(population)
 
     def add_parameter_constraints(self, parameter_extending_encoding: ParameterExtendingEncoding, param_handlers: dict[str, ConstraintHandler]):
         """Attach extra constraint handlers for extended encodings (e.g., PSO).

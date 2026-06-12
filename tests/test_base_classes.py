@@ -22,15 +22,15 @@ from metaheuristic_designer.schedulable_parameter import SchedulableParameter
 # ===================================================================
 def test_null_constraint_repair_does_nothing():
     handler = NullConstraint()
-    orig = np.array([1.0, -5.0])
-    repaired = handler.repair_solution(orig)
+    orig = np.array([[1.0, -5.0]])
+    repaired = handler.repair_solutions(orig)
     assert_array_equal(repaired, orig)
     assert repaired is not orig
 
 
 def test_null_constraint_penalty_zero():
     handler = NullConstraint()
-    assert handler.penalty(np.array([100.0, -200.0])) == 0.0
+    assert_array_equal(handler.penalty(np.array([100.0, -200.0])), 0)
 
 
 # ===================================================================

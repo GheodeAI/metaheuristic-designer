@@ -1,9 +1,9 @@
 .. _quick_start:
 
-Quick_start
+Quick Start
 ==============================================
 
-You can provide every major component of an optimisation algorithm as a plain Python
+You can provide every major component of an optimization algorithm as a plain Python
 function, wrapped in dedicated ``*FromLambda`` classes. For operators and selection
 methods there are also **factories** that let you register your function and then
 retrieve it by name.
@@ -17,8 +17,8 @@ Throughout this guide the following type aliases are used for clarity:
 * :py:type:`RNGLike<metaheuristic_designer.utils.RNGLike>` – a NumPy
   :class:`~numpy.random.Generator` or a seed.
 
-All examples assume **maximisation** (higher fitness is better); if your problem
-minimises, set ``mode="min"`` in the objective function.
+All examples assume **maximization** (higher fitness is better); if your problem
+minimizes, set ``mode="min"`` in the objective function.
 
 Objective Function
 ------------------
@@ -41,7 +41,7 @@ Wrap an evaluation function with
    from metaheuristic_designer import ObjectiveFromLambda
 
    def sphere(vec, offset=0):
-       return -np.sum((vec - offset) ** 2)   # maximise negative squared distance
+       return -np.sum((vec - offset) ** 2)   # maximize negative squared distance
 
    objfunc = ObjectiveFromLambda(sphere, dimension=3, offset=3.0, mode="max")
 
@@ -169,8 +169,7 @@ beginning; never mutate the original.
 
 .. code-block:: python
 
-   def my_pop_op(population: Population, initializer: Initializer,
-                 rng: RNGLike, **kwargs) -> Population:
+   def my_pop_op(population: Population, rng: RNGLike, **kwargs) -> Population:
        pop_copy = copy(population)   # or population.__copy__()
        # … modify pop_copy …
        return pop_copy
@@ -181,7 +180,7 @@ Register it **without** a wrapper:
 
    from metaheuristic_designer.operators import add_operator_entry
     
-   def duplicate_best(population, initializer, rng):
+   def duplicate_best(population, rng):
        pop_copy = copy(population)
        best_gen = pop_copy.genotype_matrix[pop_copy.best_idx]
        pop_copy.genotype_matrix[:] = best_gen   # all individuals become the best

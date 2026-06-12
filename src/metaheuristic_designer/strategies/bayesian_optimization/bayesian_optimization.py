@@ -45,4 +45,11 @@ class BayesianOptimization(PopulationBasedStrategy):
         rng: Optional[RNGLike] = None,
         **kwargs,
     ):
-        super().__init__(initializer, operator=BOOperator(objfunc=objfunc, initializer=initializer, rng=rng, **kwargs), parent_sel=parent_sel, name=name, rng=rng, **kwargs)
+        super().__init__(
+            initializer,
+            operator=BOOperator(objfunc=objfunc, initializer=initializer, rng=rng, **kwargs),
+            parent_sel=parent_sel,
+            name=name,
+            rng=rng,
+            **kwargs,
+        )

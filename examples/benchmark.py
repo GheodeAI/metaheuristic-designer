@@ -29,7 +29,7 @@ from metaheuristic_designer.strategies import (
 from metaheuristic_designer.benchmarks import BBOBObjective
 from metaheuristic_designer.utils import check_rng
 
-available_algorithms = ("hillclimb", "localsearch", "sa", "es", "ga", "de", "gaussianumda", "gaussianpbil", "crossentropy", "randomsearch")
+available_algorithms = ("hillclimb", "localsearch", "sa", "es", "ga", "de", "bo", "gaussianumda", "gaussianpbil", "crossentropy", "randomsearch")
 
 
 def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations, reporter, rng):
@@ -136,7 +136,7 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
             ),
             rng=rng,
         ),
-        "bayesianoptimization": BayesianOptimization(
+        "bo": BayesianOptimization(
             initializer=UniformInitializer(
                 objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
             ),
