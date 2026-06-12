@@ -46,8 +46,8 @@ def test_objective_from_lambda():
 #  InitializerFromLambda
 # ===================================================================
 def test_initializer_from_lambda(rng):
-    def my_gen(rs):
-        return rs.uniform(10, 20, size=3)
+    def my_gen(rng):
+        return rng.uniform(10, 20, size=3)
 
     init = InitializerFromLambda(my_gen, dimension=3, pop_size=2, rng=rng)
     vec = init.generate_random()

@@ -581,8 +581,8 @@ def test_extended_generate_individual_same_structure(rng):
 #  InitializerFromLambda
 # ===================================================================
 def test_lambda_generate_random(rng):
-    def my_gen(rs):
-        return rs.uniform(10, 20, size=3)
+    def my_gen(rng):
+        return rng.uniform(10, 20, size=3)
 
     init = InitializerFromLambda(my_gen, dimension=3, pop_size=2, rng=rng)
     vec = init.generate_random()
@@ -591,7 +591,7 @@ def test_lambda_generate_random(rng):
 
 
 def test_lambda_generate_individual_calls_same(rng):
-    def my_gen(rs):
+    def my_gen(rng):
         return np.array([1.0, 2.0])
 
     init = InitializerFromLambda(my_gen, dimension=2, rng=rng)
@@ -599,8 +599,8 @@ def test_lambda_generate_individual_calls_same(rng):
 
 
 def test_lambda_generate_population(rng):
-    def my_gen(rs):
-        return rs.integers(0, 100, size=2)
+    def my_gen(rng):
+        return rng.integers(0, 100, size=2)
 
     init = InitializerFromLambda(my_gen, dimension=2, pop_size=5, rng=rng)
     pop = init.generate_population()
