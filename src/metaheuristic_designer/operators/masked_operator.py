@@ -3,11 +3,10 @@ Operator that applies different operators to disjoint slices of the genotype.
 """
 
 from __future__ import annotations
-from typing import Iterable, Optional
+from typing import Iterable
 from copy import copy
 import numpy as np
 
-from ..initializer import Initializer
 from ..population import Population
 from ..operator import Operator
 from ..utils import MaskLike
@@ -70,8 +69,6 @@ class MaskedOperator(Operator):
         ----------
         population : Population
             The current population.
-        initializer : Initializer, optional
-            The population initializer.
 
         Returns
         -------

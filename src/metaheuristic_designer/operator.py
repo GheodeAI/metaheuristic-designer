@@ -87,8 +87,6 @@ class Operator(ParametrizableMixin, ABC):
         ----------
         population: Population
             The population that will be used.
-        initializer: Initialize, optional
-            The population initializer of the algorithm (used for randomly generating individuals).
 
         Returns
         -------

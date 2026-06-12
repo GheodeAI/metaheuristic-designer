@@ -26,8 +26,6 @@ class AdaptiveOperator(ExtendedOperator):
         ----------
         population : Population
             The current population (whose genotype contains the parameters).
-        initializer : Initializer, optional
-            The population initializer.
 
         Returns
         -------

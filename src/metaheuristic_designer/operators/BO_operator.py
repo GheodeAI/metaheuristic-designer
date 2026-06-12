@@ -121,8 +121,6 @@ class BOOperator(Operator):
         ----------
         population : Population
             The current population.
-        initializer : Initializer, optional
-            Used to generate random starting points for acquisition optimization.
 
         Returns
         -------

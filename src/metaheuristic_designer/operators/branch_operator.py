@@ -119,8 +119,6 @@ class BranchOperator(Operator):
         ----------
         population : Population
             The current population.
-        initializer : Initializer, optional
-            The population initializer.
 
         Returns
         -------
