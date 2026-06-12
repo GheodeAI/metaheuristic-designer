@@ -63,7 +63,7 @@ class MaskedOperator(Operator):
 
         return all_params
 
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def evolve(self, population: Population) -> Population:
         """Apply the appropriate operator to each slice of the genotype.
 
         Parameters
@@ -86,7 +86,7 @@ class MaskedOperator(Operator):
             split_mask = self.params.mask == idx_op
             if np.any(split_mask):
                 split_population = new_population.take_slice(split_mask)
-                split_population = op.evolve(split_population, initializer)
+                split_population = op.evolve(split_population)
                 new_population = new_population.apply_slice(split_population, split_mask)
 
         return new_population

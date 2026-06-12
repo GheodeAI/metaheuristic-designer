@@ -12,6 +12,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel
 
 from ..initializer import Initializer
+from ..initializers import UniformInitializer
 from ..utils import RNGLike
 from ..operator import Operator
 from ..objective_function import ObjectiveFunc
@@ -82,6 +83,7 @@ class BOOperator(Operator):
     def __init__(
         self,
         objfunc: ObjectiveFunc,
+        initializer: Initializer = None,
         name: str = "Gaussian Regression Surrogate Model",
         encoding: Optional[Encoding] = None,
         kernel: Optional[Callable] = None,
@@ -102,6 +104,9 @@ class BOOperator(Operator):
         )
 
         self.objfunc = objfunc
+        if initializer is None:
+            initializer = UniformInitializer(dimension=objfunc.dimension, lower_bound=objfunc.lower_bound, upper_bound=objfunc.upper_bound, rng=rng)
+        self.initializer = initializer
 
         if kernel is None:
             kernel = rbf_scale * RBF(length_scale=1.0) + WhiteKernel(noise_level=1.0)
@@ -109,7 +114,7 @@ class BOOperator(Operator):
 
         self.gaussian_model = GaussianProcessRegressor(kernel=kernel, normalize_y=True, copy_X_train=False)
 
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def evolve(self, population: Population) -> Population:
         """Fit GP, optimize acquisition, and merge the proposed point.
 
         Parameters
@@ -151,7 +156,7 @@ class BOOperator(Operator):
             bounds = None
 
         # Optimize the acquisition function with a batch of initial points chosen at random
-        samples = initializer.generate_population(self.params.batch_size).genotype_matrix
+        samples = self.initializer.generate_population(self.params.batch_size).genotype_matrix
         for x0 in samples:
             result = sp.optimize.minimize(
                 fun=lambda x_in: -_acquisition_function(self.gaussian_model, X, x_in, max_y), x0=x0, method="L-BFGS-B", bounds=bounds

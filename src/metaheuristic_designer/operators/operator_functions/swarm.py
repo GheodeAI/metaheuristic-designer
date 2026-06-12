@@ -72,7 +72,6 @@ def pso_operator(
 
 def pso_operator_wrapper(
     population: Population,
-    initializer: Initializer,
     rng: Optional[RNGLike] = None,
     w: float = 0.7,
     c1: float = 1.5,

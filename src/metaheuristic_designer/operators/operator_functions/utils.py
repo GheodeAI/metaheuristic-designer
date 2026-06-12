@@ -93,7 +93,7 @@ class OperatorFnDef:
     params: dict = field(default_factory=dict)
     forced_params: dict = field(default_factory=dict)
 
-    def __call__(self, population: Population, initializer: Initializer, rng: Optional[np.random.Generator] = None, **kwargs) -> Population:
+    def __call__(self, population: Population, rng: Optional[np.random.Generator] = None, **kwargs) -> Population:
         """Execute the wrapped operator and return a new population.
 
         Parameters
@@ -196,7 +196,7 @@ class ObtainStatisticDef:
     params: dict = field(default_factory=dict)
     forced_params: dict = field(default_factory=dict)
 
-    def __call__(self, population: Population, initializer: Initializer, rng: Optional[np.random.Generator] = None, **kwargs) -> Population:
+    def __call__(self, population: Population, rng: Optional[np.random.Generator] = None, **kwargs) -> Population:
         """Compute a statistic and replace the population’s genotype.
 
         Parameters
@@ -221,7 +221,7 @@ class ObtainStatisticDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return population.update_genotype(self.operator_fn(population.genotype_matrix, rng, **modified_kwargs))
+        return population.update_genotype(self.operator_fn(population.genotype_matrix, rng=rng, **modified_kwargs))
 
 
 @dataclass
@@ -248,7 +248,7 @@ class OperatorSwarmDef:
     params: dict = field(default_factory=dict)
     forced_params: dict = field(default_factory=dict)
 
-    def __call__(self, population: Population, initializer: Initializer, rng: np.random.Generator, **kwargs) -> Population:
+    def __call__(self, population: Population, rng: np.random.Generator, **kwargs) -> Population:
         """Execute the swarm operator and return the new population.
 
         Parameters
@@ -273,4 +273,4 @@ class OperatorSwarmDef:
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return self.operator_fn(population, initializer, rng=rng, **modified_kwargs)
+        return self.operator_fn(population, rng=rng, **modified_kwargs)

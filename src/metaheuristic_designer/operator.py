@@ -70,16 +70,16 @@ class Operator(ParametrizableMixin, ABC):
         self.rng = check_rng(rng)
         self.store_kwargs(**kwargs)
 
-    def __call__(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def __call__(self, population: Population) -> Population:
         """Shorthand for :meth:`evolve`."""
-        return self.evolve(population, initializer)
+        return self.evolve(population)
 
     def gather_params(self):
         """Return the current parameter dictionary (thin wrapper around :meth:`get_params`)."""
         return self.get_params()
 
     @abstractmethod
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def evolve(self, population: Population) -> Population:
         """
         Evolves an population using a given strategy.
 
@@ -139,7 +139,7 @@ class NullOperator(Operator):
 
         super().__init__(name, preserves_order=True)
 
-    def evolve(self, population: Population, *args) -> Population:
+    def evolve(self, population: Population) -> Population:
         return copy(population)
 
 
@@ -194,9 +194,9 @@ class OperatorFromLambda(Operator):
             elif p.kind == inspect.Parameter.VAR_POSITIONAL:
                 return
 
-        required_min_count = 3
+        required_min_count = 2
         if count < required_min_count:
             raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `initializer`, `rng`).")
 
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
-        return self.operator_fn(population, initializer, self.rng, **self.current_kwargs)
+    def evolve(self, population: Population) -> Population:
+        return self.operator_fn(population, rng=self.rng, **self.current_kwargs)

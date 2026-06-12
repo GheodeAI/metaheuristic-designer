@@ -75,7 +75,7 @@ class ExtendedOperator(Operator):
 
         return all_params
 
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def evolve(self, population: Population) -> Population:
         """Apply the main masked operator (solution + parameter mutations).
 
         Parameters
@@ -91,7 +91,7 @@ class ExtendedOperator(Operator):
             The evolved population.
         """
 
-        return self.main_operator.evolve(population, initializer=initializer)
+        return self.main_operator.evolve(population)
 
     def update(self, progress: float):
         """Update schedulable parameters and propagate to sub-operators.

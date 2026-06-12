@@ -65,7 +65,7 @@ class CompositeOperator(Operator):
 
         return all_params
 
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def evolve(self, population: Population) -> Population:
         """Apply each operator in sequence.
 
         Parameters
@@ -84,7 +84,7 @@ class CompositeOperator(Operator):
         new_population = copy(population)
 
         for op in self.op_list:
-            new_population = op.evolve(new_population, initializer)
+            new_population = op.evolve(new_population)
 
         return new_population
 
