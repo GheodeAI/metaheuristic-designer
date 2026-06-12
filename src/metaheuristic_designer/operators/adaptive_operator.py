@@ -3,9 +3,7 @@ Adaptive operator that updates its parameters from the genotype.
 """
 
 from __future__ import annotations
-from typing import Optional
 
-from ..initializer import Initializer
 from ..population import Population
 from .extended_operator import ExtendedOperator
 
@@ -21,15 +19,13 @@ class AdaptiveOperator(ExtendedOperator):
     See :class:`ExtendedOperator` for constructor parameters.
     """
 
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def evolve(self, population: Population) -> Population:
         """Decode parameters, update the base operator, then apply it.
 
         Parameters
         ----------
         population : Population
             The current population (whose genotype contains the parameters).
-        initializer : Initializer, optional
-            The population initializer.
 
         Returns
         -------
@@ -42,4 +38,4 @@ class AdaptiveOperator(ExtendedOperator):
         self.base_operator.update_kwargs(**params)
 
         # Evolve population
-        return super().evolve(population=population, initializer=initializer)
+        return super().evolve(population=population)

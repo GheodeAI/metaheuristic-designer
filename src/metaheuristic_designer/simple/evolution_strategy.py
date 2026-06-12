@@ -142,7 +142,7 @@ def evolution_strategy_discrete(
         encoding=encoding,
         rng=rng,
     )
-    mutation_op = create_operator("random.reset", n=resampled_components, rng=rng)
+    mutation_op = create_operator("random.reset", initializer=pop_initializer, n=resampled_components, rng=rng)
     method = "keep_best" if elitist else "keep_offspring"
     survivor_sel = create_survivor_selection(method, rng=rng)
     search_strat = ES(initializer=pop_initializer, mutation_op=mutation_op, survivor_sel=survivor_sel, offspring_size=offspring_size, rng=rng)

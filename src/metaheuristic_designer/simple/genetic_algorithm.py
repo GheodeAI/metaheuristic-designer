@@ -145,7 +145,7 @@ def genetic_algorithm_discrete(
         encoding=encoding,
         rng=rng,
     )
-    mutation_op = create_operator("random.reset", n=resampled_components, rng=rng)
+    mutation_op = create_operator("random.reset", initializer=pop_initializer, n=resampled_components, rng=rng)
     crossover_op = create_operator("crossover.multipoint", rng=rng)
     parent_sel = create_parent_selection("tournament", amount=20, rng=rng)
     survivor_sel = create_survivor_selection("elitism", amount=10, rng=rng)

@@ -62,7 +62,7 @@ def test_operator_from_lambda_applies_function(rng):
     pop = make_pop([1.0, 2.0])
     original = pop.genotype_matrix.copy()
 
-    def add_ten(p, init, rng, **kw):
+    def add_ten(p, rng, **kw):
         return p.update_genotype(p.genotype_matrix + 10)
 
     op = OperatorFromLambda(add_ten, rng=rng)

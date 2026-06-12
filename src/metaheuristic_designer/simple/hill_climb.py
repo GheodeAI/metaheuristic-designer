@@ -92,7 +92,7 @@ def hill_climb_discrete(
     pop_initializer = UniformInitializer(
         objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, dtype=int, encoding=encoding, rng=rng
     )
-    mutation_op = create_operator("random.reset", n=resampled_components, rng=rng)
+    mutation_op = create_operator("random.reset", initializer=pop_initializer, n=resampled_components, rng=rng)
     search_strat = HillClimb(pop_initializer, mutation_op, rng=rng)
     return Algorithm(objfunc, search_strat, **kwargs)
 

@@ -96,7 +96,7 @@ class MemeticStrategy(SearchStrategy):
 
     def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
         population = self.main_strategy.parent_sel.select(prev_population)  # implicit copy
-        population = self.main_strategy.operator.evolve(population, self.initializer)
+        population = self.main_strategy.operator.evolve(population)
 
         # Do local search on perturbed individuals
         population_memetic = copy(population)

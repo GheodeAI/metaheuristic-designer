@@ -27,9 +27,9 @@ def test_extended_operator_applies_masked_ops(rng):
     enc.dimension = 2
 
     # Base operator: adds 10 to the solution part (it receives only solution columns)
-    base_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix + 10), rng=rng)
+    base_op = OperatorFromLambda(lambda pop, rng, **kw: pop.update_genotype(pop.genotype_matrix + 10), rng=rng)
     # Param operator: multiplies param part by 2
-    param_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop.update_genotype(pop.genotype_matrix * 2), rng=rng)
+    param_op = OperatorFromLambda(lambda pop, rng, **kw: pop.update_genotype(pop.genotype_matrix * 2), rng=rng)
 
     ext = ExtendedOperator(base_op, {"speed": param_op}, enc)
 
@@ -54,7 +54,7 @@ def test_adaptative_operator_updates_base_operator_kwargs(rng):
     # Base operator that records kwargs and does nothing else
     recorded_kwargs = {}
 
-    def record_kwargs(pop, init, rng, **kw):
+    def record_kwargs(pop, rng, **kw):
         for k, v in kw.items():
             recorded_kwargs[k] = v
         return pop
@@ -62,7 +62,7 @@ def test_adaptative_operator_updates_base_operator_kwargs(rng):
     base_op = OperatorFromLambda(record_kwargs, rng=rng)
 
     # Param operator (identity)
-    param_op = OperatorFromLambda(lambda pop, init, rng, **kw: pop, rng=rng)
+    param_op = OperatorFromLambda(lambda pop, rng, **kw: pop, rng=rng)
 
     adapt = AdaptiveOperator(base_op, {"speed": param_op}, enc)
 

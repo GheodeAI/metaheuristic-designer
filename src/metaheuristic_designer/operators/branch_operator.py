@@ -112,15 +112,13 @@ class BranchOperator(Operator):
 
         return all_params
 
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def evolve(self, population: Population) -> Population:
         """Apply a random operator to each individual according to the branch method.
 
         Parameters
         ----------
         population : Population
             The current population.
-        initializer : Initializer, optional
-            The population initializer.
 
         Returns
         -------
@@ -143,7 +141,7 @@ class BranchOperator(Operator):
 
             if np.any(split_mask):
                 split_population = population.take_selection(split_mask)
-                split_population = op.evolve(split_population, initializer)
+                split_population = op.evolve(split_population)
                 new_population = new_population.apply_selection(split_population, split_mask)
 
         return new_population

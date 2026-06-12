@@ -92,15 +92,15 @@ def test_random_reset_reproducible(rng):
 #  Factory: create_random_operator
 # ===================================================================
 @pytest.mark.parametrize("method", ["random", "reset"])
-def test_create_random_operator_returns_operator(method, rng, simple_encoding):
-    op = create_random_operator(method, encoding=simple_encoding, rng=rng)
+def test_create_random_operator_returns_operator(method, rng, simple_encoding, dummy_initializer):
+    op = create_random_operator(method, initializer=dummy_initializer, encoding=simple_encoding, rng=rng)
     assert isinstance(op, OperatorFromLambda)
     assert op.name == method
 
 
-def test_create_random_operator_invalid_method():
+def test_create_random_operator_invalid_method(dummy_initializer):
     with pytest.raises(KeyError):
-        create_random_operator("invalid_rando")
+        create_random_operator("invalid_rando", initializer=dummy_initializer)
 
 
 # -------------------------------------------------------------------
@@ -113,7 +113,7 @@ def test_random_operator_full_reset(rng, simple_encoding, dummy_initializer):
     pop.fitness = np.zeros(2)
     original = pop.genotype_matrix.copy()
 
-    op = create_random_operator("random", encoding=simple_encoding, rng=rng)
-    result = op(pop, initializer=dummy_initializer)
+    op = create_random_operator("random", initializer=dummy_initializer, encoding=simple_encoding, rng=rng)
+    result = op(pop)
     assert result is pop
     assert not np.array_equal(pop.genotype_matrix, original)

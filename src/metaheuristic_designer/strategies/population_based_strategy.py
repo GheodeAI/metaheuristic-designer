@@ -56,7 +56,7 @@ class PopulationBasedStrategy(SearchStrategy):
 
     def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
         population = self.parent_sel.select(prev_population)  # implicit copy
-        population = self.operator.evolve(population, self.initializer)
+        population = self.operator.evolve(population)
         population = objfunc.repair_solutions(population)
         population = objfunc.calculate_fitness(population)
         population = self.survivor_sel.select(population=prev_population, offspring=population)
