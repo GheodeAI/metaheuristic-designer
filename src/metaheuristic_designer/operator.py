@@ -44,8 +44,6 @@ class Operator(ParametrizableMixin, ABC):
         parameters.
     """
 
-    _last_id: int = 0
-
     def __init__(
         self,
         name: Optional[str] = None,
@@ -55,9 +53,6 @@ class Operator(ParametrizableMixin, ABC):
         **kwargs,
     ):
         super().__init__()
-
-        self.id = Operator._last_id
-        Operator._last_id += 1
 
         self.name = name
 
@@ -197,4 +192,6 @@ class OperatorFromLambda(Operator):
             raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `rng`).")
 
     def evolve(self, population: Population) -> Population:
-        return self.operator_fn(population, rng=self.rng, **self.current_kwargs)
+        new_population = self.operator_fn(population, rng=self.rng, **self.current_kwargs)
+        new_population.decode(self.encoding)
+        return new_population

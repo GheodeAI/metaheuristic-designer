@@ -37,7 +37,7 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
         "stop_condition_str": "convergence or max_evaluations",
         "progress_metric_str": "max_evaluations",
         "max_evaluations": evaluations,
-        "max_patience": 500,
+        "max_patience": 500000000000000,
     }
 
     objfunc = BBOBObjective(fid=fid, dimension=dim, instance=instance, compact_name=False)
@@ -80,8 +80,8 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
             crossover_op=create_operator("crossover.uniform", rng=rng),
             parent_sel=create_parent_selection("Best", amount=50, rng=rng),
             survivor_sel=create_survivor_selection("Elitism", amount=20, rng=rng),
-            mutation_prob=0.2,
-            crossover_prob=0.8,
+            mutation_prob=0.01,
+            crossover_prob=0.5,
             rng=rng,
         ),
         "de": DE(

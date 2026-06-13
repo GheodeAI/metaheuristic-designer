@@ -16,6 +16,7 @@ from ..operator_functions.mutation import (
     mutate_1_sigma,
     mutate_n_sigmas,
     sample_1_sigma,
+    polynomial_mutation,
 )
 from ...operator import OperatorFromLambda
 
@@ -117,6 +118,13 @@ mutation_ops_map = {
 
     "sample1sigma":         OperatorFnDef(sample_1_sigma),
     "sample_1_sigma":       OperatorFnDef(sample_1_sigma),
+
+    # Polynomial mutation
+    "polynomial_mutation":  OperatorFnDef(polynomial_mutation),
+    "polynomial":           OperatorFnDef(polynomial_mutation),
+    "poly":                 OperatorFnDef(polynomial_mutation),
+    "poly_mut":             OperatorFnDef(polynomial_mutation),
+    "pm":                   OperatorFnDef(polynomial_mutation),
 }
 # fmt: on
 

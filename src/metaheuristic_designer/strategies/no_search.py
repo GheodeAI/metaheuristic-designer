@@ -6,6 +6,7 @@ from __future__ import annotations
 from copy import copy
 from ..initializer import Initializer
 from ..search_strategy import SearchStrategy
+from ..objective_function import ObjectiveFunc
 from ..population import Population
 
 
@@ -29,5 +30,5 @@ class NoSearch(SearchStrategy):
     def __init__(self, initializer: Initializer, name: str = "No search", **kwargs):
         super().__init__(initializer, name=name, **kwargs)
 
-    def step(self, prev_population: Population, _) -> Population:
+    def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
         return copy(prev_population)

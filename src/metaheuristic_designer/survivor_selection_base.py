@@ -156,5 +156,5 @@ class SurvivorSelectionFromLambda(SurvivorSelection):
             raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `offspring`, `rng`).")
 
     def select(self, population: Population, offspring: Population) -> Population:
-        selected_idx = self.selection_fn(population, offspring, rng=self.rng, **self.current_kwargs)
-        return Population.join_populations(population, offspring).take_selection(selected_idx)
+        self.last_selection_idx = self.selection_fn(population, offspring, rng=self.rng, **self.current_kwargs)
+        return Population.join_populations(population, offspring).take_selection(self.last_selection_idx)

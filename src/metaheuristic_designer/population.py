@@ -13,7 +13,6 @@ from .encoding import Encoding, DefaultEncoding
 from .encodings import ParameterExtendingEncoding
 from .utils import VectorLike, MatrixLike, MaskLike
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -47,7 +46,7 @@ class Population:
         # Fitness of each individual in the population
         self.fitness = np.full(self.population_size, -np.inf)
         self.objective = np.full(self.population_size, -np.inf)
-        self.fitness_calculated = np.zeros(self.population_size)
+        self.fitness_calculated = np.zeros(self.population_size, dtype=bool)
 
         # Best solution found so far
         self.best = None
@@ -73,15 +72,17 @@ class Population:
             yield row
 
     def __repr__(self) -> str:
+        genotype_matrix_str = np.array2string(self.genotype_matrix).replace("\n", "\n\t")
+        historical_best_matrix_str = np.array2string(self.historical_best_matrix).replace("\n", "\n\t")
         return (
             "Population{"
-            f"\n\tgenotype_matrix = {self.genotype_matrix}"
-            f"\n\tpop_size = {self.population_size}"
-            f"\n\tvec_size = {self.dimension}"
+            f"\n\tgenotype_matrix = \n\t{genotype_matrix_str}"
+            f"\n\tpopulation_size = {self.population_size}"
+            f"\n\tdimension = {self.dimension}"
             f"\n\tfitness = {self.fitness}"
             f"\n\tobjective = {self.objective}"
             f"\n\tfitness_calculated = {self.fitness_calculated}"
-            f"\n\thistorical_best_matrix = {self.historical_best_matrix}"
+            f"\n\thistorical_best_matrix = \n\t{historical_best_matrix_str}"
             f"\n\thistorical_best_fitness = {self.historical_best_fitness}"
             f"\n\tbest = {self.best}"
             f"\n\tbest_fitness = {self.best_fitness}"
@@ -138,7 +139,7 @@ class Population:
 
         return best_solution_vec, self.best_objective
 
-    def update_genotype(self, genotype_source: MatrixLike | Population, update_fitness_mask: bool = True) -> Population:
+    def update_genotype(self, genotype_source: MatrixLike | Population) -> Population:
         """Replace the genotype matrix.
 
         Parameters
@@ -169,8 +170,9 @@ class Population:
             self.historical_best_fitness = np.full(len(genotype_matrix), -np.inf)
             self.historical_best_matrix = copy(genotype_matrix)
             logger.debug("Genotype matrix will change size.")
-        elif update_fitness_mask:
-            self.fitness_calculated = np.all(self.genotype_matrix == genotype_matrix, axis=1)
+        else:
+            repeated_solutions = np.all(self.genotype_matrix == genotype_matrix, axis=1)
+            self.fitness_calculated = self.fitness_calculated & repeated_solutions
         self.genotype_matrix = genotype_matrix
         self.population_size = genotype_matrix.shape[0]
 
@@ -469,13 +471,30 @@ class Population:
 
         return new_population
 
-    def decode(self, encoding: Optional[Encoding] = None) -> Iterable:
+    def apply_encoding(self, encoding: Optional[Encoding] = None) -> Population:
         """
         Return the population passed through the decoding function defined in the encoding.
 
         Returns
         -------
         decoded_population: Any
+        """
+
+        if encoding is None:
+            encoding = self.encoding
+
+        genotype_matrix = self.genotype_matrix
+        transformed_matrix = encoding.decode(genotype_matrix)
+        return self.update_genotype(transformed_matrix)
+
+    def decode(self, encoding: Optional[Encoding] = None) -> Iterable:
+        """
+        Return the population matrix passed through the decoding function defined in the encoding.
+
+        Returns
+        -------
+        MatrixLike
+            The decoded genotype matrix.
         """
 
         if encoding is None:
@@ -509,7 +528,7 @@ class Population:
             return None
 
     def encode(self, encoding: Optional[Encoding] = None) -> MatrixLike:
-        """Encode the current population using the given encoding.
+        """Encode the current population matrix using the given encoding.
 
         Parameters
         ----------

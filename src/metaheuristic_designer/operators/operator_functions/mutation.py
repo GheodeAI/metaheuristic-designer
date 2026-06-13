@@ -352,3 +352,68 @@ def xor_mask(
             mask = 0
 
     return population_matrix ^ mask
+
+
+def polynomial_mutation(
+    population_matrix: MatrixLike,
+    fitness_array: VectorLike,
+    lower_bound: VectorLike | ScalarLike,
+    upper_bound: VectorLike | ScalarLike,
+    dist_index: float = 100,
+    rng: Optional[RNGLike] = None,
+    **kwargs,
+):
+    """
+    Polynomial mutation for real-coded genetic algorithms.
+
+    Performs per-component polynomial mutation on a population matrix.
+    The perturbation magnitude depends on the distance from the parent
+    to the respective bound, guaranteeing offspring stay within
+    the feasible region without clamping.
+
+    Parameters
+    ----------
+    population_matrix : MatrixLike
+        Current population of real-valued solutions.
+    fitness_array : VectorLike
+        Fitness values (unused in this mutation, kept for compatibility).
+    lower_bound : VectorLike | ScalarLike
+        Lower bound(s) for each variable.
+    upper_bound : VectorLike | ScalarLike
+        Upper bound(s) for each variable.
+    dist_index : float, optional
+        Distribution index (η) controlling the mutation spread.
+        Larger values (e.g., 100) give small perturbations (exploitation);
+        smaller values (e.g., 20) allow larger jumps (exploration).
+        Default is 100.
+    rng : Optional[RNGLike], optional
+        Random number generator. If None, uses `numpy.random.default_rng()`.
+    **kwargs
+        Additional arguments (unused, for compatibility).
+
+    Returns
+    -------
+    population_matrix : ndarray, shape (n_individuals, n_vars)
+        Mutated population.
+
+    Notes
+    -----
+    The polynomial mutation operator was introduced by Deb & Agrawal (1995)
+    and is described in detail in Deb & Deb (2012), KanGAL Report 2012016.
+    For each variable independently, a random number u ∈ [0,1] is drawn:
+        - If u ≤ 0.5:   child = parent + [(2u)^(1/(1+η)) - 1] * (parent - low)
+        - If u > 0.5:    child = parent + [1 - (2(1-u))^(1/(1+η))] * (high - parent)
+    This formulation ensures child ∈ [low, high] without post-clamping.
+    """
+
+    rng = check_rng(rng)
+
+    u = rng.random(population_matrix.shape, dtype=float)
+
+    delta = np.where(u <= 0.5, (2 * u) ** (1 / (1 + dist_index)) - 1, 1 - (2 * (1 - u)) ** (1 / (1 + dist_index)))
+
+    population_matrix = np.where(
+        u <= 0.5, population_matrix + delta * (population_matrix - lower_bound), population_matrix + delta * (upper_bound - population_matrix)
+    )
+
+    return population_matrix

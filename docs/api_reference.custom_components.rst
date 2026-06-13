@@ -258,6 +258,7 @@ will very rarely be used in the actual optimization procedure.
 
 .. code-block:: python
 
+    import numpy as np
     from metaheuristic_designer import Encoding
 
     class MulticategoricalEncoding(Encoding):
@@ -368,6 +369,7 @@ override the ``generate_population`` method, which will be given a number of ind
 
     import numpy as np
     from metaheuristic_designer import Initializer, Encoding, Population
+    from metaheuristic_designer.initializers import UniformInitializer
 
     class IdentityMatrixInitializer(Initializer):
         def __init__(self, dimension: int, fallback: Initializer, encoding: Encoding = None, rng = None):
@@ -381,7 +383,7 @@ override the ``generate_population`` method, which will be given a number of ind
             if n_individuals is None:
                 n_individuals = self.population_size
             
-            assert n_individuals < self.dimension, f"Can only generate up to {self.dimension} individuals"
+            assert n_individuals <= self.dimension, f"Can only generate up to {self.dimension} individuals"
             
             id_matrix = np.eye(self.dimension)[:n_individuals]
             return Population(id_matrix, encoding=self.encoding)
@@ -409,10 +411,10 @@ with the new solutions.
 
     class ModularAdditionMutation(Operator):
         def __init__(self, value: int, mod: int):
-            super().__init__(name="Modular addition", preserves_order=True, value=value):
+            super().__init__(name="Modular addition", preserves_order=True, value=value)
             self.mod = mod
         
-        def evolve(population: Population):
+        def evolve(self, population: Population):
             new_matrix = (population.genotype_matrix + self.params.value) % self.mod
             new_population = population.update_genotype(new_matrix)
             return new_population
@@ -436,17 +438,18 @@ as it can be of use for other methods, it should be a vector contain only indice
 
 .. code-block:: python
 
+    import numpy as np
     from metaheuristic_designer import ParentSelection, Population
 
     class TruncateSelection(ParentSelection):
         def __init__(self, amount: int):
-            super().__init__(amount=amount):
+            super().__init__(amount=amount)
         
-        def select(population: Population, amount: int = None):
+        def select(self, population: Population, amount: int = None):
             if amount is None:
                 amount = self.params.amount
 
-            n_individuals = parents.population_size
+            n_individuals = population.population_size
 
             self.last_selection_idx = np.arange(n_individuals)[:amount]
             return population.take_selection(self.last_selection_idx)
@@ -471,18 +474,19 @@ second.
 
 .. code-block:: python
 
+    import numpy as np
     from metaheuristic_designer import SurvivorSelection, Population
 
     class FullConcatenationSelection(SurvivorSelection):
         def __init__(self, amount: int):
-            super().__init__():
+            super().__init__()
         
-        def select(parents: Population, offspring: population):
+        def select(self, parents: Population, offspring: population):
             n_parents = parents.population_size
             n_offspring = offspring.population_size
 
             self.last_selection_idx = np.arange(n_parents+n_offspring)
-            return Population.join_populations(population, offspring)
+            return Population.join_populations(parents, offspring)
     
     parent_sel = FullConcatenationSelection()
     parents = Population(np.array([[1, 2, 3]]))

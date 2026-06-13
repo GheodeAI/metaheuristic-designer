@@ -137,6 +137,9 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
         objective = population.objective
         solutions = population.decode()
 
+        if np.count_nonzero(population.fitness_calculated) > 0:
+            print(f"Evaluations saved: {np.count_nonzero(population.fitness_calculated)}")
+
         if not self.recalculate and np.all(population.fitness_calculated == 1):
             logger.debug("Fitness was not calculated. Every individual is duplicated.")
             return population

@@ -43,22 +43,6 @@ class CompositeEncoding(ParameterExtendingEncoding):
 
         return all_params
 
-    def encode_func(self, solution: Iterable, params: Optional[dict] = None) -> MatrixLike:
-        encoded = solution
-        for encoding in reversed(self.encodings):
-            if isinstance(encoding, ParameterExtendingEncoding):
-                encoded = encoding.encode_func(encoded, params)
-            else:
-                encoded = encoding.encode_func(encoded)
-
-        return encoded
-
-    def decode_func(self, solutions: Iterable) -> MatrixLike:
-        decoded = solutions
-        for encoding in reversed(self.encodings):
-            decoded = encoding.decode_func(decoded)
-        return decoded
-
     def encode(self, solutions: Iterable, params: Optional[dict] = None) -> MatrixLike:
         encoded = solutions
         for encoding in reversed(self.encodings):
