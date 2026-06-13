@@ -46,7 +46,7 @@ class GA(PopulationBasedStrategy):
         via ``update_kwargs``.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`StaticPopulation`.
     """
 

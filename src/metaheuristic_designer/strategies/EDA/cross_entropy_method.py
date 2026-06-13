@@ -40,7 +40,7 @@ class CrossEntropyMethod(EDAStrategy):
     scale : VectorLike or ``"calculated"``, optional
         Standard deviation of the Gaussian.  If ``"calculated"``,
         it is estimated from the selected individuals.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`StaticPopulation`.
     """
 

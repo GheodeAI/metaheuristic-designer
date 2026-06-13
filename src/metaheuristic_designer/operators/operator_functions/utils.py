@@ -104,7 +104,7 @@ class OperatorFnDef:
             Population initializer (forwarded to the operator if needed).
         rng : np.random.Generator, optional
             Random number generator.
-        **kwargs
+        \\*\\*kwargs
             Additional keyword arguments passed to the operator function.
             They are combined with, but overridden by, :attr:`forced_params`.
 
@@ -156,7 +156,7 @@ class OperatorRandomDef:
             Population initializer, forwarded to the operator.
         rng : np.random.Generator, optional
             Random number generator.
-        **kwargs
+        \\*\\*kwargs
             Additional keyword arguments for the operator function.
 
         Returns
@@ -207,7 +207,7 @@ class ObtainStatisticDef:
             Not used by this wrapper (included for interface compatibility).
         rng : np.random.Generator, optional
             Random number generator.
-        **kwargs
+        \\*\\*kwargs
             Additional keyword arguments for the operator function.
 
         Returns
@@ -259,7 +259,7 @@ class OperatorSwarmDef:
             Population initializer, passed to the operator.
         rng : np.random.Generator
             Random number generator (required for swarm operators).
-        **kwargs
+        \\*\\*kwargs
             Additional keyword arguments for the operator function.
 
         Returns

@@ -38,7 +38,7 @@ class SA(SingleSolutionStrategy):
         Cooling factor (default 0.99).
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`HillClimb`.
     """
 

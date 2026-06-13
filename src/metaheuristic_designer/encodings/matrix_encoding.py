@@ -19,7 +19,7 @@ class MatrixEncoding(Encoding):
     ----------
     shape : tuple of int
         ``(rows, cols)`` of the resulting matrix.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Encoding`.
     """
 

@@ -4,69 +4,17 @@ metaheuristic\_designer.operators.factories package
 Submodules
 ----------
 
-metaheuristic\_designer.operators.factories.crossover module
-------------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: metaheuristic_designer.operators.factories.crossover
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.operators.factories.debug module
---------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.factories.debug
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.operators.factories.differential\_evolution module
---------------------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.factories.differential_evolution
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.operators.factories.generic module
-----------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.factories.generic
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.operators.factories.mutation module
------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.factories.mutation
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.operators.factories.permutation module
---------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.factories.permutation
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.operators.factories.random module
----------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.factories.random
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.operators.factories.swarm module
---------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.operators.factories.swarm
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   metaheuristic_designer.operators.factories.crossover
+   metaheuristic_designer.operators.factories.debug
+   metaheuristic_designer.operators.factories.differential_evolution
+   metaheuristic_designer.operators.factories.generic
+   metaheuristic_designer.operators.factories.mutation
+   metaheuristic_designer.operators.factories.permutation
+   metaheuristic_designer.operators.factories.random
+   metaheuristic_designer.operators.factories.swarm
 
 Module contents
 ---------------

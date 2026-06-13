@@ -38,7 +38,7 @@ class PopulationBasedStrategy(SearchStrategy):
         Display name (default ``"Static Population Evolution"``).
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`SearchStrategy`.
     """
 

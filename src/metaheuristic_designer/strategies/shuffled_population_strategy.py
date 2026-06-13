@@ -48,7 +48,7 @@ class ShuffledPopulationStrategy(SearchStrategy):
         Display name.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`SearchStrategy`.
     """
 

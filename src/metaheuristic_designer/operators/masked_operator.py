@@ -28,7 +28,7 @@ class MaskedOperator(Operator):
         Array of length `vec_size` assigning each gene to an operator.
     name : str, optional
         Display name; defaults to ``"Split (op_names)"``.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Operator`.
     """
 

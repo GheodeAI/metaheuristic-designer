@@ -41,7 +41,7 @@ class BernoulliUMDA(EDAStrategy):
         Initial probability (default 0.5).
     noise : float, optional
         Gaussian noise standard deviation (default 0).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`EDAStrategy`.
     """
 
@@ -113,7 +113,7 @@ class BinomialUMDA(EDAStrategy):
         Number of trials. **Must be provided**; there is no default.
     noise : float, optional
         Gaussian noise standard deviation (default 0).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`EDAStrategy`.
     """
 
@@ -191,7 +191,7 @@ class GaussianUMDA(EDAStrategy):
         Standard deviation (default 1).
     noise : float, optional
         Gaussian noise standard deviation added to *loc* (default 0).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`EDAStrategy`.
     """
 

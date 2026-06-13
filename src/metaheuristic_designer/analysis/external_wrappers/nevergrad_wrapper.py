@@ -26,7 +26,7 @@ class NevergradWrapper:
         Reproducibility seed.
     name : str
         Display name.
-    **opt_kwargs : dict
+    \\*\\*opt_kwargs : dict
         Additional arguments passed to the Nevergrad optimizer constructor.
     """
 

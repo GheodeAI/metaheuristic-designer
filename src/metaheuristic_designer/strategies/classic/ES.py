@@ -38,7 +38,7 @@ class ES(ShuffledPopulationStrategy):
         Number of offspring per generation.
     name : str, optional
         Display name (default ``"ES"``).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`VariablePopulation`.
     """
 

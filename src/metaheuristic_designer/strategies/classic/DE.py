@@ -38,7 +38,7 @@ class DE(PopulationBasedStrategy):
         Crossover probability (default 0.9).
     p : float or SchedulableParameter, optional
         Elite fraction for ``/pbest/`` variants (default 0.1).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`StaticPopulation`.
     """
 

@@ -127,7 +127,7 @@ def create_prob_distribution(
         An optional callable that overrides the registered heuristic
         for this call.  If ``None``, the registered heuristic (or
         a no-op) is used.
-    **kwargs
+    \\*\\*kwargs
         Parameters forwarded to the distribution constructor (e.g.,
         ``loc``, ``scale``, ``min``, ``max``).
 

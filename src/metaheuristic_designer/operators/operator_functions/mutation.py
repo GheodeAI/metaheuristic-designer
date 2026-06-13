@@ -33,7 +33,7 @@ def mutate_sample(
         Number of components to resample per individual.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :func:`create_prob_distribution` (e.g. ``loc``, ``scale``).
 
     Returns
@@ -88,7 +88,7 @@ def mutate_noise(
         Number of components to mutate per individual.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :func:`create_prob_distribution`.
 
     Returns
@@ -138,7 +138,7 @@ def rand_sample(population_matrix: MatrixLike, fitness_array: VectorLike, distri
         Key of the distribution to use.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :func:`create_prob_distribution`.
 
     Returns
@@ -179,7 +179,7 @@ def rand_noise(
         Strength factor (scalar or per-individual array).
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :func:`create_prob_distribution`.
 
     Returns
@@ -216,7 +216,7 @@ def sample_1_sigma(population_matrix: MatrixLike, fitness_array: VectorLike, rng
         Fitness values (unused).
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Must contain ``epsilon``, ``sigma``, ``tau``, ``n``.
 
     Returns
@@ -254,7 +254,7 @@ def mutate_1_sigma(population_matrix: MatrixLike, fitness_array: VectorLike, rng
         Fitness values (unused).
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Must contain ``epsilon`` and ``tau``.
 
     Returns
@@ -285,7 +285,7 @@ def mutate_n_sigmas(population_matrix: MatrixLike, fitness_array: VectorLike, rn
         Fitness values (unused).
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Must contain ``epsilon``, ``tau``, ``tau_multiple``.
 
     Returns
@@ -388,7 +388,7 @@ def polynomial_mutation(
         Default is 100.
     rng : Optional[RNGLike], optional
         Random number generator. If None, uses `numpy.random.default_rng()`.
-    **kwargs
+    \\*\\*kwargs
         Additional arguments (unused, for compatibility).
 
     Returns

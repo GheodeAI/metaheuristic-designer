@@ -111,7 +111,7 @@ def create_parent_selection(method: str, name: Optional[str] = None, amount: Opt
         Default number of parents to select.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Additional parameters forwarded to the selection function.
 
     Returns

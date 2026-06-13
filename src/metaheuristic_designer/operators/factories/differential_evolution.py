@@ -60,7 +60,7 @@ def create_differential_evolution_operator(
         Unused; kept for interface compatibility.
     name : str, optional
         Display name; defaults to *method*.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to the DE operator function (e.g., ``F``, ``Cr``).
 
     Returns

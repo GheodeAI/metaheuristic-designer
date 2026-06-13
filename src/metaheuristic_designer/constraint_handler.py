@@ -24,7 +24,7 @@ class ConstraintHandler(ParametrizableMixin, ABC):
 
     Parameters
     ----------
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
@@ -93,7 +93,7 @@ class ConstraintHandlerFromLambda(ConstraintHandler):
         A function ``(solution) -> repaired_solution``.
     penalty_fn : callable, optional
         A function ``(solution) -> penalty_value``.
-    **kwargs
+    \\*\\*kwargs
         Keyword arguments forwarded to
         :class:`ConstraintHandler`.
     """
@@ -130,7 +130,7 @@ class NullConstraint(ConstraintHandler):
     ----------
     encoding : Encoding, optional
         See :class:`ConstraintHandler`.
-    **kwargs
+    \\*\\*kwargs
         See :class:`ConstraintHandler`.
     """
 
@@ -151,7 +151,7 @@ class PenalizeConstraint(ConstraintHandler, ABC):
     ----------
     encoding : Encoding, optional
         See :class:`ConstraintHandler`.
-    **kwargs
+    \\*\\*kwargs
         See :class:`ConstraintHandler`.
     """
 
@@ -169,7 +169,7 @@ class RepairConstraint(ConstraintHandler, ABC):
     ----------
     encoding : Encoding, optional
         See :class:`ConstraintHandler`.
-    **kwargs
+    \\*\\*kwargs
         See :class:`ConstraintHandler`.
     """
 

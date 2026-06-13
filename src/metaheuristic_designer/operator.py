@@ -39,7 +39,7 @@ class Operator(ParametrizableMixin, ABC):
         Default ``False``.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
@@ -155,7 +155,7 @@ class OperatorFromLambda(Operator):
         See :class:`Operator`.
     rng : RNGLike, optional
         See :class:`Operator`.
-    **kwargs
+    \\*\\*kwargs
         Keyword arguments forwarded to :class:`Operator` and also
         passed to *operator_fn* on each call.
     """

@@ -27,7 +27,7 @@ class ParentSelection(ParametrizableMixin, ABC):
         at call time.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
@@ -94,7 +94,7 @@ class NullParentSelection(ParentSelection):
     ----------
     name : str, optional
         Display name. Default ``"Nothing"``.
-    **kwargs
+    \\*\\*kwargs
         Keyword arguments forwarded to :class:`ParentSelection`.
     """
 
@@ -123,7 +123,7 @@ class ParentSelectionFromLambda(ParentSelection):
         Default number of individuals to select.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Keyword arguments forwarded to :class:`ParentSelection`.
     """
 

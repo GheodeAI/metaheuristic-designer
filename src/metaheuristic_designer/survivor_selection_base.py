@@ -27,7 +27,7 @@ class SurvivorSelection(ParametrizableMixin, ABC):
         Default ``False``.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
@@ -96,7 +96,7 @@ class NullSurvivorSelection(SurvivorSelection):
     ----------
     name : str, optional
         Display name. Default ``"Nothing"``.
-    **kwargs
+    \\*\\*kwargs
         Keyword arguments forwarded to :class:`SurvivorSelection`.
     """
 
@@ -127,7 +127,7 @@ class SurvivorSelectionFromLambda(SurvivorSelection):
         See :class:`SurvivorSelection`.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Keyword arguments forwarded to :class:`SurvivorSelection`.
     """
 

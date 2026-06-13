@@ -120,7 +120,7 @@ def create_survivor_selection(method: str, name: Optional[str] = None, rng: Opti
         Display name for the selection method.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Additional parameters forwarded to the selection function.
 
     Returns

@@ -40,7 +40,7 @@ def particle_swarm_binary(
         Encoding; defaults to :class:`SigmoidEncoding`.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -94,7 +94,7 @@ def particle_swarm_discrete(
         Encoding; defaults to :class:`TypeCastEncoding` (float → int).
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
     rng = check_rng(rng)
@@ -147,7 +147,7 @@ def particle_swarm_real(
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
     rng = check_rng(rng)

@@ -45,7 +45,7 @@ def evolution_strategy_binary(
         Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -87,7 +87,7 @@ def evolution_strategy_permutation(
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -128,7 +128,7 @@ def evolution_strategy_discrete(
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -178,7 +178,7 @@ def evolution_strategy_real(
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 

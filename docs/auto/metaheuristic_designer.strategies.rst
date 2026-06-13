@@ -10,50 +10,20 @@ Subpackages
    metaheuristic_designer.strategies.EDA
    metaheuristic_designer.strategies.bayesian_optimization
    metaheuristic_designer.strategies.classic
+   metaheuristic_designer.strategies.hybrid
    metaheuristic_designer.strategies.swarm
 
 Submodules
 ----------
 
-metaheuristic\_designer.strategies.hill\_climb module
------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: metaheuristic_designer.strategies.hill_climb
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.strategies.local\_search module
--------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.strategies.local_search
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.strategies.no\_search module
-----------------------------------------------------
-
-.. automodule:: metaheuristic_designer.strategies.no_search
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.strategies.static\_population module
-------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.strategies.static_population
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.strategies.variable\_population module
---------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.strategies.variable_population
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   metaheuristic_designer.strategies.eda_strategy
+   metaheuristic_designer.strategies.no_search
+   metaheuristic_designer.strategies.population_based_strategy
+   metaheuristic_designer.strategies.shuffled_population_strategy
+   metaheuristic_designer.strategies.single_solution_strategy
 
 Module contents
 ---------------

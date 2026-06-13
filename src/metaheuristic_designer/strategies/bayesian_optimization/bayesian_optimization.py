@@ -31,7 +31,7 @@ class BayesianOptimization(PopulationBasedStrategy):
         Parent selection method (default: identity).
     name : str, optional
         Display name (default ``"Bayesian Optimization"``).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`BOOperator` (e.g., ``batch_size``,
         ``max_samples``, ``kernel``).
     """

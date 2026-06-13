@@ -58,7 +58,7 @@ def bayesian_optimization_real(
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 

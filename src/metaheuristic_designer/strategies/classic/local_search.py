@@ -40,7 +40,7 @@ class LocalSearch(PopulationBasedStrategy):
         Number of perturbed copies per iteration (default 100).
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`SearchStrategy`.
     """
 

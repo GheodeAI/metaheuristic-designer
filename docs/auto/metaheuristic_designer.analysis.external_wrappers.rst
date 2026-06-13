@@ -4,45 +4,14 @@ metaheuristic\_designer.analysis.external\_wrappers package
 Submodules
 ----------
 
-metaheuristic\_designer.analysis.external\_wrappers.cma\_wrapper module
------------------------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: metaheuristic_designer.analysis.external_wrappers.cma_wrapper
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.analysis.external\_wrappers.deap\_wrapper module
-------------------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.analysis.external_wrappers.deap_wrapper
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.analysis.external\_wrappers.nevergrad\_wrapper module
------------------------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.analysis.external_wrappers.nevergrad_wrapper
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.analysis.external\_wrappers.pygmo\_wrapper module
--------------------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.analysis.external_wrappers.pygmo_wrapper
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.analysis.external\_wrappers.scipy\_wrapper module
--------------------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.analysis.external_wrappers.scipy_wrapper
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   metaheuristic_designer.analysis.external_wrappers.cma_wrapper
+   metaheuristic_designer.analysis.external_wrappers.deap_wrapper
+   metaheuristic_designer.analysis.external_wrappers.nevergrad_wrapper
+   metaheuristic_designer.analysis.external_wrappers.pygmo_wrapper
+   metaheuristic_designer.analysis.external_wrappers.scipy_wrapper
 
 Module contents
 ---------------

@@ -61,7 +61,7 @@ class CMA_ES(EDAStrategy):
         objective's bounds (or randomly if no bounds exist).
     sigma : VectorLike, optional
         Initial step size.  If not given, a default is computed.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`VariablePopulation`.
     """
 

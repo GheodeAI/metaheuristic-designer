@@ -4,29 +4,13 @@ metaheuristic\_designer.benchmarks package
 Submodules
 ----------
 
-metaheuristic\_designer.benchmarks.benchmark\_funcs module
-----------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: metaheuristic_designer.benchmarks.benchmark_funcs
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.benchmarks.classic\_problems module
------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.benchmarks.classic_problems
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.benchmarks.img\_funcs module
-----------------------------------------------------
-
-.. automodule:: metaheuristic_designer.benchmarks.img_funcs
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   metaheuristic_designer.benchmarks.benchmark_funcs
+   metaheuristic_designer.benchmarks.classic_problems
+   metaheuristic_designer.benchmarks.img_funcs
+   metaheuristic_designer.benchmarks.ioh_wrapper
 
 Module contents
 ---------------

@@ -49,7 +49,7 @@ class SearchStrategy(ParametrizableMixin, ABC):
         Display name used in reports.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
@@ -216,7 +216,7 @@ class SearchStrategyFromLambda(SearchStrategy):
         Display name (default ``"Strategy from lambda"``).
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`SearchStrategy`.
     """
 

@@ -27,7 +27,7 @@ class Encoding(ParametrizableMixin, ABC):
         an iterable of arbitrary objects. Default ``False``.
     name : str, optional
         Display name for this encoding.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
@@ -115,7 +115,7 @@ class EncodingFromLambda(Encoding):
         ``(population_matrix) -> solutions``.
     decode_as_array : bool, optional
         See :class:`Encoding`.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Encoding`.
     """
 

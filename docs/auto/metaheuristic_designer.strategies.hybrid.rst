@@ -4,13 +4,10 @@ metaheuristic\_designer.strategies.hybrid package
 Submodules
 ----------
 
-metaheuristic\_designer.strategies.hybrid.memetic module
---------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: metaheuristic_designer.strategies.hybrid.memetic
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   metaheuristic_designer.strategies.hybrid.memetic
 
 Module contents
 ---------------

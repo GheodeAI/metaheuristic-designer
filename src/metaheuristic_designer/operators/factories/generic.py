@@ -54,7 +54,7 @@ def create_operator(
         Random number generator.
     name : str, optional
         Display name; defaults to *method*.
-    **kwargs
+    \\*\\*kwargs
         Parameters forwarded to the underlying operator function.
 
     Returns

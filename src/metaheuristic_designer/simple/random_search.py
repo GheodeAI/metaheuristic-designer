@@ -26,7 +26,7 @@ def random_search_binary(objfunc: ObjectiveFunc, encoding: Optional[Encoding] = 
         Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -48,7 +48,7 @@ def random_search_permutation(objfunc: ObjectiveFunc, encoding: Optional[Encodin
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -69,7 +69,7 @@ def random_search_discrete(objfunc: ObjectiveFunc, encoding: Optional[Encoding] 
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -92,7 +92,7 @@ def random_search_real(objfunc: ObjectiveFunc, encoding: Optional[Encoding] = No
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 

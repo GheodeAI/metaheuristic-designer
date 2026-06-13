@@ -21,7 +21,7 @@ class CompositeEncoding(ParameterExtendingEncoding):
     ----------
     encodings : iterable of Encoding
         The encodings to apply in sequence.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`ParameterExtendingEncoding`.
     """
 

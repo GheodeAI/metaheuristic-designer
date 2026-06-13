@@ -54,7 +54,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
     recalculate : bool, optional
         If ``True``, every individual is re-evaluated even if its
         fitness has already been computed.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
@@ -278,7 +278,7 @@ class NullObjectiveFunc(ObjectiveFunc):
 
     Parameters
     ----------
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`ObjectiveFunc`.
     """
 

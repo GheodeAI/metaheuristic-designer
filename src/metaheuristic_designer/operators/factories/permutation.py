@@ -65,7 +65,7 @@ def create_permutation_operator(method: str, encoding: Optional[Encoding] = None
         Encoding applied to the genotype.
     name : str, optional
         Display name; defaults to *method*.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to the operator function.
 
     Returns

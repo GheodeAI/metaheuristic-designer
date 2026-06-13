@@ -60,9 +60,6 @@ implementation‑independent measure.
 
 .. _structure:
 
-Structure
----------
-
 Conceptual overview
 ~~~~~~~~~~~~~~~~~~~
 
@@ -119,13 +116,13 @@ Indices and tables
    :caption: Contents:
 
     Quick Start <api_reference.quick_start>
-    Simple subpackage <api_reference.simple>
     API reference <api_reference>
+    Custom components <api_reference.custom_components>
+    Module Details <auto/metaheuristic_designer>
+    Simple subpackage <api_reference.simple>
     Algorithm Configuration <api_reference.algorithm_config>
     Operators and selection methods <api_reference.methods>
-    Custom components <api_reference.custom_components>
     Plotting Tutorial <api_reference.plotting>
-    Module Details <auto/metaheuristic_designer>
 
 .. _references:
 

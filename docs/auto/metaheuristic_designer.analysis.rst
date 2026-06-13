@@ -12,13 +12,10 @@ Subpackages
 Submodules
 ----------
 
-metaheuristic\_designer.analysis.experiment\_runner module
-----------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: metaheuristic_designer.analysis.experiment_runner
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   metaheuristic_designer.analysis.experiment_runner
 
 Module contents
 ---------------

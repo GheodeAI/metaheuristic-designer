@@ -46,9 +46,8 @@ class BernoulliPBIL(EDAStrategy):
         Learning rate for updating *p* (default 1e-3).
     noise : float, optional
         Standard deviation of Gaussian noise added to *p* (default 0).
-    **kwargs
-        Forwarded to :class:`EDAStrategy
-    `.
+    \\*\\*kwargs
+        Forwarded to :class:`EDAStrategy`.
     """
 
     def __init__(
@@ -123,9 +122,8 @@ class BinomialPBIL(EDAStrategy):
         Learning rate (default 1e-3).
     noise : float, optional
         Gaussian noise standard deviation (default 0).
-    **kwargs
-        Forwarded to :class:`EDAStrategy
-    `.
+    \\*\\*kwargs
+        Forwarded to :class:`EDAStrategy`.
     """
 
     def __init__(
@@ -211,9 +209,8 @@ class GaussianPBIL(EDAStrategy):
         Learning rate (default 1e-3).
     noise : float, optional
         Gaussian noise standard deviation added to *loc* (default 0).
-    **kwargs
-        Forwarded to :class:`EDAStrategy
-    `.
+    \\*\\*kwargs
+        Forwarded to :class:`EDAStrategy`.
     """
 
     def __init__(

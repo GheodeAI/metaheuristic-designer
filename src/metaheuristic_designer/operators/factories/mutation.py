@@ -141,7 +141,7 @@ def create_mutation_operator(method: str, encoding: Optional[Encoding] = None, n
         Encoding applied to the genotype after mutation.
     name : str, optional
         Display name; defaults to *method*.
-    **kwargs
+    \\*\\*kwargs
         Parameters forwarded to the mutation function (e.g.,
         ``N``, ``F``, ``distribution``).
 

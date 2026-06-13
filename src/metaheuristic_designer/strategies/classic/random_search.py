@@ -23,7 +23,7 @@ class RandomSearch(PopulationBasedStrategy):
         Population initializer.
     name : str, optional
         Display name (default ``"RandomSearch"``).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`HillClimb`.
     """
 

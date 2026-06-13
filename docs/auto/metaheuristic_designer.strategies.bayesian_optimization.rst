@@ -4,13 +4,10 @@ metaheuristic\_designer.strategies.bayesian\_optimization package
 Submodules
 ----------
 
-metaheuristic\_designer.strategies.bayesian\_optimization.bayesian\_optimization module
----------------------------------------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: metaheuristic_designer.strategies.bayesian_optimization.bayesian_optimization
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   metaheuristic_designer.strategies.bayesian_optimization.bayesian_optimization
 
 Module contents
 ---------------

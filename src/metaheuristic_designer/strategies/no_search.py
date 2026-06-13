@@ -23,7 +23,7 @@ class NoSearch(SearchStrategy):
         Population initializer.
     name : str, optional
         Display name (default ``"No search"``).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`SearchStrategy`.
     """
 

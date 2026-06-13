@@ -27,7 +27,7 @@ class ParametrizableMixin:
         ----------
         progress : float, optional
             Progress value forwarded to any callable parameters.
-        **kwargs
+        \\*\\*kwargs
             Parameter names and values (constants or callables).
         """
 
@@ -64,7 +64,7 @@ class ParametrizableMixin:
         ----------
         progress : float, optional
             Progress value forwarded to any callable parameters.
-        **kwargs
+        \\*\\*kwargs
             Parameter names and new values.
         """
 

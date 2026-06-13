@@ -50,7 +50,7 @@ class Distribution(ABC):
         data_matrix : np.ndarray
             2-D array of shape ``(N, M)`` containing the data used for
             estimation.
-        **kwargs
+        \\*\\*kwargs
             Additional keyword arguments that may influence the estimation.
 
         Returns
@@ -67,7 +67,7 @@ class ScipyUnivarDistribution(Distribution):
     ----------
     distribution_cls : type
         A SciPy distribution class (e.g., ``scipy.stats.norm``).
-    **kwargs
+    \\*\\*kwargs
         Parameters forwarded to the distribution constructor.
     """
 
@@ -100,7 +100,7 @@ class ScipyMultivarDistribution(Distribution):
     ----------
     distribution_cls : type
         A SciPy multivariate distribution class (e.g., ``scipy.stats.multivariate_normal``).
-    **kwargs
+    \\*\\*kwargs
         Parameters forwarded to the distribution constructor.
     """
 
@@ -190,7 +190,7 @@ def uniform_param_fix(min=None, max=None, **kwargs):
         Lower bound of the uniform interval.
     max : float or array-like, optional
         Upper bound of the uniform interval.
-    **kwargs : dict
+    \\*\\*kwargs : dict
         Remaining keyword arguments (e.g., ``loc``, ``scale``).
 
     Returns
@@ -225,7 +225,7 @@ def normal_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is replaced by the
         per-column standard deviation.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -263,7 +263,7 @@ def uniform_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Interval length. If ``"calculated"``, it is set to
         ``max - min`` per column.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -300,7 +300,7 @@ def cauchy_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is estimated as
         ``scipy.stats.iqr(data, axis=0) / 2``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -337,7 +337,7 @@ def laplace_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is estimated using
         ``scipy.stats.median_abs_deviation`` along axis 0.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -374,7 +374,7 @@ def gamma_heuristic(population_matrix, a=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is computed as
         ``var / mean``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -414,7 +414,7 @@ def expon_heuristic(population_matrix, scale=None, **kwargs):
         2-D array of shape ``(N, M)``.
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, ``scale = mean - loc``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged; expected
         to contain *loc* if a non-zero shift is used.
 
@@ -449,7 +449,7 @@ def levy_stable_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is estimated using
         ``scipy.stats.median_abs_deviation`` along axis 0.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -482,7 +482,7 @@ def poisson_heuristic(population_matrix, mu=None, **kwargs):
         2-D array of shape ``(N, M)``.
     mu : None, float, array-like, or ``"calculated"``
         Rate parameter. If ``"calculated"``, ``mu = mean - loc``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged; expected
         to contain *loc* if a non-zero shift is used.
 
@@ -512,7 +512,7 @@ def bernoulli_heuristic(population_matrix, p=None, **kwargs):
         2-D array of shape ``(N, M)``.
     p : None, float, array-like, or ``"calculated"``
         Success probability. If ``"calculated"``, ``p = mean - loc``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -541,7 +541,7 @@ def binomial_heuristic(population_matrix, p=None, **kwargs):
         2-D array of shape ``(N, M)``.
     p : None, float, array-like, or ``"calculated"``
         Success probability. If ``"calculated"``, ``p = (mean - loc) / n``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged; must
         contain the integer *n* (number of trials) and optionally *loc*.
 
@@ -577,7 +577,7 @@ def tikhinov_heuristic(population_matrix, loc=None, kappa=None, **kwargs):
     kappa : None, float, array-like, or ``"calculated"``
         Concentration parameter. If ``"calculated"``, it is approximated
         from the mean resultant length.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -621,7 +621,7 @@ def multivariate_normal_heuristic(population_matrix, mean=None, cov=None, **kwar
     cov : None, array-like, or ``"calculated"``
         Covariance matrix. If ``"calculated"``, an error is raised because
         automatic estimation is not implemented.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -660,7 +660,7 @@ def dirichlet_heuristic(population_matrix, alpha=None, **kwargs):
         2-D array of shape ``(N, M)``.
     alpha : None, array-like, or ``"calculated"``
         Concentration parameters. If ``"calculated"``, an error is raised.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -701,7 +701,7 @@ def tikhinov_fisher_heuristic(population_matrix, loc=None, kappa=None, **kwargs)
     kappa : None, float, or ``"calculated"``
         Concentration parameter. If ``"calculated"``, it is approximated
         from the mean resultant length.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns

@@ -4,53 +4,19 @@ metaheuristic\_designer.parameter\_schedules package
 Submodules
 ----------
 
-metaheuristic\_designer.parameter\_schedules.exponential\_decay\_schedule module
---------------------------------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: metaheuristic_designer.parameter_schedules.exponential_decay_schedule
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.parameter\_schedules.linear\_schedule module
---------------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.parameter_schedules.linear_schedule
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.parameter\_schedules.logistic\_schedule module
-----------------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.parameter_schedules.logistic_schedule
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.parameter\_schedules.random\_schedule module
---------------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.parameter_schedules.random_schedule
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.parameter\_schedules.step\_schedule module
-------------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.parameter_schedules.step_schedule
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.parameter\_schedules.threshold\_schedule module
------------------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.parameter_schedules.threshold_schedule
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   metaheuristic_designer.parameter_schedules.cosine_schedule
+   metaheuristic_designer.parameter_schedules.exponential_decay_schedule
+   metaheuristic_designer.parameter_schedules.linear_schedule
+   metaheuristic_designer.parameter_schedules.logistic_schedule
+   metaheuristic_designer.parameter_schedules.noisy_schedule
+   metaheuristic_designer.parameter_schedules.probability_annealing_schedule
+   metaheuristic_designer.parameter_schedules.random_schedule
+   metaheuristic_designer.parameter_schedules.step_schedule
+   metaheuristic_designer.parameter_schedules.strided_schedule
+   metaheuristic_designer.parameter_schedules.threshold_schedule
 
 Module contents
 ---------------

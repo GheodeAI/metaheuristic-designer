@@ -112,7 +112,7 @@ def create_crossover_operator(
         Random number generator.
     name : str, optional
         Display name; defaults to *method*.
-    **kwargs
+    \\*\\*kwargs
         Additional parameters forwarded to the operator function
         (e.g., ``k``, ``crossover_prob``, ``pairing_method``).
 

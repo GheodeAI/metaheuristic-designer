@@ -29,7 +29,7 @@ class SigmoidEncoding(Encoding):
     threshold : float, optional
         Threshold used when ``as_probability=False``.  Must be in
         (0, 1).  Default is 0.5.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Encoding`.
     """
 

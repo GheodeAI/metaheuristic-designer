@@ -76,7 +76,7 @@ class BOOperator(Operator):
         population exceeds this, a random subset is selected.
     rbf_scale : float, optional
         Multiplicative factor applied to the RBF kernel (default 1.0).
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable parameters.
     """
 

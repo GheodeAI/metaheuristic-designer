@@ -173,3 +173,4 @@ coverage*
 experiments/
 
 docs/design_philosophy.rstt
+docs/auto/generated

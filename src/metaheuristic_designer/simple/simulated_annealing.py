@@ -44,7 +44,7 @@ def simulated_annealing_binary(
         Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -84,7 +84,7 @@ def simulated_annealing_permutation(
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -123,7 +123,7 @@ def simulated_annealing_discrete(
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -167,7 +167,7 @@ def simulated_annealing_real(
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 

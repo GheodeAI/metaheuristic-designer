@@ -31,7 +31,7 @@ def hill_climb_binary(
         Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -58,7 +58,7 @@ def hill_climb_permutation(
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -84,7 +84,7 @@ def hill_climb_discrete(
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
@@ -119,7 +119,7 @@ def hill_climb_real(
         Encoding applied to the genotype.
     rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 

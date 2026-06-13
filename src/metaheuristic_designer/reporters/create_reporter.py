@@ -15,7 +15,7 @@ def create_reporter(reporter_name: str, **kwargs) -> Reporter:
     ----------
     reporter_name : str
         One of ``"silent"``, ``"tqdm"``, or ``"verbose"``.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to the reporter constructor.
 
     Returns

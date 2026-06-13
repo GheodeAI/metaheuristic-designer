@@ -32,7 +32,7 @@ class ParameterExtendingEncoding(Encoding, ABC):
     verify : bool, optional
         If ``True``, additional shape and key checks are performed
         in :meth:`encode_params`.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Encoding`.
     """
 

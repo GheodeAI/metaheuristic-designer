@@ -21,7 +21,7 @@ class ScipyWrapper:
         Seed for reproducibility.
     name : str
         Display name.
-    **opt_kwargs
+    \\*\\*opt_kwargs
         Extra keyword arguments forwarded to the SciPy routine.
     """
 

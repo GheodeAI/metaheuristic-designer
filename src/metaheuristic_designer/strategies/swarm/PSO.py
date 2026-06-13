@@ -55,7 +55,7 @@ class PSO(PopulationBasedStrategy):
         a :class:`PSOEncoding` is used.
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`StaticPopulationStrategy`.
     """
 

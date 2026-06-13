@@ -31,7 +31,7 @@ class ExtendedOperator(Operator):
         The encoding that defines the genotype layout.
     name : str, optional
         Display name; defaults to the base operator's name.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Operator`.
     """
 

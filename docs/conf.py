@@ -25,8 +25,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
-    # "sphinx.ext.napoleon",
-    # "sphinx.ext.autosectionlabel",
     "matplotlib.sphinxext.plot_directive",
     "numpydoc"
 
@@ -59,17 +57,6 @@ html_theme = "pydata_sphinx_theme"
 
 html_theme_options = {
     # "nav_title": "metaheuristic-designer docs",
-    # "color_primary": "teal",
-    # "color_accent": "green",
-    # "globaltoc_collapse": True,
-    "globaltoc_includehidden": False,
-    # "globaltoc_depth": 1,
-    # "nav_links": [
-    #     {"href": "quick_start", "title": "Quick Start", "internal": True},
-    #     {"href": "simple", "title": "Simple subpackage", "internal": True},
-    #     {"href": "api_reference", "title": "API Reference", "internal": True},
-    #     {"href": "auto/metaheuristic_designer", "title": "Module Docs", "internal": True},
-    # ],
     "navbar_align": "left"
 }
 

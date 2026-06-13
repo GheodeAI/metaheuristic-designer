@@ -32,7 +32,7 @@ class SingleSolutionStrategy(SearchStrategy):
         Display name (default ``"HillClimb"``).
     rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`SearchStrategy`.
     """
 

@@ -29,7 +29,7 @@ class PyGMOWrapper:
         Random seed passed to PyGMO.
     name : str
         Display name.
-    **algo_kwargs
+    \\*\\*algo_kwargs
         Extra arguments forwarded to the PyGMO algorithm constructor.
     """
 
