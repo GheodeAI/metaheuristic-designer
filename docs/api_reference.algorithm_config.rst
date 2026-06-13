@@ -28,7 +28,7 @@ Quick examples:
    algo = Algorithm(
        objfunc,
        strategy,
-       stop_cond="max_iterations or real_time_limit",
+       stop_condition_str="max_iterations or real_time_limit",
        max_iterations=500,
        real_time_limit=30.0,
        reporter="tqdm",
@@ -36,11 +36,11 @@ Quick examples:
    )
 
    # Object-based : explicit and reusable
-   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.stopping_condition import ParsedStoppingCondition
    from metaheuristic_designer.reporters.tqdm_reporter import TQDMReporter
-   from metaheuristic_designer.history_tracker import HistoryTracker
+   from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
 
-   stop = StoppingCondition(
+   stop = ParsedStoppingCondition(
        condition_str   = "max_iterations or real_time_limit",
        max_iterations = 500,
        real_time_limit = 30.0,
@@ -50,7 +50,7 @@ Quick examples:
        strategy,
        stopping_condition = stop,
        reporter           = TQDMReporter(),
-       history_tracker    = HistoryTracker(track_median=True),
+       history_tracker    = ConfigurableHistoryTracker(track_median=True),
    )
 
 Except for ``objfunc`` and ``strategy``, every other component is optional; if omitted the ``Algorithm`` creates sensible defaults.
@@ -113,13 +113,13 @@ Boolean algebra), so ``"a and b or c"`` is equivalent to ``"(a and b) or c"``.
 ``ObjectiveFunc`` returns.  No internal conversion is applied.  Supply the target in
 the same units and sign as your problem’s objective.
 
-Create a ``StoppingCondition`` object:
+Create a ``ParsedStoppingCondition`` object:
 
 .. code-block:: python
 
-   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.stopping_condition import ParsedStoppingCondition
 
-   stop = StoppingCondition(
+   stop = ParsedStoppingCondition(
        condition_str       = "max_iterations or real_time_limit",
        progress_metric_str = None,               # defaults to condition_str
        max_iterations      = 500,
@@ -134,7 +134,7 @@ When using ``convergence``, provide ``max_patience``:
 
 .. code-block:: python
 
-   stop = StoppingCondition(
+   stop = ParsedStoppingCondition(
        condition_str    = "max_iterations and convergence",
        max_iterations   = 200,
        max_patience     = 50,
@@ -145,7 +145,7 @@ Or a target-driven stop:
 
 .. code-block:: python
 
-   stop = StoppingCondition(
+   stop = ParsedStoppingCondition(
        condition_str    = "objective_target",
        objective_target = 1e-10,
        optimization_mode= objfunc.mode,
@@ -179,7 +179,7 @@ You can decouple the two expressions:
 
 .. code-block:: python
 
-   stop = StoppingCondition(
+   stop = ParsedStoppingCondition(
        condition_str       = "objective_target",
        progress_metric_str = "real_time_limit",
        objective_target    = 1e-5,
@@ -217,9 +217,9 @@ except ``track_best``, which is always active.
 
 .. code-block:: python
 
-   from metaheuristic_designer.history_tracker import HistoryTracker
+   from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
 
-   history = HistoryTracker(
+   history = ConfigurableHistoryTracker(
        track_best            = True,    # always recorded
        track_median          = False,
        track_worst           = False,
@@ -257,16 +257,16 @@ When ``track_full_objective`` is enabled, you can retrieve the data as a DataFra
 Checkpointer
 ------------
 
-If you provide a :class:`~metaheuristic_designer.checkpointer.Checkpointer`, the
-algorithm will periodically dump its entire state to disk.  This makes it possible to
+If you provide a :class:`~metaheuristic_designer.checkpointer.PickleCheckpointer`, the
+algorithm will periodically dump its entire state to disk in pickle format. This makes it possible to
 resume interrupted runs.  The checkpointer also saves on ``SIGINT`` (Ctrl+C), so you
 can manually stop a run and later reload it.
 
 .. code-block:: python
 
-   from metaheuristic_designer.checkpointer import Checkpointer
+   from metaheuristic_designer.checkpointer import PickleCheckpointer
 
-   check = Checkpointer(
+   check = PickleCheckpointer(
        checkpoint_file         = "my_run.pkl",
        iteration_frequency     = 10,        # save every 10 iterations
        time_frequency          = 300.0,     # save every 5 minutes
@@ -281,7 +281,7 @@ To load a previous checkpoint and continue **you must call** :meth:`resume` **in
 
    algo = check.load(
        file_name       = "my_run.pkl",
-       history_tracker = HistoryTracker(),   # reuse or fresh
+       history_tracker = ConfigurableHistoryTracker(),   # reuse or fresh
        reporter        = TQDMReporter(),     # re-attach a reporter
    )
 
@@ -330,7 +330,7 @@ can call them directly on the algorithm instance.
    genotype, fitness   = population.best_individual()
 
 When you provide a stopping target, use ``objective_target`` with
-:class:`~metaheuristic_designer.stopping_condition.StoppingCondition`.  The comparison is direct: for minimisation the algorithm
+:class:`~metaheuristic_designer.stopping_condition.ParsedStoppingCondition`.  The comparison is direct: for minimisation the algorithm
 stops when ``best_objective <= objective_target``; for maximisation when
 ``best_objective >= objective_target``.  You do not need to think in fitness units
 at all.
@@ -351,10 +351,10 @@ using object-based configuration.
    from metaheuristic_designer.operators import create_operator
    from metaheuristic_designer.parent_selection import create_parent_selection
    from metaheuristic_designer.survivor_selection import create_survivor_selection
-   from metaheuristic_designer.stopping_condition import StoppingCondition
-   from metaheuristic_designer.history_tracker import HistoryTracker
+   from metaheuristic_designer.stopping_condition import ParsedStoppingCondition
+   from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
    from metaheuristic_designer.reporters.tqdm_reporter import TQDMReporter
-   from metaheuristic_designer.checkpointer import Checkpointer
+   from metaheuristic_designer.checkpointer import PickleCheckpointer
 
    rng = check_rng(42)
    objfunc = Sphere(5, mode="min")
@@ -372,7 +372,7 @@ using object-based configuration.
    )
 
    # Configure runtime objects
-   stopping = StoppingCondition(
+   stopping = ParsedStoppingCondition(
        condition_str    = "max_iterations or objective_target",
        max_iterations  = 100,
        objective_target = 1e-5,
@@ -381,9 +381,9 @@ using object-based configuration.
 
    reporter = TQDMReporter()
 
-   history = HistoryTracker(track_median=True, track_parameters=True)
+   history = ConfigurableHistoryTracker(track_median=True, track_parameters=True)
 
-   checkpointer = Checkpointer("ga_sphere.pkl", iteration_frequency=20)
+   checkpointer = PickleCheckpointer("ga_sphere.pkl", iteration_frequency=20)
 
    # Create and run
    algo = Algorithm(

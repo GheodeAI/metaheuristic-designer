@@ -1,4 +1,4 @@
-metaheuristic\_designer.operators.operator\_functions.mutation
+﻿metaheuristic\_designer.operators.operator\_functions.mutation
 ==============================================================
 
 .. automodule:: metaheuristic_designer.operators.operator_functions.mutation
@@ -12,6 +12,7 @@ metaheuristic\_designer.operators.operator\_functions.mutation
       mutate_n_sigmas
       mutate_noise
       mutate_sample
+      polynomial_mutation
       rand_noise
       rand_sample
       sample_1_sigma

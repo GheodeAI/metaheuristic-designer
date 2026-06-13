@@ -76,7 +76,7 @@ and implementing the ``evaluate`` method, which gets a progress value between 0 
 
     from metaheuristic_designer import SchedulableParameter
 
-    class ProgressProportional(SchedulableParameter):
+    class ProgressProportionalSchedule(SchedulableParameter):
         def __init__(self, value):
             super().__init__()
             self.value = value
@@ -96,15 +96,30 @@ initialized to a progress value of 0.
 
     class CustomClass(ParametrizableMixin):
         def __init__(self, a, b):
-            super().__init__(a=a, b=b)
+            super().__init__()
+            self.store_kwargs(a=a, b=b)
     
-    b_sched = ProgressProportional(10) 
+    b_sched = ProgressProportionalSchedule(value=10) 
     c = CustomClass(a = 1, b = b_sched)
 
     print(c.params.a, c.params.b) # Prints: 1, 0
-    c.update(0.5)
+    c.update(progress=0.5)
     print(c.params.a, c.params.b) # Prints: 1, 5
 
+In every class that already implements this mixin, the ``store_kwargs`` call is done with the remaining kwargs not used by the class.
+The parameters can be also manually reset in runtime with the ``update_kwargs`` method.
+
+.. code-block:: python
+
+    c = CustomClass(a = 1, b = 4)
+    print(c.params.a, c.params.b) # Prints: 1, 4
+
+    c.update_kwargs(a = 2, b = ProgressProportionalSchedule(value=6))
+    c.update(progress=1)
+    print(c.params.a, c.params.b) # Prints: 2, 6
+
+There are also some available schedules that take other schedules as input and modify them in different ways, they are listed in
+the :doc:`api_reference <api_reference>` page.
 
 Objective Function
 ------------------
@@ -227,6 +242,9 @@ return a vector containing the penalty value for each of the solutions.
             
             return penalties
 
+You are allowed to chain repairing methods or add the penalty values by using the
+:py:class:`~metaheuristic_designer.constraint_handlers.CompositeConstraint` class.
+
 Encoding
 --------
 
@@ -263,18 +281,22 @@ will very rarely be used in the actual optimization procedure.
                 solutions.append(sol)
             return solutions
 
-    enc = MultiCategoricalEncoding(
+    enc = MulticategoricalEncoding(
         [('red', 'blue', 'green'), ('small', 'large'), ('A', 'B')]
     )
 
     solutions = [('red', 'small', 'B'), ('green', 'large', 'A')]
 
     population_matrix = enc.encode(solutions)
-    print(encoded)   # [[0 0 1]
-                     #  [2 1 0]]
+    print(population_matrix)   # [[0 0 1]
+                               #  [2 1 0]]
 
     decoded = enc.decode(population_matrix)
-    print(decoded)   # [('red', 'small', 'A'), ('blue', 'large', 'B')]
+    print(decoded)   # [('red', 'small', 'B'), ('green', 'large', 'A')]
+
+You are allowed to chain encodings with the :py:class:`~metaheuristic_designer.encodings.CompositeEncoding`
+class. It is important to note that the decoding will be done in the same order as the provided list of encodings,
+and the encoding will be done in reverse order.
 
 Initializer
 -----------
@@ -299,6 +321,13 @@ with the correct encoding.
         
         def generate_random(self):
             return self.rng.choice(self.values, self.dimension)
+    
+    initializer = CategoricalInitializer(dimension=5, values=(0, 4, 10), population_size=3)
+    new_population = initializer.generate_population()
+    print(new_population)
+
+    new_population = initializer.generate_population(10)
+    print(new_population)
 
 
 If we are intending to make a deterministic initializer, it is recommended to use a fallback uniform
@@ -308,6 +337,7 @@ initializer, and implement the actual logic in the ``generate_individual`` metho
 
     import numpy as np
     from metaheuristic_designer import Initializer, Encoding
+    from metaheuristic_designer.initializers import UniformInitializer
 
     class ConstantInitializer(Initializer):
         def __init__(self, dimension: int, value: float, population_size: int, fallback: Initializer, encoding: Encoding = None, rng = None):
@@ -321,6 +351,14 @@ initializer, and implement the actual logic in the ``generate_individual`` metho
         
         def generate_individual(self):
             return np.full(self.dimension, self.value)
+
+    fallback_init = UniformInitializer(dimension=5, lower_bound=0, upper_bound=10, dtype=int)
+    initializer = ConstantInitializer(dimension=5, value=4, population_size=3, fallback=fallback_init)
+    print(initializer.generate_random())
+
+    new_population = initializer.generate_population()
+    print(new_population)
+
 
 Sometimes, an initializer will need to generate the entire population in one go. For this purpose, we will
 override the ``generate_population`` method, which will be given a number of individuals to generate 
@@ -343,36 +381,242 @@ override the ``generate_population`` method, which will be given a number of ind
             if n_individuals is None:
                 n_individuals = self.population_size
             
-            assert n_individuals <= self.dimension, f"Can only generate up to {self.dimension} individuals"
+            assert n_individuals < self.dimension, f"Can only generate up to {self.dimension} individuals"
             
             id_matrix = np.eye(self.dimension)[:n_individuals]
             return Population(id_matrix, encoding=self.encoding)
 
+    fallback_init = UniformInitializer(dimension=5, lower_bound=0, upper_bound=10, dtype=int)
+    initializer = IdentityMatrixInitializer(dimension=5, fallback=fallback_init)
+
+    new_population = initializer.generate_population()
+    print(new_population)
+
+You are allowed to combine initializers with the :py:class:`~metaheuristic_designer.initializers.CompositeInitializer`
+class, so that individuals will be generated at random with any of the specified initializers. Alternatively, there also is a
+:py:class:`~metaheuristic_designer.initializers.FixedCompositeInitializer` that chooses individuals in a deterministic manner.
+
+
 Operators
 ---------
+If we want to create a custom operator, we can subclass the :py:class:`~metaheuristic_designer.operator.Operator`, implementing
+the ``evolve`` method, which gets a :py:class:`~metaheuristic_designer.population.Population` instance, and returns a new Population
+with the new solutions.
+
+.. code-block:: python
+
+    from metaheuristic_designer import Operator, Population
+
+    class ModularAdditionMutation(Operator):
+        def __init__(self, value: int, mod: int):
+            super().__init__(name="Modular addition", preserves_order=True, value=value):
+            self.mod = mod
+        
+        def evolve(population: Population):
+            new_matrix = (population.genotype_matrix + self.params.value) % self.mod
+            new_population = population.update_genotype(new_matrix)
+            return new_population
+    
+    op = ModularAdditionMutation(value = 1, mod = 7)
+    population = Population(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]))
+
+    new_population = op.evolve(population)
+    print(new_population.genotype_matrix)
+
+There are a number of different ways to combine operators, we recommend checking out the :doc:`methods <api_reference.methods>` page
+to see all the available composition strategies.
 
 
 Parent Selection
 ----------------
+For creating custom Parent Selection strategies, we can subclass :py:class:`~metaheuristic_designer.parent_selection_base.ParentSelection`
+and implement the ``select`` method, which takes as input a :py:class:`~metaheuristic_designer.population.Population` and returns a new 
+population of selected individuals. It is highly recommended to set the ``last_selection_idx`` attribute while performing the selection,
+as it can be of use for other methods, it should be a vector contain only indices of the selected individuals.
+
+.. code-block:: python
+
+    from metaheuristic_designer import ParentSelection, Population
+
+    class TruncateSelection(ParentSelection):
+        def __init__(self, amount: int):
+            super().__init__(amount=amount):
+        
+        def select(population: Population, amount: int = None):
+            if amount is None:
+                amount = self.params.amount
+
+            n_individuals = parents.population_size
+
+            self.last_selection_idx = np.arange(n_individuals)[:amount]
+            return population.take_selection(self.last_selection_idx)
+    
+    parent_sel = TruncateSelection(amount=2)
+    population = Population(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]))
+
+    new_population = parent_sel.select(population)
+    print(new_population.genotype_matrix)
+
 
 
 Survivor Selection
 ------------------
+For creating custom Survivor Selection strategies, we can subclass :py:class:`~metaheuristic_designer.survivor_selection_base.SurvivorSelection`
+and implement the ``select`` method, which takes as input two :py:class:`~metaheuristic_designer.population.Population` instances and
+returns a new population of selected individuals. It is highly recommended to set the ``last_selection_idx`` attribute while performing
+the selection as with parent selection methods, as it can be of use for other methods, it should be a vector contain only indices of the
+selected individuals. If the first population has size N and the second has size M, the valid indices are those between 0 and N+M-1, 
+where the first N indices indicate individuals from the first population and indices between N and N+M-1 indicate individuals from the
+second.
+
+.. code-block:: python
+
+    from metaheuristic_designer import SurvivorSelection, Population
+
+    class FullConcatenationSelection(SurvivorSelection):
+        def __init__(self, amount: int):
+            super().__init__():
+        
+        def select(parents: Population, offspring: population):
+            n_parents = parents.population_size
+            n_offspring = offspring.population_size
+
+            self.last_selection_idx = np.arange(n_parents+n_offspring)
+            return Population.join_populations(population, offspring)
+    
+    parent_sel = FullConcatenationSelection()
+    parents = Population(np.array([[1, 2, 3]]))
+    offspring = Population(np.array([[4, 5, 6]]))
+
+    new_population = parent_sel.select(parents, offspring)
+    print(new_population.genotype_matrix)
 
 
 Search strategy
 ---------------
 
+If we want to design a new Search strategy, the recommended approach is to implement the necessary components
+and pass them to an already existing search strategy blueprint. In the vast majority of cases, it is enough to 
+create a :py:class:`~metaheuristic_designer.strategies.population_based_strategy.PopulationBasedStrategy` or
+a :py:class:`~metaheuristic_designer.strategies.single_solution_strategy.SingleSolutionStrategy` if we work with a single
+solution. Here we show an example.
+
+.. code-block:: python
+
+    from metaheuristic_designer.benchmarks import Sphere
+    from metaheuristic_designer.initializers import UniformInitializer
+    from metaheuristic_designer.parent_selection import create_parent_selection
+    from metaheuristic_designer.operators import create_operator
+    from metaheuristic_designer.survivor_selection import create_survivor_selection
+    from metaheuristic_designer.strategies import PopulationBasedStrategy
+
+    DIM = 5
+
+    objfunc = Sphere(DIM)
+    init = UniformInitializer(DIM, -10, 10, population_size=100, rng=42)
+    parent_sel = create_parent_selection("elitist", amount=50, rng=42)
+    operator = create_operator("mutation.gaussian_mutation", rng=42)
+    survivor_sel = create_survivor_selection("keep_best", rng=42)
+
+    search_strategy = PopulationBasedStrategy(
+        initializer=init,
+        parent_sel=parent_sel,
+        operator=operator,
+        survivor_sel=survivor_sel,
+        rng=42
+    )
+
+If the options given are not enough, you can still subclass the :py:class:`~metaheuristic_designer.search_strategy.SearchStrategy`
+class and implement the ``step`` function that takes a :py:class:`~metaheuristic_designer.population.Population` and an
+:py:class:`~metaheuristic_designer.objective_function.ObjectiveFunc` instance, and returns a new population. You should be very
+careful to add as little logic as possible into Search strategies since they are meant to only be an orchestrator class that passes
+the population object between components. The reason behind this is to encourage the use of smaller components that can be fit into
+different algorithms, which would not be possible if the logic was hard-coded into a Search Strategy class. 
+
+Instead of creating a new search strategy, since we highly discourage creating new strategies, we show the exact implementation of the
+:py:class:`~metaheuristic_designer.strategies.population_based_strategy.PopulationBasedStrategy` class so the structure is clear
+in case it's needed.
+
+.. code-block:: python
+
+    from copy import copy
+
+    from metaheuristic_designer.population import Population
+    from metaheuristic_designer.objective_function import ObjectiveFunc
+    from metaheuristic_designer.initializer import Initializer
+    from metaheuristic_designer.parent_selection_base import ParentSelection
+    from metaheuristic_designer.survivor_selection_base import SurvivorSelection
+    from metaheuristic_designer.search_strategy import SearchStrategy
+    from metaheuristic_designer.operator import Operator
+
+    class PopulationBasedStrategy(SearchStrategy):
+        def __init__(
+            self,
+            initializer: Initializer,
+            operator: Operator = None,
+            parent_sel: ParentSelection = None,
+            survivor_sel: SurvivorSelection = None,
+            name: str = "Static Population Evolution",
+            rng = None,
+            **kwargs,
+        ):
+            super().__init__(
+                initializer=initializer,
+                operator=operator,
+                parent_sel=parent_sel,
+                survivor_sel=survivor_sel,
+                name=name,
+                rng=rng,
+                **kwargs
+            )
+
+        def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
+            population = self.parent_sel.select(prev_population)
+            population = self.operator.evolve(population)
+            population = objfunc.repair_population(population)
+            population = objfunc.calculate_fitness(population)
+            population = self.survivor_sel.select(population=prev_population, offspring=population)
+            return population
 
 Reporter
 --------
 
-History tracker
----------------
+To implement a custom :py:class:`~metaheuristic_designer.reporter.Reporter` class, we will subclassing and
+implementing the three methods ``log_init`` that will display information at the start of the algorithm, 
+``log_step`` that displays information each iteration of the algorithm and ``log_end`` that is called
+at the end of the optimization. Every method gets an :py:class:`~metaheuristic_designer.algorithm.Algorithm`
+instance and has no return value. 
 
-Stopping condition
-------------------
+.. code-block:: python
 
-Checkpointer
-------------
+    from metaheuristic_designer.benchmarks import Sphere
+    from metaheuristic_designer.simple import evolution_strategy_real
+    from metaheuristic_designer import Reporter
 
+    class SimpleReporter(Reporter):
+        def __init__(self):
+            self.iterations = 0
+
+        def log_init(self, alg):
+            print("Starting algorithm")
+        
+        def log_step(self, alg):
+            self.iterations += 1
+            print(f"Iteration {self.iterations}.")
+        
+        def log_end(self, alg):
+            print(f"Ran for {self.iterations} iterations")
+
+    objfunc = Sphere(5)
+    reporter = SimpleReporter()
+    alg = evolution_strategy_real(
+        objfunc,
+        max_iterations=100,
+        stop_condition_str="max_iterations",
+        reporter=reporter
+    )
+    alg.optimize() # Shows the reporting prints
+    
+An interesting detail is that reporters are not forced to only write on the command line and, theoretically,
+it is possible to let reporters output in any format you can think of, including live-updating
+plots or writing to files.
