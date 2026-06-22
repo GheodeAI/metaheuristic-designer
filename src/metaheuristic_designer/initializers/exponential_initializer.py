@@ -27,8 +27,8 @@ class ExponentialInitializer(Initializer):
         Random number generator.
     """
 
-    def __init__(self, dimension, beta, pop_size=1, encoding=None, dtype=float, rng=None):
-        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, rng=rng)
+    def __init__(self, dimension, beta, population_size=1, encoding=None, dtype=float, rng=None):
+        super().__init__(dimension=dimension, population_size=population_size, encoding=encoding, rng=rng)
 
         self.dimension = dimension
         self.beta = beta

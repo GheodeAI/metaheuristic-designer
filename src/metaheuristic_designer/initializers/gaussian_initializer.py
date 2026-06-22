@@ -31,8 +31,8 @@ class GaussianInitializer(Initializer):
         Random number generator.
     """
 
-    def __init__(self, dimension, g_mean, g_std, pop_size=1, encoding=None, dtype=float, rng=None):
-        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, rng=rng)
+    def __init__(self, dimension, g_mean, g_std, population_size=1, encoding=None, dtype=float, rng=None):
+        super().__init__(dimension=dimension, population_size=population_size, encoding=encoding, rng=rng)
 
         if type(g_mean) in [list, tuple, np.ndarray]:
             if len(g_mean) != dimension:

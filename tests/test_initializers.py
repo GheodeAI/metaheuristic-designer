@@ -47,7 +47,7 @@ from metaheuristic_designer.population import Population
     ],
 )
 def test_exponential_generate_random_shape_and_type(genotype_size, beta, dtype, pop_size, rng):
-    init = ExponentialInitializer(genotype_size, beta, pop_size=pop_size, dtype=dtype, rng=rng)
+    init = ExponentialInitializer(genotype_size, beta, population_size=pop_size, dtype=dtype, rng=rng)
     vec = init.generate_random()
     assert vec.shape == (genotype_size,)
     assert vec.dtype == np.dtype(dtype)
@@ -55,7 +55,7 @@ def test_exponential_generate_random_shape_and_type(genotype_size, beta, dtype, 
 
 
 def test_exponential_generate_population(rng, simple_encoding):
-    init = ExponentialInitializer(2, 1.0, pop_size=4, encoding=simple_encoding, rng=rng)
+    init = ExponentialInitializer(2, 1.0, population_size=4, encoding=simple_encoding, rng=rng)
     pop = init.generate_population()
     assert len(pop) == 4
     assert pop.genotype_matrix.shape == (4, 2)
@@ -63,8 +63,8 @@ def test_exponential_generate_population(rng, simple_encoding):
 
 
 def test_exponential_reproducible_random():
-    init1 = ExponentialInitializer(2, 1.0, pop_size=4, rng=42)
-    init2 = ExponentialInitializer(2, 1.0, pop_size=4, rng=42)
+    init1 = ExponentialInitializer(2, 1.0, population_size=4, rng=42)
+    init2 = ExponentialInitializer(2, 1.0, population_size=4, rng=42)
     for _ in range(5):
         v1 = init1.generate_random()
         v2 = init2.generate_random()
@@ -72,8 +72,8 @@ def test_exponential_reproducible_random():
 
 
 def test_exponential_reproducible_population():
-    init1 = ExponentialInitializer(2, 1.0, pop_size=4, rng=42)
-    init2 = ExponentialInitializer(2, 1.0, pop_size=4, rng=42)
+    init1 = ExponentialInitializer(2, 1.0, population_size=4, rng=42)
+    init2 = ExponentialInitializer(2, 1.0, population_size=4, rng=42)
     for _ in range(5):
         v1 = init1.generate_population()
         v2 = init2.generate_population()
@@ -93,7 +93,7 @@ def test_exponential_reproducible_population():
     ],
 )
 def test_gaussian_generate_random_shape_and_type(genotype_size, g_mean, g_std, dtype, pop_size, rng):
-    init = GaussianInitializer(genotype_size, g_mean, g_std, pop_size=pop_size, dtype=dtype, rng=rng)
+    init = GaussianInitializer(genotype_size, g_mean, g_std, population_size=pop_size, dtype=dtype, rng=rng)
     vec = init.generate_random()
     assert vec.shape == (genotype_size,)
     assert vec.dtype == np.dtype(dtype)
@@ -108,15 +108,15 @@ def test_gaussian_sequence_parameters(rng):
 
 
 def test_gaussian_generate_population(rng):
-    init = GaussianInitializer(2, 1.0, 0.2, pop_size=5, rng=rng)
+    init = GaussianInitializer(2, 1.0, 0.2, population_size=5, rng=rng)
     pop = init.generate_population()
     assert len(pop) == 5
     assert pop.genotype_matrix.shape == (5, 2)
 
 
 def test_gaussian_reproducible_random():
-    init1 = GaussianInitializer(2, 1.0, 0.2, pop_size=5, rng=42)
-    init2 = GaussianInitializer(2, 1.0, 0.2, pop_size=5, rng=42)
+    init1 = GaussianInitializer(2, 1.0, 0.2, population_size=5, rng=42)
+    init2 = GaussianInitializer(2, 1.0, 0.2, population_size=5, rng=42)
     for _ in range(5):
         v1 = init1.generate_random()
         v2 = init2.generate_random()
@@ -124,8 +124,8 @@ def test_gaussian_reproducible_random():
 
 
 def test_gaussian_reproducible_population():
-    init1 = GaussianInitializer(2, 1.0, 0.2, pop_size=5, rng=42)
-    init2 = GaussianInitializer(2, 1.0, 0.2, pop_size=5, rng=42)
+    init1 = GaussianInitializer(2, 1.0, 0.2, population_size=5, rng=42)
+    init2 = GaussianInitializer(2, 1.0, 0.2, population_size=5, rng=42)
     for _ in range(5):
         v1 = init1.generate_population()
         v2 = init2.generate_population()
