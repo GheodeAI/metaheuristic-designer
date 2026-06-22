@@ -132,7 +132,7 @@ strategy = GA(
 # 6. Run the algorithm for 200 generations
 alg = Algorithm(
     objfunc, strategy,
-    stop_cond="max_iterations",
+    stop_condition_str="max_iterations",
     max_iterations=200,
     reporter="tqdm",
 )
