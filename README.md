@@ -175,9 +175,6 @@ An `Algorithm` runs the optimisation loop — initialisation, stopping condition
 progress tracking, and logging.  It can be configured with object‑oriented
 components or with simple keyword arguments.
 
-The `MemeticAlgorithm` subclass adds a local search step, implementing both
-Baldwinian and Lamarckian memetic algorithms.
-
 ### Search Strategy (Single iteration)
 A `SearchStrategy` defines how the population evolves each generation.
 It holds an initializer, an operator, and optionally parent/survivor selection.
@@ -188,6 +185,9 @@ Pre‑built strategies include:
 - `CrossEntropyMethod`, `GaussianUMDA`, `GaussianPBIL`, `BernoulliUMDA`, `BernoulliPBIL`, `CMA‑ES`
 - `RandomSearch`
 - `TabuSearch`, `IteratedLocalSearch` (coming in v1.2)
+
+And hybrid strategies:
+- `MemeticStrategy`, (more coming in v1.2)
 
 Custom strategies can be assembled directly with `SearchStrategy` or defined
 from scratch.
@@ -256,8 +256,8 @@ Built‑in encodings:
 
 ### Initializers
 Initializers generate the starting population: `UniformInitializer`,
-`GaussianInitializer`, `PermInitializer`, `SeedDetermInitializer`,
-`SeedProbInitializer`, `DirectInitializer`, and `ExtendedInitializer`
+`GaussianInitializer`, `PermInitializer`, `SeededInitializer`,
+`DirectInitializer`, and `ExtendedInitializer`
 (for parameter‑extending encodings).
 
 ### Constraint Handling
@@ -267,7 +267,7 @@ Constraint handlers implement repair or penalty strategies:
 
 ### Parameter Scheduling
 Any numeric parameter can be a **schedulable** value (e.g., a decay schedule).
-The library provides `LinearSchedule`, `LogisticSchedule`, `StepSchedule`,
+The library provides `LinearSchedule`, `LogisticSchedule`, `StepSchedule`, `CosineSchedule`,
 `RandomSchedule`, and `ThresholdSchedule`.  Callable values are evaluated
 each generation; you can also access current values via `.get_params()` or
 the `.params` attribute.
@@ -280,7 +280,7 @@ Each will correspond to a different class that is passed to the `Algorithm` clas
 
 ### Stopping condition
 
-Stopping conditions are indicated with the `StoppingCondition` class, which decides when to stop the execution of the algorithm. 
+Stopping conditions are indicated with the `ParsedStoppingCondition` class, which decides when to stop the execution of the algorithm. 
 
 It also has a progress value that is used by some algorithms internally to modify the internal parameters. 
 
@@ -288,7 +288,7 @@ Stopping conditions can be indicated as logical expressions, such as `max_iterat
 
 ### History tracker
 
-History trackers (`HistoryTracker`) store informtion about each iteration for plots and post-execution analysis. 
+History trackers (`ConfigurableHistoryTracker`) store informtion about each iteration for plots and post-execution analysis. 
 
 It can store the best/median/worst solutions and their objective values, diversity metrics and even a historic of the full population and their objective.
 
@@ -304,7 +304,7 @@ You can also create your own reporter by subclassing `Reporter` and
 implementing `log_init`, `log_step`, and `log_end`.
 
 ### Checkpointer
-Long‑running experiments can be protected with the built‑in `Checkpointer`:
+Long‑running experiments can be protected with the built‑in `PickleCheckpointer`:
 - **Periodic saving** – The full algorithm state is automatically saved
   every *N* iterations or after a configurable time interval.
 - **OS‑signal safety** – If the process receives a `SIGINT` (Ctrl+C) or
@@ -324,6 +324,8 @@ A collection of test problems is included:
 
 - Continuous — `Sphere`, `Rastrigin`, `Rosenbrock`, `Ackley`, `Griewank`,
   `Weierstrass`, etc.
+- BBOB benchmarks — `BBOBObjective` 
+- IOH wrapper — `IOHObjective`
 - Binary — `MaxOnes`, `BinKnapsack`, `ThreeSAT`
 - Permutation — `MaxClique`, `TSP`
 - Image approximation — `ImgApprox`, `ImgEntropy`, `ImgStd`
@@ -341,7 +343,7 @@ A collection of test problems is included:
   optimisation run, including the initial population, mutation steps, and
   selection events, is bit‑for‑bit identical.
 
-- **Tracking for analysis** – The `HistoryTracker` records per‑generation
+- **Tracking for analysis** – The `ConfigurableHistoryTracker` records per‑generation
   statistics (best, median, worst, diversity, scheduled parameters, full
   fitness vector) into a pandas‑compatible DataFrame.  This lets you produce
   publication‑quality convergence plots, statistical comparisons, and
@@ -362,7 +364,7 @@ A collection of test problems is included:
 All components inherit from abstract bases, making custom additions
 straightforward:
 
-- **Custom Operator** — use `OperatorVectorDef` (matrix‑level) or
+- **Custom Operator** — use `OperatorFnDef` (matrix‑level) or
   `OperatorFromLambda` (population‑level), then register with
   `add_operator_entry`.
 - **Custom Selection** — subclass `ParentSelection` or `SurvivorSelection`,
