@@ -26,7 +26,7 @@ from metaheuristic_designer.strategies import (
     RandomSearch,
     PSO,
     NoSearch,
-    MemeticStrategy
+    MemeticStrategy,
 )
 from metaheuristic_designer.benchmarks import ImgApprox, ImgEntropy, ImgStd
 from metaheuristic_designer.utils import check_rng
@@ -46,14 +46,13 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         "progress_metric_str": "max_evaluations",
         "max_evaluations": evaluations,
         "max_patience": 100000,
-        "reporter": reporter
+        "reporter": reporter,
     }
 
     if mode == "max" and objfunc_name in ("MSE", "MAE"):
         print(f"Maximizing {objfunc_name} might not yield meaningful results.")
     elif mode == "min" and objfunc_name in ("NMI", "SSIM"):
         print(f"Minimizing {objfunc_name} might not yield meaningful results.")
-
 
     if objfunc_name in ("MSE", "MAE", "SSIM", "NMI"):
         reference_img = Image.open(img_file_name)
@@ -122,7 +121,9 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
             Cr=0.8,
         ),
         "cmaes": CMA_ES(
-            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng),
+            initializer=UniformInitializer(
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng
+            ),
             rng=rng,
         ),
         "gaussianumda": GaussianUMDA(
@@ -153,14 +154,10 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
             rng=rng,
         ),
         "randomsearch": RandomSearch(
-            UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng
-            )
+            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng)
         ),
         "nosearch": NoSearch(
-            UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng
-            )
+            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng)
         ),
     }
 

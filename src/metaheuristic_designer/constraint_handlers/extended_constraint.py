@@ -25,7 +25,6 @@ class ExtendedConstraintHandler(ConstraintHandler):
             param_matrix = params[param_name]
             param_fixed[param_name] = self.param_handler_dict[param_name].repair_solutions(param_matrix)
 
-        # In repair_solution, before the encode call
         return self.encoding.encode(solution_matrix_repaired, param_fixed)
 
     def penalty(self, genotype_matrix: MatrixLike) -> ScalarLike:

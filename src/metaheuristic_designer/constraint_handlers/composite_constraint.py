@@ -8,7 +8,7 @@ from ..utils import MatrixLike, ScalarLike
 
 class CompositeConstraint(ConstraintHandler):
     """
-    applies every constraint handler in succession.
+    Applies every constraint handler in succession.
 
     Parameters
     ----------
@@ -27,7 +27,7 @@ class CompositeConstraint(ConstraintHandler):
 
         return all_params
 
-    def repair_solutions(self, population: Population) -> Population:
+    def repair_population(self, population: Population) -> Population:
         repaired_population = copy(population)
         for c in self.constraints:
             repaired_population = c.repair_population(repaired_population)

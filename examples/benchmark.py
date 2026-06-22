@@ -37,7 +37,7 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
         "stop_condition_str": "convergence or max_evaluations",
         "progress_metric_str": "max_evaluations",
         "max_evaluations": evaluations,
-        "max_patience": 500000000000000,
+        "max_patience": 500,
     }
 
     objfunc = BBOBObjective(fid=fid, dimension=dim, instance=instance, compact_name=False)
@@ -63,9 +63,7 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
             rng=rng,
         ),
         "es": ES(
-            initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
-            ),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng),
             mutation_op=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, rng=rng),
             crossover_op=create_operator("crossover.uniform", rng=rng),
             survivor_sel=create_survivor_selection("(m+n)", rng=rng),
@@ -73,9 +71,7 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
             rng=rng,
         ),
         "ga": GA(
-            initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
-            ),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng),
             mutation_op=create_operator("mutation.gaussian_mutation", F=1e-3, N=1, rng=rng),
             crossover_op=create_operator("crossover.uniform", rng=rng),
             parent_sel=create_parent_selection("Best", amount=50, rng=rng),
@@ -85,34 +81,26 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
             rng=rng,
         ),
         "de": DE(
-            initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
-            ),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng),
             de_operator_name="DE/best/1",
             F=0.8,
             Cr=0.8,
             rng=rng,
         ),
         "pso": PSO(
-            initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
-            ),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng),
             w=0.7,
             c1=1.5,
             c2=1.5,
             rng=rng,
         ),
         "cmaes": CMA_ES(
-            initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
-            ),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng),
             offspring_size=200,
             rng=rng,
         ),
         "gaussianumda": GaussianUMDA(
-            initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, rng=rng
-            ),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, rng=rng),
             parent_sel=create_parent_selection("Best", amount=20, rng=rng),
             survivor_sel=create_survivor_selection("(m+n)", rng=rng),
             scale=0.1,
@@ -120,9 +108,7 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
             rng=rng,
         ),
         "gaussianpbil": GaussianPBIL(
-            initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, rng=rng
-            ),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, rng=rng),
             parent_sel=create_parent_selection("Best", amount=20, rng=rng),
             survivor_sel=create_survivor_selection("(m+n)", rng=rng),
             scale=0.1,
@@ -131,15 +117,11 @@ def run_algorithm(alg_name, memetic, save_state, fid, instance, dim, evaluations
             rng=rng,
         ),
         "crossentropy": CrossEntropyMethod(
-            initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, rng=rng
-            ),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, rng=rng),
             rng=rng,
         ),
         "bo": BayesianOptimization(
-            initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng
-            ),
+            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, rng=rng),
             objfunc=objfunc,
             batch_size=50,
             max_samples=100,

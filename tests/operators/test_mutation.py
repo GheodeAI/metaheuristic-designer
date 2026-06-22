@@ -57,6 +57,7 @@ def test_xor_operator_on_zeros_population(rng, simple_encoding):
     assert result is pop
     assert np.any(pop.genotype_matrix != 0)
 
+
 def test_polynomial_mutation(rng, simple_encoding):
     pop = Population(np.ones((3, 2)))
 
@@ -65,6 +66,7 @@ def test_polynomial_mutation(rng, simple_encoding):
 
     assert result is pop
     assert np.any(pop.genotype_matrix != 0)
+
 
 def test_polynomial_mutation_reproducible(rng, simple_encoding):
     pop1 = Population(np.array([[1.0, 2.0], [3.0, 4.0]]))
@@ -82,6 +84,7 @@ def test_polynomial_mutation_reproducible(rng, simple_encoding):
     op2(pop2)
 
     assert_array_equal(pop1.genotype_matrix, pop2.genotype_matrix)
+
 
 def test_mutation_operator_reproducible(rng, simple_encoding):
     pop1 = Population(np.array([[1.0, 2.0], [3.0, 4.0]]))

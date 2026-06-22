@@ -26,11 +26,10 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
     "matplotlib.sphinxext.plot_directive",
-    "numpydoc"
-
+    "numpydoc",
 ]
 
-autodoc_typehints = "description" 
+autodoc_typehints = "description"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -46,9 +45,7 @@ autosummary_generate = True
 
 autodoc_member_order = "bysource"
 
-autodoc_default_options = {
-    'exclude-members': 'a_long_list, of, fields, to, exclude'
-}
+autodoc_default_options = {"exclude-members": "a_long_list, of, fields, to, exclude"}
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -61,7 +58,7 @@ html_theme_options = {
 }
 
 html_sidebars = {
-    "api_reference*": [], 
+    "api_reference*": [],
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -79,19 +76,22 @@ nitpicky = False
 #     "api_reference.plotting.rst"
 # ]
 
+
 def skip_properties(app, what, name, obj, skip, options):
     if isinstance(obj, property):
         return True
     return None
 
+
 def skip_dataclass_fields(app, what, name, obj, skip, options):
     """Skip documenting fields of dataclasses."""
     if is_dataclass(obj):
         # If the class is a dataclass, check if the member is a field
-        if hasattr(obj, '__dataclass_fields__') and name in obj.__dataclass_fields__:
+        if hasattr(obj, "__dataclass_fields__") and name in obj.__dataclass_fields__:
             return True
     return None
 
+
 def setup(app):
-    app.connect('autodoc-skip-member', skip_properties)
-    app.connect('autodoc-skip-member', skip_dataclass_fields)
+    app.connect("autodoc-skip-member", skip_properties)
+    app.connect("autodoc-skip-member", skip_dataclass_fields)
