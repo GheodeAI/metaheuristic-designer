@@ -187,7 +187,7 @@ Pre‑built strategies include:
 - `GA`, `ES`, `DE`, `PSO`
 - `CrossEntropyMethod`, `GaussianUMDA`, `GaussianPBIL`, `BernoulliUMDA`, `BernoulliPBIL`, `CMA‑ES`
 - `RandomSearch`
-- `TabuSearch`, `IteratedLocalSearch` (coming in v1.1)
+- `TabuSearch`, `IteratedLocalSearch` (coming in v1.2)
 
 Custom strategies can be assembled directly with `SearchStrategy` or defined
 from scratch.
