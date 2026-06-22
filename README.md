@@ -3,7 +3,7 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/metaheuristic-designer)](https://pypi.org/project/metaheuristic-designer/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/metaheuristic-designer)](https://pypi.org/project/metaheuristic-designer/)
 [![PyPI - Status](https://img.shields.io/pypi/status/metaheuristic-designer)](https://pypi.org/project/metaheuristic-designer/)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/GheodeAI/metaheuristic-designer/python-package.yml)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/GheodeAI/metaheuristic-designer/python-package.yml)](https://github.com/GheodeAI/metaheuristic-designer)
 [![Documentation Status](https://readthedocs.org/projects/metaheuristic-designer/badge/?version=latest)](https://metaheuristic-designer.readthedocs.io/en/latest/?badge=latest)
 
 **A modular, object‑oriented framework for building, testing, and analysing
