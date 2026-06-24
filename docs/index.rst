@@ -33,9 +33,9 @@ The documentation is organised by topics, pick the entry point that
 matches what you want to do right now:
 
 * **Quick start** – Run a ready‑to‑use algorithm in under a minute on the
-  :doc:`Quick Start <quick_start>` page.
-* **Simple subpackage** – Browse the full catalogue of :doc:`pre‑packaged algorithms
-  <simple>` and see which encodings each supports.
+  :doc:`Quick Start <api_reference.quick_start>` page.
+* **Simple subpackage** – Browse the full catalogue of :doc:`pre‑packaged algorithms <api_reference.simple>`
+  and see which encodings each supports.
 * **Algorithm configuration** – Learn how to set stopping conditions, reporters,
   history trackers, and checkpointers in the
   :doc:`Algorithm Configuration <api_reference.algorithm_config>` guide.
@@ -46,9 +46,6 @@ matches what you want to do right now:
   :doc:`Extending the Framework <api_reference.custom_components>` guide.
 * **Plot results** – Turn recorded history into convergence, diversity, and
   parameter evolution plots with the :doc:`Plotting Tutorial <api_reference.plotting>`.
-
-.. * **Design philosophy** – Read about the architectural vision behind the
-  library in the :doc:`Design philosophy <design_philosophy>` page.
 
 .. _description:
 
@@ -62,9 +59,6 @@ evaluations** rather than wall‑clock time to obtain a fair,
 implementation‑independent measure.
 
 .. _structure:
-
-Structure
----------
 
 Conceptual overview
 ~~~~~~~~~~~~~~~~~~~
@@ -121,14 +115,14 @@ Indices and tables
    :maxdepth: 1
    :caption: Contents:
 
-    Quick Start <quick_start>
-    Simple subpackage <simple>
+    Quick Start <api_reference.quick_start>
     API reference <api_reference>
+    Custom components <api_reference.custom_components>
+    Module Details <auto/metaheuristic_designer>
+    Simple subpackage <api_reference.simple>
     Algorithm Configuration <api_reference.algorithm_config>
     Operators and selection methods <api_reference.methods>
-    Custom components <api_reference.custom_components>
     Plotting Tutorial <api_reference.plotting>
-    Module Details <auto/modules>
 
 .. _references:
 

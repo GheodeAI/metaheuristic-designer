@@ -16,6 +16,7 @@ from ..operator_functions.mutation import (
     mutate_1_sigma,
     mutate_n_sigmas,
     sample_1_sigma,
+    polynomial_mutation,
 )
 from ...operator import OperatorFromLambda
 
@@ -44,8 +45,8 @@ mutation_ops_map = {
     "gauss_mut":            OperatorFnDef(mutate_noise, forced_params={"distribution": "normal"}),    
 
     # Uniform distribution
-    "uniform_noise":        OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}),
-    "uniform":              OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}),
+    "uniform_noise":        OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}, params={"F": 1}),
+    "uniform":              OperatorFnDef(rand_noise, forced_params={"distribution": "uniform"}, params={"F": 1}),
 
     "uniform_mutation":     OperatorFnDef(mutate_noise, forced_params={"distribution": "uniform"}),
     "uniform_mut":          OperatorFnDef(mutate_noise, forced_params={"distribution": "uniform"}),
@@ -117,16 +118,18 @@ mutation_ops_map = {
 
     "sample1sigma":         OperatorFnDef(sample_1_sigma),
     "sample_1_sigma":       OperatorFnDef(sample_1_sigma),
+
+    # Polynomial mutation
+    "polynomial_mutation":  OperatorFnDef(polynomial_mutation),
+    "polynomial":           OperatorFnDef(polynomial_mutation),
+    "poly":                 OperatorFnDef(polynomial_mutation),
+    "poly_mut":             OperatorFnDef(polynomial_mutation),
+    "pm":                   OperatorFnDef(polynomial_mutation),
 }
 # fmt: on
 
 
-def create_mutation_operator(
-    method: str,
-    encoding: Optional[Encoding] = None,
-    name: Optional[str] = None,
-    **kwargs
-) -> OperatorFromLambda:
+def create_mutation_operator(method: str, encoding: Optional[Encoding] = None, name: Optional[str] = None, **kwargs) -> OperatorFromLambda:
     """
     Create a mutation operator by name.
 
@@ -138,7 +141,7 @@ def create_mutation_operator(
         Encoding applied to the genotype after mutation.
     name : str, optional
         Display name; defaults to *method*.
-    **kwargs
+    \\*\\*kwargs
         Parameters forwarded to the mutation function (e.g.,
         ``N``, ``F``, ``distribution``).
 

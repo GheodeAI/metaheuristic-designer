@@ -1,5 +1,9 @@
 # Metaheuristic‑designer
 
+[![PyPI - Version](https://img.shields.io/pypi/v/metaheuristic-designer)](https://pypi.org/project/metaheuristic-designer/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/metaheuristic-designer)](https://pypi.org/project/metaheuristic-designer/)
+[![PyPI - Status](https://img.shields.io/pypi/status/metaheuristic-designer)](https://pypi.org/project/metaheuristic-designer/)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/GheodeAI/metaheuristic-designer/python-package.yml)](https://github.com/GheodeAI/metaheuristic-designer)
 [![Documentation Status](https://readthedocs.org/projects/metaheuristic-designer/badge/?version=latest)](https://metaheuristic-designer.readthedocs.io/en/latest/?badge=latest)
 
 **A modular, object‑oriented framework for building, testing, and analysing
@@ -32,7 +36,7 @@ pip install metaheuristic-designer[examples]
 
 ## Why metaheuristic‑designer?
 
-- **Reproducibility by default** – Every component accepts a `random_state`
+- **Reproducibility by default** – Every component accepts a `rng`
   (a NumPy Generator or a seed).  Passing the same seed guarantees
   identical runs, making your experiments truly reproducible.
 - **Truly composable** – Algorithms are built by plugging together
@@ -101,21 +105,21 @@ from metaheuristic_designer.parent_selection import create_parent_selection
 from metaheuristic_designer.survivor_selection import create_survivor_selection
 from metaheuristic_designer.algorithms import Algorithm
 
-# 1. Define the problem (5‑dimensional, minimisation)
+# 1. Define the problem (5‑dimensional, minimization)
 objfunc = Sphere(dimension=5, mode="min")
 
 # 2. Create an initializer – random vectors between -10 and 10
-rng = mhd.check_random_state(42)   # fix the random seed for reproducibility
+rng = mhd.check_rng(42)   # fix the random seed for reproducibility
 init = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
-                          pop_size=100, random_state=rng)
+                          population_size=100, rng=rng)
 
 # 3. Build the operators (Gaussian mutation + uniform crossover)
-mutation = create_operator("mutation.gaussian_mutation", F=0.1, N=1, random_state=rng)
-crossover = create_operator("crossover.uniform", random_state=rng)
+mutation = create_operator("mutation.gaussian_mutation", F=0.1, N=1, rng=rng)
+crossover = create_operator("crossover.uniform", rng=rng)
 
 # 4. Selection methods
-parent_sel = create_parent_selection("tournament", amount=50, tournament_size=3, random_state=rng)
-survivor_sel = create_survivor_selection("elitism", amount=25, random_state=rng)
+parent_sel = create_parent_selection("tournament", amount=50, tournament_size=3, rng=rng)
+survivor_sel = create_survivor_selection("elitism", amount=25, rng=rng)
 
 # 5. Assemble the search strategy (Genetic Algorithm)
 strategy = GA(
@@ -126,13 +130,14 @@ strategy = GA(
     survivor_sel=survivor_sel,
     mutation_prob=0.3,
     crossover_prob=0.9,
-    random_state=rng,
+    rng=rng,
 )
 
 # 6. Run the algorithm for 200 generations
 alg = Algorithm(
     objfunc, strategy,
-    stop_cond="max_iterations",
+    stop_condition_str="max_iterations",
+    stop_condition_str="max_iterations",
     max_iterations=200,
     reporter="tqdm",
 )
@@ -175,9 +180,6 @@ An `Algorithm` runs the optimisation loop — initialisation, stopping condition
 progress tracking, and logging.  It can be configured with object‑oriented
 components or with simple keyword arguments.
 
-The `MemeticAlgorithm` subclass adds a local search step, implementing both
-Baldwinian and Lamarckian memetic algorithms.
-
 ### Search Strategy (Single iteration)
 A `SearchStrategy` defines how the population evolves each generation.
 It holds an initializer, an operator, and optionally parent/survivor selection.
@@ -187,7 +189,10 @@ Pre‑built strategies include:
 - `GA`, `ES`, `DE`, `PSO`
 - `CrossEntropyMethod`, `GaussianUMDA`, `GaussianPBIL`, `BernoulliUMDA`, `BernoulliPBIL`, `CMA‑ES`
 - `RandomSearch`
-- `TabuSearch`, `IteratedLocalSearch` (coming in v1.1)
+- `TabuSearch`, `IteratedLocalSearch` (coming in v1.2)
+
+And hybrid strategies:
+- `MemeticStrategy`, (more coming in v1.2)
 
 Custom strategies can be assembled directly with `SearchStrategy` or defined
 from scratch.
@@ -201,8 +206,8 @@ They are created through a
 **factory** that accepts a string key and optional parameters:
 
 ```python
-create_operator("mutation.gaussian_mutation", F=0.2, N=3, random_state=42)
-create_operator("crossover.one_point_crossover", random_state=42)
+create_operator("mutation.gaussian_mutation", F=0.2, N=3, rng=42)
+create_operator("crossover.one_point_crossover", rng=42)
 create_operator("DE/best/1", F=0.8, Cr=0.9)
 create_operator("permutation.swap", N=2)
 ```
@@ -243,7 +248,7 @@ obtain the decoded best solution and its raw objective, and
 An `Encoding` translates between the internal genotype and the phenotype
 evaluated by the objective function. 
 
-It effectively mantains a different representation for the solution (the final result of the optimization) and the internal representation during the search.
+It effectively maintains a different representation for the solution (the final result of the optimization) and the internal representation during the search.
 
 Built‑in encodings:
 
@@ -256,8 +261,8 @@ Built‑in encodings:
 
 ### Initializers
 Initializers generate the starting population: `UniformInitializer`,
-`GaussianInitializer`, `PermInitializer`, `SeedDetermInitializer`,
-`SeedProbInitializer`, `DirectInitializer`, and `ExtendedInitializer`
+`GaussianInitializer`, `PermInitializer`, `SeededInitializer`,
+`DirectInitializer`, and `ExtendedInitializer`
 (for parameter‑extending encodings).
 
 ### Constraint Handling
@@ -267,7 +272,7 @@ Constraint handlers implement repair or penalty strategies:
 
 ### Parameter Scheduling
 Any numeric parameter can be a **schedulable** value (e.g., a decay schedule).
-The library provides `LinearSchedule`, `LogisticSchedule`, `StepSchedule`,
+The library provides `LinearSchedule`, `LogisticSchedule`, `StepSchedule`, `CosineSchedule`,
 `RandomSchedule`, and `ThresholdSchedule`.  Callable values are evaluated
 each generation; you can also access current values via `.get_params()` or
 the `.params` attribute.
@@ -280,15 +285,15 @@ Each will correspond to a different class that is passed to the `Algorithm` clas
 
 ### Stopping condition
 
-Stopping conditions are indicated with the `StoppingCondition` class, which decides when to stop the execution of the algorithm. 
+Stopping conditions are indicated with the `ParsedStoppingCondition` class, which decides when to stop the execution of the algorithm. 
 
 It also has a progress value that is used by some algorithms internally to modify the internal parameters. 
 
-Stopping conditions can be indicated as logical expressions, such as `max_iterations or real_time_limit` (stop when **EITHER** the maximum number of iteratios have passed or a time limit is reached) or `convergence and real_time_limit` (stop when **BOTH** a number of iterations without improvement and a certain time has passed).
+Stopping conditions can be indicated as logical expressions, such as `max_iterations or real_time_limit` (stop when **EITHER** the maximum number of iterations have passed or a time limit is reached) or `convergence and real_time_limit` (stop when **BOTH** a number of iterations without improvement and a certain time has passed).
 
 ### History tracker
 
-History trackers (`HistoryTracker`) store informtion about each iteration for plots and post-execution analysis. 
+History trackers (`ConfigurableHistoryTracker`) store informtion about each iteration for plots and post-execution analysis. 
 
 It can store the best/median/worst solutions and their objective values, diversity metrics and even a historic of the full population and their objective.
 
@@ -304,7 +309,7 @@ You can also create your own reporter by subclassing `Reporter` and
 implementing `log_init`, `log_step`, and `log_end`.
 
 ### Checkpointer
-Long‑running experiments can be protected with the built‑in `Checkpointer`:
+Long‑running experiments can be protected with the built‑in `PickleCheckpointer`:
 - **Periodic saving** – The full algorithm state is automatically saved
   every *N* iterations or after a configurable time interval.
 - **OS‑signal safety** – If the process receives a `SIGINT` (Ctrl+C) or
@@ -324,6 +329,8 @@ A collection of test problems is included:
 
 - Continuous — `Sphere`, `Rastrigin`, `Rosenbrock`, `Ackley`, `Griewank`,
   `Weierstrass`, etc.
+- BBOB benchmarks — `BBOBObjective` 
+- IOH wrapper — `IOHObjective`
 - Binary — `MaxOnes`, `BinKnapsack`, `ThreeSAT`
 - Permutation — `MaxClique`, `TSP`
 - Image approximation — `ImgApprox`, `ImgEntropy`, `ImgStd`
@@ -334,14 +341,14 @@ A collection of test problems is included:
 
 - **Seeded randomness everywhere** – Every random component (initializers,
   operators, selection, even parameter schedules with randomness) is
-  driven by a `random_state` that you can fix.  Use
-  `mhd.check_random_state(42)` to get a managed `numpy.random.Generator`.
+  driven by a `rng` that you can fix.  Use
+  `mhd.check_rng(42)` to get a managed `numpy.random.Generator`.
 
 - **Deterministic experiments** – When you pass the same seed, the entire
   optimisation run, including the initial population, mutation steps, and
   selection events, is bit‑for‑bit identical.
 
-- **Tracking for analysis** – The `HistoryTracker` records per‑generation
+- **Tracking for analysis** – The `ConfigurableHistoryTracker` records per‑generation
   statistics (best, median, worst, diversity, scheduled parameters, full
   fitness vector) into a pandas‑compatible DataFrame.  This lets you produce
   publication‑quality convergence plots, statistical comparisons, and
@@ -362,7 +369,7 @@ A collection of test problems is included:
 All components inherit from abstract bases, making custom additions
 straightforward:
 
-- **Custom Operator** — use `OperatorVectorDef` (matrix‑level) or
+- **Custom Operator** — use `OperatorFnDef` (matrix‑level) or
   `OperatorFromLambda` (population‑level), then register with
   `add_operator_entry`.
 - **Custom Selection** — subclass `ParentSelection` or `SurvivorSelection`,

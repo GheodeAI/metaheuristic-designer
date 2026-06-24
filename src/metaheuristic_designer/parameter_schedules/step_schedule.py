@@ -23,7 +23,7 @@ class StepSchedule(SchedulableParameter):
     """
 
     def __init__(self, steps: dict[float, Any]):
-        super().__init__(random_state=None)
+        super().__init__(rng=None)
         self.steps = steps
 
         self._cut_points = np.asarray(sorted(steps.keys()))

@@ -10,13 +10,13 @@ from metaheuristic_designer.operator import OperatorFromLambda
 
 @pytest.mark.parametrize("method", ["de/rand/1", "de/best/1", "de/rand/2", "de/best/2", "de/current-to-best/1", "de/current-to-rand/1"])
 def test_create_de_operator_returns_operator(method, rng, simple_encoding):
-    op = create_differential_evolution_operator(method, encoding=simple_encoding, random_state=rng)
+    op = create_differential_evolution_operator(method, encoding=simple_encoding, rng=rng)
     assert isinstance(op, OperatorFromLambda)
     assert op.name == method
 
 
 def test_create_de_operator_default_encoding(rng):
-    op = create_differential_evolution_operator("de/rand/1", random_state=rng)
+    op = create_differential_evolution_operator("de/rand/1", rng=rng)
     assert op.encoding is not None
 
 
@@ -25,11 +25,11 @@ def test_create_de_operator_invalid_method():
         create_differential_evolution_operator("invalid/de")
 
 
-def test_de_rand1_modifies_population(rng, dummy_objfunc, simple_encoding):
-    pop = make_pop([0.0, 0.0, 0.0, 0.0], dummy_objfunc)
+def test_de_rand1_modifies_population(rng, simple_encoding):
+    pop = make_pop([0.0, 0.0, 0.0, 0.0])
     original = pop.genotype_matrix.copy()
 
-    op = create_differential_evolution_operator("de/rand/1", encoding=simple_encoding, random_state=rng)
+    op = create_differential_evolution_operator("de/rand/1", encoding=simple_encoding, rng=rng)
     result = op(pop)
 
     assert result is pop

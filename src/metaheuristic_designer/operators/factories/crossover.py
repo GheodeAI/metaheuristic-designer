@@ -96,11 +96,7 @@ crossover_ops_map = {
 
 
 def create_crossover_operator(
-    method: str,
-    encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
-    name: Optional[str] = None,
-    **kwargs
+    method: str, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None, name: Optional[str] = None, **kwargs
 ) -> OperatorFromLambda:
     """
     Create a crossover operator by name.
@@ -112,11 +108,11 @@ def create_crossover_operator(
         ``"uniform"``).
     encoding : Encoding, optional
         Encoding applied to the genotype after crossover.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     name : str, optional
         Display name; defaults to *method*.
-    **kwargs
+    \\*\\*kwargs
         Additional parameters forwarded to the operator function
         (e.g., ``k``, ``crossover_prob``, ``pairing_method``).
 
@@ -129,6 +125,4 @@ def create_crossover_operator(
     if name is None:
         name = method
 
-    return OperatorFromLambda(
-        operator_fn=crossover_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=False, random_state=random_state, **kwargs
-    )
+    return OperatorFromLambda(operator_fn=crossover_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=False, rng=rng, **kwargs)

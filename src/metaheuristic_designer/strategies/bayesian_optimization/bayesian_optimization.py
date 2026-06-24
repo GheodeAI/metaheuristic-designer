@@ -3,13 +3,18 @@ Bayesian Optimization strategy.
 """
 
 from __future__ import annotations
-from ...search_strategy import SearchStrategy
+from typing import Optional
+
+
 from ...initializer import Initializer
+from ...objective_function import ObjectiveFunc
 from ...parent_selection_base import ParentSelection
 from ...operators.BO_operator import BOOperator
+from ..population_based_strategy import PopulationBasedStrategy
+from ...utils import RNGLike
 
 
-class BayesianOptimization(SearchStrategy):
+class BayesianOptimization(PopulationBasedStrategy):
     """
     Bayesian Optimization using a Gaussian Process surrogate.
 
@@ -26,10 +31,25 @@ class BayesianOptimization(SearchStrategy):
         Parent selection method (default: identity).
     name : str, optional
         Display name (default ``"Bayesian Optimization"``).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`BOOperator` (e.g., ``batch_size``,
         ``max_samples``, ``kernel``).
     """
 
-    def __init__(self, initializer: Initializer, parent_sel: ParentSelection = None, name: str = "Bayesian Optimization", **kwargs):
-        super().__init__(initializer, operator=BOOperator(**kwargs), parent_sel=parent_sel, name=name, **kwargs)
+    def __init__(
+        self,
+        initializer: Initializer,
+        objfunc: ObjectiveFunc,
+        parent_sel: ParentSelection = None,
+        name: str = "Bayesian Optimization",
+        rng: Optional[RNGLike] = None,
+        **kwargs,
+    ):
+        super().__init__(
+            initializer,
+            operator=BOOperator(objfunc=objfunc, initializer=initializer, rng=rng, **kwargs),
+            parent_sel=parent_sel,
+            name=name,
+            rng=rng,
+            **kwargs,
+        )

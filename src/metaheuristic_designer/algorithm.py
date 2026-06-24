@@ -10,30 +10,22 @@ from typing import Tuple, Any, Optional
 import json
 import signal
 
-from .history_tracker import HistoryTracker
-from .reporters import create_reporter
-from .reporter import Reporter
-from .reporters import VerboseReporter
+from .history_tracker import ConfigurableHistoryTracker, HistoryTracker
+from .reporters import create_reporter, Reporter, VerboseReporter
 from .objective_function import ObjectiveFunc
 from .search_strategy import SearchStrategy
 from .population import Population
-from .stopping_condition import StoppingCondition
+from .stopping_condition import StoppingCondition, ParsedStoppingCondition
 from .initializer import Initializer
-from .checkpointer import Checkpointer
-from .utils import NumpyEncoder, VectorLike
+from .checkpointer import Checkpointer, PickleCheckpointer
+from .utils import NumpyEncoder, VectorLike, TerminationException
 
 logger = logging.getLogger(__name__)
 
 
-class TerminationException(Exception):
-    """
-    Custom exception to handle SIGTERM
-    """
-
-
 class Algorithm:
     """
-    Orchestrates a complete optimisation run.
+    Orchestrates a complete optimization run.
 
     An :class:`Algorithm` combines a :class:`ObjectiveFunc` with a
     :class:`SearchStrategy` and manages the iteration loop, stopping
@@ -45,55 +37,48 @@ class Algorithm:
     keyword-argument style is convenient for quick experiments; the
     object-based style gives finer control and reusability.
 
+    .. note::
+        The constructor accepts **either** an explicit object (e.g., ``stopping_condition``)
+        **or** the individual keyword arguments that would build that object.
+        If both are provided, the explicit object takes precedence and the keyword-only
+        arguments are silently ignored.
+
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     search_strategy : SearchStrategy
         Strategy that defines one iteration of the algorithm.
     name : str, optional
         Display name for the algorithm (defaults to the strategy's name).
-    stop_cond : str, optional
-        Expression that defines the stopping condition (see
-        :class:`StoppingCondition`). Default ``"real_time_limit"``.
-    progress_metric : str, optional
-        Token used to compute the 0-1 progress value for parameter
-        schedules. Defaults to the same tokens as *stop_cond*.
-    max_iterations : int, optional
-        Maximum number of iterations (default 1000).
-    max_evaluations : int, optional
-        Maximum number of objective evaluations (default 1e5).
-    real_time_limit : float, optional
-        Wall-clock time limit in seconds (default 60).
-    cpu_time_limit : float, optional
-        CPU time limit in seconds (default 60).
-    objective_target : float, optional
-        Target value for the raw objective (default 1e-10).
-    max_patience : int, optional
-        Iterations without improvement before ``convergence`` stops
-        (default 100).
-    verbose_timer : float, optional
-        Interval in seconds between prints when using the default
-        :class:`VerboseReporter` (default 0.5).
-    track_median / track_worst / track_full_objective / track_full_population / track_diversity : bool, optional
-        Flags forwarded to the :class:`HistoryTracker` when one is not
-        supplied explicitly.
-    checkpoint_file / checkpoint_time_frequency / checkpoint_iteration_frequency : optional
-        Arguments used to construct a :class:`Checkpointer` when
-        *checkpointer* is not given.
     stopping_condition : StoppingCondition, optional
-        Explicit stopping condition object.
+        Stopping condition object.
     reporter : str or Reporter, optional
         Reporter instance or name (``"tqdm"``, ``"silent"``, ``"verbose"``).
     history_tracker : HistoryTracker, optional
-        Explicit history tracker.
+        History tracker object.
     checkpointer : Checkpointer, optional
-        Explicit checkpointer.
-    parallel : bool, optional
-        Whether to evaluate the population in parallel (currently
-        reserved for future use).
-    threads : int, optional
-        Number of threads for parallel evaluation (reserved).
+        Checkpointer object.
+    stop_condition_str / progress_metric / max_iterations / max_evaluations / real_time_limit / cpu_time_limit / objective_target / max_patience: optional
+        Flags forwarded to the :class:`ParsedStoppingCondition` when one is not
+        supplied explicitly.
+
+        **Keyword-only, ignored if** ``stopping_condition`` **is given.**
+    verbose_timer : float, optional
+        Interval in seconds between prints when using the default
+        :class:`VerboseReporter` (default 0.5).
+
+        **Keyword-only, ignored if** ``reporter`` **is given.**
+    track_median / track_worst / track_full_objective / track_full_population / track_diversity : bool, optional
+        Flags forwarded to the :class:`HistoryTracker` when one is not
+        supplied explicitly.
+
+        **Keyword-only, ignored if** ``history_tracker`` **is given.**
+    checkpoint_file / checkpoint_time_frequency / checkpoint_iteration_frequency : optional
+        Arguments used to construct a :class:`Checkpointer` when
+        *checkpointer* is not given.
+
+        **Keyword-only, ignored if** ``checkpointer`` **is given.**
     """
 
     def __init__(
@@ -101,29 +86,32 @@ class Algorithm:
         objfunc: ObjectiveFunc,
         search_strategy: SearchStrategy,
         name: Optional[str] = None,
-        stop_cond: str = "real_time_limit",
-        progress_metric: Optional[str] = None,
-        max_iterations: int = 1000,
-        max_evaluations: int = 1e5,
-        real_time_limit: float = 60.0,
-        cpu_time_limit: float = 60.0,
-        objective_target: float = 1e-10,
-        max_patience: int = 100,
+        stopping_condition: Optional[StoppingCondition] = None,
+        history_tracker: Optional[HistoryTracker] = None,
+        reporter: Optional[str | Reporter] = None,
+        checkpointer: Optional[Checkpointer] = None,
+        *,
+        # Stopping condition
+        stop_condition_str: str = "real_time_limit",
+        progress_metric_str: Optional[str] = None,
+        max_iterations: Optional[int] = None,
+        max_evaluations: Optional[int] = None,
+        real_time_limit: Optional[float] = None,
+        cpu_time_limit: Optional[float] = None,
+        objective_target: Optional[float] = None,
+        max_patience: Optional[int] = None,
+        # Reporter
         verbose_timer: float = 0.5,
+        # History tracker
         track_median: bool = False,
         track_worst: bool = False,
         track_full_objective: bool = False,
         track_full_population: bool = False,
         track_diversity: bool = False,
+        # Checkpointer
         checkpoint_file: Optional[str] = None,
         checkpoint_time_frequency: Optional[float] = None,
         checkpoint_iteration_frequency: Optional[float] = None,
-        stopping_condition: Optional[StoppingCondition] = None,
-        reporter: Optional[str | Reporter] = None,
-        history_tracker: Optional[HistoryTracker] = None,
-        checkpointer: Optional[Checkpointer] = None,
-        parallel: bool = False,
-        threads: int = 8,
     ):
         super().__init__()
 
@@ -133,15 +121,11 @@ class Algorithm:
             name = self.search_strategy.name
         self.name = name
 
-        # Parallel parameters
-        self.parallel = parallel
-        self.threads = threads
-
         # Stopping conditions
         if stopping_condition is None:
-            stopping_condition = StoppingCondition(
-                condition_str=stop_cond,
-                progress_metric_str=progress_metric,
+            stopping_condition = ParsedStoppingCondition(
+                condition_str=stop_condition_str,
+                progress_metric_str=progress_metric_str,
                 real_time_limit=real_time_limit,
                 cpu_time_limit=cpu_time_limit,
                 objective_target=objective_target,
@@ -161,7 +145,7 @@ class Algorithm:
 
         # History Tracker
         if history_tracker is None:
-            history_tracker = HistoryTracker(
+            history_tracker = ConfigurableHistoryTracker(
                 track_best=True,
                 track_median=track_median,
                 track_worst=track_worst,
@@ -174,7 +158,7 @@ class Algorithm:
         # Checkpointer
         if checkpointer is not None or checkpoint_file is not None:
             if checkpointer is None:
-                checkpointer = Checkpointer(
+                checkpointer = PickleCheckpointer(
                     checkpoint_file=checkpoint_file,
                     iteration_frequency=checkpoint_iteration_frequency,
                     time_frequency=checkpoint_time_frequency,
@@ -185,6 +169,7 @@ class Algorithm:
             self.checkpointer = None
 
         self._stop_requested = False
+        self.population = None
         signal.signal(signal.SIGTERM, self._signal_handler)
 
     def _signal_handler(self, signum, frame):
@@ -222,10 +207,6 @@ class Algorithm:
     def progress(self) -> float:
         return self.stopping_condition.get_progress()
 
-    @property
-    def population(self) -> Population:
-        return self.search_strategy.population
-
     def gather_parameters(self) -> dict:
         """
         Collect the current parameters of the underlying search strategy.
@@ -236,7 +217,11 @@ class Algorithm:
             A dictionary of parameter names and their current values.
         """
 
-        return self.search_strategy.gather_parameters()
+        param_dict = {}
+        if self.population is not None:
+            param_dict.update({f"{self.population.encoding.name}.{k}": v for k, v in self.population.encoding.gather_params().items()})
+        param_dict.update(self.search_strategy.gather_parameters())
+        return param_dict
 
     def best_solution(self) -> Tuple[Any, float]:
         """
@@ -248,7 +233,7 @@ class Algorithm:
             A pair of the best individual with its objective value.
         """
 
-        return self.search_strategy.best_solution()
+        return self.population.best_solution()
 
     def best_individual(self) -> Tuple[VectorLike, float]:
         """
@@ -260,7 +245,7 @@ class Algorithm:
             A pair of the best individual with its fitness.
         """
 
-        return self.search_strategy.best_individual()
+        return self.population.best_individual()
 
     def restart(self, restart_objfunc: bool = True):
         """
@@ -282,28 +267,6 @@ class Algorithm:
 
         logger.debug("Reset the data of the algorithm.")
 
-    def initialize(self, reset_objfunc: bool = True) -> Population:
-        """
-        Create and evaluate the initial population.
-
-        Parameters
-        ----------
-        reset_objfunc : bool, optional
-            Passed through to :meth:`restart`.
-
-        Returns
-        -------
-        Population
-            The evaluated initial population.
-        """
-
-        self.restart(reset_objfunc)
-        initial_population = self.search_strategy.initialize(self.objfunc)
-        initial_population = self.search_strategy.evaluate_population(initial_population, self.parallel, self.threads)
-        self.search_strategy.population = initial_population
-
-        return initial_population
-
     def _log_debug(self, text, population):
         """
         Util for debugging population info.
@@ -311,57 +274,6 @@ class Algorithm:
 
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(text, population.debug_repr())
-
-    def step(self, population: Population = None) -> Population:
-        """
-        Execute one iteration of the optimisation loop.
-
-        The default implementation performs: parent selection ->
-        perturbation -> evaluation -> survivor selection.
-
-        Parameters
-        ----------
-        population : Population, optional
-            The population at the start of the iteration.  If not given,
-            the currently stored population is used.
-
-        Returns
-        -------
-        Population
-            The population after the iteration.
-        """
-
-        # Get the population of this generation
-        if population is None:
-            population = self.search_strategy.population
-        else:
-            self.search_strategy.population = population
-
-        self._log_debug("Original population:\n%s", population)
-
-        # Generate their parents
-        parents = self.search_strategy.select_parents(population)
-        self._log_debug("Parent selection\n%s", parents)
-
-        # Evolve the selected parents
-        offspring = self.search_strategy.perturb(parents)
-        self._log_debug("Perturbed\n%s", offspring)
-
-        # Get the fitness of the individuals
-        offspring = self.search_strategy.evaluate_population(offspring, self.parallel, self.threads)
-        self._log_debug("Evaluated\n%s", offspring)
-
-        # Select the individuals that remain for the next generation
-        new_population = self.search_strategy.select_individuals(population, offspring)
-        self._log_debug("Selected\n%s", new_population)
-
-        self.search_strategy.population = new_population
-
-        # Update in cascade all the objects involved in the optimization
-        self.search_strategy.step(progress=self.progress)
-        self._log_debug("Updated end\n%s", new_population)
-
-        return new_population
 
     def resume(self) -> Population:
         """
@@ -375,9 +287,55 @@ class Algorithm:
 
         return self.optimize(resume=True)
 
+    def initialize(self) -> Population:
+        """Generates the initial population from the search strategy.
+
+        This method stores the population in the `.population` attribute and returns it.
+
+        Returns
+        -------
+        initial_population
+            The initial population generated.
+        """
+
+        self.reporter.log_init(self)
+        self.population = self.search_strategy.initialize(self.objfunc)
+        return self.population
+
+    def step(self, prev_population: Population):
+        """Performs a single step of the optimization algorithm.
+
+        This method stores the population in the `.population` attribute and returns it.
+
+        Parameters
+        ----------
+        prev_population : Population
+            Population to be improved in this step of the optimization.
+
+        Returns
+        -------
+        population
+            The improved next population.
+        """
+
+        self.population = self.search_strategy.step(prev_population=prev_population, objfunc=self.objfunc)
+        self.update()
+        return self.population
+
+    def update(self):
+        """Updates the internal state of the algorithm."""
+        self.stopping_condition.update(self)
+        self.reporter.log_step(self)
+        self.history_tracker.update(self)
+
+        self.search_strategy.update(self.stopping_condition.get_progress())
+
+        if self.checkpointer is not None:
+            self.checkpointer.checkpoint(self)
+
     def optimize(self, resume: bool = False) -> Population:
         """
-        Run the optimisation loop until a stopping condition is met.
+        Run the optimization loop until a stopping condition is met.
 
         Parameters
         ----------
@@ -397,17 +355,16 @@ class Algorithm:
             before re-raising.
         """
 
-        self.reporter.log_init(self)
+        # Initialize search strategy and record initial values.
+        logger.info("Generating initial solutions...")
 
         # initialize clocks
         if not resume:
             self.restart()
             self.stopping_condition.restart()
+            self.population = self.initialize()
 
-        # Initialize search strategy and record initial values.
-        logger.info("Generating initial solutions...")
-        population = self.population if resume else self.initialize()
-        self.history_tracker.step(self)
+        self.history_tracker.update(self)
 
         # Search until the stopping condition is met
         logger.info("Starting main optimization loop...")
@@ -415,14 +372,7 @@ class Algorithm:
             while not self.stopping_condition.is_finished(self.search_strategy.finish):
                 logger.debug("Started iteration %d...", self.iterations)
 
-                population = self.step(population=population)
-
-                self.stopping_condition.step(self.population)
-                self.reporter.log_step(self)
-                self.history_tracker.step(self)
-
-                if self.checkpointer is not None:
-                    self.checkpointer.checkpoint(self)
+                self.population = self.step(self.population)
 
                 if self._stop_requested:
                     raise TerminationException
@@ -437,11 +387,11 @@ class Algorithm:
         self.reporter.log_end(self)
         logger.info("Optimization finished.")
 
-        return population
+        return self.population
 
     def get_state(self, store_population: bool = False) -> dict:
         """
-        Serialise the current algorithm state to a dictionary.
+        Serializes the current algorithm state to a dictionary.
 
         Parameters
         ----------
@@ -459,7 +409,8 @@ class Algorithm:
             "name": self.name,
             "objfunc": self.objfunc.get_state(),
             "stopping_condition": self.stopping_condition.get_state(),
-            "search_strategy": self.search_strategy.get_state(store_population),
+            "search_strategy": self.search_strategy.get_state(),
+            "population": self.population.get_state() if store_population else None,
             "history": self.history_tracker.get_state(),
         }
 
@@ -471,7 +422,7 @@ class Algorithm:
         readable: bool = False,
     ):
         """
-        Serialise the current algorithm state to a JSON file.
+        Serialize the current algorithm state to a JSON file.
 
         Parameters
         ----------

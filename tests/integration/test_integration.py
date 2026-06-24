@@ -19,8 +19,8 @@ from metaheuristic_designer.search_strategy import SearchStrategy
 # ===================================================================
 #  Population
 # ===================================================================
-def test_population_get_state(dummy_objfunc):
-    pop = make_pop([1.0, 2.0], dummy_objfunc)
+def test_population_get_state():
+    pop = make_pop([1.0, 2.0])
     pop.best = np.array([1.0, 2.0])
     pop.best_fitness = 1.0
     state = pop.get_state()
@@ -66,7 +66,7 @@ def test_survivor_selection_get_state(dummy_survivor_selection):
 #  SearchStrategy
 # ===================================================================
 def test_search_strategy_get_state(dummy_strategy):
-    state = dummy_strategy.get_state(store_population=False)
+    state = dummy_strategy.get_state()
     assert state["name"] == "dummy_strategy"
     assert "initializer" in state
     # "params" not present; check for "class_name" or other keys
@@ -79,7 +79,7 @@ def test_search_strategy_get_state(dummy_strategy):
 #  Algorithm (using Algorithm, not StandardAlgorithm)
 # ===================================================================
 def test_algorithm_get_state(dummy_objfunc, dummy_strategy):
-    algo = Algorithm(dummy_objfunc, dummy_strategy, max_iterations=1, reporter="silent")
+    algo = Algorithm(dummy_objfunc, dummy_strategy, stop_condition_str="max_iterations", max_iterations=1, reporter="silent")
     algo.initialize()  # creates population, evaluates fitness
     state = algo.get_state(store_population=True)
     # Check top-level keys
@@ -92,10 +92,10 @@ def test_algorithm_get_state(dummy_objfunc, dummy_strategy):
     assert "search_strategy" in state
     assert "history" in state
     # Check that search_strategy contains population (since store_population=True)
-    assert "population" in state["search_strategy"]
+    assert "population" in state
     # Check that history contains the expected fields (track_best is always True)
     assert "class_name" in state["history"]
-    assert state["history"]["class_name"] == "HistoryTracker"
+    assert state["history"]["class_name"] == "ConfigurableHistoryTracker"
     assert "best_objective" in state["history"]
     assert "best_solutions" in state["history"]
 
@@ -104,7 +104,7 @@ def test_algorithm_get_state(dummy_objfunc, dummy_strategy):
 #  store_state (write to JSON)
 # ===================================================================
 def test_store_state_to_json(dummy_objfunc, dummy_strategy, tmp_path):
-    algo = Algorithm(dummy_objfunc, dummy_strategy, max_iterations=1, reporter="silent")
+    algo = Algorithm(dummy_objfunc, dummy_strategy, stop_condition_str="max_iterations", max_iterations=1, reporter="silent")
     algo.initialize()
     file_path = tmp_path / "state.json"
     algo.store_state(str(file_path), readable=True)

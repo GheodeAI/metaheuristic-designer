@@ -5,13 +5,14 @@ This module implements functions to generate the initial population of the algor
 """
 
 from __future__ import annotations
+import inspect
 from typing import Any, Optional, Callable
 from abc import ABC, abstractmethod
 import numpy as np
 from .population import Population
 from .encoding import Encoding, DefaultEncoding
 from .objective_function import ObjectiveFunc
-from .utils import check_random_state, RNGLike, VectorLike
+from .utils import check_rng, RNGLike, VectorLike
 
 
 class Initializer(ABC):
@@ -32,17 +33,17 @@ class Initializer(ABC):
     encoding : Encoding, optional
         Encoding that will be attached to every individual.
         Defaults to :class:`DefaultEncoding`.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
-    def __init__(self, dimension: int, population_size: int = 1, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None):
+    def __init__(self, dimension: int, population_size: int = 1, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None):
         self.dimension = dimension
         self.population_size = population_size
         if encoding is None:
             encoding = DefaultEncoding()
         self.encoding = encoding
-        self.random_state = check_random_state(random_state)
+        self.rng = check_rng(rng)
 
     @abstractmethod
     def generate_random(self) -> VectorLike:
@@ -72,14 +73,12 @@ class Initializer(ABC):
 
         return self.generate_random()
 
-    def generate_population(self, objfunc: ObjectiveFunc, n_individuals: Optional[int] = None) -> Population:
+    def generate_population(self, n_individuals: Optional[int] = None) -> Population:
         """
         Create a fully formed population of *n_individuals* individuals.
 
         Parameters
         ----------
-        objfunc: ObjectiveFunc
-            Objective function that will be propagated to each individual.
         n_individual: int, optional
             Number of individuals to generate
 
@@ -92,8 +91,8 @@ class Initializer(ABC):
         if n_individuals is None:
             n_individuals = self.population_size
 
-        population_matrix = np.asarray([self.generate_individual() for _ in range(n_individuals)])
-        return Population(objfunc, genotype_matrix=population_matrix, encoding=self.encoding)
+        population_matrix = np.atleast_2d([self.generate_individual() for _ in range(n_individuals)])
+        return Population(genotype_matrix=population_matrix, encoding=self.encoding)
 
     def get_state(self) -> dict:
         """Return a minimal dictionary identifying this initializer.
@@ -115,7 +114,7 @@ class InitializerFromLambda(Initializer):
     Parameters
     ----------
     generator : callable
-        A function ``(random_state) -> genotype`` that returns a
+        A function ``(rng) -> genotype`` that returns a
         single genotype vector.
     dimension : int
         Length of the genotype vector.
@@ -123,16 +122,30 @@ class InitializerFromLambda(Initializer):
         Number of individuals to generate (default 1).
     encoding : Encoding, optional
         Encoding attached to every individual.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
-    def __init__(
-        self, generator: Callable, dimension: int, pop_size: int = 1, encoding: Optional[Encoding] = None, random_state: Optional[RNGLike] = None
-    ):
+    def __init__(self, generator: Callable, dimension: int, pop_size: int = 1, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None):
+        self._validate_function(generator)
         self.generator = generator
 
-        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, random_state=random_state)
+        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, rng=rng)
+
+    @staticmethod
+    def _validate_function(fn: Callable):
+        operator_sig = inspect.signature(fn)
+
+        count = 0
+        for p in operator_sig.parameters.values():
+            if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                count += 1
+            elif p.kind == inspect.Parameter.VAR_POSITIONAL:
+                return
+
+        required_min_count = 1
+        if count < required_min_count:
+            raise TypeError(f"The function should have at least a positional argument (`rng`).")
 
     def generate_random(self) -> VectorLike:
-        return self.generator(self.random_state)
+        return self.generator(rng=self.rng)

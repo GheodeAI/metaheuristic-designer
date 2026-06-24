@@ -2,7 +2,7 @@
 
 import numpy as np
 from ...initializer import Initializer
-from ...utils import check_random_state
+from ...utils import check_rng
 
 
 def compute_statistic(population_matrix, stat_name="mean", weights=None):
@@ -12,7 +12,7 @@ def compute_statistic(population_matrix, stat_name="mean", weights=None):
     population_matrix: numpy.array
         Matrix containing the set of tentative solutions.
     initializer: Initializer
-        Initializer instance that handles random initializtion of the population.
+        Initializer instance that handles random initialization of the population.
     stat_name: str, optional
         Name of the statistic to use, options are "mean", "average", "median" and "std", by default "mean".
     weights: numpy.array, optional
@@ -39,7 +39,7 @@ def compute_statistic(population_matrix, stat_name="mean", weights=None):
     return new_population
 
 
-def random_initialize(population_matrix, initializer: Initializer, random_state=None):
+def random_initialize(population_matrix, initializer: Initializer, rng=None):
     """
     Randomly regenerate the entire population from scratch with the initializer's distribution.
 
@@ -48,21 +48,21 @@ def random_initialize(population_matrix, initializer: Initializer, random_state=
     population_matrix: numpy.array
         Matrix containing the set of tentative solutions.
     initializer: Initializer
-        Initializer instance that handles random initializtion of the population.
+        Initializer instance that handles random initialization of the population.
 
     Returns
     -------
         Randomly initialized population
     """
 
-    random_population_marix = np.empty_like(population_matrix)
+    random_population_matrix = np.empty_like(population_matrix)
     for i, _ in enumerate(population_matrix):
-        random_population_marix[i, :] = initializer.generate_random()
+        random_population_matrix[i, :] = initializer.generate_random()
 
-    return random_population_marix
+    return random_population_matrix
 
 
-def random_reset(population_matrix, initializer: Initializer, random_state=None, n: int = 1):
+def random_reset(population_matrix, initializer: Initializer, rng=None, n: int = 1):
     """
     Randomly resets n components of each solution.
 
@@ -71,7 +71,7 @@ def random_reset(population_matrix, initializer: Initializer, random_state=None,
     population_matrix: numpy.array
         Matrix containing the set of tentative solutions.
     initializer: Initializer
-        Initializer instance that handles random initializtion of the population.
+        Initializer instance that handles random initialization of the population.
     n: int, optional
         Number of components to reset, by default 1
 
@@ -80,16 +80,16 @@ def random_reset(population_matrix, initializer: Initializer, random_state=None,
         Population matrix with randomly changed components.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
-    random_population_marix = np.empty_like(population_matrix)
+    random_population_matrix = np.empty_like(population_matrix)
     for i, _ in enumerate(population_matrix):
-        random_population_marix[i, :] = initializer.generate_random()
+        random_population_matrix[i, :] = initializer.generate_random()
 
     mask_pos = np.tile(np.arange(population_matrix.shape[1]) < n, population_matrix.shape[0]).reshape(population_matrix.shape)
 
-    mask_pos = random_state.permuted(mask_pos, axis=1)
+    mask_pos = rng.permuted(mask_pos, axis=1)
 
-    population_matrix[mask_pos] = random_population_marix[mask_pos]
+    population_matrix[mask_pos] = random_population_matrix[mask_pos]
 
     return population_matrix

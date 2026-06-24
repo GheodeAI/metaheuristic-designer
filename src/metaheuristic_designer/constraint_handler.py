@@ -8,6 +8,8 @@ from __future__ import annotations
 from copy import copy
 from typing import Any, Callable, Iterable, Optional
 from abc import ABC, abstractmethod
+import numpy as np
+from .population import Population
 from .parametrizable_mixin import ParametrizableMixin
 from .utils import ScalarLike, VectorLike, MatrixLike
 
@@ -22,21 +24,25 @@ class ConstraintHandler(ParametrizableMixin, ABC):
 
     Parameters
     ----------
-    encoding : Encoding, optional
-        An :class:`Encoding` that will be used to extract the
-        genotype before repair or penalty (default ``None``).
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
 
-    def __init__(self, encoding=None, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__()
-        self.encoding = encoding
         self.store_kwargs(**kwargs)
 
+    def repair_population(self, population: Population) -> Population:
+        population = copy(population)
+        population_matrix = population.genotype_matrix
+        repaired_matrix = self.repair_solutions(population_matrix)
+        repaired_population = population.update_genotype(repaired_matrix)
+
+        return repaired_population
+
     @abstractmethod
-    def repair_solution(self, population_matrix: MatrixLike) -> MatrixLike:
+    def repair_solutions(self, population_matrix: MatrixLike) -> MatrixLike:
         """
         Modifies the incoming solution so that it follows the problem's constraints.
 
@@ -52,7 +58,7 @@ class ConstraintHandler(ParametrizableMixin, ABC):
         """
 
     @abstractmethod
-    def penalty(self, population_matrix: MatrixLike) -> VectorLike:
+    def penalty(self, population_matrix: Iterable) -> VectorLike:
         """
         Offset to the objective value for the solution corresponding to violations of the problem's constraints.
 
@@ -87,7 +93,7 @@ class ConstraintHandlerFromLambda(ConstraintHandler):
         A function ``(solution) -> repaired_solution``.
     penalty_fn : callable, optional
         A function ``(solution) -> penalty_value``.
-    **kwargs
+    \\*\\*kwargs
         Keyword arguments forwarded to
         :class:`ConstraintHandler`.
     """
@@ -101,17 +107,17 @@ class ConstraintHandlerFromLambda(ConstraintHandler):
         self.repair_solution_fn = repair_solution_fn
         self.penalty_fn = penalty_fn
 
-    def repair_solution(self, solution: Iterable) -> Iterable:
+    def repair_solutions(self, solution: Iterable) -> Iterable:
         if self.repair_solution_fn is None:
             return copy(solution)
 
         return self.repair_solution_fn(solution)
 
-    def penalty(self, solution: Any) -> ScalarLike:
+    def penalty(self, solutions: Any) -> ScalarLike:
         if self.penalty_fn is None:
-            return 0
+            return np.zeros(len(solutions))
 
-        return self.penalty_fn(solution)
+        return self.penalty_fn(solutions)
 
 
 class NullConstraint(ConstraintHandler):
@@ -124,15 +130,15 @@ class NullConstraint(ConstraintHandler):
     ----------
     encoding : Encoding, optional
         See :class:`ConstraintHandler`.
-    **kwargs
+    \\*\\*kwargs
         See :class:`ConstraintHandler`.
     """
 
-    def repair_solution(self, solution: MatrixLike) -> MatrixLike:
+    def repair_solutions(self, solution: MatrixLike) -> MatrixLike:
         return copy(solution)
 
-    def penalty(self, _solution: Any) -> ScalarLike:
-        return 0
+    def penalty(self, solutions: Iterable) -> VectorLike:
+        return np.zeros(len(solutions))
 
 
 class PenalizeConstraint(ConstraintHandler, ABC):
@@ -145,11 +151,11 @@ class PenalizeConstraint(ConstraintHandler, ABC):
     ----------
     encoding : Encoding, optional
         See :class:`ConstraintHandler`.
-    **kwargs
+    \\*\\*kwargs
         See :class:`ConstraintHandler`.
     """
 
-    def repair_solution(self, solution: Iterable) -> Iterable:
+    def repair_solutions(self, solution: Iterable) -> Iterable:
         return copy(solution)
 
 
@@ -163,9 +169,9 @@ class RepairConstraint(ConstraintHandler, ABC):
     ----------
     encoding : Encoding, optional
         See :class:`ConstraintHandler`.
-    **kwargs
+    \\*\\*kwargs
         See :class:`ConstraintHandler`.
     """
 
-    def penalty(self, _solution: Iterable) -> VectorLike:
-        return 0
+    def penalty(self, solutions: Iterable) -> VectorLike:
+        return np.zeros(len(solutions))

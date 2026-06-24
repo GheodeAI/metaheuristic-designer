@@ -53,12 +53,7 @@ permutation_ops_map = {
 # fmt: on
 
 
-def create_permutation_operator(
-    method: str,
-    encoding: Optional[Encoding] = None,
-    name: Optional[str] = None,
-    **kwargs
-) -> OperatorFromLambda:
+def create_permutation_operator(method: str, encoding: Optional[Encoding] = None, name: Optional[str] = None, **kwargs) -> OperatorFromLambda:
     """
     Create a permutation operator by name.
 
@@ -70,7 +65,7 @@ def create_permutation_operator(
         Encoding applied to the genotype.
     name : str, optional
         Display name; defaults to *method*.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to the operator function.
 
     Returns

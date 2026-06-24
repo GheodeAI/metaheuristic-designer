@@ -8,7 +8,7 @@ import logging
 from typing import Optional
 from ..parent_selection_base import ParentSelection, ParentSelectionFromLambda, NullParentSelection
 from ..population import Population
-from .parent_selection_functions import prob_tournament, select_best, roulette, shuffle_population, uniform_selection, sus
+from .parent_selection_functions import repeating_selection, prob_tournament, select_best, roulette, shuffle_population, uniform_selection, sus
 from ..utils import RNGLike, null_aliases
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ class ParentSelectionDef:
     Parameters
     ----------
     selection_fn : callable
-        Function ``(fitness, amount, random_state, **kwargs) -> indices``.
+        Function ``(fitness, amount, rng, **kwargs) -> indices``.
     params : dict, optional
         Default keyword arguments merged with user-supplied ones.
     forced_params : dict, optional
@@ -32,13 +32,13 @@ class ParentSelectionDef:
     params: dict = field(default_factory=dict)
     forced_params: dict = field(default_factory=dict)
 
-    def __call__(self, population: Population, amount: int = None, random_state=None, **kwargs) -> Population:
+    def __call__(self, population: Population, amount: int = None, rng=None, **kwargs) -> Population:
         modified_kwargs = {}
         modified_kwargs.update(self.params)
         modified_kwargs.update(kwargs)
         modified_kwargs.update(self.forced_params)
 
-        return self.selection_fn(population.fitness, amount, random_state, **modified_kwargs)
+        return self.selection_fn(population.fitness, amount, rng, **modified_kwargs)
 
 
 # fmt: off
@@ -47,7 +47,7 @@ parent_sel_map = {
     "tournament":               ParentSelectionDef(prob_tournament, forced_params={"prob": 1.0}, params={"tournament_size": 3}),
     "tournament_selection":     ParentSelectionDef(prob_tournament, forced_params={"prob": 1.0}, params={"tournament_size": 3}),
 
-    # Probabilistic Torunament
+    # Probabilistic tournament
     "probabilistic_tournament": ParentSelectionDef(prob_tournament, params={"tournament_size": 3, "prob": 0.5}),
 
     # Keep best
@@ -65,6 +65,10 @@ parent_sel_map = {
     "random_subset":            ParentSelectionDef(shuffle_population),
     "shuffle":                  ParentSelectionDef(shuffle_population),
     "permute":                  ParentSelectionDef(shuffle_population),
+
+    # Repeat
+    "repeat":                   ParentSelectionDef(repeating_selection),
+    "replicate":                ParentSelectionDef(repeating_selection),
 
     # Roulette
     "roulette":                 ParentSelectionDef(roulette),
@@ -94,7 +98,7 @@ parent_sel_map = {
 }
 
 
-def create_parent_selection(method: str, name: Optional[str] = None, amount: Optional[int] = None, random_state: Optional[RNGLike] = None, **kwargs) -> ParentSelection:
+def create_parent_selection(method: str, name: Optional[str] = None, amount: Optional[int] = None, rng: Optional[RNGLike] = None, **kwargs) -> ParentSelection:
     """Create a parent selection method by name.
 
     Parameters
@@ -105,9 +109,9 @@ def create_parent_selection(method: str, name: Optional[str] = None, amount: Opt
         Display name for the selection method.
     amount : int, optional
         Default number of parents to select.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Additional parameters forwarded to the selection function.
 
     Returns
@@ -122,7 +126,7 @@ def create_parent_selection(method: str, name: Optional[str] = None, amount: Opt
     if method in null_aliases:
         return NullParentSelection(name=name, **kwargs)
 
-    return ParentSelectionFromLambda(selection_fn=parent_sel_map[method.lower()], name=name, amount=amount, random_state=random_state, **kwargs)
+    return ParentSelectionFromLambda(selection_fn=parent_sel_map[method.lower()], name=name, amount=amount, rng=rng, **kwargs)
 
 
 def add_parent_selection_entry(selection_fn: callable, selection_method_name: str):

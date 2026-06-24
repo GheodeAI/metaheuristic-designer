@@ -1,6 +1,6 @@
 import pytest
 from metaheuristic_designer.stopping_condition import (
-    StoppingCondition,
+    ParsedStoppingCondition,
     parse_stopping_cond,
     process_condition,
     process_progress,
@@ -64,10 +64,10 @@ def test_process_progress_and():
 
 
 # -------------------------------------------------------------------
-#  StoppingCondition high‑level
+#  ParsedStoppingCondition high‑level
 # -------------------------------------------------------------------
 def test_stopping_condition_restart_resets_counters():
-    sc = StoppingCondition(condition_str="max_evaluations", max_evaluations=10)
+    sc = ParsedStoppingCondition(condition_str="max_evaluations", max_evaluations=10)
     sc.iterations = 42
     sc.evaluations = 100
     sc.restart()
@@ -76,7 +76,7 @@ def test_stopping_condition_restart_resets_counters():
 
 
 def test_stopping_condition_is_finished_max_evaluations():
-    sc = StoppingCondition(condition_str="max_evaluations", max_evaluations=10)
+    sc = ParsedStoppingCondition(condition_str="max_evaluations", max_evaluations=10)
     sc.evaluations = 10
     sc.best_objective = 0.0
     sc.real_time_spent = 0.0
@@ -85,7 +85,7 @@ def test_stopping_condition_is_finished_max_evaluations():
 
 
 def test_stopping_condition_is_finished_false():
-    sc = StoppingCondition(condition_str="max_iterations", max_iterations=100)
+    sc = ParsedStoppingCondition(condition_str="max_iterations", max_iterations=100)
     sc.iterations = 50
     sc.best_objective = 0.0
     sc.real_time_spent = 0.0

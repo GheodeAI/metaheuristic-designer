@@ -1,9 +1,9 @@
 from copy import copy
 import numpy as np
-from ..utils import check_random_state, VectorLike, MatrixLike, RNGLike
+from ..utils import check_rng, VectorLike, MatrixLike, RNGLike
 
 
-def generational(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike) -> VectorLike:
+def generational(population_fitness: VectorLike, offspring_fitness: VectorLike, rng: RNGLike) -> VectorLike:
     """
     Full generational replacement: the entire next generation is formed
     exclusively by the offspring. No parent survives.
@@ -14,7 +14,7 @@ def generational(population_fitness: VectorLike, offspring_fitness: VectorLike, 
         Fitness values of the parent population. Only its size is used.
     offspring_fitness : VectorLike
         Fitness values of the offspring population.
-    random_state : RNGLike
+    rng : RNGLike
         Random state (unused; kept for interface consistency).
 
     Returns
@@ -27,7 +27,7 @@ def generational(population_fitness: VectorLike, offspring_fitness: VectorLike, 
     return np.arange(offspring_fitness.shape[0]) + population_fitness.shape[0]
 
 
-def one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike) -> VectorLike:
+def one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, rng: RNGLike) -> VectorLike:
     """
     One-to-one competition: each offspring replaces its parent if it has a
     better (higher) fitness. Parent and offspring populations must have the
@@ -39,7 +39,7 @@ def one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, ra
         Fitness values of the parent population.
     offspring_fitness : VectorLike
         Fitness values of the offspring, one per parent.
-    random_state : RNGLike
+    rng : RNGLike
         Random state (unused; kept for interface consistency).
 
     Returns
@@ -60,7 +60,7 @@ def one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, ra
     return full_idx
 
 
-def prob_one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike, p: float) -> VectorLike:
+def prob_one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, rng: RNGLike, p: float) -> VectorLike:
     """
     Probabilistic one-to-one competition. An offspring replaces its parent
     if it has a better fitness, OR with probability `p` regardless of fitness.
@@ -72,7 +72,7 @@ def prob_one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLik
         Fitness values of the parent population.
     offspring_fitness : VectorLike
         Fitness values of the offspring, one per parent.
-    random_state : RNGLike
+    rng : RNGLike
         Seeded random state for the stochastic replacement decision.
     p : float
         Probability of replacing a parent even if the offspring is worse.
@@ -83,20 +83,20 @@ def prob_one_to_one(population_fitness: VectorLike, offspring_fitness: VectorLik
         Indices of the selected individuals (parent indices offset when replaced).
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
     n_parents = population_fitness.shape[0]
     n_offspring = offspring_fitness.shape[0]
 
     assert n_parents == n_offspring
 
-    selection_mask = (population_fitness < offspring_fitness) | (random_state.random(n_parents) < p)
+    selection_mask = (population_fitness < offspring_fitness) | (rng.random(n_parents) < p)
     full_idx = np.arange(n_parents)
     full_idx[selection_mask] += n_parents
     return full_idx
 
 
-def many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike) -> VectorLike:
+def many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, rng: RNGLike) -> VectorLike:
     """
     Many-to-one competition. Each parent competes against its own block of
     `n_repetitions` offspring (offspring size must be a multiple of parent size).
@@ -109,7 +109,7 @@ def many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, r
     offspring_fitness : VectorLike
         Fitness of all offspring, grouped in contiguous blocks of equal size
         (one block per parent).
-    random_state : RNGLike
+    rng : RNGLike
         Random state (unused; kept for interface consistency).
 
     Returns
@@ -139,7 +139,7 @@ def many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, r
     return full_idx
 
 
-def prob_many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike, p: float) -> VectorLike:
+def prob_many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLike, rng: RNGLike, p: float) -> VectorLike:
     """
     Probabilistic many-to-one competition. Like `many_to_one`, but with
     probability `p` the winner is replaced by a uniformly random competitor
@@ -151,7 +151,7 @@ def prob_many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLi
         Fitness values of the parent population.
     offspring_fitness : VectorLike
         Fitness of all offspring, grouped in contiguous blocks per parent.
-    random_state : RNGLike
+    rng : RNGLike
         Seeded random state.
     p : float
         Probability of ignoring the fitness-based winner and picking a random
@@ -163,7 +163,7 @@ def prob_many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLi
         Indices of the selected individuals.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
     n_parents = population_fitness.shape[0]
     n_offspring = offspring_fitness.shape[0]
@@ -179,8 +179,8 @@ def prob_many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLi
     best_individual_idx = np.argmax(fitness_matrix, axis=0)
 
     # Use random individual with probability 'p'.
-    random_individual_idx = random_state.integers(0, n_repetitions + 1, n_parents)
-    ignore_mask = random_state.random(n_parents) < p
+    random_individual_idx = rng.integers(0, n_repetitions + 1, n_parents)
+    ignore_mask = rng.random(n_parents) < p
     best_individual_idx[ignore_mask] = random_individual_idx[ignore_mask]
 
     # Get indices to use.
@@ -190,7 +190,7 @@ def prob_many_to_one(population_fitness: VectorLike, offspring_fitness: VectorLi
     return full_idx
 
 
-def elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike, amount: int) -> VectorLike:
+def elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, rng: RNGLike, amount: int) -> VectorLike:
     """
     Standard elitism. The top `amount` parents (highest fitness) survive;
     the remaining slots are filled by the best offspring.
@@ -201,7 +201,7 @@ def elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, rando
         Fitness values of the parent population.
     offspring_fitness : VectorLike
         Fitness values of the offspring population.
-    random_state : RNGLike
+    rng : RNGLike
         Random state (unused; kept for interface consistency).
     amount : int
         How many of the best parents are unconditionally preserved.
@@ -221,7 +221,7 @@ def elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, rando
     return np.concatenate((parents_selected, offspring_selected + n_parents))
 
 
-def cond_elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike, amount: int) -> VectorLike:
+def cond_elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, rng: RNGLike, amount: int) -> VectorLike:
     """
     Conditional (fitness-based) elitism. A parent among the top `amount`
     is kept **only** if its fitness is strictly higher than the best offspring.
@@ -233,7 +233,7 @@ def cond_elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, 
         Fitness of the previous population.
     offspring_fitness : VectorLike
         Fitness of the new offspring.
-    random_state : RNGLike
+    rng : RNGLike
         Random state (unused; kept for interface consistency).
     amount : int
         Maximum number of elite candidates considered.
@@ -262,7 +262,7 @@ def cond_elitism(population_fitness: VectorLike, offspring_fitness: VectorLike, 
     return np.concatenate((elites, offspring_selected + n_parents))
 
 
-def keep_best(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike) -> VectorLike:
+def keep_best(population_fitness: VectorLike, offspring_fitness: VectorLike, rng: RNGLike) -> VectorLike:
     """
     Combined selection: the best `n_parents` individuals from the union of
     parents and offspring survive. Indices are absolute positions in the
@@ -274,7 +274,7 @@ def keep_best(population_fitness: VectorLike, offspring_fitness: VectorLike, ran
         Fitness values of the parent population.
     offspring_fitness : VectorLike
         Fitness values of the offspring population.
-    random_state : RNGLike
+    rng : RNGLike
         Random state (unused; kept for interface consistency).
 
     Returns
@@ -292,7 +292,7 @@ def keep_best(population_fitness: VectorLike, offspring_fitness: VectorLike, ran
     return fitness_order
 
 
-def keep_best_offspring(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike) -> VectorLike:
+def keep_best_offspring(population_fitness: VectorLike, offspring_fitness: VectorLike, rng: RNGLike) -> VectorLike:
     """
     Offspring-only selection: the best `n_parents` offspring survive.
     Parents are completely discarded.
@@ -303,7 +303,7 @@ def keep_best_offspring(population_fitness: VectorLike, offspring_fitness: Vecto
         Fitness values of the parent population (only its length is used).
     offspring_fitness : VectorLike
         Fitness values of the offspring population.
-    random_state : RNGLike
+    rng : RNGLike
         Random state (unused; kept for interface consistency).
 
     Returns
@@ -319,7 +319,7 @@ def keep_best_offspring(population_fitness: VectorLike, offspring_fitness: Vecto
     return fitness_order
 
 
-def random_replacement(population_fitness: VectorLike, offspring_fitness: VectorLike, random_state: RNGLike) -> VectorLike:
+def random_replacement(population_fitness: VectorLike, offspring_fitness: VectorLike, rng: RNGLike, p: float = 0.5) -> VectorLike:
     """
     Randomly replaces the parents with some of the individuals.
 
@@ -329,7 +329,7 @@ def random_replacement(population_fitness: VectorLike, offspring_fitness: Vector
         Fitness values of the parent population (only its length is used).
     offspring_fitness : VectorLike
         Fitness values of the offspring population.
-    random_state : RNGLike
+    rng : RNGLike
         Random state (unused; kept for interface consistency).
 
     Returns
@@ -339,4 +339,13 @@ def random_replacement(population_fitness: VectorLike, offspring_fitness: Vector
         they are distinguishable from parent indices.
     """
 
-    return np.arange(offspring_fitness.shape[0]) + population_fitness.shape[0]
+    rng = check_rng(rng)
+
+    n_parents = population_fitness.shape[0]
+    n_offspring = offspring_fitness.shape[0]
+
+    replacement_idx = rng.random(n_parents) > p
+    n_chosen = np.count_nonzero(replacement_idx)
+    parent_idx = np.arange(n_parents)
+    parent_idx[replacement_idx] = rng.permutation(n_offspring)[:n_chosen]
+    return parent_idx

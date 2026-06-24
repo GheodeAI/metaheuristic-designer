@@ -21,7 +21,7 @@ from metaheuristic_designer.population import Population
 #  CrossEntropyMethod
 # -------------------------------------------------------------------
 def test_cross_entropy_method_creation(rng, dummy_initializer):
-    algo = CrossEntropyMethod(initializer=dummy_initializer, elite_amount=5, random_state=rng)
+    algo = CrossEntropyMethod(initializer=dummy_initializer, elite_amount=5, rng=rng)
     assert algo.name == "CrossEntropyMethod"
     assert algo.operator is not None
     assert algo.parent_sel is not None
@@ -30,8 +30,8 @@ def test_cross_entropy_method_creation(rng, dummy_initializer):
 # -------------------------------------------------------------------
 #  BernoulliPBIL
 # -------------------------------------------------------------------
-def test_bernoulli_pbil_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
-    pop = Population(dummy_objfunc, np.ones((3, 2)))
+def test_bernoulli_pbil_perturb_updates_p(rng, dummy_initializer):
+    pop = Population(np.ones((3, 2)))
     pop.fitness = np.zeros(3)
 
     # Compute expected mean BEFORE perturb modifies pop
@@ -42,10 +42,10 @@ def test_bernoulli_pbil_perturb_updates_p(rng, dummy_objfunc, dummy_initializer)
         p=0.5,
         noise=0,
         lr=1.0,
-        random_state=rng,
+        rng=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_p = algo.operator.params.p
     assert_array_equal(actual_p, expected_p)
@@ -54,8 +54,8 @@ def test_bernoulli_pbil_perturb_updates_p(rng, dummy_objfunc, dummy_initializer)
 # -------------------------------------------------------------------
 #  BinomialPBIL
 # -------------------------------------------------------------------
-def test_binomial_pbil_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
-    pop = Population(dummy_objfunc, np.ones((2, 2)))
+def test_binomial_pbil_perturb_updates_p(rng, dummy_initializer):
+    pop = Population(np.ones((2, 2)))
     pop.fitness = np.zeros(2)
 
     # Expected p_hat = sum / (n * pop_size) = 2/(3*2) = 1/3
@@ -67,10 +67,10 @@ def test_binomial_pbil_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
         n=3,
         noise=0,
         lr=1.0,
-        random_state=rng,
+        rng=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_p = algo.operator.params.p
     assert_array_equal(actual_p, expected_p)
@@ -79,8 +79,8 @@ def test_binomial_pbil_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
 # -------------------------------------------------------------------
 #  GaussianPBIL
 # -------------------------------------------------------------------
-def test_gaussian_pbil_perturb_updates_loc(rng, dummy_objfunc, dummy_initializer):
-    pop = Population(dummy_objfunc, np.array([[1.0, 2.0], [3.0, 4.0]]))
+def test_gaussian_pbil_perturb_updates_loc(rng, dummy_initializer):
+    pop = Population(np.array([[1.0, 2.0], [3.0, 4.0]]))
     pop.fitness = np.zeros(2)
 
     # Expected loc = mean of original parents = [2., 3.]
@@ -92,10 +92,10 @@ def test_gaussian_pbil_perturb_updates_loc(rng, dummy_objfunc, dummy_initializer
         scale=1.0,
         lr=1.0,
         noise=0,
-        random_state=rng,
+        rng=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_loc = algo.operator.params.loc
     assert_array_equal(actual_loc, expected_loc)
@@ -104,8 +104,8 @@ def test_gaussian_pbil_perturb_updates_loc(rng, dummy_objfunc, dummy_initializer
 # -------------------------------------------------------------------
 #  BernoulliUMDA
 # -------------------------------------------------------------------
-def test_bernoulli_umda_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
-    pop = Population(dummy_objfunc, np.array([[1, 0], [1, 1]]))
+def test_bernoulli_umda_perturb_updates_p(rng, dummy_initializer):
+    pop = Population(np.array([[1, 0], [1, 1]]))
     pop.fitness = np.zeros(2)
 
     # Expected p = mean of parents = [1., 0.5]
@@ -115,10 +115,10 @@ def test_bernoulli_umda_perturb_updates_p(rng, dummy_objfunc, dummy_initializer)
         initializer=dummy_initializer,
         p=0.5,
         noise=0,
-        random_state=rng,
+        rng=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_p = algo.operator.params.p
     assert_array_equal(actual_p, expected_p)
@@ -127,8 +127,8 @@ def test_bernoulli_umda_perturb_updates_p(rng, dummy_objfunc, dummy_initializer)
 # -------------------------------------------------------------------
 #  BinomialUMDA
 # -------------------------------------------------------------------
-def test_binomial_umda_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
-    pop = Population(dummy_objfunc, np.ones((3, 2)) * 3)
+def test_binomial_umda_perturb_updates_p(rng, dummy_initializer):
+    pop = Population(np.ones((3, 2)) * 3)
     pop.fitness = np.zeros(3)
 
     # sum per column = 9, pop_size=3, n=5 -> 9/(5*3) = 0.6
@@ -139,10 +139,10 @@ def test_binomial_umda_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
         p=0.5,
         n=5,
         noise=0,
-        random_state=rng,
+        rng=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_p = algo.operator.params.p
     assert_array_equal(actual_p, expected_p)
@@ -151,8 +151,8 @@ def test_binomial_umda_perturb_updates_p(rng, dummy_objfunc, dummy_initializer):
 # -------------------------------------------------------------------
 #  GaussianUMDA
 # -------------------------------------------------------------------
-def test_gaussian_umda_perturb_updates_loc(rng, dummy_objfunc, dummy_initializer):
-    pop = Population(dummy_objfunc, np.array([[0.0, 0.0], [2.0, 2.0]]))
+def test_gaussian_umda_perturb_updates_loc(rng, dummy_initializer):
+    pop = Population(np.array([[0.0, 0.0], [2.0, 2.0]]))
     pop.fitness = np.zeros(2)
 
     # Expected loc = mean of parents = [1., 1.]
@@ -163,10 +163,10 @@ def test_gaussian_umda_perturb_updates_loc(rng, dummy_objfunc, dummy_initializer
         loc=np.array([0.0, 1.0]),
         scale=1.0,
         noise=0,
-        random_state=rng,
+        rng=rng,
     )
 
-    algo.perturb(pop)
+    algo.estimate_parameters(pop)
 
     actual_loc = algo.operator.params.loc
     assert_array_equal(actual_loc, expected_loc)

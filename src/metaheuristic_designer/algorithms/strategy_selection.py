@@ -27,7 +27,7 @@ class StrategySelection(AlgorithmSelection):
         The search strategies to compare.
     repetitions : int, optional
         Number of independent runs per strategy (default 10).
-    **kwargs
+    \\*\\*kwargs
         Keyword arguments forwarded to every :class:`Algorithm` constructor
         (e.g., ``stop_cond="max_iterations"``, ``max_iterations=100``).
     """

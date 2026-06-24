@@ -1,13 +1,14 @@
 from __future__ import annotations
 from typing import Iterable
 from copy import copy
+from ..population import Population
 from ..constraint_handler import ConstraintHandler
 from ..utils import MatrixLike, ScalarLike
 
 
 class CompositeConstraint(ConstraintHandler):
     """
-    Aplies every constraint handler in succession.
+    Applies every constraint handler in succession.
 
     Parameters
     ----------
@@ -26,10 +27,17 @@ class CompositeConstraint(ConstraintHandler):
 
         return all_params
 
-    def repair_solution(self, solution: MatrixLike) -> MatrixLike:
+    def repair_population(self, population: Population) -> Population:
+        repaired_population = copy(population)
+        for c in self.constraints:
+            repaired_population = c.repair_population(repaired_population)
+
+        return repaired_population
+
+    def repair_solutions(self, solution: MatrixLike) -> MatrixLike:
         repaired_solution = copy(solution)
         for c in self.constraints:
-            repaired_solution = c.repair_solution(repaired_solution)
+            repaired_solution = c.repair_solutions(repaired_solution)
 
         return repaired_solution
 

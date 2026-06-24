@@ -3,7 +3,6 @@ Algorithm variant, and comparison utilities.
 """
 
 from ..algorithm import Algorithm
-from .memetic_algorithm import MemeticAlgorithm
 from .algorithm_selection import AlgorithmSelection
 from .strategy_selection import StrategySelection
 

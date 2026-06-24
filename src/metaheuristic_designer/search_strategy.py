@@ -5,25 +5,25 @@ This module implements the procedure applied in each iteration of the algorithm.
 """
 
 from __future__ import annotations
+from abc import ABC, abstractmethod
+import inspect
 import logging
-from typing import Tuple, Any, Optional, Callable
+from typing import Optional, Callable
 
-from .parent_selection_base import ParentSelection, NullParentSelection, ParentSelectionFromLambda
-from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection, SurvivorSelectionFromLambda
+from .parent_selection_base import ParentSelection, NullParentSelection
+from .survivor_selection_base import SurvivorSelection, NullSurvivorSelection
 from .population import Population
-from .initializer import Initializer
+from .initializer import Initializer, InitializerFromLambda
 from .objective_function import ObjectiveFunc
-from .operator import Operator, NullOperator, OperatorFromLambda
+from .operator import Operator, NullOperator
 from .parametrizable_mixin import ParametrizableMixin
-from .utils import check_random_state, RNGLike
-from .initializer import InitializerFromLambda
-from .encoding import Encoding, EncodingFromLambda
+from .utils import check_rng, RNGLike
 
 logger = logging.getLogger(__name__)
 
 
-class SearchStrategy(ParametrizableMixin):
-    """Orchestrates one iteration of an optimisation loop.
+class SearchStrategy(ParametrizableMixin, ABC):
+    """Orchestrates one iteration of an optimization loop.
 
     A search strategy holds together an :class:`Initializer`, an
     :class:`Operator`, a :class:`ParentSelection`, and a
@@ -47,9 +47,9 @@ class SearchStrategy(ParametrizableMixin):
         Defaults to :class:`NullSurvivorSelection`.
     name : str, optional
         Display name used in reports.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
@@ -61,10 +61,12 @@ class SearchStrategy(ParametrizableMixin):
         parent_sel: Optional[ParentSelection] = None,
         survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "some strategy",
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
         super().__init__()
+
+        self.rng = check_rng(rng)
 
         self.name = name
         self.initializer = initializer
@@ -81,10 +83,8 @@ class SearchStrategy(ParametrizableMixin):
             survivor_sel = NullSurvivorSelection()
         self.survivor_sel = survivor_sel
 
-        self.population = None
         self.best = None
         self.finish = False
-        self.random_state = check_random_state(random_state)
         self.store_kwargs(**kwargs)
 
     @property
@@ -108,21 +108,10 @@ class SearchStrategy(ParametrizableMixin):
         param_dict = {f"{self.parent_sel.name}.{k}": v for k, v in self.parent_sel.gather_params().items()}
         param_dict.update({f"{self.operator.name}.{k}": v for k, v in self.operator.gather_params().items()})
         param_dict.update({f"{self.survivor_sel.name}.{k}": v for k, v in self.survivor_sel.gather_params().items()})
-        if self.population is not None:
-            param_dict.update({f"{self.population.encoding.name}.{k}": v for k, v in self.population.encoding.gather_params().items()})
         return param_dict
 
-    def best_solution(self) -> Tuple[Any, float]:
-        """
-        Returns the best solution found by the search strategy and its fitness.
-
-        Returns
-        -------
-        best_solution : Tuple[Any, float]
-            A pair of the best individual with its fitness.
-        """
-
-        return self.population.best_solution()
+    def reset(self, objfunc: ObjectiveFunc):
+        objfunc.reset()
 
     def initialize(self, objfunc: ObjectiveFunc) -> Population:
         """
@@ -136,110 +125,15 @@ class SearchStrategy(ParametrizableMixin):
         Returns
         -------
         population: Population
-            The initial population to be used in the algoritm.
+            The initial population to be used in the algorithm.
         """
 
-        return self.initializer.generate_population(objfunc)
+        initial_population = self.initializer.generate_population()
+        initial_population = objfunc.calculate_fitness(initial_population)
+        return initial_population
 
-    def evaluate_population(self, population: Population, parallel: bool = False, threads: int = 8) -> Population:
-        """
-        Calculates the fitness of the individuals on the population.
-
-        Parameters
-        ----------
-        population: Population
-        parallel: bool, optional
-            Whether to evaluate the individuals in the population in parallel.
-        threads: int, optional
-            Number of processes to use at once if calculating the fitness in parallel.
-
-        Returns
-        -------
-        population: Population
-            The population with the fitness values recorded.
-        """
-
-        return population.calculate_fitness(parallel=parallel, threads=threads)
-
-    def select_parents(self, population: Population, amount: Optional[int] = None) -> Population:
-        """
-        Selects the individuals that will be perturbed in this generation to generate the offspring.
-
-        Parameters
-        ----------
-        population: Population
-            The current population of the search strategy.
-
-        Returns
-        -------
-        parents: Population
-            A pair of the list of individuals considered as parents and their position in the original population.
-        """
-
-        logger.debug("Selected parents...")
-        return self.parent_sel(population, amount=amount)
-
-    def perturb(self, parents: Population, **kwargs) -> Population:
-        """
-        Applies operators to the population to get the next generation of individuals.
-
-        Parameters
-        ----------
-        parents: Population
-            The current parents that will be used in the search strategy.
-
-        Returns
-        -------
-        offspring: Population
-            The list of individuals modified by the operators of the search strategy.
-        """
-
-        offspring = self.operator.evolve(parents, self.initializer)
-        offspring = self.repair_population(offspring)
-
-        logger.debug("Applied perturbation operators...")
-        return offspring
-
-    def repair_population(self, population: Population) -> Population:
-        """
-        Repairs the individuals in the population to make them fulfill the problem's restrictions.
-
-        Parameters
-        ----------
-        population: Population
-            The population to be repaired
-
-        Returns
-        -------
-        repaired_population: Population
-            The population of repaired individuals
-        """
-
-        logger.debug("Applied hard constraints...")
-        return population.repair_solutions()
-
-    def select_individuals(self, population: Population, offspring: Population, **kwargs) -> Population:
-        """
-        Selects the individuals that will pass to the next generation.
-
-        Parameters
-        ----------
-        population: Population
-            The current population of the search strategy.
-        offspring: Population
-            The list of individuals modified by the operators of the search strategy.
-
-        Returns
-        -------
-        offspring: Population
-            The list of individuals selected for the next generation.
-        """
-
-        logger.debug("Selected survivors...")
-        return self.survivor_sel(population, offspring)
-
-    def step(self, progress: float):
-        """Update internal parameters and forward progress to sub-components.
+    def update(self, progress: float):
+        """Advances the state of the search by one iteration.
 
         Parameters
         ----------
@@ -247,13 +141,27 @@ class SearchStrategy(ParametrizableMixin):
             Current progress of the algorithm (0-1).
         """
 
-        super().step(progress)
+        super().update(progress)
+        self.operator.update(progress)
+        self.parent_sel.update(progress)
+        self.survivor_sel.update(progress)
 
-        self.operator.step(progress)
-        self.parent_sel.step(progress)
-        self.survivor_sel.step(progress)
+    @abstractmethod
+    def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
+        """Performs a single iteration of the algorithm on a given population.
 
-    def get_state(self, store_population: bool = False) -> dict:
+        Parameters
+        ----------
+        population : Population
+            Population of solutions in which to perform the operators.
+
+        Returns
+        -------
+        Population
+            Next population after performing all the steps in the iteration.
+        """
+
+    def get_state(self) -> dict:
         """
         Gets the current state of the search strategy as a dictionary.
 
@@ -271,13 +179,12 @@ class SearchStrategy(ParametrizableMixin):
         data = {
             "class_name": type(self).__name__,
             "name": self.name,
-            "random_generator": type(self.random_state).__name__,
-            "random_state": self.random_state.bit_generator.state,
+            "random_generator": type(self.rng).__name__,
+            "rng": self.rng.bit_generator.state,
             "initializer": self.initializer.get_state(),
             "parent_sel": self.parent_sel.get_state(),
             "operators": self.operator.get_state(),
             "survivor_sel": self.survivor_sel.get_state(),
-            "population": self.population.get_state() if store_population else None,
             **self.get_params(),
         }
 
@@ -287,7 +194,7 @@ class SearchStrategy(ParametrizableMixin):
         """Hook called after each generation (intended for subclasses)."""
 
     def extra_report(self):
-        """Hook called at the end of the optimisation (intended for subclasses)."""
+        """Hook called at the end of the optimization (intended for subclasses)."""
 
 
 class SearchStrategyFromLambda(SearchStrategy):
@@ -301,74 +208,51 @@ class SearchStrategyFromLambda(SearchStrategy):
     Parameters
     ----------
     initializer : callable or Initializer
-        Function ``(random_state) -> genotype``, or an initializer
+        Function ``(rng) -> genotype``, or an initializer
         instance.
-    operator : callable or Operator, optional
-        Function ``(population, initializer, random_state, **kwargs) -> Population``,
-        or an operator instance.
-    parent_sel : callable or ParentSelection, optional
-        Function ``(population, amount, random_state, **kwargs) -> indices``,
-        or a selection instance.
-    survivor_sel : callable or SurvivorSelection, optional
-        Function ``(parent_fitness, offspring_fitness, random_state, **kwargs) -> indices``,
-        or a selection instance.
+    iterate_fn: callable
+        Function that advances the state of the algorithm by one full iteration.
     name : str, optional
         Display name (default ``"Strategy from lambda"``).
-    encoding : Encoding, optional
-        Encoding that wraps encode/decode; overridden by
-        *encode_fn*/*decode_fn* if both are given.
-    encode_fn / decode_fn : callable, optional
-        Standalone encode/decode functions.
-    parent_selection_amount : int, optional
-        Amount of parents to select (used only when wrapping a
-        callable *parent_sel*).
-    pop_size : int, optional
-        Population size (used only when wrapping a callable
-        *initializer*).  Default 100.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`SearchStrategy`.
     """
 
     def __init__(
         self,
-        initializer: Callable | Initializer,
-        operator: Optional[Callable | Operator] = None,
-        parent_sel: Optional[Callable | ParentSelection] = None,
-        survivor_sel: Optional[Callable | SurvivorSelection] = None,
-        name: str = "Strategy from lambda",
-        encoding: Optional[Encoding] = None,
-        encode_fn: Optional[Callable] = None,
-        decode_fn: Optional[Callable] = None,
-        parent_selection_amount: Optional[int] = None,
-        pop_size: int = 100,
-        random_state: Optional[RNGLike] = None,
+        initializer: Initializer,
+        iterate_fn: Callable,
+        name: str = "Custom strategy",
+        dimension: int = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
-        if encoding is None and callable(encode_fn) and callable(decode_fn):
-            encoding = EncodingFromLambda(encode_fn=encode_fn, decode_fn=decode_fn)
-
-        if callable(initializer):
-            initializer = InitializerFromLambda(initializer, pop_size=pop_size, encoding=encoding, random_state=random_state)
-
-        if callable(parent_sel):
-            if parent_selection_amount is None:
-                parent_selection_amount = initializer.population_size
-            parent_sel = ParentSelectionFromLambda(selection_fn=parent_sel, amount=parent_selection_amount, random_state=random_state)
-
-        if callable(operator):
-            operator = OperatorFromLambda(operator_fn=operator, encoding=encoding, random_state=random_state)
-
-        if callable(survivor_sel):
-            survivor_sel = SurvivorSelectionFromLambda(selection_fn=survivor_sel, random_state=random_state)
+        self._validate_function(iterate_fn)
+        self.iterate_fn = iterate_fn
 
         super().__init__(
             initializer=initializer,
-            operator=operator,
-            parent_sel=parent_sel,
-            survivor_sel=survivor_sel,
             name=name,
-            random_state=random_state,
+            rng=rng,
             **kwargs,
         )
+
+    @staticmethod
+    def _validate_function(fn: Callable):
+        operator_sig = inspect.signature(fn)
+
+        count = 0
+        for p in operator_sig.parameters.values():
+            if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                count += 1
+            elif p.kind == inspect.Parameter.VAR_POSITIONAL:
+                return
+
+        required_min_count = 2
+        if count < required_min_count:
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `objfunc`).")
+
+    def step(self, population: Population, objfunc: ObjectiveFunc):
+        return self.iterate_fn(population, objfunc)

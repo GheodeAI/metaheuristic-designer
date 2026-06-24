@@ -46,10 +46,10 @@ def test_objective_from_lambda():
 #  InitializerFromLambda
 # ===================================================================
 def test_initializer_from_lambda(rng):
-    def my_gen(rs):
-        return rs.uniform(10, 20, size=3)
+    def my_gen(rng):
+        return rng.uniform(10, 20, size=3)
 
-    init = InitializerFromLambda(my_gen, dimension=3, pop_size=2, random_state=rng)
+    init = InitializerFromLambda(my_gen, dimension=3, pop_size=2, rng=rng)
     vec = init.generate_random()
     assert vec.shape == (3,)
     assert np.all(vec >= 10) and np.all(vec <= 20)
@@ -58,14 +58,14 @@ def test_initializer_from_lambda(rng):
 # ===================================================================
 #  OperatorFromLambda
 # ===================================================================
-def test_operator_from_lambda_applies_function(rng, dummy_objfunc):
-    pop = make_pop([1.0, 2.0], dummy_objfunc)
+def test_operator_from_lambda_applies_function(rng):
+    pop = make_pop([1.0, 2.0])
     original = pop.genotype_matrix.copy()
 
-    def add_ten(p, init, rng, **kw):
+    def add_ten(p, rng, **kw):
         return p.update_genotype(p.genotype_matrix + 10)
 
-    op = OperatorFromLambda(add_ten, random_state=rng)
+    op = OperatorFromLambda(add_ten, rng=rng)
     result = op.evolve(pop)
     expected = original + 10
     assert_array_equal(result.genotype_matrix, expected)
@@ -74,15 +74,15 @@ def test_operator_from_lambda_applies_function(rng, dummy_objfunc):
 # ===================================================================
 #  ParentSelectionFromLambda
 # ===================================================================
-def test_parent_selection_from_lambda_selects_correctly(rng, dummy_objfunc):
-    pop = make_pop([5.0, 1.0, 3.0, 2.0], dummy_objfunc)
+def test_parent_selection_from_lambda_selects_correctly(rng):
+    pop = make_pop([5.0, 1.0, 3.0, 2.0])
 
     # Select the two best individuals
     def select_best_two(population, amount, rng):
         fitness = population.fitness
         return np.argsort(fitness)[::-1][:amount]
 
-    sel = ParentSelectionFromLambda(select_best_two, amount=2, random_state=rng)
+    sel = ParentSelectionFromLambda(select_best_two, amount=2, rng=rng)
     result = sel.select(pop, 2)
     assert len(result) == 2
     # Best fitness values are at indices 0 (5.0) and 2 (3.0)
@@ -96,15 +96,15 @@ def test_parent_selection_from_lambda_selects_correctly(rng, dummy_objfunc):
 # ===================================================================
 #  SurvivorSelectionFromLambda
 # ===================================================================
-def test_survivor_selection_from_lambda(rng, dummy_objfunc):
-    parents = make_pop([5.0, 1.0], dummy_objfunc)
-    offspring = make_pop([10.0, 2.0], dummy_objfunc)
+def test_survivor_selection_from_lambda(rng):
+    parents = make_pop([5.0, 1.0])
+    offspring = make_pop([10.0, 2.0])
 
     # A lambda that always returns offspring indices [0,1] (so the offspring becomes the new population)
     def select_all_offspring(pop_fit, off_fit, rng):
         return np.array([0, 1]) + len(pop_fit)
 
-    sel = SurvivorSelectionFromLambda(select_all_offspring, random_state=rng)
+    sel = SurvivorSelectionFromLambda(select_all_offspring, rng=rng)
     result = sel.select(parents, offspring)
     assert len(result) == 2
     assert np.all(result.genotype_matrix == offspring.genotype_matrix)
@@ -118,7 +118,7 @@ def test_constraint_handler_from_lambda():
         repair_solution_fn=lambda x: x + 1,
         penalty_fn=lambda x: 2.0,
     )
-    assert_array_equal(handler.repair_solution(np.array([0.0])), [1.0])
+    assert_array_equal(handler.repair_solutions(np.array([0.0])), [1.0])
     assert handler.penalty(np.array([0.0])) == 2.0
 
 

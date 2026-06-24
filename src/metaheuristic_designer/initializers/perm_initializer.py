@@ -1,6 +1,4 @@
-"""
-Initializer that generates random permutations.
-"""
+"""Initializer that generates random permutations."""
 
 from __future__ import annotations
 from ..initializer import Initializer
@@ -19,9 +17,9 @@ class PermInitializer(Initializer):
         Number of individuals to generate (default 1).
     encoding : Encoding, optional
         Encoding that will be passed to each individual.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
     def generate_random(self):
-        return self.random_state.permutation(self.dimension)
+        return self.rng.permutation(self.dimension)

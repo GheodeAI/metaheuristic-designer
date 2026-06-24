@@ -23,7 +23,7 @@ class TypeCastEncoding(Encoding):
         The dtype used for the internal genotype (default ``int``).
     decoded_dtype : NumPy dtype, optional
         The dtype used for the decoded phenotype (default ``float``).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Encoding`.
     """
 

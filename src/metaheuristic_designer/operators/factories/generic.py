@@ -36,11 +36,7 @@ order_preserving_operators = {}
 
 
 def create_operator(
-    method: str,
-    encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
-    name: Optional[str] = None,
-    **kwargs
+    method: str, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None, name: Optional[str] = None, **kwargs
 ) -> OperatorFromLambda:
     """
     Create an operator by name from any registry.
@@ -54,11 +50,11 @@ def create_operator(
         Operator key, possibly with registry prefix.
     encoding : Encoding, optional
         Encoding applied to the genotype after the operator runs.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     name : str, optional
         Display name; defaults to *method*.
-    **kwargs
+    \\*\\*kwargs
         Parameters forwarded to the underlying operator function.
 
     Returns
@@ -78,7 +74,7 @@ def create_operator(
     method_lower = method.lower()
     new_operator = None
     if method_lower in bo_aliases:
-        new_operator = BOOperator(name=name, encoding=encoding, random_state=random_state, **kwargs)
+        new_operator = BOOperator(name=name, encoding=encoding, rng=rng, **kwargs)
         logger.debug("Created bayesian optimization operator.")
     elif method_lower in null_aliases:
         new_operator = NullOperator(name=name)
@@ -92,7 +88,7 @@ def create_operator(
         if op_name in op_map:
             preserves_order = (op_reg_name in order_preserving_registries) or (op_name in order_preserving_operators)
             new_operator = OperatorFromLambda(
-                operator_fn=op_map[op_name], name=name, encoding=encoding, preserves_order=preserves_order, random_state=random_state, **kwargs
+                operator_fn=op_map[op_name], name=name, encoding=encoding, preserves_order=preserves_order, rng=rng, **kwargs
             )
         else:
             raise ValueError(f"Operator {op_name} not found in the operator registry {op_reg_name}.")
@@ -108,7 +104,7 @@ def create_operator(
                         name=name,
                         encoding=encoding,
                         preserves_order=preserves_order,
-                        random_state=random_state,
+                        rng=rng,
                         **kwargs,
                     )
                     possible_collision = op_reg_name

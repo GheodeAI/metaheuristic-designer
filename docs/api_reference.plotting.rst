@@ -52,19 +52,19 @@ The simplest diagnostic: how does the best solution improve over time?
    sns.set_theme(style="whitegrid")
    import metaheuristic_designer as mhd
    from metaheuristic_designer.benchmarks import Sphere
-   from metaheuristic_designer import simple, check_random_state
+   from metaheuristic_designer import simple, check_rng
 
    objfunc = Sphere(dimension=5, mode="min")
-   rng = check_random_state(42)
+   rng = check_rng(42)
 
    # CHANGE LATER
    algo = simple.evolution_strategy_real(
        objfunc,
        population_size=100,
-       stop_cond="max_iterations",
+       stop_condition_str="max_iterations",
        max_iterations=5000,
        reporter="silent",
-       random_state=rng,
+       rng=rng,
    )
    algo.optimize()
    df = algo.history_tracker.to_pandas()
@@ -91,19 +91,19 @@ For problems where the objective spans orders of magnitude, use a logarithmic y-
    sns.set_theme(style="whitegrid")
    import metaheuristic_designer as mhd
    from metaheuristic_designer.benchmarks import Sphere
-   from metaheuristic_designer import simple, check_random_state
+   from metaheuristic_designer import simple, check_rng
 
    objfunc = Sphere(dimension=5, mode="min")
-   rng = check_random_state(42)
+   rng = check_rng(42)
 
    # CHANGE LATER
    algo = simple.evolution_strategy_real(
        objfunc,
        population_size=100,
-       stop_cond="max_iterations",
+       stop_condition_str="max_iterations",
        max_iterations=5000,
        reporter="silent",
-       random_state=rng,
+       rng=rng,
    )
    algo.optimize()
    df = algo.history_tracker.to_pandas()
@@ -145,33 +145,32 @@ the population.
    from metaheuristic_designer.initializers import UniformInitializer
    from metaheuristic_designer.strategies import DE
    from metaheuristic_designer.algorithms import Algorithm
-   from metaheuristic_designer.history_tracker import HistoryTracker
-   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
    from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
 
-   rng = mhd.check_random_state(42)
+   rng = mhd.check_rng(42)
    DIM = 5
    objfunc = Rastrigin(DIM, mode="min")
 
    strategy = DE(
       initializer=UniformInitializer(
          objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
-         population_size=100, random_state=rng
+         population_size=100, rng=rng
       ),
       de_operator_name="DE/rand/1",
       F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
       Cr=0.9,
       name="DE",
-      random_state=rng,
+      rng=rng,
    )
 
    algo = mhd.Algorithm(
        objfunc,
        strategy,
-       stop_cond="max_iterations",
+       stop_condition_str="max_iterations",
        max_iterations=200,
        reporter="silent",
-       history_tracker=mhd.HistoryTracker(
+       history_tracker=ConfigurableHistoryTracker(
          track_median=True,
          track_worst=True,
          track_full_objective=True,
@@ -215,33 +214,33 @@ To highlight the gap between best and worst, shade it:
    from metaheuristic_designer.initializers import UniformInitializer
    from metaheuristic_designer.strategies import DE
    from metaheuristic_designer.algorithms import Algorithm
-   from metaheuristic_designer.history_tracker import HistoryTracker
+   from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
    from metaheuristic_designer.stopping_condition import StoppingCondition
    from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
 
-   rng = mhd.check_random_state(42)
+   rng = mhd.check_rng(42)
    DIM = 5
    objfunc = Rastrigin(DIM, mode="min")
 
    strategy = DE(
       initializer=UniformInitializer(
          objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
-         population_size=100, random_state=rng
+         population_size=100, rng=rng
       ),
       de_operator_name="DE/rand/1",
       F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
       Cr=0.9,
       name="DE",
-      random_state=rng,
+      rng=rng,
    )
 
    algo = mhd.Algorithm(
        objfunc,
        strategy,
-       stop_cond="max_iterations",
+       stop_condition_str="max_iterations",
        max_iterations=200,
        reporter="silent",
-       history_tracker=mhd.HistoryTracker(
+       history_tracker=ConfigurableHistoryTracker(
          track_median=True,
          track_worst=True,
          track_full_objective=True,
@@ -295,38 +294,39 @@ Combine the DataFrames of several algorithms and use ``hue`` to differentiate th
    import matplotlib.pyplot as plt
    sns.set_theme(style="whitegrid")
    import metaheuristic_designer as mhd
+   from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
    from metaheuristic_designer.benchmarks import Sphere
-   from metaheuristic_designer import simple, check_random_state
+   from metaheuristic_designer import simple, check_rng
 
    objfunc = Sphere(dimension=5, mode="min")
-   rng = check_random_state(42)
+   rng = check_rng(42)
 
    algo1 = simple.genetic_algorithm_real(
        objfunc,
        population_size=100,
-       stop_cond="max_iterations",
+       stop_condition_str="max_iterations",
        max_iterations=200,
-       history_tracker=mhd.HistoryTracker(track_worst=True, track_median=True),
+       history_tracker=ConfigurableHistoryTracker(track_worst=True, track_median=True),
        reporter="silent",
-       random_state=rng,
+       rng=rng,
    )
    algo2 = simple.differential_evolution_real(
        objfunc,
        population_size=100,
-       stop_cond="max_iterations",
+       stop_condition_str="max_iterations",
        max_iterations=200,
-       history_tracker=mhd.HistoryTracker(track_worst=True, track_median=True),
+       history_tracker=ConfigurableHistoryTracker(track_worst=True, track_median=True),
        reporter="silent",
-       random_state=rng,
+       rng=rng,
    )
    algo3 = simple.particle_swarm_real(
        objfunc,
        population_size=100,
-       stop_cond="max_iterations",
+       stop_condition_str="max_iterations",
        max_iterations=200,
-       history_tracker=mhd.HistoryTracker(track_worst=True, track_median=True),
+       history_tracker=ConfigurableHistoryTracker(track_worst=True, track_median=True),
        reporter="silent",
-       random_state=rng,
+       rng=rng,
    )
    algo1.optimize()
    algo2.optimize()
@@ -387,33 +387,32 @@ table into long format:
    from metaheuristic_designer.initializers import UniformInitializer
    from metaheuristic_designer.strategies import DE
    from metaheuristic_designer.algorithms import Algorithm
-   from metaheuristic_designer.history_tracker import HistoryTracker
-   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
    from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
 
-   rng = mhd.check_random_state(42)
+   rng = mhd.check_rng(42)
    DIM = 5
    objfunc = Rastrigin(DIM, mode="min")
 
    strategy = DE(
       initializer=UniformInitializer(
          objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
-         population_size=100, random_state=rng
+         population_size=100, rng=rng
       ),
       de_operator_name="DE/rand/1",
       F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
       Cr=0.9,
       name="DE",
-      random_state=rng,
+      rng=rng,
    )
 
    algo = mhd.Algorithm(
        objfunc,
        strategy,
-       stop_cond="max_iterations",
+       stop_condition_str="max_iterations",
        max_iterations=200,
        reporter="silent",
-       history_tracker=mhd.HistoryTracker(
+       history_tracker=ConfigurableHistoryTracker(
          track_median=True,
          track_worst=True,
          track_full_objective=True,
@@ -483,33 +482,32 @@ A dual-axis plot is often the clearest:
    from metaheuristic_designer.initializers import UniformInitializer
    from metaheuristic_designer.strategies import DE
    from metaheuristic_designer.algorithms import Algorithm
-   from metaheuristic_designer.history_tracker import HistoryTracker
-   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
    from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
 
-   rng = mhd.check_random_state(42)
+   rng = mhd.check_rng(42)
    DIM = 5
    objfunc = Rastrigin(DIM, mode="min")
 
    strategy = DE(
       initializer=UniformInitializer(
          objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
-         population_size=100, random_state=rng
+         population_size=100, rng=rng
       ),
       de_operator_name="DE/rand/1",
       F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
       Cr=0.9,
       name="DE",
-      random_state=rng,
+      rng=rng,
    )
 
    algo = mhd.Algorithm(
        objfunc,
        strategy,
-       stop_cond="max_iterations",
+       stop_condition_str="max_iterations",
        max_iterations=200,
        reporter="silent",
-       history_tracker=mhd.HistoryTracker(
+       history_tracker=ConfigurableHistoryTracker(
          track_median=True,
          track_worst=True,
          track_full_objective=True,
@@ -584,33 +582,32 @@ Plot them alongside convergence to understand how the search adapts over time:
    from metaheuristic_designer.initializers import UniformInitializer
    from metaheuristic_designer.strategies import DE
    from metaheuristic_designer.algorithms import Algorithm
-   from metaheuristic_designer.history_tracker import HistoryTracker
-   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
    from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
 
-   rng = mhd.check_random_state(42)
+   rng = mhd.check_rng(42)
    DIM = 5
    objfunc = Rastrigin(DIM, mode="min")
 
    strategy = DE(
       initializer=UniformInitializer(
          objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
-         population_size=100, random_state=rng
+         population_size=100, rng=rng
       ),
       de_operator_name="DE/rand/1",
       F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
       Cr=0.9,
       name="DE",
-      random_state=rng,
+      rng=rng,
    )
 
    algo = mhd.Algorithm(
        objfunc,
        strategy,
-       stop_cond="max_iterations",
+       stop_condition_str="max_iterations",
        max_iterations=200,
        reporter="silent",
-       history_tracker=mhd.HistoryTracker(
+       history_tracker=ConfigurableHistoryTracker(
          track_median=True,
          track_worst=True,
          track_full_objective=True,
@@ -689,33 +686,32 @@ Put several views into one figure to get a comprehensive picture:
    from metaheuristic_designer.initializers import UniformInitializer
    from metaheuristic_designer.strategies import DE
    from metaheuristic_designer.algorithms import Algorithm
-   from metaheuristic_designer.history_tracker import HistoryTracker
-   from metaheuristic_designer.stopping_condition import StoppingCondition
+   from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
    from metaheuristic_designer.parameter_schedules import ExponentialDecaySchedule
 
-   rng = mhd.check_random_state(42)
+   rng = mhd.check_rng(42)
    DIM = 5
    objfunc = Rastrigin(DIM, mode="min")
 
    strategy = DE(
       initializer=UniformInitializer(
          objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
-         population_size=100, random_state=rng
+         population_size=100, rng=rng
       ),
       de_operator_name="DE/rand/1",
       F=ExponentialDecaySchedule(init_value=1, final_value=0.05, alpha=0.99),
       Cr=0.9,
       name="DE",
-      random_state=rng,
+      rng=rng,
    )
 
    algo = mhd.Algorithm(
        objfunc,
        strategy,
-       stop_cond="max_iterations",
+       stop_condition_str="max_iterations",
        max_iterations=200,
        reporter="silent",
-       history_tracker=mhd.HistoryTracker(
+       history_tracker=ConfigurableHistoryTracker(
          track_median=True,
          track_worst=True,
          track_full_objective=True,

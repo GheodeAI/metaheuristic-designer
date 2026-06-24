@@ -21,7 +21,7 @@ class ThresholdSchedule(SchedulableParameter):
     """
 
     def __init__(self, init_value: float, final_value: float, threshold: float = 0.5):
-        super().__init__(random_state=None)
+        super().__init__(rng=None)
         self.init_value = init_value
         self.final_value = final_value
         self.threshold = threshold

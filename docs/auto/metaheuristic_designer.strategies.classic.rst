@@ -4,53 +4,17 @@ metaheuristic\_designer.strategies.classic package
 Submodules
 ----------
 
-metaheuristic\_designer.strategies.classic.CMA\_ES module
----------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: metaheuristic_designer.strategies.classic.CMA_ES
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.strategies.classic.DE module
-----------------------------------------------------
-
-.. automodule:: metaheuristic_designer.strategies.classic.DE
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.strategies.classic.ES module
-----------------------------------------------------
-
-.. automodule:: metaheuristic_designer.strategies.classic.ES
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.strategies.classic.GA module
-----------------------------------------------------
-
-.. automodule:: metaheuristic_designer.strategies.classic.GA
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.strategies.classic.SA module
-----------------------------------------------------
-
-.. automodule:: metaheuristic_designer.strategies.classic.SA
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.strategies.classic.random\_search module
-----------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.strategies.classic.random_search
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   metaheuristic_designer.strategies.classic.CMA_ES
+   metaheuristic_designer.strategies.classic.DE
+   metaheuristic_designer.strategies.classic.ES
+   metaheuristic_designer.strategies.classic.GA
+   metaheuristic_designer.strategies.classic.SA
+   metaheuristic_designer.strategies.classic.hill_climb
+   metaheuristic_designer.strategies.classic.local_search
+   metaheuristic_designer.strategies.classic.random_search
 
 Module contents
 ---------------

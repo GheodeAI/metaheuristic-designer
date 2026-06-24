@@ -8,24 +8,19 @@ import numpy as np
 from ...initializer import Initializer
 from ...survivor_selection import create_survivor_selection
 from ...operator import Operator
-from ..hill_climb import HillClimb
 from ...schedulable_parameter import SchedulableParameter
-from ...utils import check_random_state, RNGLike
+from ...utils import check_rng, RNGLike
+from ..single_solution_strategy import SingleSolutionStrategy
+from ...parameter_schedules import ProbabilityAnnealingSchedule
 
 
-class SA(HillClimb):
+class SA(SingleSolutionStrategy):
     """
     Simulated Annealing algorithm.
 
     A single solution is perturbed each iteration.  The new solution
     is accepted if it is better, or probabilistically if it is worse,
     according to an exponentially decaying temperature schedule.
-
-    .. warning::
-       The current handling of the annealing schedule is tightly
-       coupled to the strategy.  The survivor selection should be
-       refactored to manage its own temperature and acceptance
-       logic independently.
 
     Parameters
     ----------
@@ -41,9 +36,9 @@ class SA(HillClimb):
         Starting temperature (default 100).
     alpha : float or SchedulableParameter, optional
         Cooling factor (default 0.99).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`HillClimb`.
     """
 
@@ -55,50 +50,35 @@ class SA(HillClimb):
         iterations: int | SchedulableParameter = 100,
         temperature_init: float | SchedulableParameter = 100,
         alpha: float | SchedulableParameter = 0.99,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
-
         # We need to do the check earlier since it will be injected into the survivor selection
         # and we want everything to share the random state if possible.
-        random_state = check_random_state(random_state)
+        rng = check_rng(rng)
+        p = ProbabilityAnnealingSchedule(temperature_init, iterations=iterations, alpha=alpha)
 
-        # We can't access temperature_init yet, it could be a SchedulableParameter,
-        # we fix the p after the constructor.
-        survivor_sel = create_survivor_selection("probabilistic_hillclimb", p=None, random_state=random_state)
-
-        self.iter_count = 0
         super().__init__(
             initializer,
             operator=operator,
-            survivor_sel=survivor_sel,
+            survivor_sel=create_survivor_selection("probabilistic_hillclimb", p=p, rng=rng),
             name=name,
-            random_state=random_state,
-            # Forced kwargs
-            iterations=iterations,
-            temperature_init=temperature_init,
-            alpha=alpha,
+            rng=rng,
             **kwargs,
         )
 
-        self.temperature = self.params.temperature_init
-        survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
-
-    def step(self, progress):
-        super().step(progress=progress)
-
-        self.iter_count += 1
-        if self.iter_count > self.params.iterations:
-            self.temperature *= self.params.alpha
-            self.iter_count = 0
-            self.survivor_sel.update_kwargs(p=np.exp(-1 / self.temperature))
+    @property
+    def temperature(self):
+        return self.survivor_sel.raw_kwargs["p"].temperature
 
     def extra_step_info(self):
         """
-        Diplays temperature values and acceptance probability.
+        Displays temperature values and acceptance probability.
         """
 
+        prob_schedule = self.survivor_sel.raw_kwargs["p"]
+
         print()
-        print(f"\tTemp iters: {self.iter_count}/{self.params.iterations}")
-        print(f"\tTemperature: {self.temperature:0.4f}")
-        print(f"\tAccept prob: {np.exp(-1 / self.temperature):0.4f}")
+        print(f"\tTemp iters: {prob_schedule.iteration_counter}/{prob_schedule.iterations}")
+        print(f"\tTemperature: {prob_schedule.temperature:0.4f}")
+        print(f"\tAccept prob: {np.exp(-1 / prob_schedule.temperature):0.4f}")

@@ -4,21 +4,11 @@ metaheuristic\_designer.encodings.special package
 Submodules
 ----------
 
-metaheuristic\_designer.encodings.special.PSO\_encoding module
---------------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: metaheuristic_designer.encodings.special.PSO_encoding
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metaheuristic\_designer.encodings.special.self\_adapting\_ES\_encoding module
------------------------------------------------------------------------------
-
-.. automodule:: metaheuristic_designer.encodings.special.self_adapting_ES_encoding
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   metaheuristic_designer.encodings.special.PSO_encoding
+   metaheuristic_designer.encodings.special.self_adapting_ES_encoding
 
 Module contents
 ---------------

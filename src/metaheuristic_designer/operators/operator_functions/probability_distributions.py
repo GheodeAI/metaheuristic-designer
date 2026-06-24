@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 import logging
+from typing import Optional
 import numpy as np
 import scipy as sp
-from ...utils import RNGLike, TensorLike, check_random_state
+from ...utils import RNGLike, TensorLike, check_rng
 
 logger = logging.getLogger(__name__)
 
@@ -18,15 +19,18 @@ class Distribution(ABC):
     ``estimate_parameters`` method to compute heuristic parameters from data.
     """
 
+    def __init__(self, rng: Optional[RNGLike] = None):
+        self.rng = check_rng(rng)
+
     @abstractmethod
-    def sample(self, shape: tuple, random_state: RNGLike) -> TensorLike:
+    def sample(self, shape: tuple, rng: RNGLike) -> TensorLike:
         """Draw random samples from the distribution.
 
         Parameters
         ----------
         shape : tuple
             Shape of the requested output array.
-        random_state : RNGLike
+        rng : RNGLike
             Random number generator.
 
         Returns
@@ -46,7 +50,7 @@ class Distribution(ABC):
         data_matrix : np.ndarray
             2-D array of shape ``(N, M)`` containing the data used for
             estimation.
-        **kwargs
+        \\*\\*kwargs
             Additional keyword arguments that may influence the estimation.
 
         Returns
@@ -63,21 +67,22 @@ class ScipyUnivarDistribution(Distribution):
     ----------
     distribution_cls : type
         A SciPy distribution class (e.g., ``scipy.stats.norm``).
-    **kwargs
+    \\*\\*kwargs
         Parameters forwarded to the distribution constructor.
     """
 
-    def __init__(self, distribution_cls, **kwargs):
+    def __init__(self, distribution_cls, rng, **kwargs):
         self.dist = distribution_cls(**kwargs)
+        super().__init__(rng=rng)
 
-    def sample(self, shape: tuple, random_state: RNGLike) -> TensorLike:
+    def sample(self, shape: tuple) -> TensorLike:
         """Draw random samples.
 
         Parameters
         ----------
         shape : tuple
             Desired output shape, e.g., ``(N, M)``.
-        random_state : RNGLike
+        rng : RNGLike
             Random number generator.
 
         Returns
@@ -85,7 +90,7 @@ class ScipyUnivarDistribution(Distribution):
         np.ndarray
             Array of independent samples of the requested shape.
         """
-        return self.dist.rvs(size=shape, random_state=random_state)
+        return self.dist.rvs(size=shape, random_state=self.rng)
 
 
 class ScipyMultivarDistribution(Distribution):
@@ -95,14 +100,15 @@ class ScipyMultivarDistribution(Distribution):
     ----------
     distribution_cls : type
         A SciPy multivariate distribution class (e.g., ``scipy.stats.multivariate_normal``).
-    **kwargs
+    \\*\\*kwargs
         Parameters forwarded to the distribution constructor.
     """
 
-    def __init__(self, distribution_cls, **kwargs):
+    def __init__(self, distribution_cls, rng=None, **kwargs):
         self.dist = distribution_cls(**kwargs)
+        super().__init__(rng=rng)
 
-    def sample(self, shape: tuple, random_state: RNGLike) -> TensorLike:
+    def sample(self, shape: tuple) -> TensorLike:
         """Draw random samples.
 
         For a multivariate distribution, ``shape[1]`` is ignored;
@@ -113,7 +119,7 @@ class ScipyMultivarDistribution(Distribution):
         ----------
         shape : tuple
             Requested shape; only ``shape[0]`` is used.
-        random_state : RNGLike
+        rng : RNGLike
             Random number generator.
 
         Returns
@@ -121,7 +127,7 @@ class ScipyMultivarDistribution(Distribution):
         np.ndarray
             Array of shape ``(shape[0], dim)``.
         """
-        return self.dist.rvs(size=shape[0], random_state=random_state)
+        return self.dist.rvs(size=shape[0], random_state=self.rng)
 
 
 class multivariate_categorical(Distribution):
@@ -137,13 +143,14 @@ class multivariate_categorical(Distribution):
         row-wise before sampling.
     """
 
-    def __init__(self, categories, weight_matrix):
+    def __init__(self, categories, weight_matrix, rng):
         self.categories = categories
         weight_matrix = weight_matrix / weight_matrix.sum(axis=1, keepdims=True)
         self.cumsum_matrix = weight_matrix.cumsum(axis=1)
         self.sample_fn = np.vectorize(np.searchsorted, signature="(n),()->()", cache=True)
+        super().__init__(rng=rng)
 
-    def sample(self, shape: tuple, random_state: RNGLike) -> TensorLike:
+    def sample(self, shape: tuple) -> TensorLike:
         """Draw random samples.
 
         Parameters
@@ -152,7 +159,7 @@ class multivariate_categorical(Distribution):
             Requested shape; if ``None`` the number of rows is taken from
             ``self.cumsum_matrix.shape[0]``.  Otherwise the first element
             gives the number of rows, and additional dimensions are appended.
-        random_state : RNGLike
+        rng : RNGLike
             Random number generator.
 
         Returns
@@ -167,9 +174,7 @@ class multivariate_categorical(Distribution):
         else:
             shape = tuple(shape) + (len(self.categories),)
 
-        random_state = check_random_state(random_state)
-
-        index_rnd = random_state.random(size=shape)
+        index_rnd = self.rng.random(size=shape)
         return self.sample_fn(self.cumsum_matrix, index_rnd)
 
 
@@ -185,7 +190,7 @@ def uniform_param_fix(min=None, max=None, **kwargs):
         Lower bound of the uniform interval.
     max : float or array-like, optional
         Upper bound of the uniform interval.
-    **kwargs : dict
+    \\*\\*kwargs : dict
         Remaining keyword arguments (e.g., ``loc``, ``scale``).
 
     Returns
@@ -220,7 +225,7 @@ def normal_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is replaced by the
         per-column standard deviation.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -228,12 +233,13 @@ def normal_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved ``loc`` and ``scale``.
     """
-    if loc == "calculated":
+
+    if isinstance(loc, str) and loc == "calculated":
         kwargs["loc"] = population_matrix.mean(axis=0)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         kwargs["scale"] = population_matrix.std(axis=0)
     elif scale is not None:
         kwargs["scale"] = scale
@@ -257,7 +263,7 @@ def uniform_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Interval length. If ``"calculated"``, it is set to
         ``max - min`` per column.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -265,12 +271,12 @@ def uniform_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved ``loc`` and ``scale``.
     """
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         kwargs["loc"] = population_matrix.min(axis=0)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         kwargs["scale"] = population_matrix.max(axis=0) - population_matrix.min(axis=0)
     elif scale is not None:
         kwargs["scale"] = scale
@@ -294,7 +300,7 @@ def cauchy_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is estimated as
         ``scipy.stats.iqr(data, axis=0) / 2``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -302,12 +308,12 @@ def cauchy_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved ``loc`` and ``scale``.
     """
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         kwargs["loc"] = np.median(population_matrix, axis=0)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         kwargs["scale"] = sp.stats.iqr(population_matrix, axis=0) / 2
     elif scale is not None:
         kwargs["scale"] = scale
@@ -331,7 +337,7 @@ def laplace_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is estimated using
         ``scipy.stats.median_abs_deviation`` along axis 0.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -339,12 +345,12 @@ def laplace_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved ``loc`` and ``scale``.
     """
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         kwargs["loc"] = np.median(population_matrix, axis=0)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         kwargs["scale"] = sp.stats.median_abs_deviation(population_matrix, axis=0)
     elif scale is not None:
         kwargs["scale"] = scale
@@ -368,7 +374,7 @@ def gamma_heuristic(population_matrix, a=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is computed as
         ``var / mean``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -378,14 +384,14 @@ def gamma_heuristic(population_matrix, a=None, scale=None, **kwargs):
     """
     mean = None
     var = None
-    if a == "calculated":
+    if isinstance(a, str) and a == "calculated":
         mean = population_matrix.mean(axis=0)
         var = population_matrix.var(axis=0)
         kwargs["a"] = mean * mean / var
     elif a is not None:
         kwargs["a"] = a
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         if mean is None and var is None:
             mean = population_matrix.mean(axis=0)
             var = population_matrix.var(axis=0)
@@ -408,7 +414,7 @@ def expon_heuristic(population_matrix, scale=None, **kwargs):
         2-D array of shape ``(N, M)``.
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, ``scale = mean - loc``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged; expected
         to contain *loc* if a non-zero shift is used.
 
@@ -417,7 +423,7 @@ def expon_heuristic(population_matrix, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved *scale*.
     """
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         loc = kwargs.get("loc", 0)
         kwargs["scale"] = population_matrix.mean(axis=0) - loc
     elif scale is not None:
@@ -443,7 +449,7 @@ def levy_stable_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     scale : None, float, array-like, or ``"calculated"``
         Scale parameter. If ``"calculated"``, it is estimated using
         ``scipy.stats.median_abs_deviation`` along axis 0.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -451,12 +457,12 @@ def levy_stable_heuristic(population_matrix, loc=None, scale=None, **kwargs):
     dict
         The updated *kwargs* with resolved ``loc`` and ``scale``.
     """
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         kwargs["loc"] = np.median(population_matrix, axis=0)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if scale == "calculated":
+    if isinstance(scale, str) and scale == "calculated":
         kwargs["scale"] = sp.stats.median_abs_deviation(population_matrix, axis=0)
     elif scale is not None:
         kwargs["scale"] = scale
@@ -476,7 +482,7 @@ def poisson_heuristic(population_matrix, mu=None, **kwargs):
         2-D array of shape ``(N, M)``.
     mu : None, float, array-like, or ``"calculated"``
         Rate parameter. If ``"calculated"``, ``mu = mean - loc``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged; expected
         to contain *loc* if a non-zero shift is used.
 
@@ -485,7 +491,7 @@ def poisson_heuristic(population_matrix, mu=None, **kwargs):
     dict
         The updated *kwargs* with resolved *mu*.
     """
-    if mu == "calculated":
+    if isinstance(mu, str) and mu == "calculated":
         loc = kwargs.get("loc", 0)
         kwargs["mu"] = population_matrix.mean(axis=0) - loc
     elif mu is not None:
@@ -506,7 +512,7 @@ def bernoulli_heuristic(population_matrix, p=None, **kwargs):
         2-D array of shape ``(N, M)``.
     p : None, float, array-like, or ``"calculated"``
         Success probability. If ``"calculated"``, ``p = mean - loc``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -514,7 +520,7 @@ def bernoulli_heuristic(population_matrix, p=None, **kwargs):
     dict
         The updated *kwargs* with resolved *p*.
     """
-    if p == "calculated":
+    if isinstance(p, str) and p == "calculated":
         loc = kwargs.get("loc", 0)
         kwargs["p"] = population_matrix.mean(axis=0) - loc
     elif p is not None:
@@ -535,7 +541,7 @@ def binomial_heuristic(population_matrix, p=None, **kwargs):
         2-D array of shape ``(N, M)``.
     p : None, float, array-like, or ``"calculated"``
         Success probability. If ``"calculated"``, ``p = (mean - loc) / n``.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged; must
         contain the integer *n* (number of trials) and optionally *loc*.
 
@@ -544,7 +550,7 @@ def binomial_heuristic(population_matrix, p=None, **kwargs):
     dict
         The updated *kwargs* with resolved *p*.
     """
-    if p == "calculated":
+    if isinstance(p, str) and p == "calculated":
         loc = kwargs.get("loc", 0)
         n = kwargs["n"]
         kwargs["p"] = (population_matrix.mean(axis=0) - loc) / n
@@ -571,7 +577,7 @@ def tikhinov_heuristic(population_matrix, loc=None, kappa=None, **kwargs):
     kappa : None, float, array-like, or ``"calculated"``
         Concentration parameter. If ``"calculated"``, it is approximated
         from the mean resultant length.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -581,14 +587,14 @@ def tikhinov_heuristic(population_matrix, loc=None, kappa=None, **kwargs):
     """
     mean_cos = None
     mean_sin = None
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         mean_cos = np.cos(population_matrix).mean(axis=0)
         mean_sin = np.sin(population_matrix).mean(axis=0)
         kwargs["loc"] = np.arctan2(mean_sin, mean_cos)
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if kappa == "calculated":
+    if isinstance(kappa, str) and kappa == "calculated":
         if mean_cos is None and mean_sin is None:
             mean_cos = np.cos(population_matrix).mean(axis=0)
             mean_sin = np.sin(population_matrix).mean(axis=0)
@@ -615,7 +621,7 @@ def multivariate_normal_heuristic(population_matrix, mean=None, cov=None, **kwar
     cov : None, array-like, or ``"calculated"``
         Covariance matrix. If ``"calculated"``, an error is raised because
         automatic estimation is not implemented.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -629,12 +635,12 @@ def multivariate_normal_heuristic(population_matrix, mean=None, cov=None, **kwar
         If *cov* is ``"calculated"``, automatic covariance estimation is
         not supported.
     """
-    if mean == "calculated":
+    if isinstance(mean, str) and mean == "calculated":
         kwargs["mean"] = population_matrix.mean(axis=0)
     elif mean is not None:
         kwargs["mean"] = mean
 
-    if cov == "calculated":
+    if isinstance(cov, str) and cov == "calculated":
         raise ValueError("Automatic covariance estimation is not supported. " "Provide an explicit covariance matrix.")
     elif cov is not None:
         kwargs["cov"] = cov
@@ -654,7 +660,7 @@ def dirichlet_heuristic(population_matrix, alpha=None, **kwargs):
         2-D array of shape ``(N, M)``.
     alpha : None, array-like, or ``"calculated"``
         Concentration parameters. If ``"calculated"``, an error is raised.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -668,7 +674,7 @@ def dirichlet_heuristic(population_matrix, alpha=None, **kwargs):
         If *alpha* is ``"calculated"``, automatic estimation is not
         supported.
     """
-    if alpha == "calculated":
+    if isinstance(alpha, str) and alpha == "calculated":
         raise ValueError("Automatic Dirichlet parameter estimation is not supported. " "Provide an explicit `alpha` vector.")
     elif alpha is not None:
         kwargs["alpha"] = alpha
@@ -679,7 +685,7 @@ def dirichlet_heuristic(population_matrix, alpha=None, **kwargs):
 def tikhinov_fisher_heuristic(population_matrix, loc=None, kappa=None, **kwargs):
     """Heuristic parameter estimation for the von Mises-Fisher distribution.
 
-    *loc* is estimated by normalising the mean vector of the data.
+    *loc* is estimated by normalizing the mean vector of the data.
     *kappa* is approximated using the mean resultant length *R* and the
     dimension *d*:
     ``kappa = R * (d - R²) / (1 - R²)``.
@@ -691,11 +697,11 @@ def tikhinov_fisher_heuristic(population_matrix, loc=None, kappa=None, **kwargs)
         *d*-dimensional sphere.
     loc : None, array-like, or ``"calculated"``
         Mean direction (unit vector). If ``"calculated"``, it is set to the
-        normalised sample mean.
+        normalized sample mean.
     kappa : None, float, or ``"calculated"``
         Concentration parameter. If ``"calculated"``, it is approximated
         from the mean resultant length.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments passed through unchanged.
 
     Returns
@@ -704,14 +710,14 @@ def tikhinov_fisher_heuristic(population_matrix, loc=None, kappa=None, **kwargs)
         The updated *kwargs* with resolved ``loc`` and ``kappa``.
     """
     sample_mean = None
-    if loc == "calculated":
+    if isinstance(loc, str) and loc == "calculated":
         sample_mean = population_matrix.mean(axis=0)
         radius = np.linalg.norm(sample_mean)
         kwargs["loc"] = sample_mean / radius
     elif loc is not None:
         kwargs["loc"] = loc
 
-    if kappa == "calculated":
+    if isinstance(kappa, str) and kappa == "calculated":
         if sample_mean is None:
             sample_mean = population_matrix.mean(axis=0)
             radius = np.linalg.norm(sample_mean)

@@ -14,7 +14,7 @@ from .encoding import Encoding, DefaultEncoding
 from .population import Population
 from .initializer import Initializer
 from .parametrizable_mixin import ParametrizableMixin
-from .utils import check_random_state, RNGLike
+from .utils import check_rng, RNGLike
 
 logger = logging.getLogger(__name__)
 
@@ -37,27 +37,22 @@ class Operator(ParametrizableMixin, ABC):
         If ``True``, the operator keeps individuals in the same
         order (useful for one-to-one survivor selection).
         Default ``False``.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
-
-    _last_id: int = 0
 
     def __init__(
         self,
         name: Optional[str] = None,
         encoding: Optional[Encoding] = None,
         preserves_order: bool = False,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
         super().__init__()
-
-        self.id = Operator._last_id
-        Operator._last_id += 1
 
         self.name = name
 
@@ -67,19 +62,19 @@ class Operator(ParametrizableMixin, ABC):
 
         self.preserves_order = preserves_order
 
-        self.random_state = check_random_state(random_state)
+        self.rng = check_rng(rng)
         self.store_kwargs(**kwargs)
 
-    def __call__(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def __call__(self, population: Population) -> Population:
         """Shorthand for :meth:`evolve`."""
-        return self.evolve(population, initializer)
+        return self.evolve(population)
 
     def gather_params(self):
         """Return the current parameter dictionary (thin wrapper around :meth:`get_params`)."""
         return self.get_params()
 
     @abstractmethod
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def evolve(self, population: Population) -> Population:
         """
         Evolves an population using a given strategy.
 
@@ -87,8 +82,6 @@ class Operator(ParametrizableMixin, ABC):
         ----------
         population: Population
             The population that will be used.
-        initializer: Initialize, optional
-            The population initializer of the algorithm (used for randomly generating individuals).
 
         Returns
         -------
@@ -96,14 +89,14 @@ class Operator(ParametrizableMixin, ABC):
             The modified population.
         """
 
-    def step(self, progress: float = 0):
+    def update(self, progress: float = 0):
         """
         Updates the internal parameters.
         """
 
-        super().step(progress)
+        super().update(progress)
 
-        self.encoding.step(progress)
+        self.encoding.update(progress)
 
     def get_state(self) -> dict:
         """
@@ -139,7 +132,7 @@ class NullOperator(Operator):
 
         super().__init__(name, preserves_order=True)
 
-    def evolve(self, population: Population, *args) -> Population:
+    def evolve(self, population: Population) -> Population:
         return copy(population)
 
 
@@ -153,16 +146,16 @@ class OperatorFromLambda(Operator):
     Parameters
     ----------
     operator_fn : callable
-        A function ``(population, initializer, random_state, **kwargs) -> Population``.
+        A function ``(population, initializer, rng, **kwargs) -> Population``.
     name : str, optional
         Display name (defaults to the function's ``__name__``).
     encoding : Encoding, optional
         See :class:`Operator`.
     preserves_order : bool, optional
         See :class:`Operator`.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         See :class:`Operator`.
-    **kwargs
+    \\*\\*kwargs
         Keyword arguments forwarded to :class:`Operator` and also
         passed to *operator_fn* on each call.
     """
@@ -173,19 +166,19 @@ class OperatorFromLambda(Operator):
         name: Optional[str] = None,
         encoding: Optional[Encoding] = None,
         preserves_order: bool = False,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
         self._validate_function(operator_fn)
         if name is None:
             name = operator_fn.__name__ if hasattr(operator_fn, "__name__") else "Custom operator"
 
-        super().__init__(name, encoding=encoding, preserves_order=preserves_order, random_state=random_state, **kwargs)
+        super().__init__(name, encoding=encoding, preserves_order=preserves_order, rng=rng, **kwargs)
         self.operator_fn = operator_fn
 
     @staticmethod
-    def _validate_function(operator_fn: Callable):
-        operator_sig = inspect.signature(operator_fn)
+    def _validate_function(fn: Callable):
+        operator_sig = inspect.signature(fn)
 
         count = 0
         for p in operator_sig.parameters.values():
@@ -194,11 +187,11 @@ class OperatorFromLambda(Operator):
             elif p.kind == inspect.Parameter.VAR_POSITIONAL:
                 return
 
-        required_min_count = 3
+        required_min_count = 2
         if count < required_min_count:
-            raise TypeError(
-                f"The function should have at least {required_min_count} positional arguments (`population`, `initializer`, `random_state`)."
-            )
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `rng`).")
 
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
-        return self.operator_fn(population, initializer, self.random_state, **self.current_kwargs)
+    def evolve(self, population: Population) -> Population:
+        new_population = self.operator_fn(population, rng=self.rng, **self.current_kwargs)
+        new_population.decode(self.encoding)
+        return new_population

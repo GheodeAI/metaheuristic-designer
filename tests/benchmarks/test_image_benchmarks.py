@@ -6,6 +6,7 @@ from PIL import Image
 from metaheuristic_designer.benchmarks import ImgApprox, ImgEntropy
 from metaheuristic_designer.encodings import ImageEncoding
 from metaheuristic_designer.initializers import UniformInitializer
+from metaheuristic_designer.population import Population
 
 
 # ----------------------------------------------------------------------
@@ -27,7 +28,7 @@ def test_img_approx_diff_funcs(img_size, diff_func):
     dimension = objfunc.dimension
     encoding = ImageEncoding(img_size, color=True)
     init = UniformInitializer(dimension, 0, 255, population_size=3, dtype=float, encoding=encoding)
-    pop = init.generate_population(objfunc)
+    pop = init.generate_population()
     decoded = pop.decode()
     result = objfunc.objective(decoded)
     assert result.shape == (3,)
@@ -41,7 +42,7 @@ def test_img_approx_single_vs_batch(img_size):
     dimension = objfunc.dimension
     encoding = ImageEncoding(img_size, color=True)
     init = UniformInitializer(dimension, 0, 255, population_size=2, dtype=float, encoding=encoding)
-    pop = init.generate_population(objfunc)
+    pop = init.generate_population()
     decoded = pop.decode()  # (2, H, W, 3)
     batch = objfunc.objective(decoded)
     single0 = objfunc.objective(decoded[0:1])
@@ -49,14 +50,15 @@ def test_img_approx_single_vs_batch(img_size):
     assert batch[0] == pytest.approx(single0.item())
     assert batch[1] == pytest.approx(single1.item())
 
+
 # ---------- Repair preserves already valid values ----------
 @pytest.mark.parametrize("img_size", [(8, 8), (10, 10)])
 def test_repair_preserves_valid_values(img_size):
     ref = _random_reference_img(img_size)
     objfunc = ImgApprox(img_dim=img_size, reference=ref, diff_func="MSE")
     dimension = objfunc.dimension
-    valid = np.random.default_rng(42).uniform(0, 255, dimension)
-    repaired = objfunc.repair_solution(valid)
+    valid = np.random.default_rng(42).uniform(0, 255, (1, dimension))
+    repaired = objfunc.repair_population(Population(valid)).genotype_matrix
     np.testing.assert_array_almost_equal(repaired, valid)
 
 
@@ -68,7 +70,7 @@ def test_img_entropy_nbins(img_size, nbins):
     dimension = objfunc.dimension
     encoding = ImageEncoding(img_size, color=True)
     init = UniformInitializer(dimension, 0, 255, population_size=2, dtype=float, encoding=encoding)
-    pop = init.generate_population(objfunc)
+    pop = init.generate_population()
     decoded = pop.decode()  # shape (2, H, W, 3) – two images
 
     # ImgEntropy is not vectorised – evaluate one by one

@@ -14,11 +14,7 @@ swarm_ops_map = {
 }
 
 
-def create_swarm_operator(
-    method: str,
-    name: Optional[str] = None,
-    **kwargs
-) -> OperatorFromLambda:
+def create_swarm_operator(method: str, name: Optional[str] = None, **kwargs) -> OperatorFromLambda:
     """
     Create a swarm operator by name.
 
@@ -28,7 +24,7 @@ def create_swarm_operator(
         Key into :data:`swarm_ops_map` (e.g., ``"pso"``).
     name : str, optional
         Display name; defaults to *method*.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to the operator function.
 
     Returns

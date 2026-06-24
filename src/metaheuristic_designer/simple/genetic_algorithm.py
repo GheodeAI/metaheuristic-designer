@@ -15,7 +15,7 @@ from ..parent_selection import create_parent_selection
 from ..survivor_selection import create_survivor_selection
 from ..encodings import TypeCastEncoding
 from ..strategies import GA
-from ..utils import RNGLike, check_random_state
+from ..utils import RNGLike, check_rng
 
 
 def genetic_algorithm_binary(
@@ -23,7 +23,7 @@ def genetic_algorithm_binary(
     mutated_bits: int = 1,
     population_size: int = 100,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Genetic Algorithm for binary-coded vectors.
@@ -31,28 +31,26 @@ def genetic_algorithm_binary(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     mutated_bits : int, optional
         Number of bits flipped per mutation (default 1).
     population_size : int, optional
         Population size (default 100).
     encoding : Encoding, optional
         Encoding; defaults to :class:`TypeCastEncoding` (int → bool).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     encoding = TypeCastEncoding(int, bool) if encoding is None else encoding
-    pop_initializer = UniformInitializer(
-        objfunc.dimension, 0, 1, population_size=population_size, dtype=np.uint8, encoding=encoding, random_state=random_state
-    )
-    mutation_op = create_operator("mutation.bitflip", N=mutated_bits, random_state=random_state)
-    crossover_op = create_operator("crossover.multipoint", random_state=random_state)
-    parent_sel = create_parent_selection("tournament", amount=20, random_state=random_state)
-    survivor_sel = create_survivor_selection("elitism", amount=10, random_state=random_state)
+    pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, population_size=population_size, dtype=np.uint8, encoding=encoding, rng=rng)
+    mutation_op = create_operator("mutation.bitflip", N=mutated_bits, rng=rng)
+    crossover_op = create_operator("crossover.multipoint", rng=rng)
+    parent_sel = create_parent_selection("tournament", amount=20, rng=rng)
+    survivor_sel = create_survivor_selection("elitism", amount=10, rng=rng)
     search_strat = GA(
         pop_initializer,
         mutation_op=mutation_op,
@@ -61,7 +59,7 @@ def genetic_algorithm_binary(
         survivor_sel=survivor_sel,
         mutation_prob=0.1,
         crossover_prob=0.8,
-        random_state=random_state,
+        rng=rng,
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -71,7 +69,7 @@ def genetic_algorithm_permutation(
     swapped_positions: int = 2,
     population_size: int = 100,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Genetic Algorithm for permutation-coded vectors.
@@ -79,25 +77,25 @@ def genetic_algorithm_permutation(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     swapped_positions : int, optional
         Number of positions swapped per mutation (default 2).
     population_size : int, optional
         Population size (default 100).
     encoding : Encoding, optional
         Encoding applied to the genotype.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
-    pop_initializer = PermInitializer(objfunc.dimension, population_size=population_size, encoding=encoding, random_state=random_state)
-    mutation_op = create_operator("permutation.swap", N=swapped_positions, random_state=random_state)
-    crossover_op = create_operator("crossover.multipoint", random_state=random_state)
-    parent_sel = create_parent_selection("tournament", amount=20, random_state=random_state)
-    survivor_sel = create_survivor_selection("elitism", amount=10, random_state=random_state)
+    rng = check_rng(rng)
+    pop_initializer = PermInitializer(objfunc.dimension, population_size=population_size, encoding=encoding, rng=rng)
+    mutation_op = create_operator("permutation.swap", N=swapped_positions, rng=rng)
+    crossover_op = create_operator("crossover.multipoint", rng=rng)
+    parent_sel = create_parent_selection("tournament", amount=20, rng=rng)
+    survivor_sel = create_survivor_selection("elitism", amount=10, rng=rng)
     search_strat = GA(
         pop_initializer,
         mutation_op=mutation_op,
@@ -106,7 +104,7 @@ def genetic_algorithm_permutation(
         survivor_sel=survivor_sel,
         mutation_prob=0.1,
         crossover_prob=0.8,
-        random_state=random_state,
+        rng=rng,
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -116,7 +114,7 @@ def genetic_algorithm_discrete(
     resampled_components: int = 1,
     population_size: int = 100,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Genetic Algorithm for integer-coded vectors.
@@ -124,20 +122,20 @@ def genetic_algorithm_discrete(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     resampled_components : int, optional
         Number of components resampled per mutation (default 1).
     population_size : int, optional
         Population size (default 100).
     encoding : Encoding, optional
         Encoding applied to the genotype.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     pop_initializer = UniformInitializer(
         objfunc.dimension,
         objfunc.lower_bound,
@@ -145,12 +143,12 @@ def genetic_algorithm_discrete(
         population_size=population_size,
         dtype=int,
         encoding=encoding,
-        random_state=random_state,
+        rng=rng,
     )
-    mutation_op = create_operator("random.reset", n=resampled_components, random_state=random_state)
-    crossover_op = create_operator("crossover.multipoint", random_state=random_state)
-    parent_sel = create_parent_selection("tournament", amount=20, random_state=random_state)
-    survivor_sel = create_survivor_selection("elitism", amount=10, random_state=random_state)
+    mutation_op = create_operator("random.reset", initializer=pop_initializer, n=resampled_components, rng=rng)
+    crossover_op = create_operator("crossover.multipoint", rng=rng)
+    parent_sel = create_parent_selection("tournament", amount=20, rng=rng)
+    survivor_sel = create_survivor_selection("elitism", amount=10, rng=rng)
     search_strat = GA(
         pop_initializer,
         mutation_op=mutation_op,
@@ -159,7 +157,7 @@ def genetic_algorithm_discrete(
         survivor_sel=survivor_sel,
         mutation_prob=0.1,
         crossover_prob=0.8,
-        random_state=random_state,
+        rng=rng,
     )
     return Algorithm(objfunc, search_strat, **kwargs)
 
@@ -170,7 +168,7 @@ def genetic_algorithm_real(
     mutated_components: int = 1,
     population_size: int = 100,
     encoding: Optional[Encoding] = None,
-    random_state: Optional[RNGLike] = None,
+    rng: Optional[RNGLike] = None,
     **kwargs,
 ) -> Algorithm:
     """Genetic Algorithm for real-coded vectors.
@@ -178,7 +176,7 @@ def genetic_algorithm_real(
     Parameters
     ----------
     objfunc : ObjectiveFunc
-        The objective function to optimise.
+        The objective function to optimize.
     mutation_strength : float, optional
         Standard deviation of Gaussian mutation (default 1e-2).
     mutated_components : int, optional
@@ -187,13 +185,13 @@ def genetic_algorithm_real(
         Population size (default 100).
     encoding : Encoding, optional
         Encoding applied to the genotype.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random seed or generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Algorithm`.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
     pop_initializer = UniformInitializer(
         objfunc.dimension,
         objfunc.lower_bound,
@@ -201,12 +199,12 @@ def genetic_algorithm_real(
         population_size=population_size,
         dtype=float,
         encoding=encoding,
-        random_state=random_state,
+        rng=rng,
     )
-    mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, random_state=random_state)
-    crossover_op = create_operator("crossover.multipoint", random_state=random_state)
-    parent_sel = create_parent_selection("tournament", amount=20, random_state=random_state)
-    survivor_sel = create_survivor_selection("elitism", amount=10, random_state=random_state)
+    mutation_op = create_operator("mutation.gaussian_mutation", F=mutation_strength, N=mutated_components, rng=rng)
+    crossover_op = create_operator("crossover.multipoint", rng=rng)
+    parent_sel = create_parent_selection("tournament", amount=20, rng=rng)
+    survivor_sel = create_survivor_selection("elitism", amount=10, rng=rng)
     search_strat = GA(
         pop_initializer,
         mutation_op=mutation_op,
@@ -215,6 +213,6 @@ def genetic_algorithm_real(
         survivor_sel=survivor_sel,
         mutation_prob=0.1,
         crossover_prob=0.8,
-        random_state=random_state,
+        rng=rng,
     )
     return Algorithm(objfunc, search_strat, **kwargs)

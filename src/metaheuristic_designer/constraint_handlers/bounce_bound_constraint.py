@@ -7,9 +7,9 @@ from ..utils import MatrixLike, ScalarLike, VectorLike
 
 class BounceBoundConstraint(RepairConstraint):
     """
-    Encodes a bound constraint by bouncing through the bounds, substracting the leftover part of the vector
-    that lies outisde the bounds. If the substraction still lies outside the bounds, the leftover part is added,
-    substraction and addition are alternated until the solution lies in bounds.
+    Encodes a bound constraint by bouncing through the bounds, subtracting the leftover part of the vector
+    that lies outside the bounds. If the subtraction still lies outside the bounds, the leftover part is added,
+    subtraction and addition are alternated until the solution lies in bounds.
 
     Parameters
     ----------
@@ -28,7 +28,7 @@ class BounceBoundConstraint(RepairConstraint):
         self.range_lim = self.upper_bound - self.lower_bound
         super().__init__(**kwargs)
 
-    def repair_solution(self, population_matrix: MatrixLike) -> MatrixLike:
+    def repair_solutions(self, population_matrix: MatrixLike) -> MatrixLike:
         if np.all(self.upper_bound == self.lower_bound):
             if self.upper_bound.ndim == 0:
                 return np.full_like(population_matrix, self.upper_bound)
@@ -38,8 +38,8 @@ class BounceBoundConstraint(RepairConstraint):
         bounce_times = np.floor_divide(shifted_vector, self.range_lim)
         fixed_solution = np.mod((-1.0) ** bounce_times * shifted_vector, self.range_lim) + self.lower_bound
 
-        ouside_bound_mask = (population_matrix < self.lower_bound) | (population_matrix > self.upper_bound)
+        outside_bound_mask = (population_matrix < self.lower_bound) | (population_matrix > self.upper_bound)
         population_matrix = copy(population_matrix)
-        population_matrix[ouside_bound_mask] = fixed_solution[ouside_bound_mask]
+        population_matrix[outside_bound_mask] = fixed_solution[outside_bound_mask]
 
         return population_matrix

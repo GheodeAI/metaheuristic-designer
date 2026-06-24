@@ -13,6 +13,11 @@ from metaheuristic_designer.parameter_schedules import (
     LogisticSchedule,
     RandomSchedule,
     StepSchedule,
+    StridedSchedule,
+    CosineSchedule,
+    ExponentialDecaySchedule,
+    NoisySchedule,
+    ProbabilityAnnealingSchedule,
 )
 
 
@@ -76,14 +81,14 @@ def test_logistic_schedule(init, final, k, exact_bounds, progress, expected):
 #  RandomSchedule  (uses rng fixture)
 # ===================================================================
 def test_random_schedule_deterministic_with_seed(rng):
-    sched = RandomSchedule(init_value=0.0, final_value=1.0, random_state=rng)
+    sched = RandomSchedule(init_value=0.0, final_value=1.0, rng=rng)
     # First call with seed 42: pre‑computed value
     expected = np.random.default_rng(42).uniform(0.0, 1.0)
     assert sched.evaluate(0.5) == pytest.approx(expected)
 
 
 def test_random_schedule_values_in_range(rng):
-    sched = RandomSchedule(-10, 10, random_state=rng)
+    sched = RandomSchedule(-10, 10, rng=rng)
     for _ in range(20):
         val = sched.evaluate(0.0)
         assert -10 <= val <= 10
@@ -91,9 +96,9 @@ def test_random_schedule_values_in_range(rng):
 
 def test_random_schedule_reproducible_with_same_seed(rng):
     # Create two schedules with same seed, verify first call equal
-    sched1 = RandomSchedule(5, 15, random_state=rng)
+    sched1 = RandomSchedule(5, 15, rng=rng)
     rng2 = np.random.default_rng(42)  # fresh identical generator
-    sched2 = RandomSchedule(5, 15, random_state=rng2)
+    sched2 = RandomSchedule(5, 15, rng=rng2)
     assert sched1.evaluate(0.0) == sched2.evaluate(0.0)
 
 
@@ -102,9 +107,6 @@ def test_random_schedule_reproducible_with_same_seed(rng):
 # ===================================================================
 @pytest.fixture
 def step_sched():
-    # This fixture is defined here, but it's not a class, just a function.
-    # Since conftest lacks a StepSchedule fixture and this is a simple helper,
-    # we can keep it in the test file – it's not a mock, just a pre‑built schedule.
     return StepSchedule({0.2: "low", 0.5: "mid", 0.8: "high"})
 
 
@@ -136,3 +138,101 @@ def test_step_schedule_empty_steps():
     with pytest.raises(IndexError):
         sched = StepSchedule({})
         sched.evaluate(0.5)
+
+
+# ===================================================================
+#  StridedSchedule
+# ===================================================================
+
+
+def test_strided_schedule():
+    base_sched = LinearSchedule(init_value=0, final_value=1)
+    sched = StridedSchedule(base_sched, iterations=3)
+
+    assert sched.evaluate(0) == 0
+    assert sched.evaluate(0.1) == 0
+    assert sched.evaluate(0.3) == 0
+    assert sched.evaluate(0.5) == 0.5
+    assert sched.evaluate(0.7) == 0.5
+    assert sched.evaluate(0.8) == 0.5
+
+
+# ===================================================================
+#  CosineSchedule
+# ===================================================================
+
+
+def test_cosine_schedule():
+    sched = CosineSchedule()
+    assert sched.evaluate(0) == 1
+    np.testing.assert_almost_equal(sched.evaluate(0.25), 0)
+
+
+# ===================================================================
+#  ExponentialDecaySchedule
+# ===================================================================
+
+
+def test_exponential_decay_schedule():
+    sched = ExponentialDecaySchedule(init_value=1)
+    assert sched.evaluate(0) == 1
+
+
+def test_exponential_decay_log_warn():
+    sched = ExponentialDecaySchedule(init_value=1, iterative=True, alpha=100)
+    sched = ExponentialDecaySchedule(init_value=1, iterative=True, alpha=-100)
+
+
+def test_exponential_decay_schedule_non_iterative():
+    sched = ExponentialDecaySchedule(init_value=1, final_value=0, iterative=False)
+    assert sched.evaluate(0.1) == sched.evaluate(0.1)
+
+
+def test_exponential_decay_schedule_iterative():
+    sched = ExponentialDecaySchedule(init_value=1, iterative=True)
+
+    assert sched.evaluate(0) == 1
+    assert sched.evaluate(0.1) == 0.9
+    assert sched.evaluate(0.1) == 0.9**2
+
+    assert sched.evaluate(0.1) != sched.evaluate(0.1)
+
+
+# ===================================================================
+#  ProbabilityAnnealingSchedule
+# ===================================================================
+
+
+def test_prob_annealing():
+    sched = ProbabilityAnnealingSchedule()
+    sched.evaluate(0)
+    sched.evaluate(0.1)
+
+
+def test_prob_annealing_log_warn():
+    sched = ProbabilityAnnealingSchedule(alpha=100)
+    sched = ProbabilityAnnealingSchedule(alpha=-100)
+
+
+# ===================================================================
+#  NoisySchedule
+# ===================================================================
+
+
+def test_noisy_schedule():
+    base_sched = LinearSchedule(init_value=0, final_value=1)
+    sched = NoisySchedule(base_sched, rng=42)
+
+    assert sched.evaluate(0.1) != sched.evaluate(0.1)
+
+
+# ===================================================================
+#  ProbabilityAnnealingSchedule
+# ===================================================================
+
+
+def test_noisy_schedule():
+    base_sched = LinearSchedule(init_value=0, final_value=1)
+    sched = NoisySchedule(base_sched, rng=42)
+
+    assert sched.evaluate(0.1) != sched.evaluate(0.1)

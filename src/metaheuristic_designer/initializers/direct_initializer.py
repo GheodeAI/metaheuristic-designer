@@ -1,10 +1,8 @@
-"""
-Initializer that uses a set of predefined solutions as the first generation.
-"""
+"""Initializer that uses a set of predefined solutions as the first generation."""
 
 from __future__ import annotations
 from copy import copy
-from typing import List, Optional
+from typing import Iterable, List, Optional
 import numpy as np
 from ..objective_function import ObjectiveFunc
 from ..initializer import Initializer
@@ -30,28 +28,41 @@ class DirectInitializer(Initializer):
     encoding : Encoding, optional
         Encoding attached to the population (used when *solutions* is
         a ``Population``).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     """
 
     def __init__(
-        self, default_init: Initializer, solutions: Population | List | np.ndarray, encoding: Encoding = None, random_state: Optional[RNGLike] = None
+        self, default_init: Initializer, solutions: Population | List | np.ndarray, encoding: Encoding = None, rng: Optional[RNGLike] = None
     ):
         assert len(solutions) > 0, "The solution set should not be empty."
         if isinstance(solutions, Population):
-            infered_dimension = solutions.genotype_matrix.shape[1]
+            inferred_dimension = solutions.genotype_matrix.shape[1]
+        elif isinstance(solutions, Iterable):
+            solutions = np.asarray(solutions)
+            inferred_dimension = solutions.shape[1]
         else:
-            infered_dimension = solutions[0].shape[0]
+            raise TypeError("The provided population is not valid. It should be of type Population, numpy array or list of arrays.")
 
-        super().__init__(dimension=infered_dimension, population_size=default_init.population_size, random_state=random_state, encoding=encoding)
         self.solutions = solutions
         self.default_init = default_init
+        self.init_counter = 0
+
+        super().__init__(dimension=inferred_dimension, population_size=len(solutions), rng=rng, encoding=encoding)
 
     def generate_random(self) -> VectorLike:
+        """Return a completely random individual generated from a fallback initializer strategy
+
+        Returns
+        -------
+        VectorLike
+            A 1-D array sampled from a fallback distribution.
+        """
+
         return self.default_init.generate_random()
 
     def generate_individual(self) -> VectorLike:
-        """Return a randomly chosen individual from the stored solution set.
+        """Return a chosen individual from the stored solution set in cyclic order.
 
         Returns
         -------
@@ -59,17 +70,17 @@ class DirectInitializer(Initializer):
             A 1-D array taken from the predefined solutions.
         """
 
-        indiv = None
         if isinstance(self.solutions, Population):
-            indiv = self.random_state.choice(self.solutions.genotype_matrix, axis=0)
-        elif isinstance(self.solutions, np.ndarray):
-            indiv = self.random_state.choice(self.solutions, axis=0)
+            population_matrix = self.solutions.genotype_matrix
         else:
-            raise TypeError("The provided population is not valid. It should be of type Population or numpy array.")
+            population_matrix = self.solutions
+
+        indiv = population_matrix[self.init_counter]
+        self.init_counter = (self.init_counter + 1) % len(population_matrix)
 
         return indiv
 
-    def generate_population(self, objfunc: ObjectiveFunc, n_individuals: Optional[int] = None) -> Population:
+    def generate_population(self, n_individuals: Optional[int] = None) -> Population:
         """Create a population by drawing from the stored solutions.
 
         Parameters
@@ -90,15 +101,11 @@ class DirectInitializer(Initializer):
             n_individuals = self.population_size
 
         if isinstance(self.solutions, Population):
-            if self.solutions.population_size == n_individuals:
-                population = copy(self.solutions)
-            else:
-                selection_idx = np.arange(n_individuals) % self.solutions.population_size
-                population = self.solutions.take_selection(selection_idx)
-        elif isinstance(self.solutions, np.ndarray):
-            selection_idx = np.arange(n_individuals) % self.solutions.shape[0]
-            population = Population(objfunc, self.solutions[selection_idx, :])
+            population_matrix = self.solutions.genotype_matrix
         else:
-            raise TypeError("The provided population is not valid. It should be of type Population or numpy array.")
+            population_matrix = self.solutions
+
+        selection_idx = np.arange(n_individuals) % population_matrix.shape[0]
+        population = Population(population_matrix[selection_idx, :], encoding=self.encoding)
 
         return population

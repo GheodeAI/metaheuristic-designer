@@ -1,6 +1,4 @@
-"""
-Utility functions, type aliases, and a JSON encoder used across the library.
-"""
+"""Utility functions, type aliases, and a JSON encoder used across the library."""
 
 from typing import Optional
 import json
@@ -9,6 +7,7 @@ from enum import Enum
 import numpy as np
 
 null_aliases = {"null", "nothing", "identity", "passthrough"}
+
 RNGLike = int | np.random.Generator
 
 RealVector = np.ndarray[tuple[int], np.floating]
@@ -31,6 +30,12 @@ TensorLike = RealTensor | IntTensor | BinTensor
 MaskLike = IntTensor | BinTensor
 
 
+class TerminationException(Exception):
+    """
+    Custom exception to handle SIGTERM
+    """
+
+
 class NumpyEncoder(json.JSONEncoder):
     """JSON encoder that can serialize NumPy scalars, arrays, and Enums.
 
@@ -48,10 +53,10 @@ class NumpyEncoder(json.JSONEncoder):
             return o.tolist()
         elif isinstance(o, Enum):
             return str(o)
-        return json.JSONEncoder.default(self, o)
+        return super().default(o)
 
 
-def check_random_state(seed: Optional[RNGLike]) -> np.random.Generator:
+def check_rng(seed: Optional[RNGLike]) -> np.random.Generator:
     """Turn seed into an np.random.Generator instance.
 
     Original implementation adapted from:

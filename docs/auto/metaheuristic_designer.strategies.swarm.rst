@@ -4,13 +4,10 @@ metaheuristic\_designer.strategies.swarm package
 Submodules
 ----------
 
-metaheuristic\_designer.strategies.swarm.PSO module
----------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: metaheuristic_designer.strategies.swarm.PSO
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   metaheuristic_designer.strategies.swarm.PSO
 
 Module contents
 ---------------

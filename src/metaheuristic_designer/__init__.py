@@ -1,15 +1,15 @@
 """
 Metaheuristic-designer: a modular framework for building, testing, and
-analysing population-based optimisation algorithms.
+analyzing population-based optimization algorithms.
 
 The library provides composable building blocks (initializers, encodings,
 operators, selection methods, and search strategies) that can be assembled
 into classical and custom metaheuristics with full reproducibility.
 """
 
-from .utils import check_random_state
+from .utils import check_rng
 
-from .objective_function import ObjectiveFunc, NullObjectiveFunc, ObjectiveFunc, ObjectiveFromLambda
+from .objective_function import ObjectiveFunc, NullObjectiveFunc, ObjectiveFromLambda
 from . import benchmarks
 
 from .constraint_handler import ConstraintHandler, ConstraintHandlerFromLambda, NullConstraint, PenalizeConstraint, RepairConstraint
@@ -21,14 +21,13 @@ from . import parameter_schedules
 
 from .algorithm import Algorithm
 from . import algorithms
-from .algorithms import MemeticAlgorithm
 
-from .checkpointer import Checkpointer
+from .checkpointer import Checkpointer, PickleCheckpointer
 from .reporter import Reporter
-from .stopping_condition import StoppingCondition
-from .history_tracker import HistoryTracker
-from . import reporters
 from .reporters import create_reporter, SilentReporter, TQDMReporter, VerboseReporter
+from .stopping_condition import StoppingCondition, ParsedStoppingCondition
+from .history_tracker import HistoryTracker, ConfigurableHistoryTracker
+from . import reporters
 
 from .search_strategy import SearchStrategy, SearchStrategyFromLambda
 from . import strategies
@@ -54,11 +53,12 @@ from .survivor_selection import create_survivor_selection, add_survivor_selectio
 from . import survivor_selection
 
 from . import simple
+from . import analysis
 
 __version__ = "1.0.0"
 
 __all__ = [
-    "check_random_state",
+    "check_rng",
     "ObjectiveFunc",
     "NullObjectiveFunc",
     "ObjectiveFunc",
@@ -76,11 +76,13 @@ __all__ = [
     "parameter_schedules",
     "Algorithm",
     "algorithms",
-    "MemeticAlgorithm",
     "Checkpointer",
+    "PickleCheckpointer",
     "Reporter",
     "StoppingCondition",
+    "ParsedStoppingCondition",
     "HistoryTracker",
+    "ConfigurableHistoryTracker",
     "reporters",
     "create_reporter",
     "SilentReporter",

@@ -24,6 +24,7 @@ from metaheuristic_designer.survivor_selection.survivor_selection_functions impo
     cond_elitism,
     keep_best,
     keep_best_offspring,
+    random_replacement,
 )
 
 
@@ -177,9 +178,9 @@ def test_elitism(population_fitness, offspring_fitness, amount):
     "offspring_fitness, better_offspring_exists",
     [
         (OFFSPRING_FITNESS_BETTER, True),
-        (OFFSPRING_FITNESS_WORSE,  False),
-        (OFFSPRING_FITNESS_EQUAL,  True),   # equal counts as "not strictly better"
-        (OFFSPRING_FITNESS_MIXED,  True),
+        (OFFSPRING_FITNESS_WORSE, False),
+        (OFFSPRING_FITNESS_EQUAL, True),  # equal counts as "not strictly better"
+        (OFFSPRING_FITNESS_MIXED, True),
     ],
 )
 @pytest.mark.parametrize("amount", [0, 1, 5, 8, 10])
@@ -239,3 +240,20 @@ def test_lamb_comma_mu(population_fitness, offspring_fitness):
     assert result.max() < 16
     assert result.min() >= 8  # only offspring indices
     assert len(result) == 8
+
+
+@pytest.mark.parametrize("population_fitness", [EXAMPLE_FITNESS])
+@pytest.mark.parametrize(
+    "offspring_fitness",
+    [
+        OFFSPRING_FITNESS_BETTER,
+        OFFSPRING_FITNESS_WORSE,
+        OFFSPRING_FITNESS_EQUAL,
+        OFFSPRING_FITNESS_MIXED,
+    ],
+)
+def test_lamb_comma_mu(population_fitness, offspring_fitness):
+    result_a = random_replacement(population_fitness, offspring_fitness, rng=42)
+    result_b = random_replacement(population_fitness, offspring_fitness, rng=45)
+
+    assert not np.all(result_a == result_b)

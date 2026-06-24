@@ -1,12 +1,13 @@
-.. _custom-components:
+.. _custom_components:
 
-Extending the Framework with Custom Components
-==============================================
+Custom Components
+=================
 
-You can provide every major component of an optimisation algorithm as a plain Python
-function, wrapped in dedicated ``*FromLambda`` classes. For operators and selection
-methods there are also **factories** that let you register your function and then
-retrieve it by name.
+We saw in the :doc:`quick start <api_reference.quick_start>` how to implement
+algorithms using wrappers around plain functions. In this tutorial, we are going
+to see what is needed to implement each of the components as standalone classes
+so we can implement more complex logic and make each component hold internal
+state.
 
 Throughout this guide the following type aliases are used for clarity:
 
@@ -17,315 +18,609 @@ Throughout this guide the following type aliases are used for clarity:
 * :py:type:`RNGLike<metaheuristic_designer.utils.RNGLike>` – a NumPy
   :class:`~numpy.random.Generator` or a seed.
 
-All examples assume **maximisation** (higher fitness is better); if your problem
-minimises, set ``mode="min"`` in the objective function.
+All examples assume **maximization** (higher fitness is better); if your problem
+minimizes, set ``mode="min"`` in the objective function.
+
+Random Number Generators
+------------------------
+
+In this library, reproducibility is enforced by passing a numpy ``Generator`` (``numpy.random.Generator`` subclass)
+instance to each function that needs to generate random numbers. Instead of creating a generator from scratch, we
+allow the use of seeds as integers. If you want to allow this functionality in your custom implementations
+we provide a ``check_rng`` utility that normalizes the random generator object.
+
+This function accepts either a numerical seed like ``42``, a random ``Generator`` or ``None`` and returns
+a properly initialized ``Generator``. Note that when ``None`` is passed, a new completely random generator
+is produced that will use an arbitrary seed.
+
+.. code-block:: python
+
+    import numpy as np
+    from metaheuristic_designer.utils import check_rng
+
+    # Completely random Generator
+    rng = check_rng(None)
+
+    # Generator with a seed
+    rng = check_rng(42)
+
+    # Generator from a numpy generator
+    random_generator = np.random.default_rng(42)
+    rng = check_rng(random_generator)
+
+Parameter Schedules
+-------------------
+
+Many interfaces used in this library implement the :py:class:`~metaheuristic_designer.parametrizable_mixin.ParametrizableMixin`.
+in particular, these are every base class that implements this mixin:
+
+.. list-table::
+    :width: 0.2
+
+    * - :py:class:`~metaheuristic_designer.objective_function.ObjectiveFunc`
+    * - :py:class:`~metaheuristic_designer.constraint_handler.ConstraintHandler`
+    * - :py:class:`~metaheuristic_designer.encoding.Encoding`
+    * - :py:class:`~metaheuristic_designer.parent_selection_base.ParentSelection`
+    * - :py:class:`~metaheuristic_designer.operator.Operator`
+    * - :py:class:`~metaheuristic_designer.survivor_selection_base.SurvivorSelection`
+    * - :py:class:`~metaheuristic_designer.search_strategy.SearchStrategy`
+
+Any of these classes accept keyword arguments with any value or an implementation of
+:py:class:`~metaheuristic_designer.schedulable_parameter.SchedulableParameter`. To access these parameters, we can access
+the ``params`` attribute that will hold the concrete value of the parameter. Let's see an example.
+
+First, we'll create a custom :py:class:`~metaheuristic_designer.schedulable_parameter.SchedulableParameter` by sub-classing it
+and implementing the ``evaluate`` method, which gets a progress value between 0 and 1, and returns the value of the parameter.
+
+.. code-block:: python
+
+    from metaheuristic_designer import SchedulableParameter
+
+    class ProgressProportionalSchedule(SchedulableParameter):
+        def __init__(self, value):
+            super().__init__()
+            self.value = value
+        
+        def evaluate(self, progress):
+            return self.value * progress
+
+With this new parameter schedule, we can use it as a key-word argument in any of the corresponding class and it will become a parameter
+that depends on the progress value of the algorithm. As an example, we can have a custom class that implement
+:py:class:`~metaheuristic_designer.parametrizable_mixin.ParametrizableMixin`. And we can show how to work with its parameters.
+We also note that the ``update`` function is called automatically each iteration in the inner loop of the algorithm. Parameters are
+initialized to a progress value of 0.
+
+.. code-block:: python
+
+    from metaheuristic_designer import ParametrizableMixin
+
+    class CustomClass(ParametrizableMixin):
+        def __init__(self, a, b):
+            super().__init__()
+            self.store_kwargs(a=a, b=b)
+    
+    b_sched = ProgressProportionalSchedule(value=10) 
+    c = CustomClass(a = 1, b = b_sched)
+
+    print(c.params.a, c.params.b) # Prints: 1, 0
+    c.update(progress=0.5)
+    print(c.params.a, c.params.b) # Prints: 1, 5
+
+In every class that already implements this mixin, the ``store_kwargs`` call is done with the remaining kwargs not used by the class.
+The parameters can be also manually reset in runtime with the ``update_kwargs`` method.
+
+.. code-block:: python
+
+    c = CustomClass(a = 1, b = 4)
+    print(c.params.a, c.params.b) # Prints: 1, 4
+
+    c.update_kwargs(a = 2, b = ProgressProportionalSchedule(value=6))
+    c.update(progress=1)
+    print(c.params.a, c.params.b) # Prints: 2, 6
+
+There are also some available schedules that take other schedules as input and modify them in different ways, they are listed in
+the :doc:`api_reference <api_reference>` page.
 
 Objective Function
 ------------------
 
-Wrap an evaluation function with
-:py:class:`ObjectiveFromLambda<metaheuristic_designer.objective_function.ObjectiveFromLambda>`.
+To implement an objective function from the abstract :py:class:`~metaheuristic_designer.objective_function.ObjectiveFunc` 
+class, we will make a new class inheriting from the Interface. The only mandatory attribute to indicate is the
+``dimension`` and we will need to provide an implementation of the ``objective`` function. When using this
+implementation, you are also allowed to specify a name by the ``name`` attribute.
+
+The ``objective`` function will take as input a decoded solution (with the type outputted by the corresponding 
+``decoder`` method in the :py:class:`~metaheuristic_designer.encoding.Encoding`) and will output a single ``float``
+number. Once this method is implemented, the base class provides the ``calculate_fitness`` method which will evaluate the 
+solutions present in a :py:class:`~metaheuristic_designer.population.Population` object using the specified objective.
+
+.. note::
+    By default, objective functions are not ``vectorized``, which means that the objective is computed individually
+    for each solution. If possible, it is recommended that the attribute ``vectorized`` is set to ``True`` and the
+    objective is implemented by taking a matrix of solutions and outputting a vector of objective values.
+
+Here is an example of a concrete :py:class:`~metaheuristic_designer.objective_function.ObjectiveFunc`. 
 
 .. code-block:: python
 
-   def my_obj(solution: Any, **kwargs) -> float | np.ndarray:
-       ...
-       return fitness_value
+    import numpy as np
+    from metaheuristic_designer import ObjectiveFunc, Population
+    from metaheuristic_designer.utils import check_rng
 
-* ``solution`` – the decoded individual (any Python object).
-* Must return a single numeric value.
-* Any extra keyword arguments given to the constructor are forwarded as ``**kwargs``.
+    class GaussianPeak(ObjectiveFunc):
+        def __init__(self, dimension: int):
+            super().__init__(dimension=dimension, name="Gaussian Peak")
+        
+        def objective(self, solution):
+            objective_value = np.exp(-np.sum(solution ** 2))
+            return objective_value
+    
+    objfunc = GaussianPeak(2)
+    population = Population(np.random.uniform(0, 1, (3, 2)))
+    population = objfunc.calculate_fitness(population) # Compute fitness vector inside the population
+    print(population.objective)
+
+We should note that functions are maximized by default, if we want to minimize the function, we can specify
+that the ``mode`` attribute is set to ``"min"``. We can also implement the function in vectorized form.
 
 .. code-block:: python
 
-   from metaheuristic_designer import ObjectiveFromLambda
+    import numpy as np
+    from metaheuristic_designer import ObjectiveFunc, Population
+    from metaheuristic_designer.utils import check_rng
 
-   def sphere(vec, offset=0):
-       return -np.sum((vec - offset) ** 2)   # maximise negative squared distance
+    class NoisySphereVectorized(ObjectiveFunc):
+        def __init__(self, dimension, sigma=1e-5, rng=None):
+            super().__init__(dimension=dimension, vectorized=True, name="Min Noisy Sphere", mode="min")
+            self.rng = check_rng(rng)
+            self.sigma = sigma
+        
+        def objective(self, solution):
+            objective_vector = np.sum(solution ** 2, axis=1)
+            noise_vector = self.rng.normal(0, self.sigma, size=solution.shape[0])
+            return objective_vector + noise_vector
 
-   objfunc = ObjectiveFromLambda(sphere, dimension=3, offset=3.0, mode="max")
+    objfunc = NoisySphereVectorized(5)
+    population = Population(np.random.uniform(0, 1, (3, 5)))
+    population = objfunc.calculate_fitness(population) # Compute fitness vector inside the population
+    print(population.objective)
+
+
 
 Constraint Handler
 ------------------
 
-Use :py:class:`ConstraintHandlerFromLambda<metaheuristic_designer.constraint_handler.ConstraintHandlerFromLambda>`.
-At least one of the two possible callables must be provided.
+Constraint Handlers are objects that are meant to be embedded into an objective function and 
+work by enforcing the constraints of the problem with two different mechanisms, penalties
+and solution repairing.
+
+Both mechanisms are mutually exclusive, repairing a solution means penalties will be always 0, so
+we cannot have both at the same time. For this purpose, we will have two different interfaces to
+implement :py:class:`~metaheuristic_designer.constraint_handler.ConstraintHandler` objects.
+
+If we want to create a repairing procedure, we will make use of the
+:py:class:`~metaheuristic_designer.constraint_handler.RepairConstraint` abstract class. This way,
+we will be implementing a ``repair_solutions`` method that gets a matrix representing the solutions
+of our problem and must return an identically sized matrix of repaired solutions.
 
 .. code-block:: python
 
-   def repair_fn(solution: Any) -> Any:
-       """Return a repaired copy of the solution."""
-       ...
+    import numpy as np
+    from metaheuristic_designer import RepairConstraint
 
-   def penalty_fn(solution: Any) -> float:
-       """Return a penalty that will be subtracted from the fitness."""
-       ...
+    class NormalizeRepairing(RepairConstraint):
+        def __init__(self, norm=1):
+            super().__init__()
+            self.norm = norm
+        
+        def repair_solutions(self, solutions):
+            current_norm = np.linalg.norm(solutions, axis=1)
+            
+            return (self.norm/current_norm) * solutions
 
-.. code-block:: python
-
-   from metaheuristic_designer import ConstraintHandlerFromLambda
-
-   def clip_to_bounds(x, low=-5.0, high=5.0):
-       return np.clip(x, low, high)
-
-   ch = ConstraintHandlerFromLambda(repair_solution_fn=clip_to_bounds, low=-5, high=5)
-
-Initializer
------------
-
-Wrap a generator function with
-:py:class:`InitializerFromLambda<metaheuristic_designer.initializer.InitializerFromLambda>`.
+Alternatively, if we want to specify a penalty method, we will use the :py:class:`~metaheuristic_designer.constraint_handler.PenalizeConstraint`
+abstract class. We will only need to implement the ``penalty`` method which gets an collection of solutions and must
+return a vector containing the penalty value for each of the solutions.
 
 .. code-block:: python
 
-   def my_gen(random_state: RNGLike, **kwargs) -> np.ndarray:
-       """Return a single new individual (genotype vector)."""
-       ...
+    import numpy as np
+    from metaheuristic_designer import PenalizeConstraint
 
-* The function is called once per individual; it receives a random state and must
-  return a 1‑D array.
+    class NormPenaltyConstraint(PenalizeConstraint):
+        def __init__(self, max_norm=1):
+            # The base class stores keyword arguments in self.params
+            super().__init__(max_norm=max_norm)
+        
+        def penalty(self, solutions):
+            penalties = np.zeros(len(solutions))
 
-.. code-block:: python
+            for idx, s in enumerate(solutions):
+                s_norm = np.linalg.norm(s)
+                if s_norm > self.params.max_norm:
+                    penalties[idx] = s_norm - 1
+            
+            return penalties
 
-   from metaheuristic_designer import InitializerFromLambda
-
-   def uniform_gen(random_state, low=0.0, high=1.0):
-       return random_state.uniform(low, high, size=5)
-
-   init = InitializerFromLambda(uniform_gen, dimension=5, pop_size=100, low=-10, high=10, size=5)
+You are allowed to chain repairing methods or add the penalty values by using the
+:py:class:`~metaheuristic_designer.constraint_handlers.CompositeConstraint` class.
 
 Encoding
 --------
 
-Wrap an encode/decode pair with
-:py:class:`EncodingFromLambda<metaheuristic_designer.encoding.EncodingFromLambda>`.
+If we need a custom encoding, we can subclass the interface :py:class:`~metaheuristic_designer.encoding.Encoding`, this new
+class should implement both an ``encode`` and ``decode`` function. The ``encode`` function will take a collection of solutions
+in their natural representation, and will return a numpy matrix with size (NxM) where N is the number of solutions and 
+M is the number of components of each solution. The ``decode`` function will take that matrix with the internal solution
+representation and return a collection of solutions in their natural representation. Sometimes the ``decode`` function is not
+completely reversible, in this case, it is completely acceptable to make the ``encode`` function return a sentinel value, since it 
+will very rarely be used in the actual optimization procedure.
 
 .. code-block:: python
 
-   def my_encode(solutions: Iterable) -> MatrixLike:
-       """Encode a list of solutions into a genotype matrix (2-D array)."""
-       ...
+    import numpy as np
+    from metaheuristic_designer import Encoding
 
-   def my_decode(population_matrix: MatrixLike) -> Iterable:
-       """Decode the whole genotype matrix into a list/array of solutions."""
-       ...
+    class MulticategoricalEncoding(Encoding):
+        def __init__(self, categories: list):
+            self.categories = categories
+            self.n_vars = len(categories)
+            super().__init__()
+        
+        def encode(self, solutions):
+            N = len(solutions)
+            encoded = np.empty((N, self.n_vars), dtype=int)
+            for i, sol in enumerate(solutions):
+                for j, val in enumerate(sol):
+                    encoded[i, j] = self.categories[j].index(val)
+            return encoded
+        
+        def decode(self, population_matrix):
+            solutions = []
+            for i in range(population_matrix.shape[0]):
+                sol = tuple(self.categories[j][idx] for j, idx in enumerate(population_matrix[i]))
+                solutions.append(sol)
+            return solutions
+
+    enc = MulticategoricalEncoding(
+        [('red', 'blue', 'green'), ('small', 'large'), ('A', 'B')]
+    )
+
+    solutions = [('red', 'small', 'B'), ('green', 'large', 'A')]
+
+    population_matrix = enc.encode(solutions)
+    print(population_matrix)   # [[0 0 1]
+                               #  [2 1 0]]
+
+    decoded = enc.decode(population_matrix)
+    print(decoded)   # [('red', 'small', 'B'), ('green', 'large', 'A')]
+
+You are allowed to chain encodings with the :py:class:`~metaheuristic_designer.encodings.CompositeEncoding`
+class. It is important to note that the decoding will be done in the same order as the provided list of encodings,
+and the encoding will be done in reverse order.
+
+Initializer
+-----------
+
+When creating an initializer, we will make use of the :py:class:`~metaheuristic_designer.initializer.Initializer` class.
+To implement a concrete class, we will have to implement at least the `generate_random` method, that will
+generate a single random vector. We should pass a ``dimension`` to the parent constructor and accept a 
+``population_size`` argument as well. Initializers have an integrated ``rng`` handler, so we should pass it as an
+argument. We will also handle the encoding passing through the initializer to ensure the population is generated
+with the correct encoding.
+
 
 .. code-block:: python
 
-   from metaheuristic_designer import EncodingFromLambda
+    from metaheuristic_designer import Initializer, Encoding
 
-   def to_ints(real_vec):
-       return np.floor(real_vec).astype(int)
+    class CategoricalInitializer(Initializer):
+        def __init__(self, dimension: int, values: list, population_size: int, encoding: Encoding = None, rng = None):
+            super().__init__(dimension=dimension, population_size=population_size, encoding=encoding, rng=rng)
 
-   def to_reals(int_matrix):
-       return int_matrix.astype(float)
+            self.values = values
+        
+        def generate_random(self):
+            return self.rng.choice(self.values, self.dimension)
+    
+    initializer = CategoricalInitializer(dimension=5, values=(0, 4, 10), population_size=3)
+    new_population = initializer.generate_population()
+    print(new_population)
 
-   enc = EncodingFromLambda(encode_fn=to_ints, decode_fn=to_reals)
+    new_population = initializer.generate_population(10)
+    print(new_population)
+
+
+If we are intending to make a deterministic initializer, it is recommended to use a fallback uniform
+initializer, and implement the actual logic in the ``generate_individual`` method.
+
+.. code-block:: python
+
+    import numpy as np
+    from metaheuristic_designer import Initializer, Encoding
+    from metaheuristic_designer.initializers import UniformInitializer
+
+    class ConstantInitializer(Initializer):
+        def __init__(self, dimension: int, value: float, population_size: int, fallback: Initializer, encoding: Encoding = None, rng = None):
+            super().__init__(dimension=dimension, population_size=population_size, encoding=encoding, rng=rng)
+
+            self.value = value
+            self.fallback = fallback
+        
+        def generate_random(self):
+            return self.fallback.generate_random()
+        
+        def generate_individual(self):
+            return np.full(self.dimension, self.value)
+
+    fallback_init = UniformInitializer(dimension=5, lower_bound=0, upper_bound=10, dtype=int)
+    initializer = ConstantInitializer(dimension=5, value=4, population_size=3, fallback=fallback_init)
+    print(initializer.generate_random())
+
+    new_population = initializer.generate_population()
+    print(new_population)
+
+
+Sometimes, an initializer will need to generate the entire population in one go. For this purpose, we will
+override the ``generate_population`` method, which will be given a number of individuals to generate 
+``n_individuals`` that will often fall back to the specified population size.
+
+.. code-block:: python
+
+    import numpy as np
+    from metaheuristic_designer import Initializer, Encoding, Population
+    from metaheuristic_designer.initializers import UniformInitializer
+
+    class IdentityMatrixInitializer(Initializer):
+        def __init__(self, dimension: int, fallback: Initializer, encoding: Encoding = None, rng = None):
+            super().__init__(dimension=dimension, population_size=dimension, encoding=encoding, rng=rng)
+            self.fallback = fallback
+        
+        def generate_random(self):
+            return self.fallback.generate_random()
+        
+        def generate_population(self, n_individuals = None):
+            if n_individuals is None:
+                n_individuals = self.population_size
+            
+            assert n_individuals <= self.dimension, f"Can only generate up to {self.dimension} individuals"
+            
+            id_matrix = np.eye(self.dimension)[:n_individuals]
+            return Population(id_matrix, encoding=self.encoding)
+
+    fallback_init = UniformInitializer(dimension=5, lower_bound=0, upper_bound=10, dtype=int)
+    initializer = IdentityMatrixInitializer(dimension=5, fallback=fallback_init)
+
+    new_population = initializer.generate_population()
+    print(new_population)
+
+You are allowed to combine initializers with the :py:class:`~metaheuristic_designer.initializers.CompositeInitializer`
+class, so that individuals will be generated at random with any of the specified initializers. Alternatively, there also is a
+:py:class:`~metaheuristic_designer.initializers.FixedCompositeInitializer` that chooses individuals in a deterministic manner.
+
 
 Operators
 ---------
-
-There are two ways to write a custom operator, depending on the level of control you
-need.
-
-Matrix‑level (recommended for most cases)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Write a function that works on the raw NumPy arrays and wrap it with
-:py:class:`OperatorFnDef<metaheuristic_designer.operators.operator_functions.utils.OperatorFnDef>`. The wrapper handles
-population bookkeeping (extracting the genotype matrix, fitness, and updating a copy
-of the population).
+If we want to create a custom operator, we can subclass the :py:class:`~metaheuristic_designer.operator.Operator`, implementing
+the ``evolve`` method, which gets a :py:class:`~metaheuristic_designer.population.Population` instance, and returns a new Population
+with the new solutions.
 
 .. code-block:: python
 
-   def my_op(matrix: MatrixLike, fitness: VectorLike,
-             random_state: RNGLike, **kwargs) -> MatrixLike:
-       """Return a new genotype matrix of the same shape."""
-       ...
+    from metaheuristic_designer import Operator, Population
 
-* ``matrix`` – 2‑D array (individuals × variables).
-* ``fitness`` – 1‑D array of current fitness values.
-* The function must return a **new** matrix; do **not** modify the input in place.
-
-.. code-block:: python
-
-   from metaheuristic_designer.operators import add_operator_entry, OperatorFnDef, create_operator
-
-   @OperatorFnDef
-   def add_gaussian_noise(matrix, fitness, random_state, F=0.1):
-       rng = np.random.default_rng(random_state)
-       noise = rng.normal(0, F, size=matrix.shape)
-       return matrix + noise
-
-   # Register the operator – you must wrap it in OperatorFnDef
-   add_operator_entry(add_gaussian_noise, "my_noise", "custom")
-   op = create_operator("custom.my_noise", F=0.3)
-
-Population‑level (advanced)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you need to access or modify the whole :py:class:`Population` object, provide a
-function that receives and returns a :class:`Population`. Make a copy at the
-beginning; never mutate the original.
-
-.. code-block:: python
-
-   def my_pop_op(population: Population, initializer: Initializer,
-                 random_state: RNGLike, **kwargs) -> Population:
-       pop_copy = copy(population)   # or population.__copy__()
-       # … modify pop_copy …
-       return pop_copy
-
-Register it **without** a wrapper:
-
-.. code-block:: python
-
-   from metaheuristic_designer.operators import add_operator_entry
+    class ModularAdditionMutation(Operator):
+        def __init__(self, value: int, mod: int):
+            super().__init__(name="Modular addition", preserves_order=True, value=value)
+            self.mod = mod
+        
+        def evolve(self, population: Population):
+            new_matrix = (population.genotype_matrix + self.params.value) % self.mod
+            new_population = population.update_genotype(new_matrix)
+            return new_population
     
-   def duplicate_best(population, initializer, random_state):
-       pop_copy = copy(population)
-       best_gen = pop_copy.genotype_matrix[pop_copy.best_idx]
-       pop_copy.genotype_matrix[:] = best_gen   # all individuals become the best
-       return pop_copy
+    op = ModularAdditionMutation(value = 1, mod = 7)
+    population = Population(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]))
 
-   add_operator_entry(duplicate_best, "dup_best", "custom")
-   op = create_operator("custom.dup_best")
+    new_population = op.evolve(population)
+    print(new_population.genotype_matrix)
+
+There are a number of different ways to combine operators, we recommend checking out the :doc:`methods <api_reference.methods>` page
+to see all the available composition strategies.
+
 
 Parent Selection
 ----------------
-
-The factory :py:func:`create_parent_selection<metaheuristic_designer.parent_selection_methods.parent_selection.create_parent_selection>`
-expects a function that works on fitness arrays. If you need the whole population,
-instantiate :py:class:`ParentSelectionFromLambda<metaheuristic_designer.parent_selection.ParentSelectionFromLambda>` directly.
-
-**Factory pathway (fitness‑level)**
+For creating custom Parent Selection strategies, we can subclass :py:class:`~metaheuristic_designer.parent_selection_base.ParentSelection`
+and implement the ``select`` method, which takes as input a :py:class:`~metaheuristic_designer.population.Population` and returns a new 
+population of selected individuals. It is highly recommended to set the ``last_selection_idx`` attribute while performing the selection,
+as it can be of use for other methods, it should be a vector contain only indices of the selected individuals.
 
 .. code-block:: python
 
-   @ParentSelectionDef
-   def my_parent_select(fitness: VectorLike, amount: int,
-                        random_state: RNGLike, **kwargs) -> np.ndarray:
-       """Return indices of selected individuals."""
-       ...
+    import numpy as np
+    from metaheuristic_designer import ParentSelection, Population
 
-* ``fitness`` – the current fitness values.
-* ``amount`` – how many individuals to select.
-* Must return a 1‑D integer array (no duplicates).
+    class TruncateSelection(ParentSelection):
+        def __init__(self, amount: int):
+            super().__init__(amount=amount)
+        
+        def select(self, population: Population, amount: int = None):
+            if amount is None:
+                amount = self.params.amount
 
-For it to be accepted into the registry, it must be passed to the :py:class:`~metaheuristic_designer.parent_selection.ParentSelectionDef` wrapper since
-the :py:class:`~metaheuristic_designer.parent_selection.ParentSelection` class works directly with :py:class:`metaheuristic_designer.population.Population` objects. This can be easily done by using 
-:py:class:`~metaheuristic_designer.parent_selection.ParentSelectionDef` as a decorator.
+            n_individuals = population.population_size
 
-.. code-block:: python
+            self.last_selection_idx = np.arange(n_individuals)[:amount]
+            return population.take_selection(self.last_selection_idx)
+    
+    parent_sel = TruncateSelection(amount=2)
+    population = Population(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]))
 
-   from metaheuristic_designer.parent_selection_methods import add_parent_selection_entry, ParentSelectionDef
-   from metaheuristic_designer import create_parent_selection
+    new_population = parent_sel.select(population)
+    print(new_population.genotype_matrix)
 
-   @ParentSelectionDef
-   def pick_top_k(fitness, amount, random_state, **kwargs):
-       # Maximisation: higher fitness is better → use argpartition for top k
-       top_idx = np.argpartition(-fitness, amount - 1)[:amount]
-       return top_idx
 
-   add_parent_selection_entry(pick_top_k, "top_k")
-   sel = create_parent_selection("top_k", amount=20)
-
-**Direct pathway (Population‑level)**
-
-.. code-block:: python
-
-   from metaheuristic_designer import ParentSelectionFromLambda
-
-   def pop_level_select(population: Population, amount: int,
-                        random_state: RNGLike, **kwargs) -> np.ndarray:
-       # Access population.genotype_matrix, population.fitness, etc.
-       fitness = population.fitness
-       top_idx = np.argpartition(-fitness, amount - 1)[:amount]
-       return top_idx
-
-   sel = ParentSelectionFromLambda(pop_level_select, amount=20)
 
 Survivor Selection
 ------------------
-
-Similarly, the factory :py:func:`create_survivor_selection<metaheuristic_designer.survivor_selection_methods.survivor_selection.create_survivor_selection>`
-works with fitness‑level functions, while direct instantiation of
-:py:class:`SurvivorSelectionFromLambda<metaheuristic_designer.survivor_selection.SurvivorSelectionFromLambda>` gives access
-to the Population objects.
-
-**Factory pathway (fitness‑level)**
-
-.. code-block:: python
-
-   @SurvivorSelectionDef
-   def my_survivor_select(parent_fitness: VectorLike,
-                          offspring_fitness: VectorLike,
-                          random_state: RNGLike, **kwargs) -> np.ndarray:
-       """Return indices into the concatenated [parents, offspring]."""
-       ...
-
-* ``parent_fitness`` – fitness of the parent population.
-* ``offspring_fitness`` – fitness of the offspring.
-* The returned indices refer to the array obtained by joining parents and offspring.
-
-For it to be accepted into the registry, it must be passed to the :py:class:`~metaheuristic_designer.parent_selection.SurvivorSelectionDef` wrapper since
-the :py:class:`~metaheuristic_designer.parent_selection.SurvivorSelection` class works directly with :py:class:`metaheuristic_designer.population.Population` objects.
-This can be easily done by using :py:class:`~metaheuristic_designer.parent_selection.SurvivorSelectionDef` as a decorator.
+For creating custom Survivor Selection strategies, we can subclass :py:class:`~metaheuristic_designer.survivor_selection_base.SurvivorSelection`
+and implement the ``select`` method, which takes as input two :py:class:`~metaheuristic_designer.population.Population` instances and
+returns a new population of selected individuals. It is highly recommended to set the ``last_selection_idx`` attribute while performing
+the selection as with parent selection methods, as it can be of use for other methods, it should be a vector contain only indices of the
+selected individuals. If the first population has size N and the second has size M, the valid indices are those between 0 and N+M-1, 
+where the first N indices indicate individuals from the first population and indices between N and N+M-1 indicate individuals from the
+second.
 
 .. code-block:: python
 
-   from metaheuristic_designer.survivor_selection_methods import add_survivor_selection_entry
-   from metaheuristic_designer import create_survivor_selection
-   
-   @SurvivorSelectionDef
-   def keep_all_offspring(parent_fit, offspring_fit, random_state, **kwargs):
-       n_parents = len(parent_fit)
-       n_offspring = len(offspring_fit)
-       return np.arange(n_parents, n_parents + n_offspring)
+    import numpy as np
+    from metaheuristic_designer import SurvivorSelection, Population
 
-   add_survivor_selection_entry(keep_all_offspring, "all_offspring")
-   ss = create_survivor_selection("all_offspring")
+    class FullConcatenationSelection(SurvivorSelection):
+        def __init__(self, amount: int):
+            super().__init__()
+        
+        def select(self, parents: Population, offspring: population):
+            n_parents = parents.population_size
+            n_offspring = offspring.population_size
 
-**Direct pathway (Population‑level)**
+            self.last_selection_idx = np.arange(n_parents+n_offspring)
+            return Population.join_populations(parents, offspring)
+    
+    parent_sel = FullConcatenationSelection()
+    parents = Population(np.array([[1, 2, 3]]))
+    offspring = Population(np.array([[4, 5, 6]]))
 
-.. code-block:: python
+    new_population = parent_sel.select(parents, offspring)
+    print(new_population.genotype_matrix)
 
-   from metaheuristic_designer import SurvivorSelectionFromLambda
-   from metaheuristic_designer.population import Population
 
-   def pop_level_survivor(parents: Population, offspring: Population,
-                          random_state: RNGLike, **kwargs) -> np.ndarray:
-       # Compute fitness arrays, decide survivors
-       combined_fit = np.concatenate([parents.fitness, offspring.fitness])
-       n = len(parents)
-       return np.argpartition(-combined_fit, n - 1)[:n]
+Search strategy
+---------------
 
-   ss = SurvivorSelectionFromLambda(pop_level_survivor)
-
-Utility Decorators for Row‑wise Operations
-------------------------------------------
-
-When writing custom operators (or other matrix‑level functions) it is often convenient to
-think in terms of “apply this function to each individual’s row”. Two decorators from
-:py:mod:`metaheuristic_designer.utils` make this trivial:
-
-* :py:func:`per_individual<metaheuristic_designer.utils.per_individual>` – wraps a function that
-  operates on a **single row** (1‑D array) so that it can be called on a 2‑D matrix and
-  returns a 2‑D matrix of the same shape.
-* :py:func:`per_individual_list<metaheuristic_designer.utils.per_individual_list>` – same idea,
-  but works on a list of objects (e.g. decoded solutions), returning a list.
+If we want to design a new Search strategy, the recommended approach is to implement the necessary components
+and pass them to an already existing search strategy blueprint. In the vast majority of cases, it is enough to 
+create a :py:class:`~metaheuristic_designer.strategies.population_based_strategy.PopulationBasedStrategy` or
+a :py:class:`~metaheuristic_designer.strategies.single_solution_strategy.SingleSolutionStrategy` if we work with a single
+solution. Here we show an example.
 
 .. code-block:: python
 
-   from metaheuristic_designer.utils import per_individual
+    from metaheuristic_designer.benchmarks import Sphere
+    from metaheuristic_designer.initializers import UniformInitializer
+    from metaheuristic_designer.parent_selection import create_parent_selection
+    from metaheuristic_designer.operators import create_operator
+    from metaheuristic_designer.survivor_selection import create_survivor_selection
+    from metaheuristic_designer.strategies import PopulationBasedStrategy
 
-   @per_individual
-   def small_noise_vector(row, scale=0.1, random_state=None):
-       rng = np.random.default_rng(random_state)
-       return row + rng.normal(0, scale, size=row.shape)
+    DIM = 5
 
-   # Now small_noise_vector can be used as a matrix‑level operator function
-   from metaheuristic_designer.operators import OperatorFnDef, add_operator_entry
+    objfunc = Sphere(DIM)
+    init = UniformInitializer(DIM, -10, 10, population_size=100, rng=42)
+    parent_sel = create_parent_selection("elitist", amount=50, rng=42)
+    operator = create_operator("mutation.gaussian_mutation", rng=42)
+    survivor_sel = create_survivor_selection("keep_best", rng=42)
 
-   add_operator_entry(OperatorFnDef(small_noise_vector), "tiny_noise", "custom")
-   op = create_operator("custom.tiny_noise", scale=0.05, random_state=42)
+    search_strategy = PopulationBasedStrategy(
+        initializer=init,
+        parent_sel=parent_sel,
+        operator=operator,
+        survivor_sel=survivor_sel,
+        rng=42
+    )
+
+If the options given are not enough, you can still subclass the :py:class:`~metaheuristic_designer.search_strategy.SearchStrategy`
+class and implement the ``step`` function that takes a :py:class:`~metaheuristic_designer.population.Population` and an
+:py:class:`~metaheuristic_designer.objective_function.ObjectiveFunc` instance, and returns a new population. You should be very
+careful to add as little logic as possible into Search strategies since they are meant to only be an orchestrator class that passes
+the population object between components. The reason behind this is to encourage the use of smaller components that can be fit into
+different algorithms, which would not be possible if the logic was hard-coded into a Search Strategy class. 
+
+Instead of creating a new search strategy, since we highly discourage creating new strategies, we show the exact implementation of the
+:py:class:`~metaheuristic_designer.strategies.population_based_strategy.PopulationBasedStrategy` class so the structure is clear
+in case it's needed.
+
+.. code-block:: python
+
+    from copy import copy
+
+    from metaheuristic_designer.population import Population
+    from metaheuristic_designer.objective_function import ObjectiveFunc
+    from metaheuristic_designer.initializer import Initializer
+    from metaheuristic_designer.parent_selection_base import ParentSelection
+    from metaheuristic_designer.survivor_selection_base import SurvivorSelection
+    from metaheuristic_designer.search_strategy import SearchStrategy
+    from metaheuristic_designer.operator import Operator
+
+    class PopulationBasedStrategy(SearchStrategy):
+        def __init__(
+            self,
+            initializer: Initializer,
+            operator: Operator = None,
+            parent_sel: ParentSelection = None,
+            survivor_sel: SurvivorSelection = None,
+            name: str = "Static Population Evolution",
+            rng = None,
+            **kwargs,
+        ):
+            super().__init__(
+                initializer=initializer,
+                operator=operator,
+                parent_sel=parent_sel,
+                survivor_sel=survivor_sel,
+                name=name,
+                rng=rng,
+                **kwargs
+            )
+
+        def step(self, prev_population: Population, objfunc: ObjectiveFunc) -> Population:
+            population = self.parent_sel.select(prev_population)
+            population = self.operator.evolve(population)
+            population = objfunc.repair_population(population)
+            population = objfunc.calculate_fitness(population)
+            population = self.survivor_sel.select(population=prev_population, offspring=population)
+            return population
+
+Reporter
+--------
+
+To implement a custom :py:class:`~metaheuristic_designer.reporter.Reporter` class, we will subclassing and
+implementing the three methods ``log_init`` that will display information at the start of the algorithm, 
+``log_step`` that displays information each iteration of the algorithm and ``log_end`` that is called
+at the end of the optimization. Every method gets an :py:class:`~metaheuristic_designer.algorithm.Algorithm`
+instance and has no return value. 
+
+.. code-block:: python
+
+    from metaheuristic_designer.benchmarks import Sphere
+    from metaheuristic_designer.simple import evolution_strategy_real
+    from metaheuristic_designer import Reporter
+
+    class SimpleReporter(Reporter):
+        def __init__(self):
+            self.iterations = 0
+
+        def log_init(self, alg):
+            print("Starting algorithm")
+        
+        def log_step(self, alg):
+            self.iterations += 1
+            print(f"Iteration {self.iterations}.")
+        
+        def log_end(self, alg):
+            print(f"Ran for {self.iterations} iterations")
+
+    objfunc = Sphere(5)
+    reporter = SimpleReporter()
+    alg = evolution_strategy_real(
+        objfunc,
+        max_iterations=100,
+        stop_condition_str="max_iterations",
+        reporter=reporter
+    )
+    alg.optimize() # Shows the reporting prints
+    
+An interesting detail is that reporters are not forced to only write on the command line and, theoretically,
+it is possible to let reporters output in any format you can think of, including live-updating
+plots or writing to files.

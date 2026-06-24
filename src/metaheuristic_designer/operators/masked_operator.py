@@ -3,11 +3,10 @@ Operator that applies different operators to disjoint slices of the genotype.
 """
 
 from __future__ import annotations
-from typing import Iterable, Optional
+from typing import Iterable
 from copy import copy
 import numpy as np
 
-from ..initializer import Initializer
 from ..population import Population
 from ..operator import Operator
 from ..utils import MaskLike
@@ -29,7 +28,7 @@ class MaskedOperator(Operator):
         Array of length `vec_size` assigning each gene to an operator.
     name : str, optional
         Display name; defaults to ``"Split (op_names)"``.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Operator`.
     """
 
@@ -63,15 +62,13 @@ class MaskedOperator(Operator):
 
         return all_params
 
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def evolve(self, population: Population) -> Population:
         """Apply the appropriate operator to each slice of the genotype.
 
         Parameters
         ----------
         population : Population
             The current population.
-        initializer : Initializer, optional
-            The population initializer.
 
         Returns
         -------
@@ -86,12 +83,12 @@ class MaskedOperator(Operator):
             split_mask = self.params.mask == idx_op
             if np.any(split_mask):
                 split_population = new_population.take_slice(split_mask)
-                split_population = op.evolve(split_population, initializer)
+                split_population = op.evolve(split_population)
                 new_population = new_population.apply_slice(split_population, split_mask)
 
         return new_population
 
-    def step(self, progress: float):
+    def update(self, progress: float):
         """Update schedulable parameters and propagate to sub-operators.
 
         Parameters
@@ -100,11 +97,11 @@ class MaskedOperator(Operator):
             Current progress of the algorithm (0-1).
         """
 
-        super().step(progress)
+        super().update(progress)
 
         for op in self.op_list:
             if isinstance(op, Operator):
-                op.step(progress)
+                op.update(progress)
 
     def get_state(self) -> dict:
         data = super().get_state()

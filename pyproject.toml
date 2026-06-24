@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "metaheuristic-designer"
-version = "1.0.0"
+version = "1.1.0"
 authors = [
     {name = "eugenioLR", email = "eugeniolorente0@gmail.com"}
 ]
@@ -15,7 +15,7 @@ keywords = ["optimization", "genetic-algorithm", "evolutionary-algorithms", "met
 license = {text = "LICENSE"}
 dependencies = [
     "numpy",
-    "scipy",
+    "scipy>=1.15",
     "pyparsing",
     "pandas",
     "scikit-image",
@@ -45,7 +45,7 @@ examples = [
     "networkx",
     "opencv-python",
     "matplotlib",
-    "seaborn",
+    "seaborn>=0.13.2",
     "jupyter",
     "ipywidgets",
     "plotly",
@@ -56,9 +56,22 @@ docs = [
     "matplotlib",
     "seaborn",
     "sphinx",
-    "sphinx_material",
+    "pydata_sphinx_theme",
     "plotly",
-    "kaleido",          # for static plotly images (optional)
+    "sphinx_autodoc_typehints",
+    "numpydoc"
+]
+
+benchmarking = [
+    "ioh",
+    "autorank",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "deap",
+    "cma",
+    "nevergrad",
+    "pygmo"
 ]
 
 test = [
@@ -67,12 +80,13 @@ test = [
     "pytest-cov",
     "coverage",
     "black[jupyter]",
+    "metaheuristic-designer[benchmarking]"
 ]
 
 dev = [
     "pre-commit",
     "nbstripout",
-    "metaheuristic-designer[examples,docs,test]"
+    "metaheuristic-designer[examples,docs,benchmarking,test]"
 ]
 
 [tool.setuptools.packages.find]

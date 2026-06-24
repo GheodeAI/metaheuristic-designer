@@ -1,6 +1,4 @@
-"""
-Base class for the Parent Selection module.
-"""
+"""Base class for the Parent Selection module."""
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
@@ -9,7 +7,7 @@ import inspect
 import numpy as np
 from .population import Population
 from .parametrizable_mixin import ParametrizableMixin
-from .utils import check_random_state, RNGLike
+from .utils import check_rng, RNGLike
 
 
 class ParentSelection(ParametrizableMixin, ABC):
@@ -27,18 +25,18 @@ class ParentSelection(ParametrizableMixin, ABC):
     amount : int, optional
         Default number of individuals to select.  Can be overridden
         at call time.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
 
-    def __init__(self, name: Optional[str] = None, amount: Optional[int] = None, random_state: Optional[RNGLike] = None, **kwargs):
+    def __init__(self, name: Optional[str] = None, amount: Optional[int] = None, rng: Optional[RNGLike] = None, **kwargs):
         super().__init__()
 
         self.name = name
-        self.random_state = check_random_state(random_state)
+        self.rng = check_rng(rng)
         self.store_kwargs(amount=amount, **kwargs)
 
         self.last_selection_idx = None
@@ -96,7 +94,7 @@ class NullParentSelection(ParentSelection):
     ----------
     name : str, optional
         Display name. Default ``"Nothing"``.
-    **kwargs
+    \\*\\*kwargs
         Keyword arguments forwarded to :class:`ParentSelection`.
     """
 
@@ -118,30 +116,29 @@ class ParentSelectionFromLambda(ParentSelection):
     Parameters
     ----------
     selection_fn : callable
-        A function ``(population, amount, random_state, **kwargs) -> indices``.
+        A function ``(population, amount, rng, **kwargs) -> indices``.
     name : str, optional
         Display name (defaults to the function's ``__name__``).
     amount : int, optional
         Default number of individuals to select.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Keyword arguments forwarded to :class:`ParentSelection`.
     """
 
-    def __init__(
-        self, selection_fn: Callable, name: Optional[str] = None, amount: Optional[int] = None, random_state: Optional[RNGLike] = None, **kwargs
-    ):
+    def __init__(self, selection_fn: Callable, name: Optional[str] = None, amount: Optional[int] = None, rng: Optional[RNGLike] = None, **kwargs):
         if name is None:
             name = selection_fn.__name__ if hasattr(selection_fn, "__name__") else "Custom parent selection"
 
-        super().__init__(name=name, amount=amount, random_state=random_state, **kwargs)
-
+        self._validate_function(selection_fn)
         self.selection_fn = selection_fn
 
+        super().__init__(name=name, amount=amount, rng=rng, **kwargs)
+
     @staticmethod
-    def _validate_function(operator_fn: Callable):
-        operator_sig = inspect.signature(operator_fn)
+    def _validate_function(fn: Callable):
+        operator_sig = inspect.signature(fn)
 
         count = 0
         for p in operator_sig.parameters.values():
@@ -152,7 +149,7 @@ class ParentSelectionFromLambda(ParentSelection):
 
         required_min_count = 3
         if count < required_min_count:
-            raise TypeError(f"The function should have at least {required_min_count} positional arguments since it is.")
+            raise TypeError(f"The function should have at least {required_min_count} positional arguments (`population`, `amount`, `rng`).")
 
     def select(self, population: Population, amount: Optional[int] = None) -> Population:
         if amount is None:
@@ -164,5 +161,5 @@ class ParentSelectionFromLambda(ParentSelection):
         params = self.get_params()
         params.pop("amount", None)
 
-        self.last_selection_idx = self.selection_fn(population, amount, self.random_state, **params)
+        self.last_selection_idx = self.selection_fn(population, amount, rng=self.rng, **params)
         return population.take_selection(self.last_selection_idx)

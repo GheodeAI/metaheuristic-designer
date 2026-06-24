@@ -1,20 +1,89 @@
-"""
-Module for algorithm stopping conditions and progress metric evaluation.
-"""
+"""Module for algorithm stopping conditions and progress metric evaluation."""
 
-from typing import List, Optional
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import List, Optional, TYPE_CHECKING
 import logging
 import time
 from dataclasses import dataclass
 import pyparsing as pp
-from .population import Population
+
+if TYPE_CHECKING:
+    from .algorithm import Algorithm
 
 logger = logging.getLogger(__name__)
 
 
+class StoppingCondition(ABC):
+    @abstractmethod
+    def restart(self):
+        """Reset all counters and timers for a fresh run."""
+
+    @abstractmethod
+    def update(self, algorithm: Algorithm):
+        """Advance internal counters after one generation.
+
+        Parameters
+        ----------
+        current_population : Population
+            The population at the end of the current generation.  Its
+            best objective is used to update convergence tracking.
+        """
+
+    @abstractmethod
+    def is_finished(self, finished: bool = False) -> bool:
+        """
+        Given the state of the algorithm, returns wether we have finished or not.
+
+        Parameters
+        ----------
+        real_time_start: float
+            The time in seconds that passed since the algorithm was executed.
+        cpu_time_start: float
+            The time in seconds that the CPU has executed code in this algorithm.
+
+        Returns
+        -------
+        has_stopped: bool
+            Whether the algorithm has reached its end
+        """
+
+    @abstractmethod
+    def get_progress(self) -> float:
+        """
+        Compute the current progress (0-1) according to the progress metric.
+
+
+        Parameters
+        ----------
+        gen: int
+            The number of generations that has passed.
+        real_time_start: float
+            The time in seconds that passed since the algorithm was executed.
+        cpu_time_start: float
+            The time in seconds that the CPU has executed code in this algorithm.
+
+        Returns
+        -------
+        float
+            A value between 0 (start) and 1 (finished).
+        """
+
+    @abstractmethod
+    def get_state(self) -> dict:
+        """Return a dictionary with the current state of the stopping condition.
+
+        Returns
+        -------
+        dict
+            Keys include ``iterations``, ``evaluations``, times, and
+            configuration limits.
+        """
+
+
 @dataclass
-class StoppingCondition:
-    """Encapsulate the logic that decides when an optimisation run should end.
+class ParsedStoppingCondition(StoppingCondition):
+    """Encapsulate the logic that decides when an optimization run should end.
 
     A stopping condition is built from a logical expression that
     combines **tokens** with ``and``, ``or`` and parentheses.  Each
@@ -112,7 +181,7 @@ class StoppingCondition:
         self.prev_best_objective = None
         self.first_best_objective = None
 
-    def step(self, current_population: Population):
+    def update(self, algorithm: Algorithm):
         """Advance internal counters after one generation.
 
         Parameters
@@ -122,7 +191,8 @@ class StoppingCondition:
             best objective is used to update convergence tracking.
         """
 
-        objfunc = current_population.objfunc
+        current_population = algorithm.population
+        objfunc = algorithm.objfunc
 
         self.iterations += 1
         self.evaluations = objfunc.counter
@@ -265,7 +335,7 @@ class StoppingCondition:
             self.progress_metric_parsed, neval_reached, ngen_reached, real_time_reached, cpu_time_reached, target_progress, patience_percentage
         )
 
-    def get_state(self):
+    def get_state(self) -> dict:
         """Return a dictionary with the current state of the stopping condition.
 
         Returns
@@ -281,17 +351,31 @@ class StoppingCondition:
             "progress": self.get_progress(),
             "stop_condition": self.condition_str,
             "progress_metric": self.progress_metric_str,
-            "max_patience": self.max_patience,
-            "max_iterations": self.max_iterations,
-            "max_evaluations": self.max_evaluations,
-            "real_time_limit": self.real_time_limit,
-            "cpu_time_limit": self.cpu_time_limit,
-            "patience_left": self.patience_left,
-            "iterations": self.iterations,
-            "evaluations": self.evaluations,
-            "real_time_spent": self.real_time_spent,
-            "cpu_time_spent": self.cpu_time_spent,
         }
+        if self.max_patience is not None:
+            data["max_patience"] = self.max_patience
+
+        if self.max_iterations is not None:
+            data["max_iterations"] = self.max_iterations
+
+        if self.max_evaluations is not None:
+            data["max_evaluations"] = self.max_evaluations
+
+        if self.real_time_limit is not None:
+            data["real_time_limit"] = self.real_time_limit
+
+        if self.cpu_time_limit is not None:
+            data["cpu_time_limit"] = self.cpu_time_limit
+
+        data.update(
+            {
+                "patience_left": self.patience_left,
+                "iterations": self.iterations,
+                "evaluations": self.evaluations,
+                "real_time_spent": self.real_time_spent,
+                "cpu_time_spent": self.cpu_time_spent,
+            }
+        )
 
         return data
 

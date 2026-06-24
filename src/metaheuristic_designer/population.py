@@ -6,10 +6,9 @@ This module implements a data structure to hold the collection of solutions we a
 
 from __future__ import annotations
 import logging
-from typing import Iterable, Tuple, Any, Optional, Iterator
+from typing import Iterable, Tuple, Any, Optional, Iterator, TYPE_CHECKING
 from copy import copy
 import numpy as np
-from .objective_function import ObjectiveFunc
 from .encoding import Encoding, DefaultEncoding
 from .encodings import ParameterExtendingEncoding
 from .utils import VectorLike, MatrixLike, MaskLike
@@ -23,7 +22,7 @@ class Population:
     A ``Population`` holds the genotype matrix, fitness and objective
     values, historical bests, and the current best individual.  It
     is the central data structure passed between components of the
-    optimisation loop.
+    optimization loop.
 
     Parameters
     ----------
@@ -36,10 +35,7 @@ class Population:
         Defaults to :class:`DefaultEncoding`.
     """
 
-    def __init__(self, objfunc: ObjectiveFunc, genotype_matrix: MatrixLike, encoding: Optional[Encoding] = None):
-        # Objective function
-        self.objfunc = objfunc
-
+    def __init__(self, genotype_matrix: MatrixLike, encoding: Optional[Encoding] = None):
         # Population of solutions
         self.genotype_matrix = genotype_matrix
 
@@ -50,7 +46,7 @@ class Population:
         # Fitness of each individual in the population
         self.fitness = np.full(self.population_size, -np.inf)
         self.objective = np.full(self.population_size, -np.inf)
-        self.fitness_calculated = np.zeros(self.population_size)
+        self.fitness_calculated = np.zeros(self.population_size, dtype=bool)
 
         # Best solution found so far
         self.best = None
@@ -69,23 +65,24 @@ class Population:
         self.index = 0
 
     def __len__(self) -> int:
-        return self.genotype_matrix.shape[0]
+        return self.population_size
 
     def __iter__(self) -> Iterator[VectorLike]:
         for row in self.genotype_matrix:
             yield row
 
     def __repr__(self) -> str:
+        genotype_matrix_str = np.array2string(self.genotype_matrix).replace("\n", "\n\t")
+        historical_best_matrix_str = np.array2string(self.historical_best_matrix).replace("\n", "\n\t")
         return (
             "Population{"
-            f"\n\tobjfunc = {self.objfunc.name}"
-            f"\n\tgenotype_matrix = {self.genotype_matrix}"
-            f"\n\tpop_size = {self.population_size}"
-            f"\n\tvec_size = {self.dimension}"
+            f"\n\tgenotype_matrix = \n\t{genotype_matrix_str}"
+            f"\n\tpopulation_size = {self.population_size}"
+            f"\n\tdimension = {self.dimension}"
             f"\n\tfitness = {self.fitness}"
             f"\n\tobjective = {self.objective}"
             f"\n\tfitness_calculated = {self.fitness_calculated}"
-            f"\n\thistorical_best_matrix = {self.historical_best_matrix}"
+            f"\n\thistorical_best_matrix = \n\t{historical_best_matrix_str}"
             f"\n\thistorical_best_fitness = {self.historical_best_fitness}"
             f"\n\tbest = {self.best}"
             f"\n\tbest_fitness = {self.best_fitness}"
@@ -94,7 +91,7 @@ class Population:
         )
 
     def __copy__(self) -> Population:
-        copied_pop = Population(self.objfunc, copy(self.genotype_matrix), encoding=self.encoding)
+        copied_pop = Population(copy(self.genotype_matrix), encoding=self.encoding)
         copied_pop.fitness = copy(self.fitness)
         copied_pop.objective = copy(self.objective)
         copied_pop.fitness_calculated = copy(self.fitness_calculated)
@@ -107,14 +104,14 @@ class Population:
         return copied_pop
 
     def best_individual(self) -> Tuple[MatrixLike, float]:
-        """Return the best genotype and its maximised fitness value.
+        """Return the best genotype and its maximized fitness value.
 
         Returns
         -------
         best_genotype : MatrixLike
             The genotype vector of the best individual.
         best_fitness : float
-            The internal fitness (always maximised).
+            The internal fitness (always maximized).
         """
 
         return self.best, self.best_fitness
@@ -155,7 +152,7 @@ class Population:
         -------
         Population
             ``self``, with updated genotypes and, if the size changed,
-            re-initialised fitness and historical bests.
+            re-initialized fitness and historical bests.
         """
 
         if isinstance(genotype_source, Population):
@@ -174,7 +171,8 @@ class Population:
             self.historical_best_matrix = copy(genotype_matrix)
             logger.debug("Genotype matrix will change size.")
         else:
-            self.fitness_calculated = np.all(self.genotype_matrix == genotype_matrix, axis=1)
+            repeated_solutions = np.all(self.genotype_matrix == genotype_matrix, axis=1)
+            self.fitness_calculated = self.fitness_calculated & repeated_solutions
         self.genotype_matrix = genotype_matrix
         self.population_size = genotype_matrix.shape[0]
 
@@ -199,7 +197,7 @@ class Population:
 
         selected_genotype_matrix = copy(self.genotype_matrix[selection_idx, :])
 
-        selected_pop = Population(self.objfunc, selected_genotype_matrix, encoding=self.encoding)
+        selected_pop = Population(selected_genotype_matrix, encoding=self.encoding)
         selected_pop.fitness = copy(self.fitness[selection_idx])
         selected_pop.objective = copy(self.objective[selection_idx])
         selected_pop.fitness_calculated = copy(self.fitness_calculated[selection_idx])
@@ -263,7 +261,7 @@ class Population:
 
         sliced_genotype_matrix = copy(self.genotype_matrix[:, mask])
 
-        sliced_pop = Population(self.objfunc, sliced_genotype_matrix, encoding=self.encoding)
+        sliced_pop = Population(sliced_genotype_matrix, encoding=self.encoding)
         sliced_pop.dimension = sliced_genotype_matrix.shape[1]
         sliced_pop.historical_best_matrix = copy(self.historical_best_matrix[:, mask])
         sliced_pop.historical_best_fitness = copy(self.historical_best_fitness)
@@ -326,7 +324,7 @@ class Population:
 
         joined_genotype_matrix = np.concatenate((population1.genotype_matrix, population2.genotype_matrix), axis=0)
 
-        joined_pop = Population(population1.objfunc, joined_genotype_matrix, encoding=population1.encoding)
+        joined_pop = Population(joined_genotype_matrix, encoding=population1.encoding)
         joined_pop.historical_best_matrix = np.concatenate((population1.historical_best_matrix, population2.historical_best_matrix), axis=0)
         joined_pop.historical_best_fitness = np.concatenate((population1.historical_best_fitness, population2.historical_best_fitness))
         joined_pop.fitness_calculated = np.concatenate((population1.fitness_calculated, population2.fitness_calculated))
@@ -461,7 +459,7 @@ class Population:
         best_fitness = self.best_fitness
         best_objective = self.best_objective
 
-        new_population = Population(self.objfunc, genotype_matrix, encoding=self.encoding)
+        new_population = Population(genotype_matrix, encoding=self.encoding)
         new_population.fitness_calculated = fitness_calculated
         new_population.fitness = fitness
         new_population.objective = objective
@@ -473,60 +471,30 @@ class Population:
 
         return new_population
 
-    def calculate_fitness(self, parallel: bool = False, threads: int = 8) -> VectorLike:
-        """
-        Calculates the fitness of the individual if it has not been calculated before
-
-        Parameters
-        ----------
-        parallel: bool, optional
-            Whether to evaluate the individuals in the population in parallel.
-        threads: int, optional
-            Number of processes to use at once if calculating the fitness in parallel.
-
-        Returns
-        -------
-        fitness: ndarray
-        """
-
-        prev_fitness = copy(self.fitness)
-
-        # Objective values and fitness values are modified in place after the call
-        self.fitness = self.objfunc.fitness(self, parallel=parallel, threads=threads)
-
-        improved_mask = prev_fitness < self.fitness
-        self.historical_best_fitness[improved_mask] = self.fitness[improved_mask]
-        self.historical_best_matrix[improved_mask, :] = self.genotype_matrix[improved_mask, :]
-
-        if self.best is None or np.any(self.fitness > self.best_fitness):
-            best_idx = np.argmax(self.fitness)
-            self.best = self.genotype_matrix[best_idx]
-            self.best_fitness = self.fitness[best_idx]
-            self.best_objective = self.objective[best_idx]
-
-        logger.debug("Updated the fitness of the individuals.")
-
-        return self
-
-    def repair_solutions(self) -> Population:
-        """
-        Repairs the solutions in the population.
-
-        Returns
-        -------
-        self: Population
-        """
-
-        self.genotype_matrix = self.objfunc.repair_solution(self.genotype_matrix)
-        return self
-
-    def decode(self, encoding: Optional[Encoding] = None) -> Iterable:
+    def apply_encoding(self, encoding: Optional[Encoding] = None) -> Population:
         """
         Return the population passed through the decoding function defined in the encoding.
 
         Returns
         -------
         decoded_population: Any
+        """
+
+        if encoding is None:
+            encoding = self.encoding
+
+        genotype_matrix = self.genotype_matrix
+        transformed_matrix = encoding.decode(genotype_matrix)
+        return self.update_genotype(transformed_matrix)
+
+    def decode(self, encoding: Optional[Encoding] = None) -> Iterable:
+        """
+        Return the population matrix passed through the decoding function defined in the encoding.
+
+        Returns
+        -------
+        MatrixLike
+            The decoded genotype matrix.
         """
 
         if encoding is None:
@@ -560,7 +528,7 @@ class Population:
             return None
 
     def encode(self, encoding: Optional[Encoding] = None) -> MatrixLike:
-        """Encode the current population using the given encoding.
+        """Encode the current population matrix using the given encoding.
 
         Parameters
         ----------
@@ -632,7 +600,6 @@ class Population:
 
         return (
             f"Population(\n"
-            f"  objfunc={self.objfunc.name},\n"
             f"  size={self.population_size}, dims={self.dimension},\n"
             f"  fitness=[{self.fitness.min():.3e}, {self.fitness.max():.3e}],\n"
             f"  objective=[{self.objective.min():.3e}, {self.objective.max():.3e}],\n"

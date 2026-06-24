@@ -6,13 +6,13 @@ fitness scaling helpers.
 from typing import Callable, Optional
 import warnings
 import numpy as np
-from ..utils import MaskLike, RNGLike, ScalarLike, VectorLike, check_random_state
+from ..utils import MaskLike, RNGLike, ScalarLike, VectorLike, check_rng
 
 
 # ---------------------------------------------
 # Population ranking factory logic
 # ---------------------------------------------
-def fitness_propotional(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
+def fitness_proportional(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
     """Fitness proportional scaling.
 
     Shift fitness to be non-negative and add a constant offset.
@@ -27,7 +27,7 @@ def fitness_propotional(fitness: VectorLike, scaling_factor: ScalarLike) -> Vect
     Returns
     -------
     VectorLike
-        Unnormalised selection weights.
+        unnormalized selection weights.
     """
 
     return fitness - fitness.min() + scaling_factor
@@ -48,7 +48,7 @@ def sigma_scaling(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike
     Returns
     -------
     VectorLike
-        Unnormalised selection weights.
+        unnormalized selection weights.
     """
 
     return np.maximum(fitness - (fitness.mean() - scaling_factor * fitness.std()), 0)
@@ -71,7 +71,7 @@ def linear_ranking(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLik
     Returns
     -------
     VectorLike
-        Unnormalised selection weights.
+        unnormalized selection weights.
     """
 
     scaling_factor = np.minimum(scaling_factor, 2)
@@ -93,7 +93,7 @@ def exponential_ranking(fitness: VectorLike, scaling_factor: ScalarLike) -> Vect
     Returns
     -------
     VectorLike
-        Unnormalised selection weights.
+        unnormalized selection weights.
     """
 
     fit_order = np.argsort(np.argsort(fitness))  # Using the double-argsort trick
@@ -113,7 +113,7 @@ def flat_ranking(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
     Returns
     -------
     VectorLike
-        Unnormalised weights (all ones).
+        unnormalized weights (all ones).
     """
 
     return np.ones_like(fitness)
@@ -121,8 +121,8 @@ def flat_ranking(fitness: VectorLike, scaling_factor: ScalarLike) -> VectorLike:
 
 # fmt: off
 scaling_map = {
-    "fitness_proportional": fitness_propotional,
-    "fitness_prop": fitness_propotional,
+    "fitness_proportional": fitness_proportional,
+    "fitness_prop": fitness_proportional,
 
     "sigma_scaling": sigma_scaling,
 
@@ -140,7 +140,7 @@ scaling_map = {
 
 
 def create_scaling_fn(method: str, scaling_factor: ScalarLike = 2) -> Callable:
-    """Create a callable that computes normalised selection weights.
+    """Create a callable that computes normalized selection weights.
 
     Parameters
     ----------
@@ -152,7 +152,7 @@ def create_scaling_fn(method: str, scaling_factor: ScalarLike = 2) -> Callable:
     Returns
     -------
     callable
-        A function ``(fitness) -> weights`` that returns a normalised
+        A function ``(fitness) -> weights`` that returns a normalized
         probability vector.
     """
 
@@ -174,7 +174,31 @@ def create_scaling_fn(method: str, scaling_factor: ScalarLike = 2) -> Callable:
 # ---------------------------------------------
 # Population selection methods
 # ---------------------------------------------
-def select_best(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None) -> MaskLike:
+def repeating_selection(fitness: VectorLike, amount: int, rng: Optional[RNGLike] = None) -> MaskLike:
+    """
+    Chooses the entire population repeated in order duplicated enough times to reach the specified amount.
+
+    Parameters
+    ----------
+    population: ndarray
+        List of individuals from which the parents will be replicated.
+    amount: int
+        Amount of individuals to be chosen as parents.
+
+    Returns
+    -------
+    parents: ndarray
+        List of individuals chosen as parents.
+    """
+
+    n_individuals = fitness.shape[0]
+    repetitions = amount // n_individuals
+    selected_idx = np.tile(np.arange(n_individuals), repetitions)
+
+    return selected_idx[:amount]
+
+
+def select_best(fitness: VectorLike, amount: int, rng: Optional[RNGLike] = None) -> MaskLike:
     """
     Selects the best parent of the population as parents.
 
@@ -195,7 +219,7 @@ def select_best(fitness: VectorLike, amount: int, random_state: Optional[RNGLike
     return np.argsort(fitness)[::-1][:amount]
 
 
-def prob_tournament(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, tournament_size: int = 3, prob: float = 1) -> MaskLike:
+def prob_tournament(fitness: VectorLike, amount: int, rng: Optional[RNGLike] = None, tournament_size: int = 3, prob: float = 1) -> MaskLike:
     """
     Selects the parents for the next generation by tournament.
 
@@ -214,28 +238,28 @@ def prob_tournament(fitness: VectorLike, amount: int, random_state: Optional[RNG
         List of individuals chosen as parents.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
     n_individuals = fitness.shape[0]
 
     # Generate the participants of each tournament
-    tournament_idx = random_state.integers(0, n_individuals, size=(amount, tournament_size))
+    tournament_idx = rng.integers(0, n_individuals, size=(amount, tournament_size))
     tournament_fit = fitness[tournament_idx]
 
     # Choose the best individual of each tournament
     best_idx = np.argmax(tournament_fit, axis=1)
 
     # Choose a random individual on each tournament
-    random_idx = random_state.integers(0, tournament_size, size=amount)
+    random_idx = rng.integers(0, tournament_size, size=amount)
 
     # Choose the final winner of the tournament
-    chosen_idx = np.where(random_state.random(amount) < prob, best_idx, random_idx)
+    chosen_idx = np.where(rng.random(amount) < prob, best_idx, random_idx)
     selected_idx = tournament_idx[np.arange(amount), chosen_idx]
 
     return selected_idx
 
 
-def uniform_selection(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None) -> MaskLike:
+def uniform_selection(fitness: VectorLike, amount: int, rng: Optional[RNGLike] = None) -> MaskLike:
     """
     Chooses a number of individuals from the population at random with replacement.
 
@@ -252,16 +276,16 @@ def uniform_selection(fitness: VectorLike, amount: int, random_state: Optional[R
         List of individuals chosen as parents.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
     # Take a random sample of individuals
-    return random_state.integers(0, fitness.shape[0], amount)
+    return rng.integers(0, fitness.shape[0], amount)
 
 
-def shuffle_population(fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None) -> MaskLike:
+def shuffle_population(fitness: VectorLike, amount: int, rng: Optional[RNGLike] = None) -> MaskLike:
     """
     Chooses a number of individuals from the population at random without replacement if amount < population_size.
-    If we cannot pich without replacement, we at least make sure we pick every individual at least
+    If we cannot pick without replacement, we at least make sure we pick every individual at least
     :math:`\\left\\lceil \\frac{\\text{amount}}{\\text{population\\_size}} \\right\\rceil` times
 
     Parameters
@@ -276,23 +300,21 @@ def shuffle_population(fitness: VectorLike, amount: int, random_state: Optional[
     parents: ndarray
         List of individuals chosen as parents.
     """
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
     population_size = fitness.shape[0]
 
     if amount <= population_size:
-        picked_idx = random_state.permuted(np.arange(population_size))[:amount]
+        picked_idx = rng.permuted(np.arange(population_size))[:amount]
     else:
         repetitions = np.ceil(amount / population_size).astype(int)
         idx_choice = np.tile(np.arange(population_size), repetitions)
-        picked_idx = random_state.permuted(idx_choice)[:amount]
+        picked_idx = rng.permuted(idx_choice)[:amount]
 
     return picked_idx
 
 
-def roulette(
-    fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None
-) -> MaskLike:
+def roulette(fitness: VectorLike, amount: int, rng: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None) -> MaskLike:
     """
     Fitness proportionate parent selection.
 
@@ -313,7 +335,7 @@ def roulette(
         List of individuals chosen as parents.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
     scaling_fn = create_scaling_fn(method, scaling_factor)
     weights = scaling_fn(fitness)
@@ -321,12 +343,10 @@ def roulette(
     if np.any(weights < 0):
         warnings.warn("Some values of fitness resulted in negative selection probabilities in the parent selection step.", stacklevel=2)
 
-    return random_state.choice(np.arange(fitness.shape[0]), size=amount, p=weights, axis=0)
+    return rng.choice(np.arange(fitness.shape[0]), size=amount, p=weights, axis=0)
 
 
-def sus(
-    fitness: VectorLike, amount: int, random_state: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None
-) -> MaskLike:
+def sus(fitness: VectorLike, amount: int, rng: Optional[RNGLike] = None, method: str = "flat_scaling", scaling_factor: float = None) -> MaskLike:
     """
     Stochastic universal sampling parent selection method.
 
@@ -347,13 +367,13 @@ def sus(
         List of individuals chosen as parents.
     """
 
-    random_state = check_random_state(random_state)
+    rng = check_rng(rng)
 
     scaling_fn = create_scaling_fn(method, scaling_factor)
     weights = scaling_fn(fitness)
 
     cum_weights = np.cumsum(weights)
-    random_offsets = random_state.random(amount) / amount
+    random_offsets = rng.random(amount) / amount
     positions = random_offsets + (np.arange(amount) / amount)
     order = np.searchsorted(cum_weights, positions, side="right") % len(cum_weights)
 

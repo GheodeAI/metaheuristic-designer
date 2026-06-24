@@ -29,7 +29,7 @@ class ThreeSAT(ObjectiveFunc):
 
     def __init__(self, clauses):
         if not isinstance(clauses, np.ndarray) or clauses.shape[1] != 3:
-            raise ValueError("The caluses must be represented as an array of size (n_clauses, 3).")
+            raise ValueError("The clauses must be represented as an array of size (n_clauses, 3).")
 
         self.clauses = clauses
         self.n_vars = np.abs(clauses).max()
@@ -114,7 +114,7 @@ class BinKnapsack(ObjectiveFunc):
     def objective(self, solution):
         """
         Calculates the total value of the selection of elements. If the weight is higher
-        than the maxmimum weight, the value is replaced by the negative weight of the elements.
+        than the maximum weight, the value is replaced by the negative weight of the elements.
 
         Parameters
         ----------
@@ -143,7 +143,7 @@ class BinKnapsack(ObjectiveFunc):
 class MaxClique(ObjectiveFunc):
     """
     This is the Maximum clique problem which consists on finding the size of the largest
-    subgraph that has all its nodes interconected (a clique).
+    subgraph that has all its nodes interconnected (a clique).
 
     Parameters
     ----------

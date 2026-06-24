@@ -27,7 +27,7 @@ class CycleBoundConstraint(RepairConstraint):
         self.range_lim = self.upper_bound - self.lower_bound
         super().__init__(**kwargs)
 
-    def repair_solution(self, population_matrix: MatrixLike) -> MatrixLike:
+    def repair_solutions(self, population_matrix: MatrixLike) -> MatrixLike:
         if np.all(self.upper_bound == self.lower_bound):
             if self.upper_bound.ndim == 0:
                 return np.full_like(population_matrix, self.upper_bound)
@@ -35,8 +35,8 @@ class CycleBoundConstraint(RepairConstraint):
 
         fixed_solution = np.mod(population_matrix - self.lower_bound, self.range_lim) + self.lower_bound
 
-        ouside_bound_mask = (population_matrix < self.lower_bound) | (population_matrix > self.upper_bound)
+        outside_bound_mask = (population_matrix < self.lower_bound) | (population_matrix > self.upper_bound)
         population_matrix = copy(population_matrix)
-        population_matrix[ouside_bound_mask] = fixed_solution[ouside_bound_mask]
+        population_matrix[outside_bound_mask] = fixed_solution[outside_bound_mask]
 
         return population_matrix

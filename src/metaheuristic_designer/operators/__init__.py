@@ -5,7 +5,7 @@ Operator interfaces and base implementations.
 from ..operator import Operator, OperatorFromLambda, NullOperator
 
 from .composite_operator import CompositeOperator
-from .branch_operator import BranchOperator, BranchOpMethods, branch_ops_map
+from .branch_operator import BranchOperator
 from .masked_operator import MaskedOperator
 from .extended_operator import ExtendedOperator
 from .adaptive_operator import AdaptiveOperator
@@ -23,12 +23,10 @@ __all__ = [
     "OperatorFromLambda",
     "AdaptiveOperator",
     "BOOperator",
-    "BranchOpMethods",
     "BranchOperator",
     "CompositeOperator",
     "ExtendedOperator",
     "MaskedOperator",
-    "branch_ops_map",
     *operator_functions.__all__,
     *factories.__all__,
 ]

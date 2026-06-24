@@ -6,11 +6,10 @@ import cv2
 import os
 from PIL import Image
 
-from metaheuristic_designer.algorithms import Algorithm, MemeticAlgorithm
+from metaheuristic_designer.algorithms import Algorithm
 from metaheuristic_designer.operators import create_operator
 from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.parent_selection import create_parent_selection
-from metaheuristic_designer.strategies.classic import CMA_ES
 from metaheuristic_designer.survivor_selection import create_survivor_selection
 from metaheuristic_designer.encodings import ImageEncoding, PSOEncoding
 from metaheuristic_designer.strategies import (
@@ -20,30 +19,40 @@ from metaheuristic_designer.strategies import (
     ES,
     GA,
     DE,
+    CMA_ES,
     GaussianUMDA,
     GaussianPBIL,
     CrossEntropyMethod,
     RandomSearch,
     PSO,
     NoSearch,
+    MemeticStrategy,
 )
 from metaheuristic_designer.benchmarks import ImgApprox, ImgEntropy, ImgStd
-from metaheuristic_designer.utils import check_random_state
+from metaheuristic_designer.utils import check_rng
 
 available_objectives = ("MSE", "MAE", "SSIM", "NMI", "ENTROPY", "STD")
 available_algorithms = ("hillclimb", "localsearch", "sa", "es", "ga", "de", "gaussianumda", "gaussianpbil", "crossentropy", "randomsearch", "pso")
 
 
-def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size, display, reporter, random_state):
+def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size, display, reporter, evaluations, rng):
+    image_shape = tuple(map(int, img_size.split(",")))
+
+    if evaluations is None:
+        evaluations = image_shape[0] * image_shape[1] * 2000
+
     algorithm_params = {
-        "stop_cond": "convergence or real_time_limit",
-        "progress_metric": "real_time_limit",
-        "real_time_limit": 500.0,
-        "max_patience": 500,
+        "stop_condition_str": "convergence or max_evaluations",
+        "progress_metric_str": "max_evaluations",
+        "max_evaluations": evaluations,
+        "max_patience": 100000,
         "reporter": reporter,
     }
 
-    image_shape = tuple(map(int, img_size.split(",")))
+    if mode == "max" and objfunc_name in ("MSE", "MAE"):
+        print(f"Maximizing {objfunc_name} might not yield meaningful results.")
+    elif mode == "min" and objfunc_name in ("NMI", "SSIM"):
+        print(f"Minimizing {objfunc_name} might not yield meaningful results.")
 
     if objfunc_name in ("MSE", "MAE", "SSIM", "NMI"):
         reference_img = Image.open(img_file_name)
@@ -62,98 +71,105 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     search_strategy_map = {
         "hillclimb": HillClimb(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, encoding=encoding, rng=rng
             ),
-            operator=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
+            operator=create_operator("mutation.gaussian_mutation", F=10, N=5, rng=rng),
         ),
         "localsearch": LocalSearch(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, encoding=encoding, rng=rng
             ),
-            operator=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
+            operator=create_operator("mutation.gaussian_mutation", F=10, N=5, rng=rng),
             iterations=20,
         ),
         "sa": SA(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1, encoding=encoding, rng=rng
             ),
-            operator=create_operator("mutation.gaussian_mutation", F=10, N=20, random_state=random_state),
+            operator=create_operator("mutation.gaussian_mutation", F=10, N=20, rng=rng),
             iterations=250,
             temperature_init=1,
             alpha=0.997,
         ),
         "es": ES(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng
             ),
-            mutation_op=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
-            crossover_op=create_operator("crossover.uniform", random_state=random_state),
-            survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
+            mutation_op=create_operator("mutation.gaussian_mutation", F=10, N=5, rng=rng),
+            crossover_op=create_operator("crossover.uniform", rng=rng),
+            survivor_sel=create_survivor_selection("(m+n)", rng=rng),
             offspring_size=150,
         ),
         "ga": GA(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng
             ),
-            mutation_op=create_operator("mutation.gaussian_mutation", F=10, N=5, random_state=random_state),
-            crossover_op=create_operator("crossover.uniform", random_state=random_state),
-            parent_sel=create_parent_selection("best", amount=50, random_state=random_state),
-            survivor_sel=create_survivor_selection("elitism", amount=20, random_state=random_state),
+            mutation_op=create_operator("mutation.gaussian_mutation", F=10, N=5, rng=rng),
+            crossover_op=create_operator("crossover.uniform", rng=rng),
+            parent_sel=create_parent_selection("best", amount=50, rng=rng),
+            survivor_sel=create_survivor_selection("elitism", amount=20, rng=rng),
             mutation_prob=0.2,
             crossover_prob=0.8,
-            random_state=random_state,
+            rng=rng,
         ),
         "de": DE(
             de_operator_name="DE/best/1",
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng
             ),
             F=0.8,
             Cr=0.8,
         ),
         "cmaes": CMA_ES(
-            initializer=UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, random_state=random_state),
-            random_state=random_state,
+            initializer=UniformInitializer(
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng
+            ),
+            rng=rng,
         ),
         "gaussianumda": GaussianUMDA(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, encoding=encoding, rng=rng
             ),
             parent_sel=create_parent_selection("best", amount=100),
             survivor_sel=create_survivor_selection("(m+n)"),
             scale=20,
             noise=1e-3,
-            random_state=random_state,
+            rng=rng,
         ),
         "gaussianpbil": GaussianPBIL(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, encoding=encoding, rng=rng
             ),
             parent_sel=create_parent_selection("best", amount=100),
             survivor_sel=create_survivor_selection("(m+n)"),
             scale=20,
             lr=0.5,
             noise=1,
-            random_state=random_state,
+            rng=rng,
         ),
         "crossentropy": CrossEntropyMethod(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, encoding=encoding, random_state=random_state
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=1000, encoding=encoding, rng=rng
             ),
-            random_state=random_state,
+            rng=rng,
         ),
         "randomsearch": RandomSearch(
-            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, random_state=random_state)
+            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng)
         ),
         "nosearch": NoSearch(
-            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, random_state=random_state)
+            UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=100, encoding=encoding, rng=rng)
         ),
     }
 
     if alg_name == "pso":
         search_strategy = PSO(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=600, encoding=PSOEncoding(objfunc.dimension), random_state=random_state
+                objfunc.dimension,
+                objfunc.lower_bound,
+                objfunc.upper_bound,
+                population_size=600,
+                encoding=PSOEncoding(objfunc.dimension),
+                rng=rng,
             ),
             encoding=encoding,
             w=0.5,
@@ -168,22 +184,25 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
     if memetic:
         local_search = LocalSearch(
             initializer=UniformInitializer(
-                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=search_strategy.initializer.pop_size, encoding=encoding
+                objfunc.dimension,
+                objfunc.lower_bound,
+                objfunc.upper_bound,
+                population_size=search_strategy.initializer.population_size,
+                encoding=encoding,
             ),
-            operator=create_operator("mutation.uniform_noise", min=-10, max=10, N=3),
+            operator=create_operator("mutation.uniform_noise", min=-10, max=10),
             iterations=20,
         )
-        alg = MemeticAlgorithm(
-            objfunc=objfunc,
-            search_strategy=search_strategy,
-            local_search=local_search,
+        search_strategy = MemeticStrategy(
+            main_strategy=search_strategy,
+            local_search_heuristic=local_search,
+            local_search_depth=10,
+            local_search_frequency=5,
             improvement_selection=create_parent_selection("best", amount=5),
             keep_improved_solutions=True,
-            **algorithm_params,
+            rng=rng,
         )
-    else:
-        alg = Algorithm(objfunc, search_strategy, **algorithm_params)
-
+    alg = Algorithm(objfunc, search_strategy, **algorithm_params)
 
     # Pygame display setup
     display_dim = [600, 600]
@@ -193,10 +212,8 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
         pygame.display.set_caption("Evo graphics")
 
     # Manual optimization loop with pygame display
+    alg.restart()
     population = alg.initialize()
-    alg.stopping_condition.restart()
-    alg.stopping_condition.step(population)
-    alg.reporter.log_init(alg)
 
     while not alg.stopping_condition.is_finished(alg.search_strategy.finish):
         if display:
@@ -205,11 +222,7 @@ def run_algorithm(alg_name, img_file_name, memetic, objfunc_name, mode, img_size
                     exit(0)
             src.fill("#000000")
 
-        population = alg.step(population=population)
-
-        alg.stopping_condition.step(alg.population)
-        alg.history_tracker.step(alg)
-        alg.reporter.log_step(alg)
+        population = alg.step(prev_population=population)
 
         if display:
             image, _ = alg.best_solution()
@@ -247,7 +260,7 @@ def render(image, display_dim, src):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-a", "--algorithm", dest="algorithm", help=f"Specify an algorithm. Available options are {available_algorithms}.", default="ga"
+        "-a", "--algorithm", dest="algorithm", help=f"Specify an algorithm. Available options are {available_algorithms}.", default="es"
     )
     parser.add_argument(
         "-m",
@@ -257,18 +270,19 @@ def main():
         help="Does local search after mutation",
     )
     parser.add_argument("-i", "--image", dest="img", default="data/images/cat.png", help="Path to reference image.")
-    parser.add_argument("-s", "--img_size", default="32,32", help="Image size as 'H,W'.")
-    parser.add_argument("--hide", action="store_true", help="Disable real‑time display.")
-    parser.add_argument("--mode", default="min", help="'min' or 'max'.")
+    parser.add_argument("-s", "--img_size", default="24,24", help="Image size as 'H,W'.")
+    parser.add_argument("--hide", action="store_true", help="Disable real-time display.")
+    parser.add_argument("--mode", default=None, help="'min' or 'max'.")
     parser.add_argument(
-        "-o", "--objective", dest="objective", help=f"Name of the objective function. Available options are {available_objectives}", default="MSE"
+        "-o", "--objective", dest="objective", help=f"Name of the objective function. Available options are {available_objectives}", default="SSIM"
     )
+    parser.add_argument("-e", "--evaluations", default=None, help="Maximum number of evaluations.", type=int)
     parser.add_argument("-r", "--seed", dest="seed", help="Random seed to use", default=42, type=int)
     parser.add_argument("--log", default="WARNING", help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     parser.add_argument("-v", "--reporter", default="tqdm", help="Reporter to use for progress tracking.")
     args = parser.parse_args()
 
-    rng = check_random_state(args.seed)
+    rng = check_rng(args.seed)
     logging.basicConfig()
     logging.getLogger("metaheuristic_designer").setLevel(args.log.upper())
 
@@ -281,7 +295,8 @@ def main():
         img_size=args.img_size,
         display=not args.hide,
         reporter=args.reporter,
-        random_state=rng,
+        evaluations=args.evaluations,
+        rng=rng,
     )
 
 

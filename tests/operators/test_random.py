@@ -59,7 +59,7 @@ def test_random_initialize_shape_and_modification(rng, dummy_initializer):
 def test_random_initialize_reproducible(rng, dummy_initializer):
     arr = np.zeros((3, 3))  # 3 columns
     res1 = random_initialize(arr, dummy_initializer)
-    dummy_initializer.random_state = np.random.default_rng(42)
+    dummy_initializer.rng = np.random.default_rng(42)
     res2 = random_initialize(arr, dummy_initializer)
     assert_array_equal(res1, res2)
 
@@ -69,7 +69,7 @@ def test_random_initialize_reproducible(rng, dummy_initializer):
 # ===================================================================
 def test_random_reset_shape_and_modification(rng, dummy_initializer):
     arr = np.ones((4, 3))  # 3 columns
-    result = random_reset(arr, dummy_initializer, random_state=rng, n=2)
+    result = random_reset(arr, dummy_initializer, rng=rng, n=2)
     assert result.shape == arr.shape
 
 
@@ -78,13 +78,13 @@ def test_random_reset_reproducible(rng):
 
     arr = np.ones((3, 3))
     # Create two independent initializers with the same seed
-    init1 = UniformInitializer(3, 0, 1, random_state=np.random.default_rng(42))
-    init2 = UniformInitializer(3, 0, 1, random_state=np.random.default_rng(42))
+    init1 = UniformInitializer(3, 0, 1, rng=np.random.default_rng(42))
+    init2 = UniformInitializer(3, 0, 1, rng=np.random.default_rng(42))
     # Use identical mask randomness
     rng_mask1 = np.random.default_rng(42)
     rng_mask2 = np.random.default_rng(42)
-    res1 = random_reset(arr.copy(), init1, random_state=rng_mask1, n=2)
-    res2 = random_reset(arr.copy(), init2, random_state=rng_mask2, n=2)
+    res1 = random_reset(arr.copy(), init1, rng=rng_mask1, n=2)
+    res2 = random_reset(arr.copy(), init2, rng=rng_mask2, n=2)
     assert_array_equal(res1, res2)
 
 
@@ -92,28 +92,28 @@ def test_random_reset_reproducible(rng):
 #  Factory: create_random_operator
 # ===================================================================
 @pytest.mark.parametrize("method", ["random", "reset"])
-def test_create_random_operator_returns_operator(method, rng, simple_encoding):
-    op = create_random_operator(method, encoding=simple_encoding, random_state=rng)
+def test_create_random_operator_returns_operator(method, rng, simple_encoding, dummy_initializer):
+    op = create_random_operator(method, initializer=dummy_initializer, encoding=simple_encoding, rng=rng)
     assert isinstance(op, OperatorFromLambda)
     assert op.name == method
 
 
-def test_create_random_operator_invalid_method():
+def test_create_random_operator_invalid_method(dummy_initializer):
     with pytest.raises(KeyError):
-        create_random_operator("invalid_rando")
+        create_random_operator("invalid_rando", initializer=dummy_initializer)
 
 
 # -------------------------------------------------------------------
 #  Integration: operator modifies population via factory
 # -------------------------------------------------------------------
-def test_random_operator_full_reset(rng, dummy_objfunc, simple_encoding, dummy_initializer):
+def test_random_operator_full_reset(rng, simple_encoding, dummy_initializer):
     # Build a population with 3 columns to match dummy_initializer
     geno = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
-    pop = Population(dummy_objfunc, geno, encoding=simple_encoding)
+    pop = Population(geno, encoding=simple_encoding)
     pop.fitness = np.zeros(2)
     original = pop.genotype_matrix.copy()
 
-    op = create_random_operator("random", encoding=simple_encoding, random_state=rng)
-    result = op(pop, initializer=dummy_initializer)
+    op = create_random_operator("random", initializer=dummy_initializer, encoding=simple_encoding, rng=rng)
+    result = op(pop)
     assert result is pop
     assert not np.array_equal(pop.genotype_matrix, original)

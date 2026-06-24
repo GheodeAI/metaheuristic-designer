@@ -14,13 +14,13 @@ from metaheuristic_designer.population import Population
 # -------------------------------------------------------------------
 @pytest.mark.parametrize("method", ["one_point", "uniform", "sbx", "xor_crossover"])
 def test_create_crossover_operator_returns_operator(method, rng, simple_encoding):
-    op = create_crossover_operator(method, encoding=simple_encoding, random_state=rng)
+    op = create_crossover_operator(method, encoding=simple_encoding, rng=rng)
     assert isinstance(op, OperatorFromLambda)
     assert op.name == method
 
 
 def test_create_crossover_operator_default_encoding(rng):
-    op = create_crossover_operator("onepoint", random_state=rng)
+    op = create_crossover_operator("onepoint", rng=rng)
     assert op.encoding is not None
 
 
@@ -32,36 +32,36 @@ def test_create_crossover_operator_invalid_method():
 # -------------------------------------------------------------------
 #  Integration: calling the operator modifies population
 # -------------------------------------------------------------------
-def test_one_point_operator_modifies_genotype(rng, dummy_objfunc, simple_encoding):
-    pop = make_pop([0.0, 0.0], dummy_objfunc)
+def test_one_point_operator_modifies_genotype(rng, simple_encoding):
+    pop = make_pop([0.0, 0.0])
     original = pop.genotype_matrix.copy()
 
-    op = create_crossover_operator("one_point", encoding=simple_encoding, random_state=rng)
+    op = create_crossover_operator("one_point", encoding=simple_encoding, rng=rng)
     result = op(pop)
 
     assert result is pop
     assert not np.array_equal(pop.genotype_matrix, original)
 
 
-def test_xor_crossover_operator_on_zeros(rng, dummy_objfunc, simple_encoding):
-    pop = Population(dummy_objfunc, np.zeros((4, 3), dtype=np.uint8))
+def test_xor_crossover_operator_on_zeros(rng, simple_encoding):
+    pop = Population(np.zeros((4, 3), dtype=np.uint8))
     pop.fitness = np.zeros(4)
 
-    op = create_crossover_operator("xor_crossover", encoding=simple_encoding, random_state=rng)
+    op = create_crossover_operator("xor_crossover", encoding=simple_encoding, rng=rng)
     result = op(pop)
 
     assert result is pop
 
 
-def test_crossover_operator_reproducible(rng, dummy_objfunc, simple_encoding):
-    pop1 = make_pop([1.0, 2.0], dummy_objfunc)
-    pop2 = make_pop([1.0, 2.0], dummy_objfunc)
+def test_crossover_operator_reproducible(simple_encoding):
+    pop1 = make_pop([1.0, 2.0])
+    pop2 = make_pop([1.0, 2.0])
 
     rng1 = np.random.default_rng(42)
     rng2 = np.random.default_rng(42)
 
-    op1 = create_crossover_operator("one_point", encoding=simple_encoding, random_state=rng1)
-    op2 = create_crossover_operator("one_point", encoding=simple_encoding, random_state=rng2)
+    op1 = create_crossover_operator("one_point", encoding=simple_encoding, rng=rng1)
+    op2 = create_crossover_operator("one_point", encoding=simple_encoding, rng=rng2)
 
     op1(pop1)
     op2(pop2)

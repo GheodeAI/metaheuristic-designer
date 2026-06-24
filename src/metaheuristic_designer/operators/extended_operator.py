@@ -31,7 +31,7 @@ class ExtendedOperator(Operator):
         The encoding that defines the genotype layout.
     name : str, optional
         Display name; defaults to the base operator's name.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`Operator`.
     """
 
@@ -75,15 +75,13 @@ class ExtendedOperator(Operator):
 
         return all_params
 
-    def evolve(self, population: Population, initializer: Optional[Initializer] = None) -> Population:
+    def evolve(self, population: Population) -> Population:
         """Apply the main masked operator (solution + parameter mutations).
 
         Parameters
         ----------
         population : Population
             The current population.
-        initializer : Initializer, optional
-            The population initializer.
 
         Returns
         -------
@@ -91,9 +89,9 @@ class ExtendedOperator(Operator):
             The evolved population.
         """
 
-        return self.main_operator.evolve(population, initializer=initializer)
+        return self.main_operator.evolve(population)
 
-    def step(self, progress: float):
+    def update(self, progress: float):
         """Update schedulable parameters and propagate to sub-operators.
 
         Parameters
@@ -101,10 +99,10 @@ class ExtendedOperator(Operator):
         progress : float
             Current progress of the algorithm (0-1).
         """
-        super().step(progress)
+        super().update(progress)
 
-        self.base_operator.step(progress)
+        self.base_operator.update(progress)
 
         for _, op in self.param_operators.items():
             if isinstance(op, Operator):
-                op.step(progress)
+                op.update(progress)

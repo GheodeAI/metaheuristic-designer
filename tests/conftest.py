@@ -20,7 +20,7 @@ from metaheuristic_designer.encoding import (
 from metaheuristic_designer.encodings.parameter_extending_encoding import (
     ParameterExtendingEncoding,
 )
-from metaheuristic_designer.history_tracker import HistoryTracker
+from metaheuristic_designer.history_tracker import ConfigurableHistoryTracker
 from metaheuristic_designer.population import Population
 from metaheuristic_designer.objective_function import (
     ObjectiveFunc,
@@ -36,13 +36,14 @@ from metaheuristic_designer.survivor_selection_base import (
     SurvivorSelection,
     NullSurvivorSelection,
 )
-from metaheuristic_designer.utils import check_random_state
+from metaheuristic_designer.utils import check_rng
 from metaheuristic_designer.encodings import PSOEncoding
 from metaheuristic_designer.search_strategy import SearchStrategy
 from metaheuristic_designer.benchmarks.benchmark_funcs import MaxOnes, Sphere
 from metaheuristic_designer.initializers import UniformInitializer
 from metaheuristic_designer.operators.factories.mutation import create_mutation_operator
 from metaheuristic_designer.survivor_selection import create_survivor_selection
+from metaheuristic_designer.strategies import PopulationBasedStrategy
 
 
 # ===================================================================
@@ -118,26 +119,32 @@ class DummyObjectiveFunction(ObjectiveFunc):
         self.repair_called = 0
 
     def objective(self, solution: Any) -> np.ndarray:
-        raise NotImplementedError("Use fitness() directly in tests")
+        return self._fitness_return
 
-    def fitness(
+    def calculate_fitness(
         self,
         population: Population,
-        parallel: bool = False,
-        threads: int = 8,
     ) -> np.ndarray:
         self.fitness_called += 1
         if callable(self._fitness_return):
             fitness = self._fitness_return(population)
-            return fitness
+        else:
+            fitness = self._fitness_return
         shape = (len(population.genotype_matrix),)
-        return np.broadcast_to(self._fitness_return, shape).copy()
+        fit_vector = np.broadcast_to(fitness, shape).copy()
+        population.fitness = fit_vector
+        population.objective = fit_vector
+        population.best = np.atleast_2d(population.genotype_matrix[np.argmax(fit_vector)])
+        population.best_objective = np.max(fit_vector)
+        population.best_fitness = np.max(fit_vector)
+        return population
 
-    def repair_solution(self, solution: np.ndarray) -> np.ndarray:
+    def repair_solution(self, population: Population) -> Population:
         self.repair_called += 1
         if self._repair_return is not None:
-            return self._repair_return(solution)
-        return solution
+            repaired_matrix = self._repair_return(population.genotype_matrix)
+            population.update_genotype(repaired_matrix)
+        return population
 
 
 @pytest.fixture
@@ -210,14 +217,14 @@ class DummyParameterExtendingEncoding(ParameterExtendingEncoding):
 #  Population fixtures
 # ===================================================================
 @pytest.fixture
-def empty_population(dummy_objfunc):
-    return Population(dummy_objfunc, np.zeros((0, 2)))
+def empty_population():
+    return Population(np.zeros((0, 2)))
 
 
 @pytest.fixture
-def example_population(dummy_objfunc):
-    """A 4‑individual population with pre‑set fitness, historical best, etc."""
-    pop = Population(dummy_objfunc, np.arange(8).reshape(4, 2).astype(float))
+def example_population():
+    """A 4‑individual population with pre-set fitness, historical best, etc."""
+    pop = Population(np.arange(8).reshape(4, 2).astype(float))
     pop.fitness = np.array([3.0, 1.0, 4.0, 2.0])
     pop.historical_best_matrix = np.ones((4, 2))
     pop.historical_best_fitness = np.array([10.0, 20.0, 30.0, 40.0])
@@ -255,7 +262,7 @@ def dummy_survivor_selection():
 @pytest.fixture
 def dummy_initializer(rng):
     """Initializer that produces a population of 10 vectors of length 3 (uniform)."""
-    return UniformInitializer(dimension=3, lower_bound=0, upper_bound=1, population_size=10, random_state=rng)
+    return UniformInitializer(dimension=3, lower_bound=0, upper_bound=1, population_size=10, rng=rng)
 
 
 # ===================================================================
@@ -265,7 +272,7 @@ def _expected_exponential(beta, size, seed=42):
     from metaheuristic_designer.initializers import ExponentialInitializer
 
     rng_fresh = np.random.default_rng(seed)
-    init = ExponentialInitializer(size, beta, random_state=rng_fresh)
+    init = ExponentialInitializer(size, beta, rng=rng_fresh)
     return init.generate_random()
 
 
@@ -273,7 +280,7 @@ def _expected_normal(mean, std, size, seed=42):
     from metaheuristic_designer.initializers import GaussianInitializer
 
     rng_fresh = np.random.default_rng(seed)
-    init = GaussianInitializer(size, mean, std, random_state=rng_fresh)
+    init = GaussianInitializer(size, mean, std, rng=rng_fresh)
     return init.generate_random()
 
 
@@ -281,7 +288,7 @@ def _expected_uniform(low, high, size, seed=42):
     from metaheuristic_designer.initializers import UniformInitializer
 
     rng_fresh = np.random.default_rng(seed)
-    init = UniformInitializer(size, low, high, random_state=rng_fresh)
+    init = UniformInitializer(size, low, high, rng=rng_fresh)
     return init.generate_random()
 
 
@@ -289,16 +296,16 @@ def _expected_permutation(n, seed=42):
     from metaheuristic_designer.initializers import PermInitializer
 
     rng_fresh = np.random.default_rng(seed)
-    init = PermInitializer(10, n, random_state=rng_fresh)
+    init = PermInitializer(10, n, rng=rng_fresh)
     return init.generate_random()
 
 
 # ===================================================================
 #  Helper: quick population with given fitness
 # ===================================================================
-def make_pop(fitness_list, objfunc):
-    """Return a Population with pre‑set fitness, shape (len, 2)."""
-    pop = Population(objfunc, np.arange(len(fitness_list) * 2).reshape(len(fitness_list), 2).astype(float))
+def make_pop(fitness_list):
+    """Return a Population with pre-set fitness, shape (len, 2)."""
+    pop = Population(np.arange(len(fitness_list) * 2).reshape(len(fitness_list), 2).astype(float))
     pop.fitness = np.array(fitness_list)
     return pop
 
@@ -323,11 +330,11 @@ def perm_pop():
 
 
 @pytest.fixture
-def pso_population(dummy_objfunc):
+def pso_population():
     """A small population with PSOEncoding, fitness, historical best, and speed."""
     enc = PSOEncoding(dimension=2, base_encoding=DefaultEncoding())
     geno = np.array([[1.0, 2.0, 0.1, 0.2], [3.0, 4.0, 0.3, 0.4]])
-    pop = Population(dummy_objfunc, geno, encoding=enc)
+    pop = Population(geno, encoding=enc)
     pop.fitness = np.array([0.5, 0.8])
     pop.historical_best_matrix = np.array([[1.0, 2.0, 0.1, 0.2], [3.0, 4.0, 0.3, 0.4]])
     pop.historical_best_fitness = np.array([0.5, 0.8])
@@ -364,7 +371,7 @@ class MockGaussianModel:
 # ===================================================================
 @pytest.fixture
 def dummy_strategy(dummy_initializer, dummy_operator, dummy_parent_selection, dummy_survivor_selection):
-    return SearchStrategy(
+    return PopulationBasedStrategy(
         initializer=dummy_initializer,
         operator=dummy_operator,
         parent_sel=dummy_parent_selection,
@@ -382,10 +389,10 @@ def sphere_objfunc():
 
 
 @pytest.fixture
-def simple_strategy(sphere_objfunc, rng):
-    init = UniformInitializer(2, -10, 10, population_size=10, random_state=rng)
-    mut = create_mutation_operator("gauss", random_state=rng, N=1, loc=0, scale=0.1)
-    surv = create_survivor_selection("generational", random_state=rng)
+def simple_strategy(rng):
+    init = UniformInitializer(2, -10, 10, population_size=10, rng=rng)
+    mut = create_mutation_operator("gauss", rng=rng, N=1, loc=0, scale=0.1)
+    surv = create_survivor_selection("generational", rng=rng)
     return SearchStrategy(initializer=init, operator=mut, survivor_sel=surv, name="integration_strat")
 
 
@@ -396,24 +403,24 @@ def run_and_get_best(wrapper_func, objfunc, seed, **kwargs):
     """Run a simple wrapper for 5 generations and return the best objective."""
     run_kwargs = {
         "reporter": "silent",
-        "stop_cond": "max_iterations",
+        "stop_condition_str": "max_iterations",
         "max_iterations": 5,
         "max_evaluations": 1000,
         **kwargs,
     }
-    algo = wrapper_func(objfunc, random_state=seed, **run_kwargs)
+    algo = wrapper_func(objfunc, rng=seed, **run_kwargs)
     population = algo.optimize()
     _, best = population.best_solution()
     return best
 
 
 # ===================================================================
-#  HistoryTracker fixtures
+#  ConfigurableHistoryTracker fixtures
 # ===================================================================
 @pytest.fixture
 def full_tracker():
     """Tracker that records best, median, worst, and complete population."""
-    return HistoryTracker(
+    return ConfigurableHistoryTracker(
         track_best=True,
         track_median=True,
         track_worst=True,
@@ -423,11 +430,11 @@ def full_tracker():
 
 @pytest.fixture
 def algo_with_full_tracker(dummy_objfunc, dummy_strategy, full_tracker):
-    """Algorithm with a pre-configured HistoryTracker and minimal stopping."""
+    """Algorithm with a pre-configured ConfigurableHistoryTracker and minimal stopping."""
     return Algorithm(
         dummy_objfunc,
         dummy_strategy,
-        stop_cond="max_iterations",
+        stop_condition_str="max_iterations",
         max_iterations=1,
         reporter="silent",
         history_tracker=full_tracker,

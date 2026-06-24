@@ -1,8 +1,7 @@
-"""
-Module for recording per-generation metrics and exporting them as pandas DataFrames.
-"""
+"""Module for recording per-generation metrics and exporting them as pandas DataFrames."""
 
 from __future__ import annotations
+from abc import ABC, abstractmethod
 import logging
 from typing import TYPE_CHECKING
 import numpy as np
@@ -14,7 +13,61 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class HistoryTracker:
+class HistoryTracker(ABC):
+    @abstractmethod
+    def restart(self):
+        """Clear all recorded data.
+
+        Call this when an algorithm is reset to start a fresh run.
+        """
+
+    @abstractmethod
+    def update(self, algorithm: Algorithm):
+        """Record metrics for the current generation.
+
+        Parameters
+        ----------
+        algorithm : Algorithm
+            The running algorithm from which the current population,
+            fitness, objective, and parameters are extracted.
+        """
+
+    @abstractmethod
+    def to_pandas(self) -> pd.DataFrame:
+        """Return a DataFrame with per-generation summary metrics.
+
+        Returns
+        -------
+        pandas.DataFrame
+        """
+
+    def to_pandas_full_objective(self) -> pd.DataFrame:
+        """Return a wide-format DataFrame of all individual objective values.
+
+        Each column ``Individual_0``, ``Individual_1``, ... holds the
+        objective of one member of the population across generations.
+        This is useful for boxplots or distribution plots of fitness.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Empty by default.
+        """
+
+        logger.warning("Full objective tracking not implemented.")
+        return pd.DataFrame()
+
+    @abstractmethod
+    def get_state(self) -> dict:
+        """Return a dictionary containing the recorded history.
+
+        Returns
+        -------
+        dict
+        """
+
+
+class ConfigurableHistoryTracker(HistoryTracker):
     """Record per-generation metrics and export them as pandas DataFrames.
 
     The tracker is called once per generation (via :meth:`step`) and
@@ -47,13 +100,13 @@ class HistoryTracker:
 
     def __init__(
         self,
-        track_best=True,
-        track_median=False,
-        track_worst=False,
-        track_full_objective=False,
-        track_full_population=False,
-        track_parameters=False,
-        track_diversity=False,
+        track_best: bool = True,
+        track_median: bool = False,
+        track_worst: bool = False,
+        track_full_objective: bool = False,
+        track_full_population: bool = False,
+        track_parameters: bool = False,
+        track_diversity: bool = False,
     ):
         self.track_best = track_best
         self.track_median = track_median
@@ -99,7 +152,7 @@ class HistoryTracker:
 
         self.recorded_iterations = []
 
-    def step(self, algorithm: Algorithm):
+    def update(self, algorithm: Algorithm):
         """Record metrics for the current generation.
 
         Parameters
@@ -153,7 +206,7 @@ class HistoryTracker:
         if self.track_parameters:
             self.parameters.append(algorithm.gather_parameters())
 
-    def to_pandas(self):
+    def to_pandas(self) -> pd.DataFrame:
         """Return a DataFrame with per-generation summary metrics.
 
         Columns include ``iteration``, ``best_objective``,
@@ -187,7 +240,7 @@ class HistoryTracker:
 
         return pd.DataFrame.from_dict(data_dict)
 
-    def to_pandas_full_objective(self):
+    def to_pandas_full_objective(self) -> pd.DataFrame:
         """Return a wide-format DataFrame of all individual objective values.
 
         Each column ``Individual_0``, ``Individual_1``, ... holds the
@@ -212,7 +265,7 @@ class HistoryTracker:
 
         return pd.DataFrame.from_dict(data_dict)
 
-    def get_state(self):
+    def get_state(self) -> dict:
         """Return a dictionary containing the recorded history.
 
         Returns
@@ -245,6 +298,6 @@ class HistoryTracker:
             data["populations"] = self.complete_population
 
         if self.track_diversity:
-            data["divesity"] = self.diversity
+            data["diversity"] = self.diversity
 
         return data

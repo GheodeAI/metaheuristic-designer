@@ -3,11 +3,13 @@ Random search strategy (baseline).
 """
 
 from __future__ import annotations
+
+from ...initializer import Initializer
 from ...operators import create_operator
-from ..hill_climb import HillClimb
+from ..population_based_strategy import PopulationBasedStrategy
 
 
-class RandomSearch(HillClimb):
+class RandomSearch(PopulationBasedStrategy):
     """
     Random search algorithm.
 
@@ -21,9 +23,11 @@ class RandomSearch(HillClimb):
         Population initializer.
     name : str, optional
         Display name (default ``"RandomSearch"``).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`HillClimb`.
     """
 
-    def __init__(self, initializer, name="RandomSearch", **kwargs):
-        super().__init__(initializer, operator=create_operator(method="random.random"), name=name, **kwargs)
+    def __init__(self, initializer: Initializer, name="RandomSearch", rng=None, **kwargs):
+        super().__init__(
+            initializer=initializer, operator=create_operator(method="random.random", initializer=initializer, rng=rng), name=name, **kwargs
+        )

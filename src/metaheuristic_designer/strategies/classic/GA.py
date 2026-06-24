@@ -10,12 +10,12 @@ from ...operator import Operator, NullOperator
 from ...survivor_selection_base import SurvivorSelection
 from ...parent_selection_base import ParentSelection
 from ...operators import CompositeOperator, BranchOperator
-from ..static_population import StaticPopulation
 from ...schedulable_parameter import SchedulableParameter
-from ...utils import check_random_state, RNGLike
+from ...utils import check_rng, RNGLike
+from ..population_based_strategy import PopulationBasedStrategy
 
 
-class GA(StaticPopulation):
+class GA(PopulationBasedStrategy):
     """
     Genetic Algorithm.
 
@@ -44,9 +44,9 @@ class GA(StaticPopulation):
         Pair-level probability of crossover (default 0.9). If the
         crossover operator supports it, this value is injected
         via ``update_kwargs``.
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`StaticPopulation`.
     """
 
@@ -60,14 +60,14 @@ class GA(StaticPopulation):
         name: str = "GA",
         mutation_prob: float | SchedulableParameter = 0.1,
         crossover_prob: float | SchedulableParameter = 0.9,
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         **kwargs,
     ):
         # We need to do the check earlier since it will be injected into the operators
         # and we want everything to share the random state if possible.
-        random_state = check_random_state(random_state)
+        rng = check_rng(rng)
 
-        prob_mut_op = BranchOperator([mutation_op, NullOperator()], method="Random", p=mutation_prob, random_state=random_state)
+        prob_mut_op = BranchOperator([mutation_op, NullOperator()], method="Random", p=mutation_prob, rng=rng)
 
         # Override the crossover probability if possible
         if hasattr(crossover_op.params, "crossover_prob"):
@@ -75,6 +75,4 @@ class GA(StaticPopulation):
 
         evolve_op = CompositeOperator([crossover_op, prob_mut_op])
 
-        super().__init__(
-            initializer, operator=evolve_op, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, random_state=random_state, **kwargs
-        )
+        super().__init__(initializer, operator=evolve_op, parent_sel=parent_sel, survivor_sel=survivor_sel, name=name, rng=rng, **kwargs)

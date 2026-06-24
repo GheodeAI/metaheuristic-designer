@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import networkx as nx
 
-from metaheuristic_designer.algorithms import Algorithm, MemeticAlgorithm
+from metaheuristic_designer.algorithms import Algorithm
 from metaheuristic_designer.operators import create_operator
 from metaheuristic_designer.initializers import UniformInitializer, PermInitializer
 from metaheuristic_designer.encodings import TypeCastEncoding
@@ -12,13 +12,13 @@ from metaheuristic_designer.strategies import *
 from metaheuristic_designer.parent_selection import create_parent_selection
 from metaheuristic_designer.survivor_selection import create_survivor_selection
 from metaheuristic_designer.benchmarks import *
-from metaheuristic_designer.utils import check_random_state
+from metaheuristic_designer.utils import check_rng
 
 
-def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_state):
+def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, rng):
     # Common algorithm parameters
     algorithm_params = {
-        "stop_cond": "real_time_limit",
+        "stop_condition_str": "real_time_limit",
         "real_time_limit": 100.0,
         "verbose_timer": 0.5,
         "reporter": reporter,
@@ -32,32 +32,32 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
         capacity = 850
         objfunc = BinKnapsack(weights, values, capacity)
         encoding = TypeCastEncoding(int, bool)
-        pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, population_size=100, dtype=int, encoding=encoding, random_state=random_state)
+        pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, population_size=100, dtype=int, encoding=encoding, rng=rng)
 
     elif problem_name == "3sat":
         objfunc = ThreeSAT.from_cnf_file("./data/sat_examples/uf50-03.cnf")
         encoding = TypeCastEncoding(int, bool)
-        pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, population_size=100, dtype=int, encoding=encoding, random_state=random_state)
+        pop_initializer = UniformInitializer(objfunc.dimension, 0, 1, population_size=100, dtype=int, encoding=encoding, rng=rng)
 
     elif problem_name == "maxclique":
         g = nx.gnp_random_graph(100, 0.8)
         adj_mat = nx.adjacency_matrix(g).todense()
         objfunc = MaxClique(adj_mat)
-        pop_initializer = PermInitializer(objfunc.dimension, population_size=100, random_state=random_state)
+        pop_initializer = PermInitializer(objfunc.dimension, population_size=100, rng=rng)
         encoding = TypeCastEncoding(float, int)  # not used for permutations, but kept for consistency
     elif problem_name == "tsp":
         objfunc = TSP.from_csv("data/tsp_examples/r20_02.csv")
-        pop_initializer = PermInitializer(objfunc.dimension, population_size=100, random_state=random_state)
+        pop_initializer = PermInitializer(objfunc.dimension, population_size=100, rng=rng)
         encoding = TypeCastEncoding(float, int)  # not used for permutations, but kept for consistency
     else:
         raise ValueError(f"The problem '{problem_name}' does not exist.")
 
     if problem_name in ("knapsack", "3sat"):
-        mutation_op = create_operator("mutation.bitflip", N=2, random_state=random_state)
-        cross_op = create_operator("crossover.1point", random_state=random_state)
+        mutation_op = create_operator("mutation.bitflip", N=2, rng=rng)
+        cross_op = create_operator("crossover.1point", rng=rng)
     elif problem_name in ("maxclique", "tsp"):
-        mutation_op = create_operator("permutation.swap", N=2, random_state=random_state)
-        cross_op = create_operator("permutation.pmx", random_state=random_state)
+        mutation_op = create_operator("permutation.swap", N=2, rng=rng)
+        cross_op = create_operator("permutation.pmx", rng=rng)
 
     search_strategy_map = {
         "hillclimb": HillClimb(
@@ -80,19 +80,19 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
             initializer=pop_initializer,
             mutation_op=mutation_op,
             crossover_op=cross_op,
-            parent_sel=create_parent_selection("best", amount=20, random_state=random_state),
-            survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
+            parent_sel=create_parent_selection("best", amount=20, rng=rng),
+            survivor_sel=create_survivor_selection("(m+n)", rng=rng),
             offspring_size=150,
         ),
         "ga": GA(
             initializer=pop_initializer,
             mutation_op=mutation_op,
             crossover_op=cross_op,
-            parent_sel=create_parent_selection("best", amount=20, random_state=random_state),
-            survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
+            parent_sel=create_parent_selection("best", amount=20, rng=rng),
+            survivor_sel=create_survivor_selection("(m+n)", rng=rng),
             mutation_prob=0.2,
             crossover_prob=0.8,
-            random_state=random_state,
+            rng=rng,
         ),
         "de": DE(
             de_operator_name="DE/best/1",
@@ -102,20 +102,20 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
         ),
         "bernoulliumda": BernoulliUMDA(
             initializer=pop_initializer,
-            parent_sel=create_parent_selection("best", amount=20, random_state=random_state),
-            survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
+            parent_sel=create_parent_selection("best", amount=20, rng=rng),
+            survivor_sel=create_survivor_selection("(m+n)", rng=rng),
             p=np.full(objfunc.dimension, 0.1),
             noise=5e-3,
-            random_state=random_state,
+            rng=rng,
         ),
         "bernoullipbil": BernoulliPBIL(
             initializer=pop_initializer,
-            parent_sel=create_parent_selection("best", amount=20, random_state=random_state),
-            survivor_sel=create_survivor_selection("(m+n)", random_state=random_state),
+            parent_sel=create_parent_selection("best", amount=20, rng=rng),
+            survivor_sel=create_survivor_selection("(m+n)", rng=rng),
             p=np.full(objfunc.dimension, 0.1),
             lr=0.1,
             noise=0.2,
-            random_state=random_state,
+            rng=rng,
         ),
         "randomsearch": RandomSearch(pop_initializer),
         "nosearch": NoSearch(pop_initializer),
@@ -127,15 +127,24 @@ def run_algorithm(alg_name, problem_name, memetic, save_state, reporter, random_
 
     # ---- Memetic branch ----
     if memetic:
-        mem_select = create_parent_selection("best", amount=5, random_state=random_state)
         local_search = LocalSearch(
-            initializer=pop_initializer,
-            operator=create_operator("mutation.cauchy_mutation", F=0.0002, random_state=random_state),
-            iterations=10,
+            initializer=UniformInitializer(
+                objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound, population_size=search_strategy.initializer.population_size
+            ),
+            operator=create_operator("mutation.gaussian_noise", F=1e-2, rng=rng),
+            params={"iters": 20},
         )
-        alg = MemeticAlgorithm(objfunc, search_strategy, local_search, mem_select, **algorithm_params)
-    else:
-        alg = Algorithm(objfunc, search_strategy, **algorithm_params)
+        search_strategy = MemeticStrategy(
+            main_strategy=search_strategy,
+            local_search_heuristic=local_search,
+            local_search_depth=10,
+            local_search_frequency=5,
+            improvement_selection=create_parent_selection("best", amount=10),
+            keep_improved_solutions=True,
+            rng=rng,
+        )
+
+    alg = Algorithm(objfunc, search_strategy, **algorithm_params)
 
     population = alg.optimize()
     best_solution, best_objective = population.best_solution()
@@ -160,7 +169,7 @@ def main():
     # Set up logging and random state
     logging.basicConfig()
     logging.getLogger("metaheuristic_designer").setLevel(args.log.upper())
-    rng = check_random_state(args.seed)
+    rng = check_rng(args.seed)
 
     run_algorithm(
         alg_name=args.algorithm.lower(),
@@ -168,7 +177,7 @@ def main():
         memetic=args.memetic,
         save_state=args.save_state,
         reporter=args.reporter,
-        random_state=rng,
+        rng=rng,
     )
 
 

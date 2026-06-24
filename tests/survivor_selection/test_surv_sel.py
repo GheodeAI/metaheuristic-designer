@@ -25,9 +25,9 @@ def test_survivor_selection_def_calls_wrapped_function():
         return np.array([0, 2])
 
     def_obj = SurvivorSelectionDef(dummy)
-    pop = make_pop([1.0, 2.0], dummy_objfunc)
-    off = make_pop([3.0, 4.0], dummy_objfunc)
-    result = def_obj(pop, off, random_state=rng)
+    pop = make_pop([1.0, 2.0])
+    off = make_pop([3.0, 4.0])
+    result = def_obj(pop, off, rng=rng)
     assert_array_equal(result, [0, 2])
 
 
@@ -41,9 +41,9 @@ def test_survivor_selection_def_passes_fitness_and_kwargs():
         return np.array([0])
 
     def_obj = SurvivorSelectionDef(spy, params={"extra": 5})
-    pop = make_pop([10.0], dummy_objfunc)
-    off = make_pop([20.0], dummy_objfunc)
-    def_obj(pop, off, random_state=rng)
+    pop = make_pop([10.0])
+    off = make_pop([20.0])
+    def_obj(pop, off, rng=rng)
 
     assert_array_equal(captured["pop_fit"], [10.0])
     assert_array_equal(captured["off_fit"], [20.0])
@@ -63,17 +63,17 @@ def test_survivor_selection_def_passes_fitness_and_kwargs():
     ],
 )
 def test_create_returns_correct_type(method, expected_type, rng):
-    sel = create_survivor_selection(method, random_state=rng)
+    sel = create_survivor_selection(method, rng=rng)
     assert isinstance(sel, expected_type)
 
 
 def test_create_uses_given_name(rng):
-    sel = create_survivor_selection("one_to_one", name="custom_name", random_state=rng)
+    sel = create_survivor_selection("one_to_one", name="custom_name", rng=rng)
     assert sel.name == "custom_name"
 
 
 def test_create_default_name_is_method(rng):
-    sel = create_survivor_selection("hillclimb", random_state=rng)
+    sel = create_survivor_selection("hillclimb", rng=rng)
     assert sel.name == "hillclimb"
 
 
@@ -90,18 +90,18 @@ def test_create_default_name_is_method(rng):
         ("(mu,lambda)", {}),
     ],
 )
-def test_factory_select_returns_valid_survivors(method, kwargs, rng, dummy_objfunc):
+def test_factory_select_returns_valid_survivors(method, kwargs, rng):
     # Build parents and offspring with DIFFERENT genotype matrices
     # so we can identify their origin by genotype content.
-    parents = Population(dummy_objfunc, np.array([[1, 2], [3, 4]]))
+    parents = Population(np.array([[1, 2], [3, 4]]))
     parents.fitness = np.array([5.0, 1.0])
 
-    offspring = Population(dummy_objfunc, np.array([[5, 6], [7, 8]]))
+    offspring = Population(np.array([[5, 6], [7, 8]]))
     offspring.fitness = np.array([10.0, 2.0])
     offspring.best = offspring.genotype_matrix[0]
     offspring.best_fitness = 10.0
 
-    sel = create_survivor_selection(method, random_state=rng, **kwargs)
+    sel = create_survivor_selection(method, rng=rng, **kwargs)
     survivors = sel.select(parents, offspring)
 
     # Must be a Population with same length as parents

@@ -5,18 +5,19 @@ This module implements the objective function that will measure the quality of t
 """
 
 from __future__ import annotations
+from copy import copy
 import logging
 from typing import Any, Callable, Optional, TYPE_CHECKING
 from abc import ABC, abstractmethod
 import numpy as np
 
 from .encodings import ParameterExtendingEncoding
+from .constraint_handler import NullConstraint
 from .constraint_handlers import ConstraintHandler, ClipBoundConstraint, CompositeConstraint, ExtendedConstraintHandler
 from .parametrizable_mixin import ParametrizableMixin
 from .utils import MatrixLike, VectorLike, ScalarLike
 
-if TYPE_CHECKING:
-    from metaheuristic_designer.population import Population
+from metaheuristic_designer.population import Population
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +27,8 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
     Subclasses must implement :meth:`objective`, which returns the
     raw objective value.  The base class automatically converts it
-    to a *fitness* that is always maximised (flipping the sign for
-    minimisation) and applies a penalty if a
+    to a *fitness* that is always maximized (flipping the sign for
+    minimization) and applies a penalty if a
     :class:`ConstraintHandler` is present.
 
     Parameters
@@ -43,7 +44,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
     constraint_handler : ConstraintHandler, optional
         Handler that can repair solutions and/or compute penalties.
     mode : str, optional
-        ``"max"`` or ``"min"``.  The fitness is always maximised
+        ``"max"`` or ``"min"``.  The fitness is always maximized
         internally; the mode controls the sign conversion.
     name : str, optional
         Human-readable name for this function.
@@ -53,7 +54,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
     recalculate : bool, optional
         If ``True``, every individual is re-evaluated even if its
         fitness has already been computed.
-    **kwargs
+    \\*\\*kwargs
         Additional keyword arguments stored as schedulable
         parameters.
     """
@@ -81,6 +82,8 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
                 constraint_handler = bound_constraint_handler
             else:
                 constraint_handler = CompositeConstraint([constraint_handler, bound_constraint_handler])
+        else:
+            constraint_handler = NullConstraint()
 
         self.constraint_handler = constraint_handler
         self.name = name
@@ -98,18 +101,18 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 
         self.store_kwargs(**kwargs)
 
-    def __call__(self, population: Population, adjusted: bool = True, parallel: bool = False, threads: int = 8) -> VectorLike:
+    def __call__(self, population: Population) -> VectorLike:
         """
         Shorthand for executing the objective function on a vector.
         """
 
-        return self.fitness(population, adjusted)
+        return self.calculate_fitness(population)
 
-    def fitness(self, population: Population, parallel: bool = False, threads: int = 8) -> VectorLike:
+    def calculate_fitness(self, population: Population) -> Population:
         """Evaluate fitness for the whole population.
 
         The raw objective values are computed via :meth:`objective`,
-        penalties are subtracted, and the result (always maximised) is
+        penalties are subtracted, and the result (always maximized) is
         stored in ``population.fitness``.  Individuals that already have
         a valid fitness are skipped unless :attr:`recalculate` is set.
 
@@ -128,34 +131,31 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             The new fitness values (also written in-place).
         """
 
-        if parallel:
-            logger.warning("Parallel fitness computing not available at the moment. Ignoring parallel option.")
-
         logger.debug("Calculating fitness of the population...")
+        prev_fitness = copy(population.fitness)
         fitness = population.fitness
         objective = population.objective
         solutions = population.decode()
-        genotypes = population.genotype_matrix
 
         if not self.recalculate and np.all(population.fitness_calculated == 1):
             logger.debug("Fitness was not calculated. Every individual is duplicated.")
-            return population.fitness
+            return population
 
         if self.recalculate:
             fitness_mask = np.ones(population.population_size, dtype=bool)
         else:
             fitness_mask = population.fitness_calculated == 0
 
+        if isinstance(solutions, np.ndarray):
+            solutions_masked = solutions[fitness_mask]
+        else:
+            solutions_masked = [solutions[i] for i, include_value in enumerate(fitness_mask) if include_value]
+
         # Penalty is always vectorized. We use the genotype instead of the decoded solutions
-        penalty_vector = self.constraint_handler.penalty(genotypes[fitness_mask])
+        penalty_vector = self.constraint_handler.penalty(solutions_masked)
 
         if self.vectorized:
-            if isinstance(solutions, np.ndarray):
-                solutions = solutions[fitness_mask]
-            else:
-                solutions = [solutions[i] for i, include_value in enumerate(fitness_mask) if include_value]
-
-            objective_values = self.objective(solutions)
+            objective_values = self.objective(solutions_masked)
             fitness_values = self.factor * (objective_values - penalty_vector)
             fitness[fitness_mask] = fitness_values
             objective[fitness_mask] = objective_values
@@ -174,14 +174,25 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
                     objective[idx] = objective_value
 
         self.counter += np.count_nonzero(fitness_mask)
-        population.fitness_calculated = np.ones_like(fitness_mask)
+        improved_mask = prev_fitness < population.fitness
+        population.fitness_calculated = improved_mask
 
         # Write the fitness and objective values in-place
         population.fitness = fitness
         population.objective = objective
 
+        # Update best solution
+        population.historical_best_fitness[improved_mask] = population.fitness[improved_mask]
+        population.historical_best_matrix[improved_mask, :] = population.genotype_matrix[improved_mask, :]
+
+        if population.best is None or np.any(population.fitness > population.best_fitness):
+            best_idx = np.argmax(population.fitness)
+            population.best = population.genotype_matrix[best_idx]
+            population.best_fitness = population.fitness[best_idx]
+            population.best_objective = population.objective[best_idx]
+
         logger.debug("Done calculating the fitness.")
-        return fitness
+        return population
 
     @abstractmethod
     def objective(self, solution: Any) -> VectorLike | ScalarLike:
@@ -199,7 +210,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             Value of the objective function given a solution.
         """
 
-    def repair_solution(self, solution: MatrixLike) -> MatrixLike:
+    def repair_population(self, population: Population) -> Population:
         """
         Transforms an invalid vector into one that satisfies the restrictions of the problem.
 
@@ -214,7 +225,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             A modified version of the solution passed that satisfies the restrictions of the problem.
         """
 
-        return self.constraint_handler.repair_solution(solution)
+        return self.constraint_handler.repair_population(population)
 
     def add_parameter_constraints(self, parameter_extending_encoding: ParameterExtendingEncoding, param_handlers: dict[str, ConstraintHandler]):
         """Attach extra constraint handlers for extended encodings (e.g., PSO).
@@ -259,12 +270,12 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
 class NullObjectiveFunc(ObjectiveFunc):
     """Objective function that always returns zero.
 
-    Useful as a placeholder in tests or when the optimisation
+    Useful as a placeholder in tests or when the optimization
     criterion is handled entirely by constraints.
 
     Parameters
     ----------
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`ObjectiveFunc`.
     """
 

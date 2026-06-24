@@ -550,6 +550,37 @@ Debug operators
 
 ----
 
+.. _combined_operators:
+
+Combined operators
+------------------
+
+.. list-table::
+   :header-rows: 1
+
+   * - Class name
+     - Description
+     - Parameters
+
+   * - :py:class:`~metaheuristic_designer.operators.composite_operator.CompositeOperator`
+     - Applies the provided operators in sequence.
+     - | - op_list
+
+   * - :py:class:`~metaheuristic_designer.operators.masked_operator.MaskedOperator`
+     - Applies each operator to a subset of the components of the vector representing the solution. The mask will have values from 0 to ``len(op_list)``
+     - | - op_list
+       | - mask
+
+   * - :py:class:`~metaheuristic_designer.operators.branch_operator.BranchOperator`
+     - Chooses a different operator per individual. This choice can be random or deterministic.
+     - | - op_list
+       | - random_pick (True)
+       | - weights (None)
+       | - p (None), only used when 2 operators are passed and weights is None.
+
+---
+
+
 .. _custom_operators:
 
 Custom operators
@@ -563,7 +594,7 @@ You can register your own operator functions and use them with the factory:
     from metaheuristic_designer.utils import MatrixLike, VectorLike, RNGLike
 
     @OperatorFnDef
-    def my_operator(population_matrix: MatrixLike, fitness_array: VectorLike, random_state: RNGLike, **kwargs) -> MatrixLike:
+    def my_operator(population_matrix: MatrixLike, fitness_array: VectorLike, rng: RNGLike, **kwargs) -> MatrixLike:
         ...
 
     add_operator_entry(my_operator, "myop", "custom")

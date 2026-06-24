@@ -23,8 +23,8 @@ from conftest import SMALL_GENOTYPE, LARGE_GENOTYPE
         (np.zeros((0, 2)), (0, 2)),
     ],
 )
-def test_initialisation_defaults(genotype, expected_shape, dummy_objfunc):
-    pop = Population(dummy_objfunc, genotype)
+def test_initialisation_defaults(genotype, expected_shape):
+    pop = Population(genotype)
     assert pop.population_size == expected_shape[0]
     assert pop.dimension == expected_shape[1]
     assert pop.fitness == pytest.approx(np.full(expected_shape[0], -np.inf))
@@ -35,21 +35,21 @@ def test_initialisation_defaults(genotype, expected_shape, dummy_objfunc):
     np.testing.assert_array_equal(pop.historical_best_fitness, np.full(expected_shape[0], -np.inf))
 
 
-def test_init_uses_default_encoding(dummy_objfunc):
-    pop = Population(dummy_objfunc, np.eye(2))
+def test_init_uses_default_encoding():
+    pop = Population(np.eye(2))
     # DefaultEncoding should be a DefaultEncoding instance (imported)
     from metaheuristic_designer.encoding import DefaultEncoding
 
     assert isinstance(pop.encoding, DefaultEncoding)
 
 
-def test_len(dummy_objfunc):
-    pop = Population(dummy_objfunc, SMALL_GENOTYPE)
+def test_len():
+    pop = Population(SMALL_GENOTYPE)
     assert len(pop) == 3
 
 
-def test_iter(dummy_objfunc):
-    pop = Population(dummy_objfunc, SMALL_GENOTYPE)
+def test_iter():
+    pop = Population(SMALL_GENOTYPE)
     rows = list(pop)
     np.testing.assert_array_equal(rows[0], SMALL_GENOTYPE[0])
     assert len(rows) == 3
@@ -68,8 +68,8 @@ def test_iter(dummy_objfunc):
         np.zeros((0, 2)),
     ],
 )
-def test_copy_creates_independent_object(genotype, dummy_objfunc):
-    pop = Population(dummy_objfunc, genotype)
+def test_copy_creates_independent_object(genotype):
+    pop = Population(genotype)
     # Set some non‑default values
     pop.fitness = np.array([1.0, 2.0, 3.0] if len(genotype) > 0 else [])
     pop.best = np.array([9.9])
@@ -101,8 +101,8 @@ def test_copy_creates_independent_object(genotype, dummy_objfunc):
 
 
 @pytest.fixture
-def pop_with_best(dummy_objfunc):
-    pop = Population(dummy_objfunc, np.array([[0, 0], [1, 1]]))
+def pop_with_best():
+    pop = Population(np.array([[0, 0], [1, 1]]))
     pop.fitness = np.array([10.0, 20.0])
     pop.best = np.array([1.0, 1.0])
     pop.best_fitness = 20.0
@@ -117,8 +117,8 @@ def test_best_solution_max(pop_with_best):
     assert fit == 20.0
 
 
-def test_best_solution_min(dummy_objfunc_min):
-    pop = Population(dummy_objfunc_min, np.array([[0, 0], [1, 1]]))
+def test_best_solution_min():
+    pop = Population(np.array([[0, 0], [1, 1]]))
     pop.fitness = np.array([10.0, 20.0])
     pop.best = np.array([0.0, 0.0])
     pop.best_fitness = 10.0  # the best in min mode would be 10, but stored raw
@@ -128,8 +128,8 @@ def test_best_solution_min(dummy_objfunc_min):
     np.testing.assert_array_equal(sol, pop.best)
 
 
-def test_best_solution_decoded(dummy_objfunc):
-    pop = Population(dummy_objfunc, np.array([[2, 3]]))
+def test_best_solution_decoded():
+    pop = Population(np.array([[2, 3]]))
     pop.fitness = np.array([42.0])
     pop.best = np.array([2.0, 3.0])
     pop.best_fitness = 42.0
@@ -144,8 +144,8 @@ def test_best_solution_decoded(dummy_objfunc):
 
 
 @pytest.fixture
-def pop_3(dummy_objfunc):
-    pop = Population(dummy_objfunc, SMALL_GENOTYPE.copy())
+def pop_3():
+    pop = Population(SMALL_GENOTYPE.copy())
     pop.fitness = np.array([-5.0, 0.0, 5.0])
     pop.fitness_calculated = np.ones(3, dtype=bool)
     return pop
@@ -184,8 +184,8 @@ def test_update_genotype_invalid_dim(pop_3):
         pop_3.update_genotype(wrong_geno)
 
 
-def test_update_genotype_from_population(pop_3, dummy_objfunc):
-    other_pop = Population(dummy_objfunc, np.array([[0, 0], [0, 0], [0, 0]]))
+def test_update_genotype_from_population(pop_3):
+    other_pop = Population(np.array([[0, 0], [0, 0], [0, 0]]))
     pop_3.update_genotype(other_pop)
     np.testing.assert_array_equal(pop_3.genotype_matrix, other_pop.genotype_matrix)
 
@@ -196,8 +196,8 @@ def test_update_genotype_from_population(pop_3, dummy_objfunc):
 
 
 @pytest.fixture
-def populated_fit(dummy_objfunc):
-    pop = Population(dummy_objfunc, np.arange(8).reshape(4, 2).astype(float))
+def populated_fit():
+    pop = Population(np.arange(8).reshape(4, 2).astype(float))
     pop.fitness = np.array([3.0, 1.0, 4.0, 2.0])
     pop.historical_best_matrix = np.ones((4, 2))
     pop.historical_best_fitness = np.array([10.0, 20.0, 30.0, 40.0])
@@ -243,9 +243,9 @@ def test_take_selection(populated_fit, sel_idx, expected_geno, expected_fit, exp
 # ---------------------------------------------------------------
 
 
-def test_apply_selection(populated_fit, dummy_objfunc):
+def test_apply_selection(populated_fit):
     # Create a donor population
-    donor = Population(dummy_objfunc, np.array([[10, 11], [12, 13]]))
+    donor = Population(np.array([[10, 11], [12, 13]]))
     donor.fitness = np.array([100.0, 200.0])
     donor.best = np.array([100.0, 200.0])
     donor.best_fitness = 300.0
@@ -283,10 +283,10 @@ def test_take_slice(populated_fit):
     np.testing.assert_array_equal(sliced.fitness, populated_fit.fitness)
 
 
-def test_apply_slice(populated_fit, dummy_objfunc):
+def test_apply_slice(populated_fit):
     original = populated_fit.genotype_matrix.copy()
     mask = np.array([0])  # replace column 0
-    donor = Population(dummy_objfunc, np.array([[100], [200], [300], [400]]))
+    donor = Population(np.array([[100], [200], [300], [400]]))
     donor.best = np.array([100.0])
     donor.best_fitness = 999.0
     populated_fit.apply_slice(donor, mask)
@@ -303,8 +303,8 @@ def test_apply_slice(populated_fit, dummy_objfunc):
 
 
 @pytest.fixture
-def pop_a(dummy_objfunc):
-    pop = Population(dummy_objfunc, np.array([[1, 1], [2, 2]]))
+def pop_a():
+    pop = Population(np.array([[1, 1], [2, 2]]))
     pop.fitness = np.array([10.0, 20.0])
     pop.historical_best_matrix = np.ones((2, 2))
     pop.historical_best_fitness = np.array([30.0, 40.0])
@@ -315,8 +315,8 @@ def pop_a(dummy_objfunc):
 
 
 @pytest.fixture
-def pop_b(dummy_objfunc):
-    pop = Population(dummy_objfunc, np.array([[3, 3], [4, 4], [5, 5]]))
+def pop_b():
+    pop = Population(np.array([[3, 3], [4, 4], [5, 5]]))
     pop.fitness = np.array([50.0, 60.0, 70.0])
     pop.historical_best_matrix = np.ones((3, 2)) * 2
     pop.historical_best_fitness = np.array([80.0, 90.0, 100.0])
@@ -327,7 +327,7 @@ def pop_b(dummy_objfunc):
 
 
 @pytest.mark.parametrize("method", ["static", "instance"])
-def test_join_populations(pop_a, pop_b, method, dummy_objfunc):
+def test_join_populations(pop_a, pop_b, method):
     if method == "static":
         joined = Population.join_populations(pop_a, pop_b)
     else:
@@ -364,8 +364,8 @@ def test_join_populations_best_tie(pop_a):
 
 
 @pytest.fixture
-def pop_unsorted(dummy_objfunc):
-    pop = Population(dummy_objfunc, np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
+def pop_unsorted():
+    pop = Population(np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
     pop.fitness = np.array([-1.0, 3.0, 0.0, 2.0])
     pop.historical_best_fitness = np.array([10, 20, 30, 40])
     pop.historical_best_matrix = np.arange(8).reshape(4, 2).astype(float)
@@ -412,8 +412,8 @@ def test_update_best_from_parents_no_better(pop_a):
 # ---------------------------------------------------------------
 
 
-def test_step_updates_best_and_calls_encoding_step(dummy_objfunc, simple_encoding):
-    pop = Population(dummy_objfunc, np.array([[0, 0], [1, 1]]))
+def test_step_updates_best_and_calls_encoding_step(simple_encoding):
+    pop = Population(np.array([[0, 0], [1, 1]]))
     pop.fitness = np.array([5.0, 10.0])
     pop.encoding = simple_encoding
     # simple_encoding.step returns the same genotype (identity)
@@ -425,8 +425,8 @@ def test_step_updates_best_and_calls_encoding_step(dummy_objfunc, simple_encodin
     np.testing.assert_array_equal(pop.genotype_matrix, np.array([[0, 0], [1, 1]]))
 
 
-def test_step_no_current_best(dummy_objfunc, simple_encoding):
-    pop = Population(dummy_objfunc, np.array([[0, 0]]))
+def test_step_no_current_best(simple_encoding):
+    pop = Population(np.array([[0, 0]]))
     pop.fitness = np.array([7.0])
     pop.best = None
     pop.best_fitness = None
@@ -444,9 +444,10 @@ def test_step_no_current_best(dummy_objfunc, simple_encoding):
 import numpy as np
 import pytest
 
+
 @pytest.mark.parametrize("amount, expected_rows", [(2, 6), (3, 9), (1, 3)])
-def test_repeat_genotype_structure(amount, expected_rows, dummy_objfunc):
-    pop = Population(dummy_objfunc, SMALL_GENOTYPE.copy())
+def test_repeat_genotype_structure(amount, expected_rows):
+    pop = Population(SMALL_GENOTYPE.copy())
     repeated = pop.repeat(amount)
 
     assert repeated.population_size == expected_rows
@@ -456,8 +457,8 @@ def test_repeat_genotype_structure(amount, expected_rows, dummy_objfunc):
 
 
 @pytest.mark.parametrize("amount, expected_rows", [(2, 6), (3, 9), (1, 3)])
-def test_repeat_tiled_1d_arrays(amount, expected_rows, dummy_objfunc):
-    pop = Population(dummy_objfunc, SMALL_GENOTYPE.copy())
+def test_repeat_tiled_1d_arrays(amount, expected_rows):
+    pop = Population(SMALL_GENOTYPE.copy())
     m = SMALL_GENOTYPE.shape[0]
     pop.fitness = np.array([10.0, 20.0, 30.0])
     pop.fitness_calculated = np.array([True, False, True])
@@ -472,8 +473,8 @@ def test_repeat_tiled_1d_arrays(amount, expected_rows, dummy_objfunc):
         assert np.all(result.reshape(amount, m) == original)
 
 
-def test_repeat_preserves_best_values(dummy_objfunc):
-    pop = Population(dummy_objfunc, SMALL_GENOTYPE.copy())
+def test_repeat_preserves_best_values():
+    pop = Population(SMALL_GENOTYPE.copy())
     pop.best = SMALL_GENOTYPE[2].copy()
     pop.best_fitness = 99.9
     pop.best_objective = -99.9
@@ -490,40 +491,28 @@ def test_repeat_preserves_best_values(dummy_objfunc):
 # ---------------------------------------------------------------
 
 
-def test_calculate_fitness_updates_historical_and_best(dummy_objfunc):
-    """Simulate the objective function returning new fitness values."""
-    pop = Population(dummy_objfunc, np.array([[0, 0], [1, 1]]))
-    pop.fitness = np.array([2.0, 5.0])
-    pop.best = np.array([1.0, 1.0])
-    pop.best_fitness = 5.0
-    pop.historical_best_matrix = np.array([[0, 0], [1, 1]])
-    pop.historical_best_fitness = np.array([2.0, 5.0])
+# def test_calculate_fitness_updates_historical_and_best():
+#     """Simulate the objective function returning new fitness values."""
+#     pop = Population(np.array([[0, 0], [1, 1]]))
+#     pop.fitness = np.array([2.0, 5.0])
+#     pop.best = np.array([1.0, 1.0])
+#     pop.best_fitness = 5.0
+#     pop.historical_best_matrix = np.array([[0, 0], [1, 1]])
+#     pop.historical_best_fitness = np.array([2.0, 5.0])
 
-    # Mock to return higher fitness for first individual, lower for second
-    pop.objfunc._fitness_return = np.array([10.0, 1.0])
-    pop.calculate_fitness()
+#     # Mock to return higher fitness for first individual, lower for second
+#     pop.objfunc._fitness_return = np.array([10.0, 1.0])
+#     pop.calculate_fitness()
 
-    np.testing.assert_array_equal(pop.fitness, [10.0, 1.0])
-    # historical best should be updated for improved individuals (first only)
-    np.testing.assert_array_equal(pop.historical_best_matrix[0], [0, 0])  # still
-    assert pop.historical_best_fitness[0] == 10.0
-    np.testing.assert_array_equal(pop.historical_best_matrix[1], [1, 1])  # unchanged
-    assert pop.historical_best_fitness[1] == 5.0
-    # best updated because 10.0 > 5.0
-    np.testing.assert_array_equal(pop.best, np.array([0.0, 0.0]))
-    assert pop.best_fitness == 10.0
-
-
-# ---------------------------------------------------------------
-# repair_solutions
-# ---------------------------------------------------------------
-
-
-def test_repair_solutions(dummy_objfunc):
-    dummy_objfunc._repair_return = lambda x: x * 2
-    pop = Population(dummy_objfunc, np.array([[1, 2], [3, 4]]))
-    pop.repair_solutions()
-    np.testing.assert_array_equal(pop.genotype_matrix, [[2, 4], [6, 8]])
+#     np.testing.assert_array_equal(pop.fitness, [10.0, 1.0])
+#     # historical best should be updated for improved individuals (first only)
+#     np.testing.assert_array_equal(pop.historical_best_matrix[0], [0, 0])  # still
+#     assert pop.historical_best_fitness[0] == 10.0
+#     np.testing.assert_array_equal(pop.historical_best_matrix[1], [1, 1])  # unchanged
+#     assert pop.historical_best_fitness[1] == 5.0
+#     # best updated because 10.0 > 5.0
+#     np.testing.assert_array_equal(pop.best, np.array([0.0, 0.0]))
+#     assert pop.best_fitness == 10.0
 
 
 # ---------------------------------------------------------------
@@ -531,14 +520,14 @@ def test_repair_solutions(dummy_objfunc):
 # ---------------------------------------------------------------
 
 
-def test_decode_uses_default_encoding(dummy_objfunc):
-    pop = Population(dummy_objfunc, np.array([[0, 0]]))
+def test_decode_uses_default_encoding():
+    pop = Population(np.array([[0, 0]]))
     decoded = pop.decode()
     np.testing.assert_array_equal(decoded, pop.genotype_matrix)
 
 
-def test_encode_uses_default_encoding(dummy_objfunc):
-    pop = Population(dummy_objfunc, np.array([[0, 0]]))
+def test_encode_uses_default_encoding():
+    pop = Population(np.array([[0, 0]]))
     encoded = pop.encode()
     np.testing.assert_array_equal(encoded, pop.genotype_matrix)
 
@@ -548,8 +537,8 @@ def test_encode_uses_default_encoding(dummy_objfunc):
 # ---------------------------------------------------------------
 
 
-def test_get_state(dummy_objfunc):
-    pop = Population(dummy_objfunc, SMALL_GENOTYPE)
+def test_get_state():
+    pop = Population(SMALL_GENOTYPE)
     pop.fitness = np.array([1.0, 2.0, 3.0])
     pop.best = np.array([4.0, 5.0])
     pop.best_fitness = 6.0

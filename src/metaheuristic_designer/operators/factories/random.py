@@ -26,10 +26,7 @@ random_ops_map = {
 
 
 def create_random_operator(
-    method: str,
-    encoding: Optional[Encoding] = None,
-    name: Optional[str] = None,
-    **kwargs
+    method: str, initializer: Initializer, encoding: Optional[Encoding] = None, name: Optional[str] = None, **kwargs
 ) -> OperatorFromLambda:
     """
     Create a random operator that uses an Initializer for fresh values.
@@ -54,4 +51,6 @@ def create_random_operator(
     if name is None:
         name = method
 
-    return OperatorFromLambda(operator_fn=random_ops_map[method.lower()], name=method, encoding=encoding, preserves_order=True, **kwargs)
+    return OperatorFromLambda(
+        operator_fn=random_ops_map[method.lower()], initializer=initializer, name=method, encoding=encoding, preserves_order=True, **kwargs
+    )

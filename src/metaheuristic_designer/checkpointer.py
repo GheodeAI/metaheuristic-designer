@@ -1,16 +1,14 @@
-"""
-Module for checkpointing and resuming optimisation runs.
-"""
+"""Module for checkpointing and resuming optimizations runs."""
 
 from __future__ import annotations
+from abc import ABC, abstractmethod
 import logging
-from pickle import PicklingError
-from typing import TYPE_CHECKING, Optional
-import cloudpickle
 import os
 import time
-from .reporters import create_reporter
-from .reporter import Reporter
+import cloudpickle
+from pickle import PicklingError
+from typing import TYPE_CHECKING, Optional
+from .reporters import create_reporter, Reporter
 
 if TYPE_CHECKING:
     from .algorithm import Algorithm
@@ -18,8 +16,71 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Checkpointer:
-    """Periodically save and restore the state of an optimisation run.
+class Checkpointer(ABC):
+    @abstractmethod
+    def restart(self):
+        """Reset the internal timer so that time-based checkpoints are measured from this moment onward."""
+
+    @abstractmethod
+    def checkpoint(algorithm: Algorithm):
+        """Evaluate whether a checkpoint should be saved, and perform the save
+        if necessary.
+
+        Parameters
+        ----------
+        algorithm : Algorithm
+            The running algorithm instance.
+        """
+
+    @abstractmethod
+    def save(self, algorithm: Algorithm):
+        """Serialize the algorithm to disk using cloudpickle.
+
+        A temporary file is written first and atomically moved to the
+        final location, preventing corruption if the process crashes
+        mid-write.  The reporter, parallel flag, and
+        the checkpointer itself are temporarily removed before pickling
+        to avoid serialization issues, and then restored.
+
+        Parameters
+        ----------
+        algorithm : Algorithm
+            The algorithm to save.
+        """
+
+    @abstractmethod
+    def load(
+        self,
+        file_name: Optional[str] = None,
+        reporter: Reporter | str = "silent",
+        parallel: bool = False,
+    ) -> Algorithm:
+        """Restore a previously saved algorithm from a checkpoint file.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            Path to the checkpoint file.  If not provided, the path
+            given at construction is used.
+        reporter : Reporter or str, optional
+            Reporter to attach to the restored algorithm (a
+            :class:`Reporter` instance or a string like ``"tqdm"``,
+            ``"silent"``).  Default is ``"silent"``.
+        parallel : bool, optional
+            Whether parallel evaluation should be enabled after
+            restoration.  Default is ``False``.
+
+        Returns
+        -------
+        Algorithm
+            The deserialized algorithm, ready to continue from where it
+            was saved. Ensure you run the algorithm with `.resume()` so
+            data is not lost.
+        """
+
+
+class PickleCheckpointer(Checkpointer):
+    """Periodically save and restore the state of an optimizations run.
 
     The checkpointer can be triggered by iteration count, elapsed
     wall-clock time, or both.  It writes the entire
@@ -87,7 +148,7 @@ class Checkpointer:
         final location, preventing corruption if the process crashes
         mid-write.  The reporter, parallel flag, and
         the checkpointer itself are temporarily removed before pickling
-        to avoid serialisation issues, and then restored.
+        to avoid serialization issues, and then restored.
 
         Parameters
         ----------
@@ -97,7 +158,6 @@ class Checkpointer:
 
         # Temporarily remove problematic components for serialization.
         reporter = algorithm.reporter
-        is_parallel = algorithm.parallel
         checkpointer = algorithm.checkpointer
         algorithm.reporter = None
         algorithm.parallel = False
@@ -108,21 +168,19 @@ class Checkpointer:
             tmp_file = self.checkpoint_file + ".tmp"
             with open(tmp_file, "wb") as f:
                 cloudpickle.dump(algorithm, f, protocol=5)
-            # Once we know the checkpoint has finished writing we can replace the preivous one.
+            # Once we know the checkpoint has finished writing we can replace the previous one.
             os.replace(tmp_file, self.checkpoint_file)
         except (OSError, PermissionError, PicklingError, TypeError, MemoryError) as e:
             logger.error("Failed to save checkpoint: %s", e)
         finally:
             # Restore dropped attributes
             algorithm.reporter = reporter
-            algorithm.parallel = is_parallel
             algorithm.checkpointer = checkpointer
 
     def load(
         self,
         file_name: Optional[str] = None,
         reporter: Reporter | str = "silent",
-        parallel: bool = False,
     ) -> Algorithm:
         """Restore a previously saved algorithm from a checkpoint file.
 
@@ -157,6 +215,5 @@ class Checkpointer:
             reporter = create_reporter(reporter)
         algorithm.reporter = reporter
         algorithm.checkpointer = self
-        algorithm.parallel = parallel
 
         return algorithm

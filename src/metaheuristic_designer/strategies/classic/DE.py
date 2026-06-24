@@ -5,14 +5,14 @@ Differential Evolution strategy.
 from __future__ import annotations
 from typing import Optional
 from ...initializer import Initializer
-from ..static_population import StaticPopulation
 from ...operators import create_differential_evolution_operator
 from ...survivor_selection import SurvivorSelection, create_survivor_selection
 from ...schedulable_parameter import SchedulableParameter
-from ...utils import check_random_state, RNGLike
+from ...utils import check_rng, RNGLike
+from ..population_based_strategy import PopulationBasedStrategy
 
 
-class DE(StaticPopulation):
+class DE(PopulationBasedStrategy):
     """
     Differential Evolution algorithm.
 
@@ -30,7 +30,7 @@ class DE(StaticPopulation):
         Survivor selection; defaults to one-to-one competition.
     name : str, optional
         Display name (default ``"DE"``).
-    random_state : RNGLike, optional
+    rng : RNGLike, optional
         Random number generator.
     F : float or SchedulableParameter, optional
         Scale factor (default 0.8).
@@ -38,7 +38,7 @@ class DE(StaticPopulation):
         Crossover probability (default 0.9).
     p : float or SchedulableParameter, optional
         Elite fraction for ``/pbest/`` variants (default 0.1).
-    **kwargs
+    \\*\\*kwargs
         Forwarded to :class:`StaticPopulation`.
     """
 
@@ -48,7 +48,7 @@ class DE(StaticPopulation):
         de_operator_name: str = "DE/best/1",
         survivor_sel: Optional[SurvivorSelection] = None,
         name: str = "DE",
-        random_state: Optional[RNGLike] = None,
+        rng: Optional[RNGLike] = None,
         F: float | SchedulableParameter = 0.8,
         Cr: float | SchedulableParameter = 0.9,
         p: float | SchedulableParameter = 0.1,
@@ -56,16 +56,16 @@ class DE(StaticPopulation):
     ):
         # We need to do the check earlier since it will be injected into the operator
         # and we want everything to share the random state if possible.
-        random_state = check_random_state(random_state)
+        rng = check_rng(rng)
 
         if survivor_sel is None:
             survivor_sel = create_survivor_selection("one_to_one")
 
         super().__init__(
             initializer,
-            operator=create_differential_evolution_operator(de_operator_name, random_state=random_state, F=F, Cr=Cr, p=p),
+            operator=create_differential_evolution_operator(de_operator_name, rng=rng, F=F, Cr=Cr, p=p),
             survivor_sel=survivor_sel,
             name=name,
-            random_state=random_state,
+            rng=rng,
             **kwargs,
         )
