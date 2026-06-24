@@ -105,13 +105,13 @@ from metaheuristic_designer.parent_selection import create_parent_selection
 from metaheuristic_designer.survivor_selection import create_survivor_selection
 from metaheuristic_designer.algorithms import Algorithm
 
-# 1. Define the problem (5‑dimensional, minimisation)
+# 1. Define the problem (5‑dimensional, minimization)
 objfunc = Sphere(dimension=5, mode="min")
 
 # 2. Create an initializer – random vectors between -10 and 10
 rng = mhd.check_rng(42)   # fix the random seed for reproducibility
 init = UniformInitializer(objfunc.dimension, objfunc.lower_bound, objfunc.upper_bound,
-                          pop_size=100, rng=rng)
+                          population_size=100, rng=rng)
 
 # 3. Build the operators (Gaussian mutation + uniform crossover)
 mutation = create_operator("mutation.gaussian_mutation", F=0.1, N=1, rng=rng)
@@ -136,6 +136,7 @@ strategy = GA(
 # 6. Run the algorithm for 200 generations
 alg = Algorithm(
     objfunc, strategy,
+    stop_condition_str="max_iterations",
     stop_condition_str="max_iterations",
     max_iterations=200,
     reporter="tqdm",
@@ -247,7 +248,7 @@ obtain the decoded best solution and its raw objective, and
 An `Encoding` translates between the internal genotype and the phenotype
 evaluated by the objective function. 
 
-It effectively mantains a different representation for the solution (the final result of the optimization) and the internal representation during the search.
+It effectively maintains a different representation for the solution (the final result of the optimization) and the internal representation during the search.
 
 Built‑in encodings:
 
@@ -288,7 +289,7 @@ Stopping conditions are indicated with the `ParsedStoppingCondition` class, whic
 
 It also has a progress value that is used by some algorithms internally to modify the internal parameters. 
 
-Stopping conditions can be indicated as logical expressions, such as `max_iterations or real_time_limit` (stop when **EITHER** the maximum number of iteratios have passed or a time limit is reached) or `convergence and real_time_limit` (stop when **BOTH** a number of iterations without improvement and a certain time has passed).
+Stopping conditions can be indicated as logical expressions, such as `max_iterations or real_time_limit` (stop when **EITHER** the maximum number of iterations have passed or a time limit is reached) or `convergence and real_time_limit` (stop when **BOTH** a number of iterations without improvement and a certain time has passed).
 
 ### History tracker
 

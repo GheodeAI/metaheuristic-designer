@@ -67,15 +67,15 @@ class BranchOperator(Operator):
             name = f"Branch({joined_names})"
 
         self.random_pick = random_pick
-
         self.uses_binary_p = len(op_list) == 2 and p is not None
+
+        super().__init__(name=name, encoding=encoding, rng=rng, p=p, weights=weights, chosen_idx=0, **kwargs)
+
         if self.uses_binary_p:
-            weights = np.array([p, 1 - p])
+            weights = np.array([self.params.p, 1 - self.params.p])
 
         if weights is None:
             weights = np.ones(len(op_list)) / len(op_list)
-
-        super().__init__(name=name, encoding=encoding, rng=rng, p=p, weights=weights, chosen_idx=0, **kwargs)
 
     def gather_params(self) -> dict:
         """Collect parameters from this operator and all sub-operators.
