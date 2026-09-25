@@ -17,7 +17,7 @@ class ExponentialInitializer(Initializer):
         Length of the genotype vector.
     beta : float or array
         Scale parameter of the exponential distribution (1 / rate).
-    pop_size : int, optional
+    population_size : int, optional
         Number of individuals to generate (default 1).
     encoding : Encoding, optional
         Encoding that will be passed to each individual.

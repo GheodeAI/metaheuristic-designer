@@ -79,7 +79,7 @@ def test_nevergrad_improves(sphere, random_initial_obj):
 # ----- PyGMO -----------------------------------------------------------
 def test_pygmo_improves(sphere, random_initial_obj):
     pytest.importorskip("pygmo")
-    solver = PyGMOWrapper(sphere, algorithm="de", pop_size=10, generations=20, seed=42)
+    solver = PyGMOWrapper(sphere, algorithm="de", population_size=10, generations=20, seed=42)
     solver.optimize()
     _, best = solver.best_solution()
     assert best < random_initial_obj, f"PyGMO did not improve: best {best} >= random {random_initial_obj}"

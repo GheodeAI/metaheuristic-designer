@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 import pandas as pd
 
@@ -21,7 +23,7 @@ class PyGMOWrapper:
     algorithm : str or pygmo.algorithm
         PyGMO algorithm name (e.g. "de", "sade", "pso", "cmaes") or
         an already-constructed algorithm object.
-    pop_size : int
+    population_size : int
         Population size.
     generations : int
         Number of generations to evolve.
@@ -33,12 +35,12 @@ class PyGMOWrapper:
         Extra arguments forwarded to the PyGMO algorithm constructor.
     """
 
-    def __init__(self, objfunc, algorithm="de", pop_size=50, generations=100, seed=None, name="PyGMO", **algo_kwargs):
+    def __init__(self, objfunc, algorithm="de", population_size=50, generations=100, seed=None, name="PyGMO", **algo_kwargs):
         if not _PYGMO_AVAILABLE:
             raise ImportError("The 'pygmo' library is required. Install with `pip install pygmo`.")
         self.objfunc = objfunc
         self.algorithm = algorithm
-        self.pop_size = pop_size
+        self.population_size = population_size
         self.generations = generations
         self.seed = seed
         self.name = name
@@ -77,7 +79,7 @@ class PyGMOWrapper:
             algo = self.algorithm
         algo.set_verbosity(0)
 
-        pop = pg.population(prob, size=self.pop_size, seed=self.seed)
+        pop = pg.population(prob, size=self.population_size, seed=self.seed)
 
         best_obj = float("inf") if self.objfunc.mode == "min" else float("-inf")
         trace = []

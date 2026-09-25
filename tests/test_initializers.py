@@ -584,7 +584,7 @@ def test_lambda_generate_random(rng):
     def my_gen(rng):
         return rng.uniform(10, 20, size=3)
 
-    init = InitializerFromLambda(my_gen, dimension=3, pop_size=2, rng=rng)
+    init = InitializerFromLambda(my_gen, dimension=3, population_size=2, rng=rng)
     vec = init.generate_random()
     assert vec.shape == (3,)
     assert np.all(vec >= 10) and np.all(vec <= 20)
@@ -602,7 +602,7 @@ def test_lambda_generate_population(rng):
     def my_gen(rng):
         return rng.integers(0, 100, size=2)
 
-    init = InitializerFromLambda(my_gen, dimension=2, pop_size=5, rng=rng)
+    init = InitializerFromLambda(my_gen, dimension=2, population_size=5, rng=rng)
     pop = init.generate_population()
     assert len(pop) == 5
     assert pop.genotype_matrix.shape == (5, 2)

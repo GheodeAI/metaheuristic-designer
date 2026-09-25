@@ -18,7 +18,7 @@ project = "metaheuristic-designer"
 copyright = "2023, Eugenio Lorente-Ramos"
 author = "Eugenio Lorente-Ramos"
 
-release = "1.1.0"
+release = "1.1.1"
 
 extensions = [
     "sphinx.ext.viewcode",

@@ -22,7 +22,7 @@ def permute_mutation(
     Parameters
     ----------
     population_array : MatrixLike
-        Population of shape ``(pop_size, num_components)``.
+        Population of shape ``(population_size, num_components)``.
     fitness_array : VectorLike
         Fitness values (unused; kept for interface consistency).
     rng : RNGLike, optional
@@ -75,7 +75,7 @@ def roll_mutation(
     Parameters
     ----------
     population_array : MatrixLike
-        Population of shape ``(pop_size, num_components)``.
+        Population of shape ``(population_size, num_components)``.
     fitness_array : VectorLike
         Fitness values (unused).
     rng : RNGLike, optional
@@ -117,7 +117,7 @@ def invert_mutation(
     Parameters
     ----------
     population_array : MatrixLike
-        Population of shape ``(pop_size, num_components)``.
+        Population of shape ``(population_size, num_components)``.
     fitness_array : VectorLike
         Fitness values (unused).
     rng : RNGLike, optional

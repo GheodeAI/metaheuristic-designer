@@ -55,7 +55,7 @@ from . import survivor_selection
 from . import simple
 from . import analysis
 
-__version__ = "1.0.0"
+__version__ = "1.1.1"
 
 __all__ = [
     "check_rng",
