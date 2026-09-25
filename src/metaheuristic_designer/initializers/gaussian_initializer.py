@@ -21,7 +21,7 @@ class GaussianInitializer(Initializer):
     g_std : float or array
         Standard deviation of the distribution.  If an array is given,
         it must have length `dimension`.
-    pop_size : int, optional
+    population_size : int, optional
         Number of individuals to generate (default 1).
     encoding : Encoding, optional
         Encoding that will be passed to each individual.

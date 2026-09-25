@@ -32,6 +32,24 @@ To use the plotting examples, install the optional dependencies:
 pip install metaheuristic-designer[examples]
 ```
 
+If you are using the free-threaded version of Python 3.14, opencv and pygame do not yet support it, so some functionality in the examples will not be available. To run the examples that do not use either of those, install the package with:
+
+```bash
+pip install metaheuristic-designer[examples-ft]
+```
+
+By default, benchmarking dependencies are not included. If you want to activate this functionality, install the package with:
+
+```bash
+pip install metaheuristic-designer[benchmarking]
+```
+
+PyGMO and DEAP do not yet support Python 3.14 with free-threading, so algorithm wrappers will not be available. To install the rest of the benchmarking dependencies, install the package with:
+
+```bash
+pip install metaheuristic-designer[benchmarking-ft]
+```
+
 ---
 
 ## Why metaheuristic‑designer?
@@ -137,7 +155,6 @@ strategy = GA(
 alg = Algorithm(
     objfunc, strategy,
     stop_condition_str="max_iterations",
-    stop_condition_str="max_iterations",
     max_iterations=200,
     reporter="tqdm",
 )
@@ -169,7 +186,7 @@ The library is built around a small number of abstract, composable pieces.
 By default, every function works with numpy arrays in vectorized operators. `Encodings` allow for non-matrix representations in case it is needed.
 
 ### Objective function
-Objective function define the optimization problem we want to solve. They will be implemented as `ObjectiveFunc` objects which have an `.objective(solution)` method that evaluates each solution.
+The objective function define the optimization problem we want to solve. They will be implemented as `ObjectiveFunc` objects which have an `.objective(solution)` method that evaluates each solution.
 
 This kind of functions also accept full populations (numpy arrays or iterables) as `.objective(solutions)` returning a vector with the objective of each solution so operations can be vectorized, obtaining very significant performance gains.
 
@@ -293,9 +310,9 @@ Stopping conditions can be indicated as logical expressions, such as `max_iterat
 
 ### History tracker
 
-History trackers (`ConfigurableHistoryTracker`) store informtion about each iteration for plots and post-execution analysis. 
+History trackers (`ConfigurableHistoryTracker`) store information about each iteration for plots and post-execution analysis. 
 
-It can store the best/median/worst solutions and their objective values, diversity metrics and even a historic of the full population and their objective.
+It can store the best/median/worst solutions and their objective values, diversity metrics and even a history of the full population and their objective.
 
 ### Reporters
 Reporters control what information is displayed during a run.  Three

@@ -1,12 +1,14 @@
+from __future__ import annotations
+
 import random
 import numpy as np
 import pandas as pd
 
 try:
-    from deap import algorithms
-
+    from deap.algorithms import eaSimple
     _DEAP_AVAILABLE = True
 except ImportError:
+    eaSimple = None
     _DEAP_AVAILABLE = False
 
 
@@ -17,7 +19,7 @@ class DEAPWrapper:
     population, stats, hall-of-fame) and it runs the show.
     """
 
-    def __init__(self, objfunc, toolbox, pop, stats, hof, ngen=100, seed=None, algorithm=algorithms.eaSimple, **algo_kwargs):
+    def __init__(self, objfunc, toolbox, pop, stats, hof, ngen=100, seed=None, algorithm=eaSimple, **algo_kwargs):
         if not _DEAP_AVAILABLE:
             raise ImportError("deap is not installed")
 

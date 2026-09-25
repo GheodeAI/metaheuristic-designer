@@ -160,7 +160,7 @@ class ObjectiveFunc(ParametrizableMixin, ABC):
             fitness[fitness_mask] = fitness_values
             objective[fitness_mask] = objective_values
         else:
-            # Expand the penalty to have the size `pop_size`
+            # Expand the penalty to have the size `population_size`
             penalty_vector_aux = np.zeros(population.population_size)
             penalty_vector_aux[fitness_mask] = penalty_vector
             penalty_vector = penalty_vector_aux

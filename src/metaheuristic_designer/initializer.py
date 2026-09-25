@@ -118,7 +118,7 @@ class InitializerFromLambda(Initializer):
         single genotype vector.
     dimension : int
         Length of the genotype vector.
-    pop_size : int, optional
+    population_size : int, optional
         Number of individuals to generate (default 1).
     encoding : Encoding, optional
         Encoding attached to every individual.
@@ -126,11 +126,11 @@ class InitializerFromLambda(Initializer):
         Random number generator.
     """
 
-    def __init__(self, generator: Callable, dimension: int, pop_size: int = 1, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None):
+    def __init__(self, generator: Callable, dimension: int, population_size: int = 1, encoding: Optional[Encoding] = None, rng: Optional[RNGLike] = None):
         self._validate_function(generator)
         self.generator = generator
 
-        super().__init__(dimension=dimension, population_size=pop_size, encoding=encoding, rng=rng)
+        super().__init__(dimension=dimension, population_size=population_size, encoding=encoding, rng=rng)
 
     @staticmethod
     def _validate_function(fn: Callable):

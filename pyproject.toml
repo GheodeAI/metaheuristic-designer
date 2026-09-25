@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "metaheuristic-designer"
-version = "1.1.0"
+version = "1.1.1"
 authors = [
     {name = "eugenioLR", email = "eugeniolorente0@gmail.com"}
 ]
@@ -74,6 +74,7 @@ benchmarking = [
     "pygmo"
 ]
 
+
 test = [
     "nox",
     "pytest",
@@ -83,10 +84,46 @@ test = [
     "metaheuristic-designer[benchmarking]"
 ]
 
+examples-ft = [
+    "scikit-image",
+    "networkx",
+    "matplotlib",
+    "seaborn>=0.13.2",
+    "jupyter",
+    "ipywidgets",
+    "plotly",
+    "anywidget"
+]
+
+test-ft = [
+    "nox",
+    "pytest",
+    "pytest-cov",
+    "coverage",
+    "black[jupyter]",
+    "metaheuristic-designer[benchmarking-ft]"
+]
+
+benchmarking-ft = [
+    "ioh",
+    "autorank",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "cma",
+    "nevergrad",
+]
+
 dev = [
     "pre-commit",
     "nbstripout",
-    "metaheuristic-designer[examples,docs,benchmarking,test]"
+    "metaheuristic-designer[examples,docs,test]"
+]
+
+dev-ft = [
+    "pre-commit",
+    "nbstripout",
+    "metaheuristic-designer[examples-ft,docs,test-ft]"
 ]
 
 [tool.setuptools.packages.find]
